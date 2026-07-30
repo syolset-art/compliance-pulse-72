@@ -17,16 +17,11 @@ import { suggestControlPoints, type ControlSuggestion } from "@/lib/serviceMappi
 import { lookupServiceDescription } from "@/lib/serviceDescriptionLookup";
 import { cn } from "@/lib/utils";
 
-import type { ServiceRole } from "@/lib/serviceLibrary";
-import { ROLE_META } from "@/lib/serviceLibrary";
-
 export interface ServiceMapping {
   frameworkId: string;
   frameworkShortName: string;
   controlId: string;
   controlLabel: string;
-  /** Rolle(r) tjenesten har mot dette kravet. */
-  roles?: ServiceRole[];
 }
 
 export interface ServiceActivity {
