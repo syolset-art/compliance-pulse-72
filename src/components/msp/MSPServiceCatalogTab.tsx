@@ -1027,9 +1027,19 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
               const lock = getLockInfo({ templateId: e.templateId, name: e.name });
               return (
                 <div key={e.id} className={cn(
-                  "flex items-center gap-3 px-3 py-3 transition-colors",
+                  "flex items-center gap-3 px-3 py-3 transition-colors cursor-pointer hover:bg-muted/30",
                   highlightId === e.id && "bg-primary/5 ring-1 ring-inset ring-primary/30",
-                )}>
+                )}
+                onClick={() => { setEditingId(e.id); setManualOpen(true); }}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(ev) => {
+                  if (ev.key === "Enter" || ev.key === " ") {
+                    ev.preventDefault();
+                    setEditingId(e.id); setManualOpen(true);
+                  }
+                }}
+                >
                   <div className="flex-1 min-w-0 flex items-center gap-2">
                     <span className="text-base font-medium text-foreground truncate">{e.name}</span>
                     {lock && (
@@ -1117,7 +1127,10 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={() => { setEditingId(e.id); setManualOpen(true); }}
+                    onClick={(ev) => {
+                      ev.stopPropagation();
+                      setEditingId(e.id); setManualOpen(true);
+                    }}
                     className="h-11 w-11 text-foreground/70 hover:text-foreground"
                     aria-label="Rediger tjeneste"
                   >
@@ -1128,6 +1141,7 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
                       <Button
                         variant="ghost"
                         size="icon"
+                        onClick={(ev) => ev.stopPropagation()}
                         className="h-11 w-11 text-foreground/50 hover:text-foreground"
                         aria-label="Flere handlinger"
                       >
