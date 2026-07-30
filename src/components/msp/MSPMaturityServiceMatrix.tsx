@@ -37,6 +37,7 @@ import { toast } from "sonner";
 import { PARTNER_SERVICES, getService } from "@/lib/serviceCatalog";
 import { OfferListRow } from "./offers/OfferListRow";
 import { ConfirmOfferAcceptanceDialog } from "./offers/ConfirmOfferAcceptanceDialog";
+import { DeclineOfferDialog } from "./offers/DeclineOfferDialog";
 import type { OfferApproval, PartnerOffer } from "./offers/offerTypes";
 
 /** Navnet som registreres når partneren setter status manuelt. */
