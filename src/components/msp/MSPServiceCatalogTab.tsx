@@ -1103,7 +1103,7 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
                     );
                   })()}
                   <div className="hidden md:block text-sm text-foreground/70 tabular-nums whitespace-nowrap w-16 text-right">
-                    {e.mappings.length || "—"}
+                    {e.activities.length || "—"}
                   </div>
                   <div className="text-base text-foreground/70 tabular-nums whitespace-nowrap w-12 text-right">
                     {e.hours} t
