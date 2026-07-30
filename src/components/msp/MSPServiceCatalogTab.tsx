@@ -121,9 +121,6 @@ function formatSupportedSummary(template: ServiceTemplate): string {
   return rest > 0 ? `${primary.frameworkLabel} +${rest}` : primary.frameworkLabel;
 }
 
-function countRequirements(template: ServiceTemplate): number {
-  return (template.mappings ?? []).reduce((sum, m) => sum + (m.controlIds?.length ?? 0), 0);
-}
 
 function activityCountLabel(count: number): string {
   if (count === 0) return "—";
