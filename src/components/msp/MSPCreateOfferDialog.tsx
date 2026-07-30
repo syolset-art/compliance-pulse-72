@@ -412,32 +412,8 @@ export function MSPCreateOfferDialog({
     }
     y += 8;
 
-    // Lukker mangler fra gap-analysen (ny, gap-drevet visning)
-    if (showGapsInOffer && coveredGaps && selectedCount > 0) {
-      doc.setFontSize(10);
-      doc.setTextColor(120);
-      doc.text("LUKKER MANGLER FRA GAP-ANALYSEN", margin, y);
-      y += 14;
-      doc.setFontSize(11);
-      doc.setTextColor(20);
-      doc.text(
-        `${coveredGaps.frameworkLabel} · ${selectedCount} av ${totalGapCount} mangler · status per ${snapshotLabel}`,
-        margin,
-        y,
-      );
-      y += 16;
-      doc.setFontSize(10);
-      doc.setTextColor(60);
-      sortedGaps.filter(g => selectedGapIds.has(g.id)).forEach(g => {
-        if (y > 780) { doc.addPage(); y = margin; }
-        const sev = SEVERITY_LABEL[g.severity];
-        const ref = g.reference ? `${g.reference} — ` : "";
-        const lines = doc.splitTextToSize(`• [${sev}] ${ref}${g.title}`, pageWidth - margin * 2 - 8);
-        doc.text(lines, margin + 8, y);
-        y += lines.length * 12;
-      });
-      y += 10;
-    } else if (safeCoveredControls.length > 0) {
+    // Statisk fallback når gap-analysen ikke er koblet på
+    if (!(showGapsInOffer && coveredGaps && selectedCount > 0) && safeCoveredControls.length > 0) {
       doc.setFontSize(10);
       doc.setTextColor(100);
       safeCoveredControls.forEach(group => {
@@ -450,19 +426,79 @@ export function MSPCreateOfferDialog({
       y += 6;
     }
 
+    // SIDE 2 — dekning mot gap-analysen (oppgave → mangler)
+    if (showGapsInOffer && coveredGaps && selectedCount > 0) {
+      doc.addPage();
+      y = margin;
+      doc.setFontSize(10);
+      doc.setTextColor(120);
+      doc.text("DEKNING MOT GAP-ANALYSEN", margin, y);
+      y += 18;
+      doc.setFontSize(15);
+      doc.setTextColor(20);
+      doc.text(`Tilbudet lukker ${selectedCount} av ${totalGapCount} mangler`, margin, y);
+      y += 16;
+      doc.setFontSize(10);
+      doc.setTextColor(110);
+      doc.text(`${coveredGaps.frameworkLabel} · status per ${snapshotLabel}`, margin, y);
+      y += 20;
 
-    // Vedlegg: gap-analyse som øyeblikksbilde
+      tasks.forEach(t => {
+        const gaps = sortedGaps.filter(g => (t.gapIds ?? []).includes(g.id));
+        if (gaps.length === 0) return;
+        if (y > 740) { doc.addPage(); y = margin; }
+        doc.setFontSize(11);
+        doc.setTextColor(20);
+        doc.text(`${t.label} · ${Number(t.hours) || 0} t`, margin, y);
+        y += 14;
+        doc.setFontSize(10);
+        doc.setTextColor(60);
+        gaps.forEach(g => {
+          if (y > 780) { doc.addPage(); y = margin; }
+          const ref = g.reference ? `${g.reference} — ` : "";
+          const lines = doc.splitTextToSize(`• [${SEVERITY_LABEL[g.severity]}] ${ref}${g.title}`, pageWidth - margin * 2 - 12);
+          doc.text(lines, margin + 12, y);
+          y += lines.length * 12;
+        });
+        y += 10;
+      });
+
+      const uncoveredPdf = sortedGaps.filter(g => !selectedGapIds.has(g.id));
+      if (uncoveredPdf.length > 0) {
+        if (y > 720) { doc.addPage(); y = margin; }
+        doc.setFontSize(11);
+        doc.setTextColor(120);
+        doc.text("Ikke dekket i dette tilbudet", margin, y);
+        y += 14;
+        doc.setFontSize(10);
+        doc.setTextColor(120);
+        uncoveredPdf.forEach(g => {
+          if (y > 780) { doc.addPage(); y = margin; }
+          const ref = g.reference ? `${g.reference} — ` : "";
+          const lines = doc.splitTextToSize(`• ${ref}${g.title}`, pageWidth - margin * 2 - 12);
+          doc.text(lines, margin + 12, y);
+          y += lines.length * 12;
+        });
+      }
+    }
+
+    // VEDLEGG — gap-analyse som øyeblikksbilde
     if (attachGap && (coveredGaps || gapFrameworkId)) {
-      if (y > 700) { doc.addPage(); y = margin; }
+      doc.addPage();
+      y = margin;
       doc.setFontSize(10);
       doc.setTextColor(120);
       doc.text("VEDLEGG — GAP-ANALYSE (ØYEBLIKKSBILDE)", margin, y);
-      y += 14;
+      y += 18;
       const fwLabel = coveredGaps?.frameworkLabel ?? gapFrameworkId?.toUpperCase() ?? "";
-      doc.setFontSize(11);
+      doc.setFontSize(15);
       doc.setTextColor(20);
-      doc.text(`${fwLabel} · status per ${snapshotLabel}`, margin, y);
-      y += 14;
+      doc.text(`Gap-analyse ${fwLabel}`, margin, y);
+      y += 16;
+      doc.setFontSize(10);
+      doc.setTextColor(110);
+      doc.text(`Status per ${snapshotLabel}`, margin, y);
+      y += 18;
 
       if (totalGapCount > 0) {
         const critTotal = sortedGaps.filter(g => g.severity === "critical").length;
@@ -477,10 +513,12 @@ export function MSPCreateOfferDialog({
         doc.setTextColor(60);
         sortedGaps.forEach(g => {
           if (y > 780) { doc.addPage(); y = margin; }
-          const tick = selectedGapIds.has(g.id) ? "✓" : "•";
-          const sev = SEVERITY_LABEL[g.severity];
+          const covered = selectedGapIds.has(g.id);
           const ref = g.reference ? `${g.reference} — ` : "";
-          const lines = doc.splitTextToSize(`${tick} [${sev}] ${ref}${g.title}`, pageWidth - margin * 2 - 8);
+          const lines = doc.splitTextToSize(
+            `${covered ? "✓" : "•"} [${SEVERITY_LABEL[g.severity]}] ${ref}${g.title}${covered ? " (dekkes)" : ""}`,
+            pageWidth - margin * 2 - 8,
+          );
           doc.text(lines, margin + 8, y);
           y += lines.length * 12 + 2;
         });
@@ -493,13 +531,19 @@ export function MSPCreateOfferDialog({
       }
     }
 
-    // Footer
-    doc.setFontSize(9);
-    doc.setTextColor(150);
+    // Footer med sidetall på alle sider
     const footerParts = [effectivePartnerName];
     if (effectiveOrgNumber) footerParts.push(`Org.nr ${effectiveOrgNumber}`);
     footerParts.push(`Tilbud ${offerNumber}`, todayLabel);
-    doc.text(footerParts.join(" · "), margin, 820);
+    const pageTotal = doc.getNumberOfPages();
+    for (let p = 1; p <= pageTotal; p++) {
+      doc.setPage(p);
+      doc.setFontSize(9);
+      doc.setTextColor(150);
+      doc.text(footerParts.join(" · "), margin, 820);
+      doc.text(`Side ${p} av ${pageTotal}`, pageWidth - margin, 820, { align: "right" });
+    }
+
 
     doc.save(`Tilbud_${offerNumber}_${offerName.replace(/\s+/g, "_")}.pdf`);
     toast.success("Tilbud lastet ned", { description: `${offerNumber}.pdf` });
