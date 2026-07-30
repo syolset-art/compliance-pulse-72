@@ -519,6 +519,7 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
       );
       toast.success(`"${draft.name}" oppdatert`);
       setEditingId(null);
+      setSearchDraft(null);
       return;
     }
     const fromTemplate = previewTemplate;
@@ -544,6 +545,7 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
       },
     });
     setPreviewTemplate(null);
+    setSearchDraft(null);
   };
 
   const removeExtra = (id: string) => {
