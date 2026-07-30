@@ -775,7 +775,7 @@ export function MSPCreateOfferDialog({
                           </span>
                           <button
                             type="button"
-                            onClick={() => setSelectedGapIds(allChecked ? new Set() : new Set(allIds))}
+                            onClick={() => setAllGaps(!allChecked)}
                             className="ml-auto text-xs font-medium underline-offset-2 hover:underline"
                           >
                             {allChecked ? "Fjern alle" : "Velg alle"}
