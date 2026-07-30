@@ -39,6 +39,9 @@ import { OfferListRow } from "./offers/OfferListRow";
 import { ConfirmOfferAcceptanceDialog } from "./offers/ConfirmOfferAcceptanceDialog";
 import type { OfferApproval, PartnerOffer } from "./offers/offerTypes";
 
+/** Navnet som registreres når partneren setter status manuelt. */
+const PARTNER_STATUS_ACTOR = "Truls Hansen (partner)";
+
 export type TaskOwner = "Partner" | "Kunde";
 
 export interface TaskEstimate {
