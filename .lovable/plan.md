@@ -1,21 +1,26 @@
 ## Mål
-Feltene "Nettsted" og "Beskrivelse" (og kontaktrolle) på kundekortet skal i prototypen normalt være utfylt – slik det ville vært etter at Lara kartla kunden ved onboarding – i stedet for tomme "Legg til …"-knapper.
+Partner-bevis skal ikke ta plass når det er tomt, og statusmerker skal ikke se ut som handlingsknapper.
 
-## Hva som gjøres
+## 1. Partner-bevis: kollaps når tomt
+`src/components/msp/PartnerEvidenceSection.tsx`
+- Når det ikke finnes bevis: fjern hele tomtilstands-boksen (ikon + to tekstlinjer). Ingen ramme, ingen forklaringstekst.
+- I `minimal`-modus med 0 bevis rendres kun én liten knapp «Last opp bevis» (sekundær, kompakt) — ingenting annet.
+- Når det finnes bevis: behold tabell + berikelses-oppsummering som i dag, men uten den store overskriftsblokken i minimal-modus.
 
-**1. Utvid demo-kundedata (`src/lib/demoSeedMSP.ts`)**
-Legg til for hver av de 9 demokundene:
-- `url` – realistisk nettsted (f.eks. `https://www.bergenenergi.no`)
-- `business_description` – 1–2 setninger om hva virksomheten driver med, tilpasset bransje
-- `contact_company_role` – rolle fra `COMPANY_ROLES` (Daglig leder, IT-ansvarlig, CFO m.m.)
-- `privacy_policy_url` der det er naturlig
+`src/components/msp/guidance/RegulationsStatusCard.tsx`
+- Bevis-seksjonen nederst får `hideUploadButton` fjernet, slik at den ene «Last opp bevis»-knappen vises der. Marg reduseres når seksjonen er tom.
 
-**2. Backfill for allerede seedede kunder**
-Seed-funksjonen hopper over kunder som finnes fra før. Legger inn et lett oppdateringssteg: for eksisterende demokunder som mangler `url` eller `business_description`, oppdateres radene med verdiene over (matchet på `customer_name`). Slik ser man effekten uten å nullstille demodata.
+## 2. Status vs. handling — visuelt skille
+`src/components/msp/guidance/RegulationsStatusCard.tsx`, statuskolonnen:
+- «Bekreftet»: ikke lenger en fylt pille. Vises som grønn hake + grønn tekst (`text-success`) uten bakgrunn/ramme.
+- «Aktivert»: samme prinsipp — grønn hake + tekst, men med fylt/markert vekt slik at aktivert fortsatt leses som sluttstatus (alternativt beholdes den lette grønne pillen kun her).
+- «AI-anbefalt» beholdes som dempet outline-merke med Sparkles.
 
-**3. Tydelig onboarding-proveniens i kortet (`CustomerStatusBanner.tsx`)**
-- Beholder eksisterende Sparkles-tooltip på beskrivelsen, og legger samme markør på nettsted-feltet: "Hentet automatisk ved oppretting av kunden – kan redigeres."
-- Tomme felter beholder "Legg til …"-knappen som fallback (20 %-tilfellet der Lara ikke fant noe).
+## 3. Handlingsknapper i én mørk farge
+- «Aktiver» beholder primær (mørk) CTA-stil — den er referansen.
+- «Bekreft» endres fra `outline` til samme mørke primærstil (evt. `size="sm"` primær) slik at aksjoner er konsistente.
+- Ikon-knapper (last opp, fjern) forblir `ghost` — de er sekundære, ikke primære aksjoner.
+- Ingen statusmerke får lenger `bg-primary`, slik at den mørke fargen kun betyr «trykkbar handling».
 
 ## Teknisk
-Kun demo-/seed-data og presentasjon endres. Ingen skjemaendringer – kolonnene `url`, `business_description`, `contact_company_role` finnes allerede i `msp_customers`.
+Kun presentasjonsendringer i to filer; ingen endring i `partnerEvidence.ts`-logikk, datamodell eller aktiveringsflyt.
