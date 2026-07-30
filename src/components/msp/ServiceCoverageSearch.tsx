@@ -182,14 +182,14 @@ export function ServiceCoverageSearch({ existingNames, onCreate }: Props) {
                     <TableHead className="w-[110px]">Krav</TableHead>
                     <TableHead>
                       <span className="inline-flex items-center gap-1">
-                        Kontrollpunkt
+                        Kontrollområde
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <Info className="inline h-3.5 w-3.5 text-muted-foreground cursor-help" aria-label="Hva er et kontrollpunkt?" />
+                              <Info className="inline h-3.5 w-3.5 text-muted-foreground cursor-help" aria-label="Hva er et kontrollområde?" />
                             </TooltipTrigger>
                             <TooltipContent side="top" className="max-w-xs">
-                              <p>Et kontrollpunkt er et spesifikt krav eller sikkerhetstiltak i regelverket som tjenesten din kan bidra til å oppfylle.</p>
+                              <p>Et kontrollområde samler aktiviteter som bidrar til å oppfylle relevante krav. Mynder bruker fem kontrollområder: styring, drift og sikkerhet, identitet og tilgang, personvern og datahåndtering samt tredjepart og verdikjede.</p>
                             </TooltipContent>
                           </Tooltip>
                         </TooltipProvider>
