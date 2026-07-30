@@ -120,6 +120,12 @@ export function CustomerStatusBanner({ customer, actionSlot, onUpdate }: { custo
   const [urlErr, setUrlErr] = useState<string | null>(null);
   const [emailPopOpen, setEmailPopOpen] = useState(false);
   const [rolePopOpen, setRolePopOpen] = useState(false);
+  const [generatingDesc, setGeneratingDesc] = useState(false);
+
+  /** Lokal ekko-verdi så lagrede felt vises umiddelbart, før refetch er ferdig. */
+  const [local, setLocal] = useState<Partial<CustomerLike>>({});
+  useEffect(() => setLocal({}), [customer.id]);
+  const view: CustomerLike = { ...customer, ...local };
 
   const saveRoleValue = async (value: string | null) => {
     setSaving(true);
@@ -130,22 +136,57 @@ export function CustomerStatusBanner({ customer, actionSlot, onUpdate }: { custo
     setSaving(false);
     setRolePopOpen(false);
     if (error) {
-      toast.error("Kunne ikke lagre rolle");
+      toast.error("Kunne ikke lagre rolle", { description: error.message });
       return;
     }
+    setLocal((s) => ({ ...s, contact_company_role: value }));
     toast.success(value ? "Rolle oppdatert" : "Rolle fjernet");
     onUpdate?.();
+  };
+
+  /** Når nettadressen lagres og beskrivelsen mangler: la Lara foreslå én. */
+  const maybeGenerateDescription = async (website: string) => {
+    if (view.business_description) return;
+    setGeneratingDesc(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("suggest-company-description", {
+        body: {
+          companyName: customer.customer_name,
+          industry: customer.industry || "",
+          website,
+          language: "nb",
+        },
+      });
+      if (error || !data?.suggestion) throw error ?? new Error("Ingen beskrivelse");
+      const suggestion = String(data.suggestion).slice(0, 500);
+      const { error: saveError } = await supabase
+        .from("msp_customers")
+        .update({ business_description: suggestion })
+        .eq("id", customer.id);
+      if (saveError) throw saveError;
+      setLocal((s) => ({ ...s, business_description: suggestion }));
+      toast.success("Lara la til en beskrivelse", {
+        description: "Klikk på blyanten for å justere teksten.",
+      });
+      onUpdate?.();
+    } catch {
+      toast("Fant ingen beskrivelse automatisk", {
+        description: "Nettadressen er lagret — du kan skrive beskrivelsen selv.",
+      });
+    } finally {
+      setGeneratingDesc(false);
+    }
   };
 
   const startEdit = (f: Field) => {
     setEmailErr(null);
     setUrlErr(null);
     setDraft(
-      f === "name" ? (customer.contact_person || "") :
-      f === "email" ? (customer.contact_email || "") :
-      f === "url" ? (customer.url || "") :
-      f === "description" ? (customer.business_description || "") :
-      (customer.contact_company_role || "")
+      f === "name" ? (view.contact_person || "") :
+      f === "email" ? (view.contact_email || "") :
+      f === "url" ? (view.url || "") :
+      f === "description" ? (view.business_description || "") :
+      (view.contact_company_role || "")
     );
     setEditField(f);
   };
@@ -188,19 +229,32 @@ export function CustomerStatusBanner({ customer, actionSlot, onUpdate }: { custo
       editField === "description" ? { business_description: value } :
       { contact_company_role: value };
     setSaving(true);
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from("msp_customers")
       .update(update as any)
-      .eq("id", customer.id);
+      .eq("id", customer.id)
+      .select()
+      .maybeSingle();
     setSaving(false);
     if (error) {
-      toast.error("Kunne ikke lagre");
+      toast.error("Kunne ikke lagre", { description: error.message });
       return;
     }
-    toast.success(editField === "description" ? "Beskrivelse oppdatert" : "Kontakt oppdatert");
+    if (!data) {
+      toast.error("Kunne ikke lagre", { description: "Fant ikke kunden, eller du mangler tilgang." });
+      return;
+    }
+    setLocal((s) => ({ ...s, ...update }));
+    const savedField = editField;
+    toast.success(
+      savedField === "description" ? "Beskrivelse oppdatert" :
+      savedField === "url" ? "Nettsted oppdatert" : "Kontakt oppdatert",
+    );
     setEditField(null);
     onUpdate?.();
+    if (savedField === "url" && value) void maybeGenerateDescription(value);
   };
+
 
   const maturityLevel =
     score >= 75 ? { label: "Høy", cls: "text-success" } :
