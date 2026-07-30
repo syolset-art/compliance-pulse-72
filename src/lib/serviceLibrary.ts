@@ -62,29 +62,8 @@ export interface ServiceTemplate {
   };
   activities: TemplateActivity[];
   mappings: TemplateFrameworkMapping[];
-  /** Standard-roller for alle mappings som ikke overstyrer selv. */
-  defaultRoles: ServiceRole[];
   /** Versjon — partner-kopi peker på templateId + version. */
   version: string;
-}
-
-/** Slår opp roller for én mapping — bruker mapping.roles først, ellers template.defaultRoles. */
-export function getMappingRoles(
-  template: Pick<ServiceTemplate, "defaultRoles">,
-  mapping: Pick<TemplateFrameworkMapping, "roles">,
-): ServiceRole[] {
-  const roles = mapping.roles && mapping.roles.length > 0
-    ? mapping.roles
-    : template.defaultRoles;
-  return roles ?? [];
-}
-
-/** "vurderer og dokumenterer" fra ["assessing","documenting"]. */
-export function formatRoleVerbs(roles: ServiceRole[]): string {
-  const verbs = roles.map((r) => ROLE_META[r].verb);
-  if (verbs.length === 0) return "";
-  if (verbs.length === 1) return verbs[0];
-  return `${verbs.slice(0, -1).join(", ")} og ${verbs[verbs.length - 1]}`;
 }
 
 const v = "1.0.0";
