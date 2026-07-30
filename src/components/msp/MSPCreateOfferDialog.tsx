@@ -175,7 +175,7 @@ export function MSPCreateOfferDialog({
   const safeCoveredControls = (coveredControls ?? []).filter(g => g.controlIds.length > 0);
 
   const [tasks, setTasks] = useState<EditableTask[]>(
-    (defaultTasks || []).map(t => ({ ...t, owner: t.owner ?? "Partner" })),
+    (defaultTasks || []).map(t => ({ ...t, owner: t.owner ?? "Partner", gapIds: [] })),
   );
   const [message, setMessage] = useState(defaultMessage || "");
   const [attachGap, setAttachGap] = useState(attachGapProp);
@@ -184,7 +184,6 @@ export function MSPCreateOfferDialog({
   const [gapsExpanded, setGapsExpanded] = useState(false);
   const [view, setView] = useState<"edit" | "preview" | "saved">(initialView);
   const [savedAt, setSavedAt] = useState<string | null>(null);
-  const [selectedGapIds, setSelectedGapIds] = useState<Set<string>>(new Set(defaultSelectedGapIds));
 
   const [editableHourlyRate, setEditableHourlyRate] = useState(hourlyRate);
 
@@ -193,7 +192,9 @@ export function MSPCreateOfferDialog({
 
   useEffect(() => {
     if (!open) return;
-    setTasks((defaultTasks || []).map(t => ({ ...t, owner: t.owner ?? "Partner" })));
+    const base = (defaultTasks || []).map(t => ({ ...t, owner: t.owner ?? "Partner", gapIds: [] as string[] }));
+    const assigned = autoAssignGaps(base.map(t => t.label), gapList, defaultSelectedGapIds);
+    setTasks(base.map((t, i) => ({ ...t, gapIds: assigned[i] ?? [] })));
     setMessage(defaultMessage || "");
     setAttachGap(attachGapProp);
     setShowGapsInOffer(true);
@@ -201,7 +202,6 @@ export function MSPCreateOfferDialog({
     setView(initialView);
     setSavedAt(null);
     setEditableHourlyRate(hourlyRate);
-    setSelectedGapIds(new Set(defaultSelectedGapIds));
     setSnapshotDate(new Date());
   }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -217,7 +217,7 @@ export function MSPCreateOfferDialog({
   };
   const removeTask = (i: number) => setTasks(p => p.filter((_, idx) => idx !== i));
   const addTask = () =>
-    setTasks(p => [...p, { label: "Ny oppgave", hours: 8, owner: "Partner", weeks: "" }]);
+    setTasks(p => [...p, { label: "Ny oppgave", hours: 8, owner: "Partner", weeks: "", gapIds: [] }]);
 
   const offerName = serviceTitle || domainName;
   const offerNumber = `T-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 9000) + 1000)}`;
@@ -227,20 +227,45 @@ export function MSPCreateOfferDialog({
   // Gap-statistikk og sorteringsrekkefølge (kritiske først)
   const severityRank: Record<GapItem["severity"], number> = { critical: 0, high: 1, medium: 2, low: 3 };
   const sortedGaps = [...gapList].sort((a, b) => severityRank[a.severity] - severityRank[b.severity]);
+  /** Et gap regnes som dekket når minst én oppgave er koblet til det. */
+  const selectedGapIds = useMemo(() => new Set(tasks.flatMap(t => t.gapIds ?? [])), [tasks]);
   const selectedCount = sortedGaps.filter(g => selectedGapIds.has(g.id)).length;
   const totalGapCount = sortedGaps.length;
   const criticalSelected = sortedGaps.filter(g => selectedGapIds.has(g.id) && g.severity === "critical").length;
   const gapCount = totalGapCount > 0 ? totalGapCount : 9;
   const gapPercent = totalGapCount > 0 ? Math.round((selectedCount / totalGapCount) * 100) : 0;
 
+  /** Kobler/frakobler et gap på en bestemt oppgave. */
+  const toggleGapOnTask = (taskIndex: number, gapId: string) => {
+    setTasks(p =>
+      p.map((t, i) => {
+        if (i !== taskIndex) return t;
+        const has = (t.gapIds ?? []).includes(gapId);
+        return { ...t, gapIds: has ? t.gapIds.filter(id => id !== gapId) : [...(t.gapIds ?? []), gapId] };
+      }),
+    );
+  };
+
+  /** Av/på fra den samlede mangellisten: på = koble til best matchende oppgave, av = fjern overalt. */
   const toggleGap = (id: string) => {
-    setSelectedGapIds(prev => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
+    setTasks(p => {
+      if (p.some(t => (t.gapIds ?? []).includes(id))) {
+        return p.map(t => ({ ...t, gapIds: (t.gapIds ?? []).filter(g => g !== id) }));
+      }
+      const assigned = autoAssignGaps(p.map(t => t.label), gapList, [id]);
+      return p.map((t, i) => ({ ...t, gapIds: [...(t.gapIds ?? []), ...(assigned[i] ?? [])] }));
     });
   };
+
+  /** Velg alle / fjern alle gap. */
+  const setAllGaps = (select: boolean) => {
+    setTasks(p => {
+      if (!select) return p.map(t => ({ ...t, gapIds: [] }));
+      const assigned = autoAssignGaps(p.map(t => t.label), gapList, sortedGaps.map(g => g.id));
+      return p.map((t, i) => ({ ...t, gapIds: assigned[i] ?? [] }));
+    });
+  };
+
 
   // Samle cross-walk refs fra valgte gap (én chip per regelverk/kontroll)
   const crosswalkChips = useMemo(() => {
