@@ -407,7 +407,7 @@ export default function MSPCustomerDetail() {
                       <div className="min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
                           <h3 className="text-sm font-semibold text-foreground">
-                            {t("baselineCard.title", "Baseline-kartlegging")}
+                            {t("baselineCard.title", "Modenhetsvurdering")}
                           </h3>
                           <span className="text-xs text-muted-foreground rounded-full bg-muted px-2 py-0.5">
                             {totalAnswered}/{totalQuestions} {t("baselineCard.answered", "besvart")}
@@ -419,7 +419,7 @@ export default function MSPCustomerDetail() {
                         <p className="text-xs text-muted-foreground mt-0.5">
                           {t(
                             "baselineCard.description",
-                            "Still spørsmålene sammen med kunden for å få laget en baseline. Svarene kobles direkte til modenhet per kontrollområde.",
+                            "Still spørsmålene sammen med kunden for å få laget en modenhetsvurdering. Svarene kobles direkte til modenhet per kontrollområde.",
                           )}
                         </p>
                       </div>
