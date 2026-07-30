@@ -1029,6 +1029,14 @@ export function MSPMaturityServiceMatrix({
         initialView={offerCtx.initialView}
       />
 
+      <ConfirmOfferAcceptanceDialog
+        open={acceptCtx.open}
+        onOpenChange={(o) => setAcceptCtx((s) => ({ ...s, open: o }))}
+        offer={acceptCtx.offer}
+        customerName={customerName}
+        onConfirm={acceptOffer}
+      />
+
       <ShareOfferDialog
         open={shareCtx.open}
         onOpenChange={(o) => setShareCtx(s => ({ ...s, open: o }))}
