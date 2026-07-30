@@ -1,41 +1,50 @@
 ## Mål
-Brukeren skal ikke lenger velge dokumenttype selv. De laster bare opp filen — Lara analyserer, foreslår type, regelverk/krav og viser hvilke steder i dokumentet som underbygger forslaget. Brukeren aksepterer, avslår, eller gjør en manuell vurdering.
 
-## Ny flyt i «Last opp partner-bevis»
+Tilbudet skal vises som et ryddig dokument med tydelig struktur — **side 1**, **side 2** og **vedlegg** — der side 2 lister opp hvordan hver oppgave (tjeneste) dekker de konkrete gapene fra gap-analysen.
+
+## Dokumentstruktur
 
 ```text
-Steg 1  Last opp fil            (kun fil + valgfritt notat — ingen typevalg)
-   ↓    Lara analyserer dokumentet
-Steg 2  Laras vurdering
-        • Foreslått type            Penetrasjonstest (konfidens 87 %)
-        • Regelverk og krav         NIS2 Art.21.2.e · ISO A.8.8 …
-        • Kilder i dokumentet       «s. 4: Ekstern pentest utført av …»
-        • Modenhetsløft             +8 % Sikkerhet
-        [Avslå forslaget]  [Vurder manuelt]  [Aksepter forslag]
-Steg 3  Manuell vurdering (kun hvis valgt eller ved avslag)
-        Dagens skjema: type-velger + avhuking av regelverk/kontroller/løft
+SIDE 1  — Tilbudet
+  Partner-header, tilbudsnr., dato
+  Tittel + mottaker + innledning
+  Aktiviteter (oppgave / timer / beløp)
+  Sum, timepris, mva
+
+SIDE 2  — Dekning mot gap-analysen
+  Oppsummering: "Tilbudet lukker X av Y mangler (Z kritiske)"
+  Tabell: Oppgave → mangler som lukkes (tittel + artikkel + alvorlighet)
+  Rad nederst: "Ikke dekket i dette tilbudet" (gjenstående gap)
+  Crosswalk-linje: også relevant for andre regelverk
+
+VEDLEGG — Gap-analyse <regelverk>, øyeblikksbilde <dato>
+  Komplett mangelliste med status dekket / ikke dekket
 ```
 
-- **Aksepter** → bevis lagres med Laras mapping, merket «Bekreftet av deg, foreslått av Lara».
-- **Avslå** → går videre til manuell vurdering med blanke/nøytrale forslag, og avslaget logges på beviset.
-- **Vurder manuelt** → samme skjema, men forhåndsutfylt med Laras forslag som brukeren kan endre.
+## Endringer
 
-## Kildehenvisninger
-Hvert forslag (type og hvert regelverk) får en liste med utdrag fra dokumentet: sidetall/seksjon + kort sitat. Vises som subtile «Kilde»-linjer under hvert element, med mulighet til å ekspandere hvis det er flere. Uten sitater merkes forslaget som «lav dekning» slik at det ikke fremstår mer sikkert enn det er.
+**1. Koble oppgaver til gap (`MSPCreateOfferDialog.tsx`)**
+- Utvid `EditableTask` med `gapIds: string[]`.
+- Ved åpning fordeler Lara de forhåndsvalgte gapene på oppgavene automatisk (match på domene/kontroll-referanse i gap mot oppgavetekst; resten legges på første leveranse-oppgave).
+- I redigeringsvisningen får hver oppgaverad en liten linje under tittelen: antall koblede mangler + en «Koble mangler»-popover med avkryssing. Ingen ny stor blokk — kompakt, `text-xs`.
+- Et gap kan kobles til flere oppgaver; valgt-status i gap-listen utledes av om gapet er koblet til minst én oppgave, slik at eksisterende «dekker X av Y»-telling består.
+
+**2. Rydd redigeringsvisningen**
+- Dagens gap-kort beholdes, men de to bryterne forenkles til én linje med to valg: «Ta med dekningsside (side 2)» og «Legg ved gap-analysen (vedlegg)».
+- Den store manuelle avkryssingslisten kollapses som i dag (chevron), og teksten kortes ned.
+
+**3. Ny forhåndsvisning med sideskiller**
+- Del preview i tre «ark» med tydelig sideskille og liten sidefot «Side 1 av N».
+- Side 2 rendres kun når dekningssiden er på og minst ett gap er koblet; vedlegget kun når vedlegg-bryteren er på.
+- Side 2-tabellen: kolonner «Oppgave», «Lukker disse manglene», «Alv.» — mangler som chips/liste per oppgave med artikkelreferanse i mono-tekst.
+
+**4. Samme struktur i PDF-en**
+- Bygg om `jsPDF`-genereringen til å følge samme tre-deling: `doc.addPage()` før dekningssiden og før vedlegget, med sidetall i bunnteksten på hver side.
+- Dekningssiden i PDF skriver oppgave som overskrift og gapene som punkt under, med gjenstående mangler i egen bolk til slutt.
 
 ## Teknisk
 
-**`src/lib/partnerEvidence.ts`**
-- Utvid `FrameworkMapping` med `citations?: { page?: string; quote: string }[]`.
-- Nytt felt på `PartnerEvidence`: `laraVerdict: "accepted" | "declined" | "manual"`, `laraSuggestedType`, `confidence`.
-- Legg til `mockLaraAnalysis(fileName)` som utleder type fra filnavn/heuristikk og returnerer forslag med sitater (demo-fallback når edge-funksjonen ikke svarer).
-
-**Edge-funksjon**
-Gjenbruk `classify-evidence-document` og utvid promptet til også å returnere `citations` (sidetall + sitat) per foreslått kontrollpunkt, samt mapping mot partnerbevis-typene. Faller tilbake til mock ved feil eller manglende tekstuttrekk, slik at prototypen alltid viser noe.
-
-**`PartnerEvidenceUploadDialog.tsx`**
-- Fjern `Select` for type i steg 1.
-- Steg 2 blir «Laras vurdering» (lesevisning med konfidens, kilder, tre handlingsknapper).
-- Steg 3 er dagens avhukingsskjema, gjenbrukt som manuell vurdering.
-
-**Visning av lagret bevis** (`PartnerEvidenceSection.tsx`): liten indikator på om mappingen er Lara-foreslått og akseptert, eller manuelt satt.
+- Alt skjer i `src/components/msp/MSPCreateOfferDialog.tsx`; sideoppsettet i preview trekkes ut som en liten lokal `OfferPage`-wrapper i samme fil for å unngå duplisert markup.
+- Ingen databaseendringer. `gapIds` lagres kun i dialogens lokale state (prototype); `saveOffer` beholdes uendret.
+- Gap-data hentes fortsatt fra `src/lib/gapData.ts`, crosswalk fra `src/lib/controlCrosswalk.ts`.
+- Tekststørrelser holdes på minst `text-xs` (12 px) av hensyn til UU, statusfarger via eksisterende tokens (`success`/`warning`/`destructive`).

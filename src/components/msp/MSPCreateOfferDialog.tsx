@@ -9,6 +9,8 @@ import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Plus, Trash2, FileText, Eye, Sparkles, ArrowLeft, Download, Save, CheckCircle2, Inbox, Send, ClipboardList, ArrowRight, ChevronDown } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+
 import { toast } from "sonner";
 import { MSPGapAnalysisDialog } from "./MSPGapAnalysisDialog";
 import jsPDF from "jspdf";
@@ -23,7 +25,59 @@ import { cn } from "@/lib/utils";
 import { computeTaxBreakdown, formatTaxNote } from "@/lib/partnerTax";
 import { saveOffer as persistOffer } from "@/lib/customerOffers";
 
+/** Ett "ark" i tilbudsdokumentet — brukes for side 1, side 2 og vedlegget. */
+function OfferSheet({
+  page,
+  total,
+  footer,
+  children,
+}: {
+  page: number;
+  total: number;
+  footer: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="mx-auto max-w-xl bg-background border border-border rounded-md shadow-sm p-8 space-y-5">
+      {children}
+      <div className="flex items-baseline justify-between gap-3 pt-4 border-t border-border text-xs text-muted-foreground">
+        <span className="min-w-0 truncate">{footer}</span>
+        <span className="shrink-0 tabular-nums">Side {page} av {total}</span>
+      </div>
+    </div>
+  );
+}
+
+/** Fordeler gap på oppgaver ut fra tekstlikhet (Lara-forslag i prototypen). */
+function autoAssignGaps(taskLabels: string[], gaps: GapItem[], gapIds: string[]): string[][] {
+  const result = taskLabels.map(() => [] as string[]);
+  if (taskLabels.length === 0) return result;
+  const norm = (s: string) => s.toLowerCase();
+  const deliveryIdx = taskLabels.findIndex(l => /leveran|gjennomfør|implement|tiltak|utfør/i.test(l));
+  const fallback = deliveryIdx >= 0 ? deliveryIdx : Math.min(1, taskLabels.length - 1);
+  for (const id of gapIds) {
+    const gap = gaps.find(g => g.id === id);
+    if (!gap) continue;
+    let best = -1;
+    let bestScore = 0;
+    taskLabels.forEach((label, i) => {
+      const l = norm(label);
+      let score = 0;
+      if (gap.domain && l.includes(norm(gap.domain))) score += 3;
+      const words = norm(gap.title).split(/[^a-zæøå]+/).filter(w => w.length > 5);
+      score += words.filter(w => l.includes(w)).length;
+      if (score > bestScore) {
+        bestScore = score;
+        best = i;
+      }
+    });
+    result[best >= 0 ? best : fallback].push(id);
+  }
+  return result;
+}
+
 export interface CoveredControlGroup {
+
   frameworkId: string;
   frameworkLabel: string;
   controlIds: string[];
@@ -72,7 +126,10 @@ export interface CreateOfferDialogProps {
 
 interface EditableTask extends TaskEstimate {
   owner: TaskOwner;
+  /** Gap fra gap-analysen som denne oppgaven lukker. */
+  gapIds: string[];
 }
+
 
 export function MSPCreateOfferDialog({
   open,
@@ -120,7 +177,7 @@ export function MSPCreateOfferDialog({
   const safeCoveredControls = (coveredControls ?? []).filter(g => g.controlIds.length > 0);
 
   const [tasks, setTasks] = useState<EditableTask[]>(
-    (defaultTasks || []).map(t => ({ ...t, owner: t.owner ?? "Partner" })),
+    (defaultTasks || []).map(t => ({ ...t, owner: t.owner ?? "Partner", gapIds: [] })),
   );
   const [message, setMessage] = useState(defaultMessage || "");
   const [attachGap, setAttachGap] = useState(attachGapProp);
@@ -129,7 +186,6 @@ export function MSPCreateOfferDialog({
   const [gapsExpanded, setGapsExpanded] = useState(false);
   const [view, setView] = useState<"edit" | "preview" | "saved">(initialView);
   const [savedAt, setSavedAt] = useState<string | null>(null);
-  const [selectedGapIds, setSelectedGapIds] = useState<Set<string>>(new Set(defaultSelectedGapIds));
 
   const [editableHourlyRate, setEditableHourlyRate] = useState(hourlyRate);
 
@@ -138,7 +194,9 @@ export function MSPCreateOfferDialog({
 
   useEffect(() => {
     if (!open) return;
-    setTasks((defaultTasks || []).map(t => ({ ...t, owner: t.owner ?? "Partner" })));
+    const base = (defaultTasks || []).map(t => ({ ...t, owner: t.owner ?? "Partner", gapIds: [] as string[] }));
+    const assigned = autoAssignGaps(base.map(t => t.label), gapList, defaultSelectedGapIds);
+    setTasks(base.map((t, i) => ({ ...t, gapIds: assigned[i] ?? [] })));
     setMessage(defaultMessage || "");
     setAttachGap(attachGapProp);
     setShowGapsInOffer(true);
@@ -146,7 +204,6 @@ export function MSPCreateOfferDialog({
     setView(initialView);
     setSavedAt(null);
     setEditableHourlyRate(hourlyRate);
-    setSelectedGapIds(new Set(defaultSelectedGapIds));
     setSnapshotDate(new Date());
   }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -162,7 +219,7 @@ export function MSPCreateOfferDialog({
   };
   const removeTask = (i: number) => setTasks(p => p.filter((_, idx) => idx !== i));
   const addTask = () =>
-    setTasks(p => [...p, { label: "Ny oppgave", hours: 8, owner: "Partner", weeks: "" }]);
+    setTasks(p => [...p, { label: "Ny oppgave", hours: 8, owner: "Partner", weeks: "", gapIds: [] }]);
 
   const offerName = serviceTitle || domainName;
   const offerNumber = `T-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 9000) + 1000)}`;
@@ -172,20 +229,45 @@ export function MSPCreateOfferDialog({
   // Gap-statistikk og sorteringsrekkefølge (kritiske først)
   const severityRank: Record<GapItem["severity"], number> = { critical: 0, high: 1, medium: 2, low: 3 };
   const sortedGaps = [...gapList].sort((a, b) => severityRank[a.severity] - severityRank[b.severity]);
+  /** Et gap regnes som dekket når minst én oppgave er koblet til det. */
+  const selectedGapIds = useMemo(() => new Set(tasks.flatMap(t => t.gapIds ?? [])), [tasks]);
   const selectedCount = sortedGaps.filter(g => selectedGapIds.has(g.id)).length;
   const totalGapCount = sortedGaps.length;
   const criticalSelected = sortedGaps.filter(g => selectedGapIds.has(g.id) && g.severity === "critical").length;
   const gapCount = totalGapCount > 0 ? totalGapCount : 9;
   const gapPercent = totalGapCount > 0 ? Math.round((selectedCount / totalGapCount) * 100) : 0;
 
+  /** Kobler/frakobler et gap på en bestemt oppgave. */
+  const toggleGapOnTask = (taskIndex: number, gapId: string) => {
+    setTasks(p =>
+      p.map((t, i) => {
+        if (i !== taskIndex) return t;
+        const has = (t.gapIds ?? []).includes(gapId);
+        return { ...t, gapIds: has ? t.gapIds.filter(id => id !== gapId) : [...(t.gapIds ?? []), gapId] };
+      }),
+    );
+  };
+
+  /** Av/på fra den samlede mangellisten: på = koble til best matchende oppgave, av = fjern overalt. */
   const toggleGap = (id: string) => {
-    setSelectedGapIds(prev => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
+    setTasks(p => {
+      if (p.some(t => (t.gapIds ?? []).includes(id))) {
+        return p.map(t => ({ ...t, gapIds: (t.gapIds ?? []).filter(g => g !== id) }));
+      }
+      const assigned = autoAssignGaps(p.map(t => t.label), gapList, [id]);
+      return p.map((t, i) => ({ ...t, gapIds: [...(t.gapIds ?? []), ...(assigned[i] ?? [])] }));
     });
   };
+
+  /** Velg alle / fjern alle gap. */
+  const setAllGaps = (select: boolean) => {
+    setTasks(p => {
+      if (!select) return p.map(t => ({ ...t, gapIds: [] }));
+      const assigned = autoAssignGaps(p.map(t => t.label), gapList, sortedGaps.map(g => g.id));
+      return p.map((t, i) => ({ ...t, gapIds: assigned[i] ?? [] }));
+    });
+  };
+
 
   // Samle cross-walk refs fra valgte gap (én chip per regelverk/kontroll)
   const crosswalkChips = useMemo(() => {
@@ -330,32 +412,8 @@ export function MSPCreateOfferDialog({
     }
     y += 8;
 
-    // Lukker mangler fra gap-analysen (ny, gap-drevet visning)
-    if (showGapsInOffer && coveredGaps && selectedCount > 0) {
-      doc.setFontSize(10);
-      doc.setTextColor(120);
-      doc.text("LUKKER MANGLER FRA GAP-ANALYSEN", margin, y);
-      y += 14;
-      doc.setFontSize(11);
-      doc.setTextColor(20);
-      doc.text(
-        `${coveredGaps.frameworkLabel} · ${selectedCount} av ${totalGapCount} mangler · status per ${snapshotLabel}`,
-        margin,
-        y,
-      );
-      y += 16;
-      doc.setFontSize(10);
-      doc.setTextColor(60);
-      sortedGaps.filter(g => selectedGapIds.has(g.id)).forEach(g => {
-        if (y > 780) { doc.addPage(); y = margin; }
-        const sev = SEVERITY_LABEL[g.severity];
-        const ref = g.reference ? `${g.reference} — ` : "";
-        const lines = doc.splitTextToSize(`• [${sev}] ${ref}${g.title}`, pageWidth - margin * 2 - 8);
-        doc.text(lines, margin + 8, y);
-        y += lines.length * 12;
-      });
-      y += 10;
-    } else if (safeCoveredControls.length > 0) {
+    // Statisk fallback når gap-analysen ikke er koblet på
+    if (!(showGapsInOffer && coveredGaps && selectedCount > 0) && safeCoveredControls.length > 0) {
       doc.setFontSize(10);
       doc.setTextColor(100);
       safeCoveredControls.forEach(group => {
@@ -368,19 +426,79 @@ export function MSPCreateOfferDialog({
       y += 6;
     }
 
+    // SIDE 2 — dekning mot gap-analysen (oppgave → mangler)
+    if (showGapsInOffer && coveredGaps && selectedCount > 0) {
+      doc.addPage();
+      y = margin;
+      doc.setFontSize(10);
+      doc.setTextColor(120);
+      doc.text("DEKNING MOT GAP-ANALYSEN", margin, y);
+      y += 18;
+      doc.setFontSize(15);
+      doc.setTextColor(20);
+      doc.text(`Tilbudet lukker ${selectedCount} av ${totalGapCount} mangler`, margin, y);
+      y += 16;
+      doc.setFontSize(10);
+      doc.setTextColor(110);
+      doc.text(`${coveredGaps.frameworkLabel} · status per ${snapshotLabel}`, margin, y);
+      y += 20;
 
-    // Vedlegg: gap-analyse som øyeblikksbilde
+      tasks.forEach(t => {
+        const gaps = sortedGaps.filter(g => (t.gapIds ?? []).includes(g.id));
+        if (gaps.length === 0) return;
+        if (y > 740) { doc.addPage(); y = margin; }
+        doc.setFontSize(11);
+        doc.setTextColor(20);
+        doc.text(`${t.label} · ${Number(t.hours) || 0} t`, margin, y);
+        y += 14;
+        doc.setFontSize(10);
+        doc.setTextColor(60);
+        gaps.forEach(g => {
+          if (y > 780) { doc.addPage(); y = margin; }
+          const ref = g.reference ? `${g.reference} — ` : "";
+          const lines = doc.splitTextToSize(`• [${SEVERITY_LABEL[g.severity]}] ${ref}${g.title}`, pageWidth - margin * 2 - 12);
+          doc.text(lines, margin + 12, y);
+          y += lines.length * 12;
+        });
+        y += 10;
+      });
+
+      const uncoveredPdf = sortedGaps.filter(g => !selectedGapIds.has(g.id));
+      if (uncoveredPdf.length > 0) {
+        if (y > 720) { doc.addPage(); y = margin; }
+        doc.setFontSize(11);
+        doc.setTextColor(120);
+        doc.text("Ikke dekket i dette tilbudet", margin, y);
+        y += 14;
+        doc.setFontSize(10);
+        doc.setTextColor(120);
+        uncoveredPdf.forEach(g => {
+          if (y > 780) { doc.addPage(); y = margin; }
+          const ref = g.reference ? `${g.reference} — ` : "";
+          const lines = doc.splitTextToSize(`• ${ref}${g.title}`, pageWidth - margin * 2 - 12);
+          doc.text(lines, margin + 12, y);
+          y += lines.length * 12;
+        });
+      }
+    }
+
+    // VEDLEGG — gap-analyse som øyeblikksbilde
     if (attachGap && (coveredGaps || gapFrameworkId)) {
-      if (y > 700) { doc.addPage(); y = margin; }
+      doc.addPage();
+      y = margin;
       doc.setFontSize(10);
       doc.setTextColor(120);
       doc.text("VEDLEGG — GAP-ANALYSE (ØYEBLIKKSBILDE)", margin, y);
-      y += 14;
+      y += 18;
       const fwLabel = coveredGaps?.frameworkLabel ?? gapFrameworkId?.toUpperCase() ?? "";
-      doc.setFontSize(11);
+      doc.setFontSize(15);
       doc.setTextColor(20);
-      doc.text(`${fwLabel} · status per ${snapshotLabel}`, margin, y);
-      y += 14;
+      doc.text(`Gap-analyse ${fwLabel}`, margin, y);
+      y += 16;
+      doc.setFontSize(10);
+      doc.setTextColor(110);
+      doc.text(`Status per ${snapshotLabel}`, margin, y);
+      y += 18;
 
       if (totalGapCount > 0) {
         const critTotal = sortedGaps.filter(g => g.severity === "critical").length;
@@ -395,10 +513,12 @@ export function MSPCreateOfferDialog({
         doc.setTextColor(60);
         sortedGaps.forEach(g => {
           if (y > 780) { doc.addPage(); y = margin; }
-          const tick = selectedGapIds.has(g.id) ? "✓" : "•";
-          const sev = SEVERITY_LABEL[g.severity];
+          const covered = selectedGapIds.has(g.id);
           const ref = g.reference ? `${g.reference} — ` : "";
-          const lines = doc.splitTextToSize(`${tick} [${sev}] ${ref}${g.title}`, pageWidth - margin * 2 - 8);
+          const lines = doc.splitTextToSize(
+            `${covered ? "✓" : "•"} [${SEVERITY_LABEL[g.severity]}] ${ref}${g.title}${covered ? " (dekkes)" : ""}`,
+            pageWidth - margin * 2 - 8,
+          );
           doc.text(lines, margin + 8, y);
           y += lines.length * 12 + 2;
         });
@@ -411,13 +531,19 @@ export function MSPCreateOfferDialog({
       }
     }
 
-    // Footer
-    doc.setFontSize(9);
-    doc.setTextColor(150);
+    // Footer med sidetall på alle sider
     const footerParts = [effectivePartnerName];
     if (effectiveOrgNumber) footerParts.push(`Org.nr ${effectiveOrgNumber}`);
     footerParts.push(`Tilbud ${offerNumber}`, todayLabel);
-    doc.text(footerParts.join(" · "), margin, 820);
+    const pageTotal = doc.getNumberOfPages();
+    for (let p = 1; p <= pageTotal; p++) {
+      doc.setPage(p);
+      doc.setFontSize(9);
+      doc.setTextColor(150);
+      doc.text(footerParts.join(" · "), margin, 820);
+      doc.text(`Side ${p} av ${pageTotal}`, pageWidth - margin, 820, { align: "right" });
+    }
+
 
     doc.save(`Tilbud_${offerNumber}_${offerName.replace(/\s+/g, "_")}.pdf`);
     toast.success("Tilbud lastet ned", { description: `${offerNumber}.pdf` });
@@ -484,7 +610,7 @@ export function MSPCreateOfferDialog({
                 </div>
                 <div className="divide-y divide-border">
                   {tasks.map((t, i) => (
-                    <div key={i} className="grid grid-cols-[1fr_90px_32px] gap-2 px-3 py-2 items-center">
+                    <div key={i} className="grid grid-cols-[1fr_90px_32px] gap-2 px-3 py-2 items-start">
                       <div className="min-w-0">
                         <Input
                           value={t.label}
@@ -492,6 +618,55 @@ export function MSPCreateOfferDialog({
                           className="h-8 text-sm font-medium border-0 bg-transparent px-0 focus-visible:ring-0"
                         />
                         {t.note && <p className="text-xs text-muted-foreground">{t.note}</p>}
+                        {coveredGaps && totalGapCount > 0 && (
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <button
+                                type="button"
+                                className="text-xs text-muted-foreground hover:text-foreground underline-offset-2 hover:underline inline-flex items-center gap-1"
+                              >
+                                <ShieldCheck className="h-3 w-3" />
+                                {(t.gapIds ?? []).length > 0
+                                  ? `Lukker ${(t.gapIds ?? []).length} ${(t.gapIds ?? []).length === 1 ? "mangel" : "mangler"}`
+                                  : "Koble mangler"}
+                              </button>
+                            </PopoverTrigger>
+                            <PopoverContent align="start" className="w-80 p-0">
+                              <div className="px-3 py-2 border-b border-border">
+                                <p className="text-xs font-semibold text-foreground">Mangler denne oppgaven lukker</p>
+                                <p className="text-xs text-muted-foreground">{coveredGaps.frameworkLabel} · {snapshotLabel}</p>
+                              </div>
+                              <ul className="max-h-64 overflow-y-auto divide-y divide-border">
+                                {sortedGaps.map(g => {
+                                  const checked = (t.gapIds ?? []).includes(g.id);
+                                  const takenByOther = !checked && selectedGapIds.has(g.id);
+                                  return (
+                                    <li key={g.id} className="flex items-start gap-2 px-3 py-2">
+                                      <Checkbox
+                                        id={`t${i}-${g.id}`}
+                                        checked={checked}
+                                        onCheckedChange={() => toggleGapOnTask(i, g.id)}
+                                        className="mt-0.5"
+                                      />
+                                      <label htmlFor={`t${i}-${g.id}`} className="flex-1 min-w-0 cursor-pointer">
+                                        <span className="text-xs text-foreground leading-snug">
+                                          {g.title}
+                                          {g.reference && (
+                                            <span className="font-mono text-xs text-muted-foreground ml-1">({g.reference})</span>
+                                          )}
+                                        </span>
+                                        {takenByOther && (
+                                          <span className="block text-xs text-muted-foreground">Dekkes av en annen oppgave</span>
+                                        )}
+                                      </label>
+                                      <span className={cn("h-2 w-2 rounded-full mt-1 shrink-0", severityDotClass(g.severity))} />
+                                    </li>
+                                  );
+                                })}
+                              </ul>
+                            </PopoverContent>
+                          </Popover>
+                        )}
                       </div>
                       <Input
                         type="number"
@@ -503,12 +678,13 @@ export function MSPCreateOfferDialog({
                       <button
                         type="button"
                         onClick={() => removeTask(i)}
-                        className="text-muted-foreground hover:text-destructive flex items-center justify-center"
+                        className="text-muted-foreground hover:text-destructive flex items-center justify-center h-8"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
                       </button>
                     </div>
                   ))}
+
                 </div>
               </div>
               <Button
@@ -612,25 +788,20 @@ export function MSPCreateOfferDialog({
                       <ChevronDown className={cn("h-4 w-4 text-muted-foreground transition-transform shrink-0", gapsExpanded && "rotate-180")} />
                     </button>
 
-                    {/* "Vis i tilbudet"-bryteren – alltid synlig */}
+                    {/* Hva som tas med i dokumentet – alltid synlig */}
                     <div className="border-t border-border px-3 py-2 flex items-center justify-between gap-3">
-                      <div className="min-w-0">
-                        <p className="text-sm font-medium text-foreground">Vis i tilbudet</p>
-                        <p className="text-xs text-muted-foreground">Inkluder mangellisten direkte i tilbudsteksten.</p>
-                      </div>
+                      <p className="text-sm text-foreground min-w-0">Ta med dekningsside (side 2)</p>
                       <Switch checked={showGapsInOffer} onCheckedChange={setShowGapsInOffer} />
+                    </div>
+                    <div className="border-t border-border px-3 py-2 flex items-center justify-between gap-3">
+                      <p className="text-sm text-foreground min-w-0">Legg ved gap-analysen (vedlegg)</p>
+                      <Switch checked={attachGap} onCheckedChange={setAttachGap} />
                     </div>
 
                     {/* Utvidet innhold */}
                     {gapsExpanded && (
                       <>
-                        <div className="border-t border-border px-3 py-2 flex items-center justify-between gap-3">
-                          <div className="min-w-0">
-                            <p className="text-sm font-medium text-foreground">Legg ved som vedlegg i PDF</p>
-                            <p className="text-xs text-muted-foreground">Hele gap-analysen som øyeblikksbilde bak i tilbudet.</p>
-                          </div>
-                          <Switch checked={attachGap} onCheckedChange={setAttachGap} />
-                        </div>
+
 
                         {/* Dekningsbanner */}
                         <div className={cn("border-t border-border px-3 py-2 flex items-center gap-2 flex-wrap", coverageClass)}>
@@ -645,7 +816,7 @@ export function MSPCreateOfferDialog({
                           </span>
                           <button
                             type="button"
-                            onClick={() => setSelectedGapIds(allChecked ? new Set() : new Set(allIds))}
+                            onClick={() => setAllGaps(!allChecked)}
                             className="ml-auto text-xs font-medium underline-offset-2 hover:underline"
                           >
                             {allChecked ? "Fjern alle" : "Velg alle"}
@@ -790,127 +961,191 @@ export function MSPCreateOfferDialog({
           </div>
         )}
 
-        {view === "preview" && (
-          <div className="flex-1 overflow-y-auto p-5 bg-muted/30">
-            {/* Paper-like preview */}
-            <div className="mx-auto bg-background border border-border rounded-md shadow-sm p-8 max-w-xl space-y-5">
-              <div className="flex items-start justify-between gap-4 text-xs text-muted-foreground">
-                <div className="flex items-start gap-2.5 min-w-0">
-                  {effectiveLogo && (
-                    <img src={effectiveLogo} alt="" className="h-9 w-9 object-contain rounded shrink-0" />
-                  )}
-                  <div className="min-w-0">
-                    <div className="font-semibold text-foreground truncate">{effectivePartnerName}</div>
-                    {effectiveOrgNumber && (
-                      <div className="text-xs tabular-nums">Org.nr {effectiveOrgNumber}</div>
+        {view === "preview" && (() => {
+          const coverageRows = tasks
+            .map(t => ({ task: t, gaps: sortedGaps.filter(g => (t.gapIds ?? []).includes(g.id)) }))
+            .filter(r => r.gaps.length > 0);
+          const uncovered = sortedGaps.filter(g => !selectedGapIds.has(g.id));
+          const showCoveragePage = showGapsInOffer && !!coveredGaps && coverageRows.length > 0;
+          const showAttachmentPage = attachGap && (!!coveredGaps || !!gapFrameworkId);
+          const totalPages = 1 + (showCoveragePage ? 1 : 0) + (showAttachmentPage ? 1 : 0);
+          const coveragePageNo = 2;
+          const attachmentPageNo = showCoveragePage ? 3 : 2;
+          const docFooter = `${effectivePartnerName}${effectiveOrgNumber ? ` · Org.nr ${effectiveOrgNumber}` : ""} · Tilbud ${offerNumber} · ${todayLabel}`;
+          const fwLabel = coveredGaps?.frameworkLabel ?? gapFrameworkId?.toUpperCase() ?? "";
+
+          return (
+            <div className="flex-1 overflow-y-auto p-5 bg-muted/30 space-y-5">
+              {/* SIDE 1 — tilbudet */}
+              <OfferSheet page={1} total={totalPages} footer={docFooter}>
+                <div className="flex items-start justify-between gap-4 text-xs text-muted-foreground">
+                  <div className="flex items-start gap-2.5 min-w-0">
+                    {effectiveLogo && (
+                      <img src={effectiveLogo} alt="" className="h-9 w-9 object-contain rounded shrink-0" />
                     )}
-                  </div>
-                </div>
-                <div className="text-right shrink-0">
-                  <div>Tilbud <span className="tabular-nums">{offerNumber}</span></div>
-                  <div>{todayLabel}</div>
-                </div>
-              </div>
-
-              <div>
-                <h2 className="text-xl font-bold text-foreground">{offerName}</h2>
-                <p className="text-sm text-muted-foreground mt-1">Til: {customerContactName}</p>
-              </div>
-
-              {message.trim() && (
-                <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{message.trim()}</p>
-              )}
-
-              <div className="space-y-1.5">
-                <div className="grid grid-cols-[1fr_70px_100px] gap-3 text-xs uppercase tracking-wide text-muted-foreground font-semibold border-b border-border pb-1.5">
-                  <span>Oppgave</span>
-                  <span className="text-right">Timer</span>
-                  <span className="text-right">Beløp</span>
-                </div>
-                {tasks.map((t, i) => {
-                  const hrs = Number(t.hours) || 0;
-                  return (
-                    <div key={i} className="grid grid-cols-[1fr_70px_100px] gap-3 text-sm py-1.5 border-b border-border/50">
-                      <div>
-                        <p className="text-foreground">{t.label}</p>
-                        {t.note && <p className="text-xs text-muted-foreground">{t.note}</p>}
-                      </div>
-                      <span className="text-right tabular-nums text-foreground">{hrs}</span>
-                      <span className="text-right tabular-nums text-foreground">{(hrs * editableHourlyRate).toLocaleString("nb-NO")} kr</span>
+                    <div className="min-w-0">
+                      <div className="font-semibold text-foreground truncate">{effectivePartnerName}</div>
+                      {effectiveOrgNumber && (
+                        <div className="text-xs tabular-nums">Org.nr {effectiveOrgNumber}</div>
+                      )}
                     </div>
-                  );
-                })}
-              </div>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <div>Tilbud <span className="tabular-nums">{offerNumber}</span></div>
+                    <div>{todayLabel}</div>
+                  </div>
+                </div>
 
-              <div className="pt-3 mt-1 border-t-2 border-foreground/80 space-y-1.5">
-                <div className="flex items-baseline justify-between text-sm text-muted-foreground">
-                  <span>Timepris</span>
-                  <span className="tabular-nums">{editableHourlyRate.toLocaleString("nb-NO")} kr</span>
+                <div>
+                  <h2 className="text-xl font-bold text-foreground">{offerName}</h2>
+                  <p className="text-sm text-muted-foreground mt-1">Til: {customerContactName}</p>
                 </div>
-                <div className="flex items-baseline justify-between text-sm text-muted-foreground">
-                  <span>Sum timer</span>
-                  <span className="tabular-nums">{totalHours} t</span>
+
+                {message.trim() && (
+                  <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{message.trim()}</p>
+                )}
+
+                <div className="space-y-1.5">
+                  <div className="grid grid-cols-[1fr_70px_100px] gap-3 text-xs uppercase tracking-wide text-muted-foreground font-semibold border-b border-border pb-1.5">
+                    <span>Oppgave</span>
+                    <span className="text-right">Timer</span>
+                    <span className="text-right">Beløp</span>
+                  </div>
+                  {tasks.map((t, i) => {
+                    const hrs = Number(t.hours) || 0;
+                    return (
+                      <div key={i} className="grid grid-cols-[1fr_70px_100px] gap-3 text-sm py-1.5 border-b border-border/50">
+                        <div>
+                          <p className="text-foreground">{t.label}</p>
+                          {t.note && <p className="text-xs text-muted-foreground">{t.note}</p>}
+                        </div>
+                        <span className="text-right tabular-nums text-foreground">{hrs}</span>
+                        <span className="text-right tabular-nums text-foreground">{(hrs * editableHourlyRate).toLocaleString("nb-NO")} kr</span>
+                      </div>
+                    );
+                  })}
                 </div>
-                <div className="flex items-baseline justify-between pt-1.5 border-t border-border">
-                  <span className={cn(showTax && tax.mode === "exclusive" ? "text-sm text-muted-foreground" : "text-base font-bold text-foreground")}>
-                    {showTax && tax.mode === "exclusive" ? `Sum eks. ${tax.label}` : "Totalsum"}
-                  </span>
-                  <span className={cn("tabular-nums", showTax && tax.mode === "exclusive" ? "text-sm text-muted-foreground" : "text-lg font-bold text-foreground")}>
-                    {fmtKr(showTax && tax.mode === "inclusive" ? taxBreakdown.net : totalPrice)}
-                  </span>
-                </div>
-                {showTax && (
+
+                <div className="pt-3 mt-1 border-t-2 border-foreground/80 space-y-1.5">
                   <div className="flex items-baseline justify-between text-sm text-muted-foreground">
-                    <span>{tax.label} ({tax.rate}%)</span>
-                    <span className="tabular-nums">{fmtKr(taxBreakdown.taxAmount)}</span>
+                    <span>Timepris</span>
+                    <span className="tabular-nums">{editableHourlyRate.toLocaleString("nb-NO")} kr</span>
                   </div>
-                )}
-                {showTax && (
+                  <div className="flex items-baseline justify-between text-sm text-muted-foreground">
+                    <span>Sum timer</span>
+                    <span className="tabular-nums">{totalHours} t</span>
+                  </div>
                   <div className="flex items-baseline justify-between pt-1.5 border-t border-border">
-                    <span className="text-base font-bold text-foreground">Totalt inkl. {tax.label}</span>
-                    <span className="text-lg font-bold text-foreground tabular-nums">{fmtKr(taxBreakdown.gross)}</span>
-                  </div>
-                )}
-                <p className="text-xs text-muted-foreground pt-1">{formatTaxNote(tax)}</p>
-              </div>
-
-
-              {showGapsInOffer && coveredGaps && selectedCount > 0 && (
-                <div className="pt-3 border-t border-border space-y-2">
-                  <div className="flex items-baseline justify-between gap-2">
-                    <p className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">
-                      Lukker mangler fra gap-analysen
-                    </p>
-                    <span className="text-xs text-foreground tabular-nums font-medium">
-                      {selectedCount} av {totalGapCount}
+                    <span className={cn(showTax && tax.mode === "exclusive" ? "text-sm text-muted-foreground" : "text-base font-bold text-foreground")}>
+                      {showTax && tax.mode === "exclusive" ? `Sum eks. ${tax.label}` : "Totalsum"}
+                    </span>
+                    <span className={cn("tabular-nums", showTax && tax.mode === "exclusive" ? "text-sm text-muted-foreground" : "text-lg font-bold text-foreground")}>
+                      {fmtKr(showTax && tax.mode === "inclusive" ? taxBreakdown.net : totalPrice)}
                     </span>
                   </div>
-                  <div className="flex items-center gap-2 text-xs">
-                    {(() => {
-                      const theme = getFrameworkTheme(coveredGaps.frameworkId);
-                      return (
-                        <span className={cn("inline-flex items-center rounded px-1.5 py-0.5 text-xs font-semibold border", theme.chip)}>
-                          {coveredGaps.frameworkLabel}
-                        </span>
-                      );
-                    })()}
-                    <span className="text-muted-foreground">status per {snapshotLabel}</span>
-                  </div>
-                  <ul className="space-y-1.5">
-                    {sortedGaps.filter(g => selectedGapIds.has(g.id)).map(g => (
-                      <li key={g.id} className="flex items-start gap-2 text-sm text-foreground">
-                        <span className={cn("h-1.5 w-1.5 rounded-full mt-2 shrink-0", severityDotClass(g.severity))} />
-                        <span className="leading-snug">
-                          {g.title}
-                          {g.reference && (
-                            <span className="font-mono text-xs text-muted-foreground ml-1">({g.reference})</span>
-                          )}
-                        </span>
-                      </li>
+                  {showTax && (
+                    <div className="flex items-baseline justify-between text-sm text-muted-foreground">
+                      <span>{tax.label} ({tax.rate}%)</span>
+                      <span className="tabular-nums">{fmtKr(taxBreakdown.taxAmount)}</span>
+                    </div>
+                  )}
+                  {showTax && (
+                    <div className="flex items-baseline justify-between pt-1.5 border-t border-border">
+                      <span className="text-base font-bold text-foreground">Totalt inkl. {tax.label}</span>
+                      <span className="text-lg font-bold text-foreground tabular-nums">{fmtKr(taxBreakdown.gross)}</span>
+                    </div>
+                  )}
+                  <p className="text-xs text-muted-foreground pt-1">{formatTaxNote(tax)}</p>
+                </div>
+
+                {!coveredGaps && safeCoveredControls.length > 0 && (
+                  <div className="pt-3 border-t border-border space-y-1">
+                    {safeCoveredControls.map(group => (
+                      <p key={group.frameworkId} className="text-xs text-muted-foreground">
+                        Dekker {group.frameworkLabel}: {group.controlIds.map(id => `${getControlLabel(group.frameworkId, id)} (${id})`).join(", ")}
+                      </p>
                     ))}
-                  </ul>
+                  </div>
+                )}
+
+                {(showCoveragePage || showAttachmentPage) && (
+                  <p className="text-xs text-muted-foreground pt-3 border-t border-border">
+                    {showCoveragePage && `Side ${coveragePageNo}: hvordan oppgavene dekker gap-analysen.`}
+                    {showCoveragePage && showAttachmentPage && " "}
+                    {showAttachmentPage && `Side ${attachmentPageNo}: gap-analysen ${fwLabel} som vedlegg.`}
+                  </p>
+                )}
+              </OfferSheet>
+
+              {/* SIDE 2 — dekning mot gap-analysen */}
+              {showCoveragePage && coveredGaps && (
+                <OfferSheet page={coveragePageNo} total={totalPages} footer={docFooter}>
+                  <div className="space-y-1">
+                    <p className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">Dekning mot gap-analysen</p>
+                    <h3 className="text-base font-bold text-foreground">
+                      Tilbudet lukker {selectedCount} av {totalGapCount} mangler
+                    </h3>
+                    <div className="flex items-center gap-2 text-xs flex-wrap">
+                      {(() => {
+                        const theme = getFrameworkTheme(coveredGaps.frameworkId);
+                        return (
+                          <span className={cn("inline-flex items-center rounded px-1.5 py-0.5 text-xs font-semibold border", theme.chip)}>
+                            {coveredGaps.frameworkLabel}
+                          </span>
+                        );
+                      })()}
+                      <span className="text-muted-foreground">status per {snapshotLabel}</span>
+                      {criticalSelected > 0 && (
+                        <span className="text-destructive font-medium">{criticalSelected} kritiske lukkes</span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="rounded-md border border-border overflow-hidden">
+                    <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)] gap-3 px-3 py-2 bg-muted/40 text-xs uppercase tracking-wide text-muted-foreground font-semibold">
+                      <span>Oppgave</span>
+                      <span>Lukker disse manglene</span>
+                    </div>
+                    <div className="divide-y divide-border">
+                      {coverageRows.map((row, i) => (
+                        <div key={i} className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)] gap-3 px-3 py-2.5">
+                          <div className="min-w-0">
+                            <p className="text-sm font-medium text-foreground leading-snug">{row.task.label}</p>
+                            <p className="text-xs text-muted-foreground tabular-nums">{Number(row.task.hours) || 0} timer</p>
+                          </div>
+                          <ul className="space-y-1 min-w-0">
+                            {row.gaps.map(g => (
+                              <li key={g.id} className="flex items-start gap-2">
+                                <span className={cn("h-1.5 w-1.5 rounded-full mt-1.5 shrink-0", severityDotClass(g.severity))} />
+                                <span className="text-sm text-foreground leading-snug">
+                                  {g.title}
+                                  {g.reference && (
+                                    <span className="font-mono text-xs text-muted-foreground ml-1">({g.reference})</span>
+                                  )}
+                                </span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      ))}
+                      {uncovered.length > 0 && (
+                        <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)] gap-3 px-3 py-2.5 bg-muted/20">
+                          <p className="text-sm font-medium text-muted-foreground leading-snug">Ikke dekket i dette tilbudet</p>
+                          <ul className="space-y-1 min-w-0">
+                            {uncovered.map(g => (
+                              <li key={g.id} className="text-sm text-muted-foreground leading-snug">
+                                {g.title}
+                                {g.reference && <span className="font-mono text-xs ml-1">({g.reference})</span>}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
                   {crosswalkChips.length > 0 && (
-                    <div className="flex flex-wrap items-center gap-1 pt-1">
+                    <div className="flex flex-wrap items-center gap-1">
                       <Link2 className="h-3.5 w-3.5 text-muted-foreground" />
                       <span className="text-xs text-muted-foreground mr-1">Også relevant for:</span>
                       {crosswalkChips.map(r => {
@@ -926,37 +1161,50 @@ export function MSPCreateOfferDialog({
                       })}
                     </div>
                   )}
-                </div>
+                </OfferSheet>
               )}
 
-              {!coveredGaps && safeCoveredControls.length > 0 && (
-                <div className="pt-3 border-t border-border space-y-1">
-                  {safeCoveredControls.map(group => (
-                    <p key={group.frameworkId} className="text-xs text-muted-foreground">
-                      Dekker {group.frameworkLabel}: {group.controlIds.map(id => `${getControlLabel(group.frameworkId, id)} (${id})`).join(", ")}
+              {/* VEDLEGG — gap-analysen */}
+              {showAttachmentPage && (
+                <OfferSheet page={attachmentPageNo} total={totalPages} footer={docFooter}>
+                  <div className="space-y-1">
+                    <p className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">Vedlegg</p>
+                    <h3 className="text-base font-bold text-foreground flex items-center gap-2">
+                      <FileText className="h-4 w-4 text-primary" /> Gap-analyse {fwLabel}
+                    </h3>
+                    <p className="text-xs text-muted-foreground">
+                      Øyeblikksbilde per {snapshotLabel} · {totalGapCount > 0 ? totalGapCount : gapCount} mangler
                     </p>
-                  ))}
-                </div>
-              )}
-
-
-              {attachGap && (coveredGaps || gapFrameworkId) && (
-                <div className="pt-3 border-t border-border">
-                  <p className="text-xs uppercase tracking-wide text-muted-foreground font-semibold mb-1.5">Vedlegg</p>
-                  <div className="flex items-center gap-2 text-sm text-foreground">
-                    <FileText className="h-3.5 w-3.5 text-primary" />
-                    Gap-analyse {coveredGaps?.frameworkLabel ?? gapFrameworkId?.toUpperCase()} · utført dato {snapshotLabel} · {gapCount} mangler
                   </div>
-                </div>
+                  {sortedGaps.length > 0 ? (
+                    <ul className="divide-y divide-border rounded-md border border-border">
+                      {sortedGaps.map(g => {
+                        const covered = selectedGapIds.has(g.id);
+                        return (
+                          <li key={g.id} className="flex items-start gap-2.5 px-3 py-2">
+                            <span className={cn("h-2 w-2 rounded-full mt-1.5 shrink-0", severityDotClass(g.severity))} />
+                            <span className="flex-1 min-w-0 text-sm text-foreground leading-snug">
+                              {g.title}
+                              {g.reference && (
+                                <span className="font-mono text-xs text-muted-foreground ml-1">({g.reference})</span>
+                              )}
+                            </span>
+                            <span className={cn("text-xs shrink-0 mt-0.5", covered ? "text-success font-medium" : "text-muted-foreground")}>
+                              {covered ? "Dekkes" : "Ikke dekket"}
+                            </span>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">{gapCount} mangler dokumentert.</p>
+                  )}
+                </OfferSheet>
               )}
-
-
-              <p className="text-xs text-muted-foreground pt-4 border-t border-border">
-                {effectivePartnerName}{effectiveOrgNumber ? ` · Org.nr ${effectiveOrgNumber}` : ""} · Tilbud {offerNumber} · {todayLabel}
-              </p>
             </div>
-          </div>
-        )}
+          );
+        })()}
+
 
         {view === "saved" && (
           <div className="flex-1 overflow-y-auto p-6 space-y-5">
