@@ -37,7 +37,11 @@ import { toast } from "sonner";
 import { PARTNER_SERVICES, getService } from "@/lib/serviceCatalog";
 import { OfferListRow } from "./offers/OfferListRow";
 import { ConfirmOfferAcceptanceDialog } from "./offers/ConfirmOfferAcceptanceDialog";
+import { DeclineOfferDialog } from "./offers/DeclineOfferDialog";
 import type { OfferApproval, PartnerOffer } from "./offers/offerTypes";
+
+/** Navnet som registreres når partneren setter status manuelt. */
+const PARTNER_STATUS_ACTOR = "Truls Hansen (partner)";
 
 export type TaskOwner = "Partner" | "Kunde";
 
@@ -631,13 +635,42 @@ export function MSPMaturityServiceMatrix({
     toast.success(`Utkast ${offer.offerNumber} slettet`);
   };
 
-  const declineOffer = (offer: SavedOffer) => {
+  const [declineCtx, setDeclineCtx] = useState<{ open: boolean; offer: SavedOffer | null }>({
+    open: false,
+    offer: null,
+  });
+
+  const declineOffer = (offer: SavedOffer, reason = "Registrert som avslått av partner") => {
     patchOffer(offer.id, {
       offerState: "declined",
       respondedAt: new Date().toISOString(),
-      declineReason: "Registrert som avslått av partner",
+      declineReason: reason,
+      approval: undefined,
+      statusSource: "partner",
+      statusSetBy: PARTNER_STATUS_ACTOR,
     });
     toast(`${offer.offerNumber} markert som avslått`);
+  };
+
+  const resetOfferToSent = (offer: SavedOffer) => {
+    patchOffer(offer.id, {
+      offerState: "sent",
+      respondedAt: undefined,
+      approval: undefined,
+      declineReason: undefined,
+      statusSource: "partner",
+      statusSetBy: PARTNER_STATUS_ACTOR,
+    });
+    toast(`${offer.offerNumber} satt tilbake til venter`);
+  };
+
+  const handleSetOfferState = (
+    offer: SavedOffer,
+    next: "accepted" | "declined" | "sent",
+  ) => {
+    if (next === "accepted") setAcceptCtx({ open: true, offer });
+    else if (next === "declined") setDeclineCtx({ open: true, offer });
+    else resetOfferToSent(offer);
   };
 
   const acceptOffer = (approval: OfferApproval) => {
@@ -647,6 +680,9 @@ export function MSPMaturityServiceMatrix({
       offerState: "accepted",
       respondedAt: new Date(approval.date).toISOString(),
       approval,
+      declineReason: undefined,
+      statusSource: "partner",
+      statusSetBy: PARTNER_STATUS_ACTOR,
     });
     toast.success(`${offer.offerNumber} er akseptert`, {
       description: `Godkjent av ${approval.approvedBy} · ${approval.method}. Oppdraget er klart til levering.`,
@@ -989,7 +1025,8 @@ export function MSPMaturityServiceMatrix({
                   key={o.id}
                   offer={o}
                   onAccept={(offer) => setAcceptCtx({ open: true, offer })}
-                  onDecline={declineOffer}
+                  onDecline={(offer) => setDeclineCtx({ open: true, offer })}
+                  onSetState={handleSetOfferState}
                   onDownload={(offer) => toast.success(`Lastet ned ${offer.offerNumber}.pdf`)}
                 />
               ))}
@@ -1036,6 +1073,15 @@ export function MSPMaturityServiceMatrix({
         customerName={customerName}
         onConfirm={acceptOffer}
       />
+
+      <DeclineOfferDialog
+        open={declineCtx.open}
+        offer={declineCtx.offer}
+        onOpenChange={(o) => setDeclineCtx((s) => ({ ...s, open: o }))}
+        onConfirm={(reason) => declineCtx.offer && declineOffer(declineCtx.offer, reason)}
+      />
+
+
 
       <ShareOfferDialog
         open={shareCtx.open}
