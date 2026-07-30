@@ -615,6 +615,8 @@ export default function MSPCustomerDetail() {
           open={baselineDrawer.open}
           onOpenChange={(open) => setBaselineDrawer((prev) => ({ ...prev, open, review: false }))}
           customerName={customer.name || customer.customer_name || "Kunden"}
+          customerId={customer.id}
+
           answers={baselineAnswers}
           onAnswer={setBaselineAnswer}
           reviewMode={baselineDrawer.review}
