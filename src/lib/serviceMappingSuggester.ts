@@ -85,6 +85,45 @@ function tokenize(s: string): string[] {
   return normalize(s).split(/\s+/).filter((t) => t.length >= 3);
 }
 
+/** Generiske «kontrollpunkter» som ikke er reelle krav — ren støy i forslagslisten. */
+const NOISE_LABELS = new Set([
+  "overlapp",
+  "overlap",
+  "generelt",
+  "diverse",
+  "annet",
+  "trust service criteria",
+  "kontrollområder",
+  "krav",
+]);
+
+function isMeaningfulControlPoint(
+  frameworkLabel: string,
+  frameworkShortName: string,
+  controlId: string,
+  controlLabel: string,
+): boolean {
+  const id = controlId.trim().toLowerCase();
+  const label = controlLabel.trim().toLowerCase();
+  if (!id || !label) return false;
+  if (NOISE_LABELS.has(id) || NOISE_LABELS.has(label)) return false;
+  // Label identisk med rammeverksnavnet = ingen reell kobling
+  if (label === frameworkLabel.trim().toLowerCase()) return false;
+  if (label === frameworkShortName.trim().toLowerCase()) return false;
+  // Id og label er samme ord (f.eks. «overlapp › overlapp») = ikke et krav
+  if (id === label) return false;
+  return true;
+}
+
+/** Minste score for at et forslag i det hele tatt vises. */
+const MIN_SCORE = 2;
+
+function toConfidence(score: number, phraseHit: boolean, hitCount: number): MatchConfidence {
+  if (phraseHit || score >= 5 || hitCount >= 3) return "high";
+  if (score >= 3 || hitCount >= 2) return "medium";
+  return "low";
+}
+
 export function suggestControlPoints(input: {
   name: string;
   description?: string;
@@ -97,6 +136,8 @@ export function suggestControlPoints(input: {
 
   FRAMEWORK_CATALOG.forEach((fw) => {
     fw.controlPoints.forEach((cp) => {
+      if (!isMeaningfulControlPoint(fw.label, fw.shortName, cp.id, cp.label)) return;
+
       const keywords = [
         ...(EXTRA_KEYWORDS[`${fw.id}:${cp.id}`] ?? []),
         cp.label,
@@ -105,12 +146,14 @@ export function suggestControlPoints(input: {
 
       const matched: string[] = [];
       let score = 0;
+      let phraseHit = false;
 
       keywords.forEach((kw) => {
         if (!kw) return;
         // Phrase match (sterkere)
         if (kw.includes(" ") && haystack.includes(kw)) {
           score += 3;
+          phraseHit = true;
           matched.push(kw);
           return;
         }
@@ -124,7 +167,9 @@ export function suggestControlPoints(input: {
         }
       });
 
-      if (score > 0) {
+      const uniqueMatches = Array.from(new Set(matched));
+
+      if (score >= MIN_SCORE) {
         results.push({
           frameworkId: fw.id,
           frameworkLabel: fw.label,
@@ -132,11 +177,22 @@ export function suggestControlPoints(input: {
           controlId: cp.id,
           controlLabel: cp.label,
           score,
-          matchedTerms: Array.from(new Set(matched)).slice(0, 3),
+          confidence: toConfidence(score, phraseHit, uniqueMatches.length),
+          matchedTerms: uniqueMatches.slice(0, 3),
         });
       }
     });
   });
 
-  return results.sort((a, b) => b.score - a.score).slice(0, 8);
+  // Dedupliker på rammeverk + kontrollpunkt (behold sterkeste treff)
+  const byKey = new Map<string, ControlSuggestion>();
+  for (const r of results) {
+    const key = `${r.frameworkId}::${r.controlId}`;
+    const existing = byKey.get(key);
+    if (!existing || r.score > existing.score) byKey.set(key, r);
+  }
+
+  return Array.from(byKey.values())
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 8);
 }
