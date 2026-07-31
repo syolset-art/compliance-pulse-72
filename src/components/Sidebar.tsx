@@ -34,6 +34,7 @@ import {
   ImageIcon,
   Plug,
   Crown,
+  ScrollText,
 } from "lucide-react";
 import mynderLogoInverted from "@/assets/mynder-logo-inverted.png";
 import mynderLogo from "@/assets/mynder-logo.png";
@@ -90,6 +91,7 @@ const coreNav = [
   { name: "nav.myWorkAreas", href: "/work-areas", icon: Users },
   { name: "nav.tasks", href: "/tasks", icon: ClipboardList },
   { name: "nav.deviations", href: "/deviations", icon: AlertTriangle },
+  { name: "nav.protocols", href: "/protocols", icon: ScrollText },
   { name: "nav.reports", href: "/reports", icon: FileText },
 ];
 
