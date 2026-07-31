@@ -160,8 +160,12 @@ export function useSubscription() {
     ["vendors", "security"].includes(uc)
   );
 
-  const hasCoreAccess = systemsActive || selectedCoreAtOnboarding;
-  const hasRegistriesAccess = vendorsActive || selectedRegistriesAtOnboarding;
+  // Mynder Core er basismodulen: den er tilgjengelig så lenge den ikke er
+  // eksplisitt deaktivert under Innstillinger → Produkter.
+  const coreDeactivated = deactivatedModules.has("core");
+  const hasCoreAccess = !coreDeactivated;
+  const hasRegistriesAccess =
+    !deactivatedModules.has("vendors") && (vendorsActive || selectedRegistriesAtOnboarding);
   const hasModule = (moduleId: "systems" | "vendors"): boolean =>
     isServiceActive(`module-${moduleId}`);
 
