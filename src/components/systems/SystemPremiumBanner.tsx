@@ -67,19 +67,19 @@ export function SystemPremiumBanner({ systemCount, maxFreeSystems, isActivated, 
       </Card>
 
       {/* Activation bar */}
-      <Card className="p-4 bg-gradient-to-r from-warning to-primary dark:from-warning/20 dark:to-primary/20 border-warning/20/50 dark:border-warning/30">
-        <div className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-warning/10 dark:bg-warning/30">
-              <Lock className="h-4 w-4 text-warning dark:text-warning" />
+      <Card className="p-4 border-border bg-card">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-start gap-3">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted">
+              <Lock className="h-4 w-4 text-muted-foreground" />
             </div>
-            <div>
+            <div className="space-y-0.5">
               <p className="text-sm font-semibold text-foreground">
                 {isLimitReached
                   ? "Du har brukt alle gratis-plassene"
                   : "Forhåndsvisning – Premium-modul"}
               </p>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-muted-foreground leading-relaxed">
                 {isLimitReached
                   ? `Du har lagt til ${systemCount} av ${maxFreeSystems} gratis systemer. Velg en plan for å fortsette.`
                   : `Prøv med opptil ${maxFreeSystems} systemer gratis. Velg deretter Basis eller Premium for full tilgang.`}
@@ -88,13 +88,16 @@ export function SystemPremiumBanner({ systemCount, maxFreeSystems, isActivated, 
           </div>
           <Button
             onClick={onActivate}
-            className="gap-2 bg-gradient-to-r from-primary to-primary hover:from-primary hover:to-primary/90 text-white shrink-0"
+            variant="default"
+            size="sm"
+            className="gap-2 shrink-0"
           >
             <Sparkles className="h-4 w-4" />
             Se planer
           </Button>
         </div>
       </Card>
+
 
       {/* Progress indicator */}
       {!isLimitReached && (
