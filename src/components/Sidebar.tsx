@@ -742,7 +742,7 @@ const SidebarContent = () => {
         ) : renderCollapsibleSection(
           t("nav.mynderCore", "Mynder Core"),
           Briefcase,
-          coreNav,
+          coreSectionItems,
           managementOpen,
           setManagementOpen,
           isManagementActive,
