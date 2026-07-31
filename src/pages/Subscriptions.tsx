@@ -210,7 +210,11 @@ export default function Subscriptions() {
   const requestDeactivate = (id: string, title: string) => setConfirmDeactivate({ id, title });
   const confirmDeactivation = () => {
     if (!confirmDeactivate) return;
-    setDeactivatedModules((prev) => new Set(prev).add(confirmDeactivate.id));
+    setDeactivatedModules((prev) => {
+      const next = new Set(prev).add(confirmDeactivate.id);
+      saveDeactivatedModules(next);
+      return next;
+    });
     toast.success(`${confirmDeactivate.title} er deaktivert. Endringen trer i kraft ved neste faktureringsperiode.`);
     setConfirmDeactivate(null);
   };
@@ -218,6 +222,7 @@ export default function Subscriptions() {
     setDeactivatedModules((prev) => {
       const next = new Set(prev);
       next.delete(id);
+      saveDeactivatedModules(next);
       return next;
     });
     toast.success("Modulen er reaktivert.");
