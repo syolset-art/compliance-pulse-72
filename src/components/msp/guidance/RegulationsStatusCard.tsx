@@ -92,6 +92,8 @@ export function RegulationsStatusCard({
 
   const { answers } = useCustomerBaseline(customerId);
   const { documents } = useBaselineDocuments(customerId);
+  const { defaultHourlyRate, currency } = useServiceDefaults();
+
 
   const documentCountByArea = useMemo(() => {
     const map: Record<string, number> = {};
