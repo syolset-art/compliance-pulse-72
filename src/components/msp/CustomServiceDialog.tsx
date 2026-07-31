@@ -12,9 +12,14 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Sparkles, Link2, Plus, Trash2, ListChecks } from "lucide-react";
-import { suggestControlPoints, type ControlSuggestion } from "@/lib/serviceMappingSuggester";
+import { Sparkles, Link2, Plus, Trash2, ListChecks, ChevronDown } from "lucide-react";
+import {
+  suggestControlPoints,
+  type ControlSuggestion,
+  type MatchConfidence,
+} from "@/lib/serviceMappingSuggester";
 import { lookupServiceDescription } from "@/lib/serviceDescriptionLookup";
+import { AiMappingDisclosure } from "@/components/msp/AiMappingDisclosure";
 import { cn } from "@/lib/utils";
 
 export interface ServiceMapping {
@@ -22,6 +27,11 @@ export interface ServiceMapping {
   frameworkShortName: string;
   controlId: string;
   controlLabel: string;
+  /**
+   * True når mennesket aktivt har bekreftet koblingen. Eldre lagrede mappinger
+   * mangler feltet og behandles som bekreftet (bakoverkompatibelt).
+   */
+  confirmed?: boolean;
 }
 
 export interface ServiceActivity {
@@ -80,6 +90,7 @@ export function CustomServiceDialog({
   const [usePriceOverride, setUsePriceOverride] = useState(false);
   const [priceOverride, setPriceOverride] = useState<number>(0);
   const [suggesting, setSuggesting] = useState(false);
+  const [showWeak, setShowWeak] = useState(false);
 
   const handleSuggestDescription = () => {
     const trimmed = name.trim();
@@ -132,11 +143,14 @@ export function CustomServiceDialog({
     [name, description],
   );
 
-  // Auto-velg topp 3 forslag i opprettelsesmodus når brukeren ikke har overstyrt
+  // Auto-velg kun forslag med høy/middels konfidens når brukeren ikke har overstyrt
   useEffect(() => {
     if (userTouchedMappings) return;
-    const top = suggestions.slice(0, 3).map(suggestionKey);
-    setSelectedMappings(new Set(top));
+    const strong = suggestions
+      .filter((s) => s.confidence !== "low")
+      .slice(0, 3)
+      .map(suggestionKey);
+    setSelectedMappings(new Set(strong));
   }, [suggestions, userTouchedMappings]);
 
   const totalHours = useMemo(
@@ -183,12 +197,16 @@ export function CustomServiceDialog({
         frameworkShortName: s.frameworkShortName,
         controlId: s.controlId,
         controlLabel: s.controlLabel,
+        // Avhuket av mennesket = bekreftet kobling
+        confirmed: true,
       }));
-    const keptExtras = extraMappings.filter(
-      (m) =>
-        selectedMappings.has(mappingKey(m)) &&
-        !fromSuggestions.some((s) => mappingKey(s) === mappingKey(m)),
-    );
+    const keptExtras = extraMappings
+      .filter(
+        (m) =>
+          selectedMappings.has(mappingKey(m)) &&
+          !fromSuggestions.some((s) => mappingKey(s) === mappingKey(m)),
+      )
+      .map((m) => ({ ...m, confirmed: true }));
     const cleanedActivities = activities
       .map((a) => ({ label: a.label.trim(), hours: Math.max(0, a.hours || 0) }))
       .filter((a) => a.label.length > 0 || a.hours > 0);
@@ -204,6 +222,18 @@ export function CustomServiceDialog({
   };
 
   const selectedCount = selectedMappings.size;
+  const strongSuggestions = useMemo(
+    () => suggestions.filter((s) => s.confidence !== "low"),
+    [suggestions],
+  );
+  const weakSuggestions = useMemo(
+    () => suggestions.filter((s) => s.confidence === "low"),
+    [suggestions],
+  );
+  /** Forslag som er synlige, men ennå ikke bekreftet av mennesket. */
+  const pendingCount = strongSuggestions.filter(
+    (s) => !selectedMappings.has(suggestionKey(s)),
+  ).length;
   const isEdit = mode === "edit";
 
   return (
@@ -315,16 +345,16 @@ export function CustomServiceDialog({
 
           {/* Lara-forslag for kontrollområder */}
           <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 space-y-2">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-2">
               <span className="text-sm font-semibold text-primary inline-flex items-center gap-1.5">
                 <Sparkles className="h-3.5 w-3.5" />
                 Foreslåtte kontrollområder
+                <AiMappingDisclosure variant="icon" className="text-primary/70" />
               </span>
-              {selectedCount > 0 && (
-                <span className="text-xs text-muted-foreground tabular-nums">
-                  {selectedCount} valgt
-                </span>
-              )}
+              <span className="text-xs text-muted-foreground tabular-nums whitespace-nowrap">
+                {selectedCount} bekreftet
+                {pendingCount > 0 && ` · ${pendingCount} til vurdering`}
+              </span>
             </div>
 
             {/* Allerede koblede (fra adopsjon e.l.) som ikke er blant Lara-forslag */}
@@ -393,43 +423,50 @@ export function CustomServiceDialog({
                 Skriv navn på tjenesten — forslag vises automatisk.
               </p>
             ) : (
-              <ul className="space-y-1">
-                {suggestions.map((s) => {
-                  const key = suggestionKey(s);
-                  const checked = selectedMappings.has(key);
-                  return (
-                    <li key={key}>
-                      <label
-                        className={cn(
-                          "flex items-start gap-2 rounded-md border bg-background px-2 py-1.5 cursor-pointer transition-colors",
-                          checked ? "border-primary/40" : "border-border hover:border-foreground/30",
-                        )}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={checked}
-                          onChange={() => toggleSuggestion(s)}
-                          className="mt-0.5 h-4 w-4 rounded border-border accent-primary"
-                        />
-                        <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-1.5 text-xs flex-wrap">
-                          <span className="inline-flex items-center rounded bg-muted px-1.5 py-0.5 font-semibold text-muted-foreground">
-                            {s.frameworkShortName}
-                          </span>
-                          <span className="text-muted-foreground">›</span>
-                          <span className="font-medium text-foreground">{s.controlId}</span>
-                          <span className="text-muted-foreground">›</span>
-                          <span className="text-foreground/80">{s.controlLabel}</span>
-                        </div>
-                        </div>
+              <>
+                <ul className="space-y-1">
+                  {strongSuggestions.map((s) => (
+                    <SuggestionRow
+                      key={suggestionKey(s)}
+                      suggestion={s}
+                      checked={selectedMappings.has(suggestionKey(s))}
+                      onToggle={() => toggleSuggestion(s)}
+                    />
+                  ))}
+                </ul>
 
-                      </label>
-                    </li>
-                  );
-                })}
-              </ul>
+                {weakSuggestions.length > 0 && (
+                  <div className="pt-1">
+                    <button
+                      type="button"
+                      onClick={() => setShowWeak((v) => !v)}
+                      className="inline-flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      <ChevronDown
+                        className={cn("h-3 w-3 transition-transform", showWeak && "rotate-180")}
+                      />
+                      {showWeak
+                        ? "Skjul svakere forslag"
+                        : `Vis ${weakSuggestions.length} svakere forslag`}
+                    </button>
+                    {showWeak && (
+                      <ul className="space-y-1 mt-1.5">
+                        {weakSuggestions.map((s) => (
+                          <SuggestionRow
+                            key={suggestionKey(s)}
+                            suggestion={s}
+                            checked={selectedMappings.has(suggestionKey(s))}
+                            onToggle={() => toggleSuggestion(s)}
+                          />
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                )}
+              </>
             )}
           </div>
+
 
           <div className="rounded-md border border-border bg-muted/30 px-3 py-2 space-y-2">
             <div className="text-sm flex items-center justify-between">
@@ -485,5 +522,93 @@ export function CustomServiceDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+const CONFIDENCE_META: Record<
+  MatchConfidence,
+  { dot: string; label: string; hint: string }
+> = {
+  high: {
+    dot: "bg-success",
+    label: "Sterkt treff",
+    hint: "Tydelig samsvar mellom tjenesten og kravet.",
+  },
+  medium: {
+    dot: "bg-warning",
+    label: "Mulig treff",
+    hint: "Delvis samsvar — vurder om koblingen stemmer.",
+  },
+  low: {
+    dot: "bg-muted-foreground/40",
+    label: "Svakt treff",
+    hint: "Svakt samsvar — bekreft bare hvis du vet at det stemmer.",
+  },
+};
+
+/**
+ * Én forslagsrad: konfidensprikk, brødsmule (Regelverk › Krav › Kontrollområde),
+ * begrunnelse for treffet og bekreftelsesstatus. Avhuking = bekreftet av mennesket.
+ */
+function SuggestionRow({
+  suggestion,
+  checked,
+  onToggle,
+}: {
+  suggestion: ControlSuggestion;
+  checked: boolean;
+  onToggle: () => void;
+}) {
+  const meta = CONFIDENCE_META[suggestion.confidence];
+  return (
+    <li>
+      <label
+        className={cn(
+          "flex items-start gap-2 rounded-md border bg-background px-2 py-1.5 cursor-pointer transition-colors",
+          checked ? "border-primary/40" : "border-border hover:border-foreground/30",
+        )}
+      >
+        <input
+          type="checkbox"
+          checked={checked}
+          onChange={onToggle}
+          className="mt-1 h-4 w-4 rounded border-border accent-primary shrink-0"
+        />
+        <div className="flex-1 min-w-0 space-y-0.5">
+          <div
+            className={cn(
+              "flex items-center gap-1.5 text-xs flex-wrap",
+              !checked && "opacity-80",
+            )}
+          >
+            <span
+              className={cn("h-1.5 w-1.5 rounded-full shrink-0", meta.dot)}
+              title={`${meta.label} — ${meta.hint}`}
+              aria-label={meta.label}
+            />
+            <span className="inline-flex items-center rounded bg-muted px-1.5 py-0.5 font-semibold text-muted-foreground">
+              {suggestion.frameworkShortName}
+            </span>
+            <span className="text-muted-foreground">›</span>
+            <span className="font-medium text-foreground">{suggestion.controlId}</span>
+            <span className="text-muted-foreground">›</span>
+            <span className="text-foreground/80">{suggestion.controlLabel}</span>
+          </div>
+          <p className="text-[11px] text-muted-foreground truncate">
+            {checked ? (
+              <span className="text-foreground/70">Bekreftet av deg</span>
+            ) : (
+              <>
+                <Sparkles className="h-2.5 w-2.5 inline-block mr-1 -mt-0.5 text-primary/70" />
+                {meta.label}
+                {suggestion.matchedTerms.length > 0 && (
+                  <> · traff på «{suggestion.matchedTerms.join("», «")}»</>
+                )}
+              </>
+            )}
+          </p>
+        </div>
+      </label>
+    </li>
   );
 }

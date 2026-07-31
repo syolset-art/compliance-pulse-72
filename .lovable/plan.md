@@ -1,23 +1,56 @@
-## Mål
+## Problemet
 
-I baseline-kartleggingen (`BaselineQuestionsDrawer`) skal partneren kunne laste opp dokumentasjon **per kontrollområde** — ikke per spørsmål — og deretter valgfritt koble dokumentet til ett eller flere spørsmål (aktiviteter) i det området.
+Når partneren skriver inn en tjeneste, får de en liste med «Foreslåtte kontrollområder» uten noe signal om hvor sikkert treffet er. I ditt eget skjermbilde vises blant annet:
 
-## Brukerflyt
+- `SOC 2 › Trust Service Criteria › Trust Service Criteria` (ingen reell kobling — bare gjentatt label)
+- `ISO 27001 › overlapp › overlapp` (støy fra katalogen, ikke et krav)
 
-1. Partner åpner "Start modenhetsvurdering" og velger et kontrollområde-faneblad (Styring, Drift, Identitet, Personvern, Tredjepart).
-2. Øverst i området ligger en stram, subtil rad: `📎 Dokumentasjon · 2 filer` med en "Last opp"-lenke. Ingen store bokser.
-3. Ved opplasting: filen legges i listen for området, og Lara foreslår hvilke(t) spørsmål den dekker (enkel nøkkelord-matching mot spørsmålsteksten). Partneren bekrefter eller endrer koblingen i en liten popover med avkryssing av spørsmålene i området.
-4. Koblede spørsmål viser en liten binders-chip med filnavn ved siden av statusikonet. Klikk på chip = åpne popover for å endre kobling eller fjerne.
-5. Status kan fortsatt alltid overstyres manuelt — dokumentkobling endrer ikke status automatisk, men Lara foreslår "Fullført" der et dokument er koblet (kun forslag, partner velger).
+ved siden av åpenbart riktige treff som `ISO 27001 › A.8.16 › Overvåking`. Alt ser likt ut, så brukeren kan ikke skille et sterkt treff fra støy — og da stoler de ikke på noe av det.
+
+Årsaken er i `src/lib/serviceMappingSuggester.ts`: alle treff med `score > 0` returneres likestilt, og kontrollpunkter uten reelt innhold (label = frameworknavn, «overlapp») filtreres ikke bort.
+
+## Løsning: tre grep
+
+**1. Konfidensnivå i stedet for flat liste**
+
+Del `score` i tre nivåer og vis dem visuelt:
+
+| Nivå | Betydning | UI |
+|---|---|---|
+| Høy | Frasetreff eller flere nøkkelord | Grønn prikk + forhåndsvalgt |
+| Middels | Ett tydelig nøkkelordtreff | Gul prikk + forhåndsvalgt |
+| Lav | Svakt delstrengtreff | Grå prikk + **ikke** forhåndsvalgt, samlet under «Vis 4 svakere forslag» |
+
+Kun høy/middels vises åpent. Det gjør listen kortere og signaliserer at systemet selv skiller skitt fra kanel.
+
+**2. «Derfor foreslås dette» — synlig begrunnelse**
+
+Hver rad får en liten begrunnelseslinje eller hover som viser hvilke ord i tjenestenavnet/beskrivelsen som traff kravet, f.eks. *Traff på: «overvåking», «SOC»*. `matchedTerms` finnes allerede i datamodellen, men brukes ikke i UI. Dette er det enkleste og sterkeste tillitsgrepet: brukeren ser resonnementet, ikke bare konklusjonen.
+
+**3. Bekreftelsesstatus — forslag vs. bekreftet av deg**
+
+Et forslag er ikke en sannhet før mennesket har sagt ja. Innfør to tilstander per kobling:
+- **Foreslått av Lara** (ubekreftet) — dempet, med Sparkles-ikon
+- **Bekreftet av deg** — normal vekt, uten AI-merking
+
+Når brukeren huker av en rad, går den fra «foreslått» til «bekreftet». Toppen av boksen viser status i klartekst: *«3 bekreftet · 2 forslag til vurdering»*. Ved lagring merkes koblingene slik at kundevendte flater (tilbud, katalogeksport, `CustomerCatalogPreview`) kan vise kun bekreftede koblinger — aldri ubekreftede AI-gjetninger til sluttkunde.
+
+## Rydding i datagrunnlaget
+
+Uavhengig av UI må støyen bort, ellers undergraver den alt annet:
+- Filtrer bort kontrollpunkter der `controlLabel` er identisk med frameworknavnet, eller der `controlId`/label er generiske ord som «overlapp».
+- Krev minimum-score for i det hele tatt å vises (i dag holder det med ett svakt delstrengtreff på fire tegn).
+- Fjern duplikater der samme krav treffes via flere nøkkelord.
 
 ## Teknisk
 
-- **Ny hook** `src/hooks/useBaselineDocuments.ts` — samme localStorage-mønster som `useCustomerBaseline` (nøkkel `msp.customer.baselineDocs.<customerId>`). Lagrer `{ id, areaId, fileName, size, uploadedAt, questionIds[] }`. API: `docsForArea`, `docsForQuestion`, `addDocument`, `linkDocument`, `removeDocument`.
-- **Ny komponent** `src/components/msp/BaselineAreaDocuments.tsx` — kompakt dokumentrad + `<input type="file" hidden>` + popover for kobling. Gjenbruker chip-stilen fra eksisterende dokumentrader (binders-ikon, `Sparkles` + "Lara" for foreslått kobling).
-- **`BaselineQuestionsDrawer.tsx`** — rendrer dokumentraden øverst i hver `TabsContent`, og en liten chip per spørsmål som har koblede dokumenter.
-- **`MSPCustomerDetail.tsx`** — sender `customerId` videre til drawer (kreves for lagringsnøkkelen).
-- Filer lagres som metadata lokalt i prototypen (samme nivå som resten av baseline-dataene). Faktisk opplasting til skylagring holdes utenfor denne endringen.
+- `src/lib/serviceMappingSuggester.ts`: legg til `confidence: "high" | "medium" | "low"` i `ControlSuggestion`, terskler basert på eksisterende `score`, samt et støyfilter (`isMeaningfulControlPoint`) og en høyere minsteterskel.
+- `src/components/msp/CustomServiceDialog.tsx`: ny radkomponent med konfidensprikk, begrunnelsestekst fra `matchedTerms`, gruppering høy/middels åpent + lav bak «Vis flere», statuslinje øverst, og forhåndsvalg kun av høy/middels.
+- `ServiceMapping` utvides med `confirmed: boolean` (avhuking = bekreftet). Bakoverkompatibelt: eksisterende lagrede mappinger uten feltet behandles som bekreftet.
+- Gjenbruk `AiMappingDisclosure` som «icon»-variant i headeren i stedet for lang forklarende tekst — minimal tekst, samme transparens.
+- Ingen endringer i pris-, aktivitets- eller lagringslogikk utover det nye feltet.
 
-## Utenfor scope
+## Utenfor omfang
 
-Ingen endringer i spørsmålssettet, modenhetsberegningen eller gap-analysen.
+- Ingen ny AI-modell eller edge function — matchingen forblir regelbasert og forutsigbar, noe som i seg selv er lettere å forklare og stole på.
+- Kundevendt filtrering av ubekreftede koblinger forberedes i datamodellen, men rulles ut på kundeflatene som eget steg hvis du ønsker det.
