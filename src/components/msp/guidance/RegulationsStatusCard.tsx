@@ -37,9 +37,17 @@ import { useCustomerBaseline } from "@/hooks/useCustomerBaseline";
 import { useBaselineDocuments } from "@/hooks/useBaselineDocuments";
 import {
   buildNextActions,
+  getDocumentStatus,
   type NextAction,
   type RegulationStatus,
 } from "@/lib/maturityNextActions";
+import { useServiceDefaults } from "@/hooks/useServiceDefaults";
+import {
+  toDeliverables,
+  summarizePotential,
+  formatPriceRange,
+} from "@/lib/documentDeliverables";
+
 
 
 interface Props {
