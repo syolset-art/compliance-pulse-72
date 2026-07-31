@@ -10,7 +10,18 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Scale, Sparkles, Check, X, ArrowRight, Upload } from "lucide-react";
+import {
+  Scale,
+  Sparkles,
+  Check,
+  X,
+  ArrowRight,
+  Upload,
+  FileWarning,
+  ListChecks,
+  Wrench,
+  ChevronRight,
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -19,8 +30,16 @@ import type { FrameworkRecommendation } from "@/lib/regulationRecommender";
 import { PARTNER_SERVICES } from "@/lib/serviceCatalog";
 import { SERVICE_LIBRARY } from "@/lib/serviceLibrary";
 import { ActivateRegulationDialog } from "./ActivateRegulationDialog";
+import { RegulationDetailDrawer } from "./RegulationDetailDrawer";
 import { PartnerEvidenceUploadDialog } from "@/components/msp/PartnerEvidenceUploadDialog";
 import { PartnerEvidenceSection } from "@/components/msp/PartnerEvidenceSection";
+import { useCustomerBaseline } from "@/hooks/useCustomerBaseline";
+import { useBaselineDocuments } from "@/hooks/useBaselineDocuments";
+import {
+  buildNextActions,
+  type NextAction,
+  type RegulationStatus,
+} from "@/lib/maturityNextActions";
 
 
 interface Props {
@@ -30,6 +49,8 @@ interface Props {
   confirmed: FrameworkRecommendation[];
   activeFrameworkIds: string[];
   onGoToProducts: () => void;
+  /** Åpner modenhetsvurderingen (spørreskjemaet). */
+  onOpenAssessment?: () => void;
 }
 
 const MAX_CHIPS = 3;
