@@ -37,9 +37,17 @@ import { useCustomerBaseline } from "@/hooks/useCustomerBaseline";
 import { useBaselineDocuments } from "@/hooks/useBaselineDocuments";
 import {
   buildNextActions,
+  getDocumentStatus,
   type NextAction,
   type RegulationStatus,
 } from "@/lib/maturityNextActions";
+import { useServiceDefaults } from "@/hooks/useServiceDefaults";
+import {
+  toDeliverables,
+  summarizePotential,
+  formatPriceRange,
+} from "@/lib/documentDeliverables";
+
 
 
 interface Props {
@@ -84,6 +92,8 @@ export function RegulationsStatusCard({
 
   const { answers } = useCustomerBaseline(customerId);
   const { documents } = useBaselineDocuments(customerId);
+  const { defaultHourlyRate, currency } = useServiceDefaults();
+
 
   const documentCountByArea = useMemo(() => {
     const map: Record<string, number> = {};
@@ -325,6 +335,13 @@ export function RegulationsStatusCard({
                   services,
                 });
 
+                // Salgspotensial for dokumentene som mangler på dette regelverket.
+                const missingDeliverables = toDeliverables(
+                  getDocumentStatus(rec.frameworkId, uploadedFileNames).filter((d) => !d.present),
+                  defaultHourlyRate,
+                );
+                const docPotential = summarizePotential(missingDeliverables);
+
                 const runAction = (a: NextAction) => {
                   switch (a.kind) {
                     case "confirm":
@@ -341,11 +358,15 @@ export function RegulationsStatusCard({
                       onOpenAssessment?.();
                       break;
                     case "documentation":
-                      setUploadDialog({
+                      // Åpner detaljene der partneren kan generere utkast eller lage tilbud.
+                      setDetail({
                         open: true,
-                        presetFrameworkIds: [rec.frameworkId],
+                        frameworkId: rec.frameworkId,
+                        label: rec.label,
+                        status,
                       });
                       break;
+
                     default:
                       setDetail({
                         open: true,
@@ -457,7 +478,15 @@ export function RegulationsStatusCard({
                                         : "text-muted-foreground",
                                   )}
                                 />
-                                <span className="leading-snug">{a.text}</span>
+                                <span className="leading-snug">
+                                  {a.text}
+                                  {a.kind === "documentation" && docPotential.count > 0 && (
+                                    <span className="ml-1.5 whitespace-nowrap rounded bg-primary/10 px-1.5 py-[1px] text-[10px] font-medium tabular-nums text-primary">
+                                      {formatPriceRange(docPotential.price, currency)} i potensial
+                                    </span>
+                                  )}
+                                </span>
+
                               </button>
                             </li>
                           );
@@ -508,6 +537,8 @@ export function RegulationsStatusCard({
           open={detail.open}
           onOpenChange={(o) => setDetail((s) => ({ ...s, open: o }))}
           customerId={customerId}
+          customerName={customerName}
+
           frameworkId={detail.frameworkId}
           label={detail.label || ""}
           status={detail.status || "recommended"}
