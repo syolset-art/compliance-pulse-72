@@ -1,5 +1,7 @@
 import { FRAMEWORK_CATALOG } from "./frameworkCoverageCatalog";
 
+export type MatchConfidence = "high" | "medium" | "low";
+
 export interface ControlSuggestion {
   frameworkId: string;
   frameworkLabel: string;
@@ -8,6 +10,8 @@ export interface ControlSuggestion {
   controlLabel: string;
   /** Hvor sterkt treff (høyere = bedre). */
   score: number;
+  /** Avledet konfidensnivå — styrer UI og forhåndsvalg. */
+  confidence: MatchConfidence;
   /** Hvilke nøkkelord traff. */
   matchedTerms: string[];
 }
