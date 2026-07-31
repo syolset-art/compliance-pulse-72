@@ -524,3 +524,91 @@ export function CustomServiceDialog({
     </Dialog>
   );
 }
+
+const CONFIDENCE_META: Record<
+  MatchConfidence,
+  { dot: string; label: string; hint: string }
+> = {
+  high: {
+    dot: "bg-success",
+    label: "Sterkt treff",
+    hint: "Tydelig samsvar mellom tjenesten og kravet.",
+  },
+  medium: {
+    dot: "bg-warning",
+    label: "Mulig treff",
+    hint: "Delvis samsvar — vurder om koblingen stemmer.",
+  },
+  low: {
+    dot: "bg-muted-foreground/40",
+    label: "Svakt treff",
+    hint: "Svakt samsvar — bekreft bare hvis du vet at det stemmer.",
+  },
+};
+
+/**
+ * Én forslagsrad: konfidensprikk, brødsmule (Regelverk › Krav › Kontrollområde),
+ * begrunnelse for treffet og bekreftelsesstatus. Avhuking = bekreftet av mennesket.
+ */
+function SuggestionRow({
+  suggestion,
+  checked,
+  onToggle,
+}: {
+  suggestion: ControlSuggestion;
+  checked: boolean;
+  onToggle: () => void;
+}) {
+  const meta = CONFIDENCE_META[suggestion.confidence];
+  return (
+    <li>
+      <label
+        className={cn(
+          "flex items-start gap-2 rounded-md border bg-background px-2 py-1.5 cursor-pointer transition-colors",
+          checked ? "border-primary/40" : "border-border hover:border-foreground/30",
+        )}
+      >
+        <input
+          type="checkbox"
+          checked={checked}
+          onChange={onToggle}
+          className="mt-1 h-4 w-4 rounded border-border accent-primary shrink-0"
+        />
+        <div className="flex-1 min-w-0 space-y-0.5">
+          <div
+            className={cn(
+              "flex items-center gap-1.5 text-xs flex-wrap",
+              !checked && "opacity-80",
+            )}
+          >
+            <span
+              className={cn("h-1.5 w-1.5 rounded-full shrink-0", meta.dot)}
+              title={`${meta.label} — ${meta.hint}`}
+              aria-label={meta.label}
+            />
+            <span className="inline-flex items-center rounded bg-muted px-1.5 py-0.5 font-semibold text-muted-foreground">
+              {suggestion.frameworkShortName}
+            </span>
+            <span className="text-muted-foreground">›</span>
+            <span className="font-medium text-foreground">{suggestion.controlId}</span>
+            <span className="text-muted-foreground">›</span>
+            <span className="text-foreground/80">{suggestion.controlLabel}</span>
+          </div>
+          <p className="text-[11px] text-muted-foreground truncate">
+            {checked ? (
+              <span className="text-foreground/70">Bekreftet av deg</span>
+            ) : (
+              <>
+                <Sparkles className="h-2.5 w-2.5 inline-block mr-1 -mt-0.5 text-primary/70" />
+                {meta.label}
+                {suggestion.matchedTerms.length > 0 && (
+                  <> · traff på «{suggestion.matchedTerms.join("», «")}»</>
+                )}
+              </>
+            )}
+          </p>
+        </div>
+      </label>
+    </li>
+  );
+}
