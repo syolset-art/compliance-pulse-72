@@ -426,10 +426,10 @@ const SidebarContent = () => {
   // "Moduler" combines items from sections not shown normally, split by category
   const exploreCoreItems = !showCoreNormal ? [...coreNav, systemsLink] : [];
   const exploreRegistryItems = [
-    ...(!showVendorsNormal ? [vendorLink] : []),
     ...(!showAssetsNormal ? [assetsLink] : []),
     ...(!hasAgentsAccess ? [agentsLink] : []),
   ];
+
   const exploreItems = [...exploreCoreItems, ...exploreRegistryItems];
   const isExploreActive = exploreItems.some(item => location.pathname === item.href);
   const [exploreOpen, setExploreOpen] = useState(() => isExploreActive);
