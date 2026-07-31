@@ -244,19 +244,17 @@ function ColumnFilter({
 }
 
 // ===== Responsive column config =====
-type ColumnKey = "customer" | "country" | "industry" | "services" | "frameworks" | "products" | "score";
+type ColumnKey = "customer" | "country" | "industry" | "frameworks" | "score";
 
 const COLUMN_LABELS: Record<ColumnKey, string> = {
   customer: "Kunde",
   country: "Land",
   industry: "Bransje",
-  services: "Lara anbefaler",
   frameworks: "Regelverk",
-  products: "Produkter og tjenester",
   score: "Modenhet",
 };
 
-const COLUMN_ORDER: ColumnKey[] = ["customer", "country", "industry", "services", "frameworks", "products", "score"];
+const COLUMN_ORDER: ColumnKey[] = ["customer", "country", "industry", "frameworks", "score"];
 
 // Min Tailwind breakpoint (in px) where each column becomes visible by default.
 // 0 = always shown; 640=sm, 768=md, 1024=lg, 1280=xl
@@ -264,14 +262,13 @@ const COLUMN_MIN_BP: Record<ColumnKey, number> = {
   customer: 0,
   score: 0,
   frameworks: 640,
-  products: 768,
-  services: 1024,
   industry: 1024,
   country: 1280,
 };
 
 
-const COLUMN_STORAGE_KEY = "msp_dashboard_columns_v1";
+
+const COLUMN_STORAGE_KEY = "msp_dashboard_columns_v2";
 
 function defaultVisibilityForViewport(): Record<ColumnKey, boolean> {
   const w = typeof window !== "undefined" ? window.innerWidth : 1280;
@@ -736,7 +733,7 @@ export default function MSPDashboard() {
                         options={industryOptions.map((v) => ({ value: v, label: v }))}
                         selected={industryFilter} onChange={setIndustryFilter} />
                     );
-                    if (!isVisible("services")) hiddenFilters.push(
+                    hiddenFilters.push(
                       <ColumnFilter key="f-services" label="Lara anbefaler"
                         options={serviceOptions.map((v) => ({ value: v, label: v }))}
                         selected={serviceFilter} onChange={setServiceFilter} />
@@ -790,41 +787,6 @@ export default function MSPDashboard() {
                               </TooltipTrigger>
                               <TooltipContent side="top" className="max-w-[240px]">
                                 <p>Grønn betyr at regelverket er aktivert. Lilla betyr at det er en anbefaling fra Mynder.</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TableHead>
-                        )}
-                        {isVisible("services") && (
-                          <TableHead className="w-auto text-foreground/80">
-                            <ColumnFilter
-                              label={
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <span className="inline-flex items-center gap-1.5 cursor-help">
-                                      Tjenester <Info className="h-3.5 w-3.5 text-foreground/50" />
-                                    </span>
-                                  </TooltipTrigger>
-                                  <TooltipContent side="top" className="max-w-[240px]">
-                                    <p>Grønn betyr at tjenesten er levert eller aktiv. Lilla betyr at det er en anbefaling fra Mynder.</p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              }
-                              options={serviceOptions.map((v) => ({ value: v, label: v }))}
-                              selected={serviceFilter}
-                              onChange={setServiceFilter}
-                            />
-                          </TableHead>
-                        )}
-                        {isVisible("products") && (
-                          <TableHead className="w-[240px] text-foreground/80">
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <span className="inline-flex items-center gap-1.5 text-sm font-medium cursor-help">
-                                  Produkter <Info className="h-3.5 w-3.5 text-foreground/50" />
-                                </span>
-                              </TooltipTrigger>
-                              <TooltipContent side="top" className="max-w-[240px]">
-                                <p>Grønn betyr at produktet er aktivert. Lilla betyr at det er en anbefaling fra Mynder.</p>
                               </TooltipContent>
                             </Tooltip>
                           </TableHead>
@@ -904,79 +866,6 @@ export default function MSPDashboard() {
                                       ))}
                                       {all.length > 3 && (
                                         <span className="text-[11px] text-muted-foreground">+{all.length - 3}</span>
-                                      )}
-                                    </div>
-                                  );
-                                })()}
-                              </TableCell>
-                            )}
-                            {isVisible("services") && (
-                              <TableCell onClick={(e) => e.stopPropagation()}>
-                                {(() => {
-                                  const recommended = services.filter((s) => !activeServices.includes(s));
-                                  const all = [...activeServices, ...recommended];
-                                  if (all.length === 0) {
-                                    return <span className="text-muted-foreground text-sm">—</span>;
-                                  }
-                                  return (
-                                    <div className="flex flex-wrap gap-1 max-w-[280px]">
-                                      {activeServices.slice(0, 3).map((s) => (
-                                        <button
-                                          key={s}
-                                          type="button"
-                                          onClick={() => navigate(`/msp-dashboard/${c.id}?tab=assessment&service=${encodeURIComponent(s)}`)}
-                                          className="inline-flex"
-                                          title={`Aktiv tjeneste for ${c.customer_name}`}
-                                        >
-                                          <Badge variant="outline" className="font-normal bg-success/10 text-foreground border-success/30 text-[12px] cursor-pointer hover:bg-success/20 transition-colors">
-                                            {s}
-                                          </Badge>
-                                        </button>
-                                      ))}
-                                      {recommended.slice(0, Math.max(0, 3 - activeServices.length)).map((s) => (
-                                        <button
-                                          key={s}
-                                          type="button"
-                                          onClick={() => navigate(`/msp-dashboard/${c.id}?tab=assessment&service=${encodeURIComponent(s)}`)}
-                                          className="inline-flex"
-                                          title={`Anbefalt tjeneste for ${c.customer_name}`}
-                                        >
-                                          <Badge variant="outline" className="font-normal bg-primary/10 text-foreground dark:text-primary-foreground border-primary/30 dark:border-primary/50 text-[12px] cursor-pointer hover:bg-primary/20 transition-colors">
-                                            {s}
-                                          </Badge>
-                                        </button>
-                                      ))}
-                                      {all.length > 3 && (
-                                        <span className="text-[11px] text-muted-foreground self-center">+{all.length - 3}</span>
-                                      )}
-                                    </div>
-                                  );
-                                })()}
-                              </TableCell>
-                            )}
-                            {isVisible("products") && (
-                              <TableCell onClick={(e) => e.stopPropagation()}>
-                                {(() => {
-                                  // Demo: samme aktiveringslogikk som CustomerModulesTab
-                                  const products: string[] = ["Mynder Core", "Leverandør", "Assets"];
-                                  const delivered = getOffersForCustomer(c.id).filter((o) => o.status === "delivered");
-                                  const serviceCount = new Set(
-                                    delivered.flatMap((o) => [...(o.templateIds || []), ...(o.serviceKeys || [])]),
-                                  ).size;
-                                  if (products.length === 0 && serviceCount === 0) {
-                                    return <span className="text-muted-foreground text-sm">—</span>;
-                                  }
-                                  return (
-                                    <div className="flex flex-wrap items-center gap-1 max-w-[240px]">
-                                      {products.map((p) => (
-                                        <Badge key={p} variant="outline" className="font-normal bg-success/10 text-foreground border-success/30 text-[11px]">
-                                          {p}
-                                        </Badge>
-                                      ))}
-                                      {serviceCount > 0 && (
-                                        <Badge variant="outline" className="font-normal bg-success/15 text-foreground border-success/40 text-[11px]">
-                                          {serviceCount} {serviceCount === 1 ? "tjeneste" : "tjenester"}
-                                        </Badge>
                                       )}
                                     </div>
                                   );
