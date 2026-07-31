@@ -49,6 +49,7 @@ import { ChangeVendorTierDialog } from "@/components/dialogs/ChangeVendorTierDia
 import { ConfirmVendorTierChangeDialog } from "@/components/dialogs/ConfirmVendorTierChangeDialog";
 import { useWorkspaceMode } from "@/contexts/WorkspaceModeContext";
 import { cn } from "@/lib/utils";
+import { getDeactivatedModules, saveDeactivatedModules } from "@/lib/moduleActivationState";
 
 // Map current legacy tier to new PlanId for highlighting
 function tierToPlanId(tierName: string | undefined): PlanId {
