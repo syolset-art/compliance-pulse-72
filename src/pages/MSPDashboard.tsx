@@ -880,8 +880,12 @@ export default function MSPDashboard() {
                             {isVisible("frameworks") && (
                               <TableCell onClick={(e) => e.stopPropagation()}>
                                 {(() => {
-                                  const active: string[] = c.active_frameworks || [];
-                                  const recommended: string[] = (c.recommended_frameworks || []).filter((f: string) => !active.includes(f));
+                                  const toLabel = (f: any): string =>
+                                    typeof f === "string" ? f : (f?.label ?? f?.frameworkId ?? "");
+                                  const active: string[] = (c.active_frameworks || []).map(toLabel).filter(Boolean);
+                                  const recommended: string[] = (c.recommended_frameworks || [])
+                                    .map(toLabel)
+                                    .filter((f: string) => f && !active.includes(f));
                                   const all = [...active, ...recommended];
                                   if (all.length === 0) {
                                     return <span className="text-muted-foreground text-sm">—</span>;
