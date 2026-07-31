@@ -553,32 +553,8 @@ const SidebarContent = () => {
                 <Shield className="h-4 w-4" />
                 {isNb ? "Trust Center" : "Trust Center"}
               </Link>
-              {coreUnlocked ? (
-                <Link
-                  to="/dashboard-core"
-                  className={cn(
-                    "flex items-center gap-2.5 rounded-lg px-3 py-2 text-[0.9375rem] font-medium transition-all duration-200 relative",
-                    coreActive
-                      ? "bg-gradient-to-r from-primary/10 to-transparent text-sidebar-primary border-l-2 border-primary"
-                      : "text-sidebar-foreground/80 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
-                  )}
-                >
-                  {coreActive && <span className="h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />}
-                  <LayoutDashboard className="h-4 w-4" />
-                  {isNb ? "Mynder Core" : "Mynder Core"}
-                </Link>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => toast.info(isNb ? "Mynder Core aktiveres fra plan & moduler." : "Mynder Core is activated from plan & modules.")}
-                  title={isNb ? "Aktiveres med Mynder Core" : "Unlocks with Mynder Core"}
-                  className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-[0.9375rem] font-medium text-sidebar-foreground/40 hover:bg-sidebar-accent/30 hover:text-sidebar-foreground/60 transition-all"
-                >
-                  <LayoutDashboard className="h-4 w-4" />
-                  <span className="flex-1 text-left">{isNb ? "Mynder Core" : "Mynder Core"}</span>
-                  <Lock className="h-3 w-3" />
-                </button>
-              )}
+              {/* Mynder Core-lenken ligger nå kun i Core-seksjonen lenger ned. */}
+
               {boardNav.map((item) => {
                 const isActive = location.pathname === item.href;
                 return (
