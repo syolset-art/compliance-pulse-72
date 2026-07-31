@@ -1,28 +1,42 @@
 ## Mål
-Når Lara foreslår en kobling (Regelverk › Krav › Kontrollområde), skal partneren kunne se hvilken dokumentasjon som typisk kreves for det kravet — som en subtil lenke/tooltip i radene. Det gir partneren noe konkret å selge og forsterker at Mynder er kilden.
 
-## Hva som bygges
+Partneren skal på ett blikk se: hvilke regelverk kunden **må etterleve**, hvilke som er **aktivert**, og **neste anbefalte tiltak** for å øke modenhet. Produkter og manglende dokumentasjon flyttes ned i detaljvisning.
 
-1. **Utvid dokumentasjonshintene** (`src/lib/requirementDocumentationHints.ts`)
-   - Dagens `getTypicalDocumentation` dekker GDPR Art. 28/30/32/33/35, ISO 27001 A.5–A.8 og NIS2 med et generisk fallback.
-   - Legg til hint for de øvrige rammeverkene som brukes i forslagene (DORA, AI Act, Åpenhetsloven) og flere GDPR/ISO-artikler.
-   - Legg til en `hasSpecificDocumentation(requirementId)`-hjelper slik at UI kun viser lenken når det finnes et reelt, spesifikt hint (ikke det generiske «Policy/Prosedyre»).
+Gjelder kortet «Regelverk anbefalt for denne kunden» på fanen **Veiledning fra Mynder** (`RegulationsStatusCard`), som i dag har kolonnene Regelverk · Anbefalte tjenester · Status · Handling.
 
-2. **Vis hintet i forslagsradene** (`src/components/msp/CustomServiceDialog.tsx`, `SuggestionRow`)
-   - Subtil knapp helt til høyre i raden: dokument-ikon + teksten «Anbefalt dokumentasjon» (kun ikon på smale rader).
-   - Klikk/hover åpner en liten popover med:
-     - Kravets navn (f.eks. «GDPR Art. 30 (Protokoll)»)
-     - Punktliste med typiske dokumenter
-     - Én linje: «Typisk dokumentasjon Mynder forventer for dette kravet.»
-   - Vises kun når det finnes et spesifikt hint, så radene ikke fylles med støy.
-   - Samme visning brukes på de allerede koblede radene («extraMappings») for konsistens.
+## Ny tabellstruktur
 
-3. **Ingen endring i logikk for treff/konfidens** — dette er ren visning på toppen av eksisterende mapping.
+```text
+REGELVERK              STATUS             ANBEFALTE TILTAK FOR ØKT MODENHET
+GDPR                   ● Aktivert         · 3 aktiviteter uten dokumentasjon  →
+Personvernforordn.     (siden 12.03)      · Mangler databehandleravtale
+                                          · Tjeneste: Personvern-gjennomgang ★
+
+NIS2                   ● Bekreftet        · Aktiver regelverket for å måle modenhet →
+                       (ikke aktivert)    · Tjeneste: NIS2 risikovurdering ★
+
+ISO 27001              ○ AI-anbefalt      · Bekreft at regelverket gjelder →
+```
+
+- **Kolonne 1 – Regelverk:** navn + alias + kort Lara-begrunnelse (som i dag).
+- **Kolonne 2 – Status:** Aktivert / Bekreftet (ikke aktivert) / AI-anbefalt, med samme fargespråk som i dag (grønn = aktivert).
+- **Kolonne 3 – Anbefalte tiltak:** prioritert liste (maks 3) generert av en ny hjelpefunksjon, blandet av tre typer tiltak:
+  1. **Aktiver regelverk** (hvis bekreftet, men ikke aktivert) — største modenhetsløft.
+  2. **Manglende dokumentasjon / åpne aktiviteter** — kontrollområder i modenhetsvurderingen som ikke er besvart eller mangler dokument (fra `useCustomerBaseline` + `useBaselineDocuments`).
+  3. **Tjeneste partneren kan selge** — fra dagens `servicesFor()`-logikk, markert med stjerne hvis den finnes i partnerens egen katalog.
+
+Hvert tiltak er klikkbart og åpner eksisterende flyt (aktiver-dialog, opplastingsdialog, eller tjenestekatalog).
+
+## Detaljvisning (drawer)
+
+Klikk på en rad åpner en drawer «{Regelverk} — detaljer» med:
+- **Produkter/moduler kunden har** for dette regelverket (gjenbruker data fra `CustomerModulesTab`), med lenke «Se i Produkter».
+- **Dokumentstatus:** liste over anbefalte dokumenter (fra `requirementDocumentationHints`) med Har / Mangler-merking, koblet mot opplastede bevis (`PartnerEvidenceSection` / `useBaselineDocuments`). «Mangler»-rader har direkte «Last opp»-knapp.
+- **Alle anbefalte tjenester** for regelverket (full liste, ikke bare 3).
 
 ## Teknisk
-- Bruker eksisterende `Popover`/`Tooltip` fra shadcn og `FileText`-ikon fra lucide.
-- Hint slås opp på `controlId` (samme format som `ManualDocumentationDialog` allerede bruker), med `frameworkId` som ekstra kontekst for å velge riktig regelsett.
-- Ingen backend- eller datamodellendringer.
 
-## Merknad
-Den valgte raden viser «GDPR › helhetlig › helhetlig» — et støyforslag der id og label er samme ord. Støyfilteret i `serviceMappingSuggester.ts` fanger «id === label» kun etter trimming/lowercase, så dette burde vært filtrert; jeg verifiserer og utvider filteret i samme runde hvis det slipper gjennom.
+- Ny `src/lib/maturityNextActions.ts`: bygger prioriterte tiltak per framework fra baseline-svar, baseline-dokumenter, aktive frameworks og tjenestekatalog. Ren, testbar funksjon uten UI.
+- Ny `src/components/msp/guidance/RegulationDetailDrawer.tsx` for detaljvisning.
+- `RegulationsStatusCard.tsx` omskrives til tre kolonner + kompakt handlingsmeny (aktiver/bekreft/last opp beholdes, men flyttes til hover-/ikonknapper til høyre slik at kolonne 3 får plass).
+- Ingen databaseendringer; all ny logikk leser eksisterende kilder (msp_customers, localStorage-baseline, servicekatalog).

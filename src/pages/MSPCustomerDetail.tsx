@@ -490,6 +490,7 @@ export default function MSPCustomerDetail() {
                 confirmed={((customer?.confirmed_frameworks as any) || []) as FrameworkRecommendation[]}
                 activeFrameworkIds={activeFrameworkIds}
                 onGoToProducts={() => handleTabChange("modules")}
+                onOpenAssessment={() => setBaselineDrawer({ open: true, review: false, mode: "partner" })}
               />
 
               <CustomerServiceCoverageSearch
