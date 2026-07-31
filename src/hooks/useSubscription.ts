@@ -138,6 +138,18 @@ export function useSubscription() {
     enabled: !!companyProfile?.id,
   });
 
+  // Lokalt deaktiverte moduler (Innstillinger → Produkter)
+  const [deactivatedModules, setDeactivatedModules] = useState<Set<string>>(() => getDeactivatedModules());
+  useEffect(() => {
+    const sync = () => setDeactivatedModules(getDeactivatedModules());
+    window.addEventListener("modules:changed", sync);
+    window.addEventListener("storage", sync);
+    return () => {
+      window.removeEventListener("modules:changed", sync);
+      window.removeEventListener("storage", sync);
+    };
+  }, []);
+
   // Derived state
   const currentTier: PlanTier = planNameToTier(subscription?.plan?.name);
   const billingInterval: BillingInterval =
