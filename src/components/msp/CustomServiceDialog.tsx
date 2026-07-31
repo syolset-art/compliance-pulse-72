@@ -22,6 +22,11 @@ export interface ServiceMapping {
   frameworkShortName: string;
   controlId: string;
   controlLabel: string;
+  /**
+   * True når mennesket aktivt har bekreftet koblingen. Eldre lagrede mappinger
+   * mangler feltet og behandles som bekreftet (bakoverkompatibelt).
+   */
+  confirmed?: boolean;
 }
 
 export interface ServiceActivity {
