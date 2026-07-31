@@ -90,6 +90,7 @@ export function CustomServiceDialog({
   const [usePriceOverride, setUsePriceOverride] = useState(false);
   const [priceOverride, setPriceOverride] = useState<number>(0);
   const [suggesting, setSuggesting] = useState(false);
+  const [showWeak, setShowWeak] = useState(false);
 
   const handleSuggestDescription = () => {
     const trimmed = name.trim();
