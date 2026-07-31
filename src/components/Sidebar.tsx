@@ -385,7 +385,7 @@ const SidebarContent = () => {
   const isAssetsActivating = activatingModules.has("assets") && !(selectedRegistriesAtOnboarding || hasRegistriesAccess);
 
   // "Moduler" collects anything not shown normally
-  const showExploreSection = !showCoreNormal || !showVendorsNormal || !showAssetsNormal || !hasAgentsAccess;
+  const showExploreSection = !showCoreNormal || !showAssetsNormal || !hasAgentsAccess;
   
   const [companyOpen, setCompanyOpen] = useState(() => location.pathname.startsWith("/msp-") || location.pathname.startsWith("/admin/") || location.pathname === "/subscriptions");
   // partnerOpen fjernet — Partner ligger nå i workspace-bryteren øverst
