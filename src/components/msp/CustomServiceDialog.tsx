@@ -191,12 +191,16 @@ export function CustomServiceDialog({
         frameworkShortName: s.frameworkShortName,
         controlId: s.controlId,
         controlLabel: s.controlLabel,
+        // Avhuket av mennesket = bekreftet kobling
+        confirmed: true,
       }));
-    const keptExtras = extraMappings.filter(
-      (m) =>
-        selectedMappings.has(mappingKey(m)) &&
-        !fromSuggestions.some((s) => mappingKey(s) === mappingKey(m)),
-    );
+    const keptExtras = extraMappings
+      .filter(
+        (m) =>
+          selectedMappings.has(mappingKey(m)) &&
+          !fromSuggestions.some((s) => mappingKey(s) === mappingKey(m)),
+      )
+      .map((m) => ({ ...m, confirmed: true }));
     const cleanedActivities = activities
       .map((a) => ({ label: a.label.trim(), hours: Math.max(0, a.hours || 0) }))
       .filter((a) => a.label.length > 0 || a.hours > 0);
