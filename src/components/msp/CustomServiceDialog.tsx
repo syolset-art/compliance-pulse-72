@@ -137,11 +137,14 @@ export function CustomServiceDialog({
     [name, description],
   );
 
-  // Auto-velg topp 3 forslag i opprettelsesmodus når brukeren ikke har overstyrt
+  // Auto-velg kun forslag med høy/middels konfidens når brukeren ikke har overstyrt
   useEffect(() => {
     if (userTouchedMappings) return;
-    const top = suggestions.slice(0, 3).map(suggestionKey);
-    setSelectedMappings(new Set(top));
+    const strong = suggestions
+      .filter((s) => s.confidence !== "low")
+      .slice(0, 3)
+      .map(suggestionKey);
+    setSelectedMappings(new Set(strong));
   }, [suggestions, userTouchedMappings]);
 
   const totalHours = useMemo(
