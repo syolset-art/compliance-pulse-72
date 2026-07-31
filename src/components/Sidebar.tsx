@@ -385,7 +385,7 @@ const SidebarContent = () => {
   const isAssetsActivating = activatingModules.has("assets") && !(selectedRegistriesAtOnboarding || hasRegistriesAccess);
 
   // "Moduler" collects anything not shown normally
-  const showExploreSection = !showCoreNormal || !showVendorsNormal || !showAssetsNormal || !hasAgentsAccess;
+  const showExploreSection = !showCoreNormal || !showAssetsNormal || !hasAgentsAccess;
   
   const [companyOpen, setCompanyOpen] = useState(() => location.pathname.startsWith("/msp-") || location.pathname.startsWith("/admin/") || location.pathname === "/subscriptions");
   // partnerOpen fjernet — Partner ligger nå i workspace-bryteren øverst
@@ -395,15 +395,12 @@ const SidebarContent = () => {
   // in demo/preview when company_profile is empty.
   const companyName = activeOrg?.name || "Mynder AS";
 
-  // Mynder Core-seksjonen: Systemer + arbeidsområder, oppgaver, avvik, rapporter
-  const coreSectionItems = [systemsLink, ...coreNav];
+  // Mynder Core-seksjonen: Systemer + Leverandører + arbeidsområder, oppgaver, avvik, rapporter
+  const coreSectionItems = [systemsLink, vendorLink, ...coreNav];
+
   const isManagementActive = location.pathname === "/dashboard-core"
     || coreSectionItems.some(item => location.pathname === item.href || location.pathname.startsWith(item.href + "/"));
   const [managementOpen, setManagementOpen] = useState(() => isManagementActive);
-  const [vendorsOpen, setVendorsOpen] = useState(() => location.pathname.startsWith("/vendors"));
-  useEffect(() => {
-    if (location.pathname.startsWith("/vendors")) setVendorsOpen(true);
-  }, [location.pathname]);
 
   // Keep the section open when navigating between its sub-routes (e.g. /reports → /reports/compliance)
   useEffect(() => {
@@ -425,10 +422,10 @@ const SidebarContent = () => {
   // "Moduler" combines items from sections not shown normally, split by category
   const exploreCoreItems = !showCoreNormal ? [...coreNav, systemsLink] : [];
   const exploreRegistryItems = [
-    ...(!showVendorsNormal ? [vendorLink] : []),
     ...(!showAssetsNormal ? [assetsLink] : []),
     ...(!hasAgentsAccess ? [agentsLink] : []),
   ];
+
   const exploreItems = [...exploreCoreItems, ...exploreRegistryItems];
   const isExploreActive = exploreItems.some(item => location.pathname === item.href);
   const [exploreOpen, setExploreOpen] = useState(() => isExploreActive);
@@ -583,10 +580,10 @@ const SidebarContent = () => {
         {/* Separator */}
         <div className="my-2 border-b border-sidebar-border/40" />
 
-        {/* Global nav: Regelverk → (Leverandører) → Meldinger */}
-        {globalNav.map((item, idx) => {
+        {/* Global nav: Regelverk → Meldinger. Leverandører ligger nå under Mynder Core. */}
+        {globalNav.map((item) => {
           const isActive = location.pathname === item.href;
-          const link = (
+          return (
             <Link
               key={item.name}
               to={item.href}
@@ -602,112 +599,8 @@ const SidebarContent = () => {
               {t(item.name)}
             </Link>
           );
-
-          // Insert Vendors (if activated) between Regelverk (idx 0) and Meldinger (idx 1)
-          if (idx === 1 && showVendorsNormal && !partnerHides("vendors")) {
-            const vIsActive = location.pathname === vendorLink.href;
-            const isReportsActive = location.pathname === "/vendors/reports";
-            const sectionActive = location.pathname.startsWith("/vendors");
-            const handleSeed = async () => {
-              try {
-                const { seedDemoVendorProfiles } = await import("@/lib/demoVendorProfiles");
-                const count = await seedDemoVendorProfiles();
-                queryClient.invalidateQueries({ queryKey: ["vendor-assets"] });
-                queryClient.invalidateQueries({ queryKey: ["assets"] });
-                toast.success(`${count} demo-leverandører ble lastet inn`);
-              } catch (e: any) {
-                toast.error(e.message || "Kunne ikke laste inn demo-data");
-              }
-            };
-            const handleDelete = async () => {
-              try {
-                const { deleteDemoVendorProfiles } = await import("@/lib/demoVendorProfiles");
-                const count = await deleteDemoVendorProfiles();
-                queryClient.invalidateQueries({ queryKey: ["vendor-assets"] });
-                queryClient.invalidateQueries({ queryKey: ["assets"] });
-                toast.success(`${count} demo-leverandører ble fjernet`);
-              } catch (e: any) {
-                toast.error(e.message || "Kunne ikke fjerne demo-data");
-              }
-            };
-            return (
-              <React.Fragment key="vendors-and-next">
-                {isVendorsActivating ? (
-                  <ModuleSkeletonRow label={t(vendorLink.name)} />
-                ) : (
-                <div>
-                  <button
-                    onClick={() => setVendorsOpen(!vendorsOpen)}
-                    className={cn(
-                      "flex w-full items-center justify-between rounded-lg px-3 py-2 text-[0.9375rem] font-medium transition-all duration-200",
-                      sectionActive
-                        ? "text-sidebar-primary border-l-2 border-primary/30"
-                        : "text-sidebar-foreground/80 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
-                    )}
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <vendorLink.icon className="h-[18px] w-[18px]" />
-                      <span className="text-sm font-semibold">{t(vendorLink.name)}</span>
-                    </div>
-                    <ChevronDown className={cn("h-3.5 w-3.5 transition-transform duration-200", vendorsOpen && "rotate-180")} />
-                  </button>
-                  <div className={cn(
-                    "overflow-hidden transition-all duration-200",
-                    vendorsOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
-                  )}>
-                    <div className="ml-3 mt-0.5 space-y-0.5 border-l border-sidebar-border/50 pl-3">
-                      <Link
-                        to={vendorLink.href}
-                        className={cn(
-                          "flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-sm font-medium transition-all duration-150",
-                          vIsActive
-                            ? "bg-sidebar-accent text-sidebar-primary"
-                            : "text-sidebar-foreground/60 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
-                        )}
-                      >
-                        {vIsActive && <span className="h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />}
-                        <LayoutDashboard className="h-3.5 w-3.5" />
-                        {isNb ? "Oversikt" : "Overview"}
-                      </Link>
-                      <Link
-                        to="/vendors/reports"
-                        className={cn(
-                          "flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-sm font-medium transition-all duration-150",
-                          isReportsActive
-                            ? "bg-sidebar-accent text-sidebar-primary"
-                            : "text-sidebar-foreground/60 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
-                        )}
-                      >
-                        {isReportsActive && <span className="h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />}
-                        <FileText className="h-3.5 w-3.5" />
-                        {isNb ? "Rapporter" : "Reports"}
-                      </Link>
-                      {sectionActive && (
-                        <>
-                          <button
-                            onClick={handleSeed}
-                            className="w-full text-left text-sm text-sidebar-foreground/60 hover:text-sidebar-foreground px-2.5 py-1.5 rounded-md hover:bg-sidebar-accent/40 transition-colors"
-                          >
-                            {isNb ? "Last inn demo-data" : "Load demo data"}
-                          </button>
-                          <button
-                            onClick={handleDelete}
-                            className="w-full text-left text-sm text-sidebar-foreground/60 hover:text-destructive px-2.5 py-1.5 rounded-md hover:bg-sidebar-accent/40 transition-colors"
-                          >
-                            {isNb ? "Fjern demo-data" : "Remove demo data"}
-                          </button>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                </div>
-                )}
-                {link}
-              </React.Fragment>
-            );
-          }
-          return link;
         })}
+
 
         {/* Separator */}
         {(showCoreNormal || showRegistries) && <div className="my-2 border-b border-sidebar-border/40" />}
