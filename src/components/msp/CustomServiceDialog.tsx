@@ -12,7 +12,16 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Sparkles, Link2, Plus, Trash2, ListChecks, ChevronDown } from "lucide-react";
+import { Sparkles, Link2, Plus, Trash2, ListChecks, ChevronDown, FileText } from "lucide-react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  getTypicalDocumentation,
+  hasSpecificDocumentation,
+} from "@/lib/requirementDocumentationHints";
 import {
   suggestControlPoints,
   type ControlSuggestion,
