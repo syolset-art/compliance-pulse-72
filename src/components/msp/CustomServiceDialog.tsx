@@ -405,11 +405,27 @@ export function CustomServiceDialog({
                           {m.frameworkShortName}
                         </span>
                         <span className="text-muted-foreground">›</span>
-                        <span className="font-medium text-foreground">{m.controlId}</span>
-                        <span className="text-muted-foreground">›</span>
-                        <span className="text-foreground/80">{m.controlLabel}</span>
+                        {m.controlId.trim().toLowerCase() === "helhetlig" ? (
+                          <span className="font-medium text-foreground">Hele rammeverket</span>
+                        ) : (
+                          <>
+                            <span className="font-medium text-foreground">{m.controlId}</span>
+                            {m.controlLabel &&
+                              m.controlLabel.trim().toLowerCase() !==
+                                m.controlId.trim().toLowerCase() && (
+                                <>
+                                  <span className="text-muted-foreground">›</span>
+                                  <span className="text-foreground/80">{m.controlLabel}</span>
+                                </>
+                              )}
+                          </>
+                        )}
                       </div>
                     </div>
+                    <RecommendedDocsPopover
+                      controlId={m.controlId}
+                      frameworkId={m.frameworkId}
+                    />
                     <Button
                       type="button"
                       variant="ghost"
