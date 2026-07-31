@@ -327,16 +327,16 @@ export function CustomServiceDialog({
 
           {/* Lara-forslag for kontrollområder */}
           <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 space-y-2">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-2">
               <span className="text-sm font-semibold text-primary inline-flex items-center gap-1.5">
                 <Sparkles className="h-3.5 w-3.5" />
                 Foreslåtte kontrollområder
+                <AiMappingDisclosure variant="icon" className="text-primary/70" />
               </span>
-              {selectedCount > 0 && (
-                <span className="text-xs text-muted-foreground tabular-nums">
-                  {selectedCount} valgt
-                </span>
-              )}
+              <span className="text-xs text-muted-foreground tabular-nums whitespace-nowrap">
+                {selectedCount} bekreftet
+                {pendingCount > 0 && ` · ${pendingCount} til vurdering`}
+              </span>
             </div>
 
             {/* Allerede koblede (fra adopsjon e.l.) som ikke er blant Lara-forslag */}
@@ -405,43 +405,50 @@ export function CustomServiceDialog({
                 Skriv navn på tjenesten — forslag vises automatisk.
               </p>
             ) : (
-              <ul className="space-y-1">
-                {suggestions.map((s) => {
-                  const key = suggestionKey(s);
-                  const checked = selectedMappings.has(key);
-                  return (
-                    <li key={key}>
-                      <label
-                        className={cn(
-                          "flex items-start gap-2 rounded-md border bg-background px-2 py-1.5 cursor-pointer transition-colors",
-                          checked ? "border-primary/40" : "border-border hover:border-foreground/30",
-                        )}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={checked}
-                          onChange={() => toggleSuggestion(s)}
-                          className="mt-0.5 h-4 w-4 rounded border-border accent-primary"
-                        />
-                        <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-1.5 text-xs flex-wrap">
-                          <span className="inline-flex items-center rounded bg-muted px-1.5 py-0.5 font-semibold text-muted-foreground">
-                            {s.frameworkShortName}
-                          </span>
-                          <span className="text-muted-foreground">›</span>
-                          <span className="font-medium text-foreground">{s.controlId}</span>
-                          <span className="text-muted-foreground">›</span>
-                          <span className="text-foreground/80">{s.controlLabel}</span>
-                        </div>
-                        </div>
+              <>
+                <ul className="space-y-1">
+                  {strongSuggestions.map((s) => (
+                    <SuggestionRow
+                      key={suggestionKey(s)}
+                      suggestion={s}
+                      checked={selectedMappings.has(suggestionKey(s))}
+                      onToggle={() => toggleSuggestion(s)}
+                    />
+                  ))}
+                </ul>
 
-                      </label>
-                    </li>
-                  );
-                })}
-              </ul>
+                {weakSuggestions.length > 0 && (
+                  <div className="pt-1">
+                    <button
+                      type="button"
+                      onClick={() => setShowWeak((v) => !v)}
+                      className="inline-flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      <ChevronDown
+                        className={cn("h-3 w-3 transition-transform", showWeak && "rotate-180")}
+                      />
+                      {showWeak
+                        ? "Skjul svakere forslag"
+                        : `Vis ${weakSuggestions.length} svakere forslag`}
+                    </button>
+                    {showWeak && (
+                      <ul className="space-y-1 mt-1.5">
+                        {weakSuggestions.map((s) => (
+                          <SuggestionRow
+                            key={suggestionKey(s)}
+                            suggestion={s}
+                            checked={selectedMappings.has(suggestionKey(s))}
+                            onToggle={() => toggleSuggestion(s)}
+                          />
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                )}
+              </>
             )}
           </div>
+
 
           <div className="rounded-md border border-border bg-muted/30 px-3 py-2 space-y-2">
             <div className="text-sm flex items-center justify-between">
