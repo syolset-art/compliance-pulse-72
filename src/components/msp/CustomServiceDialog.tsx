@@ -12,7 +12,16 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Sparkles, Link2, Plus, Trash2, ListChecks, ChevronDown } from "lucide-react";
+import { Sparkles, Link2, Plus, Trash2, ListChecks, ChevronDown, FileText } from "lucide-react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  getTypicalDocumentation,
+  hasSpecificDocumentation,
+} from "@/lib/requirementDocumentationHints";
 import {
   suggestControlPoints,
   type ControlSuggestion,
@@ -396,11 +405,27 @@ export function CustomServiceDialog({
                           {m.frameworkShortName}
                         </span>
                         <span className="text-muted-foreground">›</span>
-                        <span className="font-medium text-foreground">{m.controlId}</span>
-                        <span className="text-muted-foreground">›</span>
-                        <span className="text-foreground/80">{m.controlLabel}</span>
+                        {m.controlId.trim().toLowerCase() === "helhetlig" ? (
+                          <span className="font-medium text-foreground">Hele rammeverket</span>
+                        ) : (
+                          <>
+                            <span className="font-medium text-foreground">{m.controlId}</span>
+                            {m.controlLabel &&
+                              m.controlLabel.trim().toLowerCase() !==
+                                m.controlId.trim().toLowerCase() && (
+                                <>
+                                  <span className="text-muted-foreground">›</span>
+                                  <span className="text-foreground/80">{m.controlLabel}</span>
+                                </>
+                              )}
+                          </>
+                        )}
                       </div>
                     </div>
+                    <RecommendedDocsPopover
+                      controlId={m.controlId}
+                      frameworkId={m.frameworkId}
+                    />
                     <Button
                       type="button"
                       variant="ghost"
@@ -608,7 +633,55 @@ function SuggestionRow({
             )}
           </p>
         </div>
+        <RecommendedDocsPopover
+          controlId={suggestion.controlId}
+          frameworkId={suggestion.frameworkId}
+        />
       </label>
     </li>
+  );
+}
+
+/**
+ * Subtil «Anbefalt dokumentasjon»-lenke. Vises kun når vi har et kravspesifikt
+ * hint — da får partneren noe konkret å tilby kunden.
+ */
+function RecommendedDocsPopover({
+  controlId,
+  frameworkId,
+}: {
+  controlId: string;
+  frameworkId: string;
+}) {
+  if (!hasSpecificDocumentation(controlId, frameworkId)) return null;
+  const hint = getTypicalDocumentation(controlId, frameworkId);
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          onClick={(e) => e.preventDefault()}
+          className="shrink-0 mt-0.5 inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[11px] text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+          aria-label="Anbefalt dokumentasjon"
+        >
+          <FileText className="h-3 w-3" />
+          <span className="hidden sm:inline">Anbefalt dokumentasjon</span>
+        </button>
+      </PopoverTrigger>
+      <PopoverContent align="end" className="w-64 p-3 space-y-1.5">
+        <p className="text-xs font-semibold text-foreground">{hint.articleLabel}</p>
+        <ul className="space-y-1">
+          {hint.typicalDocs.map((d) => (
+            <li key={d} className="flex items-start gap-1.5 text-xs text-foreground/80">
+              <FileText className="h-3 w-3 mt-0.5 shrink-0 text-primary/70" />
+              <span>{d}</span>
+            </li>
+          ))}
+        </ul>
+        <p className="text-[11px] text-muted-foreground pt-1 border-t border-border">
+          Typisk dokumentasjon Mynder forventer for dette kravet.
+        </p>
+      </PopoverContent>
+    </Popover>
   );
 }

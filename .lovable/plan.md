@@ -1,56 +1,28 @@
-## Problemet
+## Mål
+Når Lara foreslår en kobling (Regelverk › Krav › Kontrollområde), skal partneren kunne se hvilken dokumentasjon som typisk kreves for det kravet — som en subtil lenke/tooltip i radene. Det gir partneren noe konkret å selge og forsterker at Mynder er kilden.
 
-Når partneren skriver inn en tjeneste, får de en liste med «Foreslåtte kontrollområder» uten noe signal om hvor sikkert treffet er. I ditt eget skjermbilde vises blant annet:
+## Hva som bygges
 
-- `SOC 2 › Trust Service Criteria › Trust Service Criteria` (ingen reell kobling — bare gjentatt label)
-- `ISO 27001 › overlapp › overlapp` (støy fra katalogen, ikke et krav)
+1. **Utvid dokumentasjonshintene** (`src/lib/requirementDocumentationHints.ts`)
+   - Dagens `getTypicalDocumentation` dekker GDPR Art. 28/30/32/33/35, ISO 27001 A.5–A.8 og NIS2 med et generisk fallback.
+   - Legg til hint for de øvrige rammeverkene som brukes i forslagene (DORA, AI Act, Åpenhetsloven) og flere GDPR/ISO-artikler.
+   - Legg til en `hasSpecificDocumentation(requirementId)`-hjelper slik at UI kun viser lenken når det finnes et reelt, spesifikt hint (ikke det generiske «Policy/Prosedyre»).
 
-ved siden av åpenbart riktige treff som `ISO 27001 › A.8.16 › Overvåking`. Alt ser likt ut, så brukeren kan ikke skille et sterkt treff fra støy — og da stoler de ikke på noe av det.
+2. **Vis hintet i forslagsradene** (`src/components/msp/CustomServiceDialog.tsx`, `SuggestionRow`)
+   - Subtil knapp helt til høyre i raden: dokument-ikon + teksten «Anbefalt dokumentasjon» (kun ikon på smale rader).
+   - Klikk/hover åpner en liten popover med:
+     - Kravets navn (f.eks. «GDPR Art. 30 (Protokoll)»)
+     - Punktliste med typiske dokumenter
+     - Én linje: «Typisk dokumentasjon Mynder forventer for dette kravet.»
+   - Vises kun når det finnes et spesifikt hint, så radene ikke fylles med støy.
+   - Samme visning brukes på de allerede koblede radene («extraMappings») for konsistens.
 
-Årsaken er i `src/lib/serviceMappingSuggester.ts`: alle treff med `score > 0` returneres likestilt, og kontrollpunkter uten reelt innhold (label = frameworknavn, «overlapp») filtreres ikke bort.
-
-## Løsning: tre grep
-
-**1. Konfidensnivå i stedet for flat liste**
-
-Del `score` i tre nivåer og vis dem visuelt:
-
-| Nivå | Betydning | UI |
-|---|---|---|
-| Høy | Frasetreff eller flere nøkkelord | Grønn prikk + forhåndsvalgt |
-| Middels | Ett tydelig nøkkelordtreff | Gul prikk + forhåndsvalgt |
-| Lav | Svakt delstrengtreff | Grå prikk + **ikke** forhåndsvalgt, samlet under «Vis 4 svakere forslag» |
-
-Kun høy/middels vises åpent. Det gjør listen kortere og signaliserer at systemet selv skiller skitt fra kanel.
-
-**2. «Derfor foreslås dette» — synlig begrunnelse**
-
-Hver rad får en liten begrunnelseslinje eller hover som viser hvilke ord i tjenestenavnet/beskrivelsen som traff kravet, f.eks. *Traff på: «overvåking», «SOC»*. `matchedTerms` finnes allerede i datamodellen, men brukes ikke i UI. Dette er det enkleste og sterkeste tillitsgrepet: brukeren ser resonnementet, ikke bare konklusjonen.
-
-**3. Bekreftelsesstatus — forslag vs. bekreftet av deg**
-
-Et forslag er ikke en sannhet før mennesket har sagt ja. Innfør to tilstander per kobling:
-- **Foreslått av Lara** (ubekreftet) — dempet, med Sparkles-ikon
-- **Bekreftet av deg** — normal vekt, uten AI-merking
-
-Når brukeren huker av en rad, går den fra «foreslått» til «bekreftet». Toppen av boksen viser status i klartekst: *«3 bekreftet · 2 forslag til vurdering»*. Ved lagring merkes koblingene slik at kundevendte flater (tilbud, katalogeksport, `CustomerCatalogPreview`) kan vise kun bekreftede koblinger — aldri ubekreftede AI-gjetninger til sluttkunde.
-
-## Rydding i datagrunnlaget
-
-Uavhengig av UI må støyen bort, ellers undergraver den alt annet:
-- Filtrer bort kontrollpunkter der `controlLabel` er identisk med frameworknavnet, eller der `controlId`/label er generiske ord som «overlapp».
-- Krev minimum-score for i det hele tatt å vises (i dag holder det med ett svakt delstrengtreff på fire tegn).
-- Fjern duplikater der samme krav treffes via flere nøkkelord.
+3. **Ingen endring i logikk for treff/konfidens** — dette er ren visning på toppen av eksisterende mapping.
 
 ## Teknisk
+- Bruker eksisterende `Popover`/`Tooltip` fra shadcn og `FileText`-ikon fra lucide.
+- Hint slås opp på `controlId` (samme format som `ManualDocumentationDialog` allerede bruker), med `frameworkId` som ekstra kontekst for å velge riktig regelsett.
+- Ingen backend- eller datamodellendringer.
 
-- `src/lib/serviceMappingSuggester.ts`: legg til `confidence: "high" | "medium" | "low"` i `ControlSuggestion`, terskler basert på eksisterende `score`, samt et støyfilter (`isMeaningfulControlPoint`) og en høyere minsteterskel.
-- `src/components/msp/CustomServiceDialog.tsx`: ny radkomponent med konfidensprikk, begrunnelsestekst fra `matchedTerms`, gruppering høy/middels åpent + lav bak «Vis flere», statuslinje øverst, og forhåndsvalg kun av høy/middels.
-- `ServiceMapping` utvides med `confirmed: boolean` (avhuking = bekreftet). Bakoverkompatibelt: eksisterende lagrede mappinger uten feltet behandles som bekreftet.
-- Gjenbruk `AiMappingDisclosure` som «icon»-variant i headeren i stedet for lang forklarende tekst — minimal tekst, samme transparens.
-- Ingen endringer i pris-, aktivitets- eller lagringslogikk utover det nye feltet.
-
-## Utenfor omfang
-
-- Ingen ny AI-modell eller edge function — matchingen forblir regelbasert og forutsigbar, noe som i seg selv er lettere å forklare og stole på.
-- Kundevendt filtrering av ubekreftede koblinger forberedes i datamodellen, men rulles ut på kundeflatene som eget steg hvis du ønsker det.
+## Merknad
+Den valgte raden viser «GDPR › helhetlig › helhetlig» — et støyforslag der id og label er samme ord. Støyfilteret i `serviceMappingSuggester.ts` fanger «id === label» kun etter trimming/lowercase, så dette burde vært filtrert; jeg verifiserer og utvider filteret i samme runde hvis det slipper gjennom.
