@@ -401,10 +401,6 @@ const SidebarContent = () => {
   const isManagementActive = location.pathname === "/dashboard-core"
     || coreSectionItems.some(item => location.pathname === item.href || location.pathname.startsWith(item.href + "/"));
   const [managementOpen, setManagementOpen] = useState(() => isManagementActive);
-  const [vendorsOpen, setVendorsOpen] = useState(() => location.pathname.startsWith("/vendors"));
-  useEffect(() => {
-    if (location.pathname.startsWith("/vendors")) setVendorsOpen(true);
-  }, [location.pathname]);
 
   // Keep the section open when navigating between its sub-routes (e.g. /reports → /reports/compliance)
   useEffect(() => {
