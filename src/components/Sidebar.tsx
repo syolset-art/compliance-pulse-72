@@ -395,7 +395,10 @@ const SidebarContent = () => {
   // in demo/preview when company_profile is empty.
   const companyName = activeOrg?.name || "Mynder AS";
 
-  const isManagementActive = coreNav.some(item => location.pathname === item.href || location.pathname.startsWith(item.href + "/"));
+  // Mynder Core-seksjonen: Systemer + arbeidsområder, oppgaver, avvik, rapporter
+  const coreSectionItems = [systemsLink, ...coreNav];
+  const isManagementActive = location.pathname === "/dashboard-core"
+    || coreSectionItems.some(item => location.pathname === item.href || location.pathname.startsWith(item.href + "/"));
   const [managementOpen, setManagementOpen] = useState(() => isManagementActive);
   const [vendorsOpen, setVendorsOpen] = useState(() => location.pathname.startsWith("/vendors"));
   useEffect(() => {
@@ -407,9 +410,8 @@ const SidebarContent = () => {
     if (isManagementActive) setManagementOpen(true);
   }, [isManagementActive]);
 
-  // Registre: kun moduler som er aktivert vises (Systemer = Core, Aktiva = Assets, Agenter = eget tillegg)
+  // Registre: øvrige registre (Aktiva = Assets, Agenter = eget tillegg)
   const registriesItems = [
-    ...(showCoreNormal ? [systemsLink] : []),
     ...(showAssetsNormal ? [assetsLink] : []),
     ...(hasAgentsAccess ? [agentsLink] : []),
   ];
@@ -740,7 +742,7 @@ const SidebarContent = () => {
         ) : renderCollapsibleSection(
           t("nav.mynderCore", "Mynder Core"),
           Briefcase,
-          coreNav,
+          coreSectionItems,
           managementOpen,
           setManagementOpen,
           isManagementActive,
