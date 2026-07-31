@@ -633,7 +633,55 @@ function SuggestionRow({
             )}
           </p>
         </div>
+        <RecommendedDocsPopover
+          controlId={suggestion.controlId}
+          frameworkId={suggestion.frameworkId}
+        />
       </label>
     </li>
+  );
+}
+
+/**
+ * Subtil «Anbefalt dokumentasjon»-lenke. Vises kun når vi har et kravspesifikt
+ * hint — da får partneren noe konkret å tilby kunden.
+ */
+function RecommendedDocsPopover({
+  controlId,
+  frameworkId,
+}: {
+  controlId: string;
+  frameworkId: string;
+}) {
+  if (!hasSpecificDocumentation(controlId, frameworkId)) return null;
+  const hint = getTypicalDocumentation(controlId, frameworkId);
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          onClick={(e) => e.preventDefault()}
+          className="shrink-0 mt-0.5 inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[11px] text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+          aria-label="Anbefalt dokumentasjon"
+        >
+          <FileText className="h-3 w-3" />
+          <span className="hidden sm:inline">Anbefalt dokumentasjon</span>
+        </button>
+      </PopoverTrigger>
+      <PopoverContent align="end" className="w-64 p-3 space-y-1.5">
+        <p className="text-xs font-semibold text-foreground">{hint.articleLabel}</p>
+        <ul className="space-y-1">
+          {hint.typicalDocs.map((d) => (
+            <li key={d} className="flex items-start gap-1.5 text-xs text-foreground/80">
+              <FileText className="h-3 w-3 mt-0.5 shrink-0 text-primary/70" />
+              <span>{d}</span>
+            </li>
+          ))}
+        </ul>
+        <p className="text-[11px] text-muted-foreground pt-1 border-t border-border">
+          Typisk dokumentasjon Mynder forventer for dette kravet.
+        </p>
+      </PopoverContent>
+    </Popover>
   );
 }
