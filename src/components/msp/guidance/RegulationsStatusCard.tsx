@@ -537,6 +537,8 @@ export function RegulationsStatusCard({
           open={detail.open}
           onOpenChange={(o) => setDetail((s) => ({ ...s, open: o }))}
           customerId={customerId}
+          customerName={customerName}
+
           frameworkId={detail.frameworkId}
           label={detail.label || ""}
           status={detail.status || "recommended"}
