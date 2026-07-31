@@ -221,6 +221,18 @@ export function CustomServiceDialog({
   };
 
   const selectedCount = selectedMappings.size;
+  const strongSuggestions = useMemo(
+    () => suggestions.filter((s) => s.confidence !== "low"),
+    [suggestions],
+  );
+  const weakSuggestions = useMemo(
+    () => suggestions.filter((s) => s.confidence === "low"),
+    [suggestions],
+  );
+  /** Forslag som er synlige, men ennå ikke bekreftet av mennesket. */
+  const pendingCount = strongSuggestions.filter(
+    (s) => !selectedMappings.has(suggestionKey(s)),
+  ).length;
   const isEdit = mode === "edit";
 
   return (
