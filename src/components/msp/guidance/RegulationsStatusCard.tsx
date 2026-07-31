@@ -478,7 +478,15 @@ export function RegulationsStatusCard({
                                         : "text-muted-foreground",
                                   )}
                                 />
-                                <span className="leading-snug">{a.text}</span>
+                                <span className="leading-snug">
+                                  {a.text}
+                                  {a.kind === "documentation" && docPotential.count > 0 && (
+                                    <span className="ml-1.5 whitespace-nowrap rounded bg-primary/10 px-1.5 py-[1px] text-[10px] font-medium tabular-nums text-primary">
+                                      {formatPriceRange(docPotential.price, currency)} i potensial
+                                    </span>
+                                  )}
+                                </span>
+
                               </button>
                             </li>
                           );
