@@ -503,6 +503,21 @@ export function RegulationsStatusCard({
         />
       </div>
 
+      {detail.frameworkId && (
+        <RegulationDetailDrawer
+          open={detail.open}
+          onOpenChange={(o) => setDetail((s) => ({ ...s, open: o }))}
+          customerId={customerId}
+          frameworkId={detail.frameworkId}
+          label={detail.label || ""}
+          status={detail.status || "recommended"}
+          services={servicesFor(detail.frameworkId)}
+          products={products}
+          onGoToProducts={onGoToProducts}
+          onUpload={(fid) => setUploadDialog({ open: true, presetFrameworkIds: [fid] })}
+        />
+      )}
+
       <ActivateRegulationDialog
         open={activateDialog.open}
         onOpenChange={(o) => setActivateDialog((s) => ({ ...s, open: o }))}
