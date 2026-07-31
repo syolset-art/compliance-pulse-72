@@ -300,20 +300,76 @@ export function RegulationsStatusCard({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[32%]">Regelverk</TableHead>
-                <TableHead className="w-[38%]">Anbefalte tjenester</TableHead>
-                <TableHead className="w-[12%]">Status</TableHead>
-                <TableHead className="w-[18%] text-right">Handling</TableHead>
+                <TableHead className="w-[30%]">Regelverk</TableHead>
+                <TableHead className="w-[16%]">Status</TableHead>
+                <TableHead className="w-[44%]">Anbefalte tiltak for økt modenhet</TableHead>
+                <TableHead className="w-[10%] text-right"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {rows.map(({ rec, isConfirmed }) => {
                 const isActive = activeSet.has(rec.frameworkId);
+                const status: RegulationStatus = isActive
+                  ? "active"
+                  : isConfirmed
+                    ? "confirmed"
+                    : "recommended";
                 const services = servicesFor(rec.frameworkId);
-                const shown = services.slice(0, MAX_CHIPS);
-                const extra = services.length - shown.length;
+                const actions = buildNextActions({
+                  frameworkId: rec.frameworkId,
+                  label: rec.label,
+                  status,
+                  answers,
+                  documentCountByArea,
+                  uploadedFileNames,
+                  services,
+                });
+
+                const runAction = (a: NextAction) => {
+                  switch (a.kind) {
+                    case "confirm":
+                      confirmOne(rec);
+                      break;
+                    case "activate":
+                      setActivateDialog({
+                        open: true,
+                        frameworkId: rec.frameworkId,
+                        label: rec.label,
+                      });
+                      break;
+                    case "assessment":
+                      onOpenAssessment?.();
+                      break;
+                    case "documentation":
+                      setUploadDialog({
+                        open: true,
+                        presetFrameworkIds: [rec.frameworkId],
+                      });
+                      break;
+                    default:
+                      setDetail({
+                        open: true,
+                        frameworkId: rec.frameworkId,
+                        label: rec.label,
+                        status,
+                      });
+                  }
+                };
+
+                const openDetail = () =>
+                  setDetail({
+                    open: true,
+                    frameworkId: rec.frameworkId,
+                    label: rec.label,
+                    status,
+                  });
+
                 return (
-                  <TableRow key={rec.frameworkId} className="align-top">
+                  <TableRow
+                    key={rec.frameworkId}
+                    className="align-top cursor-pointer"
+                    onClick={openDetail}
+                  >
                     <TableCell className="py-3">
                       {(() => {
                         const [primary, ...aliasParts] = rec.label.split(/\s*[/·]\s*/);
@@ -337,33 +393,6 @@ export function RegulationsStatusCard({
                     </TableCell>
 
                     <TableCell className="py-3">
-                      {services.length === 0 ? (
-                        <span className="text-xs text-muted-foreground">Ingen tjenester koblet</span>
-                      ) : (
-                        <div className="flex flex-wrap gap-1">
-                          {shown.map((s) => (
-                            <Badge
-                              key={s.id}
-                              variant={s.inCatalog ? "secondary" : "outline"}
-                              className={cn(
-                                "text-[10px] font-normal max-w-[180px] truncate",
-                                !s.inCatalog && "border-dashed text-muted-foreground",
-                              )}
-                              title={s.name}
-                            >
-                              {s.name}
-                            </Badge>
-                          ))}
-                          {extra > 0 && (
-                            <Badge variant="outline" className="text-[10px] font-normal border-dashed">
-                              +{extra}
-                            </Badge>
-                          )}
-                        </div>
-                      )}
-                    </TableCell>
-
-                    <TableCell className="py-3">
                       {isActive ? (
                         <span className="inline-flex items-center gap-1 text-xs font-semibold text-success">
                           <Check className="h-3.5 w-3.5" /> Aktivert
@@ -377,75 +406,86 @@ export function RegulationsStatusCard({
                           <Sparkles className="h-3 w-3" /> AI-anbefalt
                         </span>
                       )}
+                      {!isActive && (
+                        <div className="mt-1.5">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              removeOne(rec);
+                            }}
+                            disabled={busyId === rec.frameworkId}
+                            className="h-6 px-1 text-[11px] text-muted-foreground hover:text-destructive"
+                          >
+                            <X className="h-3 w-3 mr-1" />
+                            Ikke relevant
+                          </Button>
+                        </div>
+                      )}
+                    </TableCell>
+
+                    <TableCell className="py-3">
+                      <ul className="space-y-1">
+                        {actions.map((a) => {
+                          const Icon =
+                            a.kind === "documentation"
+                              ? FileWarning
+                              : a.kind === "service"
+                                ? Wrench
+                                : a.kind === "assessment"
+                                  ? ListChecks
+                                  : Check;
+                          return (
+                            <li key={a.id}>
+                              <button
+                                type="button"
+                                title={a.detail}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  runAction(a);
+                                }}
+                                className="group flex w-full items-start gap-1.5 rounded px-1 py-0.5 text-left text-xs text-foreground/90 hover:bg-accent hover:text-primary"
+                              >
+                                <Icon
+                                  className={cn(
+                                    "h-3.5 w-3.5 mt-[1px] shrink-0",
+                                    a.kind === "documentation"
+                                      ? "text-warning"
+                                      : a.kind === "confirm" || a.kind === "activate"
+                                        ? "text-primary"
+                                        : "text-muted-foreground",
+                                  )}
+                                />
+                                <span className="leading-snug">{a.text}</span>
+                              </button>
+                            </li>
+                          );
+                        })}
+                      </ul>
                     </TableCell>
 
                     <TableCell className="py-3 text-right">
                       <div className="inline-flex items-center gap-1">
-                        {isActive ? (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={onGoToProducts}
-                            className="h-7 text-xs gap-1"
-                          >
-                            Se i Produkter
-                            <ArrowRight className="h-3 w-3" />
-                          </Button>
-                        ) : isConfirmed ? (
-                          <Button
-                            size="sm"
-                            onClick={() =>
-                              setActivateDialog({
-                                open: true,
-                                frameworkId: rec.frameworkId,
-                                label: rec.label,
-                              })
-                            }
-                            disabled={busyId === rec.frameworkId}
-                            className="h-7 text-xs"
-                          >
-                            Aktiver
-                          </Button>
-                        ) : (
-                          <Button
-                            size="sm"
-                            onClick={() => confirmOne(rec)}
-                            disabled={busyId === rec.frameworkId}
-                            className="h-7 text-xs"
-                          >
-                            Bekreft
-                          </Button>
-                        )}
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() =>
+                          onClick={(e) => {
+                            e.stopPropagation();
                             setUploadDialog({
                               open: true,
                               presetFrameworkIds: [rec.frameworkId],
-                            })
-                          }
+                            });
+                          }}
                           className="h-7 w-7 p-0 text-muted-foreground hover:text-primary"
                           aria-label={`Last opp bevis for ${rec.label}`}
                           title="Last opp bevis for dette regelverket"
                         >
                           <Upload className="h-3.5 w-3.5" />
                         </Button>
-                        {!isActive && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => removeOne(rec)}
-                            disabled={busyId === rec.frameworkId}
-                            className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive"
-                            aria-label={`Fjern ${rec.label}`}
-                          >
-                            <X className="h-3.5 w-3.5" />
-                          </Button>
-                        )}
+                        <ChevronRight className="h-4 w-4 text-muted-foreground" />
                       </div>
                     </TableCell>
-
                   </TableRow>
                 );
               })}
@@ -453,6 +493,7 @@ export function RegulationsStatusCard({
           </Table>
         </div>
       )}
+
 
       {/* Opplastede bevis for denne kunden — kompakt liste */}
       <div className="mt-3">
