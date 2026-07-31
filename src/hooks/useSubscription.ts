@@ -1,7 +1,9 @@
+import { useEffect, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useActivatedServices } from "@/hooks/useActivatedServices";
+import { getDeactivatedModules } from "@/lib/moduleActivationState";
 import {
   PLAN_TIERS,
   FRAMEWORK_ADDONS,
@@ -136,6 +138,18 @@ export function useSubscription() {
     enabled: !!companyProfile?.id,
   });
 
+  // Lokalt deaktiverte moduler (Innstillinger → Produkter)
+  const [deactivatedModules, setDeactivatedModules] = useState<Set<string>>(() => getDeactivatedModules());
+  useEffect(() => {
+    const sync = () => setDeactivatedModules(getDeactivatedModules());
+    window.addEventListener("modules:changed", sync);
+    window.addEventListener("storage", sync);
+    return () => {
+      window.removeEventListener("modules:changed", sync);
+      window.removeEventListener("storage", sync);
+    };
+  }, []);
+
   // Derived state
   const currentTier: PlanTier = planNameToTier(subscription?.plan?.name);
   const billingInterval: BillingInterval =
@@ -158,8 +172,12 @@ export function useSubscription() {
     ["vendors", "security"].includes(uc)
   );
 
-  const hasCoreAccess = systemsActive || selectedCoreAtOnboarding;
-  const hasRegistriesAccess = vendorsActive || selectedRegistriesAtOnboarding;
+  // Mynder Core er basismodulen: den er tilgjengelig så lenge den ikke er
+  // eksplisitt deaktivert under Innstillinger → Produkter.
+  const coreDeactivated = deactivatedModules.has("core");
+  const hasCoreAccess = !coreDeactivated;
+  const hasRegistriesAccess =
+    !deactivatedModules.has("vendors") && (vendorsActive || selectedRegistriesAtOnboarding);
   const hasModule = (moduleId: "systems" | "vendors"): boolean =>
     isServiceActive(`module-${moduleId}`);
 

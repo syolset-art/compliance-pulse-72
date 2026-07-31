@@ -49,6 +49,7 @@ import { ChangeVendorTierDialog } from "@/components/dialogs/ChangeVendorTierDia
 import { ConfirmVendorTierChangeDialog } from "@/components/dialogs/ConfirmVendorTierChangeDialog";
 import { useWorkspaceMode } from "@/contexts/WorkspaceModeContext";
 import { cn } from "@/lib/utils";
+import { getDeactivatedModules, saveDeactivatedModules } from "@/lib/moduleActivationState";
 
 // Map current legacy tier to new PlanId for highlighting
 function tierToPlanId(tierName: string | undefined): PlanId {
@@ -196,7 +197,7 @@ export default function Subscriptions() {
   const [activationFramework, setActivationFramework] = useState<Framework | null>(null);
   const [purchaseFramework, setPurchaseFramework] = useState<Framework | null>(null);
   const [updatingFrameworkId, setUpdatingFrameworkId] = useState<string | null>(null);
-  const [deactivatedModules, setDeactivatedModules] = useState<Set<string>>(new Set());
+  const [deactivatedModules, setDeactivatedModules] = useState<Set<string>>(() => getDeactivatedModules());
   const [confirmDeactivate, setConfirmDeactivate] = useState<{ id: string; title: string } | null>(null);
   const [coreTierId, setCoreTierId] = useState<CoreTierId>(DEFAULT_CORE_TIER_ID);
   const [changeCoreTierOpen, setChangeCoreTierOpen] = useState(false);
@@ -209,7 +210,11 @@ export default function Subscriptions() {
   const requestDeactivate = (id: string, title: string) => setConfirmDeactivate({ id, title });
   const confirmDeactivation = () => {
     if (!confirmDeactivate) return;
-    setDeactivatedModules((prev) => new Set(prev).add(confirmDeactivate.id));
+    setDeactivatedModules((prev) => {
+      const next = new Set(prev).add(confirmDeactivate.id);
+      saveDeactivatedModules(next);
+      return next;
+    });
     toast.success(`${confirmDeactivate.title} er deaktivert. Endringen trer i kraft ved neste faktureringsperiode.`);
     setConfirmDeactivate(null);
   };
@@ -217,6 +222,7 @@ export default function Subscriptions() {
     setDeactivatedModules((prev) => {
       const next = new Set(prev);
       next.delete(id);
+      saveDeactivatedModules(next);
       return next;
     });
     toast.success("Modulen er reaktivert.");
