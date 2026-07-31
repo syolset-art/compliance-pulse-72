@@ -62,6 +62,7 @@ export function RegulationsStatusCard({
   confirmed,
   activeFrameworkIds,
   onGoToProducts,
+  onOpenAssessment,
 }: Props) {
   const queryClient = useQueryClient();
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -74,8 +75,48 @@ export function RegulationsStatusCard({
     open: boolean;
     presetFrameworkIds?: string[];
   }>({ open: false });
+  const [detail, setDetail] = useState<{
+    open: boolean;
+    frameworkId?: string;
+    label?: string;
+    status?: RegulationStatus;
+  }>({ open: false });
+
+  const { answers } = useCustomerBaseline(customerId);
+  const { documents } = useBaselineDocuments(customerId);
+
+  const documentCountByArea = useMemo(() => {
+    const map: Record<string, number> = {};
+    documents.forEach((d) => {
+      map[d.areaId] = (map[d.areaId] ?? 0) + 1;
+    });
+    return map;
+  }, [documents]);
+
+  const uploadedFileNames = useMemo(() => documents.map((d) => d.fileName), [documents]);
 
   const activeSet = useMemo(() => new Set(activeFrameworkIds), [activeFrameworkIds]);
+
+  const products = useMemo(
+    () => [
+      { key: "core", title: "Mynder Core", activated: true, meta: "21 systemer" },
+      {
+        key: "regulations",
+        title: "Regelverk",
+        activated: activeFrameworkIds.length > 0,
+        meta:
+          activeFrameworkIds.length > 0
+            ? `${activeFrameworkIds.length} aktive`
+            : undefined,
+      },
+      { key: "vendors", title: "Leverandørmodul", activated: true },
+      { key: "assets", title: "Assets", activated: true },
+      { key: "trust-profile", title: "Trust Profile", activated: true },
+    ],
+    [activeFrameworkIds],
+  );
+
+
 
 
   const DEMO_ROWS: Array<{ rec: FrameworkRecommendation; isConfirmed: boolean }> = [
