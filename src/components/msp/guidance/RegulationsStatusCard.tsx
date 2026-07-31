@@ -335,6 +335,13 @@ export function RegulationsStatusCard({
                   services,
                 });
 
+                // Salgspotensial for dokumentene som mangler på dette regelverket.
+                const missingDeliverables = toDeliverables(
+                  getDocumentStatus(rec.frameworkId, uploadedFileNames).filter((d) => !d.present),
+                  defaultHourlyRate,
+                );
+                const docPotential = summarizePotential(missingDeliverables);
+
                 const runAction = (a: NextAction) => {
                   switch (a.kind) {
                     case "confirm":
@@ -351,11 +358,15 @@ export function RegulationsStatusCard({
                       onOpenAssessment?.();
                       break;
                     case "documentation":
-                      setUploadDialog({
+                      // Åpner detaljene der partneren kan generere utkast eller lage tilbud.
+                      setDetail({
                         open: true,
-                        presetFrameworkIds: [rec.frameworkId],
+                        frameworkId: rec.frameworkId,
+                        label: rec.label,
+                        status,
                       });
                       break;
+
                     default:
                       setDetail({
                         open: true,
