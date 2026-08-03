@@ -53,18 +53,22 @@ export function ModuleCard({
   onClick,
   onDeactivate,
   deactivateLabel,
+  cancelAtLabel,
+  onResume,
   breakdown,
   footer,
   ctaOverride,
   onReadMore,
 
 }: ModuleCardProps) {
+  const isPendingCancel = status === "pending_cancellation";
   const canDeactivate = !!onDeactivate && status === "active";
   const isIncluded = status === "included";
 
   const formattedPrice = new Intl.NumberFormat("nb-NO", {
     maximumFractionDigits: 0,
   }).format(price);
+
 
   // Build the subtle usage/info line under the description
   let usageLine: React.ReactNode = null;
