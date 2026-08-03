@@ -575,7 +575,9 @@ export default function Subscriptions() {
               icon={ShieldCheck}
               title="Regelverk"
               description={`${activeFrameworkCount} regelverk aktivert`}
-              status={deactivatedModules.has("frameworks") ? "inactive" : activeFrameworkCount > 0 ? "active" : "inactive"}
+              status={deactivatedModules.has("frameworks") ? "inactive" : moduleStatusOf("frameworks") === "pending_cancellation" ? "pending_cancellation" : activeFrameworkCount > 0 ? "active" : "inactive"}
+              cancelAtLabel={cancelAtLabelOf("frameworks")}
+              onResume={() => undoCancellation("frameworks")}
               price={deactivatedModules.has("frameworks") ? 0 : frameworkMonthlyPrice}
               priceLabel={paidFrameworkCount > 0 ? `${paidFrameworkCount} betalte regelverk` : "Inkluderte regelverk"}
               usage={String(activeFrameworkCount)}
@@ -586,6 +588,7 @@ export default function Subscriptions() {
               onDeactivate={() => requestDeactivate("frameworks", "Regelverk")}
               deactivateLabel="Deaktiver alle regelverk"
               breakdown={deactivatedModules.has("frameworks") ? undefined : frameworkBreakdown}
+
               accentColor="blue"
               onReadMore={() => setReadMoreKey("frameworks")}
             />
