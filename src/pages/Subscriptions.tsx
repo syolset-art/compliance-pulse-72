@@ -206,6 +206,7 @@ export default function Subscriptions() {
   const [changeVendorTierOpen, setChangeVendorTierOpen] = useState(false);
   const [pendingVendorTierId, setPendingVendorTierId] = useState<VendorTierId | null>(null);
   const [readMoreKey, setReadMoreKey] = useState<ModuleKey | null>(null);
+  const [confirmActivate, setConfirmActivate] = useState<{ id: string; title: string } | null>(null);
 
   const requestDeactivate = (id: string, title: string) => setConfirmDeactivate({ id, title });
   const confirmDeactivation = () => {
