@@ -557,14 +557,6 @@ export default function MSPCustomerDetail() {
               />
             </TabsContent>
 
-            <TabsContent value="modules" className="mt-6">
-              <CustomerModulesTab
-                customerId={customerId!}
-                customerName={customer.name || customer.customer_name || "Kunden"}
-                activeFrameworkIds={activeFrameworkIds}
-                onUpdate={() => queryClient.invalidateQueries({ queryKey: ["msp-customer", customerId] })}
-              />
-            </TabsContent>
 
             <TabsContent value="deliveries" className="mt-6">
               <CustomerDeliveriesTab
