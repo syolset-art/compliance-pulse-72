@@ -516,16 +516,17 @@ export default function MSPCustomerDetail() {
             </TabsContent>
 
 
-            {/* ── Vurdering ── */}
+            {/* ── Tjenester og produkter ── */}
             <TabsContent value="assessment" className="mt-6 space-y-5">
-              <MSPMaturityServiceMatrix
-                customerName={customer.name || "Kunden"}
+              <CustomerServicesAndProductsTab
+                customerId={customerId!}
+                customerName={customer.name || customer.customer_name || "Kunden"}
                 customerEmail={customer.contact_email ?? undefined}
+                activeFrameworkIds={activeFrameworkIds}
+                onUpdate={() => queryClient.invalidateQueries({ queryKey: ["msp-customer", customerId] })}
               />
             </TabsContent>
 
-            {/* ── Tjenester ── */}
-            {/* Removed */}
 
 
 
