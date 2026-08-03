@@ -666,9 +666,12 @@ export default function Subscriptions() {
               icon={Users}
               title="Partner Workspace"
               description="For MSP-er og samarbeidspartnere"
-              status={deactivatedModules.has("partner") ? "inactive" : hasPartnerAccess ? "active" : "inactive"}
+              status={deactivatedModules.has("partner") ? "inactive" : hasPartnerAccess ? moduleStatusOf("partner") : "inactive"}
+              cancelAtLabel={cancelAtLabelOf("partner")}
+              onResume={() => undoCancellation("partner")}
               price={!deactivatedModules.has("partner") && hasPartnerAccess ? partnerWorkspaceMonthlyPrice : 0}
               priceLabel={hasPartnerAccess && !deactivatedModules.has("partner") ? undefined : "Kontakt salg for aktivering"}
+
               action={deactivatedModules.has("partner") ? "activate" : hasPartnerAccess ? "open" : "activate"}
               onClick={() => {
                 if (deactivatedModules.has("partner")) return requestActivate("partner", "Partner Workspace");
