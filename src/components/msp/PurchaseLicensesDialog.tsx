@@ -12,6 +12,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { getDiscountPercent, LICENSE_TIERS, formatKr, LicenseTier } from "@/lib/mspLicenseUtils";
 import { Minus, Plus, Tag } from "lucide-react";
+import { TermsAcceptRow } from "@/components/legal/TermsAcceptRow";
+import { useTerms } from "@/hooks/useTerms";
 
 interface Props {
   open: boolean;
