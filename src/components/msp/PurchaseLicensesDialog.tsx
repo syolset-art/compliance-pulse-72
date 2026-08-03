@@ -27,6 +27,7 @@ export function PurchaseLicensesDialog({ open, onOpenChange, onSuccess }: Props)
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
+  const { current: currentTerms, hasAcceptedCurrent, acceptTerms } = useTerms();
 
   const tier = LICENSE_TIERS.find((t) => t.id === selectedTierId) || LICENSE_TIERS[0];
   const discount = getDiscountPercent(quantity);
