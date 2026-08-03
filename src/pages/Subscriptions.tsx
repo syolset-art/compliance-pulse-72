@@ -227,6 +227,7 @@ export default function Subscriptions() {
     });
     toast.success("Modulen er reaktivert.");
   };
+  const requestActivate = (id: string, title: string) => setConfirmActivate({ id, title });
 
   const { data: selectedFrameworks, refetch: refetchFrameworks } = useQuery({
     queryKey: ["selected-frameworks-sub"],
