@@ -3504,6 +3504,74 @@ export type Database = {
         }
         Relationships: []
       }
+      terms_acceptances: {
+        Row: {
+          accepted_at: string
+          context: string
+          context_ref: string | null
+          created_at: string
+          id: string
+          terms_version_id: string
+          user_id: string
+        }
+        Insert: {
+          accepted_at?: string
+          context: string
+          context_ref?: string | null
+          created_at?: string
+          id?: string
+          terms_version_id: string
+          user_id: string
+        }
+        Update: {
+          accepted_at?: string
+          context?: string
+          context_ref?: string | null
+          created_at?: string
+          id?: string
+          terms_version_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "terms_acceptances_terms_version_id_fkey"
+            columns: ["terms_version_id"]
+            isOneToOne: false
+            referencedRelation: "terms_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      terms_versions: {
+        Row: {
+          content_md: string
+          created_at: string
+          effective_date: string
+          id: string
+          is_current: boolean
+          updated_at: string
+          version: string
+        }
+        Insert: {
+          content_md: string
+          created_at?: string
+          effective_date?: string
+          id?: string
+          is_current?: boolean
+          updated_at?: string
+          version: string
+        }
+        Update: {
+          content_md?: string
+          created_at?: string
+          effective_date?: string
+          id?: string
+          is_current?: boolean
+          updated_at?: string
+          version?: string
+        }
+        Relationships: []
+      }
       trust_center_document_versions: {
         Row: {
           change_summary: string | null
