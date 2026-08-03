@@ -37,6 +37,8 @@ import { BaselineReadinessCard } from "@/components/msp/BaselineReadinessCard";
 import { BaselineQuestionsDrawer } from "@/components/msp/BaselineQuestionsDrawer";
 import { CustomerDocumentationTab } from "@/components/msp/CustomerDocumentationTab";
 import { CustomerModulesTab } from "@/components/msp/CustomerModulesTab";
+import { CustomerServicesAndProductsTab } from "@/components/msp/CustomerServicesAndProductsTab";
+
 import { CustomerDeliveriesTab } from "@/components/msp/deliveries/CustomerDeliveriesTab";
 import { useCustomerBaseline } from "@/hooks/useCustomerBaseline";
 import { MATURITY_AREAS, type MaturityAnswer, type MaturityAnswers } from "@/lib/trustMaturityQuestions";
@@ -61,19 +63,22 @@ export default function MSPCustomerDetail() {
   const { t } = useTranslation();
   const [acronisOpen, setAcronisOpen] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
-  const initialTab = searchParams.get("tab") || "guidance";
+  const normalizeTab = (v: string) => (v === "modules" ? "assessment" : v);
+  const initialTab = normalizeTab(searchParams.get("tab") || "guidance");
   const [activeTab, setActiveTab] = useState(initialTab);
   useEffect(() => {
-    const t = searchParams.get("tab");
+    const t = normalizeTab(searchParams.get("tab") || "guidance");
     if (t && t !== activeTab) setActiveTab(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
-  const handleTabChange = (v: string) => {
+  const handleTabChange = (raw: string) => {
+    const v = normalizeTab(raw);
     setActiveTab(v);
     const next = new URLSearchParams(searchParams);
     next.set("tab", v);
     setSearchParams(next, { replace: true });
   };
+
   const [trustHandoverSent, setTrustHandoverSent] = useState(false);
   const [takeoverInfoOpen, setTakeoverInfoOpen] = useState(false);
   const [handoverEmailOpen, setHandoverEmailOpen] = useState(false);
@@ -328,7 +333,8 @@ export default function MSPCustomerDetail() {
                   )}
                 </TabsTrigger>
                 <TabsTrigger value="assessment" className="text-sm font-medium text-foreground/75 data-[state=active]:text-foreground data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap px-3 py-2">
-                  Tjenester
+                  Tjenester og produkter
+
                 </TabsTrigger>
                 <TabsTrigger value="messages" className="text-sm font-medium text-foreground/75 data-[state=active]:text-foreground data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap px-3 py-2">
                   Meldinger
@@ -338,9 +344,6 @@ export default function MSPCustomerDetail() {
                 </TabsTrigger>
                 <TabsTrigger value="regulations" className="text-sm font-medium text-foreground/75 data-[state=active]:text-foreground data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap px-3 py-2">
                   Regelverk
-                </TabsTrigger>
-                <TabsTrigger value="modules" className="text-sm font-medium text-foreground/75 data-[state=active]:text-foreground data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap px-3 py-2">
-                  Produkter
                 </TabsTrigger>
                 <TabsTrigger value="deliveries" className="text-sm font-medium text-foreground/75 data-[state=active]:text-foreground data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap px-3 py-2">
                   Leveranser
@@ -515,16 +518,17 @@ export default function MSPCustomerDetail() {
             </TabsContent>
 
 
-            {/* ── Vurdering ── */}
+            {/* ── Tjenester og produkter ── */}
             <TabsContent value="assessment" className="mt-6 space-y-5">
-              <MSPMaturityServiceMatrix
-                customerName={customer.name || "Kunden"}
+              <CustomerServicesAndProductsTab
+                customerId={customerId!}
+                customerName={customer.name || customer.customer_name || "Kunden"}
                 customerEmail={customer.contact_email ?? undefined}
+                activeFrameworkIds={activeFrameworkIds}
+                onUpdate={() => queryClient.invalidateQueries({ queryKey: ["msp-customer", customerId] })}
               />
             </TabsContent>
 
-            {/* ── Tjenester ── */}
-            {/* Removed */}
 
 
 
@@ -556,14 +560,6 @@ export default function MSPCustomerDetail() {
               />
             </TabsContent>
 
-            <TabsContent value="modules" className="mt-6">
-              <CustomerModulesTab
-                customerId={customerId!}
-                customerName={customer.name || customer.customer_name || "Kunden"}
-                activeFrameworkIds={activeFrameworkIds}
-                onUpdate={() => queryClient.invalidateQueries({ queryKey: ["msp-customer", customerId] })}
-              />
-            </TabsContent>
 
             <TabsContent value="deliveries" className="mt-6">
               <CustomerDeliveriesTab
