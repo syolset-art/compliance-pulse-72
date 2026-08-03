@@ -728,7 +728,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                           >
                             <Paperclip className="h-3.5 w-3.5" />
                             {fulfillment.evidenceMandatory
-                              ? (isNb ? "Last opp bevis (påkrevd)" : "Upload evidence (required)")
+                              ? (isNb ? "Last opp dokumentasjon (påkrevd)" : "Upload documentation (required)")
                               : (isNb ? "Tilknytt dokument (valgfritt)" : "Attach document (optional)")}
                           </Button>
                           <Tooltip>
