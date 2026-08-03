@@ -164,7 +164,13 @@ export function ModuleCard({
               </div>
             )}
 
-            {action !== "none" && (
+            {isPendingCancel ? (
+              <div className="flex items-center gap-2">
+                <Button variant="outline" size="sm" className="h-8 text-xs" onClick={onResume}>
+                  Angre oppsigelse
+                </Button>
+              </div>
+            ) : action !== "none" && (
               <div className="flex items-center gap-2">
                 {canDeactivate && (
                   <button
@@ -185,6 +191,7 @@ export function ModuleCard({
                 </Button>
               </div>
             )}
+
           </div>
         </div>
 
