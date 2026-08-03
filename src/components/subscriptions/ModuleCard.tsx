@@ -2,7 +2,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-export type ModuleStatus = "active" | "inactive" | "included";
+export type ModuleStatus = "active" | "inactive" | "included" | "pending_cancellation";
 
 export interface ModuleCardProps {
   icon?: React.ComponentType<{ className?: string }>;
@@ -18,12 +18,16 @@ export interface ModuleCardProps {
   onClick?: () => void;
   onDeactivate?: () => void;
   deactivateLabel?: string;
+  /** Vises når status er pending_cancellation, f.eks. "3. september". */
+  cancelAtLabel?: string;
+  onResume?: () => void;
   accentColor?: "purple" | "blue" | "emerald" | "amber" | "rose" | "slate";
   breakdown?: Array<{ label: string; priceKr: number }>;
   footer?: React.ReactNode;
   ctaOverride?: { label: string; variant?: "default" | "outline" };
   onReadMore?: () => void;
 }
+
 
 
 
@@ -49,18 +53,22 @@ export function ModuleCard({
   onClick,
   onDeactivate,
   deactivateLabel,
+  cancelAtLabel,
+  onResume,
   breakdown,
   footer,
   ctaOverride,
   onReadMore,
 
 }: ModuleCardProps) {
+  const isPendingCancel = status === "pending_cancellation";
   const canDeactivate = !!onDeactivate && status === "active";
   const isIncluded = status === "included";
 
   const formattedPrice = new Intl.NumberFormat("nb-NO", {
     maximumFractionDigits: 0,
   }).format(price);
+
 
   // Build the subtle usage/info line under the description
   let usageLine: React.ReactNode = null;
@@ -113,11 +121,17 @@ export function ModuleCard({
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <h3 className="font-semibold text-foreground text-base">{title}</h3>
-              {priceLabel && !isIncluded && status === "active" && (
+              {priceLabel && !isIncluded && (status === "active" || isPendingCancel) && (
                 <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium border border-primary/20 bg-primary/5 text-primary">
                   {priceLabel}
                 </span>
               )}
+              {isPendingCancel && (
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium border border-border bg-muted text-muted-foreground">
+                  Sagt opp{cancelAtLabel ? ` — aktiv til ${cancelAtLabel}` : ""}
+                </span>
+              )}
+
             </div>
             {description && (
               <p className="text-sm text-muted-foreground leading-snug mt-1">{description}</p>
@@ -150,7 +164,13 @@ export function ModuleCard({
               </div>
             )}
 
-            {action !== "none" && (
+            {isPendingCancel ? (
+              <div className="flex items-center gap-2">
+                <Button variant="outline" size="sm" className="h-8 text-xs" onClick={onResume}>
+                  Angre oppsigelse
+                </Button>
+              </div>
+            ) : action !== "none" && (
               <div className="flex items-center gap-2">
                 {canDeactivate && (
                   <button
@@ -171,6 +191,7 @@ export function ModuleCard({
                 </Button>
               </div>
             )}
+
           </div>
         </div>
 

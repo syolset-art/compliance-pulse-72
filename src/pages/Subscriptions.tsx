@@ -50,7 +50,18 @@ import { ChangeVendorTierDialog } from "@/components/dialogs/ChangeVendorTierDia
 import { ConfirmVendorTierChangeDialog } from "@/components/dialogs/ConfirmVendorTierChangeDialog";
 import { useWorkspaceMode } from "@/contexts/WorkspaceModeContext";
 import { cn } from "@/lib/utils";
-import { getDeactivatedModules, saveDeactivatedModules } from "@/lib/moduleActivationState";
+import {
+  getModuleStates,
+  getDeactivatedModules,
+  cancelModule,
+  resumeModule,
+  activateModule,
+  getModuleTier,
+  setModuleTier,
+  formatPeriodEnd,
+  type ModuleStateMap,
+} from "@/lib/moduleActivationState";
+
 
 // Map current legacy tier to new PlanId for highlighting
 function tierToPlanId(tierName: string | undefined): PlanId {
@@ -199,37 +210,68 @@ export default function Subscriptions() {
   const [purchaseFramework, setPurchaseFramework] = useState<Framework | null>(null);
   const [updatingFrameworkId, setUpdatingFrameworkId] = useState<string | null>(null);
   const [deactivatedModules, setDeactivatedModules] = useState<Set<string>>(() => getDeactivatedModules());
+  const [moduleStates, setModuleStates] = useState<ModuleStateMap>(() => getModuleStates());
   const [confirmDeactivate, setConfirmDeactivate] = useState<{ id: string; title: string } | null>(null);
-  const [coreTierId, setCoreTierId] = useState<CoreTierId>(DEFAULT_CORE_TIER_ID);
+  const [coreTierId, setCoreTierId] = useState<CoreTierId>(
+    () => (getModuleTier("core") as CoreTierId) ?? DEFAULT_CORE_TIER_ID
+  );
   const [changeCoreTierOpen, setChangeCoreTierOpen] = useState(false);
   const [pendingCoreTierId, setPendingCoreTierId] = useState<CoreTierId | null>(null);
-  const [vendorTierId, setVendorTierId] = useState<VendorTierId>(DEFAULT_VENDOR_TIER_ID);
+  const [vendorTierId, setVendorTierId] = useState<VendorTierId>(
+    () => (getModuleTier("vendors") as VendorTierId) ?? DEFAULT_VENDOR_TIER_ID
+  );
   const [changeVendorTierOpen, setChangeVendorTierOpen] = useState(false);
   const [pendingVendorTierId, setPendingVendorTierId] = useState<VendorTierId | null>(null);
   const [readMoreKey, setReadMoreKey] = useState<ModuleKey | null>(null);
   const [confirmActivate, setConfirmActivate] = useState<{ id: string; title: string } | null>(null);
 
+  const syncModuleState = () => {
+    setModuleStates(getModuleStates());
+    setDeactivatedModules(getDeactivatedModules());
+  };
+
+  const moduleStatusOf = (id: string): "active" | "inactive" | "pending_cancellation" => {
+    if (deactivatedModules.has(id)) return "inactive";
+    return moduleStates[id]?.status === "pending_cancellation" ? "pending_cancellation" : "active";
+  };
+
+  const cancelAtLabelOf = (id: string) =>
+    moduleStates[id]?.cancelAt ? formatPeriodEnd(moduleStates[id]?.cancelAt) : undefined;
+
   const requestDeactivate = (id: string, title: string) => setConfirmDeactivate({ id, title });
+
   const confirmDeactivation = () => {
     if (!confirmDeactivate) return;
-    setDeactivatedModules((prev) => {
-      const next = new Set(prev).add(confirmDeactivate.id);
-      saveDeactivatedModules(next);
-      return next;
-    });
-    toast.success(`${confirmDeactivate.title} er deaktivert. Endringen trer i kraft ved neste faktureringsperiode.`);
+    const { id, title } = confirmDeactivate;
+    const cancelAt = cancelModule(id);
+    syncModuleState();
     setConfirmDeactivate(null);
-  };
-  const reactivateModule = (id: string) => {
-    setDeactivatedModules((prev) => {
-      const next = new Set(prev);
-      next.delete(id);
-      saveDeactivatedModules(next);
-      return next;
+    toast(`${title} er sagt opp og er tilgjengelig til ${formatPeriodEnd(cancelAt)}.`, {
+      action: {
+        label: "Angre",
+        onClick: () => {
+          resumeModule(id);
+          syncModuleState();
+          toast.success("Oppsigelsen er angret.");
+        },
+      },
+      duration: 10000,
     });
-    toast.success("Modulen er reaktivert.");
+  };
+
+  const undoCancellation = (id: string) => {
+    resumeModule(id);
+    syncModuleState();
+    toast.success("Oppsigelsen er angret. Modulen fortsetter som før.");
+  };
+
+  const reactivateModule = (id: string) => {
+    activateModule(id);
+    syncModuleState();
+    toast.success("Modulen er aktivert og er klar til bruk.");
   };
   const requestActivate = (id: string, title: string) => setConfirmActivate({ id, title });
+
 
   const { data: selectedFrameworks, refetch: refetchFrameworks } = useQuery({
     queryKey: ["selected-frameworks-sub"],
@@ -342,19 +384,28 @@ export default function Subscriptions() {
   const handleCoreTierConfirm = () => {
     if (!pendingCoreTierId) return;
     const prev = coreTierId;
-    const nextLabel = getCoreTier(pendingCoreTierId).label.toLowerCase();
-    setCoreTierId(pendingCoreTierId);
+    const next = pendingCoreTierId;
+    const nextTier = getCoreTier(next);
+    const isUpgrade = nextTier.monthlyPriceKr >= getCoreTier(prev).monthlyPriceKr;
+    setCoreTierId(next);
+    setModuleTier("core", next);
     setPendingCoreTierId(null);
-    toast(`Mynder Core er endret til ${nextLabel}.`, {
-      action: {
-        label: "Angre",
-        onClick: () => {
-          setCoreTierId(prev);
-          toast.success("Endringen er angret.");
+    toast(
+      isUpgrade
+        ? `Mynder Core er oppgradert til ${nextTier.label.toLowerCase()} — tilgjengelig nå.`
+        : `Mynder Core endres til ${nextTier.label.toLowerCase()} fra ${formatPeriodEnd()}.`,
+      {
+        action: {
+          label: "Angre",
+          onClick: () => {
+            setCoreTierId(prev);
+            setModuleTier("core", prev);
+            toast.success("Endringen er angret.");
+          },
         },
-      },
-      duration: 10000,
-    });
+        duration: 10000,
+      }
+    );
   };
 
   const handleVendorTierSelect = (nextTierId: VendorTierId) => {
@@ -365,19 +416,29 @@ export default function Subscriptions() {
   const handleVendorTierConfirm = () => {
     if (!pendingVendorTierId) return;
     const prev = vendorTierId;
-    const nextLabel = getVendorTier(pendingVendorTierId).label.toLowerCase();
-    setVendorTierId(pendingVendorTierId);
+    const next = pendingVendorTierId;
+    const nextTier = getVendorTier(next);
+    const isUpgrade = nextTier.monthlyPriceKr >= getVendorTier(prev).monthlyPriceKr;
+    setVendorTierId(next);
+    setModuleTier("vendors", next);
     setPendingVendorTierId(null);
-    toast(`Leverandørmodul er endret til ${nextLabel}.`, {
-      action: {
-        label: "Angre",
-        onClick: () => {
-          setVendorTierId(prev);
-          toast.success("Endringen er angret.");
+    toast(
+      isUpgrade
+        ? `Leverandørmodulen er oppgradert til ${nextTier.label.toLowerCase()} — tilgjengelig nå.`
+        : `Leverandørmodulen endres til ${nextTier.label.toLowerCase()} fra ${formatPeriodEnd()}.`,
+      {
+        action: {
+          label: "Angre",
+          onClick: () => {
+            setVendorTierId(prev);
+            setModuleTier("vendors", prev);
+            toast.success("Endringen er angret.");
+          },
         },
-      },
-      duration: 10000,
-    });
+        duration: 10000,
+      }
+    );
+
   };
 
   const activeModuleCount = useMemo(() => {
@@ -514,7 +575,9 @@ export default function Subscriptions() {
               icon={ShieldCheck}
               title="Regelverk"
               description={`${activeFrameworkCount} regelverk aktivert`}
-              status={deactivatedModules.has("frameworks") ? "inactive" : activeFrameworkCount > 0 ? "active" : "inactive"}
+              status={deactivatedModules.has("frameworks") ? "inactive" : moduleStatusOf("frameworks") === "pending_cancellation" ? "pending_cancellation" : activeFrameworkCount > 0 ? "active" : "inactive"}
+              cancelAtLabel={cancelAtLabelOf("frameworks")}
+              onResume={() => undoCancellation("frameworks")}
               price={deactivatedModules.has("frameworks") ? 0 : frameworkMonthlyPrice}
               priceLabel={paidFrameworkCount > 0 ? `${paidFrameworkCount} betalte regelverk` : "Inkluderte regelverk"}
               usage={String(activeFrameworkCount)}
@@ -525,6 +588,7 @@ export default function Subscriptions() {
               onDeactivate={() => requestDeactivate("frameworks", "Regelverk")}
               deactivateLabel="Deaktiver alle regelverk"
               breakdown={deactivatedModules.has("frameworks") ? undefined : frameworkBreakdown}
+
               accentColor="blue"
               onReadMore={() => setReadMoreKey("frameworks")}
             />
@@ -546,7 +610,9 @@ export default function Subscriptions() {
                   icon={Briefcase}
                   title="Leverandørmodul"
                   description="TPRM og leverandørvurdering"
-                  status={isDeactivated ? "inactive" : "active"}
+                  status={isDeactivated ? "inactive" : moduleStatusOf("vendors")}
+                  cancelAtLabel={cancelAtLabelOf("vendors")}
+                  onResume={() => undoCancellation("vendors")}
                   price={isDeactivated ? 0 : vendorTier.monthlyPriceKr}
                   priceLabel={isDeactivated || vendorTier.monthlyPriceKr === 0 ? undefined : vendorTier.label}
                   usage={String(used)}
@@ -555,6 +621,7 @@ export default function Subscriptions() {
                   action={isDeactivated ? "activate" : "change"}
                   onClick={() => isDeactivated ? requestActivate("vendors", "Leverandørmodul") : setChangeVendorTierOpen(true)}
                   onDeactivate={() => requestDeactivate("vendors", "Leverandørmodul")}
+
                   accentColor="amber"
                   footer={capFooter}
                   ctaOverride={!isDeactivated && atCap && nextTier ? { label: "Oppgrader\u00a0", variant: "default" } : undefined}
@@ -567,8 +634,11 @@ export default function Subscriptions() {
               icon={Server}
               title="Assets"
               description="System- og eiendelsregister"
-              status={deactivatedModules.has("assets") ? "inactive" : "active"}
+              status={deactivatedModules.has("assets") ? "inactive" : moduleStatusOf("assets")}
+              cancelAtLabel={cancelAtLabelOf("assets")}
+              onResume={() => undoCancellation("assets")}
               price={deactivatedModules.has("assets") ? 0 : assetMonthlyPrice}
+
               usage={String(assetsCount ?? 0)}
               usageLimit={assetLimit}
               usageSuffix="eiendeler"
@@ -596,9 +666,12 @@ export default function Subscriptions() {
               icon={Users}
               title="Partner Workspace"
               description="For MSP-er og samarbeidspartnere"
-              status={deactivatedModules.has("partner") ? "inactive" : hasPartnerAccess ? "active" : "inactive"}
+              status={deactivatedModules.has("partner") ? "inactive" : hasPartnerAccess ? moduleStatusOf("partner") : "inactive"}
+              cancelAtLabel={cancelAtLabelOf("partner")}
+              onResume={() => undoCancellation("partner")}
               price={!deactivatedModules.has("partner") && hasPartnerAccess ? partnerWorkspaceMonthlyPrice : 0}
               priceLabel={hasPartnerAccess && !deactivatedModules.has("partner") ? undefined : "Kontakt salg for aktivering"}
+
               action={deactivatedModules.has("partner") ? "activate" : hasPartnerAccess ? "open" : "activate"}
               onClick={() => {
                 if (deactivatedModules.has("partner")) return requestActivate("partner", "Partner Workspace");
@@ -771,7 +844,7 @@ export default function Subscriptions() {
           <AlertDialogHeader>
             <AlertDialogTitle>Deaktivere {confirmDeactivate?.title}?</AlertDialogTitle>
             <AlertDialogDescription>
-              Modulen forblir tilgjengelig til utløpet av inneværende faktureringsperiode. Etter det stanses fakturering, og data forblir lagret i 90 dager før automatisk sletting. Du kan reaktivere modulen når som helst.
+              Modulen forblir tilgjengelig til {formatPeriodEnd()}. Etter det stanses fakturering, og data forblir lagret i 90 dager før automatisk sletting. Du kan angre oppsigelsen når som helst før den trer i kraft.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
