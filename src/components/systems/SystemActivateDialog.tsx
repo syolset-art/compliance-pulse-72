@@ -7,6 +7,8 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { FREE_INCLUSIONS } from "@/lib/planConstants";
 import { useActivatedServices } from "@/hooks/useActivatedServices";
+import { TermsAcceptRow } from "@/components/legal/TermsAcceptRow";
+import { useTerms } from "@/hooks/useTerms";
 
 interface SystemActivateDialogProps {
   open: boolean;
