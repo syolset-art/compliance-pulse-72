@@ -9,40 +9,19 @@ import { Separator } from "@/components/ui/separator";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { toast } from "sonner";
 
-const legalDocuments = [
-  {
-    id: "terms",
-    title: "Brukervilkår",
-    description: "Vilkår for bruk av Mynder-plattformen",
-    version: "2.1",
-    lastUpdated: "15. januar 2026",
-    acceptedDate: "20. januar 2026",
-  },
-  {
-    id: "privacy",
-    title: "Personvernerklæring",
-    description: "Hvordan vi behandler dine personopplysninger",
-    version: "3.0",
-    lastUpdated: "1. desember 2025",
-    acceptedDate: "20. januar 2026",
-  },
-  {
-    id: "dpa",
-    title: "Databehandleravtale (DPA)",
-    description: "Avtale om behandling av personopplysninger",
-    version: "1.5",
-    lastUpdated: "10. november 2025",
-    acceptedDate: "20. januar 2026",
-  },
-  {
-    id: "sla",
-    title: "Tjenestenivåavtale (SLA)",
-    description: "Garantier for oppetid og ytelse",
-    version: "1.2",
-    lastUpdated: "5. oktober 2025",
-    acceptedDate: "20. januar 2026",
-  },
-];
+import { useTerms } from "@/hooks/useTerms";
+
+const CONTEXT_LABELS: Record<string, string> = {
+  module_activation: "Modulaktivering",
+  framework_activation: "Aktivering av regelverk",
+  license_purchase: "Lisenskjøp",
+  signup: "Registrering",
+  settings: "Innstillinger",
+};
+
+const formatDate = (value: string) =>
+  new Date(value).toLocaleDateString("nb-NO", { day: "numeric", month: "long", year: "numeric" });
+
 
 const consentOptions = [
   {
