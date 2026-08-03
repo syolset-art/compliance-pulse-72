@@ -191,6 +191,13 @@ export function FrameworkOrderConfirmDialog({
             </CollapsibleContent>
           </Collapsible>
 
+          <TermsAcceptRow
+            id="terms-framework-order"
+            checked={termsOk}
+            onCheckedChange={setTermsChecked}
+            version={currentTerms?.version}
+          />
+
         </div>
 
         <div className="flex justify-end gap-2 pt-2">
