@@ -87,6 +87,8 @@ export function PurchaseLicensesDialog({ open, onOpenChange, onSuccess }: Props)
         status: "pending",
       } as any);
 
+      await acceptTerms("license_purchase", `${quantity}x ${tier.name}`);
+
       toast.success(`${quantity} ${tier.name}-lisenser kjøpt med ${discount}% rabatt!`);
       onSuccess();
       onOpenChange(false);
