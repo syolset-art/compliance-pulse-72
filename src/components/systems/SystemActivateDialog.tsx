@@ -28,6 +28,7 @@ export function SystemActivateDialog({ open, onOpenChange, onActivated }: System
   const handleActivate = async () => {
     setIsActivating(true);
     await new Promise((r) => setTimeout(r, 800));
+    await acceptTerms("module_activation", "Mynder Core");
     activateService("module-systems", "user");
     toast.success("Mynder Core aktivert! Inkludert i din Profesjonell-plan.");
     onActivated("active");
