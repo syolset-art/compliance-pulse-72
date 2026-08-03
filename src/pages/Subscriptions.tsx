@@ -384,19 +384,28 @@ export default function Subscriptions() {
   const handleCoreTierConfirm = () => {
     if (!pendingCoreTierId) return;
     const prev = coreTierId;
-    const nextLabel = getCoreTier(pendingCoreTierId).label.toLowerCase();
-    setCoreTierId(pendingCoreTierId);
+    const next = pendingCoreTierId;
+    const nextTier = getCoreTier(next);
+    const isUpgrade = nextTier.monthlyPriceKr >= getCoreTier(prev).monthlyPriceKr;
+    setCoreTierId(next);
+    setModuleTier("core", next);
     setPendingCoreTierId(null);
-    toast(`Mynder Core er endret til ${nextLabel}.`, {
-      action: {
-        label: "Angre",
-        onClick: () => {
-          setCoreTierId(prev);
-          toast.success("Endringen er angret.");
+    toast(
+      isUpgrade
+        ? `Mynder Core er oppgradert til ${nextTier.label.toLowerCase()} — tilgjengelig nå.`
+        : `Mynder Core endres til ${nextTier.label.toLowerCase()} fra ${formatPeriodEnd()}.`,
+      {
+        action: {
+          label: "Angre",
+          onClick: () => {
+            setCoreTierId(prev);
+            setModuleTier("core", prev);
+            toast.success("Endringen er angret.");
+          },
         },
-      },
-      duration: 10000,
-    });
+        duration: 10000,
+      }
+    );
   };
 
   const handleVendorTierSelect = (nextTierId: VendorTierId) => {
@@ -407,19 +416,29 @@ export default function Subscriptions() {
   const handleVendorTierConfirm = () => {
     if (!pendingVendorTierId) return;
     const prev = vendorTierId;
-    const nextLabel = getVendorTier(pendingVendorTierId).label.toLowerCase();
-    setVendorTierId(pendingVendorTierId);
+    const next = pendingVendorTierId;
+    const nextTier = getVendorTier(next);
+    const isUpgrade = nextTier.monthlyPriceKr >= getVendorTier(prev).monthlyPriceKr;
+    setVendorTierId(next);
+    setModuleTier("vendors", next);
     setPendingVendorTierId(null);
-    toast(`Leverandørmodul er endret til ${nextLabel}.`, {
-      action: {
-        label: "Angre",
-        onClick: () => {
-          setVendorTierId(prev);
-          toast.success("Endringen er angret.");
+    toast(
+      isUpgrade
+        ? `Leverandørmodulen er oppgradert til ${nextTier.label.toLowerCase()} — tilgjengelig nå.`
+        : `Leverandørmodulen endres til ${nextTier.label.toLowerCase()} fra ${formatPeriodEnd()}.`,
+      {
+        action: {
+          label: "Angre",
+          onClick: () => {
+            setVendorTierId(prev);
+            setModuleTier("vendors", prev);
+            toast.success("Endringen er angret.");
+          },
         },
-      },
-      duration: 10000,
-    });
+        duration: 10000,
+      }
+    );
+
   };
 
   const activeModuleCount = useMemo(() => {
