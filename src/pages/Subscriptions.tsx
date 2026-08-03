@@ -210,37 +210,68 @@ export default function Subscriptions() {
   const [purchaseFramework, setPurchaseFramework] = useState<Framework | null>(null);
   const [updatingFrameworkId, setUpdatingFrameworkId] = useState<string | null>(null);
   const [deactivatedModules, setDeactivatedModules] = useState<Set<string>>(() => getDeactivatedModules());
+  const [moduleStates, setModuleStates] = useState<ModuleStateMap>(() => getModuleStates());
   const [confirmDeactivate, setConfirmDeactivate] = useState<{ id: string; title: string } | null>(null);
-  const [coreTierId, setCoreTierId] = useState<CoreTierId>(DEFAULT_CORE_TIER_ID);
+  const [coreTierId, setCoreTierId] = useState<CoreTierId>(
+    () => (getModuleTier("core") as CoreTierId) ?? DEFAULT_CORE_TIER_ID
+  );
   const [changeCoreTierOpen, setChangeCoreTierOpen] = useState(false);
   const [pendingCoreTierId, setPendingCoreTierId] = useState<CoreTierId | null>(null);
-  const [vendorTierId, setVendorTierId] = useState<VendorTierId>(DEFAULT_VENDOR_TIER_ID);
+  const [vendorTierId, setVendorTierId] = useState<VendorTierId>(
+    () => (getModuleTier("vendors") as VendorTierId) ?? DEFAULT_VENDOR_TIER_ID
+  );
   const [changeVendorTierOpen, setChangeVendorTierOpen] = useState(false);
   const [pendingVendorTierId, setPendingVendorTierId] = useState<VendorTierId | null>(null);
   const [readMoreKey, setReadMoreKey] = useState<ModuleKey | null>(null);
   const [confirmActivate, setConfirmActivate] = useState<{ id: string; title: string } | null>(null);
 
+  const syncModuleState = () => {
+    setModuleStates(getModuleStates());
+    setDeactivatedModules(getDeactivatedModules());
+  };
+
+  const moduleStatusOf = (id: string): "active" | "inactive" | "pending_cancellation" => {
+    if (deactivatedModules.has(id)) return "inactive";
+    return moduleStates[id]?.status === "pending_cancellation" ? "pending_cancellation" : "active";
+  };
+
+  const cancelAtLabelOf = (id: string) =>
+    moduleStates[id]?.cancelAt ? formatPeriodEnd(moduleStates[id]?.cancelAt) : undefined;
+
   const requestDeactivate = (id: string, title: string) => setConfirmDeactivate({ id, title });
+
   const confirmDeactivation = () => {
     if (!confirmDeactivate) return;
-    setDeactivatedModules((prev) => {
-      const next = new Set(prev).add(confirmDeactivate.id);
-      saveDeactivatedModules(next);
-      return next;
-    });
-    toast.success(`${confirmDeactivate.title} er deaktivert. Endringen trer i kraft ved neste faktureringsperiode.`);
+    const { id, title } = confirmDeactivate;
+    const cancelAt = cancelModule(id);
+    syncModuleState();
     setConfirmDeactivate(null);
-  };
-  const reactivateModule = (id: string) => {
-    setDeactivatedModules((prev) => {
-      const next = new Set(prev);
-      next.delete(id);
-      saveDeactivatedModules(next);
-      return next;
+    toast(`${title} er sagt opp og er tilgjengelig til ${formatPeriodEnd(cancelAt)}.`, {
+      action: {
+        label: "Angre",
+        onClick: () => {
+          resumeModule(id);
+          syncModuleState();
+          toast.success("Oppsigelsen er angret.");
+        },
+      },
+      duration: 10000,
     });
-    toast.success("Modulen er reaktivert.");
+  };
+
+  const undoCancellation = (id: string) => {
+    resumeModule(id);
+    syncModuleState();
+    toast.success("Oppsigelsen er angret. Modulen fortsetter som før.");
+  };
+
+  const reactivateModule = (id: string) => {
+    activateModule(id);
+    syncModuleState();
+    toast.success("Modulen er aktivert og er klar til bruk.");
   };
   const requestActivate = (id: string, title: string) => setConfirmActivate({ id, title });
+
 
   const { data: selectedFrameworks, refetch: refetchFrameworks } = useQuery({
     queryKey: ["selected-frameworks-sub"],
