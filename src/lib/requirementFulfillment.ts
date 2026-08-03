@@ -37,8 +37,8 @@ const FULFILLMENT_META: Record<FulfillmentType, Omit<FulfillmentInfo, "type" | "
     labelEn: "Documentation required",
     descriptionNo: "Kravet må dokumenteres med opplastet bevis (policy, avtale, sertifisering, rapport).",
     descriptionEn: "Requires uploaded evidence (policy, agreement, certification, report).",
-    primaryActionNo: "Last opp bevis",
-    primaryActionEn: "Upload evidence",
+    primaryActionNo: "Last opp dokumentasjon",
+    primaryActionEn: "Upload documentation",
     pillClass: "border-warning/40 bg-warning/10 text-warning",
   },
   document_optional: {
