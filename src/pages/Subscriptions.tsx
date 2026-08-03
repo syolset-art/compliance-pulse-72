@@ -552,7 +552,7 @@ export default function Subscriptions() {
                   usageLimit={String(vendorTier.vendorLimit)}
                   usageSuffix="leverandører"
                   action={isDeactivated ? "activate" : "change"}
-                  onClick={() => isDeactivated ? reactivateModule("vendors") : setChangeVendorTierOpen(true)}
+                  onClick={() => isDeactivated ? requestActivate("vendors", "Leverandørmodul") : setChangeVendorTierOpen(true)}
                   onDeactivate={() => requestDeactivate("vendors", "Leverandørmodul")}
                   accentColor="amber"
                   footer={capFooter}
