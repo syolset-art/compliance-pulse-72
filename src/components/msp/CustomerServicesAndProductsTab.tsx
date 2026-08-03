@@ -131,6 +131,32 @@ export function CustomerServicesAndProductsTab({
 
   const offers: SavedOffer[] = useCustomerOffers(customerId);
   const activeModules = moduleRows.filter((m) => m.status !== "inactive");
+  const [showAll, setShowAll] = useState(false);
+
+  const byDate = (a: SavedOffer, b: SavedOffer) =>
+    new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+
+  const ongoing = useMemo(
+    () =>
+      offers
+        .filter((o) => (o.status ?? "draft") !== "delivered")
+        .sort(byDate)
+        .map((o) => {
+          const template = pickDeliveryFormTemplate({
+            name: o.name,
+            templateIds: o.templateIds,
+          });
+          const prog = deliveryFormProgress(template, loadDeliveryForm(o.id));
+          return {
+            ...o,
+            progress: prog.total ? Math.round((prog.done / prog.total) * 100) : 0,
+          };
+        }),
+    [offers],
+  );
+
+  const delivered = useMemo(() => offers.filter((o) => o.status === "delivered"), [offers]);
+
 
   return (
     <div className="space-y-5">
