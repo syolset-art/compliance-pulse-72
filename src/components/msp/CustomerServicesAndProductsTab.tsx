@@ -91,8 +91,12 @@ export function CustomerServicesAndProductsTab({
   customerName,
   customerEmail,
   activeFrameworkIds,
+  recommended = [],
+  confirmed = [],
+  onOpenDeliveries,
   onUpdate,
 }: Props) {
+
   const [tick, setTick] = useState(0);
   useEffect(() => {
     const refresh = () => setTick((n) => n + 1);
