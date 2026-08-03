@@ -16,7 +16,10 @@ interface SystemActivateDialogProps {
 
 export function SystemActivateDialog({ open, onOpenChange, onActivated }: SystemActivateDialogProps) {
   const [isActivating, setIsActivating] = useState(false);
+  const [termsChecked, setTermsChecked] = useState(false);
   const { activateService } = useActivatedServices();
+  const { current: currentTerms, hasAcceptedCurrent, acceptTerms } = useTerms();
+  const termsOk = termsChecked || hasAcceptedCurrent;
 
   const features = [
     "Systemanalyse og risikovurdering via AI",
