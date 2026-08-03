@@ -76,8 +76,9 @@ export function FrameworkOrderConfirmDialog({
     setFile(f);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!canSubmit) return;
+    await acceptTerms("framework_activation", framework.id);
     onConfirm(
       method === "upload"
         ? { method, evidenceName: file!.name, evidenceSize: file!.size }
