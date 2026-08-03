@@ -53,6 +53,7 @@ const consentOptions = [
 
 export default function TermsAndConsent() {
   const navigate = useNavigate();
+  const terms = useTerms();
   const [consents, setConsents] = useState(consentOptions);
   const [saving, setSaving] = useState(false);
 
