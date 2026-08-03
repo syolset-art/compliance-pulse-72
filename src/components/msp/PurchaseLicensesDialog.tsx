@@ -204,7 +204,7 @@ export function PurchaseLicensesDialog({ open, onOpenChange, onSuccess }: Props)
 
         <DialogFooter>
           <Button variant="outline" onClick={() => { onOpenChange(false); setTermsAccepted(false); }}>Avbryt</Button>
-          <Button onClick={handlePurchase} disabled={loading || !termsAccepted}>
+          <Button onClick={handlePurchase} disabled={loading || !(termsAccepted || hasAcceptedCurrent)}>
             {loading ? "Behandler..." : "Bekreft kjøp"}
           </Button>
         </DialogFooter>
