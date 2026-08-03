@@ -12,6 +12,8 @@ import { toast } from "sonner";
 import {
   INDUSTRIES, EMPLOYEE_RANGES, SUBSCRIPTION_PLANS, COMPANY_ROLES, COMPLIANCE_ROLES,
 } from "@/lib/mspCustomerConstants";
+import { TermsAcceptRow } from "@/components/legal/TermsAcceptRow";
+import { useTerms } from "@/hooks/useTerms";
 
 interface Props {
   open: boolean;
