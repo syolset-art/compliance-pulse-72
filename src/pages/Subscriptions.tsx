@@ -844,7 +844,7 @@ export default function Subscriptions() {
           <AlertDialogHeader>
             <AlertDialogTitle>Deaktivere {confirmDeactivate?.title}?</AlertDialogTitle>
             <AlertDialogDescription>
-              Modulen forblir tilgjengelig til utløpet av inneværende faktureringsperiode. Etter det stanses fakturering, og data forblir lagret i 90 dager før automatisk sletting. Du kan reaktivere modulen når som helst.
+              Modulen forblir tilgjengelig til {formatPeriodEnd()}. Etter det stanses fakturering, og data forblir lagret i 90 dager før automatisk sletting. Du kan angre oppsigelsen når som helst før den trer i kraft.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
