@@ -37,6 +37,8 @@ import { BaselineReadinessCard } from "@/components/msp/BaselineReadinessCard";
 import { BaselineQuestionsDrawer } from "@/components/msp/BaselineQuestionsDrawer";
 import { CustomerDocumentationTab } from "@/components/msp/CustomerDocumentationTab";
 import { CustomerModulesTab } from "@/components/msp/CustomerModulesTab";
+import { CustomerServicesAndProductsTab } from "@/components/msp/CustomerServicesAndProductsTab";
+
 import { CustomerDeliveriesTab } from "@/components/msp/deliveries/CustomerDeliveriesTab";
 import { useCustomerBaseline } from "@/hooks/useCustomerBaseline";
 import { MATURITY_AREAS, type MaturityAnswer, type MaturityAnswers } from "@/lib/trustMaturityQuestions";
