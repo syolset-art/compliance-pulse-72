@@ -121,11 +121,17 @@ export function ModuleCard({
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <h3 className="font-semibold text-foreground text-base">{title}</h3>
-              {priceLabel && !isIncluded && status === "active" && (
+              {priceLabel && !isIncluded && (status === "active" || isPendingCancel) && (
                 <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium border border-primary/20 bg-primary/5 text-primary">
                   {priceLabel}
                 </span>
               )}
+              {isPendingCancel && (
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium border border-border bg-muted text-muted-foreground">
+                  Sagt opp{cancelAtLabel ? ` — aktiv til ${cancelAtLabel}` : ""}
+                </span>
+              )}
+
             </div>
             {description && (
               <p className="text-sm text-muted-foreground leading-snug mt-1">{description}</p>
