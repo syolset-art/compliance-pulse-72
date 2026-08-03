@@ -342,9 +342,6 @@ export default function MSPCustomerDetail() {
                 <TabsTrigger value="regulations" className="text-sm font-medium text-foreground/75 data-[state=active]:text-foreground data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap px-3 py-2">
                   Regelverk
                 </TabsTrigger>
-                <TabsTrigger value="modules" className="text-sm font-medium text-foreground/75 data-[state=active]:text-foreground data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap px-3 py-2">
-                  Produkter
-                </TabsTrigger>
                 <TabsTrigger value="deliveries" className="text-sm font-medium text-foreground/75 data-[state=active]:text-foreground data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap px-3 py-2">
                   Leveranser
                 </TabsTrigger>
