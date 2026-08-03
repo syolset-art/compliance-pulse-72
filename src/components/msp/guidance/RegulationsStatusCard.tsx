@@ -296,7 +296,7 @@ export function RegulationsStatusCard({
           className="h-7 gap-1.5 text-xs shrink-0"
         >
           <Upload className="h-3.5 w-3.5" />
-          Last opp bevis
+          Last opp dokumentasjon
         </Button>
       </div>
 
