@@ -44,7 +44,10 @@ export function FrameworkOrderConfirmDialog({
   const [file, setFile] = useState<File | null>(null);
   const [declaration, setDeclaration] = useState("");
   const [accept, setAccept] = useState(false);
+  const [termsChecked, setTermsChecked] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { current: currentTerms, hasAcceptedCurrent, acceptTerms } = useTerms();
+  const termsOk = termsChecked || hasAcceptedCurrent;
 
   useEffect(() => {
     if (open) {
@@ -52,6 +55,7 @@ export function FrameworkOrderConfirmDialog({
       setFile(null);
       setDeclaration("");
       setAccept(false);
+      setTermsChecked(false);
     }
   }, [open]);
 
@@ -59,7 +63,7 @@ export function FrameworkOrderConfirmDialog({
 
   const evidenceOk =
     method === "upload" ? !!file : declaration.trim().length >= MIN_DECLARATION;
-  const canSubmit = evidenceOk && accept;
+  const canSubmit = evidenceOk && accept && termsOk;
 
   const handleFile = (f: File | null) => {
     if (!f) return;
