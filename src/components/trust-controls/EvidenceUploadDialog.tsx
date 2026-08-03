@@ -240,7 +240,7 @@ export function EvidenceUploadDialog({ open, onOpenChange, assetId }: Props) {
       <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <DialogTitle>
-            {step === "upload" && (isNb ? "Last opp bevisdokument" : "Upload evidence")}
+            {step === "upload" && (isNb ? "Last opp dokumentasjon" : "Upload evidence")}
             {step === "analyzing" && (isNb ? "Lara leser dokumentet…" : "Lara is reading the document…")}
             {step === "type" && (isNb ? "1. Hva er dette?" : "1. What is this?")}
             {step === "placement" && (isNb ? "2. Hvor hører det hjemme?" : "2. Where does it belong?")}

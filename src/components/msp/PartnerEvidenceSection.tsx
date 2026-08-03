@@ -73,7 +73,7 @@ export function PartnerEvidenceSection({
           {!hideUploadButton && (
             <Button size="sm" className="gap-1.5 shrink-0" onClick={() => setOpen(true)}>
               <Upload className="h-3.5 w-3.5" />
-              Last opp bevis
+              Last opp dokumentasjon
             </Button>
           )}
         </div>

@@ -296,7 +296,7 @@ export function RegulationsStatusCard({
           className="h-7 gap-1.5 text-xs shrink-0"
         >
           <Upload className="h-3.5 w-3.5" />
-          Last opp bevis
+          Last opp dokumentasjon
         </Button>
       </div>
 
@@ -507,8 +507,8 @@ export function RegulationsStatusCard({
                             });
                           }}
                           className="h-7 w-7 p-0 text-muted-foreground hover:text-primary"
-                          aria-label={`Last opp bevis for ${rec.label}`}
-                          title="Last opp bevis for dette regelverket"
+                          aria-label={`Last opp dokumentasjon for ${rec.label}`}
+                          title="Last opp dokumentasjon for dette regelverket"
                         >
                           <Upload className="h-3.5 w-3.5" />
                         </Button>
