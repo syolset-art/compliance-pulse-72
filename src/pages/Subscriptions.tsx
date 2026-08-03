@@ -41,6 +41,7 @@ import {
 } from "@/lib/planConstants";
 import { OrganizationContextBanner } from "@/components/OrganizationContextBanner";
 import { ModuleCard } from "@/components/subscriptions/ModuleCard";
+import { TermsGateDialog } from "@/components/legal/TermsGateDialog";
 import { ModuleInfoDialog } from "@/components/subscriptions/ModuleInfoDialog";
 import type { ModuleKey } from "@/lib/moduleInfo";
 import { ChangeCoreTierDialog } from "@/components/dialogs/ChangeCoreTierDialog";
@@ -206,6 +207,7 @@ export default function Subscriptions() {
   const [changeVendorTierOpen, setChangeVendorTierOpen] = useState(false);
   const [pendingVendorTierId, setPendingVendorTierId] = useState<VendorTierId | null>(null);
   const [readMoreKey, setReadMoreKey] = useState<ModuleKey | null>(null);
+  const [confirmActivate, setConfirmActivate] = useState<{ id: string; title: string } | null>(null);
 
   const requestDeactivate = (id: string, title: string) => setConfirmDeactivate({ id, title });
   const confirmDeactivation = () => {
@@ -227,6 +229,7 @@ export default function Subscriptions() {
     });
     toast.success("Modulen er reaktivert.");
   };
+  const requestActivate = (id: string, title: string) => setConfirmActivate({ id, title });
 
   const { data: selectedFrameworks, refetch: refetchFrameworks } = useQuery({
     queryKey: ["selected-frameworks-sub"],
@@ -518,7 +521,7 @@ export default function Subscriptions() {
               usageLimit={String(allFrameworkDefs.length)}
               usageSuffix="aktive"
               action={deactivatedModules.has("frameworks") ? "activate" : "manage"}
-              onClick={() => deactivatedModules.has("frameworks") ? reactivateModule("frameworks") : setEditFrameworksOpen(true)}
+              onClick={() => deactivatedModules.has("frameworks") ? requestActivate("frameworks", "Regelverk") : setEditFrameworksOpen(true)}
               onDeactivate={() => requestDeactivate("frameworks", "Regelverk")}
               deactivateLabel="Deaktiver alle regelverk"
               breakdown={deactivatedModules.has("frameworks") ? undefined : frameworkBreakdown}
@@ -550,7 +553,7 @@ export default function Subscriptions() {
                   usageLimit={String(vendorTier.vendorLimit)}
                   usageSuffix="leverandører"
                   action={isDeactivated ? "activate" : "change"}
-                  onClick={() => isDeactivated ? reactivateModule("vendors") : setChangeVendorTierOpen(true)}
+                  onClick={() => isDeactivated ? requestActivate("vendors", "Leverandørmodul") : setChangeVendorTierOpen(true)}
                   onDeactivate={() => requestDeactivate("vendors", "Leverandørmodul")}
                   accentColor="amber"
                   footer={capFooter}
@@ -570,7 +573,7 @@ export default function Subscriptions() {
               usageLimit={assetLimit}
               usageSuffix="eiendeler"
               action={deactivatedModules.has("assets") ? "activate" : "open"}
-              onClick={() => deactivatedModules.has("assets") ? reactivateModule("assets") : navigate("/assets")}
+              onClick={() => deactivatedModules.has("assets") ? requestActivate("assets", "Assets") : navigate("/assets")}
               onDeactivate={() => requestDeactivate("assets", "Assets")}
               accentColor="emerald"
               onReadMore={() => setReadMoreKey("assets")}
@@ -598,7 +601,7 @@ export default function Subscriptions() {
               priceLabel={hasPartnerAccess && !deactivatedModules.has("partner") ? undefined : "Kontakt salg for aktivering"}
               action={deactivatedModules.has("partner") ? "activate" : hasPartnerAccess ? "open" : "activate"}
               onClick={() => {
-                if (deactivatedModules.has("partner")) return reactivateModule("partner");
+                if (deactivatedModules.has("partner")) return requestActivate("partner", "Partner Workspace");
                 return hasPartnerAccess ? navigate("/msp") : toast.info("Ta kontakt med salg på sales@mynder.no for å aktivere Partner Workspace.");
               }}
               onDeactivate={hasPartnerAccess ? () => requestDeactivate("partner", "Partner Workspace") : undefined}
@@ -608,6 +611,19 @@ export default function Subscriptions() {
           </section>
 
           <ModuleInfoDialog moduleKey={readMoreKey} onOpenChange={(open) => !open && setReadMoreKey(null)} />
+
+          <TermsGateDialog
+            open={!!confirmActivate}
+            onOpenChange={(open) => !open && setConfirmActivate(null)}
+            title={`Aktiver ${confirmActivate?.title ?? "modul"}`}
+            description="Aktiveringen trer i kraft umiddelbart og faktureres fra neste periode."
+            context="module_activation"
+            contextRef={confirmActivate?.id}
+            onConfirmed={() => {
+              if (confirmActivate) reactivateModule(confirmActivate.id);
+              setConfirmActivate(null);
+            }}
+          />
 
           {/* Payment method */}
           <section className="space-y-3">

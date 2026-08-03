@@ -12,6 +12,8 @@ import { toast } from "sonner";
 import {
   INDUSTRIES, EMPLOYEE_RANGES, SUBSCRIPTION_PLANS, COMPANY_ROLES, COMPLIANCE_ROLES,
 } from "@/lib/mspCustomerConstants";
+import { TermsAcceptRow } from "@/components/legal/TermsAcceptRow";
+import { useTerms } from "@/hooks/useTerms";
 
 interface Props {
   open: boolean;
@@ -23,6 +25,9 @@ interface Props {
 export function AssignLicenseDialog({ open, onOpenChange, license, onSuccess }: Props) {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [termsChecked, setTermsChecked] = useState(false);
+  const { current: currentTerms, hasAcceptedCurrent, acceptTerms } = useTerms();
+  const termsOk = termsChecked || hasAcceptedCurrent;
   const [form, setForm] = useState({
     customer_name: "",
     org_number: "",
@@ -67,6 +72,8 @@ export function AssignLicenseDialog({ open, onOpenChange, license, onSuccess }: 
         .eq("id", license.id);
 
       if (licenseError) throw licenseError;
+
+      await acceptTerms("license_purchase", `assign:${license.license_key ?? license.id}`);
 
       toast.success(`Lisens tildelt ${form.customer_name.trim()}. Onboarding-e-post sendes.`);
       onSuccess();
@@ -188,9 +195,15 @@ export function AssignLicenseDialog({ open, onOpenChange, license, onSuccess }: 
             <p className="text-xs text-muted-foreground">Kunden mottar en e-post med invitasjon til onboarding</p>
           </div>
         </div>
+        <TermsAcceptRow
+          id="terms-assign-license"
+          checked={termsOk}
+          onCheckedChange={setTermsChecked}
+          version={currentTerms?.version}
+        />
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Avbryt</Button>
-          <Button onClick={handleAssign} disabled={loading || !isValid}>
+          <Button onClick={handleAssign} disabled={loading || !isValid || !termsOk}>
             {loading ? "Tildeler..." : "Tildel og inviter"}
           </Button>
         </DialogFooter>

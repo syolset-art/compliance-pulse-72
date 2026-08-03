@@ -9,40 +9,19 @@ import { Separator } from "@/components/ui/separator";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { toast } from "sonner";
 
-const legalDocuments = [
-  {
-    id: "terms",
-    title: "Brukervilkår",
-    description: "Vilkår for bruk av Mynder-plattformen",
-    version: "2.1",
-    lastUpdated: "15. januar 2026",
-    acceptedDate: "20. januar 2026",
-  },
-  {
-    id: "privacy",
-    title: "Personvernerklæring",
-    description: "Hvordan vi behandler dine personopplysninger",
-    version: "3.0",
-    lastUpdated: "1. desember 2025",
-    acceptedDate: "20. januar 2026",
-  },
-  {
-    id: "dpa",
-    title: "Databehandleravtale (DPA)",
-    description: "Avtale om behandling av personopplysninger",
-    version: "1.5",
-    lastUpdated: "10. november 2025",
-    acceptedDate: "20. januar 2026",
-  },
-  {
-    id: "sla",
-    title: "Tjenestenivåavtale (SLA)",
-    description: "Garantier for oppetid og ytelse",
-    version: "1.2",
-    lastUpdated: "5. oktober 2025",
-    acceptedDate: "20. januar 2026",
-  },
-];
+import { useTerms } from "@/hooks/useTerms";
+
+const CONTEXT_LABELS: Record<string, string> = {
+  module_activation: "Modulaktivering",
+  framework_activation: "Aktivering av regelverk",
+  license_purchase: "Lisenskjøp",
+  signup: "Registrering",
+  settings: "Innstillinger",
+};
+
+const formatDate = (value: string) =>
+  new Date(value).toLocaleDateString("nb-NO", { day: "numeric", month: "long", year: "numeric" });
+
 
 const consentOptions = [
   {
@@ -74,6 +53,7 @@ const consentOptions = [
 
 export default function TermsAndConsent() {
   const navigate = useNavigate();
+  const terms = useTerms();
   const [consents, setConsents] = useState(consentOptions);
   const [saving, setSaving] = useState(false);
 
@@ -109,48 +89,64 @@ export default function TermsAndConsent() {
           </div>
         </div>
 
-        {/* Legal Documents */}
+        {/* Terms document */}
         <div>
           <div className="flex items-center gap-2 mb-4">
             <FileText className="h-5 w-5 text-primary" />
-            <h2 className="text-lg font-semibold text-foreground">Juridiske dokumenter</h2>
+            <h2 className="text-lg font-semibold text-foreground">Vilkår og betingelser</h2>
           </div>
-          
+
           <Card>
-            <CardContent className="p-0">
-              {legalDocuments.map((doc, index) => (
-                <div key={doc.id}>
-                  <div className="p-4 flex items-center justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <h3 className="font-medium text-foreground">{doc.title}</h3>
-                        <Badge variant="outline" className="text-xs">v{doc.version}</Badge>
-                      </div>
-                      <p className="text-sm text-muted-foreground mt-1">{doc.description}</p>
-                      <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
-                        <span className="flex items-center gap-1">
-                          <Clock className="h-3 w-3" />
-                          Oppdatert: {doc.lastUpdated}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <Check className="h-3 w-3 text-success" />
-                          Akseptert: {doc.acceptedDate}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button variant="ghost" size="sm">
-                        <Eye className="h-4 w-4 mr-2" />
-                        Les
-                      </Button>
-                      <Button variant="ghost" size="sm">
-                        <Download className="h-4 w-4" />
-                      </Button>
-                    </div>
+            <CardContent className="p-4 space-y-4">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-medium text-foreground">Samlede vilkår for alle Mynder-produkter</h3>
+                    {terms.current && (
+                      <Badge variant="outline" className="text-xs">v{terms.current.version}</Badge>
+                    )}
                   </div>
-                  {index < legalDocuments.length - 1 && <Separator />}
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Ett dokument som dekker Mynder Core, regelverk, leverandørmodulen, Assets og partnerløsningen.
+                  </p>
+                  <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
+                    {terms.current && (
+                      <span className="flex items-center gap-1">
+                        <Clock className="h-3 w-3" />
+                        Gjelder fra {formatDate(terms.current.effective_date)}
+                      </span>
+                    )}
+                    <span className="flex items-center gap-1">
+                      <Check className={`h-3 w-3 ${terms.hasAcceptedCurrent ? "text-success" : "text-muted-foreground"}`} />
+                      {terms.hasAcceptedCurrent && terms.currentAcceptedAt
+                        ? `Godtatt ${formatDate(terms.currentAcceptedAt)}`
+                        : "Ikke godtatt ennå"}
+                    </span>
+                  </div>
                 </div>
-              ))}
+                <Button variant="ghost" size="sm" onClick={() => window.open("/terms", "_blank", "noopener,noreferrer")}>
+                  <Eye className="h-4 w-4 mr-2" />
+                  Les
+                </Button>
+              </div>
+
+              {terms.acceptances.length > 0 && (
+                <>
+                  <Separator />
+                  <div className="space-y-2">
+                    <p className="text-xs font-medium text-muted-foreground">Din aksepthistorikk</p>
+                    {terms.acceptances.map((a) => (
+                      <div key={a.id} className="flex items-center justify-between text-xs text-muted-foreground">
+                        <span>
+                          {CONTEXT_LABELS[a.context] ?? a.context}
+                          {a.context_ref ? ` · ${a.context_ref}` : ""}
+                        </span>
+                        <span>{formatDate(a.accepted_at)}</span>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
             </CardContent>
           </Card>
         </div>

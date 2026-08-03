@@ -38,6 +38,7 @@ import Subscriptions from "./pages/Subscriptions";
 import ActivityLog from "./pages/ActivityLog";
 import Integrations from "./pages/Integrations";
 import TermsAndConsent from "./pages/TermsAndConsent";
+import Terms from "./pages/Terms";
 import Reports from "./pages/Reports";
 import ProcessProfile from "./pages/ProcessProfile";
 import Deviations from "./pages/Deviations";
@@ -153,6 +154,7 @@ const App = () => (
                   <Route path="/activity-log" element={<ActivityLog />} />
                   <Route path="/settings/integrations" element={<Integrations />} />
                   <Route path="/terms-and-consent" element={<TermsAndConsent />} />
+                  <Route path="/terms" element={<Terms />} />
                   <Route path="/deviations" element={<Deviations />} />
                   <Route path="/resources" element={<Resources />} />
                   <Route path="/compliance" element={<ComplianceChecklist />} />

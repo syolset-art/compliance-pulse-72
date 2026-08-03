@@ -7,6 +7,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { TermsAcceptRow } from "@/components/legal/TermsAcceptRow";
+import { useTerms } from "@/hooks/useTerms";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -44,7 +46,10 @@ export function FrameworkOrderConfirmDialog({
   const [file, setFile] = useState<File | null>(null);
   const [declaration, setDeclaration] = useState("");
   const [accept, setAccept] = useState(false);
+  const [termsChecked, setTermsChecked] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { current: currentTerms, hasAcceptedCurrent, acceptTerms } = useTerms();
+  const termsOk = termsChecked || hasAcceptedCurrent;
 
   useEffect(() => {
     if (open) {
@@ -52,6 +57,7 @@ export function FrameworkOrderConfirmDialog({
       setFile(null);
       setDeclaration("");
       setAccept(false);
+      setTermsChecked(false);
     }
   }, [open]);
 
@@ -59,7 +65,7 @@ export function FrameworkOrderConfirmDialog({
 
   const evidenceOk =
     method === "upload" ? !!file : declaration.trim().length >= MIN_DECLARATION;
-  const canSubmit = evidenceOk && accept;
+  const canSubmit = evidenceOk && accept && termsOk;
 
   const handleFile = (f: File | null) => {
     if (!f) return;
@@ -70,8 +76,9 @@ export function FrameworkOrderConfirmDialog({
     setFile(f);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!canSubmit) return;
+    await acceptTerms("framework_activation", framework.id);
     onConfirm(
       method === "upload"
         ? { method, evidenceName: file!.name, evidenceSize: file!.size }
@@ -190,6 +197,13 @@ export function FrameworkOrderConfirmDialog({
               <p>Som partner står du ansvarlig for at kunden har godkjent aktiveringen. Bekreftelsen lagres som dokumentasjon.</p>
             </CollapsibleContent>
           </Collapsible>
+
+          <TermsAcceptRow
+            id="terms-framework-order"
+            checked={termsOk}
+            onCheckedChange={setTermsChecked}
+            version={currentTerms?.version}
+          />
 
         </div>
 

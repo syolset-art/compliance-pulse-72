@@ -7,6 +7,8 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { FREE_INCLUSIONS } from "@/lib/planConstants";
 import { useActivatedServices } from "@/hooks/useActivatedServices";
+import { TermsAcceptRow } from "@/components/legal/TermsAcceptRow";
+import { useTerms } from "@/hooks/useTerms";
 
 interface SystemActivateDialogProps {
   open: boolean;
@@ -16,7 +18,10 @@ interface SystemActivateDialogProps {
 
 export function SystemActivateDialog({ open, onOpenChange, onActivated }: SystemActivateDialogProps) {
   const [isActivating, setIsActivating] = useState(false);
+  const [termsChecked, setTermsChecked] = useState(false);
   const { activateService } = useActivatedServices();
+  const { current: currentTerms, hasAcceptedCurrent, acceptTerms } = useTerms();
+  const termsOk = termsChecked || hasAcceptedCurrent;
 
   const features = [
     "Systemanalyse og risikovurdering via AI",
@@ -28,6 +33,7 @@ export function SystemActivateDialog({ open, onOpenChange, onActivated }: System
   const handleActivate = async () => {
     setIsActivating(true);
     await new Promise((r) => setTimeout(r, 800));
+    await acceptTerms("module_activation", "Mynder Core");
     activateService("module-systems", "user");
     toast.success("Mynder Core aktivert! Inkludert i din Profesjonell-plan.");
     onActivated("active");
@@ -79,11 +85,18 @@ export function SystemActivateDialog({ open, onOpenChange, onActivated }: System
           ))}
         </div>
 
+        <TermsAcceptRow
+          id="terms-core-activate"
+          checked={termsOk}
+          onCheckedChange={setTermsChecked}
+          version={currentTerms?.version}
+        />
+
         <div className="flex justify-end gap-3 mt-2">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Avbryt
           </Button>
-          <Button onClick={handleActivate} disabled={isActivating} className="gap-2">
+          <Button onClick={handleActivate} disabled={isActivating || !termsOk} className="gap-2">
             <Sparkles className="h-4 w-4" />
             {isActivating ? "Aktiverer..." : "Aktiver Mynder Core"}
           </Button>
