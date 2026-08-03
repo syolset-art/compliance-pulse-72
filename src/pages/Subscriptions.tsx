@@ -634,8 +634,11 @@ export default function Subscriptions() {
               icon={Server}
               title="Assets"
               description="System- og eiendelsregister"
-              status={deactivatedModules.has("assets") ? "inactive" : "active"}
+              status={deactivatedModules.has("assets") ? "inactive" : moduleStatusOf("assets")}
+              cancelAtLabel={cancelAtLabelOf("assets")}
+              onResume={() => undoCancellation("assets")}
               price={deactivatedModules.has("assets") ? 0 : assetMonthlyPrice}
+
               usage={String(assetsCount ?? 0)}
               usageLimit={assetLimit}
               usageSuffix="eiendeler"
