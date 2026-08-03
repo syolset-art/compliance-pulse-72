@@ -85,11 +85,18 @@ export function SystemActivateDialog({ open, onOpenChange, onActivated }: System
           ))}
         </div>
 
+        <TermsAcceptRow
+          id="terms-core-activate"
+          checked={termsOk}
+          onCheckedChange={setTermsChecked}
+          version={currentTerms?.version}
+        />
+
         <div className="flex justify-end gap-3 mt-2">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Avbryt
           </Button>
-          <Button onClick={handleActivate} disabled={isActivating} className="gap-2">
+          <Button onClick={handleActivate} disabled={isActivating || !termsOk} className="gap-2">
             <Sparkles className="h-4 w-4" />
             {isActivating ? "Aktiverer..." : "Aktiver Mynder Core"}
           </Button>
