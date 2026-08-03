@@ -189,29 +189,12 @@ export function PurchaseLicensesDialog({ open, onOpenChange, onSuccess }: Props)
           </div>
 
           {/* Terms & conditions */}
-          <div className="space-y-3">
-            <Label className="text-sm font-medium">Vilkår for lisenskjøp</Label>
-            <ScrollArea className="h-40 rounded-lg border bg-muted/30 p-3">
-              <div className="text-xs text-muted-foreground space-y-3 pr-3">
-                <p>Vederlag for avtalte ytelser faktureres forskuddsvis pr kvartal og med 14 dagers forfall (om ønskelig månedlig). Første gang ved Oppstartsdato.</p>
-                <p>Vederlag basert på medgått tid faktureres etterskuddsvis, med 14 dagers forfall.</p>
-                <p>Fakturaer skal være spesifisert slik at Kunden enkelt kan kontrollere fakturaen i forhold til det avtalte vederlag. Fakturaer for løpende timer har detaljert spesifikasjon over påløpte timer. Utlegg angis særskilt.</p>
-                <p className="font-medium text-foreground">Leverandøren kan regulere prisene i prisbilaget (og eventuelle andre priser) i samsvar med konsumprisindeksen 31. desember hvert år med virkning for neste kalenderår. Indeksen skal baseres på endringen i indeksen foregående kalenderår (siste kjente indeks benyttes).</p>
-                <p>Priser kan justeres ved endringer i offentlige avgifter eller andre myndighetspålagte krav/regler/vedtak som innebærer kostnadsøkninger for Leverandør. Videre kan priser justeres ved andre forhold som medfører vesentlige endringer i kostnadsbildet utenfor Leverandørs kontroll. Prisjusteringer som nevnt i dette avsnittet varsles senest en måned før endringen trer i kraft, og skal ikke overstige dokumentert kostnadsøkning for Leverandør. På forespørsel skal dokumentasjonen kunne fremlegges.</p>
-              </div>
-            </ScrollArea>
-            <div className="flex items-start gap-2">
-              <Checkbox
-                id="accept-terms"
-                checked={termsAccepted}
-                onCheckedChange={(checked) => setTermsAccepted(checked === true)}
-                className="mt-0.5"
-              />
-              <label htmlFor="accept-terms" className="text-sm cursor-pointer leading-tight">
-                Jeg har lest og godkjenner vilkårene for lisenskjøp
-              </label>
-            </div>
-          </div>
+          <TermsAcceptRow
+            id="accept-terms-licenses"
+            checked={termsAccepted || hasAcceptedCurrent}
+            onCheckedChange={setTermsAccepted}
+            version={currentTerms?.version}
+          />
         </div>
 
         <DialogFooter>
