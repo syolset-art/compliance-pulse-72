@@ -2,7 +2,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-export type ModuleStatus = "active" | "inactive" | "included";
+export type ModuleStatus = "active" | "inactive" | "included" | "pending_cancellation";
 
 export interface ModuleCardProps {
   icon?: React.ComponentType<{ className?: string }>;
@@ -18,12 +18,16 @@ export interface ModuleCardProps {
   onClick?: () => void;
   onDeactivate?: () => void;
   deactivateLabel?: string;
+  /** Vises når status er pending_cancellation, f.eks. "3. september". */
+  cancelAtLabel?: string;
+  onResume?: () => void;
   accentColor?: "purple" | "blue" | "emerald" | "amber" | "rose" | "slate";
   breakdown?: Array<{ label: string; priceKr: number }>;
   footer?: React.ReactNode;
   ctaOverride?: { label: string; variant?: "default" | "outline" };
   onReadMore?: () => void;
 }
+
 
 
 
