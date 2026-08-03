@@ -1,7 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Layers, Shield, Package, FileText } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { Layers, Shield, Package, ClipboardList, ChevronDown } from "lucide-react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
 import { frameworks as ALL_FRAMEWORKS } from "@/lib/frameworkDefinitions";
 import {
@@ -10,16 +13,28 @@ import {
   type ModuleLifecycle,
 } from "@/lib/moduleActivationState";
 import { useCustomerOffers, type SavedOffer } from "@/lib/customerOffers";
+import {
+  pickDeliveryFormTemplate,
+  loadDeliveryForm,
+  deliveryFormProgress,
+} from "@/lib/deliveryFormTemplates";
+import type { FrameworkRecommendation } from "@/lib/regulationRecommender";
 import { CustomerModulesTab } from "./CustomerModulesTab";
 import { MSPMaturityServiceMatrix } from "./MSPMaturityServiceMatrix";
+import { RecommendedNextStepsCard } from "./RecommendedNextStepsCard";
 
 interface Props {
   customerId: string;
   customerName: string;
   customerEmail?: string;
   activeFrameworkIds: string[];
+  recommended?: FrameworkRecommendation[];
+  confirmed?: FrameworkRecommendation[];
+  /** Navigerer til «Leveranser»-fanen. */
+  onOpenDeliveries?: () => void;
   onUpdate?: () => void;
 }
+
 
 /** Modulene partneren kan aktivere hos kunden. */
 const MODULES: { key: string; title: string }[] = [
