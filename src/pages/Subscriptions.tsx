@@ -41,6 +41,7 @@ import {
 } from "@/lib/planConstants";
 import { OrganizationContextBanner } from "@/components/OrganizationContextBanner";
 import { ModuleCard } from "@/components/subscriptions/ModuleCard";
+import { TermsGateDialog } from "@/components/legal/TermsGateDialog";
 import { ModuleInfoDialog } from "@/components/subscriptions/ModuleInfoDialog";
 import type { ModuleKey } from "@/lib/moduleInfo";
 import { ChangeCoreTierDialog } from "@/components/dialogs/ChangeCoreTierDialog";
