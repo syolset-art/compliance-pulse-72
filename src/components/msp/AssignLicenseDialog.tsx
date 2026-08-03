@@ -188,9 +188,15 @@ export function AssignLicenseDialog({ open, onOpenChange, license, onSuccess }: 
             <p className="text-xs text-muted-foreground">Kunden mottar en e-post med invitasjon til onboarding</p>
           </div>
         </div>
+        <TermsAcceptRow
+          id="terms-assign-license"
+          checked={termsOk}
+          onCheckedChange={setTermsChecked}
+          version={currentTerms?.version}
+        />
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Avbryt</Button>
-          <Button onClick={handleAssign} disabled={loading || !isValid}>
+          <Button onClick={handleAssign} disabled={loading || !isValid || !termsOk}>
             {loading ? "Tildeler..." : "Tildel og inviter"}
           </Button>
         </DialogFooter>
