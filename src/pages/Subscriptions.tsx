@@ -611,6 +611,19 @@ export default function Subscriptions() {
 
           <ModuleInfoDialog moduleKey={readMoreKey} onOpenChange={(open) => !open && setReadMoreKey(null)} />
 
+          <TermsGateDialog
+            open={!!confirmActivate}
+            onOpenChange={(open) => !open && setConfirmActivate(null)}
+            title={`Aktiver ${confirmActivate?.title ?? "modul"}`}
+            description="Aktiveringen trer i kraft umiddelbart og faktureres fra neste periode."
+            context="module_activation"
+            contextRef={confirmActivate?.id}
+            onConfirmed={() => {
+              if (confirmActivate) reactivateModule(confirmActivate.id);
+              setConfirmActivate(null);
+            }}
+          />
+
           {/* Payment method */}
           <section className="space-y-3">
             <h2 className="text-sm font-semibold text-foreground">Betalingsmetode</h2>
