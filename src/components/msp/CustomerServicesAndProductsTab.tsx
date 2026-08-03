@@ -175,28 +175,49 @@ export function CustomerServicesAndProductsTab({
         </div>
       </Card>
 
-      {/* ── 2. Tilbud ── */}
+      {/* ── 2. Pågående oppdrag ── */}
       <Card className="p-5 space-y-3">
         <div className="flex items-center gap-2">
-          <FileText className="h-4 w-4 text-primary" />
-          <h2 className="text-sm font-semibold text-foreground">Tilbud</h2>
-          <span className="text-xs text-muted-foreground">{offers.length} totalt</span>
+          <ClipboardList className="h-4 w-4 text-primary" />
+          <h2 className="text-sm font-semibold text-foreground">Pågående oppdrag</h2>
+          <span className="text-xs text-muted-foreground">{ongoing.length} i arbeid</span>
+          {onOpenDeliveries && offers.length > 0 && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="ml-auto h-7 text-xs"
+              onClick={onOpenDeliveries}
+            >
+              Åpne leveranser
+            </Button>
+          )}
         </div>
 
-        {offers.length === 0 ? (
+        {ongoing.length === 0 ? (
           <p className="text-xs text-muted-foreground">
-            Ingen tilbud er laget for denne kunden ennå. Lag tilbud fra tjenestene under.
+            Ingen oppdrag i arbeid. Lag et tilbud fra tjenestene under for å starte et oppdrag.
           </p>
         ) : (
           <div className="divide-y divide-border/60 rounded-lg border border-border/60">
-            {offers.map((o) => (
-              <div key={o.id} className="flex items-center justify-between gap-3 px-3 py-2.5">
-                <div className="min-w-0">
+            {ongoing.map((o) => (
+              <button
+                key={o.id}
+                type="button"
+                onClick={onOpenDeliveries}
+                className="w-full text-left flex items-center justify-between gap-3 px-3 py-2.5 hover:bg-accent/50 transition-colors"
+              >
+                <div className="min-w-0 flex-1">
                   <p className="text-[13px] font-medium text-foreground truncate">{o.name}</p>
                   <p className="text-[11px] text-muted-foreground">
                     {o.offerNumber} · {formatDate(o.sentAt ?? o.createdAt)} ·{" "}
                     {o.templateIds.length + o.serviceKeys.length} tjenester
                   </p>
+                  <div className="flex items-center gap-2 mt-1.5">
+                    <Progress value={o.progress} className="h-1 w-28" />
+                    <span className="text-[11px] text-muted-foreground tabular-nums">
+                      {o.progress}%
+                    </span>
+                  </div>
                 </div>
                 <Badge
                   variant="outline"
@@ -204,23 +225,48 @@ export function CustomerServicesAndProductsTab({
                 >
                   {OFFER_STATUS_LABEL[o.status ?? "draft"] ?? "Utkast"}
                 </Badge>
-              </div>
+              </button>
             ))}
           </div>
         )}
+
+        {delivered.length > 0 && (
+          <p className="text-[11px] text-muted-foreground">
+            {delivered.length} {delivered.length === 1 ? "oppdrag" : "oppdrag"} levert tidligere.
+          </p>
+        )}
       </Card>
 
-      {/* ── 3. Tilgjengelig å tilby ── */}
-      <div className="space-y-5">
-        <h2 className="text-sm font-semibold text-foreground">Tilgjengelig å tilby</h2>
-        <CustomerModulesTab
-          customerId={customerId}
-          customerName={customerName}
-          activeFrameworkIds={activeFrameworkIds}
-          onUpdate={onUpdate}
-        />
-        <MSPMaturityServiceMatrix customerName={customerName} customerEmail={customerEmail} />
-      </div>
+      {/* ── 3. Anbefalt for økt modenhet ── */}
+      <RecommendedNextStepsCard
+        customerId={customerId}
+        activeFrameworkIds={activeFrameworkIds}
+        recommended={recommended}
+        confirmed={confirmed}
+        onShowAll={() => setShowAll(true)}
+      />
+
+      {/* ── Alt tilgjengelig å tilby ── */}
+      <Collapsible open={showAll} onOpenChange={setShowAll}>
+        <CollapsibleTrigger asChild>
+          <Button variant="outline" size="sm" className="w-full justify-between text-xs">
+            Alle tilgjengelige produkter og tjenester
+            <ChevronDown
+              className={cn("h-3.5 w-3.5 transition-transform", showAll && "rotate-180")}
+            />
+          </Button>
+        </CollapsibleTrigger>
+        <CollapsibleContent className="space-y-5 pt-5">
+          <CustomerModulesTab
+            customerId={customerId}
+            customerName={customerName}
+            activeFrameworkIds={activeFrameworkIds}
+            onUpdate={onUpdate}
+          />
+          <MSPMaturityServiceMatrix customerName={customerName} customerEmail={customerEmail} />
+        </CollapsibleContent>
+      </Collapsible>
     </div>
   );
 }
+
