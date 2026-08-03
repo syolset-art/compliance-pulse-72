@@ -25,6 +25,9 @@ interface Props {
 export function AssignLicenseDialog({ open, onOpenChange, license, onSuccess }: Props) {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [termsChecked, setTermsChecked] = useState(false);
+  const { current: currentTerms, hasAcceptedCurrent, acceptTerms } = useTerms();
+  const termsOk = termsChecked || hasAcceptedCurrent;
   const [form, setForm] = useState({
     customer_name: "",
     org_number: "",
