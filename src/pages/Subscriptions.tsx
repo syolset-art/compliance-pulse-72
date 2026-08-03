@@ -520,7 +520,7 @@ export default function Subscriptions() {
               usageLimit={String(allFrameworkDefs.length)}
               usageSuffix="aktive"
               action={deactivatedModules.has("frameworks") ? "activate" : "manage"}
-              onClick={() => deactivatedModules.has("frameworks") ? reactivateModule("frameworks") : setEditFrameworksOpen(true)}
+              onClick={() => deactivatedModules.has("frameworks") ? requestActivate("frameworks", "Regelverk") : setEditFrameworksOpen(true)}
               onDeactivate={() => requestDeactivate("frameworks", "Regelverk")}
               deactivateLabel="Deaktiver alle regelverk"
               breakdown={deactivatedModules.has("frameworks") ? undefined : frameworkBreakdown}
