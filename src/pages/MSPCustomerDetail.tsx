@@ -61,19 +61,22 @@ export default function MSPCustomerDetail() {
   const { t } = useTranslation();
   const [acronisOpen, setAcronisOpen] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
-  const initialTab = searchParams.get("tab") || "guidance";
+  const normalizeTab = (v: string) => (v === "modules" ? "assessment" : v);
+  const initialTab = normalizeTab(searchParams.get("tab") || "guidance");
   const [activeTab, setActiveTab] = useState(initialTab);
   useEffect(() => {
-    const t = searchParams.get("tab");
+    const t = normalizeTab(searchParams.get("tab") || "guidance");
     if (t && t !== activeTab) setActiveTab(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
-  const handleTabChange = (v: string) => {
+  const handleTabChange = (raw: string) => {
+    const v = normalizeTab(raw);
     setActiveTab(v);
     const next = new URLSearchParams(searchParams);
     next.set("tab", v);
     setSearchParams(next, { replace: true });
   };
+
   const [trustHandoverSent, setTrustHandoverSent] = useState(false);
   const [takeoverInfoOpen, setTakeoverInfoOpen] = useState(false);
   const [handoverEmailOpen, setHandoverEmailOpen] = useState(false);
