@@ -109,48 +109,64 @@ export default function TermsAndConsent() {
           </div>
         </div>
 
-        {/* Legal Documents */}
+        {/* Terms document */}
         <div>
           <div className="flex items-center gap-2 mb-4">
             <FileText className="h-5 w-5 text-primary" />
-            <h2 className="text-lg font-semibold text-foreground">Juridiske dokumenter</h2>
+            <h2 className="text-lg font-semibold text-foreground">Vilkår og betingelser</h2>
           </div>
-          
+
           <Card>
-            <CardContent className="p-0">
-              {legalDocuments.map((doc, index) => (
-                <div key={doc.id}>
-                  <div className="p-4 flex items-center justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <h3 className="font-medium text-foreground">{doc.title}</h3>
-                        <Badge variant="outline" className="text-xs">v{doc.version}</Badge>
-                      </div>
-                      <p className="text-sm text-muted-foreground mt-1">{doc.description}</p>
-                      <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
-                        <span className="flex items-center gap-1">
-                          <Clock className="h-3 w-3" />
-                          Oppdatert: {doc.lastUpdated}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <Check className="h-3 w-3 text-success" />
-                          Akseptert: {doc.acceptedDate}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button variant="ghost" size="sm">
-                        <Eye className="h-4 w-4 mr-2" />
-                        Les
-                      </Button>
-                      <Button variant="ghost" size="sm">
-                        <Download className="h-4 w-4" />
-                      </Button>
-                    </div>
+            <CardContent className="p-4 space-y-4">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-medium text-foreground">Samlede vilkår for alle Mynder-produkter</h3>
+                    {terms.current && (
+                      <Badge variant="outline" className="text-xs">v{terms.current.version}</Badge>
+                    )}
                   </div>
-                  {index < legalDocuments.length - 1 && <Separator />}
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Ett dokument som dekker Mynder Core, regelverk, leverandørmodulen, Assets og partnerløsningen.
+                  </p>
+                  <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
+                    {terms.current && (
+                      <span className="flex items-center gap-1">
+                        <Clock className="h-3 w-3" />
+                        Gjelder fra {formatDate(terms.current.effective_date)}
+                      </span>
+                    )}
+                    <span className="flex items-center gap-1">
+                      <Check className={`h-3 w-3 ${terms.hasAcceptedCurrent ? "text-success" : "text-muted-foreground"}`} />
+                      {terms.hasAcceptedCurrent && terms.currentAcceptedAt
+                        ? `Godtatt ${formatDate(terms.currentAcceptedAt)}`
+                        : "Ikke godtatt ennå"}
+                    </span>
+                  </div>
                 </div>
-              ))}
+                <Button variant="ghost" size="sm" onClick={() => window.open("/terms", "_blank", "noopener,noreferrer")}>
+                  <Eye className="h-4 w-4 mr-2" />
+                  Les
+                </Button>
+              </div>
+
+              {terms.acceptances.length > 0 && (
+                <>
+                  <Separator />
+                  <div className="space-y-2">
+                    <p className="text-xs font-medium text-muted-foreground">Din aksepthistorikk</p>
+                    {terms.acceptances.map((a) => (
+                      <div key={a.id} className="flex items-center justify-between text-xs text-muted-foreground">
+                        <span>
+                          {CONTEXT_LABELS[a.context] ?? a.context}
+                          {a.context_ref ? ` · ${a.context_ref}` : ""}
+                        </span>
+                        <span>{formatDate(a.accepted_at)}</span>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
             </CardContent>
           </Card>
         </div>
