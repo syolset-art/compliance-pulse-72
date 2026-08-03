@@ -600,7 +600,7 @@ export default function Subscriptions() {
               priceLabel={hasPartnerAccess && !deactivatedModules.has("partner") ? undefined : "Kontakt salg for aktivering"}
               action={deactivatedModules.has("partner") ? "activate" : hasPartnerAccess ? "open" : "activate"}
               onClick={() => {
-                if (deactivatedModules.has("partner")) return reactivateModule("partner");
+                if (deactivatedModules.has("partner")) return requestActivate("partner", "Partner Workspace");
                 return hasPartnerAccess ? navigate("/msp") : toast.info("Ta kontakt med salg på sales@mynder.no for å aktivere Partner Workspace.");
               }}
               onDeactivate={hasPartnerAccess ? () => requestDeactivate("partner", "Partner Workspace") : undefined}
