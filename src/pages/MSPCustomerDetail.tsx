@@ -525,8 +525,12 @@ export default function MSPCustomerDetail() {
                 customerName={customer.name || customer.customer_name || "Kunden"}
                 customerEmail={customer.contact_email ?? undefined}
                 activeFrameworkIds={activeFrameworkIds}
+                recommended={((customer?.recommended_frameworks as any) || []) as FrameworkRecommendation[]}
+                confirmed={((customer?.confirmed_frameworks as any) || []) as FrameworkRecommendation[]}
+                onOpenDeliveries={() => handleTabChange("deliveries")}
                 onUpdate={() => queryClient.invalidateQueries({ queryKey: ["msp-customer", customerId] })}
               />
+
             </TabsContent>
 
 
