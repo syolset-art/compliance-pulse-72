@@ -610,7 +610,9 @@ export default function Subscriptions() {
                   icon={Briefcase}
                   title="Leverandørmodul"
                   description="TPRM og leverandørvurdering"
-                  status={isDeactivated ? "inactive" : "active"}
+                  status={isDeactivated ? "inactive" : moduleStatusOf("vendors")}
+                  cancelAtLabel={cancelAtLabelOf("vendors")}
+                  onResume={() => undoCancellation("vendors")}
                   price={isDeactivated ? 0 : vendorTier.monthlyPriceKr}
                   priceLabel={isDeactivated || vendorTier.monthlyPriceKr === 0 ? undefined : vendorTier.label}
                   usage={String(used)}
@@ -619,6 +621,7 @@ export default function Subscriptions() {
                   action={isDeactivated ? "activate" : "change"}
                   onClick={() => isDeactivated ? requestActivate("vendors", "Leverandørmodul") : setChangeVendorTierOpen(true)}
                   onDeactivate={() => requestDeactivate("vendors", "Leverandørmodul")}
+
                   accentColor="amber"
                   footer={capFooter}
                   ctaOverride={!isDeactivated && atCap && nextTier ? { label: "Oppgrader\u00a0", variant: "default" } : undefined}
