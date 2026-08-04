@@ -378,6 +378,7 @@ export function VendorStatusRow({
                     complianceScore: score,
                     openDeviations: expiredDocsCount,
                     hasDPA: !!md.has_dpa,
+                    processesSensitiveData: !!(vendor as any).processes_sensitive_data,
                   });
                   return (
                     <TooltipProvider delayDuration={150}>
