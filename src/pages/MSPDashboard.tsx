@@ -397,6 +397,18 @@ export default function MSPDashboard() {
   const navigate = useNavigate();
   const [addOpen, setAddOpen] = useState(false);
   const [gapOpen, setGapOpen] = useState(false);
+  const [offerSelection, setOfferSelection] = useState<Record<string, string[]>>({});
+  const [offerFor, setOfferFor] = useState<any | null>(null);
+  const toggleSuggestion = (customerId: string, suggestionId: string) => {
+    setOfferSelection((prev) => {
+      const cur = prev[customerId] || [];
+      return {
+        ...prev,
+        [customerId]: cur.includes(suggestionId) ? cur.filter((x) => x !== suggestionId) : [...cur, suggestionId],
+      };
+    });
+  };
+
   const [view, setView] = useState<ViewMode>("table");
   const [search, setSearch] = useState("");
   const [industryFilter, setIndustryFilter] = useState<string[]>([]);
