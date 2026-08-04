@@ -66,12 +66,20 @@ export function ConfirmVendorTierChangeDialog({ open, onOpenChange, currentTierI
           )}
         </p>
 
+        <TermsAcceptRow
+          id="terms-vendor-tier"
+          checked={checked}
+          onCheckedChange={setAccepted}
+          version={currentTerms?.version}
+        />
+
         <DialogFooter className="pt-2">
           <Button variant="ghost" onClick={() => onOpenChange(false)}>Avbryt</Button>
-          <Button onClick={onConfirm}>
+          <Button onClick={handleConfirm} disabled={!checked || saving}>
             {isUpgrade ? `Endre for ${formatKr(next.monthlyPriceKr)}/mnd` : "Endre nivå"}
           </Button>
         </DialogFooter>
+
       </DialogContent>
     </Dialog>
   );
