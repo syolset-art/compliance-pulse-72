@@ -22,6 +22,7 @@ import { getControlAreaLabel } from "@/lib/controlAreas";
 import { suggestRequirementImpacts } from "@/lib/deviationImpact";
 import { useRegisterVendorDeviation } from "@/hooks/useVendorDeviations";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { DeviationScoreImpactNote } from "@/components/deviations/DeviationScoreImpactNote";
 
 interface Props {
   open: boolean;
