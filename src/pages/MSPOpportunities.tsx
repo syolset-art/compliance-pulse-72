@@ -17,10 +17,14 @@ import {
   SCOPE_LABEL,
   allFrameworks,
   allIndustries,
+  customerPotential,
+  formatPotential,
   servicesForCustomer,
   sortedTasks,
+  taskPotential,
   type OpportunityCustomer,
 } from "@/lib/partnerOpportunities";
+import { useServiceDefaults } from "@/hooks/useServiceDefaults";
 import { MSPCreateOfferDialog } from "@/components/msp/MSPCreateOfferDialog";
 import { cn } from "@/lib/utils";
 
