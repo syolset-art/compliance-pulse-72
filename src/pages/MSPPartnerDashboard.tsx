@@ -1204,28 +1204,41 @@ function PortfolioSegmentation() {
                 </button>
               </TooltipTrigger>
               <TooltipContent side="top" className="max-w-xs text-xs leading-relaxed">
-                Porteføljen din gruppert etter hovedkategori. Hver søyle viser hvor mange kunder
-                som tilhører segmentet. Klikk widgeten for å se detaljer.
+                Porteføljen din gruppert etter hovedkategori. «Treffer» viser hvor mange kunder
+                som tilhører segmentet, «Aktivert» viser andelen av dem som har aktivert
+                tilhørende regelverk. Klikk widgeten for å se detaljer.
               </TooltipContent>
             </UITooltip>
           </TooltipProvider>
         </div>
         <span className="text-xs text-muted-foreground">Lara · oppdatert i går</span>
       </div>
+      <div className="flex items-center gap-3 mb-2 text-[10px] uppercase tracking-wide text-muted-foreground">
+        <div className="w-36">Segment</div>
+        <div className="flex-1" />
+        <div className="w-10 text-right">Treffer</div>
+        <div className="w-16 text-right">Aktivert</div>
+      </div>
       <div className="space-y-3">
         {SEGMENTS.map((s) => (
           <div key={s.label} className="flex items-center gap-3">
             <div className="w-36 text-sm text-foreground">{s.label}</div>
-            <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
+            <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden" aria-hidden="true">
               <div
                 className={"h-full rounded-full " + s.color}
                 style={{ width: `${s.widthPct}%` }}
               />
             </div>
-            <div className="w-10 text-right text-sm font-semibold text-foreground">{s.count}</div>
+            <div className="w-10 text-right text-sm font-semibold text-foreground tabular-nums">
+              {s.count}
+            </div>
+            <div className="w-16 text-right text-sm text-muted-foreground tabular-nums">
+              {s.activatedPct} %
+            </div>
           </div>
         ))}
       </div>
+
     </Card>
   );
 }
