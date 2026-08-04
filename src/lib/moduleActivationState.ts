@@ -7,12 +7,43 @@ const LEGACY_KEY = "mynder_deactivated_modules";
 
 export type ModuleLifecycle = "active" | "pending_cancellation" | "inactive";
 
+export type CancellationDataChoice = "download" | "transfer" | "retain";
+
+export interface CancellationMeta {
+  reason: string;
+  reasonNote?: string;
+  competitor?: string;
+  dataChoice: CancellationDataChoice;
+  transferEmail?: string;
+  /** ISO-dato for når data slettes permanent. */
+  retentionUntil?: string;
+}
+
 export interface ModuleState {
   status: ModuleLifecycle;
   /** ISO-dato for når oppsigelsen trer i kraft. */
   cancelAt?: string;
   /** Valgt nivå (tier) for moduler som har nivåer. */
   tierId?: string;
+  /** Detaljer registrert ved oppsigelse. */
+  cancellation?: CancellationMeta;
+}
+
+/** Standard oppbevaringstid etter at oppsigelsen trer i kraft. */
+export const RETENTION_DAYS = 90;
+
+export function getRetentionUntil(effectiveAt?: string | Date): Date {
+  const base = effectiveAt ? new Date(effectiveAt) : getPeriodEnd();
+  return new Date(base.getTime() + RETENTION_DAYS * 24 * 60 * 60 * 1000);
+}
+
+export function formatDateLong(iso?: string | Date): string {
+  const d = iso ? new Date(iso) : new Date();
+  return d.toLocaleDateString("nb-NO", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
 }
 
 export type ModuleStateMap = Record<string, ModuleState>;
