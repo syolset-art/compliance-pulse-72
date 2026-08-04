@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -7,11 +8,14 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { TermsAcceptRow } from "@/components/legal/TermsAcceptRow";
+import { useTerms } from "@/hooks/useTerms";
 import {
   CheckCircle2,
   TrendingDown,
   Shield,
 } from "lucide-react";
+
 import { getCategoryById, type Framework } from "@/lib/frameworkDefinitions";
 import {
   isFrameworkFree,
@@ -35,6 +39,13 @@ export function FrameworkPurchaseDialog({
   onConfirm,
   isLoading,
 }: FrameworkPurchaseDialogProps) {
+  const { current: currentTerms, hasAcceptedCurrent, acceptTerms } = useTerms();
+  const [accepted, setAccepted] = useState(false);
+
+  useEffect(() => {
+    if (!open) setAccepted(false);
+  }, [open]);
+
   if (!framework) return null;
 
   const category = getCategoryById(framework.category);
@@ -44,6 +55,13 @@ export function FrameworkPurchaseDialog({
   const yearlyPrice = getFrameworkYearlyPrice(framework.id);
   const monthlyPrice = yearlyPrice > 0 ? Math.round(yearlyPrice / 12) : 0;
   const includes = addon?.includes ?? [];
+  const checked = accepted || hasAcceptedCurrent;
+
+  const handleConfirm = async () => {
+    await acceptTerms(isFree ? "module_activation" : "license_purchase", framework.id);
+    onConfirm();
+  };
+
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -117,15 +135,24 @@ export function FrameworkPurchaseDialog({
           </div>
         </div>
 
+        <TermsAcceptRow
+          id="terms-framework"
+          checked={checked}
+          onCheckedChange={setAccepted}
+          version={currentTerms?.version}
+          disabled={isLoading}
+        />
+
         {/* Footer */}
         <div className="flex justify-end gap-2 pt-2">
           <Button variant="ghost" onClick={() => onOpenChange(false)} disabled={isLoading}>
             Avbryt
           </Button>
-          <Button onClick={onConfirm} disabled={isLoading}>
+          <Button onClick={handleConfirm} disabled={isLoading || !checked}>
             {isLoading ? "Aktiverer…" : isFree ? "Aktiver" : "Godkjenn og aktiver"}
           </Button>
         </div>
+
       </DialogContent>
     </Dialog>
   );
