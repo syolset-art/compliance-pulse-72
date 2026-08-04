@@ -18,7 +18,7 @@ import { format } from "date-fns";
 import { nb } from "date-fns/locale";
 import { CalendarIcon, Loader2, Info } from "lucide-react";
 import { deviationCategories } from "@/lib/deviationCategories";
-import { getControlAreaLabel, CONTROL_AREAS } from "@/lib/controlAreas";
+import { getControlAreaLabel } from "@/lib/controlAreas";
 import { suggestRequirementImpacts } from "@/lib/deviationImpact";
 import { useRegisterVendorDeviation } from "@/hooks/useVendorDeviations";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -198,9 +198,7 @@ export function RegisterVendorDeviationDialog({ open, onOpenChange, assetId, ven
                   <span className="flex-1">
                     <span className="text-foreground">{s.requirement_label}</span>
                     <span className="block text-xs text-muted-foreground">
-                      {s.framework_id} › {getControlAreaLabel(
-                        CONTROL_AREAS.find((a) => a.key === s.control_area)!, "nb",
-                      )}
+                      {s.framework_id} › {getControlAreaLabel(s.control_area, "nb")}
                     </span>
                   </span>
                 </label>
@@ -210,7 +208,7 @@ export function RegisterVendorDeviationDialog({ open, onOpenChange, assetId, ven
               <div className="flex flex-wrap gap-1 pt-1">
                 {areas.map((a) => (
                   <Badge key={a} variant="secondary" className="text-[11px]">
-                    {getControlAreaLabel(CONTROL_AREAS.find((x) => x.key === a)!, "nb")}
+                    {getControlAreaLabel(a, "nb")}
                   </Badge>
                 ))}
               </div>
