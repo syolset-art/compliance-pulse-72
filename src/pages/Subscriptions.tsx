@@ -59,8 +59,13 @@ import {
   getModuleTier,
   setModuleTier,
   formatPeriodEnd,
+  formatDateLong,
+  getPeriodEnd,
   type ModuleStateMap,
+  type CancellationMeta,
 } from "@/lib/moduleActivationState";
+import { RetireModuleDialog } from "@/components/subscriptions/RetireModuleDialog";
+
 
 
 // Map current legacy tier to new PlanId for highlighting
@@ -240,13 +245,36 @@ export default function Subscriptions() {
 
   const requestDeactivate = (id: string, title: string) => setConfirmDeactivate({ id, title });
 
-  const confirmDeactivation = () => {
+  const confirmDeactivation = async (meta: CancellationMeta) => {
     if (!confirmDeactivate) return;
     const { id, title } = confirmDeactivate;
-    const cancelAt = cancelModule(id);
+    const cancelAt = cancelModule(id, meta);
     syncModuleState();
     setConfirmDeactivate(null);
+
+    try {
+      await supabase.from("module_cancellations").insert({
+        module_id: id,
+        module_title: title,
+        reason: meta.reason,
+        reason_note: meta.reasonNote ?? null,
+        competitor: meta.competitor ?? null,
+        data_choice: meta.dataChoice,
+        transfer_email: meta.transferEmail ?? null,
+        effective_at: cancelAt,
+        retention_until: meta.retentionUntil ?? null,
+      });
+    } catch (e) {
+      console.error("Kunne ikke logge oppsigelsen", e);
+    }
+
     toast(`${title} er sagt opp og er tilgjengelig til ${formatPeriodEnd(cancelAt)}.`, {
+      description:
+        meta.dataChoice === "transfer"
+          ? `Dataene overføres til ${meta.transferEmail}.`
+          : meta.dataChoice === "download"
+            ? "Eksportlenken er gyldig i 7 dager."
+            : `Dataene slettes ${formatDateLong(meta.retentionUntil)}.`,
       action: {
         label: "Angre",
         onClick: () => {
@@ -258,6 +286,7 @@ export default function Subscriptions() {
       duration: 10000,
     });
   };
+
 
   const undoCancellation = (id: string) => {
     resumeModule(id);
@@ -555,7 +584,11 @@ export default function Subscriptions() {
                   icon={LayoutGrid}
                   title="Mynder Core"
                   description="Grunnmodulen. Oppgaver, avvik, samsvar, behandlingsprotokoll og dokumenter."
-                  status="active"
+                  status={moduleStatusOf("core") === "pending_cancellation" ? "pending_cancellation" : "active"}
+                  cancelAtLabel={cancelAtLabelOf("core")}
+                  onResume={() => undoCancellation("core")}
+                  onDeactivate={() => requestDeactivate("core", "Mynder Core")}
+                  deactivateLabel="Avvikle"
                   price={corePrice}
                   priceLabel={coreTier.label}
                   usage={String(used)}
@@ -840,22 +873,15 @@ export default function Subscriptions() {
 
 
 
-      <AlertDialog open={!!confirmDeactivate} onOpenChange={(open) => { if (!open) setConfirmDeactivate(null); }}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Deaktivere {confirmDeactivate?.title}?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Modulen forblir tilgjengelig til {formatPeriodEnd()}. Etter det stanses fakturering, og data forblir lagret i 90 dager før automatisk sletting. Du kan angre oppsigelsen når som helst før den trer i kraft.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Avbryt</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDeactivation} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              Deaktiver modul
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <RetireModuleDialog
+        open={!!confirmDeactivate}
+        onOpenChange={(open) => { if (!open) setConfirmDeactivate(null); }}
+        moduleId={confirmDeactivate?.id ?? null}
+        moduleTitle={confirmDeactivate?.title ?? ""}
+        effectiveAt={getPeriodEnd().toISOString()}
+        onConfirm={confirmDeactivation}
+      />
+
     </div>
   );
 }

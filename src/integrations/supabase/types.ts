@@ -2110,6 +2110,57 @@ export type Database = {
           },
         ]
       }
+      module_cancellations: {
+        Row: {
+          competitor: string | null
+          created_at: string
+          data_choice: string
+          effective_at: string
+          id: string
+          module_id: string
+          module_title: string | null
+          reason: string
+          reason_note: string | null
+          retention_until: string | null
+          status: string
+          transfer_email: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          competitor?: string | null
+          created_at?: string
+          data_choice: string
+          effective_at: string
+          id?: string
+          module_id: string
+          module_title?: string | null
+          reason: string
+          reason_note?: string | null
+          retention_until?: string | null
+          status?: string
+          transfer_email?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Update: {
+          competitor?: string | null
+          created_at?: string
+          data_choice?: string
+          effective_at?: string
+          id?: string
+          module_id?: string
+          module_title?: string | null
+          reason?: string
+          reason_note?: string | null
+          retention_until?: string | null
+          status?: string
+          transfer_email?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       msp_billing_settings: {
         Row: {
           address_line1: string | null
