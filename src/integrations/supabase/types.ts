@@ -179,6 +179,39 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_token_usage: {
+        Row: {
+          completion_tokens: number
+          created_at: string
+          function_name: string
+          id: string
+          model: string | null
+          prompt_tokens: number
+          total_tokens: number
+          user_id: string | null
+        }
+        Insert: {
+          completion_tokens?: number
+          created_at?: string
+          function_name: string
+          id?: string
+          model?: string | null
+          prompt_tokens?: number
+          total_tokens?: number
+          user_id?: string | null
+        }
+        Update: {
+          completion_tokens?: number
+          created_at?: string
+          function_name?: string
+          id?: string
+          model?: string | null
+          prompt_tokens?: number
+          total_tokens?: number
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       ai_usage_metrics: {
         Row: {
           accuracy_score: number | null
@@ -4698,6 +4731,7 @@ export type Database = {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"]
       }
+      get_usage_summary: { Args: never; Returns: Json }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
