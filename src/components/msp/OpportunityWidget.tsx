@@ -58,13 +58,8 @@ export function OpportunityWidget({ customers = OPPORTUNITY_CUSTOMERS }: Props) 
 
   return (
     <Card className="p-5">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h2 className="text-base font-semibold text-foreground">Salgspotensial</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Inntektspotensial om du leverer alle mulige oppgaver hos kundene.
-          </p>
-        </div>
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="text-base font-semibold text-foreground">Salgspotensial</h2>
         <div className="inline-flex rounded-lg border border-border p-0.5" role="group" aria-label="Velg fordeling">
           {(["industry", "framework"] as Grouping[]).map((g) => (
             <button
@@ -84,6 +79,10 @@ export function OpportunityWidget({ customers = OPPORTUNITY_CUSTOMERS }: Props) 
           ))}
         </div>
       </div>
+      <p className="mt-1 text-sm text-muted-foreground">
+        Inntektspotensial om du leverer alle mulige oppgaver hos kundene.
+      </p>
+
 
       <div className="mt-4 flex flex-wrap items-center gap-2">
         <p className="text-2xl font-bold text-foreground tabular-nums">
