@@ -300,10 +300,11 @@ const COLUMN_LABELS: Record<ColumnKey, string> = {
   country: "Land",
   industry: "Bransje",
   frameworks: "Regelverk",
+  recommendations: "Anbefalte produkter og tjenester",
   score: "Modenhet",
 };
 
-const COLUMN_ORDER: ColumnKey[] = ["customer", "country", "industry", "frameworks", "score"];
+const COLUMN_ORDER: ColumnKey[] = ["customer", "country", "industry", "frameworks", "recommendations", "score"];
 
 // Min Tailwind breakpoint (in px) where each column becomes visible by default.
 // 0 = always shown; 640=sm, 768=md, 1024=lg, 1280=xl
@@ -311,13 +312,15 @@ const COLUMN_MIN_BP: Record<ColumnKey, number> = {
   customer: 0,
   score: 0,
   frameworks: 640,
+  recommendations: 1024,
   industry: 1024,
   country: 1280,
 };
 
 
 
-const COLUMN_STORAGE_KEY = "msp_dashboard_columns_v2";
+const COLUMN_STORAGE_KEY = "msp_dashboard_columns_v3";
+
 
 function defaultVisibilityForViewport(): Record<ColumnKey, boolean> {
   const w = typeof window !== "undefined" ? window.innerWidth : 1280;
