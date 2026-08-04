@@ -537,7 +537,8 @@ export default function Subscriptions() {
           </div>
 
           {/* Module grid */}
-          <section className="space-y-3">
+          <section className="grid gap-3 sm:grid-cols-2 items-stretch">
+
             {(() => {
               const used = systemsCount ?? 0;
               const atCap = used >= coreTier.systemLimit;
