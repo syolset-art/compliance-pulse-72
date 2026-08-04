@@ -183,7 +183,7 @@ export function RegisterActivityDialog({ onSubmit, open: controlledOpen, onOpenC
           </Button>
         </DialogTrigger>
       )}
-      <DialogContent className="sm:max-w-md p-0 gap-0">
+      <DialogContent className="sm:max-w-md p-0 gap-0 max-h-[90vh] overflow-y-auto">
         <div className="px-6 pt-5 pb-3 border-b">
           <h2 className="text-base font-semibold tracking-tight">
             {isNb ? "Registrer aktivitet" : "Register activity"}
