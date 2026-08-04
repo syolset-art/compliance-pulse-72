@@ -37,6 +37,7 @@ export default function MSPOpportunities() {
   const [expanded, setExpanded] = useState<string | null>(null);
   const [selected, setSelected] = useState<Record<string, string[]>>({});
   const [offerFor, setOfferFor] = useState<OpportunityCustomer | null>(null);
+  const { defaultHourlyRate, currency } = useServiceDefaults();
 
   const rows = useMemo(
     () =>
@@ -143,6 +144,9 @@ export default function MSPOpportunities() {
                   <th scope="col" className="p-3 font-semibold text-foreground">Foreslått regelverk</th>
                   <th scope="col" className="p-3 font-semibold text-foreground">Aktiverte produkter</th>
                   <th scope="col" className="p-3 font-semibold text-foreground">Mulige oppgaver</th>
+                  <th scope="col" className="p-3 font-semibold text-foreground">
+                    Salgspotensial (KI-estimat)
+                  </th>
                   <th scope="col" className="p-3 font-semibold text-foreground">Tjenester som dekker</th>
                   <th scope="col" className="p-3 font-semibold text-foreground">Handling</th>
                 </tr>
@@ -187,6 +191,12 @@ export default function MSPOpportunities() {
                           {c.activatedProducts.length > 0 ? c.activatedProducts.join(", ") : "Ingen aktivert"}
                         </td>
                         <td className="p-3 text-foreground tabular-nums">{c.tasks.length}</td>
+                        <td className="p-3 text-foreground tabular-nums">
+                          {formatPotential(customerPotential(c, defaultHourlyRate), currency)}
+                          <span className="block text-xs font-normal text-muted-foreground">
+                            KI-estimat, eks. mva
+                          </span>
+                        </td>
                         <td className="p-3 text-muted-foreground">{servicesForCustomer(c).join(", ")}</td>
                         <td className="p-3">
                           <Button size="sm" onClick={() => setOfferFor(c)}>
