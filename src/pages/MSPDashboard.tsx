@@ -1016,6 +1016,27 @@ export default function MSPDashboard() {
 
         <AddMSPCustomerDialog open={addOpen} onOpenChange={setAddOpen} onSuccess={() => refetch()} />
         <GapAnalysisWizardDialog open={gapOpen} onOpenChange={setGapOpen} customers={filtered} />
+        {offerFor && (() => {
+          const picked = offerSelection[offerFor.id] || [];
+          const items = deriveOfferSuggestions(offerFor).filter((s) => picked.includes(s.id));
+          return (
+            <MSPCreateOfferDialog
+              open={!!offerFor}
+              onOpenChange={(o) => !o && setOfferFor(null)}
+              customerId={offerFor.id}
+              customerName={offerFor.customer_name}
+              customerContactName={offerFor.customer_name}
+              serviceTitle={`Anbefalte produkter og tjenester for ${offerFor.customer_name}`}
+              offeredServiceNames={items.map((s) => s.label)}
+              defaultTasks={items.map((s) => ({
+                label: s.label,
+                hours: s.hours,
+                owner: "Partner" as const,
+              }))}
+            />
+          );
+        })()}
+
       </main>
     </div>
   );
