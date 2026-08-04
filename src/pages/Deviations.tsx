@@ -387,6 +387,17 @@ export default function Deviations() {
           }}
         />
 
+        <Tabs value={view} onValueChange={setView} className="w-full">
+          <TabsList>
+            <TabsTrigger value="all">Alle avvik</TabsTrigger>
+            <TabsTrigger value="vendors">Leverandøravvik</TabsTrigger>
+          </TabsList>
+        </Tabs>
+
+        {view === "vendors" && <VendorDeviationsOverview />}
+
+        {view === "all" && (
+        <>
         {/* Live Deviations Activation Banner */}
         <Card className={cn(
           "border transition-all overflow-hidden",
