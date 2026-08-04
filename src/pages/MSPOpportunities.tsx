@@ -206,7 +206,7 @@ export default function MSPOpportunities() {
                       </tr>
                       {isOpen && (
                         <tr className="border-t border-border bg-muted/30">
-                          <td colSpan={7} className="p-4">
+                          <td colSpan={8} className="p-4">
                             <h2 className="text-sm font-semibold text-foreground">
                               Dette kan gjøres hos {c.name}, i anbefalt rekkefølge
                             </h2>
@@ -225,6 +225,9 @@ export default function MSPOpportunities() {
                                     </label>
                                     <div className="mt-1 flex flex-wrap items-center gap-1.5">
                                       <Badge variant="outline" className="font-normal">{SCOPE_LABEL[t.scope]}</Badge>
+                                      <Badge variant="outline" className="font-normal tabular-nums">
+                                        {formatPotential(taskPotential(t, defaultHourlyRate), currency)} (KI-estimat)
+                                      </Badge>
                                       {t.aiSuggested && (
                                         <Badge variant="secondary" className="font-normal">Forslag fra Lara (KI)</Badge>
                                       )}
@@ -245,7 +248,7 @@ export default function MSPOpportunities() {
                 })}
                 {rows.length === 0 && (
                   <tr className="border-t border-border">
-                    <td colSpan={7} className="p-6 text-center text-sm text-muted-foreground">
+                    <td colSpan={8} className="p-6 text-center text-sm text-muted-foreground">
                       Ingen kunder passer med filtrene. Nullstill et filter for å se flere muligheter.
                     </td>
                   </tr>
