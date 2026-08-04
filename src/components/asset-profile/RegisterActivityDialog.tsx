@@ -46,7 +46,20 @@ const LEVELS: { value: ActivityLevel; nb: string; en: string; dot: string }[] = 
   { value: "strategisk", nb: "Strategisk", en: "Strategic", dot: "bg-primary" },
 ];
 
-export function RegisterActivityDialog({ onSubmit, open: controlledOpen, onOpenChange, hideTrigger }: Props) {
+const DEV_SEVERITY = [
+  { value: "critical", nb: "Kritisk", en: "Critical" },
+  { value: "high", nb: "Høy", en: "High" },
+  { value: "medium", nb: "Middels", en: "Medium" },
+  { value: "low", nb: "Lav", en: "Low" },
+];
+
+const DEV_SOURCES = [
+  { value: "manual", nb: "Registrert av oss", en: "Registered by us" },
+  { value: "vendor_self", nb: "Meldt av leverandøren", en: "Reported by vendor" },
+  { value: "agent", nb: "Oppdaget av agent", en: "Detected by agent" },
+];
+
+export function RegisterActivityDialog({ onSubmit, open: controlledOpen, onOpenChange, hideTrigger, assetId, vendorName }: Props) {
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
   const [internalOpen, setInternalOpen] = useState(false);
@@ -60,6 +73,33 @@ export function RegisterActivityDialog({ onSubmit, open: controlledOpen, onOpenC
   const [date, setDate] = useState<Date>(new Date());
   const [titleError, setTitleError] = useState(false);
 
+  // Avvik
+  const [isDeviation, setIsDeviation] = useState(false);
+  const [devCategory, setDevCategory] = useState("sikkerhet");
+  const [devSeverity, setDevSeverity] = useState("medium");
+  const [devSource, setDevSource] = useState("manual");
+  const [devResponsible, setDevResponsible] = useState("");
+  const [devDueDate, setDevDueDate] = useState<Date | null>(null);
+  const [devSelected, setDevSelected] = useState<string[]>([]);
+
+  const registerDeviation = useRegisterVendorDeviation(assetId);
+
+  const suggestions = useMemo(
+    () => suggestRequirementImpacts(devCategory, devSeverity),
+    [devCategory, devSeverity],
+  );
+
+  useEffect(() => {
+    setDevSelected(suggestions.map((s) => s.requirement_id));
+  }, [suggestions]);
+
+  useEffect(() => {
+    if (isDeviation) setDevSource(sourceForActivityType(type));
+  }, [type, isDeviation]);
+
+  const impacts = suggestions.filter((s) => devSelected.includes(s.requirement_id));
+  const impactAreas = Array.from(new Set(impacts.map((i) => i.control_area)));
+
   const reset = () => {
     setType("email");
     setLevel("operasjonelt");
@@ -67,14 +107,45 @@ export function RegisterActivityDialog({ onSubmit, open: controlledOpen, onOpenC
     setDescription("");
     setDate(new Date());
     setTitleError(false);
+    setIsDeviation(false);
+    setDevCategory("sikkerhet");
+    setDevSeverity("medium");
+    setDevSource("manual");
+    setDevResponsible("");
+    setDevDueDate(null);
   };
 
   useEffect(() => { if (open) reset(); }, [open]);
 
-  const isValid = !!title.trim();
+  const canRegisterDeviation = !!assetId;
+  const deviationValid = !isDeviation || devResponsible.trim().length > 1;
+  const isValid = !!title.trim() && deviationValid;
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!title.trim()) { setTitleError(true); return; }
+    if (!deviationValid) return;
+
+    let deviationId: string | undefined;
+    if (isDeviation && assetId) {
+      try {
+        const inserted: any = await registerDeviation.mutateAsync({
+          assetId,
+          title,
+          description,
+          category: devCategory,
+          criticality: devSeverity,
+          responsible: devResponsible,
+          discoveredAt: date,
+          dueDate: devDueDate,
+          source: devSource,
+          impacts,
+        });
+        deviationId = inserted?.id;
+      } catch {
+        return;
+      }
+    }
+
     const activity: VendorActivity = {
       id: `manual-${Date.now()}`,
       type,
@@ -83,8 +154,8 @@ export function RegisterActivityDialog({ onSubmit, open: controlledOpen, onOpenC
       titleEn: title,
       descriptionNb: description || undefined,
       descriptionEn: description || undefined,
-      outcomeNb: "Åpent",
-      outcomeEn: "Open",
+      outcomeNb: isDeviation ? "Avvik registrert" : "Åpent",
+      outcomeEn: isDeviation ? "Deviation registered" : "Open",
       outcomeStatus: "open",
       date,
       actor: isNb ? "Deg" : "You",
@@ -93,11 +164,14 @@ export function RegisterActivityDialog({ onSubmit, open: controlledOpen, onOpenC
       criticality: "medium",
       level,
       createdAt: new Date(),
+      deviationId,
+      deviationCriticality: isDeviation ? devSeverity : undefined,
     };
     onSubmit(activity);
     reset();
     setOpen(false);
   };
+
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
