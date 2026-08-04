@@ -5,7 +5,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Building2, Database, Workflow, Shield, AlertTriangle, Pencil, Info, Sparkles, ArrowRight, Flag } from "lucide-react";
+import { Building2, Database, Workflow, Shield, AlertTriangle, Pencil, Info, Sparkles, ArrowRight, Flag, ChevronDown } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { SENSITIVE_DATA_CATEGORIES, sensitiveCategoryLabel, gdprRoleHandlesPersonalData } from "@/lib/sensitiveData";
 import { toast } from "sonner";
 import { useState } from "react";
 import { AISuggestTextarea } from "@/components/asset-profile/AISuggestTextarea";
@@ -151,6 +155,37 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
 
   const handleFieldChange = (field: string, value: string) => {
     updateMutation.mutate({ [field]: value });
+  };
+
+  // Sensitive personopplysninger — kun relevant når en GDPR-rolle med persondata er valgt
+  const showSensitive = gdprRoleHandlesPersonalData(asset?.gdpr_role);
+  const sensitiveOn = !!(asset as any)?.processes_sensitive_data;
+  const selectedSensitive: string[] = ((asset as any)?.sensitive_data_categories as string[]) || [];
+
+  const handleGdprRoleChange = (value: string) => {
+    if (!gdprRoleHandlesPersonalData(value)) {
+      updateMutation.mutate({
+        gdpr_role: value,
+        processes_sensitive_data: false,
+        sensitive_data_categories: [],
+      } as any);
+      return;
+    }
+    handleFieldChange("gdpr_role", value);
+  };
+
+  const handleSensitiveToggle = (checked: boolean) => {
+    updateMutation.mutate({
+      processes_sensitive_data: checked,
+      ...(checked ? {} : { sensitive_data_categories: [] }),
+    } as any);
+  };
+
+  const toggleSensitiveCategory = (value: string) => {
+    const next = selectedSensitive.includes(value)
+      ? selectedSensitive.filter((v) => v !== value)
+      : [...selectedSensitive, value];
+    updateMutation.mutate({ sensitive_data_categories: next } as any);
   };
 
   const handleLaraSuggest = async () => {
