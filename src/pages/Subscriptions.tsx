@@ -59,8 +59,13 @@ import {
   getModuleTier,
   setModuleTier,
   formatPeriodEnd,
+  formatDateLong,
+  getPeriodEnd,
   type ModuleStateMap,
+  type CancellationMeta,
 } from "@/lib/moduleActivationState";
+import { RetireModuleDialog } from "@/components/subscriptions/RetireModuleDialog";
+
 
 
 // Map current legacy tier to new PlanId for highlighting
