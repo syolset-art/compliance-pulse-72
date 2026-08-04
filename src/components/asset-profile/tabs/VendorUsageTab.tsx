@@ -283,7 +283,7 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
             </div>
             <Select
               value={asset?.gdpr_role || "not_set"}
-              onValueChange={(v) => handleFieldChange("gdpr_role", v)}
+              onValueChange={(v) => handleGdprRoleChange(v)}
             >
               <SelectTrigger className="h-9 text-sm font-semibold border">
                 <SelectValue />
@@ -296,10 +296,67 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
                 ))}
               </SelectContent>
             </Select>
+
+            {showSensitive && (
+              <div className="space-y-2 pt-0.5">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-[13px] text-foreground leading-tight">
+                    {isNb ? "Behandler sensitive personopplysninger" : "Processes sensitive personal data"}
+                  </span>
+                  <Switch
+                    checked={sensitiveOn}
+                    onCheckedChange={handleSensitiveToggle}
+                  />
+                </div>
+
+                {sensitiveOn && (
+                  <div className="space-y-1.5">
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" size="sm" className="h-8 w-full justify-between text-[13px] font-normal">
+                          {selectedSensitive.length > 0
+                            ? `${selectedSensitive.length} ${isNb ? "kategorier" : "categories"}`
+                            : (isNb ? "Velg kategorier" : "Select categories")}
+                          <ChevronDown className="h-3.5 w-3.5 opacity-60" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent align="start" className="w-64 p-2">
+                        <div className="space-y-1 max-h-64 overflow-y-auto">
+                          {SENSITIVE_DATA_CATEGORIES.map((c) => (
+                            <label key={c.value} className="flex items-center gap-2 text-sm px-1 py-1 rounded hover:bg-accent cursor-pointer">
+                              <Checkbox
+                                checked={selectedSensitive.includes(c.value)}
+                                onCheckedChange={() => toggleSensitiveCategory(c.value)}
+                              />
+                              <span>{isNb ? c.labelNb : c.labelEn}</span>
+                            </label>
+                          ))}
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+
+                    {selectedSensitive.length > 0 && (
+                      <div className="flex flex-wrap gap-1">
+                        {selectedSensitive.map((v) => (
+                          <Badge key={v} variant="outline" className="text-[11px] text-warning bg-warning/10 border-warning/20">
+                            {sensitiveCategoryLabel(v, isNb)}
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+
             <p className="text-[13px] text-muted-foreground leading-tight">
-              {isNb
-                ? "GDPR-rollen bestemmer hvilke kontroller og dokumentasjonskrav som gjelder (f.eks. DPA-krav)."
-                : "The GDPR role determines which controls and documentation requirements apply (e.g. DPA requirements)."}
+              {sensitiveOn
+                ? (isNb
+                    ? "Særlige kategorier stiller strengere krav: databehandleravtale, risikovurdering og som regel DPIA."
+                    : "Special categories require stricter controls: a DPA, a risk assessment and usually a DPIA.")
+                : (isNb
+                    ? "GDPR-rollen bestemmer hvilke kontroller og dokumentasjonskrav som gjelder (f.eks. DPA-krav)."
+                    : "The GDPR role determines which controls and documentation requirements apply (e.g. DPA requirements).")}
             </p>
             <button
               onClick={() => onNavigateToTab?.("overview")}
@@ -310,6 +367,7 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
             </button>
           </CardContent>
         </Card>
+
 
         {/* Priority */}
         <Card className="relative group">
