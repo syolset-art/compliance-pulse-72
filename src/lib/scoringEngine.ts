@@ -305,3 +305,35 @@ export function statusToMaturityLevel(status: string): MaturityLevel {
     default: return 0;
   }
 }
+
+// ─── Avvik som signal (R5) ────────────────────────────────────
+
+/**
+ * Åpne, bekreftede avvik nullstiller de kravene de berører.
+ * Dokumentasjonen slettes ikke — kravet regnes bare ikke som oppfylt
+ * så lenge avviket står åpent.
+ */
+export function applyOpenDeviations(
+  requirements: ScoredRequirement[],
+  blockedRequirementIds: string[],
+): ScoredRequirement[] {
+  if (blockedRequirementIds.length === 0) return requirements;
+  const blocked = new Set(blockedRequirementIds);
+  return requirements.map((r) =>
+    blocked.has(r.requirement_id) ? { ...r, maturity_level: 0 as MaturityLevel } : r,
+  );
+}
+
+/** Score med og uten åpne avvik — brukes til å vise hvor mye avvikene koster. */
+export function scoreWithDeviationImpact(
+  requirements: ScoredRequirement[],
+  blockedRequirementIds: string[],
+): { withDeviations: ScoreResult; withoutDeviations: ScoreResult; penalty: number } {
+  const withoutDeviations = calculateScore(requirements);
+  const withDeviations = calculateScore(applyOpenDeviations(requirements, blockedRequirementIds));
+  return {
+    withDeviations,
+    withoutDeviations,
+    penalty: Math.max(0, withoutDeviations.score - withDeviations.score),
+  };
+}
