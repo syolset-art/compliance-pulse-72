@@ -803,37 +803,41 @@ export default function MSPDashboard() {
                     <TableHeader>
                       <TableRow>
                         {isVisible("customer") && (
-                          <TableHead className="min-w-[160px] text-foreground/80">
-                            <button type="button" onClick={() => toggleSort("customer_name")} className="inline-flex items-center gap-1.5 text-sm font-medium hover:text-foreground transition-colors">
+                          <TableHead className="w-[200px] text-foreground/80 align-middle">
+                            <button type="button" onClick={() => toggleSort("customer_name")} className="inline-flex h-8 items-center gap-1.5 text-sm font-medium hover:text-foreground transition-colors">
                               Kunde <SortIcon k="customer_name" />
                             </button>
                           </TableHead>
                         )}
                         {isVisible("country") && (
-                          <TableHead className="w-[72px] text-foreground/80">
-                            <ColumnFilter
-                              label="Land"
-                              options={countryCodeOptions.map((v) => ({ value: v, label: v }))}
-                              selected={countryCodeFilter}
-                              onChange={setCountryCodeFilter}
-                            />
+                          <TableHead className="w-[72px] text-foreground/80 align-middle">
+                            <div className="inline-flex h-8 items-center">
+                              <ColumnFilter
+                                label="Land"
+                                options={countryCodeOptions.map((v) => ({ value: v, label: v }))}
+                                selected={countryCodeFilter}
+                                onChange={setCountryCodeFilter}
+                              />
+                            </div>
                           </TableHead>
                         )}
                         {isVisible("industry") && (
-                          <TableHead className="w-[140px] text-foreground/80">
-                            <ColumnFilter
-                              label="Bransje"
-                              options={industryOptions.map((v) => ({ value: v, label: v }))}
-                              selected={industryFilter}
-                              onChange={setIndustryFilter}
-                            />
+                          <TableHead className="w-[140px] text-foreground/80 align-middle">
+                            <div className="inline-flex h-8 items-center">
+                              <ColumnFilter
+                                label="Bransje"
+                                options={industryOptions.map((v) => ({ value: v, label: v }))}
+                                selected={industryFilter}
+                                onChange={setIndustryFilter}
+                              />
+                            </div>
                           </TableHead>
                         )}
                         {isVisible("frameworks") && (
-                          <TableHead className="w-[180px] text-foreground/80">
+                          <TableHead className="w-[180px] text-foreground/80 align-middle">
                             <Tooltip>
                               <TooltipTrigger asChild>
-                                <span className="inline-flex items-center gap-1.5 text-sm font-medium cursor-help">
+                                <span className="inline-flex h-8 items-center gap-1.5 text-sm font-medium cursor-help">
                                   Regelverk <Info className="h-3.5 w-3.5 text-foreground/50" />
                                 </span>
                               </TooltipTrigger>
@@ -843,13 +847,28 @@ export default function MSPDashboard() {
                             </Tooltip>
                           </TableHead>
                         )}
+                        {isVisible("recommendations") && (
+                          <TableHead className="min-w-[240px] text-foreground/80 align-middle">
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <span className="inline-flex h-8 items-center gap-1.5 text-sm font-medium cursor-help">
+                                  Anbefalte produkter og tjenester <Info className="h-3.5 w-3.5 text-foreground/50" />
+                                </span>
+                              </TooltipTrigger>
+                              <TooltipContent side="top" className="max-w-[260px]">
+                                <p>Velg forslag og lag et tilbud direkte. Forslagene er utarbeidet av en AI-agent.</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TableHead>
+                        )}
                         {isVisible("score") && (
-                          <TableHead className="w-[96px] text-right text-foreground/80">
-                            <button type="button" onClick={() => toggleSort("compliance_score")} className="inline-flex items-center gap-1.5 text-sm font-medium hover:text-foreground transition-colors">
+                          <TableHead className="w-[96px] text-right text-foreground/80 align-middle">
+                            <button type="button" onClick={() => toggleSort("compliance_score")} className="inline-flex h-8 items-center gap-1.5 text-sm font-medium hover:text-foreground transition-colors">
                               Modenhet <SortIcon k="compliance_score" />
                             </button>
                           </TableHead>
                         )}
+
                       </TableRow>
                     </TableHeader>
                     <TableBody>
