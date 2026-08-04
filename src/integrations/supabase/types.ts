@@ -605,6 +605,7 @@ export type Database = {
           privacy_contact_email: string | null
           privacy_contact_name: string | null
           privacy_policy_url: string | null
+          processes_sensitive_data: boolean
           publish_mode: string | null
           publish_to_customers: string[] | null
           region: string | null
@@ -614,6 +615,7 @@ export type Database = {
           security_contact_email: string | null
           security_contact_name: string | null
           security_contact_phone: string | null
+          sensitive_data_categories: string[]
           sync_enabled: boolean | null
           tprm_status: string | null
           updated_at: string | null
@@ -658,6 +660,7 @@ export type Database = {
           privacy_contact_email?: string | null
           privacy_contact_name?: string | null
           privacy_policy_url?: string | null
+          processes_sensitive_data?: boolean
           publish_mode?: string | null
           publish_to_customers?: string[] | null
           region?: string | null
@@ -667,6 +670,7 @@ export type Database = {
           security_contact_email?: string | null
           security_contact_name?: string | null
           security_contact_phone?: string | null
+          sensitive_data_categories?: string[]
           sync_enabled?: boolean | null
           tprm_status?: string | null
           updated_at?: string | null
@@ -711,6 +715,7 @@ export type Database = {
           privacy_contact_email?: string | null
           privacy_contact_name?: string | null
           privacy_policy_url?: string | null
+          processes_sensitive_data?: boolean
           publish_mode?: string | null
           publish_to_customers?: string[] | null
           region?: string | null
@@ -720,6 +725,7 @@ export type Database = {
           security_contact_email?: string | null
           security_contact_name?: string | null
           security_contact_phone?: string | null
+          sensitive_data_categories?: string[]
           sync_enabled?: boolean | null
           tprm_status?: string | null
           updated_at?: string | null

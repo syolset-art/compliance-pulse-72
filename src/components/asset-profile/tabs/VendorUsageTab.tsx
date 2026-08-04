@@ -5,7 +5,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Building2, Database, Workflow, Shield, AlertTriangle, Pencil, Info, Sparkles, ArrowRight, Flag } from "lucide-react";
+import { Building2, Database, Workflow, Shield, AlertTriangle, Pencil, Info, Sparkles, ArrowRight, Flag, ChevronDown } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { SENSITIVE_DATA_CATEGORIES, sensitiveCategoryLabel, gdprRoleHandlesPersonalData } from "@/lib/sensitiveData";
 import { toast } from "sonner";
 import { useState } from "react";
 import { AISuggestTextarea } from "@/components/asset-profile/AISuggestTextarea";
@@ -131,7 +135,7 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
   });
 
   const updateMutation = useMutation({
-    mutationFn: async (updates: Record<string, string>) => {
+    mutationFn: async (updates: Record<string, any>) => {
       const { error } = await supabase
         .from("assets")
         .update(updates)
@@ -151,6 +155,37 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
 
   const handleFieldChange = (field: string, value: string) => {
     updateMutation.mutate({ [field]: value });
+  };
+
+  // Sensitive personopplysninger — kun relevant når en GDPR-rolle med persondata er valgt
+  const showSensitive = gdprRoleHandlesPersonalData(asset?.gdpr_role);
+  const sensitiveOn = !!(asset as any)?.processes_sensitive_data;
+  const selectedSensitive: string[] = ((asset as any)?.sensitive_data_categories as string[]) || [];
+
+  const handleGdprRoleChange = (value: string) => {
+    if (!gdprRoleHandlesPersonalData(value)) {
+      updateMutation.mutate({
+        gdpr_role: value,
+        processes_sensitive_data: false,
+        sensitive_data_categories: [],
+      } as any);
+      return;
+    }
+    handleFieldChange("gdpr_role", value);
+  };
+
+  const handleSensitiveToggle = (checked: boolean) => {
+    updateMutation.mutate({
+      processes_sensitive_data: checked,
+      ...(checked ? {} : { sensitive_data_categories: [] }),
+    } as any);
+  };
+
+  const toggleSensitiveCategory = (value: string) => {
+    const next = selectedSensitive.includes(value)
+      ? selectedSensitive.filter((v) => v !== value)
+      : [...selectedSensitive, value];
+    updateMutation.mutate({ sensitive_data_categories: next } as any);
   };
 
   const handleLaraSuggest = async () => {
@@ -283,7 +318,7 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
             </div>
             <Select
               value={asset?.gdpr_role || "not_set"}
-              onValueChange={(v) => handleFieldChange("gdpr_role", v)}
+              onValueChange={(v) => handleGdprRoleChange(v)}
             >
               <SelectTrigger className="h-9 text-sm font-semibold border">
                 <SelectValue />
@@ -296,10 +331,67 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
                 ))}
               </SelectContent>
             </Select>
+
+            {showSensitive && (
+              <div className="space-y-2 pt-0.5">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-[13px] text-foreground leading-tight">
+                    {isNb ? "Behandler sensitive personopplysninger" : "Processes sensitive personal data"}
+                  </span>
+                  <Switch
+                    checked={sensitiveOn}
+                    onCheckedChange={handleSensitiveToggle}
+                  />
+                </div>
+
+                {sensitiveOn && (
+                  <div className="space-y-1.5">
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" size="sm" className="h-8 w-full justify-between text-[13px] font-normal">
+                          {selectedSensitive.length > 0
+                            ? `${selectedSensitive.length} ${isNb ? "kategorier" : "categories"}`
+                            : (isNb ? "Velg kategorier" : "Select categories")}
+                          <ChevronDown className="h-3.5 w-3.5 opacity-60" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent align="start" className="w-64 p-2">
+                        <div className="space-y-1 max-h-64 overflow-y-auto">
+                          {SENSITIVE_DATA_CATEGORIES.map((c) => (
+                            <label key={c.value} className="flex items-center gap-2 text-sm px-1 py-1 rounded hover:bg-accent cursor-pointer">
+                              <Checkbox
+                                checked={selectedSensitive.includes(c.value)}
+                                onCheckedChange={() => toggleSensitiveCategory(c.value)}
+                              />
+                              <span>{isNb ? c.labelNb : c.labelEn}</span>
+                            </label>
+                          ))}
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+
+                    {selectedSensitive.length > 0 && (
+                      <div className="flex flex-wrap gap-1">
+                        {selectedSensitive.map((v) => (
+                          <Badge key={v} variant="outline" className="text-[11px] text-warning bg-warning/10 border-warning/20">
+                            {sensitiveCategoryLabel(v, isNb)}
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+
             <p className="text-[13px] text-muted-foreground leading-tight">
-              {isNb
-                ? "GDPR-rollen bestemmer hvilke kontroller og dokumentasjonskrav som gjelder (f.eks. DPA-krav)."
-                : "The GDPR role determines which controls and documentation requirements apply (e.g. DPA requirements)."}
+              {sensitiveOn
+                ? (isNb
+                    ? "Særlige kategorier stiller strengere krav: databehandleravtale, risikovurdering og som regel DPIA."
+                    : "Special categories require stricter controls: a DPA, a risk assessment and usually a DPIA.")
+                : (isNb
+                    ? "GDPR-rollen bestemmer hvilke kontroller og dokumentasjonskrav som gjelder (f.eks. DPA-krav)."
+                    : "The GDPR role determines which controls and documentation requirements apply (e.g. DPA requirements).")}
             </p>
             <button
               onClick={() => onNavigateToTab?.("overview")}
@@ -310,6 +402,7 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
             </button>
           </CardContent>
         </Card>
+
 
         {/* Priority */}
         <Card className="relative group">
