@@ -1,5 +1,8 @@
+import { useEffect, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { TermsAcceptRow } from "@/components/legal/TermsAcceptRow";
+import { useTerms } from "@/hooks/useTerms";
 import { formatKr, getVendorTier, type VendorTierId } from "@/lib/planConstants";
 
 interface Props {
@@ -17,10 +20,30 @@ function nextBillingDate(): string {
 }
 
 export function ConfirmVendorTierChangeDialog({ open, onOpenChange, currentTierId, nextTierId, onConfirm }: Props) {
+  const { current: currentTerms, hasAcceptedCurrent, acceptTerms } = useTerms();
+  const [accepted, setAccepted] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (!open) setAccepted(false);
+  }, [open]);
+
   if (!nextTierId) return null;
   const current = getVendorTier(currentTierId);
   const next = getVendorTier(nextTierId);
   const isUpgrade = next.monthlyPriceKr > current.monthlyPriceKr;
+  const checked = accepted || hasAcceptedCurrent;
+
+  const handleConfirm = async () => {
+    setSaving(true);
+    try {
+      await acceptTerms("license_purchase", nextTierId);
+      onConfirm();
+    } finally {
+      setSaving(false);
+    }
+  };
+
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
