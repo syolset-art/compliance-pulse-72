@@ -818,7 +818,10 @@ export default function Deviations() {
           open={isAddDialogOpen}
           onOpenChange={setIsAddDialogOpen}
         />
+        </>
+        )}
         </div>
+
       </main>
       <ContextualHelpPanel
         open={helpOpen}
