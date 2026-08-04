@@ -75,7 +75,11 @@ export interface VendorActivity {
   theme?: string;
   level?: ActivityLevel;
   createdAt?: Date;
+  /** Satt når aktiviteten også ble registrert som et avvik. */
+  deviationId?: string;
+  deviationCriticality?: string;
   statusHistory?: StatusHistoryEntry[];
+
 }
 
 export const LEVEL_CONFIG: Record<ActivityLevel, { nb: string; en: string; dot: string }> = {
