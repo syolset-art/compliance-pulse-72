@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { format } from "date-fns";
-import { CalendarIcon, Mail, Phone, Users, PenLine, PlusCircle, Check } from "lucide-react";
+import { CalendarIcon, Mail, Phone, Users, PenLine, PlusCircle, Check, AlertTriangle } from "lucide-react";
 import type { SuggestedActivity } from "@/utils/vendorGuidanceData";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -10,8 +10,16 @@ import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import type { VendorActivity, ActivityType, ActivityLevel } from "@/utils/vendorActivityData";
+import { deviationCategories } from "@/lib/deviationCategories";
+import { getControlAreaLabel } from "@/lib/controlAreas";
+import { suggestRequirementImpacts, sourceForActivityType } from "@/lib/deviationImpact";
+import { DeviationScoreImpactNote } from "@/components/deviations/DeviationScoreImpactNote";
+import { useRegisterVendorDeviation } from "@/hooks/useVendorDeviations";
 
 interface Props {
   onSubmit: (activity: VendorActivity) => void;
@@ -19,7 +27,11 @@ interface Props {
   onOpenChange?: (open: boolean) => void;
   prefillFromGuidance?: SuggestedActivity;
   hideTrigger?: boolean;
+  /** Når satt kan aktiviteten også registreres som et avvik på denne enheten. */
+  assetId?: string;
+  vendorName?: string;
 }
+
 
 const TYPES: { value: ActivityType; Icon: typeof Mail; nb: string; en: string }[] = [
   { value: "email", Icon: Mail, nb: "E-post", en: "Email" },
