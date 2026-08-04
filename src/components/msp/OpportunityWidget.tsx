@@ -6,8 +6,6 @@ import {
   OPPORTUNITY_CUSTOMERS,
   distributionByFramework,
   distributionByIndustry,
-  customerSummaryLine,
-  topCustomers,
   totalTaskCount,
   type OpportunityCustomer,
 } from "@/lib/partnerOpportunities";
@@ -28,7 +26,6 @@ export function OpportunityWidget({ customers = OPPORTUNITY_CUSTOMERS }: Props) 
     [grouping, customers],
   );
   const taskTotal = totalTaskCount(customers);
-  const top = useMemo(() => topCustomers(5, customers), [customers]);
   const max = slices.reduce((m, s) => Math.max(m, s.taskCount), 0) || 1;
 
   if (customers.length === 0) {
@@ -102,21 +99,6 @@ export function OpportunityWidget({ customers = OPPORTUNITY_CUSTOMERS }: Props) 
         Fordeling per {groupingLabel}:{" "}
         {slices.map((s) => `${s.label}: ${s.taskCount} mulige oppgaver hos ${s.customerCount} kunder`).join(". ")}.
       </p>
-
-      <div className="mt-5 pt-4 border-t border-border">
-        <h3 className="text-sm font-semibold text-foreground">Fem kunder med mest mulig arbeid</h3>
-        <ul className="mt-2 space-y-1.5">
-          {top.map((c) => (
-            <li key={c.id} className="text-sm text-muted-foreground leading-relaxed">
-              {customerSummaryLine(c)}
-            </li>
-          ))}
-        </ul>
-        <p className="mt-3 text-xs text-muted-foreground">
-          Foreslåtte regelverk er forslag basert på opplysninger fra offentlig register.
-          Kunden bekrefter selv hva som gjelder.
-        </p>
-      </div>
 
       <Button className="mt-4" onClick={() => navigate("/msp-partner/muligheter")}>
         Se alle muligheter
