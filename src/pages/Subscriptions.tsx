@@ -240,13 +240,36 @@ export default function Subscriptions() {
 
   const requestDeactivate = (id: string, title: string) => setConfirmDeactivate({ id, title });
 
-  const confirmDeactivation = () => {
+  const confirmDeactivation = async (meta: CancellationMeta) => {
     if (!confirmDeactivate) return;
     const { id, title } = confirmDeactivate;
-    const cancelAt = cancelModule(id);
+    const cancelAt = cancelModule(id, meta);
     syncModuleState();
     setConfirmDeactivate(null);
+
+    try {
+      await supabase.from("module_cancellations").insert({
+        module_id: id,
+        module_title: title,
+        reason: meta.reason,
+        reason_note: meta.reasonNote ?? null,
+        competitor: meta.competitor ?? null,
+        data_choice: meta.dataChoice,
+        transfer_email: meta.transferEmail ?? null,
+        effective_at: cancelAt,
+        retention_until: meta.retentionUntil ?? null,
+      });
+    } catch (e) {
+      console.error("Kunne ikke logge oppsigelsen", e);
+    }
+
     toast(`${title} er sagt opp og er tilgjengelig til ${formatPeriodEnd(cancelAt)}.`, {
+      description:
+        meta.dataChoice === "transfer"
+          ? `Dataene overføres til ${meta.transferEmail}.`
+          : meta.dataChoice === "download"
+            ? "Eksportlenken er gyldig i 7 dager."
+            : `Dataene slettes ${formatDateLong(meta.retentionUntil)}.`,
       action: {
         label: "Angre",
         onClick: () => {
@@ -258,6 +281,7 @@ export default function Subscriptions() {
       duration: 10000,
     });
   };
+
 
   const undoCancellation = (id: string) => {
     resumeModule(id);
