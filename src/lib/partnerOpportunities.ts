@@ -1,6 +1,7 @@
 /**
  * Mockdata for partnerens "muligheter" — mulig arbeid hos kundene.
- * Ingen kronebeløp noe sted. Omfang oppgis grovt som liten/middels/stor.
+ * Omfang oppgis grovt som liten/middels/stor, og salgspotensial estimeres
+ * fra timeestimat ganget med partnerens egen timepris.
  */
 
 export type OpportunityScope = "liten" | "middels" | "stor";
@@ -226,38 +227,88 @@ export interface DistributionSlice {
   label: string;
   taskCount: number;
   customerCount: number;
+  /** Estimert salgspotensial i hele kroner (eks. mva). */
+  potential: number;
+}
+
+/** Rund til nærmeste 1 000 for å understreke at dette er et estimat. */
+function roundAmount(value: number): number {
+  return Math.round(value / 1000) * 1000;
+}
+
+/** Estimert salgspotensial for én oppgave, i hele kroner eks. mva. */
+export function taskPotential(task: OpportunityTask, hourlyRate: number): number {
+  return roundAmount(task.estimateHours * hourlyRate);
+}
+
+/** Samlet salgspotensial for én kunde. */
+export function customerPotential(c: OpportunityCustomer, hourlyRate: number): number {
+  return c.tasks.reduce((sum, t) => sum + taskPotential(t, hourlyRate), 0);
+}
+
+/** Samlet salgspotensial på tvers av kundene. */
+export function totalPotential(hourlyRate: number, customers = OPPORTUNITY_CUSTOMERS): number {
+  return customers.reduce((sum, c) => sum + customerPotential(c, hourlyRate), 0);
+}
+
+/** Hele kroner uten desimaler, med partnerens valuta. */
+export function formatPotential(amount: number, currency: string): string {
+  try {
+    return new Intl.NumberFormat("nb-NO", {
+      style: "currency",
+      currency,
+      maximumFractionDigits: 0,
+      minimumFractionDigits: 0,
+    }).format(amount);
+  } catch {
+    return `${amount.toLocaleString("nb-NO")} ${currency}`;
+  }
 }
 
 export function totalTaskCount(customers = OPPORTUNITY_CUSTOMERS): number {
   return customers.reduce((sum, c) => sum + c.tasks.length, 0);
 }
 
-export function distributionByIndustry(customers = OPPORTUNITY_CUSTOMERS): DistributionSlice[] {
+export function distributionByIndustry(
+  customers = OPPORTUNITY_CUSTOMERS,
+  hourlyRate = 0,
+): DistributionSlice[] {
   const map = new Map<string, DistributionSlice>();
   for (const c of customers) {
-    const cur = map.get(c.industry) ?? { label: c.industry, taskCount: 0, customerCount: 0 };
+    const cur =
+      map.get(c.industry) ?? { label: c.industry, taskCount: 0, customerCount: 0, potential: 0 };
     cur.taskCount += c.tasks.length;
     cur.customerCount += 1;
+    cur.potential += customerPotential(c, hourlyRate);
     map.set(c.industry, cur);
   }
-  return Array.from(map.values()).sort((a, b) => b.taskCount - a.taskCount);
+  return Array.from(map.values()).sort((a, b) => b.potential - a.potential || b.taskCount - a.taskCount);
 }
 
-export function distributionByFramework(customers = OPPORTUNITY_CUSTOMERS): DistributionSlice[] {
-  const map = new Map<string, { label: string; taskCount: number; customers: Set<string> }>();
+export function distributionByFramework(
+  customers = OPPORTUNITY_CUSTOMERS,
+  hourlyRate = 0,
+): DistributionSlice[] {
+  const map = new Map<string, { label: string; taskCount: number; potential: number; customers: Set<string> }>();
   for (const c of customers) {
     for (const task of c.tasks) {
       for (const fw of task.frameworks) {
-        const cur = map.get(fw) ?? { label: fw, taskCount: 0, customers: new Set<string>() };
+        const cur = map.get(fw) ?? { label: fw, taskCount: 0, potential: 0, customers: new Set<string>() };
         cur.taskCount += 1;
+        cur.potential += taskPotential(task, hourlyRate);
         cur.customers.add(c.id);
         map.set(fw, cur);
       }
     }
   }
   return Array.from(map.values())
-    .map((v) => ({ label: v.label, taskCount: v.taskCount, customerCount: v.customers.size }))
-    .sort((a, b) => b.taskCount - a.taskCount);
+    .map((v) => ({
+      label: v.label,
+      taskCount: v.taskCount,
+      customerCount: v.customers.size,
+      potential: v.potential,
+    }))
+    .sort((a, b) => b.potential - a.potential || b.taskCount - a.taskCount);
 }
 
 /** Én forklarende linje per kunde, uten beløp. */
