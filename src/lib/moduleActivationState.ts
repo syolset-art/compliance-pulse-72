@@ -115,15 +115,21 @@ function patch(id: string, next: Partial<ModuleState>) {
 }
 
 /** Sier opp modulen — den er aktiv til periodeslutt. */
-export function cancelModule(id: string): string {
+export function cancelModule(id: string, meta?: CancellationMeta): string {
   const cancelAt = getPeriodEnd().toISOString();
-  patch(id, { status: "pending_cancellation", cancelAt });
+  patch(id, {
+    status: "pending_cancellation",
+    cancelAt,
+    cancellation: meta
+      ? { ...meta, retentionUntil: meta.retentionUntil ?? getRetentionUntil(cancelAt).toISOString() }
+      : undefined,
+  });
   return cancelAt;
 }
 
 /** Angrer en oppsigelse. */
 export function resumeModule(id: string) {
-  patch(id, { status: "active", cancelAt: undefined });
+  patch(id, { status: "active", cancelAt: undefined, cancellation: undefined });
 }
 
 /** Aktiverer en inaktiv modul. */
