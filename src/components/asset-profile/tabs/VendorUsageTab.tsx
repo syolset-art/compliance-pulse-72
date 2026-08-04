@@ -135,7 +135,7 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
   });
 
   const updateMutation = useMutation({
-    mutationFn: async (updates: Record<string, string>) => {
+    mutationFn: async (updates: Record<string, any>) => {
       const { error } = await supabase
         .from("assets")
         .update(updates)

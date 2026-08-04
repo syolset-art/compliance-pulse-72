@@ -18,6 +18,8 @@ export interface RiskInputs {
   vendorRiskGrade?: RiskGrade | null;
   openDeviations?: number | null;
   hasDPA?: boolean | null;
+  /** Behandler leverandøren særlige kategorier personopplysninger (GDPR art. 9)? */
+  processesSensitiveData?: boolean | null;
   hasISO27001?: boolean | null;
   hasSOC2?: boolean | null;
   country?: string | null;
@@ -54,6 +56,11 @@ export function computeRisk(input: RiskInputs): DerivedRisk {
     }
 
     if (input.hasDPA === false) { score += 12; reasons.push("Mangler databehandleravtale"); }
+
+    if (input.processesSensitiveData) {
+      score += 15;
+      reasons.push("Behandler sensitive personopplysninger");
+    }
     if (input.hasISO27001 === false && input.hasSOC2 === false) {
       score += 8;
       reasons.push("Ingen sertifiseringer registrert");
