@@ -516,7 +516,7 @@ export default function Subscriptions() {
       {!isMobile && <div className="w-64 flex-shrink-0"><Sidebar /></div>}
       {isMobile && <Sidebar />}
       <main className="flex-1 overflow-y-auto pt-11">
-        <div className="container max-w-5xl mx-auto p-6 space-y-8 pb-20">
+        <div className="container max-w-6xl mx-auto p-6 space-y-8 pb-20">
 
           {/* Hero heading */}
           <div className="flex items-start justify-between gap-4 flex-wrap">
