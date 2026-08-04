@@ -230,14 +230,29 @@ function PartnerHeader() {
 }
 
 
+// Regelverksaktivering på tvers av kundeporteføljen (mockdata).
+const PORTFOLIO_CUSTOMERS = 300;
+const FRAMEWORK_ACTIVATIONS = [
+  { label: "GDPR", lastMonth: 18, lastHalfYear: 90 },
+  { label: "NIS2", lastMonth: 11, lastHalfYear: 54 },
+  { label: "ISO 27001", lastMonth: 6, lastHalfYear: 33 },
+  { label: "DORA", lastMonth: 4, lastHalfYear: 21 },
+];
+
 function ClaimRateWidget() {
   const navigate = useNavigate();
-  const claimPct = 12;
-  const claimGoal = 40;
-  const ringProgress = Math.min(100, (claimPct / claimGoal) * 100);
-  const r = 42;
-  const c = 2 * Math.PI * r;
-  const dash = (ringProgress / 100) * c;
+  const [period, setPeriod] = useState<"month" | "halfYear">("month");
+  const [framework, setFramework] = useState<string>("Alle");
+
+  const rows = FRAMEWORK_ACTIVATIONS.filter(
+    (f) => framework === "Alle" || f.label === framework,
+  );
+  const total = rows.reduce(
+    (sum, f) => sum + (period === "month" ? f.lastMonth : f.lastHalfYear),
+    0,
+  );
+  const periodLabel = period === "month" ? "siste måned" : "siste halvår";
+  const max = Math.max(...rows.map((f) => (period === "month" ? f.lastMonth : f.lastHalfYear)), 1);
 
   return (
     <Card
@@ -246,40 +261,116 @@ function ClaimRateWidget() {
     >
       <div className="absolute inset-0 bg-gradient-to-br from-primary via-indigo-700 to-primary/80" />
       <div className="absolute -top-16 -right-16 h-48 w-48 rounded-full bg-white/10 blur-3xl" />
-      <div className="relative flex items-center gap-4 p-5 text-white">
-        <div className="relative h-24 w-24 shrink-0">
-          <svg viewBox="0 0 100 100" className="h-full w-full -rotate-90">
-            <circle cx="50" cy="50" r={r} stroke="rgba(255,255,255,0.18)" strokeWidth="8" fill="none" />
-            <circle
-              cx="50" cy="50" r={r}
-              stroke="white" strokeWidth="8" fill="none"
-              strokeLinecap="round"
-              strokeDasharray={`${dash} ${c}`}
-            />
-          </svg>
-          <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <div className="text-2xl font-bold leading-none">{claimPct}%</div>
-            <div className="text-[11px] uppercase tracking-wider text-white/80 mt-0.5">godkjent</div>
+      <div className="relative p-5 text-white">
+        <div className="flex items-center gap-1.5">
+          <div className="text-[11px] uppercase tracking-[0.15em] text-white/80 font-semibold">
+            Regelverk aktivert
           </div>
+          <UITooltip>
+            <TooltipTrigger asChild>
+              <HelpCircle
+                className="h-3.5 w-3.5 text-white/60 cursor-help"
+                onClick={(e) => e.stopPropagation()}
+              />
+            </TooltipTrigger>
+            <TooltipContent side="top" className="max-w-[280px]">
+              <p>
+                Viser hvor mange av de {PORTFOLIO_CUSTOMERS} kundene dine som har aktivert
+                regelverk siste måned og siste halvår. Filtrer på regelverk for å se andelen
+                per regelverk.
+              </p>
+            </TooltipContent>
+          </UITooltip>
         </div>
-        <div className="min-w-0">
-          <div className="flex items-center gap-1.5">
-            <div className="text-[11px] uppercase tracking-[0.15em] text-white/80 font-semibold">Godkjent av kunde</div>
-            <UITooltip>
-              <TooltipTrigger asChild>
-                <HelpCircle
-                  className="h-3.5 w-3.5 text-white/60 cursor-help"
-                  onClick={(e) => e.stopPropagation()}
-                />
-              </TooltipTrigger>
-              <TooltipContent side="top" className="max-w-[260px]">
-                <p>Denne widgeten viser hvor mange av kundene dine som har godkjent tilbud om regelverksaktivering (f.eks. NIS2, ISO 27001, DORA). Jo høyere andel, desto større inntektspotensial.</p>
-              </TooltipContent>
-            </UITooltip>
-          </div>
-          <div className="text-sm text-white/90 mt-0.5">47 av 400 kunder har godkjent regelverkstilbud</div>
-          <div className="text-xs text-white/70 mt-1">Kunder som har akseptert regelverk aktivert av deg · <span className="text-emerald-200 font-semibold">+2 mnd</span></div>
+
+        <div
+          className="mt-3 inline-flex rounded-lg bg-white/15 p-0.5 text-xs"
+          role="group"
+          aria-label="Velg periode"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {([
+            ["month", "Siste måned"],
+            ["halfYear", "Siste halvår"],
+          ] as const).map(([value, label]) => (
+            <button
+              key={value}
+              type="button"
+              onClick={() => setPeriod(value)}
+              aria-pressed={period === value}
+              className={
+                "px-2.5 py-1 rounded-md font-medium transition-colors " +
+                (period === value ? "bg-white text-primary" : "text-white/80 hover:text-white")
+              }
+            >
+              {label}
+            </button>
+          ))}
         </div>
+
+        <div className="mt-3 flex items-baseline gap-2">
+          <span className="text-3xl font-bold leading-none tabular-nums">{total}</span>
+          <span className="text-sm text-white/85">
+            aktiveringer {periodLabel} · {Math.round((total / PORTFOLIO_CUSTOMERS) * 100)}% av{" "}
+            {PORTFOLIO_CUSTOMERS} kunder
+          </span>
+        </div>
+
+        <div
+          className="mt-3 flex flex-wrap gap-1.5"
+          role="group"
+          aria-label="Filtrer på regelverk"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {["Alle", ...FRAMEWORK_ACTIVATIONS.map((f) => f.label)].map((label) => (
+            <button
+              key={label}
+              type="button"
+              onClick={() => setFramework(label)}
+              aria-pressed={framework === label}
+              className={
+                "px-2.5 py-1 rounded-full text-xs font-medium transition-colors " +
+                (framework === label
+                  ? "bg-white text-primary"
+                  : "bg-white/15 text-white/85 hover:bg-white/25")
+              }
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
+        <ul className="mt-3 space-y-1.5">
+          {rows.map((f) => {
+            const count = period === "month" ? f.lastMonth : f.lastHalfYear;
+            const pct = Math.round((count / PORTFOLIO_CUSTOMERS) * 100);
+            return (
+              <li key={f.label} className="flex items-center gap-2 text-xs">
+                <span className="w-20 shrink-0 text-white/90">{f.label}</span>
+                <span className="flex-1 h-1.5 rounded-full bg-white/20 overflow-hidden" aria-hidden="true">
+                  <span
+                    className="block h-full rounded-full bg-white"
+                    style={{ width: `${Math.round((count / max) * 100)}%` }}
+                  />
+                </span>
+                <span className="w-32 shrink-0 text-right text-white/90 tabular-nums">
+                  {pct}% · {count} kunder
+                </span>
+              </li>
+            );
+          })}
+        </ul>
+        <p className="sr-only">
+          Regelverk aktivert {periodLabel} av {PORTFOLIO_CUSTOMERS} kunder:{" "}
+          {rows
+            .map((f) => {
+              const count = period === "month" ? f.lastMonth : f.lastHalfYear;
+              return `${f.label}: ${Math.round((count / PORTFOLIO_CUSTOMERS) * 100)} prosent, ${count} kunder`;
+            })
+            .join(". ")}
+          .
+        </p>
+
         <ChevronRight className="absolute top-3 right-3 h-4 w-4 text-white/60 group-hover:text-white transition-colors" />
       </div>
     </Card>
