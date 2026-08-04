@@ -1164,6 +1164,50 @@ export type Database = {
         }
         Relationships: []
       }
+      deviation_requirement_impacts: {
+        Row: {
+          control_area: string | null
+          created_at: string
+          deviation_id: string
+          framework_id: string | null
+          id: string
+          requirement_id: string | null
+          requirement_label: string | null
+          restored_at: string | null
+          status: string
+        }
+        Insert: {
+          control_area?: string | null
+          created_at?: string
+          deviation_id: string
+          framework_id?: string | null
+          id?: string
+          requirement_id?: string | null
+          requirement_label?: string | null
+          restored_at?: string | null
+          status?: string
+        }
+        Update: {
+          control_area?: string | null
+          created_at?: string
+          deviation_id?: string
+          framework_id?: string | null
+          id?: string
+          requirement_id?: string | null
+          requirement_label?: string | null
+          restored_at?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deviation_requirement_impacts_deviation_id_fkey"
+            columns: ["deviation_id"]
+            isOneToOne: false
+            referencedRelation: "system_incidents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       discovered_systems: {
         Row: {
           created_at: string
@@ -2864,6 +2908,53 @@ export type Database = {
           },
         ]
       }
+      score_history_events: {
+        Row: {
+          actor: string | null
+          affected_requirements: number
+          control_areas: string[] | null
+          created_at: string
+          deviation_id: string | null
+          event_type: string
+          id: string
+          note: string | null
+          subject_id: string | null
+          subject_type: string
+        }
+        Insert: {
+          actor?: string | null
+          affected_requirements?: number
+          control_areas?: string[] | null
+          created_at?: string
+          deviation_id?: string | null
+          event_type: string
+          id?: string
+          note?: string | null
+          subject_id?: string | null
+          subject_type?: string
+        }
+        Update: {
+          actor?: string | null
+          affected_requirements?: number
+          control_areas?: string[] | null
+          created_at?: string
+          deviation_id?: string | null
+          event_type?: string
+          id?: string
+          note?: string | null
+          subject_id?: string | null
+          subject_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "score_history_events_deviation_id_fkey"
+            columns: ["deviation_id"]
+            isOneToOne: false
+            referencedRelation: "system_incidents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       security_micro_courses: {
         Row: {
           category: string
@@ -3076,8 +3167,15 @@ export type Database = {
         Row: {
           agent_reasoning: string | null
           ai_system_id: string | null
+          asset_id: string | null
           auto_created: boolean | null
           category: string | null
+          close_evidence_document_id: string | null
+          close_reason: string | null
+          closed_at: string | null
+          closed_by: string | null
+          confirmed_at: string | null
+          confirmed_by: string | null
           created_at: string | null
           criticality: string | null
           description: string | null
@@ -3099,7 +3197,7 @@ export type Database = {
           source_severity: string | null
           status: string | null
           suggested_measures: Json | null
-          system_id: string
+          system_id: string | null
           systems_count: number | null
           time_hours: number | null
           title: string
@@ -3108,8 +3206,15 @@ export type Database = {
         Insert: {
           agent_reasoning?: string | null
           ai_system_id?: string | null
+          asset_id?: string | null
           auto_created?: boolean | null
           category?: string | null
+          close_evidence_document_id?: string | null
+          close_reason?: string | null
+          closed_at?: string | null
+          closed_by?: string | null
+          confirmed_at?: string | null
+          confirmed_by?: string | null
           created_at?: string | null
           criticality?: string | null
           description?: string | null
@@ -3131,7 +3236,7 @@ export type Database = {
           source_severity?: string | null
           status?: string | null
           suggested_measures?: Json | null
-          system_id: string
+          system_id?: string | null
           systems_count?: number | null
           time_hours?: number | null
           title: string
@@ -3140,8 +3245,15 @@ export type Database = {
         Update: {
           agent_reasoning?: string | null
           ai_system_id?: string | null
+          asset_id?: string | null
           auto_created?: boolean | null
           category?: string | null
+          close_evidence_document_id?: string | null
+          close_reason?: string | null
+          closed_at?: string | null
+          closed_by?: string | null
+          confirmed_at?: string | null
+          confirmed_by?: string | null
           created_at?: string | null
           criticality?: string | null
           description?: string | null
@@ -3163,7 +3275,7 @@ export type Database = {
           source_severity?: string | null
           status?: string | null
           suggested_measures?: Json | null
-          system_id?: string
+          system_id?: string | null
           systems_count?: number | null
           time_hours?: number | null
           title?: string

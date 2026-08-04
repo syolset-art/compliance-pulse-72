@@ -53,6 +53,8 @@ import { nb } from "date-fns/locale";
 import { AddDeviationDialog } from "@/components/dialogs/AddDeviationDialog";
 import { InlineDeviationAgent } from "@/components/deviations/InlineDeviationAgent";
 import { deviationCategories } from "@/lib/deviationCategories";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { VendorDeviationsOverview } from "@/components/deviations/VendorDeviationsOverview";
 import { toast } from "sonner";
 
 const dummyPeople = [
@@ -116,6 +118,7 @@ export default function Deviations() {
   usePageHelpListener(setHelpOpen);
   const [liveInfoExpanded, setLiveInfoExpanded] = useState(false);
   const [selectedDeviation, setSelectedDeviation] = useState<Deviation | null>(null);
+  const [view, setView] = useState("all");
 
   // Fetch deviations from system_incidents
   const { data: systemDeviations = [], isLoading: loadingSystem } = useQuery({
@@ -387,6 +390,17 @@ export default function Deviations() {
           }}
         />
 
+        <Tabs value={view} onValueChange={setView} className="w-full">
+          <TabsList>
+            <TabsTrigger value="all">Alle avvik</TabsTrigger>
+            <TabsTrigger value="vendors">Leverandøravvik</TabsTrigger>
+          </TabsList>
+        </Tabs>
+
+        {view === "vendors" && <VendorDeviationsOverview />}
+
+        {view === "all" && (
+        <>
         {/* Live Deviations Activation Banner */}
         <Card className={cn(
           "border transition-all overflow-hidden",
@@ -807,7 +821,10 @@ export default function Deviations() {
           open={isAddDialogOpen}
           onOpenChange={setIsAddDialogOpen}
         />
+        </>
+        )}
         </div>
+
       </main>
       <ContextualHelpPanel
         open={helpOpen}
