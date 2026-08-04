@@ -1,5 +1,6 @@
 // Analyze processes in a work area and recommend AI agent fit (autonomous / copilot / manual)
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { logAiUsage } from "../_shared/ai-usage.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -173,6 +174,7 @@ Deno.serve(async (req) => {
     }
 
     const aiJson = await aiRes.json();
+    logAiUsage("analyze-process-agent-fit", aiJson);
     const toolCall = aiJson.choices?.[0]?.message?.tool_calls?.[0];
     if (!toolCall) throw new Error("No tool call in AI response");
     const args = JSON.parse(toolCall.function.arguments);

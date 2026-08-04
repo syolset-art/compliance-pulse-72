@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { logAiUsage } from "../_shared/ai-usage.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -134,6 +135,7 @@ Vurder om dokumentasjonen dekker kravene. Identifiser hull og foreslå oppdateri
     }
 
     const aiData = await aiRes.json();
+    logAiUsage("analyze-doc-gap", aiData);
     const toolCall = aiData.choices?.[0]?.message?.tool_calls?.[0];
     const result = toolCall ? JSON.parse(toolCall.function.arguments) : null;
 

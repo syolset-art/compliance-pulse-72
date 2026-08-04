@@ -4,6 +4,7 @@
 // strengthens the trust tier — it does NOT affect the compliance score).
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { logAiUsage } from "../_shared/ai-usage.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -142,6 +143,7 @@ Analyser dekningen.`;
     }
 
     const aiJson = await aiResponse.json();
+    logAiUsage("analyze-evidence-coverage", aiJson);
     const toolCall = aiJson.choices?.[0]?.message?.tool_calls?.[0];
     if (!toolCall) {
       return new Response(JSON.stringify({ error: "No coverage returned" }), {

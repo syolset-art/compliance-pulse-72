@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { logAiUsage } from "../_shared/ai-usage.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -94,6 +95,7 @@ Bruker AI: ${hasAi ? "Ja" : "Nei/ukjent"}`;
     }
 
     const data = await response.json();
+    logAiUsage("suggest-system-risk", data);
     const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
 
     if (toolCall?.function?.arguments) {

@@ -1,4 +1,5 @@
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
+import { logAiUsage } from "../_shared/ai-usage.ts";
 
 interface Body {
   documentName?: string;
@@ -88,6 +89,7 @@ Skriv et konkret, praktisk førsteutkast til dokumentet det bes om. Krav til sva
     }
 
     const data = await response.json();
+    logAiUsage("generate-compliance-document", data);
     const content = data.choices?.[0]?.message?.content ?? "";
 
     return new Response(JSON.stringify({ content, documentName }), {

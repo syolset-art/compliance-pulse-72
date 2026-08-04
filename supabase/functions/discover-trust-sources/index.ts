@@ -4,6 +4,7 @@
 // available, falls back to a static template so the UI still has data.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.4";
+import { logAiUsage } from "../_shared/ai-usage.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -58,6 +59,7 @@ Include 4-8 plausible public pages (privacy policy, security/trust center, sub-p
     });
     if (!res.ok) return null;
     const data = await res.json();
+    logAiUsage("discover-trust-sources", data);
     const txt = data?.choices?.[0]?.message?.content || "{}";
     const parsed = JSON.parse(txt);
     const list: DiscoveredSource[] = (parsed.sources || []).filter(
