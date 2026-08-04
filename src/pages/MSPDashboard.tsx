@@ -10,6 +10,8 @@ import { Plus, MoreVertical, Database, Trash2, LayoutGrid, Rows3, Search, ArrowU
 import { MSPCustomerCard } from "@/components/msp/MSPCustomerCard";
 import { AddMSPCustomerDialog } from "@/components/msp/AddMSPCustomerDialog";
 import { GapAnalysisWizardDialog } from "@/components/msp/GapAnalysisWizardDialog";
+import { MSPCreateOfferDialog } from "@/components/msp/MSPCreateOfferDialog";
+
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuCheckboxItem, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -243,18 +245,68 @@ function ColumnFilter({
   );
 }
 
+// ===== Anbefalte produkter og tjenester (salgbare forslag) =====
+export interface OfferSuggestion {
+  id: string;
+  label: string;
+  kind: "framework" | "service" | "module";
+  hours: number;
+}
+
+function deriveOfferSuggestions(c: any): OfferSuggestion[] {
+  const toLabel = (f: any): string => (typeof f === "string" ? f : (f?.label ?? f?.frameworkId ?? ""));
+  const active: string[] = (c.active_frameworks || []).map(toLabel).filter(Boolean);
+  const recommended: string[] = (c.recommended_frameworks || [])
+    .map(toLabel)
+    .filter((f: string) => f && !active.includes(f));
+  const score = c.compliance_score || 0;
+  const ind = c.industry || "";
+  const plan = (c.subscription_plan || "").toLowerCase();
+
+  const out: OfferSuggestion[] = [];
+
+  if (!score) {
+    out.push({ id: "svc-maturity", label: "Modenhetsvurdering", kind: "service", hours: 8 });
+  }
+
+  for (const f of recommended.slice(0, 2)) {
+    out.push({ id: `fw-${f}`, label: `Aktiver ${f}`, kind: "framework", hours: 6 });
+  }
+
+  if (!plan || plan.includes("gratis") || plan.includes("free")) {
+    out.push({ id: "mod-core", label: "Mynder Core", kind: "module", hours: 4 });
+  }
+
+  if (["Energi", "Helse", "Finans", "Transport", "Bygg og anlegg"].includes(ind)) {
+    out.push({ id: "mod-vendors", label: "Leverandørmodul", kind: "module", hours: 5 });
+  }
+
+  if (active.includes("ISO 27001") || score >= 50) {
+    out.push({ id: "svc-pentest", label: "Penetrasjonstest", kind: "service", hours: 24 });
+  }
+
+  if (score > 0 && score < 60) {
+    out.push({ id: "svc-gap", label: "Gap-analyse", kind: "service", hours: 10 });
+  }
+
+  const seen = new Set<string>();
+  return out.filter((s) => (seen.has(s.id) ? false : (seen.add(s.id), true))).slice(0, 3);
+}
+
 // ===== Responsive column config =====
-type ColumnKey = "customer" | "country" | "industry" | "frameworks" | "score";
+type ColumnKey = "customer" | "country" | "industry" | "frameworks" | "recommendations" | "score";
+
 
 const COLUMN_LABELS: Record<ColumnKey, string> = {
   customer: "Kunde",
   country: "Land",
   industry: "Bransje",
   frameworks: "Regelverk",
+  recommendations: "Anbefalte produkter og tjenester",
   score: "Modenhet",
 };
 
-const COLUMN_ORDER: ColumnKey[] = ["customer", "country", "industry", "frameworks", "score"];
+const COLUMN_ORDER: ColumnKey[] = ["customer", "country", "industry", "frameworks", "recommendations", "score"];
 
 // Min Tailwind breakpoint (in px) where each column becomes visible by default.
 // 0 = always shown; 640=sm, 768=md, 1024=lg, 1280=xl
@@ -262,13 +314,15 @@ const COLUMN_MIN_BP: Record<ColumnKey, number> = {
   customer: 0,
   score: 0,
   frameworks: 640,
+  recommendations: 1024,
   industry: 1024,
   country: 1280,
 };
 
 
 
-const COLUMN_STORAGE_KEY = "msp_dashboard_columns_v2";
+const COLUMN_STORAGE_KEY = "msp_dashboard_columns_v3";
+
 
 function defaultVisibilityForViewport(): Record<ColumnKey, boolean> {
   const w = typeof window !== "undefined" ? window.innerWidth : 1280;
@@ -345,6 +399,18 @@ export default function MSPDashboard() {
   const navigate = useNavigate();
   const [addOpen, setAddOpen] = useState(false);
   const [gapOpen, setGapOpen] = useState(false);
+  const [offerSelection, setOfferSelection] = useState<Record<string, string[]>>({});
+  const [offerFor, setOfferFor] = useState<any | null>(null);
+  const toggleSuggestion = (customerId: string, suggestionId: string) => {
+    setOfferSelection((prev) => {
+      const cur = prev[customerId] || [];
+      return {
+        ...prev,
+        [customerId]: cur.includes(suggestionId) ? cur.filter((x) => x !== suggestionId) : [...cur, suggestionId],
+      };
+    });
+  };
+
   const [view, setView] = useState<ViewMode>("table");
   const [search, setSearch] = useState("");
   const [industryFilter, setIndustryFilter] = useState<string[]>([]);
@@ -751,37 +817,41 @@ export default function MSPDashboard() {
                     <TableHeader>
                       <TableRow>
                         {isVisible("customer") && (
-                          <TableHead className="min-w-[160px] text-foreground/80">
-                            <button type="button" onClick={() => toggleSort("customer_name")} className="inline-flex items-center gap-1.5 text-sm font-medium hover:text-foreground transition-colors">
+                          <TableHead className="w-[200px] text-foreground/80 align-middle">
+                            <button type="button" onClick={() => toggleSort("customer_name")} className="inline-flex h-8 items-center gap-1.5 text-sm font-medium hover:text-foreground transition-colors">
                               Kunde <SortIcon k="customer_name" />
                             </button>
                           </TableHead>
                         )}
                         {isVisible("country") && (
-                          <TableHead className="w-[72px] text-foreground/80">
-                            <ColumnFilter
-                              label="Land"
-                              options={countryCodeOptions.map((v) => ({ value: v, label: v }))}
-                              selected={countryCodeFilter}
-                              onChange={setCountryCodeFilter}
-                            />
+                          <TableHead className="w-[72px] text-foreground/80 align-middle">
+                            <div className="inline-flex h-8 items-center">
+                              <ColumnFilter
+                                label="Land"
+                                options={countryCodeOptions.map((v) => ({ value: v, label: v }))}
+                                selected={countryCodeFilter}
+                                onChange={setCountryCodeFilter}
+                              />
+                            </div>
                           </TableHead>
                         )}
                         {isVisible("industry") && (
-                          <TableHead className="w-[140px] text-foreground/80">
-                            <ColumnFilter
-                              label="Bransje"
-                              options={industryOptions.map((v) => ({ value: v, label: v }))}
-                              selected={industryFilter}
-                              onChange={setIndustryFilter}
-                            />
+                          <TableHead className="w-[140px] text-foreground/80 align-middle">
+                            <div className="inline-flex h-8 items-center">
+                              <ColumnFilter
+                                label="Bransje"
+                                options={industryOptions.map((v) => ({ value: v, label: v }))}
+                                selected={industryFilter}
+                                onChange={setIndustryFilter}
+                              />
+                            </div>
                           </TableHead>
                         )}
                         {isVisible("frameworks") && (
-                          <TableHead className="w-[180px] text-foreground/80">
+                          <TableHead className="w-[180px] text-foreground/80 align-middle">
                             <Tooltip>
                               <TooltipTrigger asChild>
-                                <span className="inline-flex items-center gap-1.5 text-sm font-medium cursor-help">
+                                <span className="inline-flex h-8 items-center gap-1.5 text-sm font-medium cursor-help">
                                   Regelverk <Info className="h-3.5 w-3.5 text-foreground/50" />
                                 </span>
                               </TooltipTrigger>
@@ -791,13 +861,28 @@ export default function MSPDashboard() {
                             </Tooltip>
                           </TableHead>
                         )}
+                        {isVisible("recommendations") && (
+                          <TableHead className="min-w-[240px] text-foreground/80 align-middle">
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <span className="inline-flex h-8 items-center gap-1.5 text-sm font-medium cursor-help">
+                                  Anbefalte produkter og tjenester <Info className="h-3.5 w-3.5 text-foreground/50" />
+                                </span>
+                              </TooltipTrigger>
+                              <TooltipContent side="top" className="max-w-[260px]">
+                                <p>Velg forslag og lag et tilbud direkte. Forslagene er utarbeidet av en AI-agent.</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TableHead>
+                        )}
                         {isVisible("score") && (
-                          <TableHead className="w-[96px] text-right text-foreground/80">
-                            <button type="button" onClick={() => toggleSort("compliance_score")} className="inline-flex items-center gap-1.5 text-sm font-medium hover:text-foreground transition-colors">
+                          <TableHead className="w-[96px] text-right text-foreground/80 align-middle">
+                            <button type="button" onClick={() => toggleSort("compliance_score")} className="inline-flex h-8 items-center gap-1.5 text-sm font-medium hover:text-foreground transition-colors">
                               Modenhet <SortIcon k="compliance_score" />
                             </button>
                           </TableHead>
                         )}
+
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -872,6 +957,49 @@ export default function MSPDashboard() {
                                 })()}
                               </TableCell>
                             )}
+                            {isVisible("recommendations") && (
+                              <TableCell onClick={(e) => e.stopPropagation()}>
+                                {(() => {
+                                  const suggestions = deriveOfferSuggestions(c);
+                                  if (suggestions.length === 0) {
+                                    return <span className="text-muted-foreground text-sm">—</span>;
+                                  }
+                                  const picked = offerSelection[c.id] || [];
+                                  return (
+                                    <div className="flex flex-wrap items-center gap-1">
+                                      {suggestions.map((s) => {
+                                        const on = picked.includes(s.id);
+                                        return (
+                                          <button
+                                            key={s.id}
+                                            type="button"
+                                            onClick={() => toggleSuggestion(c.id, s.id)}
+                                            className={cn(
+                                              "inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] transition-colors",
+                                              on
+                                                ? "border-primary/50 bg-primary/10 text-foreground"
+                                                : "border-border bg-muted/40 text-muted-foreground hover:text-foreground hover:border-foreground/30",
+                                            )}
+                                          >
+                                            {s.label}
+                                          </button>
+                                        );
+                                      })}
+                                      {picked.length > 0 && (
+                                        <button
+                                          type="button"
+                                          onClick={() => setOfferFor(c)}
+                                          className="inline-flex items-center rounded-full bg-primary px-2 py-0.5 text-[11px] font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+                                        >
+                                          Tilbud ({picked.length})
+                                        </button>
+                                      )}
+                                    </div>
+                                  );
+                                })()}
+                              </TableCell>
+                            )}
+
                             {isVisible("score") && (
                               <TableCell className="text-right">
                                 {score > 0 ? <ScoreCircle score={score} /> : <span className="text-muted-foreground text-sm">—</span>}
@@ -890,6 +1018,27 @@ export default function MSPDashboard() {
 
         <AddMSPCustomerDialog open={addOpen} onOpenChange={setAddOpen} onSuccess={() => refetch()} />
         <GapAnalysisWizardDialog open={gapOpen} onOpenChange={setGapOpen} customers={filtered} />
+        {offerFor && (() => {
+          const picked = offerSelection[offerFor.id] || [];
+          const items = deriveOfferSuggestions(offerFor).filter((s) => picked.includes(s.id));
+          return (
+            <MSPCreateOfferDialog
+              open={!!offerFor}
+              onOpenChange={(o) => !o && setOfferFor(null)}
+              customerId={offerFor.id}
+              customerName={offerFor.customer_name}
+              customerContactName={offerFor.customer_name}
+              serviceTitle={`Anbefalte produkter og tjenester for ${offerFor.customer_name}`}
+              offeredServiceNames={items.map((s) => s.label)}
+              defaultTasks={items.map((s) => ({
+                label: s.label,
+                hours: s.hours,
+                owner: "Partner" as const,
+              }))}
+            />
+          );
+        })()}
+
       </main>
     </div>
   );
