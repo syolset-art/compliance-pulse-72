@@ -258,56 +258,6 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
           </CardContent>
         </Card>
 
-        {/* Criticality (user-set) */}
-        <Card className="relative group">
-          <CardContent className="p-4 space-y-2">
-            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <Shield className="h-3.5 w-3.5" />
-              {isNb ? "Kritikalitet" : "Criticality"}
-              <Pencil className="h-3 w-3 ml-auto opacity-0 group-hover:opacity-50 transition-opacity" />
-            </div>
-            <div className="flex gap-1.5">
-              <Select
-                value={asset?.risk_level || "medium"}
-                onValueChange={(v) => handleFieldChange("risk_level", v)}
-              >
-                <SelectTrigger className="h-9 text-sm font-semibold border flex-1 bg-secondary text-secondary-foreground">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {criticalityOptions.map(o => (
-                    <SelectItem key={o.value} value={o.value}>
-                      {isNb ? o.labelNb : o.labelEn}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Button
-                variant="outline"
-                size="icon"
-                className="h-9 w-9 shrink-0"
-                onClick={handleLaraSuggest}
-                disabled={laraLoading}
-                title={isNb ? "La Lara foreslå" : "Let Lara suggest"}
-              >
-                <Sparkles className={`h-3.5 w-3.5 text-primary ${laraLoading ? "animate-spin" : ""}`} />
-              </Button>
-            </div>
-            <p className="text-[13px] text-muted-foreground leading-tight">
-              {isNb
-                ? "Du setter kritikalitet selv. Risiko beregner Mynder ut fra dokumentasjon, sikkerhet og tredjeparts­eksponering."
-                : "You set criticality. Risk is computed by Mynder from documentation, security and third-party exposure."}
-            </p>
-            <button
-              onClick={() => onNavigateToTab?.("overview")}
-              className="flex items-center gap-1 text-[13px] text-primary hover:underline"
-            >
-              <ArrowRight className="h-2.5 w-2.5" />
-              {isNb ? "Påvirker: Drift og sikkerhet" : "Affects: Operations & security"}
-            </button>
-          </CardContent>
-        </Card>
-
         {/* GDPR Role */}
         <Card className="relative group">
           <CardContent className="p-4 space-y-2">
