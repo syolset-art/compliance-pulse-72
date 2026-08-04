@@ -187,6 +187,7 @@ export function MynderGuidanceTab({
 
       {/* Manuell aktivitetsdialog — åpnes fra Lara-banneret */}
       <RegisterActivityDialog
+        assetId={assetId}
         open={!!activePrefill}
         onOpenChange={(o) => { if (!o) setActivePrefill(null); }}
         prefillFromGuidance={activePrefill ?? undefined}

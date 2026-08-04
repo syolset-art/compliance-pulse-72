@@ -499,6 +499,8 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
       </section>
 
       <RegisterActivityDialog
+        assetId={asset.id}
+        vendorName={asset.vendor || asset.name}
         open={activityDialogOpen}
         onOpenChange={setActivityDialogOpen}
         onSubmit={() => setActivityDialogOpen(false)}

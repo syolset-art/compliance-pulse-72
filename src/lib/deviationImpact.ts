@@ -104,3 +104,29 @@ export function suggestedMeasuresForDeviation(title: string, category?: string |
   }
   return measures;
 }
+
+/** Hvor tungt alvorlighetsgraden veier i den avledede risikoen. */
+export function severityWeightText(severity?: string | null): string {
+  switch (severity) {
+    case "critical":
+      return "Kritisk alvorlighetsgrad veier tyngst i den avledede risikoen og varsler ledelsen.";
+    case "high":
+      return "Høy alvorlighetsgrad gir betydelig utslag i den avledede risikoen på leverandøren eller systemet.";
+    case "low":
+      return "Lav alvorlighetsgrad gir et mindre utslag i den avledede risikoen.";
+    default:
+      return "Alvorlighetsgraden styrer hvor tungt avviket veier i den avledede risikoen.";
+  }
+}
+
+/** Foreslår kilde ut fra hvordan avviket ble avdekket i aktiviteten. */
+export function sourceForActivityType(type?: string | null): DeviationSource {
+  switch (type) {
+    case "email":
+    case "phone":
+    case "meeting":
+      return "vendor_self";
+    default:
+      return "manual";
+  }
+}

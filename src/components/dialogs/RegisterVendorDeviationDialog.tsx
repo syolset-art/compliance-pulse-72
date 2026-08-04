@@ -22,6 +22,7 @@ import { getControlAreaLabel } from "@/lib/controlAreas";
 import { suggestRequirementImpacts } from "@/lib/deviationImpact";
 import { useRegisterVendorDeviation } from "@/hooks/useVendorDeviations";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { DeviationScoreImpactNote } from "@/components/deviations/DeviationScoreImpactNote";
 
 interface Props {
   open: boolean;
@@ -204,15 +205,13 @@ export function RegisterVendorDeviationDialog({ open, onOpenChange, assetId, ven
                 </label>
               ))}
             </div>
-            {areas.length > 0 && (
-              <div className="flex flex-wrap gap-1 pt-1">
-                {areas.map((a) => (
-                  <Badge key={a} variant="secondary" className="text-[11px]">
-                    {getControlAreaLabel(a, "nb")}
-                  </Badge>
-                ))}
-              </div>
-            )}
+            <DeviationScoreImpactNote
+              affectedRequirements={impacts.length}
+              controlAreas={areas}
+              severity={criticality}
+              source={source}
+            />
+
           </div>
         </div>
 
