@@ -737,6 +737,8 @@ const AssetTrustProfile = () => {
 
       {isVendor && (
         <RegisterActivityDialog
+          assetId={asset?.id}
+          vendorName={asset?.vendor || asset?.name}
           open={activityDialogOpen}
           onOpenChange={setActivityDialogOpen}
           onSubmit={() => setActivityDialogOpen(false)}

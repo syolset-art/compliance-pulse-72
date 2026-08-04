@@ -188,7 +188,7 @@ export function VendorActivityTab({ assetId, assetName, baselinePercent = 19, en
             <span className="text-muted-foreground font-normal">· {activities.length}</span>
           </h3>
           <div className="flex items-center gap-1.5">
-            <RegisterActivityDialog onSubmit={(act) => { setManualActivities(prev => [act, ...prev]); onActivityAdded?.(act); }} />
+            <RegisterActivityDialog assetId={assetId} vendorName={assetName} onSubmit={(act) => { setManualActivities(prev => [act, ...prev]); onActivityAdded?.(act); }} />
             <CreateUserTaskDialog
               onSubmit={(task) => createTask.mutate({ ...task, asset_id: assetId })}
               isLoading={createTask.isPending}
