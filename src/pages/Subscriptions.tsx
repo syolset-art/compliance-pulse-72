@@ -584,7 +584,11 @@ export default function Subscriptions() {
                   icon={LayoutGrid}
                   title="Mynder Core"
                   description="Grunnmodulen. Oppgaver, avvik, samsvar, behandlingsprotokoll og dokumenter."
-                  status="active"
+                  status={moduleStatusOf("core") === "pending_cancellation" ? "pending_cancellation" : "active"}
+                  cancelAtLabel={cancelAtLabelOf("core")}
+                  onResume={() => undoCancellation("core")}
+                  onDeactivate={() => requestDeactivate("core", "Mynder Core")}
+                  deactivateLabel="Avvikle"
                   price={corePrice}
                   priceLabel={coreTier.label}
                   usage={String(used)}
