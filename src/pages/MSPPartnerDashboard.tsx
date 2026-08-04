@@ -173,11 +173,11 @@ function formatPartnerCurrency(amount: number, compact = true) {
 
 
 const SEGMENTS = [
-  { label: "NIS2-eksponert", count: 71, color: "bg-primary", widthPct: 35 },
-  { label: "Sky-avhengig", count: 186, color: "bg-purple-400", widthPct: 92 },
-  { label: "Særlige kategorier", count: 128, color: "bg-emerald-500", widthPct: 64 },
-  { label: "DORA-finans", count: 42, color: "bg-orange-500", widthPct: 21 },
-  { label: "ISO 27001", count: 23, color: "bg-amber-700", widthPct: 12 },
+  { label: "NIS2-eksponert", count: 71, color: "bg-primary", widthPct: 35, activatedPct: 38 },
+  { label: "Sky-avhengig", count: 186, color: "bg-purple-400", widthPct: 92, activatedPct: 54 },
+  { label: "Særlige kategorier", count: 128, color: "bg-emerald-500", widthPct: 64, activatedPct: 61 },
+  { label: "DORA-finans", count: 42, color: "bg-orange-500", widthPct: 21, activatedPct: 29 },
+  { label: "ISO 27001", count: 23, color: "bg-amber-700", widthPct: 12, activatedPct: 48 },
 ];
 
 const LIVE_SIGNALS = [
@@ -233,10 +233,10 @@ function PartnerHeader() {
 // Regelverksaktivering på tvers av kundeporteføljen (mockdata).
 const PORTFOLIO_CUSTOMERS = 300;
 const FRAMEWORK_ACTIVATIONS = [
-  { label: "GDPR", lastMonth: 18, lastHalfYear: 90 },
-  { label: "NIS2", lastMonth: 11, lastHalfYear: 54 },
-  { label: "ISO 27001", lastMonth: 6, lastHalfYear: 33 },
-  { label: "DORA", lastMonth: 4, lastHalfYear: 21 },
+  { label: "GDPR", lastMonth: 18, lastHalfYear: 90, activeCustomers: 186 },
+  { label: "NIS2", lastMonth: 11, lastHalfYear: 54, activeCustomers: 71 },
+  { label: "ISO 27001", lastMonth: 6, lastHalfYear: 33, activeCustomers: 54 },
+  { label: "DORA", lastMonth: 4, lastHalfYear: 21, activeCustomers: 42 },
 ];
 
 function ClaimRateWidget() {
@@ -252,7 +252,12 @@ function ClaimRateWidget() {
     0,
   );
   const periodLabel = period === "month" ? "siste måned" : "siste halvår";
-  const max = Math.max(...rows.map((f) => (period === "month" ? f.lastMonth : f.lastHalfYear)), 1);
+  const max = Math.max(...FRAMEWORK_ACTIVATIONS.map((f) => f.activeCustomers), 1);
+  const pctOf = (n: number) => Math.round((n / PORTFOLIO_CUSTOMERS) * 100);
+  const leader = [...FRAMEWORK_ACTIVATIONS].sort(
+    (a, b) => b.activeCustomers - a.activeCustomers,
+  )[0];
+  const headline = framework === "Alle" ? leader : rows[0] ?? leader;
 
   return (
     <Card
@@ -308,12 +313,13 @@ function ClaimRateWidget() {
           ))}
         </div>
 
-        <div className="mt-3 flex items-baseline gap-2">
-          <span className="text-3xl font-bold leading-none tabular-nums">{total}</span>
-          <span className="text-sm text-white/85">
-            aktiveringer {periodLabel} · {Math.round((total / PORTFOLIO_CUSTOMERS) * 100)}% av{" "}
-            {PORTFOLIO_CUSTOMERS} kunder
-          </span>
+        <div className="mt-3">
+          <div className="text-5xl font-bold leading-none tabular-nums">
+            {pctOf(headline.activeCustomers)} %
+          </div>
+          <p className="mt-1 text-sm text-white/85">
+            av {PORTFOLIO_CUSTOMERS} kunder har aktivert {headline.label}
+          </p>
         </div>
 
         <div
@@ -341,35 +347,34 @@ function ClaimRateWidget() {
         </div>
 
         <ul className="mt-3 space-y-1.5">
-          {rows.map((f) => {
-            const count = period === "month" ? f.lastMonth : f.lastHalfYear;
-            const pct = Math.round((count / PORTFOLIO_CUSTOMERS) * 100);
-            return (
-              <li key={f.label} className="flex items-center gap-2 text-xs">
-                <span className="w-20 shrink-0 text-white/90">{f.label}</span>
-                <span className="flex-1 h-1.5 rounded-full bg-white/20 overflow-hidden" aria-hidden="true">
-                  <span
-                    className="block h-full rounded-full bg-white"
-                    style={{ width: `${Math.round((count / max) * 100)}%` }}
-                  />
-                </span>
-                <span className="w-32 shrink-0 text-right text-white/90 tabular-nums">
-                  {pct}% · {count} kunder
-                </span>
-              </li>
-            );
-          })}
+          {rows.map((f) => (
+            <li key={f.label} className="flex items-center gap-2 text-xs">
+              <span className="w-20 shrink-0 text-white/90">{f.label}</span>
+              <span className="flex-1 h-1.5 rounded-full bg-white/20 overflow-hidden" aria-hidden="true">
+                <span
+                  className="block h-full rounded-full bg-white"
+                  style={{ width: `${Math.round((f.activeCustomers / max) * 100)}%` }}
+                />
+              </span>
+              <span className="w-32 shrink-0 text-right text-white/90 tabular-nums">
+                {pctOf(f.activeCustomers)}% · {f.activeCustomers} kunder
+              </span>
+            </li>
+          ))}
         </ul>
-        <p className="sr-only">
-          Regelverk aktivert {periodLabel} av {PORTFOLIO_CUSTOMERS} kunder:{" "}
-          {rows
-            .map((f) => {
-              const count = period === "month" ? f.lastMonth : f.lastHalfYear;
-              return `${f.label}: ${Math.round((count / PORTFOLIO_CUSTOMERS) * 100)} prosent, ${count} kunder`;
-            })
-            .join(". ")}
-          .
+
+        <p className="mt-2 text-xs text-white/75 tabular-nums">
+          +{total} nye aktiveringer {periodLabel}
         </p>
+
+        <p className="sr-only">
+          Andel av {PORTFOLIO_CUSTOMERS} kunder som har aktivert regelverk:{" "}
+          {rows
+            .map((f) => `${f.label}: ${pctOf(f.activeCustomers)} prosent, ${f.activeCustomers} kunder`)
+            .join(". ")}
+          . {total} nye aktiveringer {periodLabel}.
+        </p>
+
 
         <ChevronRight className="absolute top-3 right-3 h-4 w-4 text-white/60 group-hover:text-white transition-colors" />
       </div>
@@ -1199,28 +1204,41 @@ function PortfolioSegmentation() {
                 </button>
               </TooltipTrigger>
               <TooltipContent side="top" className="max-w-xs text-xs leading-relaxed">
-                Porteføljen din gruppert etter hovedkategori. Hver søyle viser hvor mange kunder
-                som tilhører segmentet. Klikk widgeten for å se detaljer.
+                Porteføljen din gruppert etter hovedkategori. «Treffer» viser hvor mange kunder
+                som tilhører segmentet, «Aktivert» viser andelen av dem som har aktivert
+                tilhørende regelverk. Klikk widgeten for å se detaljer.
               </TooltipContent>
             </UITooltip>
           </TooltipProvider>
         </div>
         <span className="text-xs text-muted-foreground">Lara · oppdatert i går</span>
       </div>
+      <div className="flex items-center gap-3 mb-2 text-[10px] uppercase tracking-wide text-muted-foreground">
+        <div className="w-36">Segment</div>
+        <div className="flex-1" />
+        <div className="w-10 text-right">Treffer</div>
+        <div className="w-16 text-right">Aktivert</div>
+      </div>
       <div className="space-y-3">
         {SEGMENTS.map((s) => (
           <div key={s.label} className="flex items-center gap-3">
             <div className="w-36 text-sm text-foreground">{s.label}</div>
-            <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
+            <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden" aria-hidden="true">
               <div
                 className={"h-full rounded-full " + s.color}
                 style={{ width: `${s.widthPct}%` }}
               />
             </div>
-            <div className="w-10 text-right text-sm font-semibold text-foreground">{s.count}</div>
+            <div className="w-10 text-right text-sm font-semibold text-foreground tabular-nums">
+              {s.count}
+            </div>
+            <div className="w-16 text-right text-sm text-muted-foreground tabular-nums">
+              {s.activatedPct} %
+            </div>
           </div>
         ))}
       </div>
+
     </Card>
   );
 }
