@@ -298,17 +298,138 @@ export function RegisterActivityDialog({ onSubmit, open: controlledOpen, onOpenC
                 </PopoverContent>
               </Popover>
             </div>
+
+            {/* Avvik */}
+            {canRegisterDeviation && (
+              <div className="space-y-3 pt-1 border-t">
+                <div className="flex items-center justify-between pt-3">
+                  <Label htmlFor="reg-activity-deviation" className="flex items-center gap-1.5 text-xs cursor-pointer">
+                    <AlertTriangle className="h-3.5 w-3.5 text-warning" />
+                    {isNb ? "Denne aktiviteten avdekket et avvik" : "This activity revealed a deviation"}
+                  </Label>
+                  <Switch id="reg-activity-deviation" checked={isDeviation} onCheckedChange={setIsDeviation} />
+                </div>
+
+                {isDeviation && (
+                  <div className="space-y-3">
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="space-y-1.5">
+                        <Label className="text-xs">{isNb ? "Kategori" : "Category"}</Label>
+                        <Select value={devCategory} onValueChange={setDevCategory}>
+                          <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            {deviationCategories.map((c) => (
+                              <SelectItem key={c.id} value={c.id}>{c.label}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label className="text-xs">{isNb ? "Alvorlighetsgrad" : "Severity"}</Label>
+                        <Select value={devSeverity} onValueChange={setDevSeverity}>
+                          <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            {DEV_SEVERITY.map((s) => (
+                              <SelectItem key={s.value} value={s.value}>{isNb ? s.nb : s.en}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="space-y-1.5">
+                        <Label className="text-xs">{isNb ? "Kilde" : "Source"}</Label>
+                        <Select value={devSource} onValueChange={setDevSource}>
+                          <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            {DEV_SOURCES.map((s) => (
+                              <SelectItem key={s.value} value={s.value}>{isNb ? s.nb : s.en}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label className="text-xs">
+                          {isNb ? "Ansvarlig" : "Responsible"}<span className="text-destructive ml-0.5">*</span>
+                        </Label>
+                        <Input
+                          className="h-8 text-xs"
+                          value={devResponsible}
+                          onChange={(e) => setDevResponsible(e.target.value)}
+                          placeholder={isNb ? "Navn" : "Name"}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label className="text-xs">{isNb ? "Frist" : "Due date"}</Label>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button
+                            type="button"
+                            className={cn(
+                              "inline-flex items-center gap-1.5 rounded-md border border-border bg-background px-2.5 py-1.5 text-xs hover:border-primary/40 transition-all",
+                              !devDueDate && "text-muted-foreground",
+                            )}
+                          >
+                            <CalendarIcon className="h-3.5 w-3.5 text-muted-foreground" />
+                            {devDueDate ? format(devDueDate, "dd.MM.yyyy") : (isNb ? "Velg dato" : "Pick a date")}
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar mode="single" selected={devDueDate || undefined} onSelect={(d) => setDevDueDate(d || null)} className="p-3 pointer-events-auto" />
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label className="text-xs">{isNb ? "Berørte krav" : "Affected requirements"}</Label>
+                      <div className="space-y-1.5">
+                        {suggestions.map((s) => (
+                          <label key={s.requirement_id} className="flex items-start gap-2 text-xs cursor-pointer">
+                            <Checkbox
+                              checked={devSelected.includes(s.requirement_id)}
+                              onCheckedChange={(v) =>
+                                setDevSelected((prev) =>
+                                  v ? [...prev, s.requirement_id] : prev.filter((p) => p !== s.requirement_id),
+                                )
+                              }
+                              className="mt-0.5"
+                            />
+                            <span className="flex-1">
+                              <span className="text-foreground">{s.requirement_label}</span>
+                              <span className="block text-[11px] text-muted-foreground">
+                                {s.framework_id} › {getControlAreaLabel(s.control_area, "nb")}
+                              </span>
+                            </span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+
+                    <DeviationScoreImpactNote
+                      affectedRequirements={impacts.length}
+                      controlAreas={impactAreas}
+                      severity={devSeverity}
+                      source={devSource}
+                    />
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           <div className="border-t bg-muted/30 px-6 py-3 flex justify-end gap-2">
             <Button type="button" variant="ghost" size="sm" onClick={() => setOpen(false)}>
               {isNb ? "Avbryt" : "Cancel"}
             </Button>
-            <Button type="submit" size="sm" disabled={!isValid} className="gap-1.5">
+            <Button type="submit" size="sm" disabled={!isValid || registerDeviation.isPending} className="gap-1.5">
               <Check className="h-3.5 w-3.5" />
-              {isNb ? "Lagre" : "Save"}
+              {isDeviation ? (isNb ? "Lagre aktivitet og avvik" : "Save activity and deviation") : (isNb ? "Lagre" : "Save")}
             </Button>
           </div>
+
         </form>
       </DialogContent>
     </Dialog>
