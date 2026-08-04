@@ -869,22 +869,15 @@ export default function Subscriptions() {
 
 
 
-      <AlertDialog open={!!confirmDeactivate} onOpenChange={(open) => { if (!open) setConfirmDeactivate(null); }}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Deaktivere {confirmDeactivate?.title}?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Modulen forblir tilgjengelig til {formatPeriodEnd()}. Etter det stanses fakturering, og data forblir lagret i 90 dager før automatisk sletting. Du kan angre oppsigelsen når som helst før den trer i kraft.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Avbryt</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDeactivation} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              Deaktiver modul
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <RetireModuleDialog
+        open={!!confirmDeactivate}
+        onOpenChange={(open) => { if (!open) setConfirmDeactivate(null); }}
+        moduleId={confirmDeactivate?.id ?? null}
+        moduleTitle={confirmDeactivate?.title ?? ""}
+        effectiveAt={getPeriodEnd().toISOString()}
+        onConfirm={confirmDeactivation}
+      />
+
     </div>
   );
 }
