@@ -6,8 +6,6 @@ import {
   OPPORTUNITY_CUSTOMERS,
   distributionByFramework,
   distributionByIndustry,
-  customerSummaryLine,
-  topCustomers,
   totalTaskCount,
   type OpportunityCustomer,
 } from "@/lib/partnerOpportunities";
