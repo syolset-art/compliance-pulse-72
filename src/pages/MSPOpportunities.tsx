@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { Sidebar } from "@/components/Sidebar";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -150,8 +150,8 @@ export default function MSPOpportunities() {
                   const allIds = tasks.map((t) => t.id);
                   const chosen = selected[c.id] ?? allIds;
                   return (
-                    <>
-                      <tr key={c.id} className="border-t border-border align-top">
+                    <Fragment key={c.id}>
+                      <tr className="border-t border-border align-top">
                         <th scope="row" className="p-3 text-left font-medium text-foreground">
                           <button
                             type="button"
@@ -191,7 +191,7 @@ export default function MSPOpportunities() {
                         </td>
                       </tr>
                       {isOpen && (
-                        <tr key={`${c.id}-details`} className="border-t border-border bg-muted/30">
+                        <tr className="border-t border-border bg-muted/30">
                           <td colSpan={7} className="p-4">
                             <h2 className="text-sm font-semibold text-foreground">
                               Dette kan gjøres hos {c.name}, i anbefalt rekkefølge
@@ -226,7 +226,7 @@ export default function MSPOpportunities() {
                           </td>
                         </tr>
                       )}
-                    </>
+                    </Fragment>
                   );
                 })}
                 {rows.length === 0 && (
