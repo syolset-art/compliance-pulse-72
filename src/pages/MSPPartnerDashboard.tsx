@@ -252,7 +252,12 @@ function ClaimRateWidget() {
     0,
   );
   const periodLabel = period === "month" ? "siste måned" : "siste halvår";
-  const max = Math.max(...rows.map((f) => (period === "month" ? f.lastMonth : f.lastHalfYear)), 1);
+  const max = Math.max(...FRAMEWORK_ACTIVATIONS.map((f) => f.activeCustomers), 1);
+  const pctOf = (n: number) => Math.round((n / PORTFOLIO_CUSTOMERS) * 100);
+  const leader = [...FRAMEWORK_ACTIVATIONS].sort(
+    (a, b) => b.activeCustomers - a.activeCustomers,
+  )[0];
+  const headline = framework === "Alle" ? leader : rows[0] ?? leader;
 
   return (
     <Card
