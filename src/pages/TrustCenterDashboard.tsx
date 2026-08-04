@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Sidebar } from "@/components/Sidebar";
 import { TrustProfileHero } from "@/components/dashboard-trust/TrustProfileHero";
 import { UpcomingTrustFeaturesCard } from "@/components/dashboard-trust/UpcomingTrustFeaturesCard";
+import { UsageFootprintCard } from "@/components/dashboard-trust/UsageFootprintCard";
 import { AggregatedMaturityWidget } from "@/components/dashboard-v2/AggregatedMaturityWidget";
 import { NextActionCards } from "@/components/dashboard-v2/NextActionCards";
 import { useComplianceRequirements } from "@/hooks/useComplianceRequirements";
@@ -145,6 +146,8 @@ export default function TrustCenterDashboard() {
           <NextActionCards actions={actions as any} />
 
           <UpcomingTrustFeaturesCard />
+
+          <UsageFootprintCard />
         </div>
       </main>
     </div>

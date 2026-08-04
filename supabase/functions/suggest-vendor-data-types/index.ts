@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { logAiUsage } from "../_shared/ai-usage.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -73,6 +74,7 @@ Example format:
     }
 
     const data = await response.json();
+    logAiUsage("suggest-vendor-data-types", data);
     const suggestion = data.choices?.[0]?.message?.content?.trim() || "";
 
     return new Response(JSON.stringify({ suggestion }), {

@@ -1,3 +1,4 @@
+import { logAiUsage } from "../_shared/ai-usage.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const corsHeaders = {
@@ -681,6 +682,7 @@ Vær alltid hjelpsom, pedagogisk og vennlig på norsk. Ikke bruk emojier i norma
           }
         ],
         stream: true,
+        stream_options: { include_usage: true },
       }),
     });
 
@@ -705,9 +707,40 @@ Vær alltid hjelpsom, pedagogisk og vennlig på norsk. Ikke bruk emojier i norma
       });
     }
 
-    return new Response(response.body, {
+    // Speil strømmen for å plukke opp tokenbruk fra siste chunk
+    const [clientStream, usageStream] = response.body!.tee();
+    (async () => {
+      try {
+        const reader = usageStream.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
+        let last: unknown = null;
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          const parts = buffer.split("\n");
+          buffer = parts.pop() ?? "";
+          for (const line of parts) {
+            if (!line.startsWith("data: ")) continue;
+            const payload = line.slice(6).trim();
+            if (!payload || payload === "[DONE]") continue;
+            try {
+              const parsed = JSON.parse(payload);
+              if (parsed?.usage) last = parsed;
+            } catch { /* ignore */ }
+          }
+        }
+        if (last) logAiUsage("chat", last as never);
+      } catch (err) {
+        console.error("chat usage logging failed", err);
+      }
+    })();
+
+    return new Response(clientStream, {
       headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
     });
+
   } catch (e) {
     console.error("chat error:", e);
     return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }), {

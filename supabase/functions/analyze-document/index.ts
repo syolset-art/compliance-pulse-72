@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { logAiUsage } from "../_shared/ai-usage.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -154,6 +155,7 @@ ${documentText.substring(0, 10000)}`; // Limit to first 10k chars
     }
 
     const data = await response.json();
+    logAiUsage("analyze-document", data);
     console.log("AI Response received");
 
     // Extract the function call result

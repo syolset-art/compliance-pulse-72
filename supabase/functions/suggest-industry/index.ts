@@ -2,6 +2,7 @@
 // when BrReg cannot provide one. Only called as fallback.
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { logAiUsage } from "../_shared/ai-usage.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -69,6 +70,7 @@ Returner strengt JSON: { "industry": "...", "confidence": "low"|"medium" }`;
     }
 
     const data = await response.json();
+    logAiUsage("suggest-industry", data);
     const content = data.choices?.[0]?.message?.content || "{}";
     let parsed: { industry?: string; confidence?: string } = {};
     try {

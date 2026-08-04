@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { logAiUsage } from "../_shared/ai-usage.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -138,6 +139,7 @@ For hvert forslag, inkluder:
     }
 
     const data = await response.json();
+    logAiUsage("suggest-deviations", data);
     console.log("AI response:", JSON.stringify(data, null, 2));
 
     // Extract tool call result

@@ -7,6 +7,7 @@
 // 'verified'. A human must take that action explicitly in the UI.
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { logAiUsage } from "../_shared/ai-usage.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -218,6 +219,7 @@ serve(async (req) => {
     }
 
     const aiJson = await aiResponse.json();
+    logAiUsage("classify-evidence-document", aiJson);
     const toolCall = aiJson.choices?.[0]?.message?.tool_calls?.[0];
     if (!toolCall) {
       return new Response(JSON.stringify({ error: "No classification returned" }), {

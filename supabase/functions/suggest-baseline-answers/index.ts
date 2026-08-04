@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { logAiUsage } from "../_shared/ai-usage.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -127,6 +128,7 @@ Svar ved å kalle suggest_baseline_answers-funksjonen med ett svar per spørsmå
     }
 
     const data = await response.json();
+    logAiUsage("suggest-baseline-answers", data);
     const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
 
     if (toolCall?.function?.arguments) {

@@ -1,4 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { logAiUsage } from "../_shared/ai-usage.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -148,6 +149,7 @@ Vurder spesielt:
     }
 
     const aiData = await aiResponse.json();
+    logAiUsage("generate-work-area-document", aiData);
     const content = aiData.choices?.[0]?.message?.content || "Kunne ikke generere dokument.";
 
     return new Response(

@@ -1,3 +1,5 @@
+import { logAiUsage } from "../_shared/ai-usage.ts";
+
 // Lara: agentic deviation classifier
 // Inputs a free-text description of an incident and returns a structured
 // proposal incl. category, criticality, normative deadlines (GDPR, NIS2, ISO),
@@ -242,6 +244,7 @@ Deno.serve(async (req) => {
     }
 
     const data = await aiResp.json();
+    logAiUsage("classify-deviation", data);
     const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
     if (!toolCall) throw new Error("Ingen forslag fra AI");
     const proposal = JSON.parse(toolCall.function.arguments);

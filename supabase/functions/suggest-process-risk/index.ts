@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { logAiUsage } from "../_shared/ai-usage.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -119,6 +120,7 @@ Automatiserte beslutninger: ${automatedDecisions ? "Ja" : "Nei"}${checklistInfo}
     }
 
     const data = await response.json();
+    logAiUsage("suggest-process-risk", data);
     const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
 
     if (toolCall?.function?.arguments) {

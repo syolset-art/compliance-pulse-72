@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { logAiUsage } from "../_shared/ai-usage.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -81,6 +82,7 @@ serve(async (req) => {
     }
 
     const data = await response.json();
+    logAiUsage("suggest-ai-purpose", data);
     const purpose = data.choices?.[0]?.message?.content?.trim() || "";
 
     return new Response(JSON.stringify({ purpose }), {
