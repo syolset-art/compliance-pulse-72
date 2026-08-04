@@ -114,88 +114,81 @@ export function ModuleCard({
   const showFreePrice = isIncluded || (status === "active" && price === 0);
 
   return (
-    <Card className="border-border bg-card transition-shadow hover:shadow-sm">
-      <div className="p-5">
-        <div className="flex items-start gap-6">
-          {/* Left: info */}
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 flex-wrap">
-              <h3 className="font-semibold text-foreground text-base">{title}</h3>
-              {priceLabel && !isIncluded && (status === "active" || isPendingCancel) && (
-                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium border border-primary/20 bg-primary/5 text-primary">
-                  {priceLabel}
-                </span>
-              )}
-              {isPendingCancel && (
-                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium border border-border bg-muted text-muted-foreground">
-                  Sagt opp{cancelAtLabel ? ` — aktiv til ${cancelAtLabel}` : ""}
-                </span>
-              )}
-
-            </div>
-            {description && (
-              <p className="text-sm text-muted-foreground leading-snug mt-1">{description}</p>
+    <Card className="border-border bg-card transition-shadow hover:shadow-sm h-full">
+      <div className="p-4 flex flex-col h-full">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <h3 className="font-semibold text-foreground text-sm">{title}</h3>
+            {priceLabel && !isIncluded && (status === "active" || isPendingCancel) && (
+              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium border border-primary/20 bg-primary/5 text-primary">
+                {priceLabel}
+              </span>
             )}
-            {usageLine}
-            {onReadMore && (
-              <button
-                type="button"
-                onClick={onReadMore}
-                className="text-xs text-muted-foreground hover:text-foreground underline underline-offset-2 mt-2 transition-colors"
-              >
-                Les mer
-              </button>
+            {isPendingCancel && (
+              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium border border-border bg-muted text-muted-foreground">
+                Sagt opp{cancelAtLabel ? ` — aktiv til ${cancelAtLabel}` : ""}
+              </span>
             )}
           </div>
-
-          {/* Right: price + actions */}
-          <div className="shrink-0 text-right flex flex-col items-end gap-2 min-w-[180px]">
-            {showFreePrice ? (
-              <div>
-                <div className="text-xl font-bold text-primary">Gratis</div>
-                <div className="text-xs text-muted-foreground">
-                  {isIncluded ? "inkludert i Core" : priceLabel ?? ""}
-                </div>
-              </div>
-            ) : (
-              <div>
-                <div className="text-xl font-bold text-foreground">{formattedPrice} kr</div>
-                <div className="text-xs text-muted-foreground">per måned</div>
-              </div>
-            )}
-
-            {isPendingCancel ? (
-              <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm" className="h-8 text-xs" onClick={onResume}>
-                  Angre oppsigelse
-                </Button>
-              </div>
-            ) : action !== "none" && (
-              <div className="flex items-center gap-2">
-                {canDeactivate && (
-                  <button
-                    type="button"
-                    onClick={onDeactivate}
-                    className="text-xs text-muted-foreground hover:text-destructive transition-colors"
-                  >
-                    {deactivateLabel || "Avslutt"}
-                  </button>
-                )}
-                <Button
-                  variant={ctaOverride?.variant ?? (status === "inactive" ? "default" : "outline")}
-                  size="sm"
-                  className="h-8 text-xs"
-                  onClick={onClick}
-                >
-                  {ctaOverride?.label ?? actionLabel[action]}
-                </Button>
-              </div>
-            )}
-
-          </div>
+          {description && (
+            <p className="text-xs text-muted-foreground leading-snug mt-1">{description}</p>
+          )}
+          {usageLine}
+          {onReadMore && (
+            <button
+              type="button"
+              onClick={onReadMore}
+              className="text-xs text-muted-foreground hover:text-foreground underline underline-offset-2 mt-2 transition-colors"
+            >
+              Les mer
+            </button>
+          )}
         </div>
 
-        {footer && <div className="mt-4">{footer}</div>}
+        {/* Bottom: price + actions */}
+        <div className="mt-4 pt-3 border-t border-border/60 flex items-end justify-between gap-3">
+          {showFreePrice ? (
+            <div className="min-w-0">
+              <div className="text-base font-bold text-primary leading-tight">Gratis</div>
+              <div className="text-[11px] text-muted-foreground truncate">
+                {isIncluded ? "inkludert i Core" : priceLabel ?? ""}
+              </div>
+            </div>
+          ) : (
+            <div className="min-w-0">
+              <div className="text-base font-bold text-foreground leading-tight">{formattedPrice} kr</div>
+              <div className="text-[11px] text-muted-foreground">per måned</div>
+            </div>
+          )}
+
+          {isPendingCancel ? (
+            <Button variant="outline" size="sm" className="h-8 text-xs" onClick={onResume}>
+              Angre oppsigelse
+            </Button>
+          ) : action !== "none" && (
+            <div className="flex items-center gap-2 shrink-0">
+              {canDeactivate && (
+                <button
+                  type="button"
+                  onClick={onDeactivate}
+                  className="text-xs text-muted-foreground hover:text-destructive transition-colors"
+                >
+                  {deactivateLabel || "Avslutt"}
+                </button>
+              )}
+              <Button
+                variant={ctaOverride?.variant ?? (status === "inactive" ? "default" : "outline")}
+                size="sm"
+                className="h-8 text-xs"
+                onClick={onClick}
+              >
+                {ctaOverride?.label ?? actionLabel[action]}
+              </Button>
+            </div>
+          )}
+        </div>
+
+        {footer && <div className="mt-3">{footer}</div>}
       </div>
     </Card>
   );
