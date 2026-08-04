@@ -26,7 +26,6 @@ export function OpportunityWidget({ customers = OPPORTUNITY_CUSTOMERS }: Props) 
     [grouping, customers],
   );
   const taskTotal = totalTaskCount(customers);
-  const top = useMemo(() => topCustomers(5, customers), [customers]);
   const max = slices.reduce((m, s) => Math.max(m, s.taskCount), 0) || 1;
 
   if (customers.length === 0) {
