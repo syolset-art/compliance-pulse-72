@@ -39,6 +39,13 @@ export function FrameworkPurchaseDialog({
   onConfirm,
   isLoading,
 }: FrameworkPurchaseDialogProps) {
+  const { current: currentTerms, hasAcceptedCurrent, acceptTerms } = useTerms();
+  const [accepted, setAccepted] = useState(false);
+
+  useEffect(() => {
+    if (!open) setAccepted(false);
+  }, [open]);
+
   if (!framework) return null;
 
   const category = getCategoryById(framework.category);
@@ -48,6 +55,13 @@ export function FrameworkPurchaseDialog({
   const yearlyPrice = getFrameworkYearlyPrice(framework.id);
   const monthlyPrice = yearlyPrice > 0 ? Math.round(yearlyPrice / 12) : 0;
   const includes = addon?.includes ?? [];
+  const checked = accepted || hasAcceptedCurrent;
+
+  const handleConfirm = async () => {
+    await acceptTerms(isFree ? "module_activation" : "license_purchase", framework.id);
+    onConfirm();
+  };
+
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
