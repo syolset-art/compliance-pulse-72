@@ -313,12 +313,13 @@ function ClaimRateWidget() {
           ))}
         </div>
 
-        <div className="mt-3 flex items-baseline gap-2">
-          <span className="text-3xl font-bold leading-none tabular-nums">{total}</span>
-          <span className="text-sm text-white/85">
-            aktiveringer {periodLabel} · {Math.round((total / PORTFOLIO_CUSTOMERS) * 100)}% av{" "}
-            {PORTFOLIO_CUSTOMERS} kunder
-          </span>
+        <div className="mt-3">
+          <div className="text-5xl font-bold leading-none tabular-nums">
+            {pctOf(headline.activeCustomers)} %
+          </div>
+          <p className="mt-1 text-sm text-white/85">
+            av {PORTFOLIO_CUSTOMERS} kunder har aktivert {headline.label}
+          </p>
         </div>
 
         <div
@@ -346,35 +347,34 @@ function ClaimRateWidget() {
         </div>
 
         <ul className="mt-3 space-y-1.5">
-          {rows.map((f) => {
-            const count = period === "month" ? f.lastMonth : f.lastHalfYear;
-            const pct = Math.round((count / PORTFOLIO_CUSTOMERS) * 100);
-            return (
-              <li key={f.label} className="flex items-center gap-2 text-xs">
-                <span className="w-20 shrink-0 text-white/90">{f.label}</span>
-                <span className="flex-1 h-1.5 rounded-full bg-white/20 overflow-hidden" aria-hidden="true">
-                  <span
-                    className="block h-full rounded-full bg-white"
-                    style={{ width: `${Math.round((count / max) * 100)}%` }}
-                  />
-                </span>
-                <span className="w-32 shrink-0 text-right text-white/90 tabular-nums">
-                  {pct}% · {count} kunder
-                </span>
-              </li>
-            );
-          })}
+          {rows.map((f) => (
+            <li key={f.label} className="flex items-center gap-2 text-xs">
+              <span className="w-20 shrink-0 text-white/90">{f.label}</span>
+              <span className="flex-1 h-1.5 rounded-full bg-white/20 overflow-hidden" aria-hidden="true">
+                <span
+                  className="block h-full rounded-full bg-white"
+                  style={{ width: `${Math.round((f.activeCustomers / max) * 100)}%` }}
+                />
+              </span>
+              <span className="w-32 shrink-0 text-right text-white/90 tabular-nums">
+                {pctOf(f.activeCustomers)}% · {f.activeCustomers} kunder
+              </span>
+            </li>
+          ))}
         </ul>
-        <p className="sr-only">
-          Regelverk aktivert {periodLabel} av {PORTFOLIO_CUSTOMERS} kunder:{" "}
-          {rows
-            .map((f) => {
-              const count = period === "month" ? f.lastMonth : f.lastHalfYear;
-              return `${f.label}: ${Math.round((count / PORTFOLIO_CUSTOMERS) * 100)} prosent, ${count} kunder`;
-            })
-            .join(". ")}
-          .
+
+        <p className="mt-2 text-xs text-white/75 tabular-nums">
+          +{total} nye aktiveringer {periodLabel}
         </p>
+
+        <p className="sr-only">
+          Andel av {PORTFOLIO_CUSTOMERS} kunder som har aktivert regelverk:{" "}
+          {rows
+            .map((f) => `${f.label}: ${pctOf(f.activeCustomers)} prosent, ${f.activeCustomers} kunder`)
+            .join(". ")}
+          . {total} nye aktiveringer {periodLabel}.
+        </p>
+
 
         <ChevronRight className="absolute top-3 right-3 h-4 w-4 text-white/60 group-hover:text-white transition-colors" />
       </div>
