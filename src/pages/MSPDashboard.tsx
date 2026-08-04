@@ -943,6 +943,49 @@ export default function MSPDashboard() {
                                 })()}
                               </TableCell>
                             )}
+                            {isVisible("recommendations") && (
+                              <TableCell onClick={(e) => e.stopPropagation()}>
+                                {(() => {
+                                  const suggestions = deriveOfferSuggestions(c);
+                                  if (suggestions.length === 0) {
+                                    return <span className="text-muted-foreground text-sm">—</span>;
+                                  }
+                                  const picked = offerSelection[c.id] || [];
+                                  return (
+                                    <div className="flex flex-wrap items-center gap-1">
+                                      {suggestions.map((s) => {
+                                        const on = picked.includes(s.id);
+                                        return (
+                                          <button
+                                            key={s.id}
+                                            type="button"
+                                            onClick={() => toggleSuggestion(c.id, s.id)}
+                                            className={cn(
+                                              "inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] transition-colors",
+                                              on
+                                                ? "border-primary/50 bg-primary/10 text-foreground"
+                                                : "border-border bg-muted/40 text-muted-foreground hover:text-foreground hover:border-foreground/30",
+                                            )}
+                                          >
+                                            {s.label}
+                                          </button>
+                                        );
+                                      })}
+                                      {picked.length > 0 && (
+                                        <button
+                                          type="button"
+                                          onClick={() => setOfferFor(c)}
+                                          className="inline-flex items-center rounded-full bg-primary px-2 py-0.5 text-[11px] font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+                                        >
+                                          Tilbud ({picked.length})
+                                        </button>
+                                      )}
+                                    </div>
+                                  );
+                                })()}
+                              </TableCell>
+                            )}
+
                             {isVisible("score") && (
                               <TableCell className="text-right">
                                 {score > 0 ? <ScoreCircle score={score} /> : <span className="text-muted-foreground text-sm">—</span>}
