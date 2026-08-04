@@ -49,6 +49,7 @@ import QualityDashboard from "./pages/QualityDashboard";
 import LaraInbox from "./pages/LaraInbox";
 import CustomerRequests from "./pages/CustomerRequests";
 import VendorResponseDemo from "./pages/VendorResponseDemo";
+import MSPOpportunities from "./pages/MSPOpportunities";
 import MSPDashboard from "./pages/MSPDashboard";
 import MSPPartnerDashboard from "./pages/MSPPartnerDashboard";
 import MSPWidgetDetail from "./pages/MSPWidgetDetail";
@@ -169,6 +170,7 @@ const App = () => (
                   <Route path="/systems/:id" element={<SystemTrustProfile />} />
                   <Route path="/vendor-response-demo" element={<VendorResponseDemo />} />
                   <Route path="/msp-partner" element={<MSPPartnerDashboard />} />
+                  <Route path="/msp-partner/muligheter" element={<MSPOpportunities />} />
                   <Route path="/msp-partner/widget/:widgetId" element={<MSPWidgetDetail />} />
                   <Route path="/msp-dashboard" element={<MSPDashboard />} />
                   <Route path="/msp-dashboard/:customerId" element={<MSPCustomerDetail />} />

@@ -16,6 +16,7 @@ import {
 import { Sparkles, ArrowUpRight, TrendingUp, ChevronRight, ChevronDown, Mail, Phone, Calendar, CheckCircle2, Users, Target, Clock, FileText, Send, ThumbsUp, Settings, X, HelpCircle } from "lucide-react";
 import { Tooltip as UITooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
+import { OpportunityWidget } from "@/components/msp/OpportunityWidget";
 import {
   ResponsiveContainer,
   AreaChart,
@@ -1266,7 +1267,7 @@ export default function MSPPartnerDashboard() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <ClaimDevelopmentChart />
+            <OpportunityWidget />
             <PortfolioSegmentation />
           </div>
 
