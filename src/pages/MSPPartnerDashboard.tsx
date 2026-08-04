@@ -233,10 +233,10 @@ function PartnerHeader() {
 // Regelverksaktivering på tvers av kundeporteføljen (mockdata).
 const PORTFOLIO_CUSTOMERS = 300;
 const FRAMEWORK_ACTIVATIONS = [
-  { label: "GDPR", lastMonth: 18, lastHalfYear: 90 },
-  { label: "NIS2", lastMonth: 11, lastHalfYear: 54 },
-  { label: "ISO 27001", lastMonth: 6, lastHalfYear: 33 },
-  { label: "DORA", lastMonth: 4, lastHalfYear: 21 },
+  { label: "GDPR", lastMonth: 18, lastHalfYear: 90, activeCustomers: 186 },
+  { label: "NIS2", lastMonth: 11, lastHalfYear: 54, activeCustomers: 71 },
+  { label: "ISO 27001", lastMonth: 6, lastHalfYear: 33, activeCustomers: 54 },
+  { label: "DORA", lastMonth: 4, lastHalfYear: 21, activeCustomers: 42 },
 ];
 
 function ClaimRateWidget() {
