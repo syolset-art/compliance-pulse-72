@@ -83,8 +83,8 @@ export function OpportunityWidget({ customers = OPPORTUNITY_CUSTOMERS }: Props) 
         Inntektspotensial om du leverer alle mulige oppgaver hos kundene.
       </p>
 
-
       <div className="mt-4 flex flex-wrap items-center gap-2">
+
         <p className="text-2xl font-bold text-foreground tabular-nums">
           {formatPotential(potential, currency)}
         </p>
