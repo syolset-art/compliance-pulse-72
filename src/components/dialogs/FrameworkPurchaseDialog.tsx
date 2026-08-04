@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -7,11 +8,14 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { TermsAcceptRow } from "@/components/legal/TermsAcceptRow";
+import { useTerms } from "@/hooks/useTerms";
 import {
   CheckCircle2,
   TrendingDown,
   Shield,
 } from "lucide-react";
+
 import { getCategoryById, type Framework } from "@/lib/frameworkDefinitions";
 import {
   isFrameworkFree,
