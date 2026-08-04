@@ -1,5 +1,8 @@
+import { useEffect, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { TermsAcceptRow } from "@/components/legal/TermsAcceptRow";
+import { useTerms } from "@/hooks/useTerms";
 import { formatKr, getCoreTier, type CoreTierId } from "@/lib/planConstants";
 
 interface Props {
@@ -17,10 +20,29 @@ function nextBillingDate(): string {
 }
 
 export function ConfirmCoreTierChangeDialog({ open, onOpenChange, currentTierId, nextTierId, onConfirm }: Props) {
+  const { current: currentTerms, hasAcceptedCurrent, acceptTerms } = useTerms();
+  const [accepted, setAccepted] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (!open) setAccepted(false);
+  }, [open]);
+
   if (!nextTierId) return null;
   const current = getCoreTier(currentTierId);
   const next = getCoreTier(nextTierId);
   const isUpgrade = next.monthlyPriceKr > current.monthlyPriceKr;
+  const checked = accepted || hasAcceptedCurrent;
+
+  const handleConfirm = async () => {
+    setSaving(true);
+    try {
+      await acceptTerms("license_purchase", nextTierId);
+      onConfirm();
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -43,9 +65,16 @@ export function ConfirmCoreTierChangeDialog({ open, onOpenChange, currentTierId,
           )}
         </p>
 
+        <TermsAcceptRow
+          id="terms-core-tier"
+          checked={checked}
+          onCheckedChange={setAccepted}
+          version={currentTerms?.version}
+        />
+
         <DialogFooter className="pt-2">
           <Button variant="ghost" onClick={() => onOpenChange(false)}>Avbryt</Button>
-          <Button onClick={onConfirm}>
+          <Button onClick={handleConfirm} disabled={!checked || saving}>
             {isUpgrade ? `Endre for ${formatKr(next.monthlyPriceKr)}/mnd` : "Endre nivå"}
           </Button>
         </DialogFooter>
