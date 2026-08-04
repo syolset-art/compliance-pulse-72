@@ -17,10 +17,14 @@ import {
   SCOPE_LABEL,
   allFrameworks,
   allIndustries,
+  customerPotential,
+  formatPotential,
   servicesForCustomer,
   sortedTasks,
+  taskPotential,
   type OpportunityCustomer,
 } from "@/lib/partnerOpportunities";
+import { useServiceDefaults } from "@/hooks/useServiceDefaults";
 import { MSPCreateOfferDialog } from "@/components/msp/MSPCreateOfferDialog";
 import { cn } from "@/lib/utils";
 
@@ -33,6 +37,7 @@ export default function MSPOpportunities() {
   const [expanded, setExpanded] = useState<string | null>(null);
   const [selected, setSelected] = useState<Record<string, string[]>>({});
   const [offerFor, setOfferFor] = useState<OpportunityCustomer | null>(null);
+  const { defaultHourlyRate, currency } = useServiceDefaults();
 
   const rows = useMemo(
     () =>
@@ -139,6 +144,9 @@ export default function MSPOpportunities() {
                   <th scope="col" className="p-3 font-semibold text-foreground">Foreslått regelverk</th>
                   <th scope="col" className="p-3 font-semibold text-foreground">Aktiverte produkter</th>
                   <th scope="col" className="p-3 font-semibold text-foreground">Mulige oppgaver</th>
+                  <th scope="col" className="p-3 font-semibold text-foreground">
+                    Salgspotensial (KI-estimat)
+                  </th>
                   <th scope="col" className="p-3 font-semibold text-foreground">Tjenester som dekker</th>
                   <th scope="col" className="p-3 font-semibold text-foreground">Handling</th>
                 </tr>
@@ -183,6 +191,12 @@ export default function MSPOpportunities() {
                           {c.activatedProducts.length > 0 ? c.activatedProducts.join(", ") : "Ingen aktivert"}
                         </td>
                         <td className="p-3 text-foreground tabular-nums">{c.tasks.length}</td>
+                        <td className="p-3 text-foreground tabular-nums">
+                          {formatPotential(customerPotential(c, defaultHourlyRate), currency)}
+                          <span className="block text-xs font-normal text-muted-foreground">
+                            KI-estimat, eks. mva
+                          </span>
+                        </td>
                         <td className="p-3 text-muted-foreground">{servicesForCustomer(c).join(", ")}</td>
                         <td className="p-3">
                           <Button size="sm" onClick={() => setOfferFor(c)}>
@@ -192,7 +206,7 @@ export default function MSPOpportunities() {
                       </tr>
                       {isOpen && (
                         <tr className="border-t border-border bg-muted/30">
-                          <td colSpan={7} className="p-4">
+                          <td colSpan={8} className="p-4">
                             <h2 className="text-sm font-semibold text-foreground">
                               Dette kan gjøres hos {c.name}, i anbefalt rekkefølge
                             </h2>
@@ -211,6 +225,9 @@ export default function MSPOpportunities() {
                                     </label>
                                     <div className="mt-1 flex flex-wrap items-center gap-1.5">
                                       <Badge variant="outline" className="font-normal">{SCOPE_LABEL[t.scope]}</Badge>
+                                      <Badge variant="outline" className="font-normal tabular-nums">
+                                        {formatPotential(taskPotential(t, defaultHourlyRate), currency)} (KI-estimat)
+                                      </Badge>
                                       {t.aiSuggested && (
                                         <Badge variant="secondary" className="font-normal">Forslag fra Lara (KI)</Badge>
                                       )}
@@ -231,7 +248,7 @@ export default function MSPOpportunities() {
                 })}
                 {rows.length === 0 && (
                   <tr className="border-t border-border">
-                    <td colSpan={7} className="p-6 text-center text-sm text-muted-foreground">
+                    <td colSpan={8} className="p-6 text-center text-sm text-muted-foreground">
                       Ingen kunder passer med filtrene. Nullstill et filter for å se flere muligheter.
                     </td>
                   </tr>
