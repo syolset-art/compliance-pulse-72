@@ -243,8 +243,57 @@ function ColumnFilter({
   );
 }
 
+// ===== Anbefalte produkter og tjenester (salgbare forslag) =====
+export interface OfferSuggestion {
+  id: string;
+  label: string;
+  kind: "framework" | "service" | "module";
+  hours: number;
+}
+
+function deriveOfferSuggestions(c: any): OfferSuggestion[] {
+  const toLabel = (f: any): string => (typeof f === "string" ? f : (f?.label ?? f?.frameworkId ?? ""));
+  const active: string[] = (c.active_frameworks || []).map(toLabel).filter(Boolean);
+  const recommended: string[] = (c.recommended_frameworks || [])
+    .map(toLabel)
+    .filter((f: string) => f && !active.includes(f));
+  const score = c.compliance_score || 0;
+  const ind = c.industry || "";
+  const plan = (c.subscription_plan || "").toLowerCase();
+
+  const out: OfferSuggestion[] = [];
+
+  if (!score) {
+    out.push({ id: "svc-maturity", label: "Modenhetsvurdering", kind: "service", hours: 8 });
+  }
+
+  for (const f of recommended.slice(0, 2)) {
+    out.push({ id: `fw-${f}`, label: `Aktiver ${f}`, kind: "framework", hours: 6 });
+  }
+
+  if (!plan || plan.includes("gratis") || plan.includes("free")) {
+    out.push({ id: "mod-core", label: "Mynder Core", kind: "module", hours: 4 });
+  }
+
+  if (["Energi", "Helse", "Finans", "Transport", "Bygg og anlegg"].includes(ind)) {
+    out.push({ id: "mod-vendors", label: "Leverandørmodul", kind: "module", hours: 5 });
+  }
+
+  if (active.includes("ISO 27001") || score >= 50) {
+    out.push({ id: "svc-pentest", label: "Penetrasjonstest", kind: "service", hours: 24 });
+  }
+
+  if (score > 0 && score < 60) {
+    out.push({ id: "svc-gap", label: "Gap-analyse", kind: "service", hours: 10 });
+  }
+
+  const seen = new Set<string>();
+  return out.filter((s) => (seen.has(s.id) ? false : (seen.add(s.id), true))).slice(0, 3);
+}
+
 // ===== Responsive column config =====
-type ColumnKey = "customer" | "country" | "industry" | "frameworks" | "score";
+type ColumnKey = "customer" | "country" | "industry" | "frameworks" | "recommendations" | "score";
+
 
 const COLUMN_LABELS: Record<ColumnKey, string> = {
   customer: "Kunde",
