@@ -173,11 +173,11 @@ function formatPartnerCurrency(amount: number, compact = true) {
 
 
 const SEGMENTS = [
-  { label: "NIS2-eksponert", count: 71, color: "bg-primary", widthPct: 35 },
-  { label: "Sky-avhengig", count: 186, color: "bg-purple-400", widthPct: 92 },
-  { label: "Særlige kategorier", count: 128, color: "bg-emerald-500", widthPct: 64 },
-  { label: "DORA-finans", count: 42, color: "bg-orange-500", widthPct: 21 },
-  { label: "ISO 27001", count: 23, color: "bg-amber-700", widthPct: 12 },
+  { label: "NIS2-eksponert", count: 71, color: "bg-primary", widthPct: 35, activatedPct: 38 },
+  { label: "Sky-avhengig", count: 186, color: "bg-purple-400", widthPct: 92, activatedPct: 54 },
+  { label: "Særlige kategorier", count: 128, color: "bg-emerald-500", widthPct: 64, activatedPct: 61 },
+  { label: "DORA-finans", count: 42, color: "bg-orange-500", widthPct: 21, activatedPct: 29 },
+  { label: "ISO 27001", count: 23, color: "bg-amber-700", widthPct: 12, activatedPct: 48 },
 ];
 
 const LIVE_SIGNALS = [
