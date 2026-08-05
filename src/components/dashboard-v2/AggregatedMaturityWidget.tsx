@@ -489,7 +489,9 @@ export function AggregatedMaturityWidget() {
                 return (
                   <button
                     key={pillar.key}
+                    title={`${lvl.label} (${percent} %) – ${lvl.hint}`}
                     onClick={() => navigate("/reports/compliance")}
+
                     className="flex items-center gap-2 w-full p-1.5 rounded-md hover:bg-muted/50 transition-colors"
                   >
                     <div className="p-1 rounded-md bg-primary/10 shrink-0">
