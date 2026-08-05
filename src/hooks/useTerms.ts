@@ -49,7 +49,7 @@ export function useTerms() {
         .eq("is_current", true)
         .order("effective_date", { ascending: false });
 
-      setDocuments(((versions ?? []) as TermsVersion[]) ?? []);
+      setDocuments((versions ?? []) as TermsVersion[]);
 
       if (user?.id) {
         const { data: rows } = await supabase
