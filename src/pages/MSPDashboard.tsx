@@ -1061,6 +1061,35 @@ export default function MSPDashboard() {
 
         <AddMSPCustomerDialog open={addOpen} onOpenChange={setAddOpen} onSuccess={() => refetch()} />
         <GapAnalysisWizardDialog open={gapOpen} onOpenChange={setGapOpen} customers={filtered} />
+        {activateFor && (() => {
+          const picked = offerSelection[activateFor.id] || [];
+          const items = deriveOfferSuggestions(activateFor).filter((s) => picked.includes(s.id));
+          return (
+            <ActivateRecommendationsDialog
+              open={!!activateFor}
+              onOpenChange={(o) => !o && setActivateFor(null)}
+              customerId={activateFor.id}
+              customerName={activateFor.customer_name}
+              items={items}
+              activeFrameworks={(activateFor.active_frameworks || []).map((f: any) => (typeof f === "string" ? f : (f?.label ?? f?.frameworkId ?? ""))).filter(Boolean)}
+              activeModules={activateFor.active_modules || []}
+              onActivated={() => {
+                setOfferSelection((prev) => ({
+                  ...prev,
+                  [activateFor.id]: picked.filter((id) => !items.some((s) => s.id === id && s.activatable)),
+                }));
+                setActivateFor(null);
+                refetch();
+              }}
+              onMoveToOffer={() => {
+                const target = activateFor;
+                setActivateFor(null);
+                setOfferFor(target);
+              }}
+            />
+          );
+        })()}
+
         {offerFor && (() => {
           const picked = offerSelection[offerFor.id] || [];
           const items = deriveOfferSuggestions(offerFor).filter((s) => picked.includes(s.id));
