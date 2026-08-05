@@ -110,6 +110,7 @@ export function CustomerServicesAndProductsTab({
   const [showAll, setShowAll] = useState(false);
   const [selectedFrameworks, setSelectedFrameworks] = useState<string[]>([]);
   const [activateItems, setActivateItems] = useState<ActivatableItem[] | null>(null);
+  const [enterItems, setEnterItems] = useState<CustomerEntryTarget[] | null>(null);
   const [offerItems, setOfferItems] = useState<{ label: string; hours: number }[] | null>(null);
 
   const products = useMemo(
