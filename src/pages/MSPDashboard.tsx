@@ -382,8 +382,8 @@ function RecommendationCell({
             className={cn(
               "inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] transition-colors",
               on
-                ? "border-primary bg-primary text-primary-foreground"
-                : "border-primary/30 bg-primary/10 text-foreground dark:text-primary-foreground hover:border-primary/60",
+                ? "border-recommend bg-recommend text-recommend-foreground"
+                : "border-recommend/40 bg-recommend/10 text-recommend dark:text-recommend hover:border-recommend/70",
             )}
           >
             {s.label}
