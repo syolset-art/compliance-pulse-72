@@ -14,6 +14,7 @@ import {
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { ShieldCheck, Info, Globe, ArrowRight, Lock, ChevronRight } from "lucide-react";
 import { MATURITY_AREAS } from "@/lib/trustMaturityQuestions";
+import { getMaturityBand, MATURITY_BANDS } from "@/lib/scoringEngine";
 import { getModuleState } from "@/lib/moduleActivationState";
 import { useActiveOrganization } from "@/contexts/ActiveOrganizationContext";
 import { useWorkspaceMode } from "@/contexts/WorkspaceModeContext";
@@ -75,9 +76,8 @@ export function CustomerMaturityMirrorCard({
 
   const byId = new Map(areaProgress.map((a) => [a.id, a]));
   const score = totalQuestions > 0 ? Math.round((totalAnswered / totalQuestions) * 100) : 0;
+  const totalBand = getMaturityBand(score);
 
-  const pctClass = (pct: number) =>
-    pct >= 75 ? "text-success" : pct >= 50 ? "text-warning" : "text-destructive";
 
   const handleEnter = () => {
     enterCustomerOrg({ id: customerId, name: customerName, orgNumber: customerOrgNumber });
