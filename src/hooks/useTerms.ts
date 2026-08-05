@@ -94,13 +94,18 @@ export function useTerms() {
   );
 
   const acceptTerms = useCallback(
-    async (context: TermsContext, contextRef?: string) => {
+    async (
+      context: TermsContext,
+      contextRef?: string,
+      options?: { operatorRole?: boolean }
+    ) => {
       if (!user?.id || !current) return false;
       const { error } = await supabase.from("terms_acceptances").insert({
         user_id: user.id,
         terms_version_id: current.id,
         context,
         context_ref: contextRef ?? null,
+        operator_role: options?.operatorRole ?? false,
       });
       if (error) return false;
       await load();
@@ -108,6 +113,7 @@ export function useTerms() {
     },
     [user?.id, current, load]
   );
+
 
   return {
     current,
