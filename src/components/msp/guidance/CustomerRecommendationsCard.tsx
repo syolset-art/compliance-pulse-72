@@ -17,6 +17,7 @@ export function CustomerRecommendationsCard({ customer, onOffer, onActivate }: P
   const [picked, setPicked] = useState<string[]>([]);
   const suggestions = deriveProductSuggestions(customer);
   const activated = deriveActivatedProducts(customer);
+  const potential = customerSalesPotential(customer);
 
   const toggle = (id: string) =>
     setPicked((prev) => (prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id]));
