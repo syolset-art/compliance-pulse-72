@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
-import { Sparkles, Info, Zap, Plus, X, ArrowRight, Briefcase } from "lucide-react";
+import { Info, Zap, Plus, X, ArrowRight, Briefcase } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import {
@@ -50,11 +50,22 @@ export function CustomerRecommendationsCard({ customer, onOffer, onActivate, onE
     <Card className="p-5 flex flex-col">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <h3 className="text-sm font-semibold text-foreground">Anbefalte produkter og tjenester</h3>
-          <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1.5">
-            <Sparkles className="h-3 w-3 text-primary shrink-0" />
-            Mynder-produkter og egne tjenester fra tjenestekatalogen som kan selges inn til denne kunden. Forslagene er utarbeidet av en KI-agent.
-          </p>
+          <div className="flex items-center gap-1.5">
+            <h3 className="text-sm font-semibold text-foreground">Anbefalte produkter og tjenester</h3>
+            <TooltipProvider delayDuration={200}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button type="button" className="text-muted-foreground hover:text-foreground" aria-label="Om anbefalingene">
+                    <Info className="h-4 w-4" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="max-w-xs">
+                  <p>Mynder-produkter og egne tjenester fra tjenestekatalogen som kan selges inn til denne kunden. Forslagene er utarbeidet av en KI-agent.</p>
+                  <p className="mt-1">Velg det du vil selge inn, og lag et tilbud — eller aktiver produkter direkte for kunden.</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
         </div>
         <div className="flex items-start gap-3 shrink-0">
           {potential.total > 0 && (
@@ -78,18 +89,6 @@ export function CustomerRecommendationsCard({ customer, onOffer, onActivate, onE
               </TooltipProvider>
             </div>
           )}
-          <TooltipProvider delayDuration={200}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button type="button" className="text-muted-foreground hover:text-foreground shrink-0 mt-0.5" aria-label="Om anbefalingene">
-                  <Info className="h-4 w-4" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent side="left" className="max-w-xs">
-                Velg det du vil selge inn, og lag et tilbud — eller aktiver produkter direkte for kunden.
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
         </div>
       </div>
 
