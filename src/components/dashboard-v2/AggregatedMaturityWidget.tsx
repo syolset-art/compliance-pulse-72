@@ -517,7 +517,9 @@ export function AggregatedMaturityWidget() {
                 return (
                   <button
                     key={pillar.key}
+                    title={`${lvl.label} (${percent} %) – ${lvl.hint}`}
                     onClick={() => navigate("/reports/compliance")}
+
                     className={cn(
                       "rounded-lg border border-border bg-muted/20 overflow-hidden transition-all text-left hover:border-primary/50 hover:bg-muted/40 cursor-pointer",
                       index === PILLARS.length - 1 && PILLARS.length % 2 !== 0 && "col-span-2"
