@@ -202,7 +202,7 @@ export function CustomerMaturityMirrorCard({
             <>
               <DialogDescription className="text-sm text-muted-foreground leading-relaxed">
                 For å åpne kundens Trust Center og Trust Profile må kunden ha aktivert Trust Center
-                (kommer som eget produkt) eller et annet Mynder-produkt, for eksempel
+                (490 kr/mnd) eller et annet Mynder-produkt, for eksempel
                 Leverandørmodul eller Mynder Core.
               </DialogDescription>
               <div className="rounded-lg border border-border bg-muted/40 p-3 flex items-start gap-2">

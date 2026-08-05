@@ -68,18 +68,20 @@ export const MODULE_INFO: Record<ModuleKey, ModuleInfo> = {
     ],
   },
   trust: {
-    title: "Trust Profile",
-    tagline: "Offentlig tillitsside",
+    title: "Trust Center",
+    tagline: "Del én gang — gjenbruk mot alle",
     description:
-      "Én delbar side som viser hvordan virksomheten jobber med sikkerhet og personvern. Kunder og partnere kan se sertifiseringer, retningslinjer og status uten å sende e-post.",
+      "Trust Center gjør dokumentasjonen dere allerede har i Mynder om til én delbar profil. Kunder, leverandører og revisorer får svar uten at dere sender de samme vedleggene på nytt.",
     features: [
       "Offentlig profil på trust.mynder.no",
-      "Kontroll over hva som deles og hva som er privat",
-      "Automatisk oppdatert fra dokumentasjon i Core",
-      "Kundeforespørsler og meldinger samlet",
-      "Inkludert i Mynder Core",
+      "Delbare lenker til kunder og leverandører, med utløpsdato",
+      "Gjenbruk av dokumentasjon fra Mynder Core og Leverandørmodulen",
+      "Kundeforespørsler og meldinger samlet ett sted",
+      "Full kontroll på hva som er offentlig og hva som deles privat",
+      "490 kr per måned",
     ],
   },
+
   partner: {
     title: "Partner Workspace",
     tagline: "For MSP-er og samarbeidspartnere",

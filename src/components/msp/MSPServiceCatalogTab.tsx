@@ -40,7 +40,7 @@ import {
   type AdoptedRef,
 } from "@/lib/laraScopeDiff";
 
-import { CORE_TIERS, VENDOR_TIERS } from "@/lib/planConstants";
+import { CORE_TIERS, VENDOR_TIERS, TRUST_CENTER_PRICE_KR } from "@/lib/planConstants";
 import { usePartnerBranding } from "@/hooks/usePartnerBranding";
 import { formatTaxNote } from "@/lib/partnerTax";
 import { useSavedOffers, type LockInfo } from "@/lib/customerOffers";
@@ -110,7 +110,16 @@ const MYNDER_PRODUCTS: Array<{
     fromPrice: 490,
     tiers: [{ label: "Standard", priceKr: 490 }],
   },
+  {
+    id: "trust",
+    moduleKey: "trust",
+    name: "Trust Center",
+    commissionPct: 30,
+    fromPrice: TRUST_CENTER_PRICE_KR,
+    tiers: [{ label: "Standard", priceKr: TRUST_CENTER_PRICE_KR }],
+  },
 ];
+
 
 
 function formatSupportedSummary(template: ServiceTemplate): string {

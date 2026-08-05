@@ -38,6 +38,7 @@ import {
   CORE_TIERS, DEFAULT_CORE_TIER_ID, getCoreTier, getNextCoreTier,
   VENDOR_TIERS, DEFAULT_VENDOR_TIER_ID, getVendorTier, getNextVendorTier,
   type PlanId, type BillingInterval, type CoreTierId, type VendorTierId,
+  TRUST_CENTER_PRICE_KR,
 } from "@/lib/planConstants";
 import { OrganizationContextBanner } from "@/components/OrganizationContextBanner";
 import { ModuleCard } from "@/components/subscriptions/ModuleCard";
@@ -401,6 +402,7 @@ export default function Subscriptions() {
     if (activeFrameworkCount > 0) total += frameworkMonthlyPrice;
     if (!deactivatedModules.has("vendors")) total += vendorMonthlyPrice;
     if (!deactivatedModules.has("assets")) total += assetMonthlyPrice;
+    if (!deactivatedModules.has("trust")) total += TRUST_CENTER_PRICE_KR;
     if (hasPartnerAccess && !deactivatedModules.has("partner")) total += partnerWorkspaceMonthlyPrice;
     return total;
   }, [corePrice, activeFrameworkCount, frameworkMonthlyPrice, vendorMonthlyPrice, assetMonthlyPrice, hasPartnerAccess, deactivatedModules]);
@@ -685,16 +687,24 @@ export default function Subscriptions() {
 
             <ModuleCard
               icon={Globe}
-              title="Trust Profile"
-              description="Offentlig tillitsside"
-              status="included"
-              price={0}
-              priceLabel="Inkludert i Core"
-              action="open"
-              onClick={() => window.open(trustProfileUrl, "_blank", "noopener,noreferrer")}
+              title="Trust Center"
+              description="Del dokumentasjonen én gang — gjenbruk mot kunder og leverandører"
+              status={deactivatedModules.has("trust") ? "inactive" : moduleStatusOf("trust")}
+              cancelAtLabel={cancelAtLabelOf("trust")}
+              onResume={() => undoCancellation("trust")}
+              price={deactivatedModules.has("trust") ? 0 : TRUST_CENTER_PRICE_KR}
+              priceLabel={deactivatedModules.has("trust") ? "Ikke aktivert" : "Trust Profile og deling"}
+              action={deactivatedModules.has("trust") ? "activate" : "open"}
+              onClick={() =>
+                deactivatedModules.has("trust")
+                  ? requestActivate("trust", "Trust Center")
+                  : window.open(trustProfileUrl, "_blank", "noopener,noreferrer")
+              }
+              onDeactivate={() => requestDeactivate("trust", "Trust Center")}
               accentColor="rose"
               onReadMore={() => setReadMoreKey("trust")}
             />
+
 
             <ModuleCard
               icon={Users}
