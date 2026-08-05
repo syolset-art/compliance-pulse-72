@@ -1012,7 +1012,7 @@ export default function MSPDashboard() {
                           </TableHead>
                         )}
                         {isVisible("activated") && (
-                          <TableHead className="min-w-[200px] text-foreground/80 align-middle">
+                          <TableHead className="w-[200px] max-w-[200px] text-foreground/80 align-middle">
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <span className="inline-flex h-8 items-center gap-1.5 text-sm font-medium cursor-help">
