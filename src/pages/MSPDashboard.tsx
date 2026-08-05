@@ -251,6 +251,10 @@ export interface OfferSuggestion {
   label: string;
   kind: "framework" | "service" | "module";
   hours: number;
+  activatable: boolean;
+  frameworkId?: string;
+  moduleKey?: string;
+  price?: number | null;
 }
 
 function deriveOfferSuggestions(c: any): OfferSuggestion[] {
@@ -262,32 +266,58 @@ function deriveOfferSuggestions(c: any): OfferSuggestion[] {
   const score = c.compliance_score || 0;
   const ind = c.industry || "";
   const plan = (c.subscription_plan || "").toLowerCase();
+  const modules: string[] = c.active_modules || [];
 
   const out: OfferSuggestion[] = [];
 
   if (!score) {
-    out.push({ id: "svc-maturity", label: "Modenhetsvurdering", kind: "service", hours: 8 });
+    out.push({ id: "svc-maturity", label: "Modenhetsvurdering", kind: "service", hours: 8, activatable: false });
   }
 
   for (const f of recommended.slice(0, 2)) {
-    out.push({ id: `fw-${f}`, label: `Aktiver ${f}`, kind: "framework", hours: 6 });
+    out.push({
+      id: `fw-${f}`,
+      label: `Aktiver ${f}`,
+      kind: "framework",
+      hours: 6,
+      activatable: true,
+      frameworkId: f,
+      price: 836,
+    });
   }
 
   if (!plan || plan.includes("gratis") || plan.includes("free")) {
-    out.push({ id: "mod-core", label: "Mynder Core", kind: "module", hours: 4 });
+    out.push({
+      id: "mod-core",
+      label: "Mynder Core",
+      kind: "module",
+      hours: 4,
+      activatable: !modules.includes("core"),
+      moduleKey: "core",
+      price: 2499,
+    });
   }
 
   if (["Energi", "Helse", "Finans", "Transport", "Bygg og anlegg"].includes(ind)) {
-    out.push({ id: "mod-vendors", label: "Leverandørmodul", kind: "module", hours: 5 });
+    out.push({
+      id: "mod-vendors",
+      label: "Leverandørmodul",
+      kind: "module",
+      hours: 5,
+      activatable: !modules.includes("vendors"),
+      moduleKey: "vendors",
+      price: 1089,
+    });
   }
 
   if (active.includes("ISO 27001") || score >= 50) {
-    out.push({ id: "svc-pentest", label: "Penetrasjonstest", kind: "service", hours: 24 });
+    out.push({ id: "svc-pentest", label: "Penetrasjonstest", kind: "service", hours: 24, activatable: false });
   }
 
   if (score > 0 && score < 60) {
-    out.push({ id: "svc-gap", label: "Gap-analyse", kind: "service", hours: 10 });
+    out.push({ id: "svc-gap", label: "Gap-analyse", kind: "service", hours: 10, activatable: false });
   }
+
 
   const seen = new Set<string>();
   return out.filter((s) => (seen.has(s.id) ? false : (seen.add(s.id), true))).slice(0, 3);
