@@ -18,6 +18,8 @@ import type { TaskEstimate, TaskOwner } from "./MSPMaturityServiceMatrix";
 import { usePartnerBranding } from "@/hooks/usePartnerBranding";
 import { getFrameworkTheme } from "@/lib/serviceFrameworkTheme";
 import { getRelatedControls } from "@/lib/controlCrosswalk";
+import { buildOfferCoverage, inactiveFrameworkPitch, FRAMEWORK_ACTIVATION_HOURS } from "@/lib/offerCoverage";
+import { OfferCoveragePanel } from "./OfferCoveragePanel";
 import { getFrameworkGap, getGapIdsForControls, severityDotClass, SEVERITY_LABEL, type GapItem } from "@/lib/gapData";
 import { getControlLabel } from "@/lib/serviceControlLabels";
 import { Link2, ShieldCheck } from "lucide-react";
@@ -122,6 +124,8 @@ export interface CreateOfferDialogProps {
   /** Kilde-nøkler for tjenester som inngår i tilbudet — brukes til å låse dem i tjenestekatalogen. */
   offeredTemplateIds?: string[];
   offeredServiceNames?: string[];
+  /** Regelverk kunden har aktivert (id eller label) — styrer dekningsvisningen. */
+  activeFrameworks?: string[];
 }
 
 interface EditableTask extends TaskEstimate {
@@ -153,6 +157,7 @@ export function MSPCreateOfferDialog({
   customerName,
   offeredTemplateIds,
   offeredServiceNames,
+  activeFrameworks,
 }: CreateOfferDialogProps) {
   const { branding } = usePartnerBranding();
   const effectivePartnerName = partnerName ?? branding.name;
@@ -206,6 +211,46 @@ export function MSPCreateOfferDialog({
     setEditableHourlyRate(hourlyRate);
     setSnapshotDate(new Date());
   }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ===== Dekning: krav og dokumentasjon per tjeneste =====
+  const [addedFrameworkIds, setAddedFrameworkIds] = useState<string[]>([]);
+  const [showCoverageInOffer, setShowCoverageInOffer] = useState(true);
+
+  useEffect(() => {
+    if (!open) return;
+    setAddedFrameworkIds([]);
+    setShowCoverageInOffer(true);
+  }, [open]);
+
+  const coverageServiceLabels = useMemo(
+    () =>
+      (offeredServiceNames && offeredServiceNames.length > 0
+        ? offeredServiceNames
+        : (defaultTasks || []).map((t) => t.label)),
+    [offeredServiceNames, defaultTasks],
+  );
+
+  const coverage = useMemo(
+    () => buildOfferCoverage(coverageServiceLabels, activeFrameworks ?? []),
+    [coverageServiceLabels, activeFrameworks],
+  );
+
+  const handleAddFramework = (fw: { id: string; label: string }) => {
+    setAddedFrameworkIds((prev) => (prev.includes(fw.id) ? prev : [...prev, fw.id]));
+    setTasks((prev) => [
+      ...prev,
+      {
+        label: `Aktiver ${fw.label} i Mynder`,
+        hours: FRAMEWORK_ACTIVATION_HOURS,
+        owner: "Partner",
+        gapIds: [],
+        note: "Gir kunden modenhetsscore og rapport for regelverket.",
+      } as EditableTask,
+    ]);
+    toast.success(`${fw.label} lagt til i tilbudet`);
+  };
+
+
 
   const totalHours = tasks.reduce((s, t) => s + (Number(t.hours) || 0), 0);
   const totalPrice = totalHours * editableHourlyRate;
@@ -426,7 +471,60 @@ export function MSPCreateOfferDialog({
       y += 6;
     }
 
+    // Dekning: krav og dokumentasjon per tjeneste
+    if (showCoverageInOffer && coverage.services.length > 0) {
+      if (y > 640) { doc.addPage(); y = margin; }
+      doc.setFontSize(10);
+      doc.setTextColor(120);
+      doc.text("DETTE DEKKER TILBUDET", margin, y);
+      y += 16;
+      coverage.services.forEach(s => {
+        if (y > 760) { doc.addPage(); y = margin; }
+        doc.setFontSize(11);
+        doc.setTextColor(20);
+        doc.text(s.serviceLabel, margin, y);
+        y += 13;
+        doc.setFontSize(9);
+        doc.setTextColor(110);
+        s.requirements.forEach(r => {
+          if (y > 790) { doc.addPage(); y = margin; }
+          const line = `${r.frameworkShortName} > ${r.controlId} ${r.controlLabel}${r.active ? "" : " (regelverk ikke aktivert)"}`;
+          const lines = doc.splitTextToSize(line, pageWidth - margin * 2 - 12);
+          doc.text(lines, margin + 12, y);
+          y += lines.length * 11;
+        });
+        if (s.documents.length > 0) {
+          const docLines = doc.splitTextToSize(
+            `Dokumentasjon: ${s.documents.map(d => d.name).join(", ")}`,
+            pageWidth - margin * 2 - 12,
+          );
+          if (y > 780) { doc.addPage(); y = margin; }
+          doc.text(docLines, margin + 12, y);
+          y += docLines.length * 11;
+        }
+        y += 6;
+      });
+      if (coverage.inactiveFrameworks.some(f => !addedFrameworkIds.includes(f.id))) {
+        const pitch = inactiveFrameworkPitch(
+          coverage.inactiveFrameworks.filter(f => !addedFrameworkIds.includes(f.id)).map(f => f.label),
+        );
+        const lines = doc.splitTextToSize(pitch, pageWidth - margin * 2);
+        if (y > 770) { doc.addPage(); y = margin; }
+        doc.text(lines, margin, y);
+        y += lines.length * 11 + 6;
+      }
+      doc.setFontSize(8);
+      doc.setTextColor(150);
+      const disc = doc.splitTextToSize(
+        "Koblingen mellom tjenester, regelverk og krav er foreslått ved hjelp av KI og kan inneholde feil.",
+        pageWidth - margin * 2,
+      );
+      doc.text(disc, margin, y);
+      y += disc.length * 10 + 8;
+    }
+
     // SIDE 2 — dekning mot gap-analysen (oppgave → mangler)
+
     if (showGapsInOffer && coveredGaps && selectedCount > 0) {
       doc.addPage();
       y = margin;
@@ -696,6 +794,18 @@ export function MSPCreateOfferDialog({
               >
                 <Plus className="h-3 w-3" /> Legg til oppgave
               </Button>
+            </div>
+
+            <OfferCoveragePanel
+              coverage={coverage}
+              addedFrameworkIds={addedFrameworkIds}
+              onAddFramework={handleAddFramework}
+              showInOffer={showCoverageInOffer}
+              onShowInOfferChange={setShowCoverageInOffer}
+            />
+
+            <div className="space-y-2">
+
 
               {/* Pris og total */}
               <div className="space-y-3 pt-2">

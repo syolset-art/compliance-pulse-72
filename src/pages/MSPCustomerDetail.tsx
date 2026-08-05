@@ -633,6 +633,7 @@ export default function MSPCustomerDetail() {
           customerContactName={customer.contact_name || undefined}
           serviceTitle={offerDialog.title}
           offeredTemplateIds={offerDialog.templateId ? [offerDialog.templateId] : []}
+          activeFrameworks={(customer.active_frameworks || []).map((f: any) => (typeof f === "string" ? f : (f?.label ?? f?.frameworkId ?? ""))).filter(Boolean)}
         />
 
 
