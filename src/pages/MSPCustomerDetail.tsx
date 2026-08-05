@@ -49,8 +49,9 @@ import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { frameworks as ALL_FRAMEWORKS } from "@/lib/frameworkDefinitions";
 
-import { RegulationsStatusCard } from "@/components/msp/guidance/RegulationsStatusCard";
-import { CustomerServiceCoverageSearch } from "@/components/msp/guidance/CustomerServiceCoverageSearch";
+import { CustomerRecommendationsCard } from "@/components/msp/guidance/CustomerRecommendationsCard";
+import { ActivateRecommendationsDialog } from "@/components/msp/ActivateRecommendationsDialog";
+import type { OfferSuggestion } from "@/lib/offerSuggestions";
 
 import { MSPCreateOfferDialog } from "@/components/msp/MSPCreateOfferDialog";
 import { useSavedOffers } from "@/lib/customerOffers";
@@ -62,6 +63,8 @@ export default function MSPCustomerDetail() {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [acronisOpen, setAcronisOpen] = useState(false);
+  const [offerItems, setOfferItems] = useState<OfferSuggestion[] | null>(null);
+  const [activateItems, setActivateItems] = useState<OfferSuggestion[] | null>(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const normalizeTab = (v: string) => (v === "modules" ? "assessment" : v);
   const initialTab = normalizeTab(searchParams.get("tab") || "guidance");
@@ -401,27 +404,12 @@ export default function MSPCustomerDetail() {
 
 
 
-              <RegulationsStatusCard
-                customerId={customerId!}
-                customerName={customer.name || customer.customer_name || "Kunden"}
-                recommended={((customer?.recommended_frameworks as any) || []) as FrameworkRecommendation[]}
-                confirmed={((customer?.confirmed_frameworks as any) || []) as FrameworkRecommendation[]}
-                activeFrameworkIds={activeFrameworkIds}
-                onGoToProducts={() => handleTabChange("modules")}
-                onOpenAssessment={() => setBaselineDrawer({ open: true, review: false, mode: "partner" })}
+              <CustomerRecommendationsCard
+                customer={customer}
+                onOffer={(items) => setOfferItems(items)}
+                onActivate={(items) => setActivateItems(items)}
               />
 
-              <CustomerServiceCoverageSearch
-                customerFrameworkIds={Array.from(
-                  new Set([
-                    ...(((customer?.recommended_frameworks as any) || []) as FrameworkRecommendation[]).map((r) => r.frameworkId),
-                    ...(((customer?.confirmed_frameworks as any) || []) as FrameworkRecommendation[]).map((r) => r.frameworkId),
-                    ...activeFrameworkIds,
-                    // Fallback for demo rows when customer has no persisted frameworks yet
-                    "gdpr", "nis2", "iso27001", "dora",
-                  ]),
-                )}
-              />
 
 
 
@@ -539,6 +527,40 @@ export default function MSPCustomerDetail() {
           laraRationales={baselineRationales}
           mode={baselineDrawer.mode ?? "partner"}
         />
+
+        {offerItems && offerItems.length > 0 && (
+          <MSPCreateOfferDialog
+            open={!!offerItems}
+            onOpenChange={(o) => !o && setOfferItems(null)}
+            customerId={customerId!}
+            customerName={customer.name || customer.customer_name || undefined}
+            customerContactName={customer.contact_name || undefined}
+            serviceTitle={`Anbefalte produkter og tjenester for ${customer.name || customer.customer_name || "kunden"}`}
+            offeredServiceNames={offerItems.map((s) => s.label)}
+            activeFrameworks={(customer.active_frameworks || []).map((f: any) => (typeof f === "string" ? f : (f?.label ?? f?.frameworkId ?? ""))).filter(Boolean)}
+            defaultTasks={offerItems.map((s) => ({ label: s.label, hours: s.hours, owner: "Partner" as const }))}
+          />
+        )}
+
+        {activateItems && activateItems.length > 0 && (
+          <ActivateRecommendationsDialog
+            open={!!activateItems}
+            onOpenChange={(o) => !o && setActivateItems(null)}
+            customerId={customerId!}
+            customerName={customer.name || customer.customer_name || "Kunden"}
+            items={activateItems}
+            activeFrameworks={(customer.active_frameworks || []).map((f: any) => (typeof f === "string" ? f : (f?.label ?? f?.frameworkId ?? ""))).filter(Boolean)}
+            activeModules={customer.active_modules || []}
+            onActivated={() => {
+              setActivateItems(null);
+              queryClient.invalidateQueries({ queryKey: ["msp-customer", customerId] });
+            }}
+            onMoveToOffer={() => {
+              setOfferItems(activateItems);
+              setActivateItems(null);
+            }}
+          />
+        )}
 
         <MSPCreateOfferDialog
           open={offerDialog.open}
