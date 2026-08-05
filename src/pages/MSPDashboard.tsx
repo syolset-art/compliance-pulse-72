@@ -998,7 +998,7 @@ export default function MSPDashboard() {
                           </TableHead>
                         )}
                         {isVisible("recommendations") && (
-                          <TableHead className="min-w-[280px] text-foreground/80 align-middle">
+                          <TableHead className="w-[300px] max-w-[300px] text-foreground/80 align-middle">
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <span className="inline-flex h-8 items-center gap-1.5 text-sm font-medium cursor-help">
