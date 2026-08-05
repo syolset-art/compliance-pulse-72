@@ -25,6 +25,7 @@ import {
   type ActivatableItem,
 } from "./ActivateRecommendationsDialog";
 import { EnterCustomerContextDialog } from "./EnterCustomerContextDialog";
+import { ActivateTrustCenterDialog } from "./ActivateTrustCenterDialog";
 import type { CustomerEntryTarget } from "@/lib/customerEntryRoutes";
 import { MSPCreateOfferDialog } from "./MSPCreateOfferDialog";
 import { CustomerModulesTab } from "./CustomerModulesTab";
@@ -121,6 +122,7 @@ export function CustomerServicesAndProductsTab({
   const [activateItems, setActivateItems] = useState<ActivatableItem[] | null>(null);
   const [enterItems, setEnterItems] = useState<CustomerEntryTarget[] | null>(null);
   const [offerItems, setOfferItems] = useState<{ label: string; hours: number }[] | null>(null);
+  const [trustActivateOpen, setTrustActivateOpen] = useState(false);
 
   const products = useMemo(
     () =>
@@ -197,6 +199,10 @@ export function CustomerServicesAndProductsTab({
   };
 
   const activateProduct = (p: (typeof products)[number]) => {
+    if (p.key === "trust") {
+      setTrustActivateOpen(true);
+      return;
+    }
     setActivateItems([
       {
         id: p.key,
@@ -393,6 +399,19 @@ export function CustomerServicesAndProductsTab({
           }}
         />
       )}
+
+      <ActivateTrustCenterDialog
+        open={trustActivateOpen}
+        onOpenChange={setTrustActivateOpen}
+        customerId={customerId}
+        customerName={customerName}
+        customerEmail={customerEmail}
+        activeModules={products.filter((p) => p.status === "active").map((p) => p.moduleKey ?? p.key)}
+        onActivated={() => {
+          setTick((n) => n + 1);
+          onUpdate?.();
+        }}
+      />
 
       {enterItems && (
         <EnterCustomerContextDialog
