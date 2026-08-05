@@ -158,7 +158,22 @@ export function CustomerMaturityMirrorCard({
 
         </div>
 
+        <p className="text-xs text-muted-foreground mb-2">
+          Modenhet øker for hvert krav som fylles opp innenfor regelverkene kunden har aktivert.
+        </p>
+
+        {usingStartingPoint && (
+          <div className="mb-2 flex items-start gap-2 rounded-lg border border-border/60 bg-muted/30 px-3 py-2">
+            <FileCheck className="h-3.5 w-3.5 text-muted-foreground shrink-0 mt-0.5" />
+            <p className="text-[11px] text-muted-foreground leading-relaxed">
+              Personvernerklæring funnet på kundens nettsted → teller på Styring og ansvar og
+              Personvern. Startpunktet er et estimat og erstattes så snart baseline besvares.
+            </p>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+
           {MATURITY_AREAS.map((area) => {
             const p = byId.get(area.id);
             const answered = p?.answered ?? 0;
