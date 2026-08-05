@@ -12,6 +12,8 @@ import { matchAll, type CustomerGapMatch } from "@/lib/gapServiceMatcher";
 import { matchCustomersToFrameworks, type CustomerFrameworkMatch } from "@/lib/needsMatcher";
 import { saveOffer, normalizeServiceKey } from "@/lib/customerOffers";
 import { toast } from "sonner";
+import { Zap } from "lucide-react";
+import { BulkActivateFrameworksDialog } from "./BulkActivateFrameworksDialog";
 
 interface Props {
   open: boolean;
@@ -96,6 +98,7 @@ export function NeedsAnalysisWizardDialog({ open, onOpenChange, customers }: Pro
   const [analyzing, setAnalyzing] = useState(false);
   const [results, setResults] = useState<CustomerGapMatch[]>([]);
   const [campaignName, setCampaignName] = useState("");
+  const [bulkActivateOpen, setBulkActivateOpen] = useState(false);
 
   // Reset on close
   useEffect(() => {
@@ -454,6 +457,16 @@ export function NeedsAnalysisWizardDialog({ open, onOpenChange, customers }: Pro
                 <Button variant="outline" size="sm" onClick={() => onOpenChange(false)}>
                   Lukk
                 </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-2"
+                  onClick={() => setBulkActivateOpen(true)}
+                  disabled={results.length === 0}
+                >
+                  <Zap className="h-4 w-4" />
+                  Aktiver regelverk ({results.length})
+                </Button>
                 <Button size="sm" className="gap-2" onClick={handleCreateBulkOffers} disabled={results.length === 0}>
                   <Send className="h-4 w-4" />
                   Opprett bulk-tilbud ({results.length})
@@ -463,6 +476,23 @@ export function NeedsAnalysisWizardDialog({ open, onOpenChange, customers }: Pro
           </div>
         </div>
       </DialogContent>
+
+      <BulkActivateFrameworksDialog
+        open={bulkActivateOpen}
+        onOpenChange={setBulkActivateOpen}
+        frameworkNames={selectedFrameworks.map(fwName)}
+        customers={results.map((r) => {
+          const c = customers.find((x) => x.id === r.customerId);
+          return {
+            id: r.customerId,
+            name: r.customerName,
+            activeFrameworks: ((c?.active_frameworks || []) as any[])
+              .map((f) => (typeof f === "string" ? f : (f?.label ?? f?.frameworkId ?? "")))
+              .filter(Boolean),
+          };
+        })}
+        onActivated={() => onOpenChange(false)}
+      />
     </Dialog>
   );
 }
