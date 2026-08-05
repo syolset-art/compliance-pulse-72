@@ -49,7 +49,9 @@ export default function Legal() {
   }, [tab]);
 
   return (
-    <div className="min-h-screen bg-background pt-16">
+    <div className="flex min-h-screen bg-background">
+      <Sidebar />
+      <main className="flex-1 overflow-auto pt-16">
       <div className="max-w-3xl mx-auto px-6 pb-16 space-y-6">
         <div>
           <h1 className="text-2xl font-semibold text-foreground">Avtaler og vilkår</h1>
