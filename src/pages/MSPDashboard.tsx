@@ -8,7 +8,7 @@ import { formatKr } from "@/lib/planConstants";
 import { Sidebar } from "@/components/Sidebar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, MoreVertical, Database, Trash2, LayoutGrid, Rows3, Search, ArrowUp, ArrowDown, ArrowUpDown, Users, ArrowRight, Filter, X, Columns3, ScanSearch, Info } from "lucide-react";
+import { Plus, MoreVertical, Database, Trash2, LayoutGrid, Rows3, Search, ArrowUp, ArrowDown, ArrowUpDown, Users, ArrowRight, Filter, X, Columns3, ScanSearch, Info, Zap } from "lucide-react";
 import { MSPCustomerCard } from "@/components/msp/MSPCustomerCard";
 import { AddMSPCustomerDialog } from "@/components/msp/AddMSPCustomerDialog";
 import { NeedsAnalysisWizardDialog } from "@/components/msp/NeedsAnalysisWizardDialog";
@@ -982,6 +982,9 @@ export default function MSPDashboard() {
                                   onToggle={(id) => toggleSuggestion(c.id, id)}
                                   onOffer={() => setOfferFor(c)}
                                   onActivate={() => setActivateFor(c)}
+                                  onPreselectActivatable={(ids) =>
+                                    setOfferSelection((prev) => ({ ...prev, [c.id]: ids }))
+                                  }
                                 />
                               </TableCell>
                             )}
