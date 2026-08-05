@@ -9,6 +9,8 @@ import { Check, ChevronRight, Loader2, Search, ScanSearch, Sparkles, FileText, S
 import { cn } from "@/lib/utils";
 import { frameworks as ALL_FRAMEWORKS } from "@/lib/frameworkDefinitions";
 import { matchAll, type CustomerGapMatch } from "@/lib/gapServiceMatcher";
+import { matchCustomersToFrameworks, type CustomerFrameworkMatch } from "@/lib/needsMatcher";
+import { saveOffer, normalizeServiceKey } from "@/lib/customerOffers";
 import { toast } from "sonner";
 
 interface Props {
@@ -17,7 +19,7 @@ interface Props {
   customers: any[];
 }
 
-const STEPS = ["Regelverk", "Kunder", "Analyse", "Rapport"] as const;
+const STEPS = ["Regelverk", "Match", "Analyse", "Kampanje"] as const;
 
 const CURRENCY = "NOK";
 const LOCALE = "nb-NO";
@@ -33,6 +35,8 @@ function formatCurrency(n: number, compact = true) {
     return `${n} ${CURRENCY}`;
   }
 }
+
+const fwName = (id: string) => ALL_FRAMEWORKS.find((f) => f.id === id)?.name ?? id;
 
 function StepHeader({ step }: { step: number }) {
   return (
@@ -83,13 +87,15 @@ function AnalyzingIndicator() {
   );
 }
 
-export function GapAnalysisWizardDialog({ open, onOpenChange, customers }: Props) {
+export function NeedsAnalysisWizardDialog({ open, onOpenChange, customers }: Props) {
   const [step, setStep] = useState(1);
   const [selectedFrameworks, setSelectedFrameworks] = useState<string[]>([]);
+  const [minMatches, setMinMatches] = useState(1);
   const [selectedCustomers, setSelectedCustomers] = useState<string[]>([]);
   const [customerSearch, setCustomerSearch] = useState("");
   const [analyzing, setAnalyzing] = useState(false);
   const [results, setResults] = useState<CustomerGapMatch[]>([]);
+  const [campaignName, setCampaignName] = useState("");
 
   // Reset on close
   useEffect(() => {
@@ -97,21 +103,36 @@ export function GapAnalysisWizardDialog({ open, onOpenChange, customers }: Props
       setTimeout(() => {
         setStep(1);
         setSelectedFrameworks([]);
+        setMinMatches(1);
         setSelectedCustomers([]);
         setCustomerSearch("");
         setAnalyzing(false);
         setResults([]);
+        setCampaignName("");
       }, 200);
     }
   }, [open]);
 
-  const filteredCustomers = useMemo(() => {
+  // Kunder som matcher valgte regelverk
+  const matches: CustomerFrameworkMatch[] = useMemo(
+    () => matchCustomersToFrameworks(customers, selectedFrameworks, minMatches),
+    [customers, selectedFrameworks, minMatches],
+  );
+
+  // Forhåndsvelg alle treff når matchsettet endres
+  useEffect(() => {
+    setSelectedCustomers(matches.map((m) => m.customerId));
+  }, [matches]);
+
+  const filteredMatches = useMemo(() => {
     const q = customerSearch.trim().toLowerCase();
-    if (!q) return customers;
-    return customers.filter((c) =>
-      [c.customer_name, c.industry, c.country_code].some((v) => (v || "").toLowerCase().includes(q)),
+    if (!q) return matches;
+    return matches.filter((m) =>
+      [m.customerName, m.customer.industry, m.customer.country_code].some((v) =>
+        (v || "").toLowerCase().includes(q),
+      ),
     );
-  }, [customers, customerSearch]);
+  }, [matches, customerSearch]);
 
   const toggleFramework = (id: string) =>
     setSelectedFrameworks((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id]));
@@ -119,12 +140,12 @@ export function GapAnalysisWizardDialog({ open, onOpenChange, customers }: Props
     setSelectedCustomers((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id]));
 
   const allFilteredSelected =
-    filteredCustomers.length > 0 && filteredCustomers.every((c) => selectedCustomers.includes(c.id));
+    filteredMatches.length > 0 && filteredMatches.every((m) => selectedCustomers.includes(m.customerId));
   const toggleAll = () => {
     if (allFilteredSelected) {
-      setSelectedCustomers((s) => s.filter((id) => !filteredCustomers.some((c) => c.id === id)));
+      setSelectedCustomers((s) => s.filter((id) => !filteredMatches.some((m) => m.customerId === id)));
     } else {
-      const add = filteredCustomers.map((c) => c.id).filter((id) => !selectedCustomers.includes(id));
+      const add = filteredMatches.map((m) => m.customerId).filter((id) => !selectedCustomers.includes(id));
       setSelectedCustomers((s) => [...s, ...add]);
     }
   };
@@ -154,9 +175,26 @@ export function GapAnalysisWizardDialog({ open, onOpenChange, customers }: Props
     step === 3 ||
     step === 4;
 
-  const handleCreateOffer = () => {
-    toast.success("Tilbud opprettet", {
-      description: `Utkast klar for ${results.length} kunde${results.length === 1 ? "" : "r"} – total ${formatCurrency(totals.potential, false)}.`,
+  const effectiveCampaignName =
+    campaignName.trim() ||
+    `Behovsanalyse ${selectedFrameworks.map(fwName).slice(0, 2).join(" + ")}${selectedFrameworks.length > 2 ? " m.fl." : ""}`;
+
+  const handleCreateBulkOffers = () => {
+    const stamp = Date.now();
+    results.forEach((r, i) => {
+      saveOffer({
+        offerNumber: `T-${stamp}-${i + 1}`,
+        name: `${effectiveCampaignName} – ${r.customerName}`,
+        customerId: r.customerId,
+        customerName: r.customerName,
+        templateIds: r.services.map((s) => s.service.id),
+        serviceKeys: r.services.map((s) => normalizeServiceKey(s.service.name)),
+        frameworkIds: selectedFrameworks,
+        status: "draft",
+      });
+    });
+    toast.success(`${results.length} tilbud opprettet`, {
+      description: `Kampanje «${effectiveCampaignName}» – samlet potensial ${formatCurrency(totals.potential, false)}.`,
     });
     onOpenChange(false);
   };
@@ -165,9 +203,9 @@ export function GapAnalysisWizardDialog({ open, onOpenChange, customers }: Props
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl p-0 gap-0">
         <DialogHeader className="px-6 pt-6 pb-4 border-b">
-          <DialogTitle className="text-xl">GAP-analyse</DialogTitle>
+          <DialogTitle className="text-xl">Behovsanalyse</DialogTitle>
           <DialogDescription className="text-sm">
-            Velg regelverk og kunder, kjør analysen, og se hvilke av dine tjenester som kan lukke gapene.
+            Finn hvilke kunder som matcher valgte regelverk, og opprett tilbud til alle i én kampanje.
           </DialogDescription>
           <div className="pt-3">
             <StepHeader step={step} />
@@ -176,7 +214,7 @@ export function GapAnalysisWizardDialog({ open, onOpenChange, customers }: Props
 
         <div className="px-6 py-5 min-h-[380px] max-h-[60vh] overflow-y-auto">
           {step === 1 && (
-            <div className="space-y-3">
+            <div className="space-y-4">
               <p className="text-sm font-medium text-foreground">Hvilke regelverk skal vurderes?</p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {ALL_FRAMEWORKS.map((fw) => {
@@ -200,18 +238,41 @@ export function GapAnalysisWizardDialog({ open, onOpenChange, customers }: Props
                   );
                 })}
               </div>
+
+              <div className="rounded-lg border p-3 space-y-2">
+                <p className="text-sm font-medium text-foreground">Kunden må matche minst</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {Array.from({ length: Math.max(1, selectedFrameworks.length) }, (_, i) => i + 1).map((n) => (
+                    <button
+                      key={n}
+                      type="button"
+                      onClick={() => setMinMatches(n)}
+                      className={cn(
+                        "h-8 min-w-8 rounded-md border px-2 text-sm font-medium transition-colors",
+                        minMatches === n
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-border text-muted-foreground hover:bg-muted/40",
+                      )}
+                    >
+                      {n}
+                    </button>
+                  ))}
+                  <span className="self-center text-xs text-muted-foreground ml-1">
+                    av {selectedFrameworks.length || 0} valgte regelverk
+                  </span>
+                </div>
+              </div>
             </div>
           )}
 
           {step === 2 && (
             <div className="space-y-3">
               <div className="flex items-center justify-between gap-3">
-                <p className="text-sm font-medium text-foreground">Hvilke kunder skal analyseres?</p>
-                <button
-                  type="button"
-                  onClick={toggleAll}
-                  className="text-xs font-medium text-primary hover:underline"
-                >
+                <p className="text-sm font-medium text-foreground">
+                  {matches.length} kunde{matches.length === 1 ? "" : "r"} matcher minst {minMatches} av{" "}
+                  {selectedFrameworks.length} regelverk
+                </p>
+                <button type="button" onClick={toggleAll} className="text-xs font-medium text-primary hover:underline">
                   {allFilteredSelected ? "Fjern alle" : "Velg alle"}
                 </button>
               </div>
@@ -226,35 +287,52 @@ export function GapAnalysisWizardDialog({ open, onOpenChange, customers }: Props
               </div>
               <ScrollArea className="h-[280px] rounded-lg border">
                 <div className="divide-y">
-                  {filteredCustomers.map((c) => {
-                    const sel = selectedCustomers.includes(c.id);
+                  {filteredMatches.map((m) => {
+                    const sel = selectedCustomers.includes(m.customerId);
+                    const missing = selectedFrameworks.length - m.matchCount;
                     return (
                       <button
-                        key={c.id}
+                        key={m.customerId}
                         type="button"
-                        onClick={() => toggleCustomer(c.id)}
+                        onClick={() => toggleCustomer(m.customerId)}
                         className={cn(
-                          "flex w-full items-center gap-3 px-3 py-2.5 text-left transition-colors",
+                          "flex w-full items-start gap-3 px-3 py-2.5 text-left transition-colors",
                           sel ? "bg-primary/5" : "hover:bg-muted/40",
                         )}
                       >
-                        <Checkbox checked={sel} className="pointer-events-none" />
+                        <Checkbox checked={sel} className="mt-0.5 pointer-events-none" />
                         <div className="min-w-0 flex-1">
-                          <div className="text-sm font-medium text-foreground truncate">{c.customer_name}</div>
+                          <div className="text-sm font-medium text-foreground truncate">{m.customerName}</div>
                           <div className="text-xs text-muted-foreground truncate">
-                            {c.industry || "—"}{c.country_code ? ` · ${c.country_code}` : ""}
+                            {m.customer.industry || "—"}
+                            {m.customer.country_code ? ` · ${m.customer.country_code}` : ""}
+                            {missing > 0 ? ` · ${missing} uten treff` : ""}
+                          </div>
+                          <div className="flex flex-wrap gap-1 mt-1.5">
+                            {m.recommendedIds.map((id) => (
+                              <Badge key={id} className="text-[11px] font-normal bg-primary/10 text-primary hover:bg-primary/10 border-transparent">
+                                {fwName(id)} · anbefalt
+                              </Badge>
+                            ))}
+                            {m.activatedIds.map((id) => (
+                              <Badge key={id} variant="outline" className="text-[11px] font-normal text-muted-foreground">
+                                {fwName(id)} · aktivert
+                              </Badge>
+                            ))}
                           </div>
                         </div>
                       </button>
                     );
                   })}
-                  {filteredCustomers.length === 0 && (
-                    <div className="p-6 text-center text-sm text-muted-foreground">Ingen kunder matcher søket.</div>
+                  {filteredMatches.length === 0 && (
+                    <div className="p-6 text-center text-sm text-muted-foreground">
+                      Ingen kunder matcher kriteriet. Prøv færre regelverk eller lavere terskel.
+                    </div>
                   )}
                 </div>
               </ScrollArea>
               <p className="text-xs text-muted-foreground">
-                {selectedCustomers.length} av {customers.length} kunder valgt
+                {selectedCustomers.length} av {matches.length} matchende kunder valgt
               </p>
             </div>
           )}
@@ -268,11 +346,11 @@ export function GapAnalysisWizardDialog({ open, onOpenChange, customers }: Props
                   </div>
                   <div className="space-y-1">
                     <p className="text-sm text-foreground font-medium">
-                      Kjør compliance-analyse for {selectedCustomers.length} kunde
+                      Kjør behovsanalyse for {selectedCustomers.length} kunde
                       {selectedCustomers.length === 1 ? "" : "r"}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {selectedFrameworks.length} regelverk · matcher gap mot dine tjenester
+                      {selectedFrameworks.length} regelverk · matcher behov mot dine tjenester
                     </p>
                   </div>
                   <Button onClick={runAnalysis} className="gap-2">
@@ -294,29 +372,46 @@ export function GapAnalysisWizardDialog({ open, onOpenChange, customers }: Props
           {step === 4 && (
             <div className="space-y-4">
               {/* Summary */}
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-3 gap-3">
                 <div className="rounded-lg border bg-muted/30 p-3">
-                  <div className="text-xs text-muted-foreground">Identifiserte gap</div>
+                  <div className="text-xs text-muted-foreground">Kunder i kampanjen</div>
+                  <div className="text-xl font-semibold tabular-nums">{results.length}</div>
+                </div>
+                <div className="rounded-lg border bg-muted/30 p-3">
+                  <div className="text-xs text-muted-foreground">Identifiserte behov</div>
                   <div className="text-xl font-semibold tabular-nums">{totals.gaps}</div>
                 </div>
                 <div className="rounded-lg border bg-muted/30 p-3">
-                  <div className="text-xs text-muted-foreground">Tjenester som matcher</div>
-                  <div className="text-xl font-semibold tabular-nums">{totals.services}</div>
+                  <div className="text-xs text-muted-foreground">Samlet potensial</div>
+                  <div className="text-xl font-semibold tabular-nums">{formatCurrency(totals.potential)}</div>
                 </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <p className="text-sm font-medium text-foreground">Kampanjenavn</p>
+                <Input
+                  value={campaignName}
+                  onChange={(e) => setCampaignName(e.target.value)}
+                  placeholder={effectiveCampaignName}
+                  className="h-9"
+                />
               </div>
 
               {/* Per-customer results */}
               <div className="space-y-2">
                 {results.map((r) => (
                   <div key={r.customerId} className="rounded-lg border p-3 space-y-2">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <div className="text-sm font-medium text-foreground truncate">{r.customerName}</div>
-                      <div className="text-xs text-muted-foreground">
-                        {r.gapCount} gap · {r.industry || "—"}
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <div className="text-sm font-medium text-foreground truncate">{r.customerName}</div>
+                        <div className="text-xs text-muted-foreground">
+                          {r.gapCount} behov · {r.industry || "—"}
+                        </div>
+                      </div>
+                      <div className="text-sm font-semibold tabular-nums shrink-0">
+                        {formatCurrency(r.totalPotential)}
                       </div>
                     </div>
-                  </div>
                     <div className="flex flex-wrap gap-1.5">
                       {r.services.map((s) => (
                         <Badge
@@ -359,9 +454,9 @@ export function GapAnalysisWizardDialog({ open, onOpenChange, customers }: Props
                 <Button variant="outline" size="sm" onClick={() => onOpenChange(false)}>
                   Lukk
                 </Button>
-                <Button size="sm" className="gap-2" onClick={handleCreateOffer}>
+                <Button size="sm" className="gap-2" onClick={handleCreateBulkOffers} disabled={results.length === 0}>
                   <Send className="h-4 w-4" />
-                  Opprett tilbud
+                  Opprett bulk-tilbud ({results.length})
                 </Button>
               </>
             )}

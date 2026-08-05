@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Plus, MoreVertical, Database, Trash2, LayoutGrid, Rows3, Search, ArrowUp, ArrowDown, ArrowUpDown, Users, ArrowRight, Filter, X, Columns3, ScanSearch, Info } from "lucide-react";
 import { MSPCustomerCard } from "@/components/msp/MSPCustomerCard";
 import { AddMSPCustomerDialog } from "@/components/msp/AddMSPCustomerDialog";
-import { GapAnalysisWizardDialog } from "@/components/msp/GapAnalysisWizardDialog";
+import { NeedsAnalysisWizardDialog } from "@/components/msp/NeedsAnalysisWizardDialog";
 import { MSPCreateOfferDialog } from "@/components/msp/MSPCreateOfferDialog";
 import { ActivateRecommendationsDialog } from "@/components/msp/ActivateRecommendationsDialog";
 import { EnterCustomerContextDialog } from "@/components/msp/EnterCustomerContextDialog";
@@ -767,11 +767,11 @@ export default function MSPDashboard() {
                   <TooltipTrigger asChild>
                     <Button variant="outline" onClick={() => setGapOpen(true)} className="gap-2">
                       <ScanSearch className="h-4 w-4" />
-                      Kjør GAP-analyse
+                      Behovsanalyse
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent side="bottom" className="max-w-xs">
-                    Se hvilke krav i valgte regelverk kundene mangler dekning for – og hvilke av dine tjenester som kan lukke gapene.
+                    Finn hvilke kunder som matcher valgte regelverk, se hvilke tjenester som dekker behovet – og opprett tilbud til alle i én kampanje.
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -1181,7 +1181,7 @@ export default function MSPDashboard() {
           </div>
 
         <AddMSPCustomerDialog open={addOpen} onOpenChange={setAddOpen} onSuccess={() => refetch()} />
-        <GapAnalysisWizardDialog open={gapOpen} onOpenChange={setGapOpen} customers={filtered} />
+        <NeedsAnalysisWizardDialog open={gapOpen} onOpenChange={setGapOpen} customers={filtered} />
         {activateFor && (() => {
           const picked = offerSelection[activateFor.id] || [];
           const items = deriveOfferSuggestions(activateFor).filter((s) => picked.includes(s.id));
