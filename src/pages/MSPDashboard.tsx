@@ -401,7 +401,7 @@ function RecommendationCell({
         <button
           type="button"
           onClick={onOffer}
-          className="inline-flex items-center rounded-full bg-foreground px-2 py-0.5 text-[11px] font-medium text-background hover:bg-foreground/90 transition-colors"
+          className="inline-flex items-center rounded-full bg-primary px-2 py-0.5 text-[11px] font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
         >
           Tilbud ({picked.length})
         </button>
@@ -410,7 +410,8 @@ function RecommendationCell({
         <button
           type="button"
           onClick={onActivate}
-          className="inline-flex items-center rounded-full border border-success/50 bg-success/10 px-2 py-0.5 text-[11px] font-medium text-foreground hover:bg-success/20 transition-colors"
+          className="inline-flex items-center rounded-full bg-warning px-2 py-0.5 text-[11px] font-medium text-warning-foreground hover:bg-warning/90 transition-colors"
+
         >
           Aktiver ({activatableCount})
         </button>
