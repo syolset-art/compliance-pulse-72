@@ -166,6 +166,9 @@ Apple-inspired professional aesthetic: clean whites, subtle grays, crisp blue ac
     --success: 161 70% 37%;
     --success-foreground: 0 0% 100%;
 
+    --success-soft: 158 45% 55%;
+    --success-soft-foreground: 155 60% 10%;
+
     --warning: 33 87% 55%;
     --warning-foreground: 0 0% 0%;
 
