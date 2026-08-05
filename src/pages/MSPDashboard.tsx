@@ -1110,6 +1110,29 @@ export default function MSPDashboard() {
                               </TableCell>
                             )}
 
+                            {isVisible("potential") && (
+                              <TableCell className="text-right align-top">
+                                {(() => {
+                                  const p = customerSalesPotential(c);
+                                  if (p.total <= 0) return <span className="text-muted-foreground text-sm">—</span>;
+                                  return (
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <span className="text-sm font-medium tabular-nums text-foreground cursor-help">
+                                          {formatKr(p.total)}
+                                        </span>
+                                      </TooltipTrigger>
+                                      <TooltipContent side="top" className="max-w-[240px] text-xs">
+                                        <p>Estimert førsteårs potensial eks. mva.</p>
+                                        <p className="mt-1">Tjenester: {formatKr(p.services)} (1 500 kr/t)</p>
+                                        <p>Produkter og regelverk: {formatKr(p.recurring)} (12 mnd)</p>
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  );
+                                })()}
+                              </TableCell>
+                            )}
+
 
                             {isVisible("score") && (
                               <TableCell className="text-right">
