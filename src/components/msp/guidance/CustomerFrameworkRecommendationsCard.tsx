@@ -122,21 +122,49 @@ export function CustomerFrameworkRecommendationsCard({
         {suggestions.length === 0 && activated.length === 0 && (
           <p className="text-sm text-muted-foreground">Ingen regelverk foreslått ennå.</p>
         )}
-        {suggestions.map((s) => (
-          <button
-            key={s.id}
-            type="button"
-            onClick={() => onActivate([s])}
-            title="Aktiver direkte"
-            className={cn(
-              "inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-recommend focus-visible:ring-offset-1",
-              "border-recommend/60 bg-recommend/15 text-recommend hover:bg-recommend/25 hover:border-recommend",
-            )}
-          >
-            <Zap className="h-2.5 w-2.5 shrink-0" />
-            {s.label}
-          </button>
-        ))}
+        {suggestions.map((s) => {
+          const isManual = manualIds.has(s.id);
+          return (
+            <span
+              key={s.id}
+              className={cn(
+                "inline-flex items-center rounded-full border text-[11px] font-medium transition-colors",
+                isManual
+                  ? "border-border bg-muted/40 text-foreground hover:bg-muted"
+                  : "border-recommend/60 bg-recommend/15 text-recommend hover:bg-recommend/25 hover:border-recommend",
+              )}
+            >
+              <button
+                type="button"
+                onClick={() => onActivate([s])}
+                title={
+                  isManual
+                    ? "Lagt til av deg — ikke foreslått av KI-agenten. Klikk for å aktivere."
+                    : "Aktiver direkte"
+                }
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-recommend focus-visible:ring-offset-1"
+              >
+                {s.activatable && <Zap className="h-2.5 w-2.5 shrink-0" />}
+                {s.label}
+                {isManual && (
+                  <span className="text-[9px] uppercase tracking-wide opacity-70">
+                    Manuelt valgt
+                  </span>
+                )}
+              </button>
+              {isManual && (
+                <button
+                  type="button"
+                  onClick={() => removeManual(s.id)}
+                  aria-label={`Fjern ${s.label}`}
+                  className="pr-2 pl-0.5 py-1 opacity-60 hover:opacity-100"
+                >
+                  <X className="h-2.5 w-2.5" />
+                </button>
+              )}
+            </span>
+          );
+        })}
         {activatedTargets.map((target) => (
           <button
             key={target.id}
@@ -158,16 +186,18 @@ export function CustomerFrameworkRecommendationsCard({
         ))}
       </div>
 
-      {suggestions.length > 0 && (
-        <div className="mt-3 flex flex-wrap items-center gap-3">
+      <div className="mt-3 flex flex-wrap items-center gap-3">
+        {suggestions.some((s) => s.activatable) && (
           <button
             type="button"
-            onClick={() => onActivate(suggestions)}
+            onClick={() => onActivate(suggestions.filter((s) => s.activatable))}
             className="inline-flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground underline underline-offset-2 transition-colors"
           >
             <Zap className="h-3 w-3" />
             Aktiver alle anbefalte
           </button>
+        )}
+        {suggestions.length > 0 && (
           <button
             type="button"
             onClick={() => onOffer(suggestions)}
@@ -175,8 +205,27 @@ export function CustomerFrameworkRecommendationsCard({
           >
             Lag tilbud i stedet
           </button>
-        </div>
-      )}
+        )}
+        <button
+          type="button"
+          onClick={() => setAddOpen(true)}
+          className="inline-flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground underline underline-offset-2 transition-colors"
+        >
+          <Plus className="h-3 w-3" />
+          Legg til regelverk, standard eller retningslinje
+        </button>
+      </div>
+
+      <AddFrameworkDialog
+        open={addOpen}
+        onOpenChange={setAddOpen}
+        activatedLabels={activated}
+        existingIds={suggestions.map((s) => s.id)}
+        onAdd={(item) =>
+          setManual((prev) => (prev.some((m) => m.id === item.id) ? prev : [...prev, item]))
+        }
+      />
+
 
       <div className="mt-auto pt-4">
         <div className="rounded-lg border border-border/60 bg-muted/20 px-3 py-2.5">
