@@ -369,7 +369,7 @@ function RecommendationCell({
   const activatableCount = suggestions.filter((s) => picked.includes(s.id) && s.activatable).length;
 
   return (
-    <div className="flex flex-wrap items-center gap-1 max-w-[320px]">
+    <div className="flex flex-wrap items-center gap-1 max-w-[284px]">
       {shown.map((s) => {
         const on = picked.includes(s.id);
         return (
@@ -457,9 +457,9 @@ const COLUMN_ORDER: ColumnKey[] = ["customer", "country", "industry", "recommend
 // 0 = always shown; 640=sm, 768=md, 1024=lg, 1280=xl
 const COLUMN_MIN_BP: Record<ColumnKey, number> = {
   customer: 0,
+  potential: 0,
   score: 0,
-  recommendations: 640,
-  potential: 768,
+  recommendations: 1024,
   activated: 1024,
   industry: 1024,
   country: 1280,
@@ -467,7 +467,7 @@ const COLUMN_MIN_BP: Record<ColumnKey, number> = {
 
 
 
-const COLUMN_STORAGE_KEY = "msp_dashboard_columns_v5";
+const COLUMN_STORAGE_KEY = "msp_dashboard_columns_v6";
 
 
 
@@ -986,7 +986,7 @@ export default function MSPDashboard() {
                           </TableHead>
                         )}
                         {isVisible("industry") && (
-                          <TableHead className="w-[140px] text-foreground/80 align-middle">
+                          <TableHead className="w-[100px] text-foreground/80 align-middle">
                             <div className="inline-flex h-8 items-center">
                               <ColumnFilter
                                 label="Bransje"
@@ -998,7 +998,7 @@ export default function MSPDashboard() {
                           </TableHead>
                         )}
                         {isVisible("recommendations") && (
-                          <TableHead className="min-w-[280px] text-foreground/80 align-middle">
+                          <TableHead className="w-[300px] max-w-[300px] text-foreground/80 align-middle">
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <span className="inline-flex h-8 items-center gap-1.5 text-sm font-medium cursor-help">
@@ -1012,7 +1012,7 @@ export default function MSPDashboard() {
                           </TableHead>
                         )}
                         {isVisible("activated") && (
-                          <TableHead className="min-w-[200px] text-foreground/80 align-middle">
+                          <TableHead className="w-[200px] max-w-[200px] text-foreground/80 align-middle">
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <span className="inline-flex h-8 items-center gap-1.5 text-sm font-medium cursor-help">
@@ -1088,10 +1088,13 @@ export default function MSPDashboard() {
                               </TableCell>
                             )}
                             {isVisible("industry") && (
-                              <TableCell className="text-muted-foreground">{c.industry || "—"}</TableCell>
+                              <TableCell className="text-muted-foreground max-w-[100px]">
+                                <span className="block truncate" title={c.industry || "—"}>{c.industry || "—"}</span>
+                              </TableCell>
                             )}
                             {isVisible("recommendations") && (
-                              <TableCell onClick={(e) => e.stopPropagation()} className="align-top">
+                              <TableCell onClick={(e) => e.stopPropagation()} className="align-top max-w-[300px]">
+
                                 <RecommendationCell
                                   suggestions={deriveOfferSuggestions(c)}
                                   picked={offerSelection[c.id] || []}
@@ -1102,14 +1105,15 @@ export default function MSPDashboard() {
                               </TableCell>
                             )}
                             {isVisible("activated") && (
-                              <TableCell className="align-top">
+                              <TableCell className="align-top max-w-[200px]">
+
                                 {(() => {
                                   const items = deriveActivatedItems(c);
                                   if (items.length === 0) {
                                     return <span className="text-muted-foreground text-sm">—</span>;
                                   }
                                   return (
-                                    <div className="flex flex-wrap items-center gap-1 max-w-[260px]">
+                                    <div className="flex flex-wrap items-center gap-1 max-w-[184px]">
                                       {items.slice(0, 4).map((label) => (
                                         <Badge
                                           key={label}
