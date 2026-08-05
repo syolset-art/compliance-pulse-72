@@ -406,6 +406,18 @@ export default function MSPCustomerDetail() {
                 onActivate={(items) => setActivateItems(items)}
               />
 
+              <CustomerMaturityMirrorCard
+                customerId={customerId!}
+                customerName={customer.name || customer.customer_name || "Kunden"}
+                customerOrgNumber={(customer as any).org_number ?? null}
+                areaProgress={areaProgress}
+                totalAnswered={totalAnswered}
+                totalQuestions={totalQuestions}
+                onOpenProducts={() => handleTabChange("assessment")}
+              />
+
+
+
 
 
 
