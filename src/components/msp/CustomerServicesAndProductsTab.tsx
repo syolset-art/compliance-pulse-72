@@ -2,23 +2,29 @@ import { useEffect, useMemo, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import { Layers, Shield, Package, ClipboardList, ChevronDown } from "lucide-react";
+import { Shield, Package, ChevronDown, Check, Plus, Wrench } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
 import { frameworks as ALL_FRAMEWORKS } from "@/lib/frameworkDefinitions";
 import {
   getModuleState,
   formatPeriodEnd,
-  type ModuleLifecycle,
 } from "@/lib/moduleActivationState";
-import { useCustomerOffers, type SavedOffer } from "@/lib/customerOffers";
 import {
-  pickDeliveryFormTemplate,
-  loadDeliveryForm,
-  deliveryFormProgress,
-} from "@/lib/deliveryFormTemplates";
+  CORE_TIERS,
+  VENDOR_TIERS,
+  getCoreTier,
+  getVendorTier,
+  type CoreTierId,
+  type VendorTierId,
+} from "@/lib/planConstants";
 import type { FrameworkRecommendation } from "@/lib/regulationRecommender";
+import { ModuleCard } from "@/components/subscriptions/ModuleCard";
+import {
+  ActivateRecommendationsDialog,
+  type ActivatableItem,
+} from "./ActivateRecommendationsDialog";
+import { MSPCreateOfferDialog } from "./MSPCreateOfferDialog";
 import { CustomerModulesTab } from "./CustomerModulesTab";
 import { MSPMaturityServiceMatrix } from "./MSPMaturityServiceMatrix";
 import { RecommendedNextStepsCard } from "./RecommendedNextStepsCard";
@@ -35,56 +41,50 @@ interface Props {
   onUpdate?: () => void;
 }
 
+/** Produktene partneren kan aktivere hos kunden. */
+interface ProductDef {
+  key: string;
+  moduleKey?: string;
+  title: string;
+  description: string;
+  usage?: { current: number; suffix: string };
+}
 
-/** Modulene partneren kan aktivere hos kunden. */
-const MODULES: { key: string; title: string }[] = [
-  { key: "core", title: "Mynder Core" },
-  { key: "vendor", title: "Leverandørmodul" },
-  { key: "systems", title: "Systemer" },
-  { key: "assets", title: "Verdier" },
+const PRODUCTS: ProductDef[] = [
+  {
+    key: "core",
+    moduleKey: "core",
+    title: "Mynder Core",
+    description: "Grunnmodulen. Oppgaver, avvik, samsvar, behandlingsprotokoll og dokumenter.",
+    usage: { current: 10, suffix: "systemer" },
+  },
+  {
+    key: "vendor",
+    moduleKey: "vendors",
+    title: "Leverandørmodul",
+    description: "TPRM og leverandørvurdering.",
+    usage: { current: 11, suffix: "leverandører" },
+  },
+  {
+    key: "systems",
+    title: "Systemer",
+    description: "Automatisk kartlegging og oversikt over systemene kunden bruker.",
+  },
+  {
+    key: "assets",
+    title: "Verdier",
+    description: "System- og eiendelsregister.",
+  },
 ];
 
-const STATUS_LABEL: Record<ModuleLifecycle, string> = {
-  active: "Aktiv",
-  pending_cancellation: "Sagt opp",
-  inactive: "Ikke aktivert",
-};
+const FLAT_PRICE: Record<string, number> = { systems: 690, assets: 690 };
 
-function StatusPill({ status, note }: { status: ModuleLifecycle; note?: string }) {
-  return (
-    <Badge
-      variant="outline"
-      className={cn(
-        "text-[11px] font-medium",
-        status === "active" && "bg-success/10 text-success border-success/30",
-        status === "pending_cancellation" && "bg-warning/10 text-warning border-warning/30",
-        status === "inactive" && "bg-muted text-muted-foreground border-border",
-      )}
-    >
-      {STATUS_LABEL[status]}
-      {note ? ` — ${note}` : ""}
-    </Badge>
-  );
-}
-
-const OFFER_STATUS_LABEL: Record<string, string> = {
-  draft: "Utkast",
-  sent: "Sendt",
-  delivered: "Levert",
-};
-
-function offerStatusClass(status?: string) {
-  if (status === "delivered") return "bg-success/10 text-success border-success/30";
-  if (status === "sent") return "bg-primary/10 text-primary border-primary/30";
-  return "bg-muted text-muted-foreground border-border";
-}
-
-function formatDate(iso?: string) {
-  if (!iso) return "—";
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return "—";
-  return d.toLocaleDateString("nb-NO", { day: "numeric", month: "short", year: "numeric" });
-}
+/** Rene tjenester som må leveres som oppdrag. */
+const SERVICE_SUGGESTIONS: { id: string; label: string; hours: number }[] = [
+  { id: "svc-maturity", label: "Modenhetsvurdering", hours: 12 },
+  { id: "svc-pentest", label: "Penetrasjonstest", hours: 30 },
+  { id: "svc-ropa", label: "Behandlingsprotokoll (RoPA)", hours: 10 },
+];
 
 export function CustomerServicesAndProductsTab({
   customerId,
@@ -96,7 +96,6 @@ export function CustomerServicesAndProductsTab({
   onOpenDeliveries,
   onUpdate,
 }: Props) {
-
   const [tick, setTick] = useState(0);
   useEffect(() => {
     const refresh = () => setTick((n) => n + 1);
@@ -104,166 +103,232 @@ export function CustomerServicesAndProductsTab({
     return () => window.removeEventListener("modules:changed", refresh);
   }, []);
 
-  const moduleRows = useMemo(
+  const [showAll, setShowAll] = useState(false);
+  const [selectedFrameworks, setSelectedFrameworks] = useState<string[]>([]);
+  const [activateItems, setActivateItems] = useState<ActivatableItem[] | null>(null);
+  const [offerItems, setOfferItems] = useState<{ label: string; hours: number }[] | null>(null);
+
+  const products = useMemo(
     () =>
-      MODULES.map((m) => {
-        const state = getModuleState(m.key);
+      PRODUCTS.map((p) => {
+        const state = getModuleState(p.key);
+        const tier =
+          p.moduleKey === "core"
+            ? getCoreTier((state.tierId as CoreTierId) ?? CORE_TIERS[0].id)
+            : p.moduleKey === "vendors"
+              ? getVendorTier((state.tierId as VendorTierId) ?? VENDOR_TIERS[0].id)
+              : null;
         return {
-          ...m,
+          ...p,
           status: state.status,
-          note:
-            state.status === "pending_cancellation"
-              ? `aktiv til ${formatPeriodEnd(state.cancelAt)}`
-              : state.tierId,
+          cancelAt: state.cancelAt,
+          tierLabel: tier?.label,
+          limit:
+            tier && "systemLimit" in tier
+              ? tier.systemLimit
+              : tier && "vendorLimit" in tier
+                ? tier.vendorLimit
+                : undefined,
+          price: tier ? tier.monthlyPriceKr : (FLAT_PRICE[p.key] ?? 0),
         };
       }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [tick],
   );
 
-  const frameworkNames = useMemo(
+  const activeSet = useMemo(() => new Set(activeFrameworkIds), [activeFrameworkIds]);
+
+  const activeFrameworks = useMemo(
     () =>
-      activeFrameworkIds
-        .map((id) => ALL_FRAMEWORKS.find((f) => f.id === id)?.name || id)
-        .filter(Boolean),
+      activeFrameworkIds.map((id) => ({
+        id,
+        name: ALL_FRAMEWORKS.find((f) => f.id === id)?.name || id,
+      })),
     [activeFrameworkIds],
   );
 
-  const offers: SavedOffer[] = useCustomerOffers(customerId);
-  const activeModules = moduleRows.filter((m) => m.status !== "inactive");
-  const [showAll, setShowAll] = useState(false);
+  const recommendedFrameworks = useMemo(() => {
+    const seen = new Set<string>();
+    return [...confirmed, ...recommended]
+      .filter((r) => {
+        const id = r.frameworkId;
+        if (!id || activeSet.has(id) || seen.has(id)) return false;
+        seen.add(id);
+        return true;
+      })
+      .map((r) => ({
+        id: r.frameworkId,
+        name: ALL_FRAMEWORKS.find((f) => f.id === r.frameworkId)?.name || r.label || r.frameworkId,
+      }));
+  }, [recommended, confirmed, activeSet]);
 
-  const byDate = (a: SavedOffer, b: SavedOffer) =>
-    new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+  const activeProductCount = products.filter((p) => p.status !== "inactive").length;
 
-  const ongoing = useMemo(
-    () =>
-      offers
-        .filter((o) => (o.status ?? "draft") !== "delivered")
-        .sort(byDate)
-        .map((o) => {
-          const template = pickDeliveryFormTemplate({
-            name: o.name,
-            templateIds: o.templateIds,
-          });
-          const prog = deliveryFormProgress(template, loadDeliveryForm(o.id));
-          return {
-            ...o,
-            progress: prog.total ? Math.round((prog.done / prog.total) * 100) : 0,
-          };
-        }),
-    [offers],
-  );
+  const toggleFramework = (id: string) =>
+    setSelectedFrameworks((prev) =>
+      prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id],
+    );
 
-  const delivered = useMemo(() => offers.filter((o) => o.status === "delivered"), [offers]);
+  const activateSelectedFrameworks = () => {
+    setActivateItems(
+      selectedFrameworks.map((id) => ({
+        id,
+        label: ALL_FRAMEWORKS.find((f) => f.id === id)?.name || id,
+        kind: "framework" as const,
+        activatable: true,
+        frameworkId: id,
+        price: 490,
+      })),
+    );
+  };
 
+  const activateProduct = (p: (typeof products)[number]) => {
+    setActivateItems([
+      {
+        id: p.key,
+        label: p.title,
+        kind: "module",
+        activatable: true,
+        moduleKey: p.moduleKey ?? p.key,
+        price: p.price,
+      },
+    ]);
+  };
 
   return (
     <div className="space-y-5">
-      {/* ── 1. Aktivert hos kunden ── */}
+      {/* ── 1. Regelverk: aktivert vs. anbefalt ── */}
       <Card className="p-5 space-y-4">
         <div className="flex items-center gap-2">
-          <Package className="h-4 w-4 text-primary" />
-          <h2 className="text-sm font-semibold text-foreground">Aktivert hos kunden</h2>
+          <Shield className="h-4 w-4 text-primary" />
+          <h2 className="text-sm font-semibold text-foreground">Regelverk</h2>
           <span className="text-xs text-muted-foreground">
-            {activeModules.length} produkter · {frameworkNames.length} regelverk
+            {activeFrameworks.length} aktivert · {recommendedFrameworks.length} anbefalt
           </span>
+          {selectedFrameworks.length > 0 && (
+            <Button size="sm" className="ml-auto h-7 text-xs" onClick={activateSelectedFrameworks}>
+              Aktiver ({selectedFrameworks.length})
+            </Button>
+          )}
         </div>
 
-        <div className="divide-y divide-border/60 rounded-lg border border-border/60">
-          {moduleRows.map((m) => (
-            <div key={m.key} className="flex items-center justify-between gap-3 px-3 py-2.5">
-              <div className="flex items-center gap-2 min-w-0">
-                <Layers className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                <span className="text-[13px] font-medium text-foreground truncate">{m.title}</span>
-              </div>
-              <StatusPill status={m.status} note={m.note} />
-            </div>
-          ))}
-
-          <div className="flex items-start justify-between gap-3 px-3 py-2.5">
-            <div className="flex items-center gap-2 min-w-0">
-              <Shield className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-              <span className="text-[13px] font-medium text-foreground">Aktive regelverk</span>
-            </div>
-            <div className="flex flex-wrap gap-1 justify-end">
-              {frameworkNames.length === 0 ? (
-                <span className="text-xs text-muted-foreground">Ingen aktivert</span>
+        <div className="space-y-3">
+          <div>
+            <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground mb-1.5">
+              Aktivert
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              {activeFrameworks.length === 0 ? (
+                <span className="text-xs text-muted-foreground">Ingen regelverk aktivert ennå</span>
               ) : (
-                frameworkNames.map((n) => (
-                  <Badge key={n} variant="outline" className="text-[11px]">
-                    {n}
+                activeFrameworks.map((f) => (
+                  <Badge
+                    key={f.id}
+                    variant="outline"
+                    className="text-[11px] gap-1 bg-success/10 text-success border-success/30"
+                  >
+                    <Check className="h-3 w-3" />
+                    {f.name}
                   </Badge>
                 ))
+              )}
+            </div>
+          </div>
+
+          <div>
+            <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground mb-1.5">
+              Anbefalt for denne kunden
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              {recommendedFrameworks.length === 0 ? (
+                <span className="text-xs text-muted-foreground">
+                  Ingen ytterligere regelverk anbefalt
+                </span>
+              ) : (
+                recommendedFrameworks.map((f) => {
+                  const selected = selectedFrameworks.includes(f.id);
+                  return (
+                    <button
+                      key={f.id}
+                      type="button"
+                      onClick={() => toggleFramework(f.id)}
+                      className={cn(
+                        "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] transition-colors",
+                        selected
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-dashed border-border text-muted-foreground hover:border-primary/50 hover:text-foreground",
+                      )}
+                    >
+                      {selected ? <Check className="h-3 w-3" /> : <Plus className="h-3 w-3" />}
+                      {f.name}
+                    </button>
+                  );
+                })
               )}
             </div>
           </div>
         </div>
       </Card>
 
-      {/* ── 2. Pågående oppdrag ── */}
-      <Card className="p-5 space-y-3">
+      {/* ── 2. Produkter ── */}
+      <div className="space-y-3">
         <div className="flex items-center gap-2">
-          <ClipboardList className="h-4 w-4 text-primary" />
-          <h2 className="text-sm font-semibold text-foreground">Pågående oppdrag</h2>
-          <span className="text-xs text-muted-foreground">{ongoing.length} i arbeid</span>
-          {onOpenDeliveries && offers.length > 0 && (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="ml-auto h-7 text-xs"
-              onClick={onOpenDeliveries}
-            >
-              Åpne leveranser
-            </Button>
-          )}
+          <Package className="h-4 w-4 text-primary" />
+          <h2 className="text-sm font-semibold text-foreground">Produkter</h2>
+          <span className="text-xs text-muted-foreground">
+            {activeProductCount} av {products.length} aktivert
+          </span>
         </div>
 
-        {ongoing.length === 0 ? (
-          <p className="text-xs text-muted-foreground">
-            Ingen oppdrag i arbeid. Lag et tilbud fra tjenestene under for å starte et oppdrag.
-          </p>
-        ) : (
-          <div className="divide-y divide-border/60 rounded-lg border border-border/60">
-            {ongoing.map((o) => (
-              <button
-                key={o.id}
-                type="button"
-                onClick={onOpenDeliveries}
-                className="w-full text-left flex items-center justify-between gap-3 px-3 py-2.5 hover:bg-accent/50 transition-colors"
-              >
-                <div className="min-w-0 flex-1">
-                  <p className="text-[13px] font-medium text-foreground truncate">{o.name}</p>
-                  <p className="text-[11px] text-muted-foreground">
-                    {o.offerNumber} · {formatDate(o.sentAt ?? o.createdAt)} ·{" "}
-                    {o.templateIds.length + o.serviceKeys.length} tjenester
-                  </p>
-                  <div className="flex items-center gap-2 mt-1.5">
-                    <Progress value={o.progress} className="h-1 w-28" />
-                    <span className="text-[11px] text-muted-foreground tabular-nums">
-                      {o.progress}%
-                    </span>
-                  </div>
-                </div>
-                <Badge
-                  variant="outline"
-                  className={cn("text-[11px] font-medium shrink-0", offerStatusClass(o.status))}
-                >
-                  {OFFER_STATUS_LABEL[o.status ?? "draft"] ?? "Utkast"}
-                </Badge>
-              </button>
+        <div className="grid gap-4 sm:grid-cols-2">
+          {products.map((p) => (
+            <ModuleCard
+              key={p.key}
+              title={p.title}
+              description={p.description}
+              status={p.status}
+              price={p.price}
+              priceLabel={p.tierLabel}
+              usage={p.usage ? String(p.usage.current) : undefined}
+              usageSuffix={p.usage?.suffix}
+              usageLimit={p.limit != null ? String(p.limit) : undefined}
+              cancelAtLabel={p.cancelAt ? formatPeriodEnd(p.cancelAt) : undefined}
+              action={
+                p.status === "inactive" ? "activate" : p.moduleKey ? "change" : "open"
+              }
+              onClick={() => {
+                if (p.status === "inactive") activateProduct(p);
+                else onUpdate?.();
+              }}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* ── 3. Anbefalte tjenester (leveres som oppdrag) ── */}
+      <Card className="p-4">
+        <div className="flex flex-wrap items-center gap-2">
+          <Wrench className="h-4 w-4 text-primary shrink-0" />
+          <span className="text-sm font-semibold text-foreground">Tjenester</span>
+          <div className="flex flex-wrap gap-1.5">
+            {SERVICE_SUGGESTIONS.map((s) => (
+              <Badge key={s.id} variant="outline" className="text-[11px]">
+                {s.label}
+              </Badge>
             ))}
           </div>
-        )}
-
-        {delivered.length > 0 && (
-          <p className="text-[11px] text-muted-foreground">
-            {delivered.length} {delivered.length === 1 ? "oppdrag" : "oppdrag"} levert tidligere.
-          </p>
-        )}
+          <Button
+            variant="outline"
+            size="sm"
+            className="ml-auto h-7 text-xs"
+            onClick={() => setOfferItems(SERVICE_SUGGESTIONS.map((s) => ({ label: s.label, hours: s.hours })))}
+          >
+            Legg i tilbud
+          </Button>
+        </div>
       </Card>
 
-      {/* ── 3. Anbefalt for økt modenhet ── */}
+      {/* ── 4. Anbefalt for økt modenhet ── */}
       <RecommendedNextStepsCard
         customerId={customerId}
         activeFrameworkIds={activeFrameworkIds}
@@ -292,7 +357,47 @@ export function CustomerServicesAndProductsTab({
           <MSPMaturityServiceMatrix customerName={customerName} customerEmail={customerEmail} />
         </CollapsibleContent>
       </Collapsible>
+
+      {activateItems && (
+        <ActivateRecommendationsDialog
+          open={!!activateItems}
+          onOpenChange={(o) => !o && setActivateItems(null)}
+          customerId={customerId}
+          customerName={customerName}
+          items={activateItems}
+          activeFrameworks={activeFrameworkIds}
+          activeModules={products.filter((p) => p.status === "active").map((p) => p.moduleKey ?? p.key)}
+          onActivated={() => {
+            setActivateItems(null);
+            setSelectedFrameworks([]);
+            setTick((n) => n + 1);
+            onUpdate?.();
+          }}
+          onMoveToOffer={() => {
+            const labels = activateItems.map((i) => ({ label: i.label, hours: 8 }));
+            setActivateItems(null);
+            setOfferItems(labels);
+          }}
+        />
+      )}
+
+      {offerItems && (
+        <MSPCreateOfferDialog
+          open={!!offerItems}
+          onOpenChange={(o) => !o && setOfferItems(null)}
+          customerId={customerId}
+          customerName={customerName}
+          customerContactName={customerName}
+          serviceTitle={`Anbefalte produkter og tjenester for ${customerName}`}
+          offeredServiceNames={offerItems.map((i) => i.label)}
+          activeFrameworks={activeFrameworkIds}
+          defaultTasks={offerItems.map((i) => ({
+            label: i.label,
+            hours: i.hours,
+            owner: "Partner" as const,
+          }))}
+        />
+      )}
     </div>
   );
 }
-
