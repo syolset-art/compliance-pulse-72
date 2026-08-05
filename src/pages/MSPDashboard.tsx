@@ -266,94 +266,189 @@ function deriveOfferSuggestions(c: any): OfferSuggestion[] {
     .map(toLabel)
     .filter((f: string) => f && !active.includes(f));
   const score = c.compliance_score || 0;
-  const ind = c.industry || "";
-  const plan = (c.subscription_plan || "").toLowerCase();
   const modules: string[] = c.active_modules || [];
 
   const out: OfferSuggestion[] = [];
 
-  if (!score) {
-    out.push({ id: "svc-maturity", label: "Modenhetsvurdering", kind: "service", hours: 8, activatable: false });
-  }
-
-  for (const f of recommended.slice(0, 2)) {
+  // Regelverk som bør aktiveres
+  for (const f of recommended) {
     out.push({
       id: `fw-${f}`,
-      label: `Aktiver ${f}`,
+      label: f,
       kind: "framework",
       hours: 6,
       activatable: true,
       frameworkId: f,
-      price: 836,
+      price: 490,
     });
   }
 
-  if (!plan || plan.includes("gratis") || plan.includes("free")) {
+  // Mynder-moduler som ikke er aktivert
+  const moduleCandidates: { key: string; label: string; price: number; hours: number }[] = [
+    { key: "core", label: "Mynder Core", price: 995, hours: 4 },
+    { key: "vendors", label: "Leverandørmodul", price: 1089, hours: 5 },
+    { key: "assets", label: "Assets", price: 490, hours: 3 },
+  ];
+  for (const m of moduleCandidates) {
+    if (modules.includes(m.key)) continue;
     out.push({
-      id: "mod-core",
-      label: "Mynder Core",
+      id: `mod-${m.key}`,
+      label: m.label,
       kind: "module",
-      hours: 4,
-      activatable: !modules.includes("core"),
-      moduleKey: "core",
-      price: 2499,
+      hours: m.hours,
+      activatable: true,
+      moduleKey: m.key,
+      price: m.price,
     });
   }
 
-  if (["Energi", "Helse", "Finans", "Transport", "Bygg og anlegg"].includes(ind)) {
+  // Partnerens egne tjenester
+  const activeServices = new Set(deriveActiveServices(c));
+  const serviceHours: Record<string, number> = {
+    Modenhetsvurdering: 8,
+    "Gap-analyse": 10,
+    Penetrasjonstest: 24,
+    "NIS2-klargjøring": 16,
+    "AI Governance-rammeverk": 12,
+  };
+  const serviceNames: string[] = [];
+  if (!score) serviceNames.push("Modenhetsvurdering");
+  if (score > 0 && score < 60) serviceNames.push("Gap-analyse");
+  for (const s of deriveNeededServices(c)) serviceNames.push(s);
+
+  for (const name of Array.from(new Set(serviceNames))) {
+    if (activeServices.has(name)) continue;
     out.push({
-      id: "mod-vendors",
-      label: "Leverandørmodul",
-      kind: "module",
-      hours: 5,
-      activatable: !modules.includes("vendors"),
-      moduleKey: "vendors",
-      price: 1089,
+      id: `svc-${normalizeServiceKey(name)}`,
+      label: name,
+      kind: "service",
+      hours: serviceHours[name] ?? 8,
+      activatable: false,
     });
   }
-
-  if (active.includes("ISO 27001") || score >= 50) {
-    out.push({ id: "svc-pentest", label: "Penetrasjonstest", kind: "service", hours: 24, activatable: false });
-  }
-
-  if (score > 0 && score < 60) {
-    out.push({ id: "svc-gap", label: "Gap-analyse", kind: "service", hours: 10, activatable: false });
-  }
-
 
   const seen = new Set<string>();
-  return out.filter((s) => (seen.has(s.id) ? false : (seen.add(s.id), true))).slice(0, 3);
+  return out.filter((s) => (seen.has(s.id) ? false : (seen.add(s.id), true)));
 }
 
+// Alt kunden allerede har aktivert — regelverk, moduler og leverte tjenester.
+function deriveActivatedItems(c: any): string[] {
+  const toLabel = (f: any): string => (typeof f === "string" ? f : (f?.label ?? f?.frameworkId ?? ""));
+  const frameworks: string[] = (c.active_frameworks || []).map(toLabel).filter(Boolean);
+  const moduleLabels: Record<string, string> = {
+    core: "Mynder Core",
+    vendors: "Leverandørmodul",
+    assets: "Assets",
+    trust: "Trust Profile",
+    frameworks: "Regelverk",
+  };
+  const modules: string[] = (c.active_modules || []).map((m: string) => moduleLabels[m] || m);
+  return Array.from(new Set([...frameworks, ...modules, ...deriveActiveServices(c)]));
+}
+
+function RecommendationCell({
+  suggestions,
+  picked,
+  onToggle,
+  onOffer,
+  onActivate,
+}: {
+  suggestions: OfferSuggestion[];
+  picked: string[];
+  onToggle: (id: string) => void;
+  onOffer: () => void;
+  onActivate: () => void;
+}) {
+  const [expanded, setExpanded] = useState(false);
+  if (suggestions.length === 0) return <span className="text-muted-foreground text-sm">—</span>;
+
+  const shown = expanded ? suggestions : suggestions.slice(0, 4);
+  const hidden = suggestions.length - shown.length;
+  const activatableCount = suggestions.filter((s) => picked.includes(s.id) && s.activatable).length;
+
+  return (
+    <div className="flex flex-wrap items-center gap-1 max-w-[320px]">
+      {shown.map((s) => {
+        const on = picked.includes(s.id);
+        return (
+          <button
+            key={s.id}
+            type="button"
+            onClick={() => onToggle(s.id)}
+            className={cn(
+              "inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] transition-colors",
+              on
+                ? "border-primary bg-primary text-primary-foreground"
+                : "border-primary/30 bg-primary/10 text-foreground dark:text-primary-foreground hover:border-primary/60",
+            )}
+          >
+            {s.label}
+          </button>
+        );
+      })}
+      {hidden > 0 && (
+        <button
+          type="button"
+          onClick={() => setExpanded(true)}
+          className="text-[11px] text-muted-foreground hover:text-foreground transition-colors"
+        >
+          +{hidden}
+        </button>
+      )}
+      {picked.length > 0 && (
+        <button
+          type="button"
+          onClick={onOffer}
+          className="inline-flex items-center rounded-full bg-foreground px-2 py-0.5 text-[11px] font-medium text-background hover:bg-foreground/90 transition-colors"
+        >
+          Tilbud ({picked.length})
+        </button>
+      )}
+      {activatableCount > 0 && (
+        <button
+          type="button"
+          onClick={onActivate}
+          className="inline-flex items-center rounded-full border border-success/50 bg-success/10 px-2 py-0.5 text-[11px] font-medium text-foreground hover:bg-success/20 transition-colors"
+        >
+          Aktiver ({activatableCount})
+        </button>
+      )}
+    </div>
+  );
+}
+
+
+
 // ===== Responsive column config =====
-type ColumnKey = "customer" | "country" | "industry" | "frameworks" | "recommendations" | "score";
+type ColumnKey = "customer" | "country" | "industry" | "recommendations" | "activated" | "score";
 
 
 const COLUMN_LABELS: Record<ColumnKey, string> = {
   customer: "Kunde",
   country: "Land",
   industry: "Bransje",
-  frameworks: "Regelverk",
   recommendations: "Anbefalte produkter og tjenester",
+  activated: "Aktivert",
   score: "Modenhet",
 };
 
-const COLUMN_ORDER: ColumnKey[] = ["customer", "country", "industry", "frameworks", "recommendations", "score"];
+const COLUMN_ORDER: ColumnKey[] = ["customer", "country", "industry", "recommendations", "activated", "score"];
 
 // Min Tailwind breakpoint (in px) where each column becomes visible by default.
 // 0 = always shown; 640=sm, 768=md, 1024=lg, 1280=xl
 const COLUMN_MIN_BP: Record<ColumnKey, number> = {
   customer: 0,
   score: 0,
-  frameworks: 640,
-  recommendations: 1024,
+  recommendations: 640,
+  activated: 1024,
   industry: 1024,
   country: 1280,
 };
 
 
 
-const COLUMN_STORAGE_KEY = "msp_dashboard_columns_v3";
+const COLUMN_STORAGE_KEY = "msp_dashboard_columns_v4";
+
 
 
 function defaultVisibilityForViewport(): Record<ColumnKey, boolean> {
@@ -881,22 +976,8 @@ export default function MSPDashboard() {
                             </div>
                           </TableHead>
                         )}
-                        {isVisible("frameworks") && (
-                          <TableHead className="w-[180px] text-foreground/80 align-middle">
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <span className="inline-flex h-8 items-center gap-1.5 text-sm font-medium cursor-help">
-                                  Regelverk <Info className="h-3.5 w-3.5 text-foreground/50" />
-                                </span>
-                              </TooltipTrigger>
-                              <TooltipContent side="top" className="max-w-[240px]">
-                                <p>Grønn betyr at regelverket er aktivert. Lilla betyr at det er en anbefaling fra Mynder.</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TableHead>
-                        )}
                         {isVisible("recommendations") && (
-                          <TableHead className="min-w-[240px] text-foreground/80 align-middle">
+                          <TableHead className="min-w-[280px] text-foreground/80 align-middle">
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <span className="inline-flex h-8 items-center gap-1.5 text-sm font-medium cursor-help">
@@ -904,11 +985,26 @@ export default function MSPDashboard() {
                                 </span>
                               </TooltipTrigger>
                               <TooltipContent side="top" className="max-w-[260px]">
-                                <p>Velg forslag og lag et tilbud direkte. Forslagene er utarbeidet av en AI-agent.</p>
+                                <p>Regelverk, Mynder-moduler og egne tjenester som kan selges inn. Velg og lag tilbud eller aktiver direkte. Forslagene er utarbeidet av en AI-agent.</p>
                               </TooltipContent>
                             </Tooltip>
                           </TableHead>
                         )}
+                        {isVisible("activated") && (
+                          <TableHead className="min-w-[200px] text-foreground/80 align-middle">
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <span className="inline-flex h-8 items-center gap-1.5 text-sm font-medium cursor-help">
+                                  Aktivert <Info className="h-3.5 w-3.5 text-foreground/50" />
+                                </span>
+                              </TooltipTrigger>
+                              <TooltipContent side="top" className="max-w-[240px]">
+                                <p>Regelverk, moduler og tjenester kunden allerede har.</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TableHead>
+                        )}
+
                         {isVisible("score") && (
                           <TableHead className="w-[96px] text-right text-foreground/80 align-middle">
                             <button type="button" onClick={() => toggleSort("compliance_score")} className="inline-flex h-8 items-center gap-1.5 text-sm font-medium hover:text-foreground transition-colors">
@@ -958,92 +1054,44 @@ export default function MSPDashboard() {
                             {isVisible("industry") && (
                               <TableCell className="text-muted-foreground">{c.industry || "—"}</TableCell>
                             )}
-                            {isVisible("frameworks") && (
-                              <TableCell onClick={(e) => e.stopPropagation()}>
-                                {(() => {
-                                  const toLabel = (f: any): string =>
-                                    typeof f === "string" ? f : (f?.label ?? f?.frameworkId ?? "");
-                                  const active: string[] = (c.active_frameworks || []).map(toLabel).filter(Boolean);
-                                  const recommended: string[] = (c.recommended_frameworks || [])
-                                    .map(toLabel)
-                                    .filter((f: string) => f && !active.includes(f));
-                                  const all = [...active, ...recommended];
-                                  if (all.length === 0) {
-                                    return <span className="text-muted-foreground text-sm">—</span>;
-                                  }
-                                  return (
-                                    <div className="flex flex-wrap items-center gap-1 max-w-[180px]">
-                                      {active.slice(0, 3).map((f) => (
-                                        <Badge key={f} variant="outline" className="font-normal bg-success/10 text-foreground border-success/30 text-[11px]">
-                                          {f}
-                                        </Badge>
-                                      ))}
-                                      {recommended.slice(0, Math.max(0, 3 - active.length)).map((f) => (
-                                        <Badge key={f} variant="outline" className="font-normal bg-primary/10 text-foreground dark:text-primary-foreground border-primary/30 dark:border-primary/50 text-[11px]">
-                                          {f}
-                                        </Badge>
-                                      ))}
-                                      {all.length > 3 && (
-                                        <span className="text-[11px] text-muted-foreground">+{all.length - 3}</span>
-                                      )}
-                                    </div>
-                                  );
-                                })()}
-                              </TableCell>
-                            )}
                             {isVisible("recommendations") && (
-                              <TableCell onClick={(e) => e.stopPropagation()}>
+                              <TableCell onClick={(e) => e.stopPropagation()} className="align-top">
+                                <RecommendationCell
+                                  suggestions={deriveOfferSuggestions(c)}
+                                  picked={offerSelection[c.id] || []}
+                                  onToggle={(id) => toggleSuggestion(c.id, id)}
+                                  onOffer={() => setOfferFor(c)}
+                                  onActivate={() => setActivateFor(c)}
+                                />
+                              </TableCell>
+                            )}
+                            {isVisible("activated") && (
+                              <TableCell className="align-top">
                                 {(() => {
-                                  const suggestions = deriveOfferSuggestions(c);
-                                  if (suggestions.length === 0) {
+                                  const items = deriveActivatedItems(c);
+                                  if (items.length === 0) {
                                     return <span className="text-muted-foreground text-sm">—</span>;
                                   }
-                                  const picked = offerSelection[c.id] || [];
                                   return (
-                                    <div className="flex flex-wrap items-center gap-1">
-                                      {suggestions.map((s) => {
-                                        const on = picked.includes(s.id);
-                                        return (
-                                          <button
-                                            key={s.id}
-                                            type="button"
-                                            onClick={() => toggleSuggestion(c.id, s.id)}
-                                            className={cn(
-                                              "inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] transition-colors",
-                                              on
-                                                ? "border-primary/50 bg-primary/10 text-foreground"
-                                                : "border-border bg-muted/40 text-muted-foreground hover:text-foreground hover:border-foreground/30",
-                                            )}
-                                          >
-                                            {s.label}
-                                          </button>
-                                        );
-                                      })}
-                                      {picked.length > 0 && (
-                                        <button
-                                          type="button"
-                                          onClick={() => setOfferFor(c)}
-                                          className="inline-flex items-center rounded-full bg-primary px-2 py-0.5 text-[11px] font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+                                    <div className="flex flex-wrap items-center gap-1 max-w-[260px]">
+                                      {items.slice(0, 4).map((label) => (
+                                        <Badge
+                                          key={label}
+                                          variant="outline"
+                                          className="font-normal bg-success/10 text-foreground border-success/30 text-[11px]"
                                         >
-                                          Tilbud ({picked.length})
-                                        </button>
+                                          {label}
+                                        </Badge>
+                                      ))}
+                                      {items.length > 4 && (
+                                        <span className="text-[11px] text-muted-foreground">+{items.length - 4}</span>
                                       )}
-                                      {picked.length > 0 &&
-                                        suggestions.some((s) => picked.includes(s.id) && s.activatable) && (
-                                          <button
-                                            type="button"
-                                            onClick={() => setActivateFor(c)}
-                                            className="inline-flex items-center rounded-full border border-primary/50 bg-background px-2 py-0.5 text-[11px] font-medium text-primary hover:bg-primary/10 transition-colors"
-                                          >
-                                            Aktiver ({suggestions.filter((s) => picked.includes(s.id) && s.activatable).length})
-                                          </button>
-                                        )}
-
                                     </div>
                                   );
                                 })()}
                               </TableCell>
                             )}
+
 
                             {isVisible("score") && (
                               <TableCell className="text-right">
