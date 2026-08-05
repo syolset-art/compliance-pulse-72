@@ -54,6 +54,9 @@ import { CustomerMaturityMirrorCard } from "@/components/msp/guidance/CustomerMa
 import { useCustomerOnboardingFindings } from "@/hooks/useCustomerOnboardingFindings";
 import { CustomerFrameworkRecommendationsCard, type MaturityAssessmentStatus } from "@/components/msp/guidance/CustomerFrameworkRecommendationsCard";
 import { ActivateRecommendationsDialog } from "@/components/msp/ActivateRecommendationsDialog";
+import { EnterCustomerContextDialog } from "@/components/msp/EnterCustomerContextDialog";
+import type { CustomerEntryTarget } from "@/lib/customerEntryRoutes";
+import { usePostActivationPrompt } from "@/hooks/usePostActivationPrompt";
 import type { OfferSuggestion } from "@/lib/offerSuggestions";
 
 import { MSPCreateOfferDialog } from "@/components/msp/MSPCreateOfferDialog";
