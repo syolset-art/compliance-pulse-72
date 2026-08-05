@@ -12,7 +12,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { ShieldCheck, Info, Globe, ArrowRight, Lock, ChevronRight } from "lucide-react";
+import { ShieldCheck, Info, Globe, ArrowRight, Lock, ChevronRight, FileCheck, TrendingUp } from "lucide-react";
 import { MATURITY_AREAS } from "@/lib/trustMaturityQuestions";
 import { getMaturityBand, MATURITY_BANDS } from "@/lib/scoringEngine";
 import { getModuleState } from "@/lib/moduleActivationState";
@@ -37,9 +37,24 @@ interface Props {
   areaProgress: BaselineAreaProgress[];
   totalAnswered: number;
   totalQuestions: number;
+  /** True så snart partneren har svart på minst ett baseline-spørsmål. */
+  hasBaselineAnswers?: boolean;
+  /** Funn fra Laras kartlegging da kunden ble lagt til. */
+  privacyPolicyUrl?: string | null;
   /** Åpne fanen «Tjenester og produkter» når kunden mangler aktivt produkt. */
   onOpenProducts?: () => void;
+  /** Snarvei til anbefalte tjenester og produkter. */
+  onSeeServices?: () => void;
+  /** Snarvei til kundens Regelverk-fane. */
+  onActivateFrameworks?: () => void;
 }
+
+/**
+ * Startpunkt fra kartleggingen: en publisert personvernerklæring dekker ett
+ * kontrollpunkt i Styring og ansvar (gov.privacy_policy) og ett i Personvern
+ * (pri.legal_basis — grunnlaget er beskrevet i erklæringen).
+ */
+const STARTING_POINT_AREAS: Record<string, number> = { governance: 1, privacy: 1 };
 
 /**
  * Speiler kundens modenhet per kontrollområde i sanntid, og gir partneren en
@@ -53,7 +68,11 @@ export function CustomerMaturityMirrorCard({
   areaProgress,
   totalAnswered,
   totalQuestions,
+  hasBaselineAnswers = false,
+  privacyPolicyUrl,
   onOpenProducts,
+  onSeeServices,
+  onActivateFrameworks,
 }: Props) {
   const navigate = useNavigate();
   const { enterCustomerOrg } = useActiveOrganization();
@@ -74,8 +93,22 @@ export function CustomerMaturityMirrorCard({
   );
   const hasAccess = activeProducts.length > 0;
 
-  const byId = new Map(areaProgress.map((a) => [a.id, a]));
-  const score = totalQuestions > 0 ? Math.round((totalAnswered / totalQuestions) * 100) : 0;
+  /** Vis startpunkt fra kartleggingen inntil partneren har svart selv. */
+  const usingStartingPoint = !hasBaselineAnswers && !!privacyPolicyUrl;
+
+  const effectiveProgress = useMemo<BaselineAreaProgress[]>(() => {
+    if (!usingStartingPoint) return areaProgress;
+    return areaProgress.map((a) => ({
+      ...a,
+      answered: Math.min(a.total, STARTING_POINT_AREAS[a.id] ?? 0),
+    }));
+  }, [areaProgress, usingStartingPoint]);
+
+  const byId = new Map(effectiveProgress.map((a) => [a.id, a]));
+  const effectiveAnswered = usingStartingPoint
+    ? effectiveProgress.reduce((s, a) => s + a.answered, 0)
+    : totalAnswered;
+  const score = totalQuestions > 0 ? Math.round((effectiveAnswered / totalQuestions) * 100) : 0;
   const totalBand = getMaturityBand(score);
 
 
@@ -95,9 +128,10 @@ export function CustomerMaturityMirrorCard({
             <h3 className="text-sm font-semibold text-foreground">Modenhet per kontrollområde</h3>
             <span className="inline-flex items-center gap-1 rounded-full border border-recommend/30 bg-recommend/10 px-2 py-0.5 text-[11px] font-medium text-recommend">
               <Globe className="h-3 w-3" />
-              Estimert fra baseline-svar
+              {usingStartingPoint ? "Startpunkt fra Laras kartlegging" : "Estimert fra baseline-svar"}
             </span>
           </div>
+
           <div className="flex items-center gap-1.5 shrink-0">
             <span className="text-xs text-muted-foreground">Modenhet</span>
             <span className={cn("text-sm font-semibold tabular-nums", totalBand.textClass)}>
@@ -124,7 +158,22 @@ export function CustomerMaturityMirrorCard({
 
         </div>
 
+        <p className="text-xs text-muted-foreground mb-2">
+          Modenhet øker for hvert krav som fylles opp innenfor regelverkene kunden har aktivert.
+        </p>
+
+        {usingStartingPoint && (
+          <div className="mb-2 flex items-start gap-2 rounded-lg border border-border/60 bg-muted/30 px-3 py-2">
+            <FileCheck className="h-3.5 w-3.5 text-muted-foreground shrink-0 mt-0.5" />
+            <p className="text-[11px] text-muted-foreground leading-relaxed">
+              Personvernerklæring funnet på kundens nettsted → teller på Styring og ansvar og
+              Personvern. Startpunktet er et estimat og erstattes så snart baseline besvares.
+            </p>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+
           {MATURITY_AREAS.map((area) => {
             const p = byId.get(area.id);
             const answered = p?.answered ?? 0;
@@ -173,9 +222,26 @@ export function CustomerMaturityMirrorCard({
           </span>
         </div>
 
-
+        <div className="mt-3 rounded-lg border border-border/60 bg-muted/20 px-3 py-2 flex flex-wrap items-center gap-x-3 gap-y-1">
+          <span className="inline-flex items-start gap-2 text-[11px] text-muted-foreground leading-relaxed min-w-0 flex-1">
+            <TrendingUp className="h-3.5 w-3.5 shrink-0 mt-0.5" />
+            Du hever kundens modenhet ved å levere egne tjenester som dekker kravene i aktiverte
+            regelverk — og ved å aktivere Mynder-produkter.
+          </span>
+          {onSeeServices && (
+            <Button variant="ghost" size="sm" className="h-6 px-2 text-[11px]" onClick={onSeeServices}>
+              Se anbefalte tjenester
+            </Button>
+          )}
+          {onActivateFrameworks && (
+            <Button variant="ghost" size="sm" className="h-6 px-2 text-[11px]" onClick={onActivateFrameworks}>
+              Aktiver regelverk
+            </Button>
+          )}
+        </div>
 
         <div className="mt-3 flex items-center justify-between gap-3 flex-wrap">
+
           <p className="text-xs text-muted-foreground">
             Speiler kundens Trust Profile i sanntid.
           </p>
