@@ -128,6 +128,7 @@ export function CustomerServicesAndProductsTab({
     };
   }, []);
 
+  const { promptOrToast } = usePostActivationPrompt();
   const [showAll, setShowAll] = useState(false);
   const [selectedFrameworks, setSelectedFrameworks] = useState<string[]>([]);
   const [activateItems, setActivateItems] = useState<ActivatableItem[] | null>(null);
