@@ -5,7 +5,7 @@ import {
   EXTRA_FRAMEWORK_PRICE_KR,
   TRUST_CENTER_PRICE_KR,
   getFrameworkMonthlyPrice,
-  isFreeFramework,
+  isFrameworkFree,
 } from "@/lib/planConstants";
 
 // ===== Anbefalte produkter og tjenester (salgbare forslag) =====
@@ -337,8 +337,18 @@ export function customerLicenseSummary(c: any): LicenseSummary {
     const { id, label } = frameworkKey(f);
     if (!label || seen.has(label)) continue;
     seen.add(label);
-    if (isFreeFramework(id)) continue;
-    const price = getFrameworkMonthlyPrice(id) || EXTRA_FRAMEWORK_PRICE_KR;
+    const key = String(id).toLowerCase().replace(/\s+/g, "").replace(/-/g, "");
+    const normalized =
+      key.includes("gdpr") ? "gdpr"
+      : key.includes("iso27001") ? "iso27001"
+      : key.includes("nis2") ? "nis2"
+      : key.includes("dora") ? "dora"
+      : key.includes("aiact") ? "ai_act"
+      : key.includes("cra") ? "cra"
+      : key.includes("penhetslov") || key.includes("apenhetslov") ? "apenhetsloven"
+      : String(id);
+    if (isFrameworkFree(normalized)) continue;
+    const price = getFrameworkMonthlyPrice(normalized) || EXTRA_FRAMEWORK_PRICE_KR;
     lines.push({ label, price });
   }
 
