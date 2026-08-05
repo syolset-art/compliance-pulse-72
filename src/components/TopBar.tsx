@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useDemoSyncOptional } from "@/contexts/DemoSyncContext";
 import {
-  Moon, Sun, Check, Globe, Settings, Shield, LogOut, ChevronRight, HelpCircle, Bell, Compass,
+  Moon, Sun, Check, Globe, Settings, Shield, LogOut, ChevronRight, HelpCircle, Bell, Compass, FileText,
 } from "lucide-react";
 
 import avatarProfile from "../../public/avatar-profile.png";
