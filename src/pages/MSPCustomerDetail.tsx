@@ -401,27 +401,12 @@ export default function MSPCustomerDetail() {
 
 
 
-              <RegulationsStatusCard
-                customerId={customerId!}
-                customerName={customer.name || customer.customer_name || "Kunden"}
-                recommended={((customer?.recommended_frameworks as any) || []) as FrameworkRecommendation[]}
-                confirmed={((customer?.confirmed_frameworks as any) || []) as FrameworkRecommendation[]}
-                activeFrameworkIds={activeFrameworkIds}
-                onGoToProducts={() => handleTabChange("modules")}
-                onOpenAssessment={() => setBaselineDrawer({ open: true, review: false, mode: "partner" })}
+              <CustomerRecommendationsCard
+                customer={customer}
+                onOffer={(items) => setOfferItems(items)}
+                onActivate={(items) => setActivateItems(items)}
               />
 
-              <CustomerServiceCoverageSearch
-                customerFrameworkIds={Array.from(
-                  new Set([
-                    ...(((customer?.recommended_frameworks as any) || []) as FrameworkRecommendation[]).map((r) => r.frameworkId),
-                    ...(((customer?.confirmed_frameworks as any) || []) as FrameworkRecommendation[]).map((r) => r.frameworkId),
-                    ...activeFrameworkIds,
-                    // Fallback for demo rows when customer has no persisted frameworks yet
-                    "gdpr", "nis2", "iso27001", "dora",
-                  ]),
-                )}
-              />
 
 
 
