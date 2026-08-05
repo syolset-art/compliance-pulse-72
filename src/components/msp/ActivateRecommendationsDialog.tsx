@@ -68,6 +68,7 @@ export function ActivateRecommendationsDialog({
   activeFrameworks,
   activeModules,
   onActivated,
+  onEnterCustomer,
   onMoveToOffer,
 }: Props) {
   const [step, setStep] = useState<"select" | "confirm">("select");
