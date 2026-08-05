@@ -425,6 +425,7 @@ export default function MSPDashboard() {
   const [offerSelection, setOfferSelection] = useState<Record<string, string[]>>({});
   const [offerFor, setOfferFor] = useState<any | null>(null);
   const [activateFor, setActivateFor] = useState<any | null>(null);
+  const { promptOrToast } = usePostActivationPrompt();
   const [enterCustomer, setEnterCustomer] = useState<{
     id: string;
     name: string;
