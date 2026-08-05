@@ -903,22 +903,8 @@ export default function MSPDashboard() {
                             </div>
                           </TableHead>
                         )}
-                        {isVisible("frameworks") && (
-                          <TableHead className="w-[180px] text-foreground/80 align-middle">
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <span className="inline-flex h-8 items-center gap-1.5 text-sm font-medium cursor-help">
-                                  Regelverk <Info className="h-3.5 w-3.5 text-foreground/50" />
-                                </span>
-                              </TooltipTrigger>
-                              <TooltipContent side="top" className="max-w-[240px]">
-                                <p>Grønn betyr at regelverket er aktivert. Lilla betyr at det er en anbefaling fra Mynder.</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TableHead>
-                        )}
                         {isVisible("recommendations") && (
-                          <TableHead className="min-w-[240px] text-foreground/80 align-middle">
+                          <TableHead className="min-w-[280px] text-foreground/80 align-middle">
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <span className="inline-flex h-8 items-center gap-1.5 text-sm font-medium cursor-help">
@@ -926,11 +912,26 @@ export default function MSPDashboard() {
                                 </span>
                               </TooltipTrigger>
                               <TooltipContent side="top" className="max-w-[260px]">
-                                <p>Velg forslag og lag et tilbud direkte. Forslagene er utarbeidet av en AI-agent.</p>
+                                <p>Regelverk, Mynder-moduler og egne tjenester som kan selges inn. Velg og lag tilbud eller aktiver direkte. Forslagene er utarbeidet av en AI-agent.</p>
                               </TooltipContent>
                             </Tooltip>
                           </TableHead>
                         )}
+                        {isVisible("activated") && (
+                          <TableHead className="min-w-[200px] text-foreground/80 align-middle">
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <span className="inline-flex h-8 items-center gap-1.5 text-sm font-medium cursor-help">
+                                  Aktivert <Info className="h-3.5 w-3.5 text-foreground/50" />
+                                </span>
+                              </TooltipTrigger>
+                              <TooltipContent side="top" className="max-w-[240px]">
+                                <p>Regelverk, moduler og tjenester kunden allerede har.</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TableHead>
+                        )}
+
                         {isVisible("score") && (
                           <TableHead className="w-[96px] text-right text-foreground/80 align-middle">
                             <button type="button" onClick={() => toggleSort("compliance_score")} className="inline-flex h-8 items-center gap-1.5 text-sm font-medium hover:text-foreground transition-colors">
