@@ -1014,7 +1014,7 @@ export default function MSPDashboard() {
                                 </span>
                               </TooltipTrigger>
                               <TooltipContent side="top" className="max-w-[260px]">
-                                <p>Regelverk, Mynder-moduler og egne tjenester som kan selges inn. Velg og lag tilbud eller aktiver direkte. Forslagene er utarbeidet av en AI-agent.</p>
+                                <p>Regelverk, Mynder-moduler og egne tjenester som kan selges inn. Velg og lag tilbud eller aktiver direkte. Forslagene er utarbeidet av en KI-agent.</p>
                               </TooltipContent>
                             </Tooltip>
                           </TableHead>
