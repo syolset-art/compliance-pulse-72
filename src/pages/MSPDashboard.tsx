@@ -431,6 +431,8 @@ export default function MSPDashboard() {
   const [gapOpen, setGapOpen] = useState(false);
   const [offerSelection, setOfferSelection] = useState<Record<string, string[]>>({});
   const [offerFor, setOfferFor] = useState<any | null>(null);
+  const [activateFor, setActivateFor] = useState<any | null>(null);
+
   const toggleSuggestion = (customerId: string, suggestionId: string) => {
     setOfferSelection((prev) => {
       const cur = prev[customerId] || [];
