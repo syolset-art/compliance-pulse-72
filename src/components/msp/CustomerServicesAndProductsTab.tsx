@@ -435,17 +435,19 @@ export function CustomerServicesAndProductsTab({
             setTick((n) => n + 1);
             onUpdate?.();
           }}
-          onEnterCustomer={(activated) =>
-            setEnterItems(
-              activated.map((a) => ({
-                id: a.id,
-                label: a.label,
-                kind: a.kind,
-                moduleKey: a.moduleKey,
-                frameworkId: a.frameworkId,
-              })),
-            )
-          }
+          onEnterCustomer={(activated) => {
+            const targets: CustomerEntryTarget[] = activated.map((a) => ({
+              id: a.id,
+              label: a.label,
+              kind: a.kind,
+              moduleKey: a.moduleKey,
+              frameworkId: a.frameworkId,
+            }));
+            if (promptOrToast({ customerName, onEnter: () => setEnterItems(targets) })) {
+              setEnterItems(targets);
+            }
+          }}
+
           onMoveToOffer={() => {
             const labels = activateItems.map((i) => ({ label: i.label, hours: 8 }));
             setActivateItems(null);
