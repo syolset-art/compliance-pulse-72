@@ -346,7 +346,7 @@ export interface MaturityBand {
   id: MaturityBandId;
   /** Kort nivå-ord som vises ved siden av prosenten. */
   label: string;
-  /** Tailwind-klasse for progress-indikatoren. */
+  /** Tailwind-klasse for progress-indikatoren (arbitrary variant). */
   barClass: string;
   /** Tailwind-klasse for prosenttekst. */
   textClass: string;
@@ -366,7 +366,7 @@ export function getMaturityBand(pct: number): MaturityBand {
     return {
       id: "none",
       label: "Ikke vurdert",
-      barClass: "bg-transparent",
+      barClass: "[&>div]:bg-transparent",
       textClass: "text-muted-foreground",
       dotClass: "bg-muted-foreground/30",
     };
@@ -375,7 +375,7 @@ export function getMaturityBand(pct: number): MaturityBand {
     return {
       id: "immature",
       label: "Umoden",
-      barClass: "bg-warning",
+      barClass: "[&>div]:bg-warning",
       textClass: "text-warning",
       dotClass: "bg-warning",
     };
@@ -384,7 +384,7 @@ export function getMaturityBand(pct: number): MaturityBand {
     return {
       id: "mature",
       label: "Moden",
-      barClass: "bg-success-soft",
+      barClass: "[&>div]:bg-success-soft",
       textClass: "text-success-soft",
       dotClass: "bg-success-soft",
     };
@@ -392,7 +392,7 @@ export function getMaturityBand(pct: number): MaturityBand {
   return {
     id: "high",
     label: "Høy modenhet",
-    barClass: "bg-success",
+    barClass: "[&>div]:bg-success",
     textClass: "text-success",
     dotClass: "bg-success",
   };

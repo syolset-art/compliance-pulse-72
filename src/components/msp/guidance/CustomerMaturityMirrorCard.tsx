@@ -148,7 +148,7 @@ export function CustomerMaturityMirrorCard({
                 </div>
                 <Progress
                   value={pct}
-                  className={cn("h-1 mt-2", "[&>div]:transition-all", `[&>div]:${band.barClass}`)}
+                  className={cn("h-1 mt-2 [&>div]:transition-all", band.barClass)}
                 />
               </button>
             );
