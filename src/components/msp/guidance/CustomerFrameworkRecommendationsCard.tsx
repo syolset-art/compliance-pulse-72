@@ -1,7 +1,9 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Sparkles, Zap, ClipboardCheck, CheckCircle2, Send, ArrowRight } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
+
 import {
   deriveFrameworkSuggestions,
   deriveActivatedFrameworks,
