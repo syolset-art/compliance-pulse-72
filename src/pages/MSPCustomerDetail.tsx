@@ -51,6 +51,7 @@ import { frameworks as ALL_FRAMEWORKS } from "@/lib/frameworkDefinitions";
 
 import { CustomerRecommendationsCard } from "@/components/msp/guidance/CustomerRecommendationsCard";
 import { CustomerMaturityMirrorCard } from "@/components/msp/guidance/CustomerMaturityMirrorCard";
+import { useCustomerOnboardingFindings } from "@/hooks/useCustomerOnboardingFindings";
 import { ActivateRecommendationsDialog } from "@/components/msp/ActivateRecommendationsDialog";
 import type { OfferSuggestion } from "@/lib/offerSuggestions";
 
@@ -94,7 +95,8 @@ export default function MSPCustomerDetail() {
   const [helpOpen, setHelpOpen] = useState(false);
   usePageHelpListener(setHelpOpen);
   const mandate = useMandate(customerId || "");
-  const { answers: baselineAnswers, setAnswer: setBaselineAnswer, setAllAnswers: setAllBaselineAnswers, laraRationales: baselineRationales, setLaraRationales: setBaselineRationales, areaProgress, totalAnswered, totalQuestions } = useCustomerBaseline(customerId);
+  const { answers: baselineAnswers, setAnswer: setBaselineAnswer, setAllAnswers: setAllBaselineAnswers, laraRationales: baselineRationales, setLaraRationales: setBaselineRationales, areaProgress, totalAnswered, totalQuestions, hasAnyAnswer } = useCustomerBaseline(customerId);
+  const { privacyPolicyUrl } = useCustomerOnboardingFindings(customerId);
   const [offerDialog, setOfferDialog] = useState<{ open: boolean; templateId?: string; title?: string }>({ open: false });
   const { getLockInfo } = useSavedOffers();
 
@@ -400,11 +402,13 @@ export default function MSPCustomerDetail() {
 
 
 
+              <div id="msp-recommendations">
               <CustomerRecommendationsCard
                 customer={customer}
                 onOffer={(items) => setOfferItems(items)}
                 onActivate={(items) => setActivateItems(items)}
               />
+              </div>
 
               <CustomerMaturityMirrorCard
                 customerId={customerId!}
@@ -413,7 +417,13 @@ export default function MSPCustomerDetail() {
                 areaProgress={areaProgress}
                 totalAnswered={totalAnswered}
                 totalQuestions={totalQuestions}
+                hasBaselineAnswers={hasAnyAnswer}
+                privacyPolicyUrl={privacyPolicyUrl}
                 onOpenProducts={() => handleTabChange("assessment")}
+                onSeeServices={() =>
+                  document.getElementById("msp-recommendations")?.scrollIntoView({ behavior: "smooth", block: "start" })
+                }
+                onActivateFrameworks={() => handleTabChange("regulations")}
               />
 
 
