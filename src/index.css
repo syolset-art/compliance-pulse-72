@@ -230,19 +230,25 @@ Apple-inspired professional aesthetic: clean whites, subtle grays, crisp blue ac
   body {
     @apply bg-background text-foreground text-base;
     font-family: 'Mulish', system-ui, sans-serif;
+    line-height: 1.55;
   }
 
-  /* ===== Accessible minimum type sizes (WCAG-friendly) =====
-     No text in the UI should render below 12px. Utility classes with
-     smaller arbitrary sizes are clamped here so legacy markup stays legible. */
+  /* ===== Accessible type scale (WCAG-friendly) =====
+     No text in the UI renders below 13px, and the whole scale is bumped
+     one step so low-vision users can read without zooming. */
   .text-xs {
-    font-size: 0.8125rem !important; /* 13px */
-    line-height: 1.25rem;
+    font-size: 0.875rem !important; /* 14px */
+    line-height: 1.3125rem !important;
   }
 
   .text-sm {
-    font-size: 0.875rem !important; /* 14px */
-    line-height: 1.375rem;
+    font-size: 0.9375rem !important; /* 15px */
+    line-height: 1.4375rem !important;
+  }
+
+  .text-base {
+    font-size: 1.03125rem !important; /* 16.5px */
+    line-height: 1.5625rem !important;
   }
 
   .text-\[8px\],
@@ -252,15 +258,24 @@ Apple-inspired professional aesthetic: clean whites, subtle grays, crisp blue ac
   .text-\[0\.625rem\],
   .text-\[0\.6875rem\],
   .text-\[0\.7rem\] {
-    font-size: 0.75rem !important; /* 12px */
-    line-height: 1.125rem !important;
+    font-size: 0.8125rem !important; /* 13px */
+    line-height: 1.1875rem !important;
   }
 
   .text-\[0\.75rem\],
   .text-\[12px\],
-  .text-\[0\.8rem\] {
-    font-size: 0.8125rem !important; /* 13px */
-    line-height: 1.25rem !important;
+  .text-\[0\.8rem\],
+  .text-\[13px\],
+  .text-\[0\.8125rem\],
+  .text-\[0\.85rem\] {
+    font-size: 0.875rem !important; /* 14px */
+    line-height: 1.3125rem !important;
+  }
+
+  .text-\[14px\],
+  .text-\[0\.875rem\] {
+    font-size: 0.9375rem !important; /* 15px */
+    line-height: 1.4375rem !important;
   }
 
 }
