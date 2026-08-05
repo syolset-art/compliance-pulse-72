@@ -9,11 +9,13 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Building2 } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { ArrowRight, Building2, CheckCircle2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useActiveOrganization } from "@/contexts/ActiveOrganizationContext";
 import { useWorkspaceMode } from "@/contexts/WorkspaceModeContext";
 import { entryRouteFor, type CustomerEntryTarget } from "@/lib/customerEntryRoutes";
+import { usePostActivationPrompt } from "@/hooks/usePostActivationPrompt";
 
 interface Props {
   open: boolean;
@@ -35,16 +37,29 @@ export function EnterCustomerContextDialog({
   const navigate = useNavigate();
   const { enterCustomerOrg } = useActiveOrganization();
   const { setMode } = useWorkspaceMode();
+  const { setPreference } = usePostActivationPrompt();
   const [selectedId, setSelectedId] = useState<string | null>(items[0]?.id ?? null);
+  const [dontAskAgain, setDontAskAgain] = useState(false);
 
   const selected = items.find((i) => i.id === selectedId) ?? items[0];
 
+  const persistPreference = () => {
+    if (dontAskAgain) setPreference(false);
+  };
+
+  const handleLater = () => {
+    persistPreference();
+    onOpenChange(false);
+  };
+
   const handleEnter = () => {
+    persistPreference();
     enterCustomerOrg({ id: customerId, name: customerName, orgNumber: customerOrgNumber });
     setMode("compliance");
     onOpenChange(false);
     navigate(selected ? entryRouteFor(selected) : "/");
   };
+
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
