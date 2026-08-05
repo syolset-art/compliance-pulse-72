@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -43,15 +42,9 @@ export function CustomerFrameworkRecommendationsCard({
   onActivate,
   onStartAssessment,
 }: Props) {
-  const [picked, setPicked] = useState<string[]>([]);
   const suggestions = deriveFrameworkSuggestions(customer);
   const activated = deriveActivatedFrameworks(customer);
   const confirmed = status === "confirmed";
-
-  const toggle = (id: string) =>
-    setPicked((prev) => (prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id]));
-
-  const pickedItems = suggestions.filter((s) => picked.includes(s.id));
 
   return (
     <Card className="p-5 flex flex-col">
@@ -81,26 +74,21 @@ export function CustomerFrameworkRecommendationsCard({
         {suggestions.length === 0 && activated.length === 0 && (
           <p className="text-sm text-muted-foreground">Ingen regelverk foreslått ennå.</p>
         )}
-        {suggestions.map((s) => {
-          const on = picked.includes(s.id);
-          return (
-            <button
-              key={s.id}
-              type="button"
-              onClick={() => toggle(s.id)}
-              title="Kan aktiveres direkte"
-              className={cn(
-                "inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-recommend focus-visible:ring-offset-1",
-                on
-                  ? "border-recommend bg-recommend text-recommend-foreground"
-                  : "border-recommend/60 bg-recommend/15 text-recommend hover:bg-recommend/25 hover:border-recommend",
-              )}
-            >
-              <Zap className="h-2.5 w-2.5 shrink-0" />
-              {s.label}
-            </button>
-          );
-        })}
+        {suggestions.map((s) => (
+          <button
+            key={s.id}
+            type="button"
+            onClick={() => onActivate([s])}
+            title="Aktiver direkte"
+            className={cn(
+              "inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-recommend focus-visible:ring-offset-1",
+              "border-recommend/60 bg-recommend/15 text-recommend hover:bg-recommend/25 hover:border-recommend",
+            )}
+          >
+            <Zap className="h-2.5 w-2.5 shrink-0" />
+            {s.label}
+          </button>
+        ))}
         {activated.map((label) => (
           <Badge
             key={label}
@@ -112,21 +100,22 @@ export function CustomerFrameworkRecommendationsCard({
         ))}
       </div>
 
-      {pickedItems.length > 0 && (
-        <div className="mt-3 flex flex-wrap items-center gap-1.5">
+      {suggestions.length > 0 && (
+        <div className="mt-3 flex flex-wrap items-center gap-3">
           <button
             type="button"
-            onClick={() => onOffer(pickedItems)}
-            className="inline-flex items-center rounded-full bg-primary px-2.5 py-1 text-[11px] font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+            onClick={() => onActivate(suggestions)}
+            className="inline-flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground underline underline-offset-2 transition-colors"
           >
-            Tilbud ({pickedItems.length})
+            <Zap className="h-3 w-3" />
+            Aktiver alle anbefalte
           </button>
           <button
             type="button"
-            onClick={() => onActivate(pickedItems)}
-            className="inline-flex items-center rounded-full bg-warning px-2.5 py-1 text-[11px] font-medium text-warning-foreground hover:bg-warning/90 transition-colors"
+            onClick={() => onOffer(suggestions)}
+            className="text-[11px] text-muted-foreground hover:text-foreground underline underline-offset-2 transition-colors"
           >
-            Aktiver ({pickedItems.length})
+            Lag tilbud i stedet
           </button>
         </div>
       )}
