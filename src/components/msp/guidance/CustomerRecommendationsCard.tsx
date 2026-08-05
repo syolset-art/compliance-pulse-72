@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, Info } from "lucide-react";
+import { Sparkles, Info, Zap } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { deriveOfferSuggestions, deriveActivatedItems, type OfferSuggestion } from "@/lib/offerSuggestions";
@@ -59,13 +59,17 @@ export function CustomerRecommendationsCard({ customer, onOffer, onActivate }: P
                   key={s.id}
                   type="button"
                   onClick={() => toggle(s.id)}
+                  title={s.activatable ? "Kan aktiveres direkte" : "Tjeneste – leveres som oppdrag"}
                   className={cn(
-                    "inline-flex items-center rounded-full border px-2.5 py-1 text-[11px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-recommend focus-visible:ring-offset-1",
+                    "inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-recommend focus-visible:ring-offset-1",
                     on
                       ? "border-recommend bg-recommend text-recommend-foreground"
-                      : "border-recommend/60 bg-recommend/15 text-recommend hover:bg-recommend/25 hover:border-recommend",
+                      : s.activatable
+                        ? "border-recommend/60 bg-recommend/15 text-recommend hover:bg-recommend/25 hover:border-recommend"
+                        : "border-dashed border-recommend/50 text-recommend/90 hover:bg-recommend/10",
                   )}
                 >
+                  {s.activatable && <Zap className="h-2.5 w-2.5 shrink-0" />}
                   {s.label}
                 </button>
               );
@@ -86,6 +90,16 @@ export function CustomerRecommendationsCard({ customer, onOffer, onActivate }: P
                 className="inline-flex items-center rounded-full bg-warning px-2.5 py-1 text-[11px] font-medium text-warning-foreground hover:bg-warning/90 transition-colors"
               >
                 Aktiver ({activatableItems.length})
+              </button>
+            )}
+            {pickedItems.length === 0 && suggestions.some((s) => s.activatable) && (
+              <button
+                type="button"
+                onClick={() => setPicked(suggestions.filter((s) => s.activatable).map((s) => s.id))}
+                className="inline-flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground underline underline-offset-2 transition-colors"
+              >
+                <Zap className="h-3 w-3" />
+                Aktiver direkte
               </button>
             )}
           </div>

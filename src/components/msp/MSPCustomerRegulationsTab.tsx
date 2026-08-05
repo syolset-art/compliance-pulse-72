@@ -1,6 +1,8 @@
 import { useMemo, useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import { Settings2 } from "lucide-react";
+import { Settings2, Zap } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { BulkActivateFrameworksDialog } from "./BulkActivateFrameworksDialog";
 import { frameworks, type Framework } from "@/lib/frameworkDefinitions";
 import { toast } from "sonner";
 import { ActiveFrameworksSummary } from "@/components/regulations/ActiveFrameworksSummary";
@@ -184,6 +186,8 @@ export function MSPCustomerRegulationsTab({ customerId, customerName, customer }
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [pendingFramework, setPendingFramework] = useState<Framework | null>(null);
   const [previewFramework, setPreviewFramework] = useState<Framework | null>(null);
+  const [pickedRecommended, setPickedRecommended] = useState<string[]>([]);
+  const [bulkOpen, setBulkOpen] = useState(false);
   const [liveCounts, setLiveCounts] = useState<
     Record<string, { met: number; partial: number; notMet: number; auto: number; manual: number; total: number }>
   >({});
@@ -211,6 +215,15 @@ export function MSPCustomerRegulationsTab({ customerId, customerName, customer }
   }, [activeFrameworks, selectedId, activatedIds]);
 
   const recommendations = useMemo(() => computeRecommendations(customer), [customer]);
+
+  const recommendedNotActive = useMemo(
+    () =>
+      Array.from(recommendations.keys())
+        .filter((id) => !activatedIds.has(id))
+        .map((id) => frameworks.find((f) => f.id === id))
+        .filter(Boolean) as Framework[],
+    [recommendations, activatedIds],
+  );
 
   const getChipStats = useCallback(
     (fwId: string) => {
@@ -302,6 +315,56 @@ export function MSPCustomerRegulationsTab({ customerId, customerName, customer }
         </Button>
       </div>
 
+      {recommendedNotActive.length > 0 && (
+        <div className="mb-4 rounded-lg border border-recommend/40 bg-recommend/5 p-3">
+          <p className="text-xs font-medium text-foreground">Anbefalte regelverk</p>
+          <p className="text-[11px] text-muted-foreground mt-0.5">
+            Kan aktiveres direkte for {customerName} — 490 kr per regelverk per måned.
+          </p>
+          <div className="flex flex-wrap items-center gap-1.5 mt-2">
+            {recommendedNotActive.map((fw) => {
+              const on = pickedRecommended.includes(fw.id);
+              return (
+                <button
+                  key={fw.id}
+                  type="button"
+                  onClick={() =>
+                    setPickedRecommended((prev) =>
+                      prev.includes(fw.id) ? prev.filter((x) => x !== fw.id) : [...prev, fw.id],
+                    )
+                  }
+                  title={recommendations.get(fw.id)}
+                  className={cn(
+                    "inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-medium transition-colors",
+                    on
+                      ? "border-recommend bg-recommend text-recommend-foreground"
+                      : "border-recommend/60 bg-recommend/15 text-recommend hover:bg-recommend/25",
+                  )}
+                >
+                  <Zap className="h-2.5 w-2.5 shrink-0" />
+                  {fw.name}
+                </button>
+              );
+            })}
+            {pickedRecommended.length > 0 && (
+              <>
+                <Button size="sm" className="h-7 text-xs" onClick={() => setBulkOpen(true)}>
+                  Aktiver ({pickedRecommended.length})
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 text-xs text-muted-foreground"
+                  onClick={() => setShowEditDialog(true)}
+                >
+                  Legg i tilbud
+                </Button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
       {activeFrameworks.length > 0 ? (
         <div className="space-y-4">
           <ActiveFrameworksSummary
@@ -346,6 +409,30 @@ export function MSPCustomerRegulationsTab({ customerId, customerName, customer }
           </Button>
         </div>
       )}
+
+      <BulkActivateFrameworksDialog
+        open={bulkOpen}
+        onOpenChange={setBulkOpen}
+        frameworkNames={pickedRecommended.map((id) => frameworks.find((f) => f.id === id)?.name ?? id)}
+        customers={[
+          {
+            id: customerId,
+            name: customerName,
+            activeFrameworks: activeFrameworks.map((f) => f.name),
+          },
+        ]}
+        onActivated={() => {
+          const next = [
+            ...activated,
+            ...pickedRecommended
+              .filter((id) => !activatedIds.has(id))
+              .map((id) => ({ id, orderedAt: new Date().toISOString(), method: "legacy" as const })),
+          ];
+          setActivated(next);
+          saveActivated(customerId, next);
+          setPickedRecommended([]);
+        }}
+      />
 
       <EditActiveFrameworksDialog
         open={showEditDialog}
