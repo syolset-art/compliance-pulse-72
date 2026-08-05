@@ -741,6 +741,18 @@ export function MSPCreateOfferDialog({
               >
                 <Plus className="h-3 w-3" /> Legg til oppgave
               </Button>
+            </div>
+
+            <OfferCoveragePanel
+              coverage={coverage}
+              addedFrameworkIds={addedFrameworkIds}
+              onAddFramework={handleAddFramework}
+              showInOffer={showCoverageInOffer}
+              onShowInOfferChange={setShowCoverageInOffer}
+            />
+
+            <div className="space-y-2">
+
 
               {/* Pris og total */}
               <div className="space-y-3 pt-2">
