@@ -50,6 +50,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { frameworks as ALL_FRAMEWORKS } from "@/lib/frameworkDefinitions";
 
 import { CustomerRecommendationsCard } from "@/components/msp/guidance/CustomerRecommendationsCard";
+import { CustomerMaturityMirrorCard } from "@/components/msp/guidance/CustomerMaturityMirrorCard";
 import { ActivateRecommendationsDialog } from "@/components/msp/ActivateRecommendationsDialog";
 import type { OfferSuggestion } from "@/lib/offerSuggestions";
 
@@ -404,6 +405,18 @@ export default function MSPCustomerDetail() {
                 onOffer={(items) => setOfferItems(items)}
                 onActivate={(items) => setActivateItems(items)}
               />
+
+              <CustomerMaturityMirrorCard
+                customerId={customerId!}
+                customerName={customer.name || customer.customer_name || "Kunden"}
+                customerOrgNumber={(customer as any).org_number ?? null}
+                areaProgress={areaProgress}
+                totalAnswered={totalAnswered}
+                totalQuestions={totalQuestions}
+                onOpenProducts={() => handleTabChange("assessment")}
+              />
+
+
 
 
 
