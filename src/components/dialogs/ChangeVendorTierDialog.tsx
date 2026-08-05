@@ -73,11 +73,6 @@ export function ChangeVendorTierDialog({ open, onOpenChange, currentTierId, used
                     </div>
                   </div>
                 </div>
-                {belowUsage && (
-                  <p className="mt-2 pl-7 text-xs text-destructive">
-                    Dere har {usedVendors} leverandører. Fjern {overflow} leverandør{overflow === 1 ? "" : "er"} for å velge dette nivået.
-                  </p>
-                )}
               </button>
             );
           })}
