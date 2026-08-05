@@ -37,9 +37,24 @@ interface Props {
   areaProgress: BaselineAreaProgress[];
   totalAnswered: number;
   totalQuestions: number;
+  /** True så snart partneren har svart på minst ett baseline-spørsmål. */
+  hasBaselineAnswers?: boolean;
+  /** Funn fra Laras kartlegging da kunden ble lagt til. */
+  privacyPolicyUrl?: string | null;
   /** Åpne fanen «Tjenester og produkter» når kunden mangler aktivt produkt. */
   onOpenProducts?: () => void;
+  /** Snarvei til anbefalte tjenester og produkter. */
+  onSeeServices?: () => void;
+  /** Snarvei til kundens Regelverk-fane. */
+  onActivateFrameworks?: () => void;
 }
+
+/**
+ * Startpunkt fra kartleggingen: en publisert personvernerklæring dekker ett
+ * kontrollpunkt i Styring og ansvar (gov.privacy_policy) og ett i Personvern
+ * (pri.legal_basis — grunnlaget er beskrevet i erklæringen).
+ */
+const STARTING_POINT_AREAS: Record<string, number> = { governance: 1, privacy: 1 };
 
 /**
  * Speiler kundens modenhet per kontrollområde i sanntid, og gir partneren en
@@ -53,7 +68,11 @@ export function CustomerMaturityMirrorCard({
   areaProgress,
   totalAnswered,
   totalQuestions,
+  hasBaselineAnswers = false,
+  privacyPolicyUrl,
   onOpenProducts,
+  onSeeServices,
+  onActivateFrameworks,
 }: Props) {
   const navigate = useNavigate();
   const { enterCustomerOrg } = useActiveOrganization();
@@ -74,8 +93,22 @@ export function CustomerMaturityMirrorCard({
   );
   const hasAccess = activeProducts.length > 0;
 
-  const byId = new Map(areaProgress.map((a) => [a.id, a]));
-  const score = totalQuestions > 0 ? Math.round((totalAnswered / totalQuestions) * 100) : 0;
+  /** Vis startpunkt fra kartleggingen inntil partneren har svart selv. */
+  const usingStartingPoint = !hasBaselineAnswers && !!privacyPolicyUrl;
+
+  const effectiveProgress = useMemo<BaselineAreaProgress[]>(() => {
+    if (!usingStartingPoint) return areaProgress;
+    return areaProgress.map((a) => ({
+      ...a,
+      answered: Math.min(a.total, STARTING_POINT_AREAS[a.id] ?? 0),
+    }));
+  }, [areaProgress, usingStartingPoint]);
+
+  const byId = new Map(effectiveProgress.map((a) => [a.id, a]));
+  const effectiveAnswered = usingStartingPoint
+    ? effectiveProgress.reduce((s, a) => s + a.answered, 0)
+    : totalAnswered;
+  const score = totalQuestions > 0 ? Math.round((effectiveAnswered / totalQuestions) * 100) : 0;
   const totalBand = getMaturityBand(score);
 
 
@@ -95,9 +128,10 @@ export function CustomerMaturityMirrorCard({
             <h3 className="text-sm font-semibold text-foreground">Modenhet per kontrollområde</h3>
             <span className="inline-flex items-center gap-1 rounded-full border border-recommend/30 bg-recommend/10 px-2 py-0.5 text-[11px] font-medium text-recommend">
               <Globe className="h-3 w-3" />
-              Estimert fra baseline-svar
+              {usingStartingPoint ? "Startpunkt fra Laras kartlegging" : "Estimert fra baseline-svar"}
             </span>
           </div>
+
           <div className="flex items-center gap-1.5 shrink-0">
             <span className="text-xs text-muted-foreground">Modenhet</span>
             <span className={cn("text-sm font-semibold tabular-nums", totalBand.textClass)}>
