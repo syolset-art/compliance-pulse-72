@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import { Sparkles, ShieldCheck, Send, Archive, Mail, User, UserPlus, ExternalLink, Pencil, Check, X, Copy, Briefcase, Globe, Info } from "lucide-react";
+import { Sparkles, ShieldCheck, ShieldOff, Send, Archive, Mail, User, UserPlus, ExternalLink, Pencil, Check, X, Copy, Briefcase, Globe, Info } from "lucide-react";
 import { COMPANY_ROLES } from "@/lib/mspCustomerConstants";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
