@@ -188,6 +188,8 @@ export function MSPCustomerRegulationsTab({ customerId, customerName, customer }
   const [previewFramework, setPreviewFramework] = useState<Framework | null>(null);
   const [pickedRecommended, setPickedRecommended] = useState<string[]>([]);
   const [bulkOpen, setBulkOpen] = useState(false);
+  const [enterItems, setEnterItems] = useState<CustomerEntryTarget[] | null>(null);
+  const { promptOrToast } = usePostActivationPrompt();
   const [liveCounts, setLiveCounts] = useState<
     Record<string, { met: number; partial: number; notMet: number; auto: number; manual: number; total: number }>
   >({});
