@@ -71,6 +71,8 @@ export default function MSPCustomerDetail() {
   const [acronisOpen, setAcronisOpen] = useState(false);
   const [offerItems, setOfferItems] = useState<OfferSuggestion[] | null>(null);
   const [activateItems, setActivateItems] = useState<OfferSuggestion[] | null>(null);
+  const [enterItems, setEnterItems] = useState<CustomerEntryTarget[] | null>(null);
+  const { promptOrToast } = usePostActivationPrompt();
   const [searchParams, setSearchParams] = useSearchParams();
   const normalizeTab = (v: string) => (v === "modules" ? "assessment" : v);
   const initialTab = normalizeTab(searchParams.get("tab") || "guidance");
