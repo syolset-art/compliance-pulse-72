@@ -98,6 +98,7 @@ export function useCustomerBaseline(customerId: string | undefined) {
   const totalAnswered = areaProgress.reduce((s, a) => s + a.answered, 0);
   const totalQuestions = ALL_MATURITY_QUESTIONS.length;
   const completeness = totalQuestions === 0 ? 0 : totalAnswered / totalQuestions;
+  const hasAnyAnswer = totalAnswered > 0;
 
   return {
     answers,
@@ -109,5 +110,6 @@ export function useCustomerBaseline(customerId: string | undefined) {
     totalAnswered,
     totalQuestions,
     completeness,
+    hasAnyAnswer,
   };
 }
