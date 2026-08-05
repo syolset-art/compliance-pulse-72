@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -220,7 +220,7 @@ function computePicksFromAnswers(answers: WizardAnswers): Pick[] {
 }
 
 
-export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (view: "settings" | "how-it-works") => void } = {}) {
+export function MSPServiceCatalogTab({ onOpenSecondary, onRegisterActions }: { onOpenSecondary?: (view: "settings" | "how-it-works") => void; onRegisterActions?: (actions: { openWizard: () => void }) => void } = {}) {
   const navigate = useNavigate();
   const { defaultHourlyRate, currencyOption } = useServiceDefaults();
   const { branding } = usePartnerBranding();
@@ -253,6 +253,10 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
     }, 1800);
   };
   const openWizard = () => { markWizardSeen(); setWizardOpen(true); };
+  useEffect(() => {
+    onRegisterActions?.({ openWizard });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [onRegisterActions]);
   const [curatedPicks, setCuratedPicks] = useState<Pick[] | null>(null);
   const [curationSummary, setCurationSummary] = useState<string | null>(null);
   const [onlyRecommended, setOnlyRecommended] = useState(false);
@@ -683,29 +687,6 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
               Alle ({availablePicks.length})
             </TabsTrigger>
           </TabsList>
-          {onOpenSecondary && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" aria-label="Innstillinger og hjelp">
-                  <Settings2 className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onSelect={() => onOpenSecondary("settings")}>
-                  <Settings2 className="h-4 w-4 mr-2" />
-                  Innstillinger
-                </DropdownMenuItem>
-                <DropdownMenuItem onSelect={() => openWizard()}>
-                  <Sparkles className="h-4 w-4 mr-2" />
-                  Tjenesteprofil
-                </DropdownMenuItem>
-                <DropdownMenuItem onSelect={() => onOpenSecondary("how-it-works")}>
-                  <FileText className="h-4 w-4 mr-2" />
-                  Hvordan virker det
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
 
         </div>
 
@@ -760,7 +741,7 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
             >
               Tjenesteprofil
             </button>{" "}
-            i innstillingsknappen (<Settings2 className="inline h-3 w-3 align-[-1px]" aria-hidden="true" />) øverst til høyre.
+            i menyknappen (<Settings2 className="inline h-3 w-3 align-[-1px]" aria-hidden="true" />) ved siden av overskriften.
           </span>
         </p>
 
