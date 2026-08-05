@@ -305,7 +305,13 @@ export function AggregatedMaturityWidget() {
                       ? "Prosenten viser hvor mye du har dokumentert av etterlevelse av lover og regler, basert på besvarte kontrollpunkter med bekreftet dokumentasjon."
                       : "The percentage shows how much compliance you have documented, based on answered control points with verified evidence."}
                   </p>
+                  <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
+                    {isNb
+                      ? "Fargene følger Mynders scoringsmodell (v1): rød 1–49 % (lav), gul 50–74 % (middels), grønn 75–100 % (høy). Grå betyr at området ikke er vurdert ennå."
+                      : "Colors follow Mynder's scoring model (v1): red 1–49% (low), amber 50–74% (medium), green 75–100% (high). Grey means the area is not assessed yet."}
+                  </p>
                 </div>
+
                 <div className="rounded-lg bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
                   {isNb
                     ? `Bygger på ${totalAssessed} av ${totalControls} kontrollpunkter. «Ikke relevant» teller ikke med.`
