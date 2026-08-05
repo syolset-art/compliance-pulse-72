@@ -422,17 +422,37 @@ export function MSPCustomerRegulationsTab({ customerId, customerName, customer }
           },
         ]}
         onActivated={() => {
+          const newIds = pickedRecommended.filter((id) => !activatedIds.has(id));
           const next = [
             ...activated,
-            ...pickedRecommended
-              .filter((id) => !activatedIds.has(id))
-              .map((id) => ({ id, orderedAt: new Date().toISOString(), method: "legacy" as const })),
+            ...newIds.map((id) => ({ id, orderedAt: new Date().toISOString(), method: "legacy" as const })),
           ];
           setActivated(next);
           saveActivated(customerId, next);
           setPickedRecommended([]);
+          const targets: CustomerEntryTarget[] = newIds.map((id) => ({
+            id,
+            label: frameworks.find((f) => f.id === id)?.name ?? id,
+            kind: "framework" as const,
+            frameworkId: id,
+          }));
+          if (targets.length === 0) return;
+          if (promptOrToast({ customerName, onEnter: () => setEnterItems(targets) })) {
+            setEnterItems(targets);
+          }
         }}
       />
+
+      {enterItems && (
+        <EnterCustomerContextDialog
+          open={!!enterItems}
+          onOpenChange={(o) => !o && setEnterItems(null)}
+          customerId={customerId}
+          customerName={customerName}
+          items={enterItems}
+        />
+      )}
+
 
       <EditActiveFrameworksDialog
         open={showEditDialog}
