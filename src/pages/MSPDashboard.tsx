@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { formatKr } from "@/lib/planConstants";
+
 import { Sidebar } from "@/components/Sidebar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -419,8 +421,23 @@ function RecommendationCell({
 
 
 
+// ===== Salgspotensial =====
+const DEFAULT_HOURLY_RATE = 1500;
+
+/** Førsteårs salgspotensial: tjenestetimer + 12 mnd abonnement på anbefalte produkter/regelverk. */
+function customerSalesPotential(c: any): { total: number; services: number; recurring: number } {
+  const suggestions = deriveOfferSuggestions(c);
+  let services = 0;
+  let recurring = 0;
+  for (const s of suggestions) {
+    if (s.activatable) recurring += (s.price ?? 0) * 12;
+    else services += (s.hours ?? 0) * DEFAULT_HOURLY_RATE;
+  }
+  return { total: services + recurring, services, recurring };
+}
+
 // ===== Responsive column config =====
-type ColumnKey = "customer" | "country" | "industry" | "recommendations" | "activated" | "score";
+type ColumnKey = "customer" | "country" | "industry" | "recommendations" | "activated" | "potential" | "score";
 
 
 const COLUMN_LABELS: Record<ColumnKey, string> = {
@@ -429,10 +446,11 @@ const COLUMN_LABELS: Record<ColumnKey, string> = {
   industry: "Bransje",
   recommendations: "Anbefalte produkter og tjenester",
   activated: "Aktivert",
+  potential: "Salgspotensial",
   score: "Modenhet",
 };
 
-const COLUMN_ORDER: ColumnKey[] = ["customer", "country", "industry", "recommendations", "activated", "score"];
+const COLUMN_ORDER: ColumnKey[] = ["customer", "country", "industry", "recommendations", "activated", "potential", "score"];
 
 // Min Tailwind breakpoint (in px) where each column becomes visible by default.
 // 0 = always shown; 640=sm, 768=md, 1024=lg, 1280=xl
@@ -440,6 +458,7 @@ const COLUMN_MIN_BP: Record<ColumnKey, number> = {
   customer: 0,
   score: 0,
   recommendations: 640,
+  potential: 768,
   activated: 1024,
   industry: 1024,
   country: 1280,
@@ -447,7 +466,8 @@ const COLUMN_MIN_BP: Record<ColumnKey, number> = {
 
 
 
-const COLUMN_STORAGE_KEY = "msp_dashboard_columns_v4";
+const COLUMN_STORAGE_KEY = "msp_dashboard_columns_v5";
+
 
 
 
@@ -1004,6 +1024,21 @@ export default function MSPDashboard() {
                             </Tooltip>
                           </TableHead>
                         )}
+                        {isVisible("potential") && (
+                          <TableHead className="w-[120px] text-right text-foreground/80 align-middle">
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <span className="inline-flex h-8 items-center gap-1.5 text-sm font-medium cursor-help">
+                                  Salgspotensial <Info className="h-3.5 w-3.5 text-foreground/50" />
+                                </span>
+                              </TooltipTrigger>
+                              <TooltipContent side="top" className="max-w-[260px]">
+                                <p>KI-estimert førsteårs verdi av anbefalte produkter og tjenester, eks. mva.</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TableHead>
+                        )}
+
 
                         {isVisible("score") && (
                           <TableHead className="w-[96px] text-right text-foreground/80 align-middle">
@@ -1087,6 +1122,29 @@ export default function MSPDashboard() {
                                         <span className="text-[11px] text-muted-foreground">+{items.length - 4}</span>
                                       )}
                                     </div>
+                                  );
+                                })()}
+                              </TableCell>
+                            )}
+
+                            {isVisible("potential") && (
+                              <TableCell className="text-right align-top">
+                                {(() => {
+                                  const p = customerSalesPotential(c);
+                                  if (p.total <= 0) return <span className="text-muted-foreground text-sm">—</span>;
+                                  return (
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <span className="text-sm font-medium tabular-nums text-foreground cursor-help">
+                                          {formatKr(p.total)}
+                                        </span>
+                                      </TooltipTrigger>
+                                      <TooltipContent side="top" className="max-w-[240px] text-xs">
+                                        <p>Estimert førsteårs potensial eks. mva.</p>
+                                        <p className="mt-1">Tjenester: {formatKr(p.services)} (1 500 kr/t)</p>
+                                        <p>Produkter og regelverk: {formatKr(p.recurring)} (12 mnd)</p>
+                                      </TooltipContent>
+                                    </Tooltip>
                                   );
                                 })()}
                               </TableCell>
