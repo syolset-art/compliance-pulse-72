@@ -1,8 +1,9 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -11,7 +12,14 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { TermsAcceptRow } from "@/components/legal/TermsAcceptRow";
 import { useTerms } from "@/hooks/useTerms";
-import { Zap } from "lucide-react";
+import { cn } from "@/lib/utils";
+import {
+  CORE_TIERS,
+  VENDOR_TIERS,
+  formatKr,
+  type CoreTierId,
+  type VendorTierId,
+} from "@/lib/planConstants";
 
 export interface ActivatableItem {
   id: string;
@@ -35,8 +43,18 @@ interface Props {
   onMoveToOffer: () => void;
 }
 
-function formatPrice(n: number) {
-  return `${n.toLocaleString("nb-NO")} kr/mnd`;
+interface TierOption {
+  id: string;
+  label: string;
+  monthlyPriceKr: number;
+  isFree?: boolean;
+}
+
+function tiersFor(moduleKey?: string): TierOption[] | null {
+  if (moduleKey === "core") return CORE_TIERS.map((t) => ({ id: t.id, label: t.label, monthlyPriceKr: t.monthlyPriceKr }));
+  if (moduleKey === "vendors")
+    return VENDOR_TIERS.map((t) => ({ id: t.id, label: t.label, monthlyPriceKr: t.monthlyPriceKr, isFree: t.isFree }));
+  return null;
 }
 
 export function ActivateRecommendationsDialog({
@@ -50,14 +68,38 @@ export function ActivateRecommendationsDialog({
   onActivated,
   onMoveToOffer,
 }: Props) {
+  const [step, setStep] = useState<"select" | "confirm">("select");
   const [saving, setSaving] = useState(false);
   const [termsChecked, setTermsChecked] = useState(false);
+  const [tierByModule, setTierByModule] = useState<Record<string, string>>({});
   const { current: currentTerms, hasAcceptedCurrent, acceptTerms } = useTerms();
   const termsOk = termsChecked || hasAcceptedCurrent;
 
   const activatable = useMemo(() => items.filter((i) => i.activatable), [items]);
   const serviceItems = useMemo(() => items.filter((i) => !i.activatable), [items]);
-  const monthlyTotal = activatable.reduce((sum, i) => sum + (i.price ?? 0), 0);
+
+  useEffect(() => {
+    if (!open) return;
+    setStep("select");
+    setTermsChecked(false);
+    const defaults: Record<string, string> = {};
+    for (const item of items) {
+      const tiers = tiersFor(item.moduleKey);
+      if (item.moduleKey && tiers) defaults[item.moduleKey] = tiers[0].id;
+    }
+    setTierByModule(defaults);
+  }, [open, items]);
+
+  const priceFor = (item: ActivatableItem) => {
+    const tiers = tiersFor(item.moduleKey);
+    if (tiers && item.moduleKey) {
+      const selectedTier = tiers.find((t) => t.id === tierByModule[item.moduleKey!]) ?? tiers[0];
+      return selectedTier.monthlyPriceKr;
+    }
+    return item.price ?? 0;
+  };
+
+  const monthlyTotal = activatable.reduce((sum, i) => sum + priceFor(i), 0);
 
   const handleActivate = async () => {
     if (activatable.length === 0) return;
@@ -100,78 +142,160 @@ export function ActivateRecommendationsDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-base font-medium">
-            <Zap className="h-4 w-4 text-primary" />
-            Aktiver hos {customerName}
-          </DialogTitle>
-          <DialogDescription className="text-xs">
-            Dette slås på med én gang. Priser er eks. mva.
-          </DialogDescription>
-        </DialogHeader>
+      <DialogContent className="sm:max-w-lg">
+        {step === "select" ? (
+          <>
+            <DialogHeader>
+              <DialogTitle className="text-lg">Aktiver hos {customerName}</DialogTitle>
+            </DialogHeader>
 
-        {activatable.length > 0 && (
-          <ul className="rounded-lg border divide-y">
-            {activatable.map((i) => (
-              <li key={i.id} className="flex items-center justify-between gap-3 px-3 py-2 text-sm">
-                <span className="text-foreground">{i.label}</span>
-                <span className="text-xs text-muted-foreground tabular-nums shrink-0">
-                  {i.price ? formatPrice(i.price) : "Inkludert"}
-                </span>
-              </li>
-            ))}
-            {monthlyTotal > 0 && (
-              <li className="flex items-center justify-between gap-3 px-3 py-2 text-sm bg-muted/40">
-                <span className="font-medium text-foreground">Sum</span>
-                <span className="font-medium text-foreground tabular-nums">
-                  {formatPrice(monthlyTotal)}
-                </span>
-              </li>
-            )}
-          </ul>
+            <div className="space-y-4">
+              {activatable.map((item) => {
+                const tiers = tiersFor(item.moduleKey);
+                if (!tiers || !item.moduleKey) {
+                  return (
+                    <div
+                      key={item.id}
+                      className="flex items-center justify-between gap-3 rounded-lg border p-3"
+                    >
+                      <span className="text-sm font-medium text-foreground">{item.label}</span>
+                      <span className="text-sm font-semibold tabular-nums text-foreground">
+                        {item.price
+                          ? <>{formatKr(item.price)} <span className="text-xs font-normal text-muted-foreground">/mnd</span></>
+                          : <span className="text-xs font-normal text-muted-foreground">Inkludert</span>}
+                      </span>
+                    </div>
+                  );
+                }
+
+                const selectedId = tierByModule[item.moduleKey] ?? tiers[0].id;
+
+                return (
+                  <div key={item.id} className="space-y-2">
+                    <p className="text-xs font-medium text-muted-foreground">{item.label}</p>
+                    {tiers.map((tier) => {
+                      const isSelected = tier.id === selectedId;
+                      return (
+                        <button
+                          key={tier.id}
+                          type="button"
+                          onClick={() =>
+                            setTierByModule((prev) => ({ ...prev, [item.moduleKey as string]: tier.id }))
+                          }
+                          className={cn(
+                            "w-full text-left rounded-lg border p-3 transition-all",
+                            isSelected
+                              ? "border-primary ring-1 ring-primary/30 bg-primary/5"
+                              : "border-border hover:border-primary/40",
+                          )}
+                        >
+                          <div className="flex items-center justify-between gap-3">
+                            <div className="flex items-center gap-3 min-w-0">
+                              <span
+                                className={cn(
+                                  "h-4 w-4 rounded-full border-2 shrink-0 flex items-center justify-center",
+                                  isSelected ? "border-primary" : "border-muted-foreground/40",
+                                )}
+                              >
+                                {isSelected && <span className="h-2 w-2 rounded-full bg-primary" />}
+                              </span>
+                              <span className="text-sm font-medium text-foreground">{tier.label}</span>
+                            </div>
+                            <div className="text-sm font-semibold tabular-nums text-foreground shrink-0">
+                              {tier.isFree ? (
+                                <>
+                                  <span>Gratis</span>{" "}
+                                  <span className="text-xs font-normal text-muted-foreground">alltid</span>
+                                </>
+                              ) : (
+                                <>
+                                  {formatKr(tier.monthlyPriceKr)}{" "}
+                                  <span className="text-xs font-normal text-muted-foreground">/mnd</span>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                );
+              })}
+
+              {serviceItems.length > 0 && (
+                <div className="rounded-lg border border-dashed p-3">
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    Leveres som oppdrag og kan ikke slås på:{" "}
+                    <span className="text-foreground">
+                      {serviceItems.map((i) => i.label).join(", ")}
+                    </span>
+                    .
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onOpenChange(false);
+                      onMoveToOffer();
+                    }}
+                    className="mt-2 text-xs font-medium text-primary hover:underline"
+                  >
+                    Legg i tilbud i stedet
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <DialogFooter className="pt-2">
+              <Button variant="ghost" onClick={() => onOpenChange(false)}>
+                Avbryt
+              </Button>
+              <Button disabled={activatable.length === 0} onClick={() => setStep("confirm")}>
+                Aktiver
+              </Button>
+            </DialogFooter>
+          </>
+        ) : (
+          <>
+            <DialogHeader>
+              <DialogTitle className="text-base">
+                {activatable.length === 1
+                  ? `Aktivere ${activatable[0].label.toLowerCase()}?`
+                  : `Aktivere ${activatable.length} valg?`}
+              </DialogTitle>
+            </DialogHeader>
+
+            <DialogDescription className="text-sm text-muted-foreground leading-relaxed">
+              {monthlyTotal > 0 ? (
+                <>
+                  Dette koster {formatKr(monthlyTotal)} i måneden eks. mva. Det gjelder med én gang, og
+                  beløpet kommer på neste faktura til {customerName}.
+                </>
+              ) : (
+                <>Dette slås på med én gang hos {customerName}, uten ekstra kostnad.</>
+              )}
+            </DialogDescription>
+
+            <TermsAcceptRow
+              id={`terms-activate-${customerId}`}
+              checked={termsOk}
+              onCheckedChange={setTermsChecked}
+              version={currentTerms?.version}
+            />
+
+            <DialogFooter className="pt-2">
+              <Button variant="ghost" onClick={() => setStep("select")}>
+                Tilbake
+              </Button>
+              <Button onClick={handleActivate} disabled={saving || !termsOk}>
+                {saving
+                  ? "Aktiverer…"
+                  : monthlyTotal > 0
+                    ? `Aktiver for ${formatKr(monthlyTotal)}/mnd`
+                    : "Aktiver"}
+              </Button>
+            </DialogFooter>
+          </>
         )}
-
-        {serviceItems.length > 0 && (
-          <div className="rounded-lg border border-dashed p-3">
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              Leveres som oppdrag og kan ikke slås på:{" "}
-              <span className="text-foreground">{serviceItems.map((i) => i.label).join(", ")}</span>.
-            </p>
-            <button
-              type="button"
-              onClick={() => {
-                onOpenChange(false);
-                onMoveToOffer();
-              }}
-              className="mt-2 text-xs font-medium text-primary hover:underline"
-            >
-              Legg i tilbud i stedet
-            </button>
-          </div>
-        )}
-
-        {activatable.length > 0 && (
-          <TermsAcceptRow
-            id={`terms-activate-${customerId}`}
-            checked={termsOk}
-            onCheckedChange={setTermsChecked}
-            version={currentTerms?.version}
-          />
-        )}
-
-        <div className="flex justify-end gap-2 pt-1">
-          <Button variant="ghost" size="sm" onClick={() => onOpenChange(false)}>
-            Avbryt
-          </Button>
-          <Button
-            size="sm"
-            onClick={handleActivate}
-            disabled={saving || !termsOk || activatable.length === 0}
-          >
-            {saving ? "Aktiverer…" : "Aktiver"}
-          </Button>
-        </div>
       </DialogContent>
     </Dialog>
   );
