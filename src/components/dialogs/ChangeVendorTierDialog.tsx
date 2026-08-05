@@ -35,21 +35,15 @@ export function ChangeVendorTierDialog({ open, onOpenChange, currentTierId, used
           {VENDOR_TIERS.map((tier) => {
             const isCurrent = tier.id === currentTierId;
             const isSelected = tier.id === selected;
-            const belowUsage = usedVendors > tier.vendorLimit;
-            const disabled = belowUsage;
-            const overflow = usedVendors - tier.vendorLimit;
 
             return (
               <button
                 key={tier.id}
                 type="button"
-                disabled={disabled}
                 onClick={() => setSelected(tier.id)}
                 className={cn(
                   "w-full text-left rounded-lg border p-3 transition-all",
-                  isSelected && !disabled && "border-primary ring-1 ring-primary/30 bg-primary/5",
-                  !isSelected && !disabled && "border-border hover:border-primary/40",
-                  disabled && "border-border/60 opacity-60 cursor-not-allowed"
+                  isSelected ? "border-primary ring-1 ring-primary/30 bg-primary/5" : "border-border hover:border-primary/40"
                 )}
               >
                 <div className="flex items-center justify-between gap-3">
