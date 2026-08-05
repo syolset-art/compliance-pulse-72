@@ -56,7 +56,7 @@ export function useTerms() {
       if (user?.id) {
         const { data: rows } = await supabase
           .from("terms_acceptances")
-          .select("id, terms_version_id, context, context_ref, accepted_at")
+          .select("id, terms_version_id, context, context_ref, accepted_at, operator_role")
           .order("accepted_at", { ascending: false });
         setAcceptances((rows as TermsAcceptance[]) ?? []);
       } else {
