@@ -18,7 +18,7 @@ import type { TaskEstimate, TaskOwner } from "./MSPMaturityServiceMatrix";
 import { usePartnerBranding } from "@/hooks/usePartnerBranding";
 import { getFrameworkTheme } from "@/lib/serviceFrameworkTheme";
 import { getRelatedControls } from "@/lib/controlCrosswalk";
-import { buildOfferCoverage, FRAMEWORK_ACTIVATION_HOURS } from "@/lib/offerCoverage";
+import { buildOfferCoverage, inactiveFrameworkPitch, FRAMEWORK_ACTIVATION_HOURS } from "@/lib/offerCoverage";
 import { OfferCoveragePanel } from "./OfferCoveragePanel";
 import { getFrameworkGap, getGapIdsForControls, severityDotClass, SEVERITY_LABEL, type GapItem } from "@/lib/gapData";
 import { getControlLabel } from "@/lib/serviceControlLabels";
