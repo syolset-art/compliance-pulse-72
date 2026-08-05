@@ -8,6 +8,7 @@ import {
   deriveActivatedProducts,
   deriveActivatedProductTargets,
   salesPotentialFor,
+  customerLicenseSummary,
   type OfferSuggestion,
 } from "@/lib/offerSuggestions";
 import { AddOfferItemDialog } from "./AddOfferItemDialog";
@@ -32,6 +33,7 @@ export function CustomerRecommendationsCard({ customer, onOffer, onActivate, onE
   const manualIds = new Set(manual.map((m) => m.id));
   const suggestions = [...recommended.filter((r) => !manualIds.has(r.id)), ...manual];
   const potential = salesPotentialFor(suggestions);
+  const license = customerLicenseSummary(customer);
 
   const removeManual = (id: string) => {
     setManual((prev) => prev.filter((m) => m.id !== id));
@@ -54,18 +56,41 @@ export function CustomerRecommendationsCard({ customer, onOffer, onActivate, onE
             Mynder-produkter og egne tjenester fra tjenestekatalogen som kan selges inn til denne kunden. Forslagene er utarbeidet av en KI-agent.
           </p>
         </div>
-        <TooltipProvider delayDuration={200}>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button type="button" className="text-muted-foreground hover:text-foreground shrink-0" aria-label="Om anbefalingene">
-                <Info className="h-4 w-4" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="left" className="max-w-xs">
-              Velg det du vil selge inn, og lag et tilbud — eller aktiver produkter direkte for kunden.
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <div className="flex items-start gap-3 shrink-0">
+          {potential.total > 0 && (
+            <div className="text-right">
+              <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
+                Salgspotensial
+              </p>
+              <TooltipProvider delayDuration={200}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="mt-1 block text-sm font-medium tabular-nums text-foreground cursor-help">
+                      {formatKr(potential.total)}
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent side="left" className="max-w-[240px] text-xs">
+                    <p>Estimert førsteårs potensial eks. mva.</p>
+                    <p className="mt-1">Tjenester: {formatKr(potential.services)} (1 500 kr/t)</p>
+                    <p>Produkter og regelverk: {formatKr(potential.recurring)} (12 mnd)</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+          )}
+          <TooltipProvider delayDuration={200}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button type="button" className="text-muted-foreground hover:text-foreground shrink-0 mt-0.5" aria-label="Om anbefalingene">
+                  <Info className="h-4 w-4" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="left" className="max-w-xs">
+                Velg det du vil selge inn, og lag et tilbud — eller aktiver produkter direkte for kunden.
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
       </div>
 
       <div className="mt-4">
@@ -226,27 +251,55 @@ export function CustomerRecommendationsCard({ customer, onOffer, onActivate, onE
             </div>
           </div>
 
-          {potential.total > 0 && (
-            <div className="text-right shrink-0">
-              <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
-                Salgspotensial
-              </p>
-              <TooltipProvider delayDuration={200}>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <span className="mt-2 block text-sm font-medium tabular-nums text-foreground cursor-help">
-                      {formatKr(potential.total)}
-                    </span>
-                  </TooltipTrigger>
-                  <TooltipContent side="top" className="max-w-[240px] text-xs">
-                    <p>Estimert førsteårs potensial eks. mva.</p>
-                    <p className="mt-1">Tjenester: {formatKr(potential.services)} (1 500 kr/t)</p>
-                    <p>Produkter og regelverk: {formatKr(potential.recurring)} (12 mnd)</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-          )}
+        <div className="text-right shrink-0">
+            <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
+              Månedlig lisens
+            </p>
+            <TooltipProvider delayDuration={200}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="mt-1 block text-sm font-medium tabular-nums text-foreground cursor-help">
+                    {formatKr(license.monthly)}<span className="text-[11px] font-normal text-muted-foreground">/mnd</span>
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent side="top" className="max-w-[260px] text-xs">
+                  <p className="font-medium text-foreground">Aktive lisenser eks. mva.</p>
+                  {license.lines.length === 0 ? (
+                    <p className="mt-1">Ingen betalte lisenser aktivert ennå.</p>
+                  ) : (
+                    <ul className="mt-1 space-y-0.5">
+                      {license.lines.map((l) => (
+                        <li key={l.label} className="flex justify-between gap-3">
+                          <span>{l.label}</span>
+                          <span className="tabular-nums">{formatKr(l.price)}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+
+            <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide mt-3">
+              Fakturert hittil
+            </p>
+            <TooltipProvider delayDuration={200}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="mt-1 block text-sm font-medium tabular-nums text-foreground cursor-help">
+                    {formatKr(license.billedToDate)}
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent side="top" className="max-w-[260px] text-xs">
+                  <p>
+                    Beregnet fra aktiveringstidspunktet: {license.months}{" "}
+                    {license.months === 1 ? "måned" : "måneder"} à {formatKr(license.monthly)} eks. mva.
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+
         </div>
       </div>
     </Card>
