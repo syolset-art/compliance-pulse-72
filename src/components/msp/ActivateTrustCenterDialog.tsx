@@ -102,10 +102,19 @@ export function ActivateTrustCenterDialog({
     }
 
     setSaving(false);
-    toast.success(`Trust Center aktivert hos ${customerName}`);
     onActivated?.();
+    if (!promptEnabled) {
+      toast.success(`Trust Center aktivert hos ${customerName}`, {
+        description: "Neste steg er at kunden claimer profilen.",
+        action: { label: "Åpne veiledning", onClick: () => onOpenGuide?.() },
+      });
+      onOpenChange(false);
+      return;
+    }
+    toast.success(`Trust Center aktivert hos ${customerName}`);
     setStep(3);
   };
+
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
