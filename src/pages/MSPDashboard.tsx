@@ -1022,6 +1022,21 @@ export default function MSPDashboard() {
                             </Tooltip>
                           </TableHead>
                         )}
+                        {isVisible("potential") && (
+                          <TableHead className="w-[120px] text-right text-foreground/80 align-middle">
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <span className="inline-flex h-8 items-center gap-1.5 text-sm font-medium cursor-help">
+                                  Salgspotensial <Info className="h-3.5 w-3.5 text-foreground/50" />
+                                </span>
+                              </TooltipTrigger>
+                              <TooltipContent side="top" className="max-w-[260px]">
+                                <p>KI-estimert førsteårs verdi av anbefalte produkter og tjenester, eks. mva.</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TableHead>
+                        )}
+
 
                         {isVisible("score") && (
                           <TableHead className="w-[96px] text-right text-foreground/80 align-middle">
