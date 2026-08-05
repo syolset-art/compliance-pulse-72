@@ -14,6 +14,8 @@ import { AddMSPCustomerDialog } from "@/components/msp/AddMSPCustomerDialog";
 import { GapAnalysisWizardDialog } from "@/components/msp/GapAnalysisWizardDialog";
 import { MSPCreateOfferDialog } from "@/components/msp/MSPCreateOfferDialog";
 import { ActivateRecommendationsDialog } from "@/components/msp/ActivateRecommendationsDialog";
+import { EnterCustomerContextDialog } from "@/components/msp/EnterCustomerContextDialog";
+import type { CustomerEntryTarget } from "@/lib/customerEntryRoutes";
 
 
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
