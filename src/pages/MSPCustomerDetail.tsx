@@ -767,7 +767,7 @@ export default function MSPCustomerDetail() {
               description: `Modenhetsmatrisen viser hvor ${customerName} står per kjerneområde (0–4). Lara avleder «Anbefalte tjenester» fra mangler i matrisen og bransjekrav.`,
               itemsHeading: "Slik fungerer det",
               items: [
-                { icon: Target, title: "Modenhet 0–4", description: "Hver rad er et kontrollområde. Score genereres fra baseline-svar og opplastet dokumentasjon." },
+                { icon: Target, title: "Modenhet 0–4", description: "Hver rad er et kontrollområde. Score genereres fra svar i modenhetsvurderingen og opplastet dokumentasjon." },
                 { icon: Sparkles, title: "Anbefalte tjenester", description: "Lara foreslår tjenester (NIS2-klargjøring, AI Governance, Pen-test osv.) der gap er størst." },
                 { icon: FileText, title: "Svar fra modenhetsvurdering", description: "Svar fra dokumentasjon og spørreskjema oppdaterer modenheten automatisk." },
               ],
