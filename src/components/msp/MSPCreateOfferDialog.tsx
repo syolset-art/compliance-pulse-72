@@ -471,7 +471,60 @@ export function MSPCreateOfferDialog({
       y += 6;
     }
 
+    // Dekning: krav og dokumentasjon per tjeneste
+    if (showCoverageInOffer && coverage.services.length > 0) {
+      if (y > 640) { doc.addPage(); y = margin; }
+      doc.setFontSize(10);
+      doc.setTextColor(120);
+      doc.text("DETTE DEKKER TILBUDET", margin, y);
+      y += 16;
+      coverage.services.forEach(s => {
+        if (y > 760) { doc.addPage(); y = margin; }
+        doc.setFontSize(11);
+        doc.setTextColor(20);
+        doc.text(s.serviceLabel, margin, y);
+        y += 13;
+        doc.setFontSize(9);
+        doc.setTextColor(110);
+        s.requirements.forEach(r => {
+          if (y > 790) { doc.addPage(); y = margin; }
+          const line = `${r.frameworkShortName} > ${r.controlId} ${r.controlLabel}${r.active ? "" : " (regelverk ikke aktivert)"}`;
+          const lines = doc.splitTextToSize(line, pageWidth - margin * 2 - 12);
+          doc.text(lines, margin + 12, y);
+          y += lines.length * 11;
+        });
+        if (s.documents.length > 0) {
+          const docLines = doc.splitTextToSize(
+            `Dokumentasjon: ${s.documents.map(d => d.name).join(", ")}`,
+            pageWidth - margin * 2 - 12,
+          );
+          if (y > 780) { doc.addPage(); y = margin; }
+          doc.text(docLines, margin + 12, y);
+          y += docLines.length * 11;
+        }
+        y += 6;
+      });
+      if (coverage.inactiveFrameworks.some(f => !addedFrameworkIds.includes(f.id))) {
+        const pitch = inactiveFrameworkPitch(
+          coverage.inactiveFrameworks.filter(f => !addedFrameworkIds.includes(f.id)).map(f => f.label),
+        );
+        const lines = doc.splitTextToSize(pitch, pageWidth - margin * 2);
+        if (y > 770) { doc.addPage(); y = margin; }
+        doc.text(lines, margin, y);
+        y += lines.length * 11 + 6;
+      }
+      doc.setFontSize(8);
+      doc.setTextColor(150);
+      const disc = doc.splitTextToSize(
+        "Koblingen mellom tjenester, regelverk og krav er foreslått ved hjelp av KI og kan inneholde feil.",
+        pageWidth - margin * 2,
+      );
+      doc.text(disc, margin, y);
+      y += disc.length * 10 + 8;
+    }
+
     // SIDE 2 — dekning mot gap-analysen (oppgave → mangler)
+
     if (showGapsInOffer && coveredGaps && selectedCount > 0) {
       doc.addPage();
       y = margin;
