@@ -38,6 +38,9 @@ Apple-inspired professional aesthetic: clean whites, subtle grays, crisp blue ac
     --success: 142 71% 45%;           /* emerald-500, vivid */
     --success-foreground: 0 0% 100%;
 
+    --success-soft: 142 55% 62%;      /* lys grønn — moden (50–74 %) */
+    --success-soft-foreground: 150 60% 12%;
+
     --warning: 25 95% 53%;            /* orange-500, punchier */
     --warning-foreground: 0 0% 100%;
 
@@ -162,6 +165,9 @@ Apple-inspired professional aesthetic: clean whites, subtle grays, crisp blue ac
 
     --success: 161 70% 37%;
     --success-foreground: 0 0% 100%;
+
+    --success-soft: 158 45% 55%;
+    --success-soft-foreground: 155 60% 10%;
 
     --warning: 33 87% 55%;
     --warning-foreground: 0 0% 0%;

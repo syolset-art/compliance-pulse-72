@@ -14,6 +14,7 @@ import {
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { ShieldCheck, Info, Globe, ArrowRight, Lock, ChevronRight } from "lucide-react";
 import { MATURITY_AREAS } from "@/lib/trustMaturityQuestions";
+import { getMaturityBand, MATURITY_BANDS } from "@/lib/scoringEngine";
 import { getModuleState } from "@/lib/moduleActivationState";
 import { useActiveOrganization } from "@/contexts/ActiveOrganizationContext";
 import { useWorkspaceMode } from "@/contexts/WorkspaceModeContext";
@@ -75,9 +76,8 @@ export function CustomerMaturityMirrorCard({
 
   const byId = new Map(areaProgress.map((a) => [a.id, a]));
   const score = totalQuestions > 0 ? Math.round((totalAnswered / totalQuestions) * 100) : 0;
+  const totalBand = getMaturityBand(score);
 
-  const pctClass = (pct: number) =>
-    pct >= 75 ? "text-success" : pct >= 50 ? "text-warning" : "text-destructive";
 
   const handleEnter = () => {
     enterCustomerOrg({ id: customerId, name: customerName, orgNumber: customerOrgNumber });
@@ -100,8 +100,11 @@ export function CustomerMaturityMirrorCard({
           </div>
           <div className="flex items-center gap-1.5 shrink-0">
             <span className="text-xs text-muted-foreground">Modenhet</span>
-            <span className="text-sm font-semibold text-foreground tabular-nums">{score}</span>
+            <span className={cn("text-sm font-semibold tabular-nums", totalBand.textClass)}>
+              {score}
+            </span>
             <span className="text-xs text-muted-foreground">/100</span>
+            <span className="text-[11px] text-muted-foreground">· {totalBand.label}</span>
             <TooltipProvider delayDuration={200}>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -109,13 +112,16 @@ export function CustomerMaturityMirrorCard({
                     <Info className="h-3.5 w-3.5" />
                   </span>
                 </TooltipTrigger>
-                <TooltipContent side="left" className="max-w-xs text-xs">
-                  Oppdateres i sanntid fra kundens baseline-svar på tvers av de fem
-                  kontrollområdene.
+                <TooltipContent side="left" className="max-w-xs text-xs leading-relaxed">
+                  Modenhet måles per kontrollområde etter Mynders scoringsmodell (v1). De fem
+                  områdene vektes fast: Personvern 30 %, Styring 25 %, Drift og sikkerhet 25 %,
+                  Identitet og tilgang 10 %, Tredjepart og verdikjede 10 %. Score øker når kunden
+                  svarer ut, dokumenterer eller verifiserer kontroller — ikke av at data registreres.
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
           </div>
+
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -124,6 +130,7 @@ export function CustomerMaturityMirrorCard({
             const answered = p?.answered ?? 0;
             const total = p?.total ?? area.questions.length;
             const pct = total > 0 ? Math.round((answered / total) * 100) : 0;
+            const band = getMaturityBand(pct);
             const Icon = area.icon;
             return (
               <button
@@ -139,16 +146,34 @@ export function CustomerMaturityMirrorCard({
                       {area.title}
                     </span>
                   </div>
-                  <span className="flex items-center gap-1 shrink-0">
-                    <span className={cn("text-xs tabular-nums", pctClass(pct))}>{pct}%</span>
+                  <span className="flex items-center gap-1.5 shrink-0">
+                    <span className="text-[11px] text-muted-foreground">{band.label}</span>
+                    <span className={cn("text-xs tabular-nums", band.textClass)}>{pct}%</span>
                     <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
                   </span>
                 </div>
-                <Progress value={pct} className="h-1 mt-2" />
+                <Progress
+                  value={pct}
+                  className={cn("h-1 mt-2 [&>div]:transition-all", band.barClass)}
+                />
               </button>
             );
           })}
         </div>
+
+        <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1">
+          {MATURITY_BANDS.map((b) => (
+            <span key={b.id} className="inline-flex items-center gap-1.5 text-[11px] text-muted-foreground">
+              <span className={cn("h-1.5 w-3 rounded-full", b.id === "none" ? "bg-muted" : b.dotClass)} />
+              {b.label}
+            </span>
+          ))}
+          <span className="text-[11px] text-muted-foreground/80">
+            Basert på Mynders scoringsmodell (v1)
+          </span>
+        </div>
+
+
 
         <div className="mt-3 flex items-center justify-between gap-3 flex-wrap">
           <p className="text-xs text-muted-foreground">
