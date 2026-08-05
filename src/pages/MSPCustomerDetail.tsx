@@ -598,12 +598,37 @@ export default function MSPCustomerDetail() {
               setActivateItems(null);
               queryClient.invalidateQueries({ queryKey: ["msp-customer", customerId] });
             }}
+            onEnterCustomer={(activated) => {
+              const name = customer.name || customer.customer_name || "Kunden";
+              const targets: CustomerEntryTarget[] = activated.map((a) => ({
+                id: a.id,
+                label: a.label,
+                kind: a.kind,
+                moduleKey: a.moduleKey,
+                frameworkId: a.frameworkId,
+              }));
+              if (promptOrToast({ customerName: name, onEnter: () => setEnterItems(targets) })) {
+                setEnterItems(targets);
+              }
+            }}
             onMoveToOffer={() => {
               setOfferItems(activateItems);
               setActivateItems(null);
             }}
           />
         )}
+
+        {enterItems && (
+          <EnterCustomerContextDialog
+            open={!!enterItems}
+            onOpenChange={(o) => !o && setEnterItems(null)}
+            customerId={customerId!}
+            customerName={customer.name || customer.customer_name || "Kunden"}
+            customerOrgNumber={(customer as any).org_number ?? null}
+            items={enterItems}
+          />
+        )}
+
 
         <MSPCreateOfferDialog
           open={offerDialog.open}
