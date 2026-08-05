@@ -214,11 +214,18 @@ export function TopBar() {
 
           <DropdownMenuSeparator />
 
+          {/* Legal documents */}
+          <DropdownMenuItem onClick={() => navigate("/legal")} className="gap-2">
+            <FileText className="h-4 w-4" />
+            {isNb ? "Avtaler og vilkår" : "Terms & agreements"}
+          </DropdownMenuItem>
+
           {/* About Mynder-score */}
           <DropdownMenuItem onClick={() => navigate("/resources/maturity")} className="gap-2">
             <Compass className="h-4 w-4" />
             {isNb ? "Om Mynder-scoren" : "About the Mynder score"}
           </DropdownMenuItem>
+
 
         </DropdownMenuContent>
       </DropdownMenu>
