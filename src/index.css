@@ -27,7 +27,7 @@ Apple-inspired professional aesthetic: clean whites, subtle grays, crisp blue ac
     --secondary-foreground: 222 47% 11%;
 
     --muted: 210 40% 96%;             /* slate-100 */
-    --muted-foreground: 215 16% 47%;  /* slate-500 */
+    --muted-foreground: 215 19% 40%;  /* darkened for WCAG AA on light bg */
 
     --accent: 247 60% 67%;            /* purple-accent #7F77DD */
     --accent-foreground: 0 0% 100%;
