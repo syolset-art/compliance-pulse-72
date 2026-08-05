@@ -419,8 +419,23 @@ function RecommendationCell({
 
 
 
+// ===== Salgspotensial =====
+const DEFAULT_HOURLY_RATE = 1500;
+
+/** Førsteårs salgspotensial: tjenestetimer + 12 mnd abonnement på anbefalte produkter/regelverk. */
+function customerSalesPotential(c: any): { total: number; services: number; recurring: number } {
+  const suggestions = deriveOfferSuggestions(c);
+  let services = 0;
+  let recurring = 0;
+  for (const s of suggestions) {
+    if (s.activatable) recurring += (s.price ?? 0) * 12;
+    else services += (s.hours ?? 0) * DEFAULT_HOURLY_RATE;
+  }
+  return { total: services + recurring, services, recurring };
+}
+
 // ===== Responsive column config =====
-type ColumnKey = "customer" | "country" | "industry" | "recommendations" | "activated" | "score";
+type ColumnKey = "customer" | "country" | "industry" | "recommendations" | "activated" | "potential" | "score";
 
 
 const COLUMN_LABELS: Record<ColumnKey, string> = {
@@ -429,10 +444,11 @@ const COLUMN_LABELS: Record<ColumnKey, string> = {
   industry: "Bransje",
   recommendations: "Anbefalte produkter og tjenester",
   activated: "Aktivert",
+  potential: "Salgspotensial",
   score: "Modenhet",
 };
 
-const COLUMN_ORDER: ColumnKey[] = ["customer", "country", "industry", "recommendations", "activated", "score"];
+const COLUMN_ORDER: ColumnKey[] = ["customer", "country", "industry", "recommendations", "activated", "potential", "score"];
 
 // Min Tailwind breakpoint (in px) where each column becomes visible by default.
 // 0 = always shown; 640=sm, 768=md, 1024=lg, 1280=xl
@@ -440,6 +456,7 @@ const COLUMN_MIN_BP: Record<ColumnKey, number> = {
   customer: 0,
   score: 0,
   recommendations: 640,
+  potential: 768,
   activated: 1024,
   industry: 1024,
   country: 1280,
@@ -447,7 +464,8 @@ const COLUMN_MIN_BP: Record<ColumnKey, number> = {
 
 
 
-const COLUMN_STORAGE_KEY = "msp_dashboard_columns_v4";
+const COLUMN_STORAGE_KEY = "msp_dashboard_columns_v5";
+
 
 
 
