@@ -97,6 +97,12 @@ export function CustomerStatusBanner({ customer, actionSlot, onUpdate }: { custo
     setAccountManager(customer.account_manager ?? getAccountManagerOverride(customer.id));
   }, [customer.id, customer.account_manager]);
 
+  // Driftspartner: godkjent operatør-rolle globalt eller for denne kunden
+  const { acceptances } = useTerms();
+  const isOperatorPartner = acceptances.some(
+    (a) => a.operator_role && (!a.context_ref || a.context_ref === customer.id),
+  );
+
   const handleAssign = async (name: string) => {
     const { error } = await supabase
       .from("msp_customers")
