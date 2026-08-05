@@ -18,7 +18,9 @@ export interface TermsAcceptance {
   context: string;
   context_ref: string | null;
   accepted_at: string;
+  operator_role?: boolean;
 }
+
 
 export type TermsContext =
   | "module_activation"
