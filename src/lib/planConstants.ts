@@ -146,6 +146,13 @@ export function getNextCoreTier(id: CoreTierId): CoreTier | null {
   return idx >= 0 && idx < CORE_TIERS.length - 1 ? CORE_TIERS[idx + 1] : null;
 }
 
+// ─── Trust Center ───────────────────────────────────────────────────
+// Trust Center er et eget produkt: del dokumentasjonen én gang og gjenbruk
+// den mot kunder, leverandører og revisorer.
+export const TRUST_CENTER_PRICE_KR = 490;
+
+
+
 // ─── Vendor module tiers ────────────────────────────────────────────
 // Leverandørmodulen mirrors Core's model: free up to 5, then paid tiers.
 
