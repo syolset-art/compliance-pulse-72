@@ -195,92 +195,79 @@ export function CustomerServicesAndProductsTab({
     ]);
   };
 
+  const frameworkFooter =
+    recommendedFrameworks.length > 0 ? (
+      <div className="flex flex-wrap items-center gap-1.5">
+        <span className="text-[11px] text-muted-foreground">Anbefalt:</span>
+        {recommendedFrameworks.map((f) => {
+          const selected = selectedFrameworks.includes(f.id);
+          return (
+            <button
+              key={f.id}
+              type="button"
+              onClick={() => toggleFramework(f.id)}
+              className={cn(
+                "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] transition-colors",
+                selected
+                  ? "border-primary bg-primary/10 text-primary"
+                  : "border-dashed border-border text-muted-foreground hover:border-primary/50 hover:text-foreground",
+              )}
+            >
+              {selected ? <Check className="h-3 w-3" /> : <Plus className="h-3 w-3" />}
+              {f.name}
+            </button>
+          );
+        })}
+        {selectedFrameworks.length > 0 && (
+          <Button size="sm" className="h-7 text-xs ml-auto" onClick={activateSelectedFrameworks}>
+            Aktiver ({selectedFrameworks.length})
+          </Button>
+        )}
+      </div>
+    ) : undefined;
+
   return (
     <div className="space-y-5">
-      {/* ── 1. Regelverk: aktivert vs. anbefalt ── */}
-      <Card className="p-5 space-y-4">
-        <div className="flex items-center gap-2">
-          <Shield className="h-4 w-4 text-primary" />
-          <h2 className="text-sm font-semibold text-foreground">Regelverk</h2>
-          <span className="text-xs text-muted-foreground">
-            {activeFrameworks.length} aktivert · {recommendedFrameworks.length} anbefalt
-          </span>
-          {selectedFrameworks.length > 0 && (
-            <Button size="sm" className="ml-auto h-7 text-xs" onClick={activateSelectedFrameworks}>
-              Aktiver ({selectedFrameworks.length})
-            </Button>
-          )}
-        </div>
-
-        <div className="space-y-3">
-          <div>
-            <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground mb-1.5">
-              Aktivert
-            </p>
-            <div className="flex flex-wrap gap-1.5">
-              {activeFrameworks.length === 0 ? (
-                <span className="text-xs text-muted-foreground">Ingen regelverk aktivert ennå</span>
-              ) : (
-                activeFrameworks.map((f) => (
-                  <Badge
-                    key={f.id}
-                    variant="outline"
-                    className="text-[11px] gap-1 bg-success/10 text-success border-success/30"
-                  >
-                    <Check className="h-3 w-3" />
-                    {f.name}
-                  </Badge>
-                ))
-              )}
-            </div>
-          </div>
-
-          <div>
-            <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground mb-1.5">
-              Anbefalt for denne kunden
-            </p>
-            <div className="flex flex-wrap gap-1.5">
-              {recommendedFrameworks.length === 0 ? (
-                <span className="text-xs text-muted-foreground">
-                  Ingen ytterligere regelverk anbefalt
-                </span>
-              ) : (
-                recommendedFrameworks.map((f) => {
-                  const selected = selectedFrameworks.includes(f.id);
-                  return (
-                    <button
-                      key={f.id}
-                      type="button"
-                      onClick={() => toggleFramework(f.id)}
-                      className={cn(
-                        "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] transition-colors",
-                        selected
-                          ? "border-primary bg-primary/10 text-primary"
-                          : "border-dashed border-border text-muted-foreground hover:border-primary/50 hover:text-foreground",
-                      )}
-                    >
-                      {selected ? <Check className="h-3 w-3" /> : <Plus className="h-3 w-3" />}
-                      {f.name}
-                    </button>
-                  );
-                })
-              )}
-            </div>
-          </div>
-        </div>
-      </Card>
-
-      {/* ── 2. Produkter ── */}
+      {/* ── 1. Produkter og regelverk ── */}
       <div className="space-y-3">
         <div className="flex items-center gap-2">
           <Package className="h-4 w-4 text-primary" />
-          <h2 className="text-sm font-semibold text-foreground">Produkter</h2>
+          <h2 className="text-sm font-semibold text-foreground">Produkter og regelverk</h2>
           <span className="text-xs text-muted-foreground">
-            {activeProductCount} av {products.length} aktivert
+            {activeProductCount + (activeFrameworks.length > 0 ? 1 : 0)} av {products.length + 1} aktivert
           </span>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
+          <ModuleCard
+            icon={Shield}
+            title="Regelverk"
+            description="Regelverkene kunden etterlever, med krav og dokumentasjonskrav."
+            status={activeFrameworks.length > 0 ? "active" : "inactive"}
+            price={activeFrameworks.length * FRAMEWORK_PRICE}
+            priceLabel={
+              activeFrameworks.length > 0 ? `${activeFrameworks.length} aktive regelverk` : undefined
+            }
+            usage={String(activeFrameworks.length)}
+            usageLimit={String(ALL_FRAMEWORKS.length)}
+            usageSuffix="aktive"
+            breakdown={
+              activeFrameworks.length > 0
+                ? activeFrameworks.map((f) => ({ label: f.name, priceKr: FRAMEWORK_PRICE }))
+                : undefined
+            }
+            action={activeFrameworks.length > 0 ? "manage" : "activate"}
+            onClick={() => {
+              if (recommendedFrameworks.length > 0 && selectedFrameworks.length === 0) {
+                setSelectedFrameworks(recommendedFrameworks.map((f) => f.id));
+                return;
+              }
+              if (selectedFrameworks.length > 0) activateSelectedFrameworks();
+              else onUpdate?.();
+            }}
+            footer={frameworkFooter}
+          />
+
           {products.map((p) => (
             <ModuleCard
               key={p.key}
@@ -304,6 +291,7 @@ export function CustomerServicesAndProductsTab({
           ))}
         </div>
       </div>
+
 
       {/* ── 3. Anbefalte tjenester (leveres som oppdrag) ── */}
       <Card className="p-4">
