@@ -220,7 +220,7 @@ function computePicksFromAnswers(answers: WizardAnswers): Pick[] {
 }
 
 
-export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (view: "settings" | "how-it-works") => void } = {}) {
+export function MSPServiceCatalogTab({ onOpenSecondary, onRegisterActions }: { onOpenSecondary?: (view: "settings" | "how-it-works") => void; onRegisterActions?: (actions: { openWizard: () => void }) => void } = {}) {
   const navigate = useNavigate();
   const { defaultHourlyRate, currencyOption } = useServiceDefaults();
   const { branding } = usePartnerBranding();
