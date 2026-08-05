@@ -687,29 +687,6 @@ export function MSPServiceCatalogTab({ onOpenSecondary, onRegisterActions }: { o
               Alle ({availablePicks.length})
             </TabsTrigger>
           </TabsList>
-          {onOpenSecondary && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" aria-label="Innstillinger og hjelp">
-                  <Settings2 className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onSelect={() => onOpenSecondary("settings")}>
-                  <Settings2 className="h-4 w-4 mr-2" />
-                  Innstillinger
-                </DropdownMenuItem>
-                <DropdownMenuItem onSelect={() => openWizard()}>
-                  <Sparkles className="h-4 w-4 mr-2" />
-                  Tjenesteprofil
-                </DropdownMenuItem>
-                <DropdownMenuItem onSelect={() => onOpenSecondary("how-it-works")}>
-                  <FileText className="h-4 w-4 mr-2" />
-                  Hvordan virker det
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
 
         </div>
 
