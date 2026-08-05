@@ -107,20 +107,46 @@ export function CustomerRecommendationsCard({ customer, onOffer, onActivate }: P
       </div>
 
       <div className="mt-auto pt-4 border-t border-border/60">
-        <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Aktivert</p>
-        <div className="flex flex-wrap items-center gap-1.5 mt-2">
-          {activated.length === 0 ? (
-            <span className="text-sm text-muted-foreground">Ingenting aktivert ennå</span>
-          ) : (
-            activated.map((label) => (
-              <Badge
-                key={label}
-                variant="outline"
-                className="font-normal bg-success/10 text-foreground border-success/30 text-[11px]"
-              >
-                {label}
-              </Badge>
-            ))
+        <div className="flex items-start justify-between gap-4">
+          <div className="min-w-0">
+            <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Aktivert</p>
+            <div className="flex flex-wrap items-center gap-1.5 mt-2">
+              {activated.length === 0 ? (
+                <span className="text-sm text-muted-foreground">Ingenting aktivert ennå</span>
+              ) : (
+                activated.map((label) => (
+                  <Badge
+                    key={label}
+                    variant="outline"
+                    className="font-normal bg-success/10 text-foreground border-success/30 text-[11px]"
+                  >
+                    {label}
+                  </Badge>
+                ))
+              )}
+            </div>
+          </div>
+
+          {potential.total > 0 && (
+            <div className="text-right shrink-0">
+              <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
+                Salgspotensial
+              </p>
+              <TooltipProvider delayDuration={200}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="mt-2 block text-sm font-medium tabular-nums text-foreground cursor-help">
+                      {formatKr(potential.total)}
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent side="top" className="max-w-[240px] text-xs">
+                    <p>Estimert førsteårs potensial eks. mva.</p>
+                    <p className="mt-1">Tjenester: {formatKr(potential.services)} (1 500 kr/t)</p>
+                    <p>Produkter og regelverk: {formatKr(potential.recurring)} (12 mnd)</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
           )}
         </div>
       </div>
