@@ -1720,10 +1720,10 @@
     }
   },
   "baselineCard": {
-    "title": "Baseline mapping",
+    "title": "Maturity assessment",
     "answered": "answered",
     "optional": "Optional",
-    "description": "Ask the questions together with the customer to create a baseline. The answers are linked directly to maturity per control area.",
+    "description": "Ask the questions together with the customer to create a maturity assessment. The answers are linked directly to maturity per control area.",
     "trustScore": "Trust Score",
     "helper": "The more questions answered, the more accurate the maturity assessment and gap analysis will be.",
     "startPartner": "Start mapping",
@@ -1732,13 +1732,13 @@
     "meetingButtonTooltip": "Opens a questionnaire where you and the customer jointly assess maturity across five control areas. The result forms the basis for the Trust Profile and gap analysis."
   },
   "baselineDrawer": {
-    "reviewTitle": "Review baseline",
-    "partnerTitle": "Fill out baseline",
-    "meetingTitle": "Fill out baseline together with customer",
-    "description": "Baseline is the customer's starting point: a short mapping of whether key GDPR and security measures are in place, distributed across five control areas. The answers become the starting point for the customer's Trust Profile and gap analysis.",
+    "reviewTitle": "Review maturity assessment",
+    "partnerTitle": "Fill out maturity assessment",
+    "meetingTitle": "Fill out maturity assessment together with customer",
+    "description": "Maturity assessment is the customer's starting point: a short mapping of whether key GDPR and security measures are in place, distributed across five control areas. The answers become the starting point for the customer's Trust Profile and gap analysis.",
     "reviewInfo": "Lara has suggested answers based on what is typical for <strong>{{customerName}}</strong>. Go through each question and confirm, adjust or mark as not relevant.",
-    "partnerInfo": "You answer on behalf of <strong>{{customerName}}</strong>. The answers are saved as partner-confirmed and used as baseline when you run the gap analysis.",
-    "meetingInfo": "Ask the questions out loud and choose the answer together with <strong>{{customerName}}</strong>. The answers are saved as baseline and used as the starting point for Trust Profile and gap analysis."
+    "partnerInfo": "You answer on behalf of <strong>{{customerName}}</strong>. The answers are saved as partner-confirmed and used as the maturity assessment when you run the gap analysis.",
+    "meetingInfo": "Ask the questions out loud and choose the answer together with <strong>{{customerName}}</strong>. The answers are saved as the maturity assessment and used as the starting point for Trust Profile and gap analysis."
   }
 }
 

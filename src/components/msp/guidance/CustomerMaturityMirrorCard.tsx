@@ -128,7 +128,7 @@ export function CustomerMaturityMirrorCard({
             <h3 className="text-sm font-semibold text-foreground">Modenhet per kontrollområde</h3>
             <span className="inline-flex items-center gap-1 rounded-full border border-recommend/30 bg-recommend/10 px-2 py-0.5 text-[11px] font-medium text-recommend">
               <Globe className="h-3 w-3" />
-              {usingStartingPoint ? "Startpunkt fra Laras kartlegging" : "Estimert fra baseline-svar"}
+              {usingStartingPoint ? "Startpunkt fra Laras kartlegging" : "Estimert fra svar i modenhetsvurderingen"}
             </span>
           </div>
 
@@ -167,7 +167,7 @@ export function CustomerMaturityMirrorCard({
             <FileCheck className="h-3.5 w-3.5 text-muted-foreground shrink-0 mt-0.5" />
             <p className="text-[11px] text-muted-foreground leading-relaxed">
               Personvernerklæring funnet på kundens nettsted → teller på Styring og ansvar og
-              Personvern. Startpunktet er et estimat og erstattes så snart baseline besvares.
+              Personvern. Startpunktet er et estimat og erstattes så snart modenhetsvurderingen besvares.
             </p>
           </div>
         )}
@@ -300,7 +300,7 @@ export function CustomerMaturityMirrorCard({
                 <Lock className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
                 <p className="text-xs text-muted-foreground leading-relaxed">
                   Modenhetstallene over er fortsatt tilgjengelige — de speiles fra kundens
-                  baseline-svar.
+                  svar i modenhetsvurderingen.
                 </p>
               </div>
               <DialogFooter className="gap-2 sm:gap-2">

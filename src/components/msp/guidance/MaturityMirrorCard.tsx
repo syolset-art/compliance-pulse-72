@@ -28,7 +28,7 @@ export function MaturityMirrorCard({ areaProgress, totalAnswered, totalQuestions
           <div className="min-w-0">
             <h3 className="text-sm font-semibold text-foreground">Modenhet per kontrollområde</h3>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Estimert fra baseline-svar. Fyll ut flere spørsmål for et mer presist bilde.
+              Estimert fra svar i modenhetsvurderingen. Fyll ut flere spørsmål for et mer presist bilde.
             </p>
           </div>
         </div>
@@ -42,7 +42,7 @@ export function MaturityMirrorCard({ areaProgress, totalAnswered, totalQuestions
                 <Info className="h-3.5 w-3.5 text-muted-foreground" />
               </TooltipTrigger>
               <TooltipContent side="left" className="max-w-xs text-xs">
-                Score = andel besvarte baseline-spørsmål på tvers av alle kontrollområder.
+                Score = andel besvarte spørsmål i modenhetsvurderingen på tvers av alle kontrollområder.
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>

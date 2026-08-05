@@ -235,8 +235,8 @@ export default function MSPCustomerDetail() {
     },
     totalAnswered < totalQuestions && {
       severity: "critical",
-      category: "Modenhet · Baseline",
-      title: "Baseline-kartlegging",
+      category: "Modenhet · Modenhetsvurdering",
+      title: "Modenhetsvurdering",
       desc: `Kartlegg modenhet sammen med kunden — grunnlaget for Trust Profile og gap-analyse. ${totalAnswered}/${totalQuestions} besvart.`,
       cta: "Start kartlegging",
       onClick: () => setBaselineDrawer({ open: true, review: false, mode: "meeting" }),
@@ -252,12 +252,12 @@ export default function MSPCustomerDetail() {
       onClick: () => navigate(`/msp-dashboard/${customerId}/nis2`),
       canAutoRun: true,
       autoRunLabel: "La Lara gjøre NIS2-vurdering",
-      autoRunMessage: "Lara genererer et førsteutkast til NIS2-gap basert på baseline, Acronis-data og kundens systemregister. Partner får utkastet til gjennomgang.",
+      autoRunMessage: "Lara genererer et førsteutkast til NIS2-gap basert på modenhetsvurderingen, Acronis-data og kundens systemregister. Partner får utkastet til gjennomgang.",
       infoGap: !customer.has_acronis_integration || !customer.initial_assessment_score
         ? "Lara har lite å gå på for denne kunden ennå — uten Acronis-data og innledende vurdering blir NIS2-utkastet svært generisk."
         : undefined,
       prerequisiteHint: !customer.has_acronis_integration
-        ? "Koble til Acronis først, eller be partner fylle inn baseline-spørsmålene."
+        ? "Koble til Acronis først, eller be partner fylle inn spørsmålene i modenhetsvurderingen."
         : !customer.initial_assessment_score
         ? "Fullfør innledende vurdering først, så blir NIS2-analysen mye mer treffsikker."
         : undefined,
@@ -769,7 +769,7 @@ export default function MSPCustomerDetail() {
               items: [
                 { icon: Target, title: "Modenhet 0–4", description: "Hver rad er et kontrollområde. Score genereres fra baseline-svar og opplastet dokumentasjon." },
                 { icon: Sparkles, title: "Anbefalte tjenester", description: "Lara foreslår tjenester (NIS2-klargjøring, AI Governance, Pen-test osv.) der gap er størst." },
-                { icon: FileText, title: "Baseline-svar", description: "Svar fra dokumentasjon og spørreskjema oppdaterer modenheten automatisk." },
+                { icon: FileText, title: "Svar fra modenhetsvurdering", description: "Svar fra dokumentasjon og spørreskjema oppdaterer modenheten automatisk." },
               ],
               whyDescription: "Tydelig modenhetsbilde gjør det enkelt å selge inn relevante tjenester og dokumentere fremgang over tid.",
               laraSuggestions: [
@@ -800,12 +800,12 @@ export default function MSPCustomerDetail() {
               onOpenChange: setHelpOpen,
               icon: FileText,
               title: "Dokumentasjon",
-              description: `Last opp ${customerName} sin dokumentasjon — DPA-er, policyer, hendelsesplaner og andre filer. Lara leser dokumentene og bruker dem som grunnlag for baseline-svar, gap-analyse og forslag til tiltak.`,
+              description: `Last opp ${customerName} sin dokumentasjon — DPA-er, policyer, hendelsesplaner og andre filer. Lara leser dokumentene og bruker dem som grunnlag for svar i modenhetsvurderingen, gap-analyse og forslag til tiltak.`,
               itemsHeading: "Slik fungerer det",
               items: [
                 { icon: FileText, title: "Forventede dokumenter", description: "Listen viser dokumenttyper som forventes for kundens rammeverk og bransje." },
                 { icon: Sparkles, title: "Lara-lesing", description: "Når lese-tilgang er på, henter Lara svar og sitater direkte fra opplastet dokumentasjon." },
-                { icon: RefreshCw, title: "Automatisk oppdatering", description: "Når et dokument endres, oppdateres baseline-svarene automatisk." },
+                { icon: RefreshCw, title: "Automatisk oppdatering", description: "Når et dokument endres, oppdateres svarene i modenhetsvurderingen automatisk." },
               ],
               whyDescription: "Komplett dokumentasjon gir bedre AI-svar, høyere modenhet og raskere revisjon.",
               stepsHeading: "Kom i gang",
