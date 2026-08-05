@@ -254,17 +254,25 @@ export function ActivateTrustCenterDialog({
           )}
           {step === 3 && (
             <>
-              <Button variant="outline" onClick={() => onOpenChange(false)}>
-                Bli her
+              <Button
+                variant="outline"
+                onClick={() => {
+                  if (dontAskAgain) setPreference(false);
+                  onOpenChange(false);
+                }}
+              >
+                Senere
               </Button>
               <Button
                 onClick={() => {
+                  if (dontAskAgain) setPreference(false);
                   onOpenChange(false);
                   onOpenGuide?.();
                 }}
               >
                 Åpne veiledning
               </Button>
+
             </>
           )}
         </DialogFooter>
