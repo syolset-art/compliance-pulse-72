@@ -127,7 +127,7 @@ export function ActivateTrustCenterDialog({
             {step === 3 ? "Trust Center er aktivert" : `Aktiver Trust Center hos ${customerName}`}
           </DialogTitle>
           <DialogDescription className="text-xs">
-            {step === 1 && "490 kr per måned. Bekreft vilkår for å fortsette."}
+            {step === 1 && "490 kr per måned eks. mva. Tjenesten aktiveres umiddelbart, og faktureres på neste faktura. Bekreft vilkår for å fortsette."}
             {step === 2 && "Slik settes Trust Center opp hos kunden."}
             {step === 3 && "Velg hvor du vil jobbe videre."}
           </DialogDescription>
