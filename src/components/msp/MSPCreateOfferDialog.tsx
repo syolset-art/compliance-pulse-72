@@ -210,6 +210,46 @@ export function MSPCreateOfferDialog({
     setSnapshotDate(new Date());
   }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // ===== Dekning: krav og dokumentasjon per tjeneste =====
+  const [addedFrameworkIds, setAddedFrameworkIds] = useState<string[]>([]);
+  const [showCoverageInOffer, setShowCoverageInOffer] = useState(true);
+
+  useEffect(() => {
+    if (!open) return;
+    setAddedFrameworkIds([]);
+    setShowCoverageInOffer(true);
+  }, [open]);
+
+  const coverageServiceLabels = useMemo(
+    () =>
+      (offeredServiceNames && offeredServiceNames.length > 0
+        ? offeredServiceNames
+        : (defaultTasks || []).map((t) => t.label)),
+    [offeredServiceNames, defaultTasks],
+  );
+
+  const coverage = useMemo(
+    () => buildOfferCoverage(coverageServiceLabels, activeFrameworks ?? []),
+    [coverageServiceLabels, activeFrameworks],
+  );
+
+  const handleAddFramework = (fw: { id: string; label: string }) => {
+    setAddedFrameworkIds((prev) => (prev.includes(fw.id) ? prev : [...prev, fw.id]));
+    setTasks((prev) => [
+      ...prev,
+      {
+        label: `Aktiver ${fw.label} i Mynder`,
+        hours: FRAMEWORK_ACTIVATION_HOURS,
+        owner: "Partner",
+        gapIds: [],
+        note: "Gir kunden modenhetsscore og rapport for regelverket.",
+      } as EditableTask,
+    ]);
+    toast.success(`${fw.label} lagt til i tilbudet`);
+  };
+
+
+
   const totalHours = tasks.reduce((s, t) => s + (Number(t.hours) || 0), 0);
   const totalPrice = totalHours * editableHourlyRate;
   const tax = branding.tax;
