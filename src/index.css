@@ -41,7 +41,7 @@ Apple-inspired professional aesthetic: clean whites, subtle grays, crisp blue ac
     --warning: 25 95% 53%;            /* orange-500, punchier */
     --warning-foreground: 0 0% 100%;
 
-    --recommend: 35 55% 42%;          /* ochre, distinct from CTA */
+    --recommend: 32 78% 30%;          /* ochre, WCAG AA on light bg */
     --recommend-foreground: 0 0% 100%;
 
     --border: 214 32% 91%;            /* slate-200 */
