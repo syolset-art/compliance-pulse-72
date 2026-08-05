@@ -24,6 +24,8 @@ import {
   ActivateRecommendationsDialog,
   type ActivatableItem,
 } from "./ActivateRecommendationsDialog";
+import { EnterCustomerContextDialog } from "./EnterCustomerContextDialog";
+import type { CustomerEntryTarget } from "@/lib/customerEntryRoutes";
 import { MSPCreateOfferDialog } from "./MSPCreateOfferDialog";
 import { CustomerModulesTab } from "./CustomerModulesTab";
 import { MSPMaturityServiceMatrix } from "./MSPMaturityServiceMatrix";
