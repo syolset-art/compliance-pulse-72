@@ -27,6 +27,7 @@ export function PurchaseLicensesDialog({ open, onOpenChange, onSuccess }: Props)
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
+  const [operatorRole, setOperatorRole] = useState(false);
   const { current: currentTerms, hasAcceptedCurrent, acceptTerms } = useTerms();
 
   const tier = LICENSE_TIERS.find((t) => t.id === selectedTierId) || LICENSE_TIERS[0];
@@ -87,7 +88,7 @@ export function PurchaseLicensesDialog({ open, onOpenChange, onSuccess }: Props)
         status: "pending",
       } as any);
 
-      await acceptTerms("license_purchase", `${quantity}x ${tier.name}`);
+      await acceptTerms("license_purchase", `${quantity}x ${tier.name}`, { operatorRole });
 
       toast.success(`${quantity} ${tier.name}-lisenser kjøpt med ${discount}% rabatt!`);
       onSuccess();
@@ -199,6 +200,9 @@ export function PurchaseLicensesDialog({ open, onOpenChange, onSuccess }: Props)
             checked={termsAccepted || hasAcceptedCurrent}
             onCheckedChange={setTermsAccepted}
             version={currentTerms?.version}
+            showOperatorRole
+            operatorRole={operatorRole}
+            onOperatorRoleChange={setOperatorRole}
           />
         </div>
 

@@ -73,7 +73,7 @@ export function AssignLicenseDialog({ open, onOpenChange, license, onSuccess }: 
 
       if (licenseError) throw licenseError;
 
-      await acceptTerms("license_purchase", `assign:${license.license_key ?? license.id}`);
+      await acceptTerms("license_purchase", `assign:${license.license_key ?? license.id}`, { operatorRole });
 
       toast.success(`Lisens tildelt ${form.customer_name.trim()}. Onboarding-e-post sendes.`);
       onSuccess();
@@ -200,6 +200,9 @@ export function AssignLicenseDialog({ open, onOpenChange, license, onSuccess }: 
           checked={termsOk}
           onCheckedChange={setTermsChecked}
           version={currentTerms?.version}
+          showOperatorRole
+          operatorRole={operatorRole}
+          onOperatorRoleChange={setOperatorRole}
         />
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Avbryt</Button>

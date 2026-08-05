@@ -78,7 +78,7 @@ export function FrameworkOrderConfirmDialog({
 
   const handleSubmit = async () => {
     if (!canSubmit) return;
-    await acceptTerms("framework_activation", framework.id);
+    await acceptTerms("framework_activation", framework.id, { operatorRole });
     onConfirm(
       method === "upload"
         ? { method, evidenceName: file!.name, evidenceSize: file!.size }
@@ -203,6 +203,9 @@ export function FrameworkOrderConfirmDialog({
             checked={termsOk}
             onCheckedChange={setTermsChecked}
             version={currentTerms?.version}
+            showOperatorRole
+            operatorRole={operatorRole}
+            onOperatorRoleChange={setOperatorRole}
           />
 
         </div>
