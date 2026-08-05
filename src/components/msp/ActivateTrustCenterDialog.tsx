@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { usePostActivationPrompt } from "@/hooks/usePostActivationPrompt";
 import { toast } from "sonner";
 import { CheckCircle2, Mail, ShieldCheck, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
