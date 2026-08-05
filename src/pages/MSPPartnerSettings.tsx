@@ -339,6 +339,25 @@ export default function MSPPartnerSettings() {
 
               <PartnerTaxCard />
 
+              {/* Etter aktivering */}
+              <Card className="p-4">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="space-y-0.5">
+                    <p className="text-sm font-medium">Spør etter aktivering</p>
+                    <p className="text-xs text-muted-foreground">
+                      Vis dialog om å jobbe videre hos kunden når du har aktivert produkter eller
+                      regelverk. Er den av, får du kun en varsling med snarvei.
+                    </p>
+                  </div>
+                  <Switch
+                    checked={postActivationEnabled}
+                    onCheckedChange={setPostActivationPreference}
+                    aria-label="Spør om å jobbe videre hos kunden etter aktivering"
+                  />
+                </div>
+              </Card>
+
+
               {/* 4. Lenke til fakturering */}
               <Card className="p-0 overflow-hidden">
                 <Link
