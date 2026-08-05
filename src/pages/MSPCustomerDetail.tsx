@@ -50,6 +50,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { frameworks as ALL_FRAMEWORKS } from "@/lib/frameworkDefinitions";
 
 import { CustomerRecommendationsCard } from "@/components/msp/guidance/CustomerRecommendationsCard";
+import { CustomerMaturityMirrorCard } from "@/components/msp/guidance/CustomerMaturityMirrorCard";
 import { ActivateRecommendationsDialog } from "@/components/msp/ActivateRecommendationsDialog";
 import type { OfferSuggestion } from "@/lib/offerSuggestions";
 
