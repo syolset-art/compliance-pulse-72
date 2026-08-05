@@ -1088,7 +1088,9 @@ export default function MSPDashboard() {
                               </TableCell>
                             )}
                             {isVisible("industry") && (
-                              <TableCell className="text-muted-foreground">{c.industry || "—"}</TableCell>
+                              <TableCell className="text-muted-foreground max-w-[100px]">
+                                <span className="block truncate" title={c.industry || "—"}>{c.industry || "—"}</span>
+                              </TableCell>
                             )}
                             {isVisible("recommendations") && (
                               <TableCell onClick={(e) => e.stopPropagation()} className="align-top">
