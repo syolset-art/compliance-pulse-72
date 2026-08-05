@@ -211,12 +211,14 @@ function RecommendationCell({
   onToggle,
   onOffer,
   onActivate,
+  onPreselectActivatable,
 }: {
   suggestions: OfferSuggestion[];
   picked: string[];
   onToggle: (id: string) => void;
   onOffer: () => void;
   onActivate: () => void;
+  onPreselectActivatable: (ids: string[]) => void;
 }) {
   const [expanded, setExpanded] = useState(false);
   if (suggestions.length === 0) return <span className="text-muted-foreground text-sm">—</span>;
@@ -224,6 +226,7 @@ function RecommendationCell({
   const shown = expanded ? suggestions : suggestions.slice(0, 4);
   const hidden = suggestions.length - shown.length;
   const activatableCount = suggestions.filter((s) => picked.includes(s.id) && s.activatable).length;
+  const activatableAll = suggestions.filter((s) => s.activatable);
 
   return (
     <div className="flex flex-wrap items-center gap-1 max-w-[284px]">
@@ -234,13 +237,17 @@ function RecommendationCell({
             key={s.id}
             type="button"
             onClick={() => onToggle(s.id)}
+            title={s.activatable ? "Kan aktiveres direkte" : "Tjeneste – leveres som oppdrag"}
             className={cn(
-              "inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-recommend focus-visible:ring-offset-1",
+              "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-recommend focus-visible:ring-offset-1",
               on
                 ? "border-recommend bg-recommend text-recommend-foreground"
-                : "border-recommend/60 bg-recommend/15 text-recommend dark:text-recommend hover:bg-recommend/25 hover:border-recommend",
+                : s.activatable
+                  ? "border-recommend/60 bg-recommend/15 text-recommend dark:text-recommend hover:bg-recommend/25 hover:border-recommend"
+                  : "border-dashed border-recommend/50 bg-transparent text-recommend/90 hover:bg-recommend/10",
             )}
           >
+            {s.activatable && <Zap className="h-2.5 w-2.5 shrink-0" />}
             {s.label}
           </button>
         );
@@ -273,9 +280,20 @@ function RecommendationCell({
           Aktiver ({activatableCount})
         </button>
       )}
+      {picked.length === 0 && activatableAll.length > 0 && (
+        <button
+          type="button"
+          onClick={() => onPreselectActivatable(activatableAll.map((s) => s.id))}
+          className="inline-flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground underline underline-offset-2 transition-colors"
+        >
+          <Zap className="h-3 w-3" />
+          Aktiver direkte
+        </button>
+      )}
     </div>
   );
 }
+
 
 
 
