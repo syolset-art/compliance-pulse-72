@@ -26,6 +26,13 @@ import {
 } from "./ActivateRecommendationsDialog";
 import { EnterCustomerContextDialog } from "./EnterCustomerContextDialog";
 import { ActivateTrustCenterDialog } from "./ActivateTrustCenterDialog";
+import { TrustCenterGuideSheet } from "./TrustCenterGuideSheet";
+import {
+  TRUST_CENTER_EVENT,
+  TRUST_CENTER_NEXT_STEP,
+  TRUST_CENTER_STATUS_LABEL,
+  trustCenterStatusFor,
+} from "@/lib/trustCenterStatus";
 import type { CustomerEntryTarget } from "@/lib/customerEntryRoutes";
 import { MSPCreateOfferDialog } from "./MSPCreateOfferDialog";
 import { CustomerModulesTab } from "./CustomerModulesTab";
@@ -114,7 +121,11 @@ export function CustomerServicesAndProductsTab({
   useEffect(() => {
     const refresh = () => setTick((n) => n + 1);
     window.addEventListener("modules:changed", refresh);
-    return () => window.removeEventListener("modules:changed", refresh);
+    window.addEventListener(TRUST_CENTER_EVENT, refresh);
+    return () => {
+      window.removeEventListener("modules:changed", refresh);
+      window.removeEventListener(TRUST_CENTER_EVENT, refresh);
+    };
   }, []);
 
   const [showAll, setShowAll] = useState(false);
@@ -123,6 +134,7 @@ export function CustomerServicesAndProductsTab({
   const [enterItems, setEnterItems] = useState<CustomerEntryTarget[] | null>(null);
   const [offerItems, setOfferItems] = useState<{ label: string; hours: number }[] | null>(null);
   const [trustActivateOpen, setTrustActivateOpen] = useState(false);
+  const [trustGuideOpen, setTrustGuideOpen] = useState(false);
 
   const products = useMemo(
     () =>
@@ -288,27 +300,69 @@ export function CustomerServicesAndProductsTab({
             footer={frameworkFooter}
           />
 
-          {products.map((p) => (
-            <ModuleCard
-              key={p.key}
-              title={p.title}
-              description={p.description}
-              status={p.status}
-              price={p.price}
-              priceLabel={p.tierLabel}
-              usage={p.usage ? String(p.usage.current) : undefined}
-              usageSuffix={p.usage?.suffix}
-              usageLimit={p.limit != null ? String(p.limit) : undefined}
-              cancelAtLabel={p.cancelAt ? formatPeriodEnd(p.cancelAt) : undefined}
-              action={
-                p.status === "inactive" ? "activate" : p.moduleKey ? "change" : "open"
-              }
-              onClick={() => {
-                if (p.status === "inactive") activateProduct(p);
-                else onUpdate?.();
-              }}
-            />
-          ))}
+          {products.map((p) => {
+            const isTrust = p.key === "trust";
+            const trustStatus = isTrust
+              ? trustCenterStatusFor(customerId, p.status !== "inactive")
+              : null;
+            return (
+              <ModuleCard
+                key={p.key}
+                title={p.title}
+                description={p.description}
+                status={p.status}
+                price={p.price}
+                priceLabel={isTrust ? undefined : p.tierLabel}
+                usage={p.usage ? String(p.usage.current) : undefined}
+                usageSuffix={p.usage?.suffix}
+                usageLimit={p.limit != null ? String(p.limit) : undefined}
+                cancelAtLabel={p.cancelAt ? formatPeriodEnd(p.cancelAt) : undefined}
+                action={
+                  isTrust
+                    ? "activate"
+                    : p.status === "inactive"
+                      ? "activate"
+                      : p.moduleKey
+                        ? "change"
+                        : "open"
+                }
+                ctaOverride={
+                  isTrust
+                    ? {
+                        label: p.status === "inactive" ? "Aktiver" : "Åpne veiledning",
+                        variant: p.status === "inactive" ? "default" : "outline",
+                      }
+                    : undefined
+                }
+                footer={
+                  isTrust && trustStatus && trustStatus !== "inactive" ? (
+                    <div className="space-y-1">
+                      <Badge
+                        variant="outline"
+                        className="text-[10px] font-normal border-primary/30 bg-primary/5 text-primary"
+                      >
+                        {TRUST_CENTER_STATUS_LABEL[trustStatus]}
+                      </Badge>
+                      {TRUST_CENTER_NEXT_STEP[trustStatus] && (
+                        <p className="text-[11px] text-muted-foreground">
+                          {TRUST_CENTER_NEXT_STEP[trustStatus]}
+                        </p>
+                      )}
+                    </div>
+                  ) : undefined
+                }
+                onClick={() => {
+                  if (isTrust) {
+                    if (p.status === "inactive") setTrustActivateOpen(true);
+                    else setTrustGuideOpen(true);
+                    return;
+                  }
+                  if (p.status === "inactive") activateProduct(p);
+                  else onUpdate?.();
+                }}
+              />
+            );
+          })}
         </div>
       </div>
 
@@ -411,6 +465,15 @@ export function CustomerServicesAndProductsTab({
           setTick((n) => n + 1);
           onUpdate?.();
         }}
+        onOpenGuide={() => setTrustGuideOpen(true)}
+      />
+
+      <TrustCenterGuideSheet
+        open={trustGuideOpen}
+        onOpenChange={setTrustGuideOpen}
+        customerId={customerId}
+        customerName={customerName}
+        customerEmail={customerEmail}
       />
 
       {enterItems && (
