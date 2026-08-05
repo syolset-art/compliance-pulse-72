@@ -1,5 +1,6 @@
 import { getOffersForCustomer, normalizeServiceKey } from "@/lib/customerOffers";
 import { SERVICE_LIBRARY } from "@/lib/serviceLibrary";
+import type { CustomerEntryTarget } from "@/lib/customerEntryRoutes";
 
 // ===== Anbefalte produkter og tjenester (salgbare forslag) =====
 export interface OfferSuggestion {
@@ -235,4 +236,54 @@ export function customerSalesPotential(c: any): { total: number; services: numbe
     else services += (s.hours ?? 0) * DEFAULT_HOURLY_RATE;
   }
   return { total: services + recurring, services, recurring };
+}
+
+// ===== Inngang til arbeid hos kunden (driftspartner) =====
+
+const ACTIVATED_LABEL_TO_MODULE: Record<string, string> = {
+  "mynder core": "core",
+  "leverandørmodul": "vendors",
+  leverandører: "vendors",
+  assets: "assets",
+  "eiendeler (assets)": "assets",
+  systemer: "systems",
+  "trust profile": "trust",
+  "trust center": "trust",
+  avvikshåndtering: "deviations",
+  avviksregister: "deviations",
+  ropa: "ropa",
+  behandlingsprotokoll: "ropa",
+};
+
+/** Regelverk kunden har aktivert, som inngangspunkter. */
+export function deriveActivatedFrameworkTargets(c: any): CustomerEntryTarget[] {
+  const seen = new Set<string>();
+  const out: CustomerEntryTarget[] = [];
+  for (const f of (c?.active_frameworks || []) as any[]) {
+    const label = typeof f === "string" ? f : (f?.label ?? f?.frameworkId ?? "");
+    if (!label || seen.has(label)) continue;
+    seen.add(label);
+    const frameworkId = typeof f === "string" ? f : (f?.frameworkId ?? f?.id ?? label);
+    out.push({ id: `fw-${frameworkId}`, label, kind: "framework", frameworkId });
+  }
+  return out;
+}
+
+/** Aktiverte moduler og tjenester, som inngangspunkter for arbeid hos kunden. */
+export function deriveActivatedProductTargets(c: any): CustomerEntryTarget[] {
+  return deriveActivatedProducts(c).map((label) => {
+    const moduleKey = ACTIVATED_LABEL_TO_MODULE[label.trim().toLowerCase()] ?? "core";
+    const isModule = ACTIVATED_LABEL_TO_MODULE[label.trim().toLowerCase()] !== undefined;
+    return {
+      id: `${isModule ? "mod" : "svc"}-${normalizeServiceKey(label)}`,
+      label,
+      kind: isModule ? "module" : "service",
+      moduleKey,
+    } as CustomerEntryTarget;
+  });
+}
+
+/** Alt kunden har aktivert (regelverk + produkter/tjenester) som inngangspunkter. */
+export function deriveActivatedTargets(c: any): CustomerEntryTarget[] {
+  return [...deriveActivatedFrameworkTargets(c), ...deriveActivatedProductTargets(c)];
 }

@@ -1,30 +1,34 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Sparkles, Info, Zap, Plus, X } from "lucide-react";
+import { Sparkles, Info, Zap, Plus, X, ArrowRight, Briefcase } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import {
   deriveProductSuggestions,
   deriveActivatedProducts,
+  deriveActivatedProductTargets,
   salesPotentialFor,
   type OfferSuggestion,
 } from "@/lib/offerSuggestions";
 import { AddOfferItemDialog } from "./AddOfferItemDialog";
 import { formatKr } from "@/lib/planConstants";
+import type { CustomerEntryTarget } from "@/lib/customerEntryRoutes";
 
 interface Props {
   customer: any;
   onOffer: (items: OfferSuggestion[]) => void;
   onActivate: (items: OfferSuggestion[]) => void;
+  /** Gå inn i kundens organisasjon for å jobbe med det som er aktivert. */
+  onEnterCustomer?: (items: CustomerEntryTarget[]) => void;
 }
 
-export function CustomerRecommendationsCard({ customer, onOffer, onActivate }: Props) {
+export function CustomerRecommendationsCard({ customer, onOffer, onActivate, onEnterCustomer }: Props) {
   const [picked, setPicked] = useState<string[]>([]);
   const [manual, setManual] = useState<OfferSuggestion[]>([]);
   const [addOpen, setAddOpen] = useState(false);
   const recommended = deriveProductSuggestions(customer);
   const activated = deriveActivatedProducts(customer);
+  const activatedTargets = deriveActivatedProductTargets(customer);
   const manualIds = new Set(manual.map((m) => m.id));
   const suggestions = [...recommended.filter((r) => !manualIds.has(r.id)), ...manual];
   const potential = salesPotentialFor(suggestions);
@@ -176,19 +180,47 @@ export function CustomerRecommendationsCard({ customer, onOffer, onActivate }: P
       <div className="mt-auto pt-4 border-t border-border/60">
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">
-            <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Aktivert</p>
+            <div className="flex items-center gap-2 flex-wrap">
+              <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
+                Aktivert – jobb som driftspartner
+              </p>
+              {activatedTargets.length > 0 && onEnterCustomer && (
+                <button
+                  type="button"
+                  onClick={() => onEnterCustomer(activatedTargets)}
+                  className="inline-flex items-center gap-1 text-[11px] text-primary hover:underline underline-offset-2"
+                >
+                  <Briefcase className="h-3 w-3" />
+                  Åpne kundens virksomhetsprofil
+                </button>
+              )}
+            </div>
+            <p className="text-[11px] text-muted-foreground mt-1">
+              Klikk på et aktivert produkt for å gå inn i kundens organisasjon og jobbe med
+              etterlevelsen på vegne av kunden.
+            </p>
             <div className="flex flex-wrap items-center gap-1.5 mt-2">
               {activated.length === 0 ? (
                 <span className="text-sm text-muted-foreground">Ingenting aktivert ennå</span>
               ) : (
-                activated.map((label) => (
-                  <Badge
-                    key={label}
-                    variant="outline"
-                    className="font-normal bg-success/10 text-foreground border-success/30 text-[11px]"
+                activatedTargets.map((target) => (
+                  <button
+                    key={target.id}
+                    type="button"
+                    onClick={() => onEnterCustomer?.([target])}
+                    disabled={!onEnterCustomer}
+                    title={`Jobb med ${target.label} hos kunden`}
+                    className={cn(
+                      "inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-normal transition-colors",
+                      "bg-success/10 text-foreground border-success/30",
+                      onEnterCustomer
+                        ? "hover:bg-success/20 hover:border-success/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 cursor-pointer"
+                        : "cursor-default",
+                    )}
                   >
-                    {label}
-                  </Badge>
+                    {target.label}
+                    {onEnterCustomer && <ArrowRight className="h-2.5 w-2.5 opacity-70" />}
+                  </button>
                 ))
               )}
             </div>
