@@ -180,18 +180,13 @@ export default function MSPCustomerDetail() {
 
   // Works to be done — fra assessment / acronis / dokumenter
   const tasks = [
-    mandate !== "confirmed" && {
-      severity: "critical" as const,
-      category: "Mandat og fullmakt",
-      title: mandate === "requested"
-        ? "Venter på fullmakt fra kunden"
-        : "Bekreft mandat for å jobbe i kundens profil",
-      desc: mandate === "requested"
-        ? "Fullmakt er sendt til kunden. Du kan også bekrefte direkte at dere har avtale."
-        : "For å jobbe i kundens Trust Profile må du ha fullmakt — enten via signert leveranseavtale, eller ved å be kunden bekrefte direkte.",
-      cta: mandate === "requested" ? "Bekreft avtale i stedet" : "Bekreft mandat",
-      onClick: () => setMandateDialogOpen(true),
-      // Krever menneskelig signatur — Lara kan ikke kjøre dette selv.
+    {
+      severity: "medium" as const,
+      category: "Rolle · Driftspartner",
+      title: "Driftspartner: jobb med compliance på vegne av kunden",
+      desc: "Som driftspartner kan du utføre compliance-arbeid på vegne av kunden. Når du aktiverer et produkt eller en tjeneste hos kunden, får du mulighet til å utføre arbeidet direkte i kundens egen virksomhetsprofil.",
+      cta: "Se produkter og tjenester",
+      onClick: () => handleTabChange("assessment"),
     },
     !trustHandoverSent && {
       severity: "critical" as const,
