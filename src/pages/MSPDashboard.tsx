@@ -1104,7 +1104,8 @@ export default function MSPDashboard() {
                               </TableCell>
                             )}
                             {isVisible("activated") && (
-                              <TableCell className="align-top">
+                              <TableCell className="align-top max-w-[200px]">
+
                                 {(() => {
                                   const items = deriveActivatedItems(c);
                                   if (items.length === 0) {
