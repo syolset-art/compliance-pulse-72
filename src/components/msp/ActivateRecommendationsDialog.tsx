@@ -40,6 +40,8 @@ interface Props {
   activeFrameworks: string[];
   activeModules: string[];
   onActivated: () => void;
+  /** Kalles med de aktiverte elementene slik at partneren kan gå inn i kundens organisasjon. */
+  onEnterCustomer?: (items: ActivatableItem[]) => void;
   onMoveToOffer: () => void;
 }
 
