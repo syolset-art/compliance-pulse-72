@@ -1030,7 +1030,7 @@ export default function MSPDashboard() {
               customerContactName={offerFor.customer_name}
               serviceTitle={`Anbefalte produkter og tjenester for ${offerFor.customer_name}`}
               offeredServiceNames={items.map((s) => s.label)}
-              activeFrameworks={(offerFor.active_frameworks || []).map(toLabel).filter(Boolean)}
+              activeFrameworks={(offerFor.active_frameworks || []).map((f: any) => (typeof f === "string" ? f : (f?.label ?? f?.frameworkId ?? ""))).filter(Boolean)}
               defaultTasks={items.map((s) => ({
                 label: s.label,
                 hours: s.hours,
