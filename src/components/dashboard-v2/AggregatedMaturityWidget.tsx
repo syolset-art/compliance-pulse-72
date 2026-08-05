@@ -559,7 +559,10 @@ export function AggregatedMaturityWidget() {
                 );
               })}
             </div>
+
+            <MaturityLegend isNb={isNb} />
           </>
+
         )}
 
       </div>
