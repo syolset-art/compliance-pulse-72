@@ -156,6 +156,7 @@ const App = () => (
                   <Route path="/settings/integrations" element={<Integrations />} />
                   <Route path="/terms-and-consent" element={<TermsAndConsent />} />
                   <Route path="/terms" element={<Terms />} />
+                  <Route path="/legal" element={<Legal />} />
                   <Route path="/deviations" element={<Deviations />} />
                   <Route path="/resources" element={<Resources />} />
                   <Route path="/compliance" element={<ComplianceChecklist />} />
