@@ -59,6 +59,10 @@ export default {
           DEFAULT: "hsl(var(--success))",
           foreground: "hsl(var(--success-foreground))",
         },
+        "success-soft": {
+          DEFAULT: "hsl(var(--success-soft))",
+          foreground: "hsl(var(--success-soft-foreground))",
+        },
         warning: {
           DEFAULT: "hsl(var(--warning))",
           foreground: "hsl(var(--warning-foreground))",
