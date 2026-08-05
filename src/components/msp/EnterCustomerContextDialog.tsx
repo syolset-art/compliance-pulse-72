@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ArrowRight, Building2, CheckCircle2 } from "lucide-react";
+import { ArrowRight, Briefcase, Building2, CheckCircle2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useActiveOrganization } from "@/contexts/ActiveOrganizationContext";
 import { useWorkspaceMode } from "@/contexts/WorkspaceModeContext";
@@ -24,6 +24,8 @@ interface Props {
   customerName: string;
   customerOrgNumber?: string | null;
   items: CustomerEntryTarget[];
+  /** "activation" = rett etter aktivering, "work" = partneren velger selv å gå inn og jobbe. */
+  variant?: "activation" | "work";
 }
 
 export function EnterCustomerContextDialog({
@@ -33,6 +35,7 @@ export function EnterCustomerContextDialog({
   customerName,
   customerOrgNumber,
   items,
+  variant = "activation",
 }: Props) {
   const navigate = useNavigate();
   const { enterCustomerOrg } = useActiveOrganization();
@@ -65,23 +68,39 @@ export function EnterCustomerContextDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-base">Jobbe videre hos {customerName} nå?</DialogTitle>
+          <DialogTitle className="text-base">
+            {variant === "work"
+              ? `Jobbe hos ${customerName} som driftspartner?`
+              : `Jobbe videre hos ${customerName} nå?`}
+          </DialogTitle>
         </DialogHeader>
 
-        <div className="flex items-start gap-2 rounded-lg border border-success/30 bg-success/10 p-3">
-          <CheckCircle2 className="h-4 w-4 text-success shrink-0 mt-0.5" />
-          <p className="text-xs text-foreground leading-relaxed">
-            {items.length === 1 && selected
-              ? `${selected.label} er aktivert hos ${customerName}.`
-              : `${items.length} produkter og tjenester er aktivert hos ${customerName}.`}{" "}
-            Aktiveringen er fullført – du kan trygt fortsette senere.
-          </p>
-        </div>
+        {variant === "activation" ? (
+          <div className="flex items-start gap-2 rounded-lg border border-success/30 bg-success/10 p-3">
+            <CheckCircle2 className="h-4 w-4 text-success shrink-0 mt-0.5" />
+            <p className="text-xs text-foreground leading-relaxed">
+              {items.length === 1 && selected
+                ? `${selected.label} er aktivert hos ${customerName}.`
+                : `${items.length} produkter og tjenester er aktivert hos ${customerName}.`}{" "}
+              Aktiveringen er fullført – du kan trygt fortsette senere.
+            </p>
+          </div>
+        ) : (
+          <div className="flex items-start gap-2 rounded-lg border border-primary/30 bg-primary/5 p-3">
+            <Briefcase className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+            <p className="text-xs text-foreground leading-relaxed">
+              Du går inn i kundens virksomhetsprofil for å jobbe med etterlevelse på vegne av
+              kunden, i rollen som driftspartner.
+            </p>
+          </div>
+        )}
 
         <DialogDescription className="text-sm text-muted-foreground leading-relaxed">
-          {items.length === 1
-            ? `Vil du bytte til ${customerName} sin organisasjon og starte arbeidet nå?`
-            : `Velg hva du vil starte med hos ${customerName}.`}
+          {variant === "work" && items.length === 1 && selected
+            ? `Åpne ${selected.label} hos ${customerName} og start arbeidet.`
+            : items.length === 1
+              ? `Vil du bytte til ${customerName} sin organisasjon og starte arbeidet nå?`
+              : `Velg hva du vil starte med hos ${customerName}.`}
         </DialogDescription>
 
         {items.length > 1 && (
@@ -123,20 +142,22 @@ export function EnterCustomerContextDialog({
           </p>
         </div>
 
-        <label className="flex items-center gap-2 cursor-pointer">
-          <Checkbox
-            checked={dontAskAgain}
-            onCheckedChange={(v) => setDontAskAgain(v === true)}
-          />
-          <span className="text-xs text-muted-foreground">Ikke spør meg om dette igjen</span>
-        </label>
+        {variant === "activation" && (
+          <label className="flex items-center gap-2 cursor-pointer">
+            <Checkbox
+              checked={dontAskAgain}
+              onCheckedChange={(v) => setDontAskAgain(v === true)}
+            />
+            <span className="text-xs text-muted-foreground">Ikke spør meg om dette igjen</span>
+          </label>
+        )}
 
         <DialogFooter className="pt-2">
           <Button variant="ghost" onClick={handleLater}>
-            Senere
+            {variant === "work" ? "Avbryt" : "Senere"}
           </Button>
           <Button onClick={handleEnter} className="gap-2">
-            Jobb videre nå
+            {variant === "work" ? "Åpne kundens profil" : "Jobb videre nå"}
             <ArrowRight className="h-4 w-4" />
           </Button>
         </DialogFooter>
