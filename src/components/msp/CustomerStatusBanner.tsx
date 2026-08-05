@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import { Sparkles, ShieldCheck, Send, Archive, Mail, User, UserPlus, ExternalLink, Pencil, Check, X, Copy, Briefcase, Globe, Info } from "lucide-react";
+import { Sparkles, ShieldCheck, ShieldOff, Send, Archive, Mail, User, UserPlus, ExternalLink, Pencil, Check, X, Copy, Briefcase, Globe, Info } from "lucide-react";
 import { COMPANY_ROLES } from "@/lib/mspCustomerConstants";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -99,9 +99,16 @@ export function CustomerStatusBanner({ customer, actionSlot, onUpdate }: { custo
 
   // Driftspartner: godkjent operatør-rolle globalt eller for denne kunden
   const { acceptances } = useTerms();
-  const isOperatorPartner = acceptances.some(
-    (a) => a.operator_role && (!a.context_ref || a.context_ref === customer.id),
-  );
+  const operatorAcceptance =
+    acceptances.find((a) => a.operator_role && a.context_ref === customer.id) ??
+    acceptances.find((a) => a.operator_role && !a.context_ref) ??
+    null;
+  const isOperatorPartner = !!operatorAcceptance;
+  const operatorScope: "customer" | "global" | null = operatorAcceptance
+    ? operatorAcceptance.context_ref === customer.id
+      ? "customer"
+      : "global"
+    : null;
 
   const handleAssign = async (name: string) => {
     const { error } = await supabase
@@ -659,25 +666,57 @@ export function CustomerStatusBanner({ customer, actionSlot, onUpdate }: { custo
                   <span className="inline-flex items-center gap-2 text-sm flex-wrap">
                     <InitialAvatar name={accountManager} />
                     <span>{accountManager}</span>
-                    {isOperatorPartner && (
-                      <TooltipProvider delayDuration={150}>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Badge
-                              variant="outline"
-                              className="gap-1 font-normal bg-primary/10 text-primary border-primary/20 text-[11px] cursor-help"
-                            >
+                    <TooltipProvider delayDuration={150}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Badge
+                            variant="outline"
+                            className={cn(
+                              "gap-1 font-normal text-[11px] cursor-help",
+                              isOperatorPartner
+                                ? "bg-success/10 text-success border-success/25"
+                                : "bg-muted text-muted-foreground border-border",
+                            )}
+                          >
+                            {isOperatorPartner ? (
                               <ShieldCheck className="h-3 w-3" aria-hidden="true" />
-                              Driftspartner
-                            </Badge>
-                          </TooltipTrigger>
-                          <TooltipContent side="bottom" className="max-w-xs text-xs">
-                            Kundeansvarlig er også driftsansvarlig og kan utføre compliance-arbeid
-                            direkte i kundens egen virksomhetsprofil.
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    )}
+                            ) : (
+                              <ShieldOff className="h-3 w-3" aria-hidden="true" />
+                            )}
+                            {isOperatorPartner ? "Driftspartner bekreftet" : "Ikke driftspartner"}
+                          </Badge>
+                        </TooltipTrigger>
+                        <TooltipContent side="bottom" className="max-w-xs text-xs">
+                          {isOperatorPartner ? (
+                            <>
+                              <p>
+                                {accountManager} er bekreftet som driftspartner og kan utføre
+                                compliance-arbeid direkte i kundens virksomhetsprofil.
+                              </p>
+                              <p className="mt-1 text-muted-foreground">
+                                {operatorScope === "customer"
+                                  ? "Bekreftet spesifikt for denne kunden"
+                                  : "Bekreftet som generell driftspartnerrolle"}
+                                {operatorAcceptance?.accepted_at
+                                  ? ` – ${formatLongDate(operatorAcceptance.accepted_at)}`
+                                  : ""}
+                                .
+                              </p>
+                            </>
+                          ) : (
+                            <>
+                              <p>
+                                Kundeansvarlig er ikke bekreftet som driftspartner for denne kunden.
+                              </p>
+                              <p className="mt-1 text-muted-foreground">
+                                Rollen bekreftes når du godkjenner vilkårene og huker av for
+                                «Skal du ha rolle som driftspartner?» ved aktivering av et produkt.
+                              </p>
+                            </>
+                          )}
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </span>
                 ) : (
                   <Popover open={assignOpen} onOpenChange={setAssignOpen}>
