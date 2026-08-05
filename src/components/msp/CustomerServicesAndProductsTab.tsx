@@ -25,6 +25,7 @@ import {
   type ActivatableItem,
 } from "./ActivateRecommendationsDialog";
 import { EnterCustomerContextDialog } from "./EnterCustomerContextDialog";
+import { usePostActivationPrompt } from "@/hooks/usePostActivationPrompt";
 import { ActivateTrustCenterDialog } from "./ActivateTrustCenterDialog";
 import { TrustCenterGuideSheet } from "./TrustCenterGuideSheet";
 import {
