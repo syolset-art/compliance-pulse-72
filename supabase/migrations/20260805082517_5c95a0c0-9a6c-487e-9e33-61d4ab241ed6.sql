@@ -1,0 +1,1 @@
+ALTER TABLE public.msp_customers ADD COLUMN IF NOT EXISTS active_modules text[] NOT NULL DEFAULT '{}'::text[];

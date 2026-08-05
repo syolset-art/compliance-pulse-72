@@ -11,6 +11,8 @@ import { MSPCustomerCard } from "@/components/msp/MSPCustomerCard";
 import { AddMSPCustomerDialog } from "@/components/msp/AddMSPCustomerDialog";
 import { GapAnalysisWizardDialog } from "@/components/msp/GapAnalysisWizardDialog";
 import { MSPCreateOfferDialog } from "@/components/msp/MSPCreateOfferDialog";
+import { ActivateRecommendationsDialog } from "@/components/msp/ActivateRecommendationsDialog";
+
 
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuCheckboxItem, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
@@ -251,6 +253,10 @@ export interface OfferSuggestion {
   label: string;
   kind: "framework" | "service" | "module";
   hours: number;
+  activatable: boolean;
+  frameworkId?: string;
+  moduleKey?: string;
+  price?: number | null;
 }
 
 function deriveOfferSuggestions(c: any): OfferSuggestion[] {
@@ -262,32 +268,58 @@ function deriveOfferSuggestions(c: any): OfferSuggestion[] {
   const score = c.compliance_score || 0;
   const ind = c.industry || "";
   const plan = (c.subscription_plan || "").toLowerCase();
+  const modules: string[] = c.active_modules || [];
 
   const out: OfferSuggestion[] = [];
 
   if (!score) {
-    out.push({ id: "svc-maturity", label: "Modenhetsvurdering", kind: "service", hours: 8 });
+    out.push({ id: "svc-maturity", label: "Modenhetsvurdering", kind: "service", hours: 8, activatable: false });
   }
 
   for (const f of recommended.slice(0, 2)) {
-    out.push({ id: `fw-${f}`, label: `Aktiver ${f}`, kind: "framework", hours: 6 });
+    out.push({
+      id: `fw-${f}`,
+      label: `Aktiver ${f}`,
+      kind: "framework",
+      hours: 6,
+      activatable: true,
+      frameworkId: f,
+      price: 836,
+    });
   }
 
   if (!plan || plan.includes("gratis") || plan.includes("free")) {
-    out.push({ id: "mod-core", label: "Mynder Core", kind: "module", hours: 4 });
+    out.push({
+      id: "mod-core",
+      label: "Mynder Core",
+      kind: "module",
+      hours: 4,
+      activatable: !modules.includes("core"),
+      moduleKey: "core",
+      price: 2499,
+    });
   }
 
   if (["Energi", "Helse", "Finans", "Transport", "Bygg og anlegg"].includes(ind)) {
-    out.push({ id: "mod-vendors", label: "Leverandørmodul", kind: "module", hours: 5 });
+    out.push({
+      id: "mod-vendors",
+      label: "Leverandørmodul",
+      kind: "module",
+      hours: 5,
+      activatable: !modules.includes("vendors"),
+      moduleKey: "vendors",
+      price: 1089,
+    });
   }
 
   if (active.includes("ISO 27001") || score >= 50) {
-    out.push({ id: "svc-pentest", label: "Penetrasjonstest", kind: "service", hours: 24 });
+    out.push({ id: "svc-pentest", label: "Penetrasjonstest", kind: "service", hours: 24, activatable: false });
   }
 
   if (score > 0 && score < 60) {
-    out.push({ id: "svc-gap", label: "Gap-analyse", kind: "service", hours: 10 });
+    out.push({ id: "svc-gap", label: "Gap-analyse", kind: "service", hours: 10, activatable: false });
   }
+
 
   const seen = new Set<string>();
   return out.filter((s) => (seen.has(s.id) ? false : (seen.add(s.id), true))).slice(0, 3);
@@ -401,6 +433,8 @@ export default function MSPDashboard() {
   const [gapOpen, setGapOpen] = useState(false);
   const [offerSelection, setOfferSelection] = useState<Record<string, string[]>>({});
   const [offerFor, setOfferFor] = useState<any | null>(null);
+  const [activateFor, setActivateFor] = useState<any | null>(null);
+
   const toggleSuggestion = (customerId: string, suggestionId: string) => {
     setOfferSelection((prev) => {
       const cur = prev[customerId] || [];
@@ -994,6 +1028,17 @@ export default function MSPDashboard() {
                                           Tilbud ({picked.length})
                                         </button>
                                       )}
+                                      {picked.length > 0 &&
+                                        suggestions.some((s) => picked.includes(s.id) && s.activatable) && (
+                                          <button
+                                            type="button"
+                                            onClick={() => setActivateFor(c)}
+                                            className="inline-flex items-center rounded-full border border-primary/50 bg-background px-2 py-0.5 text-[11px] font-medium text-primary hover:bg-primary/10 transition-colors"
+                                          >
+                                            Aktiver ({suggestions.filter((s) => picked.includes(s.id) && s.activatable).length})
+                                          </button>
+                                        )}
+
                                     </div>
                                   );
                                 })()}
@@ -1018,6 +1063,35 @@ export default function MSPDashboard() {
 
         <AddMSPCustomerDialog open={addOpen} onOpenChange={setAddOpen} onSuccess={() => refetch()} />
         <GapAnalysisWizardDialog open={gapOpen} onOpenChange={setGapOpen} customers={filtered} />
+        {activateFor && (() => {
+          const picked = offerSelection[activateFor.id] || [];
+          const items = deriveOfferSuggestions(activateFor).filter((s) => picked.includes(s.id));
+          return (
+            <ActivateRecommendationsDialog
+              open={!!activateFor}
+              onOpenChange={(o) => !o && setActivateFor(null)}
+              customerId={activateFor.id}
+              customerName={activateFor.customer_name}
+              items={items}
+              activeFrameworks={(activateFor.active_frameworks || []).map((f: any) => (typeof f === "string" ? f : (f?.label ?? f?.frameworkId ?? ""))).filter(Boolean)}
+              activeModules={activateFor.active_modules || []}
+              onActivated={() => {
+                setOfferSelection((prev) => ({
+                  ...prev,
+                  [activateFor.id]: picked.filter((id) => !items.some((s) => s.id === id && s.activatable)),
+                }));
+                setActivateFor(null);
+                refetch();
+              }}
+              onMoveToOffer={() => {
+                const target = activateFor;
+                setActivateFor(null);
+                setOfferFor(target);
+              }}
+            />
+          );
+        })()}
+
         {offerFor && (() => {
           const picked = offerSelection[offerFor.id] || [];
           const items = deriveOfferSuggestions(offerFor).filter((s) => picked.includes(s.id));

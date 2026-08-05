@@ -2273,6 +2273,7 @@ export type Database = {
           account_manager: string | null
           acronis_device_count: number | null
           active_frameworks: string[] | null
+          active_modules: string[]
           business_description: string | null
           compliance_score: number | null
           confirmed_frameworks: Json
@@ -2302,6 +2303,7 @@ export type Database = {
           account_manager?: string | null
           acronis_device_count?: number | null
           active_frameworks?: string[] | null
+          active_modules?: string[]
           business_description?: string | null
           compliance_score?: number | null
           confirmed_frameworks?: Json
@@ -2331,6 +2333,7 @@ export type Database = {
           account_manager?: string | null
           acronis_device_count?: number | null
           active_frameworks?: string[] | null
+          active_modules?: string[]
           business_description?: string | null
           compliance_score?: number | null
           confirmed_frameworks?: Json
