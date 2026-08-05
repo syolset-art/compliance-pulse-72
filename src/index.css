@@ -27,7 +27,7 @@ Apple-inspired professional aesthetic: clean whites, subtle grays, crisp blue ac
     --secondary-foreground: 222 47% 11%;
 
     --muted: 210 40% 96%;             /* slate-100 */
-    --muted-foreground: 215 16% 47%;  /* slate-500 */
+    --muted-foreground: 215 19% 40%;  /* darkened for WCAG AA on light bg */
 
     --accent: 247 60% 67%;            /* purple-accent #7F77DD */
     --accent-foreground: 0 0% 100%;
@@ -232,7 +232,9 @@ Apple-inspired professional aesthetic: clean whites, subtle grays, crisp blue ac
     font-family: 'Mulish', system-ui, sans-serif;
   }
 
-  /* Prevent text-xs from being too small — bump to 13px minimum */
+  /* ===== Accessible minimum type sizes (WCAG-friendly) =====
+     No text in the UI should render below 12px. Utility classes with
+     smaller arbitrary sizes are clamped here so legacy markup stays legible. */
   .text-xs {
     font-size: 0.8125rem !important; /* 13px */
     line-height: 1.25rem;
@@ -242,7 +244,28 @@ Apple-inspired professional aesthetic: clean whites, subtle grays, crisp blue ac
     font-size: 0.875rem !important; /* 14px */
     line-height: 1.375rem;
   }
+
+  .text-\[8px\],
+  .text-\[9px\],
+  .text-\[10px\],
+  .text-\[11px\],
+  .text-\[0\.625rem\],
+  .text-\[0\.6875rem\],
+  .text-\[0\.7rem\] {
+    font-size: 0.75rem !important; /* 12px */
+    line-height: 1.125rem !important;
+  }
+
+  .text-\[0\.75rem\],
+  .text-\[12px\],
+  .text-\[0\.8rem\] {
+    font-size: 0.8125rem !important; /* 13px */
+    line-height: 1.25rem !important;
+  }
+
 }
+
+
 
 /* ===== PROFESSIONAL UTILITY CLASSES ===== */
 
