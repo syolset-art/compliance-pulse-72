@@ -32,6 +32,7 @@ import { toast } from "sonner";
 import { getOffersForCustomer, normalizeServiceKey } from "@/lib/customerOffers";
 import { SERVICE_LIBRARY } from "@/lib/serviceLibrary";
 import { deriveOfferSuggestions, deriveActivatedItems, deriveNeededServices, deriveActiveServices, type OfferSuggestion } from "@/lib/offerSuggestions";
+import { usePostActivationPrompt } from "@/hooks/usePostActivationPrompt";
 
 type ViewMode = "cards" | "table";
 
