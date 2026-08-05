@@ -1093,7 +1093,8 @@ export default function MSPDashboard() {
                               </TableCell>
                             )}
                             {isVisible("recommendations") && (
-                              <TableCell onClick={(e) => e.stopPropagation()} className="align-top">
+                              <TableCell onClick={(e) => e.stopPropagation()} className="align-top max-w-[300px]">
+
                                 <RecommendationCell
                                   suggestions={deriveOfferSuggestions(c)}
                                   picked={offerSelection[c.id] || []}
