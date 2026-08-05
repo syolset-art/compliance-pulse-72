@@ -265,13 +265,9 @@ export function ActivateRecommendationsDialog({
             </DialogHeader>
 
             <DialogDescription className="text-sm text-muted-foreground leading-relaxed">
-              {monthlyTotal > 0 ? (
-                <>
-                  Dette koster {formatKr(monthlyTotal)} i måneden eks. mva. Det gjelder med én gang, og
-                  beløpet kommer på neste faktura til {customerName}.
-                </>
-              ) : (
-                <>Dette slås på med én gang hos {customerName}, uten ekstra kostnad.</>
+              Endringen gjelder med én gang hos {customerName}, og eventuelle kostnader kommer på neste faktura.
+            </DialogDescription>
+
               )}
             </DialogDescription>
 
