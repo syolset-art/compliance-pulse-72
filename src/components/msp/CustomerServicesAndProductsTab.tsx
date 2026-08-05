@@ -74,7 +74,7 @@ const PRODUCTS: ProductDef[] = [
   },
   {
     key: "assets",
-    title: "Verdier",
+    title: "Eiendeler (Assets)",
     description: "System- og eiendelsregister.",
   },
 ];
