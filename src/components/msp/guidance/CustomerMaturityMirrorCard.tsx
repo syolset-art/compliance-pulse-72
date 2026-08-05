@@ -222,9 +222,26 @@ export function CustomerMaturityMirrorCard({
           </span>
         </div>
 
-
+        <div className="mt-3 rounded-lg border border-border/60 bg-muted/20 px-3 py-2 flex flex-wrap items-center gap-x-3 gap-y-1">
+          <span className="inline-flex items-start gap-2 text-[11px] text-muted-foreground leading-relaxed min-w-0 flex-1">
+            <TrendingUp className="h-3.5 w-3.5 shrink-0 mt-0.5" />
+            Du hever kundens modenhet ved å levere egne tjenester som dekker kravene i aktiverte
+            regelverk — og ved å aktivere Mynder-produkter.
+          </span>
+          {onSeeServices && (
+            <Button variant="ghost" size="sm" className="h-6 px-2 text-[11px]" onClick={onSeeServices}>
+              Se anbefalte tjenester
+            </Button>
+          )}
+          {onActivateFrameworks && (
+            <Button variant="ghost" size="sm" className="h-6 px-2 text-[11px]" onClick={onActivateFrameworks}>
+              Aktiver regelverk
+            </Button>
+          )}
+        </div>
 
         <div className="mt-3 flex items-center justify-between gap-3 flex-wrap">
+
           <p className="text-xs text-muted-foreground">
             Speiler kundens Trust Profile i sanntid.
           </p>
