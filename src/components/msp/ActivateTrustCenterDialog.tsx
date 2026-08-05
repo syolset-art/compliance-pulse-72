@@ -58,6 +58,8 @@ export function ActivateTrustCenterDialog({
   const [operatorRole, setOperatorRole] = useState(false);
   const [sendClaim, setSendClaim] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [dontAskAgain, setDontAskAgain] = useState(false);
+  const { enabled: promptEnabled, setPreference } = usePostActivationPrompt();
 
   const hasOperatorRole = acceptances.some((a) => a.operator_role);
   const termsOk = termsChecked || hasAcceptedCurrent;
