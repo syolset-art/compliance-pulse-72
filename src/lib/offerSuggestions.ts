@@ -189,6 +189,75 @@ export function buildManualServiceSuggestion(name: string, hours = 8): OfferSugg
   };
 }
 
+/** Kategorier for manuelt valgbare regelverk. */
+export type FrameworkCategory = "regulation" | "standard" | "guideline";
+
+export const FRAMEWORK_CATEGORY_LABELS: Record<FrameworkCategory, string> = {
+  regulation: "Regelverk (lovpålagt)",
+  standard: "Standarder",
+  guideline: "Retningslinjer og rammeverk",
+};
+
+export interface ManualFramework {
+  id: string;
+  label: string;
+  category: FrameworkCategory;
+  hours: number;
+}
+
+/** Regelverk, standarder og retningslinjer partneren kan legge til manuelt. */
+export const MANUAL_FRAMEWORKS: ManualFramework[] = [
+  { id: "gdpr", label: "GDPR", category: "regulation", hours: 6 },
+  { id: "nis2", label: "NIS2", category: "regulation", hours: 8 },
+  { id: "dora", label: "DORA", category: "regulation", hours: 10 },
+  { id: "apenhetsloven", label: "Åpenhetsloven", category: "regulation", hours: 6 },
+  { id: "ai-act", label: "EU AI Act", category: "regulation", hours: 10 },
+  { id: "cra", label: "CRA (Cyber Resilience Act)", category: "regulation", hours: 8 },
+  { id: "iso27001", label: "ISO 27001", category: "standard", hours: 12 },
+  { id: "iso27701", label: "ISO 27701", category: "standard", hours: 10 },
+  { id: "iso9001", label: "ISO 9001", category: "standard", hours: 10 },
+  { id: "iso14001", label: "ISO 14001", category: "standard", hours: 8 },
+  { id: "nsm-grunnprinsipper", label: "NSM grunnprinsipper for IKT-sikkerhet", category: "guideline", hours: 8 },
+  { id: "cis-controls", label: "CIS Controls", category: "guideline", hours: 8 },
+  { id: "normen", label: "Normen (helse og omsorg)", category: "guideline", hours: 8 },
+];
+
+/** Månedspris for et manuelt valgt regelverk (null = ingen egen lisenspris). */
+export function getManualFrameworkPrice(fw: ManualFramework): number | null {
+  if (fw.category === "guideline") return null;
+  if (isFrameworkFree(fw.id)) return 0;
+  return getFrameworkMonthlyPrice(fw.id) || EXTRA_FRAMEWORK_PRICE_KR;
+}
+
+/** Lager et forslag for et manuelt valgt regelverk fra katalogen. */
+export function buildManualFrameworkSuggestion(id: string): OfferSuggestion | null {
+  const fw = MANUAL_FRAMEWORKS.find((f) => f.id === id);
+  if (!fw) return null;
+  return {
+    id: `fw-${fw.id}`,
+    label: fw.label,
+    kind: "framework",
+    hours: fw.hours,
+    activatable: fw.category !== "guideline",
+    frameworkId: fw.id,
+    price: getManualFrameworkPrice(fw),
+  };
+}
+
+/** Lager et forslag for et egendefinert regelverk/retningslinje (fritekst). */
+export function buildCustomFrameworkSuggestion(name: string): OfferSuggestion {
+  const slug = name.trim().toLowerCase().replace(/\s+/g, "-");
+  return {
+    id: `fw-custom-${slug}`,
+    label: name.trim(),
+    kind: "framework",
+    hours: 8,
+    activatable: false,
+    frameworkId: slug,
+    price: null,
+  };
+}
+
 /** Førsteårs potensial for en vilkårlig liste med forslag. */
 export function salesPotentialFor(items: OfferSuggestion[]): {
   total: number;
