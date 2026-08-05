@@ -65,13 +65,23 @@ export function EnterCustomerContextDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-base">Jobbe videre hos {customerName}?</DialogTitle>
+          <DialogTitle className="text-base">Jobbe videre hos {customerName} nå?</DialogTitle>
         </DialogHeader>
 
+        <div className="flex items-start gap-2 rounded-lg border border-success/30 bg-success/10 p-3">
+          <CheckCircle2 className="h-4 w-4 text-success shrink-0 mt-0.5" />
+          <p className="text-xs text-foreground leading-relaxed">
+            {items.length === 1 && selected
+              ? `${selected.label} er aktivert hos ${customerName}.`
+              : `${items.length} produkter og tjenester er aktivert hos ${customerName}.`}{" "}
+            Aktiveringen er fullført – du kan trygt fortsette senere.
+          </p>
+        </div>
+
         <DialogDescription className="text-sm text-muted-foreground leading-relaxed">
-          {items.length === 1 && selected
-            ? `${selected.label} er aktivert. Vil du bytte til ${customerName} sin organisasjon og starte der?`
-            : `Aktiveringen er fullført. Velg hva du vil starte med hos ${customerName}.`}
+          {items.length === 1
+            ? `Vil du bytte til ${customerName} sin organisasjon og starte arbeidet nå?`
+            : `Velg hva du vil starte med hos ${customerName}.`}
         </DialogDescription>
 
         {items.length > 1 && (
@@ -113,15 +123,24 @@ export function EnterCustomerContextDialog({
           </p>
         </div>
 
+        <label className="flex items-center gap-2 cursor-pointer">
+          <Checkbox
+            checked={dontAskAgain}
+            onCheckedChange={(v) => setDontAskAgain(v === true)}
+          />
+          <span className="text-xs text-muted-foreground">Ikke spør meg om dette igjen</span>
+        </label>
+
         <DialogFooter className="pt-2">
-          <Button variant="ghost" onClick={() => onOpenChange(false)}>
-            Ikke nå
+          <Button variant="ghost" onClick={handleLater}>
+            Senere
           </Button>
           <Button onClick={handleEnter} className="gap-2">
-            Gå til {customerName}
+            Jobb videre nå
             <ArrowRight className="h-4 w-4" />
           </Button>
         </DialogFooter>
+
       </DialogContent>
     </Dialog>
   );
