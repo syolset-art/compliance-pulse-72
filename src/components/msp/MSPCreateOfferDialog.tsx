@@ -122,6 +122,8 @@ export interface CreateOfferDialogProps {
   /** Kilde-nøkler for tjenester som inngår i tilbudet — brukes til å låse dem i tjenestekatalogen. */
   offeredTemplateIds?: string[];
   offeredServiceNames?: string[];
+  /** Regelverk kunden har aktivert (id eller label) — styrer dekningsvisningen. */
+  activeFrameworks?: string[];
 }
 
 interface EditableTask extends TaskEstimate {
