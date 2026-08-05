@@ -13,6 +13,7 @@ import { useNavigate } from "react-router-dom";
 import { PARTNER_TEAM, getAccountManagerOverride, setAccountManagerOverride } from "@/lib/partnerTeam";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { useTerms } from "@/hooks/useTerms";
 
 interface CustomerLike {
   id: string;
@@ -649,9 +650,28 @@ export function CustomerStatusBanner({ customer, actionSlot, onUpdate }: { custo
                 }
               >
                 {accountManager ? (
-                  <span className="inline-flex items-center gap-2 text-sm">
+                  <span className="inline-flex items-center gap-2 text-sm flex-wrap">
                     <InitialAvatar name={accountManager} />
                     <span>{accountManager}</span>
+                    {isOperatorPartner && (
+                      <TooltipProvider delayDuration={150}>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Badge
+                              variant="outline"
+                              className="gap-1 font-normal bg-primary/10 text-primary border-primary/20 text-[11px] cursor-help"
+                            >
+                              <ShieldCheck className="h-3 w-3" aria-hidden="true" />
+                              Driftspartner
+                            </Badge>
+                          </TooltipTrigger>
+                          <TooltipContent side="bottom" className="max-w-xs text-xs">
+                            Kundeansvarlig er også driftsansvarlig og kan utføre compliance-arbeid
+                            direkte i kundens egen virksomhetsprofil.
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    )}
                   </span>
                 ) : (
                   <Popover open={assignOpen} onOpenChange={setAssignOpen}>
