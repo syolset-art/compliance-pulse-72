@@ -50,10 +50,19 @@ export function CustomerFrameworkRecommendationsCard({
   onStartAssessment,
   onEnterCustomer,
 }: Props) {
-  const suggestions = deriveFrameworkSuggestions(customer);
+  const aiSuggestions = deriveFrameworkSuggestions(customer);
   const activated = deriveActivatedFrameworks(customer);
   const activatedTargets = deriveActivatedFrameworkTargets(customer);
   const confirmed = status === "confirmed";
+
+  const [addOpen, setAddOpen] = useState(false);
+  const [manual, setManual] = useState<OfferSuggestion[]>([]);
+  const manualIds = new Set(manual.map((m) => m.id));
+  const suggestions = [
+    ...aiSuggestions,
+    ...manual.filter((m) => !aiSuggestions.some((s) => s.id === m.id)),
+  ];
+  const removeManual = (id: string) => setManual((prev) => prev.filter((m) => m.id !== id));
 
   return (
     <Card className="p-5 flex flex-col">
