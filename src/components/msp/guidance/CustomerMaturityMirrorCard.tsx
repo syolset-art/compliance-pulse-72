@@ -100,8 +100,11 @@ export function CustomerMaturityMirrorCard({
           </div>
           <div className="flex items-center gap-1.5 shrink-0">
             <span className="text-xs text-muted-foreground">Modenhet</span>
-            <span className="text-sm font-semibold text-foreground tabular-nums">{score}</span>
+            <span className={cn("text-sm font-semibold tabular-nums", totalBand.textClass)}>
+              {score}
+            </span>
             <span className="text-xs text-muted-foreground">/100</span>
+            <span className="text-[11px] text-muted-foreground">· {totalBand.label}</span>
             <TooltipProvider delayDuration={200}>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -109,13 +112,16 @@ export function CustomerMaturityMirrorCard({
                     <Info className="h-3.5 w-3.5" />
                   </span>
                 </TooltipTrigger>
-                <TooltipContent side="left" className="max-w-xs text-xs">
-                  Oppdateres i sanntid fra kundens baseline-svar på tvers av de fem
-                  kontrollområdene.
+                <TooltipContent side="left" className="max-w-xs text-xs leading-relaxed">
+                  Modenhet måles per kontrollområde etter Mynders scoringsmodell (v1). De fem
+                  områdene vektes fast: Personvern 30 %, Styring 25 %, Drift og sikkerhet 25 %,
+                  Identitet og tilgang 10 %, Tredjepart og verdikjede 10 %. Score øker når kunden
+                  svarer ut, dokumenterer eller verifiserer kontroller — ikke av at data registreres.
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
           </div>
+
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
