@@ -41,7 +41,7 @@ import { CustomerServicesAndProductsTab } from "@/components/msp/CustomerService
 
 import { CustomerDeliveriesTab } from "@/components/msp/deliveries/CustomerDeliveriesTab";
 import { useCustomerBaseline } from "@/hooks/useCustomerBaseline";
-import { MATURITY_AREAS, type MaturityAnswer, type MaturityAnswers } from "@/lib/trustMaturityQuestions";
+import { type MaturityAnswer, type MaturityAnswers } from "@/lib/trustMaturityQuestions";
 
 import { useQuestionnaireDeliveries, scoreDelivery } from "@/hooks/useQuestionnaireDeliveries";
 import { getQuestionnaire } from "@/lib/questionnaireRegistry";
