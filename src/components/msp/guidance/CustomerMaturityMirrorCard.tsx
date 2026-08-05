@@ -124,6 +124,7 @@ export function CustomerMaturityMirrorCard({
             const answered = p?.answered ?? 0;
             const total = p?.total ?? area.questions.length;
             const pct = total > 0 ? Math.round((answered / total) * 100) : 0;
+            const band = getMaturityBand(pct);
             const Icon = area.icon;
             return (
               <button
@@ -139,12 +140,33 @@ export function CustomerMaturityMirrorCard({
                       {area.title}
                     </span>
                   </div>
-                  <span className="flex items-center gap-1 shrink-0">
-                    <span className={cn("text-xs tabular-nums", pctClass(pct))}>{pct}%</span>
+                  <span className="flex items-center gap-1.5 shrink-0">
+                    <span className="text-[11px] text-muted-foreground">{band.label}</span>
+                    <span className={cn("text-xs tabular-nums", band.textClass)}>{pct}%</span>
                     <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
                   </span>
                 </div>
-                <Progress value={pct} className="h-1 mt-2" />
+                <Progress
+                  value={pct}
+                  className={cn("h-1 mt-2", "[&>div]:transition-all", `[&>div]:${band.barClass}`)}
+                />
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1">
+          {MATURITY_BANDS.map((b) => (
+            <span key={b.id} className="inline-flex items-center gap-1.5 text-[11px] text-muted-foreground">
+              <span className={cn("h-1.5 w-3 rounded-full", b.id === "none" ? "bg-muted" : b.dotClass)} />
+              {b.label}
+            </span>
+          ))}
+          <span className="text-[11px] text-muted-foreground/80">
+            Basert på Mynders scoringsmodell (v1)
+          </span>
+        </div>
+
               </button>
             );
           })}
