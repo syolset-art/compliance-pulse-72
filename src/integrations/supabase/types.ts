@@ -3716,6 +3716,7 @@ export type Database = {
           context_ref: string | null
           created_at: string
           id: string
+          operator_role: boolean
           terms_version_id: string
           user_id: string
         }
@@ -3725,6 +3726,7 @@ export type Database = {
           context_ref?: string | null
           created_at?: string
           id?: string
+          operator_role?: boolean
           terms_version_id: string
           user_id: string
         }
@@ -3734,6 +3736,7 @@ export type Database = {
           context_ref?: string | null
           created_at?: string
           id?: string
+          operator_role?: boolean
           terms_version_id?: string
           user_id?: string
         }

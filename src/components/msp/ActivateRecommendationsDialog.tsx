@@ -71,6 +71,7 @@ export function ActivateRecommendationsDialog({
   const [step, setStep] = useState<"select" | "confirm">("select");
   const [saving, setSaving] = useState(false);
   const [termsChecked, setTermsChecked] = useState(false);
+  const [operatorRole, setOperatorRole] = useState(false);
   const [tierByModule, setTierByModule] = useState<Record<string, string>>({});
   const { current: currentTerms, hasAcceptedCurrent, acceptTerms } = useTerms();
   const termsOk = termsChecked || hasAcceptedCurrent;
@@ -129,7 +130,7 @@ export function ActivateRecommendationsDialog({
       return;
     }
 
-    await acceptTerms("module_activation", `msp-customer:${customerId}`);
+    await acceptTerms("module_activation", `msp-customer:${customerId}`, { operatorRole });
     setSaving(false);
     toast.success(
       activatable.length === 1
@@ -275,6 +276,9 @@ export function ActivateRecommendationsDialog({
               checked={termsOk}
               onCheckedChange={setTermsChecked}
               version={currentTerms?.version}
+              showOperatorRole
+              operatorRole={operatorRole}
+              onOperatorRoleChange={setOperatorRole}
             />
 
             <DialogFooter className="pt-2">

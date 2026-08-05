@@ -26,6 +26,7 @@ export function AssignLicenseDialog({ open, onOpenChange, license, onSuccess }: 
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [termsChecked, setTermsChecked] = useState(false);
+  const [operatorRole, setOperatorRole] = useState(false);
   const { current: currentTerms, hasAcceptedCurrent, acceptTerms } = useTerms();
   const termsOk = termsChecked || hasAcceptedCurrent;
   const [form, setForm] = useState({
@@ -73,7 +74,7 @@ export function AssignLicenseDialog({ open, onOpenChange, license, onSuccess }: 
 
       if (licenseError) throw licenseError;
 
-      await acceptTerms("license_purchase", `assign:${license.license_key ?? license.id}`);
+      await acceptTerms("license_purchase", `assign:${license.license_key ?? license.id}`, { operatorRole });
 
       toast.success(`Lisens tildelt ${form.customer_name.trim()}. Onboarding-e-post sendes.`);
       onSuccess();
@@ -200,6 +201,9 @@ export function AssignLicenseDialog({ open, onOpenChange, license, onSuccess }: 
           checked={termsOk}
           onCheckedChange={setTermsChecked}
           version={currentTerms?.version}
+          showOperatorRole
+          operatorRole={operatorRole}
+          onOperatorRoleChange={setOperatorRole}
         />
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Avbryt</Button>

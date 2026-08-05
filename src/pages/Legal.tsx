@@ -142,10 +142,16 @@ export default function Legal() {
                         key={a.id}
                         className="flex items-center justify-between gap-4 px-3 py-2 text-sm"
                       >
-                        <span className="text-foreground">
+                        <span className="text-foreground flex items-center gap-2">
                           {label}
                           {doc ? ` · v${doc.version}` : ""}
+                          {a.operator_role && (
+                            <span className="rounded-full border border-border px-2 py-0.5 text-[11px] text-muted-foreground">
+                              Driftpartner
+                            </span>
+                          )}
                         </span>
+
                         <span className="text-xs text-muted-foreground text-right">
                           {CONTEXT_LABELS[a.context] ?? a.context} ·{" "}
                           {formatDate(a.accepted_at)}
