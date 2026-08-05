@@ -26,6 +26,7 @@ import {
   DropdownMenuPortal,
 } from "@/components/ui/dropdown-menu";
 import { WorkspaceSwitcherCompact } from "@/components/sidebar/WorkspaceSwitcherCompact";
+import { CustomerContextBar } from "@/components/msp/CustomerContextBar";
 
 const AVAILABLE_ROLES = [
   { key: "admin", labelNb: "Administrator", labelEn: "Administrator" },
