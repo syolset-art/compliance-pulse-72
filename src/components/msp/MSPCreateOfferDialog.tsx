@@ -155,6 +155,7 @@ export function MSPCreateOfferDialog({
   customerName,
   offeredTemplateIds,
   offeredServiceNames,
+  activeFrameworks,
 }: CreateOfferDialogProps) {
   const { branding } = usePartnerBranding();
   const effectivePartnerName = partnerName ?? branding.name;
