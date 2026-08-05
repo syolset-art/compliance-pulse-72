@@ -20,6 +20,7 @@ const MODULE_ROUTES: Record<string, string> = {
   quality: "/quality",
   deviations: "/deviations",
   ropa: "/processing-activities",
+  trust: "/trust-center/profile",
 };
 
 export function entryRouteFor(target: CustomerEntryTarget): string {
