@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import {
   Dialog,
   DialogContent,
@@ -18,9 +17,7 @@ import { TermsAcceptRow } from "@/components/legal/TermsAcceptRow";
 import { useTerms } from "@/hooks/useTerms";
 import { useCustomerBaseline } from "@/hooks/useCustomerBaseline";
 import { activateModule } from "@/lib/moduleActivationState";
-import { useActiveOrganization } from "@/contexts/ActiveOrganizationContext";
-import { useWorkspaceMode } from "@/contexts/WorkspaceModeContext";
-import { entryRouteFor } from "@/lib/customerEntryRoutes";
+import { markClaimSent } from "@/lib/trustCenterStatus";
 
 interface Props {
   open: boolean;
@@ -31,12 +28,12 @@ interface Props {
   customerEmail?: string;
   activeModules: string[];
   onActivated?: () => void;
+  /** Åpner veiledningspanelet etter aktivering. */
+  onOpenGuide?: () => void;
 }
 
 /** Anbefalt modenhet før kunden bør claime Trust Profilen. */
 const CLAIM_THRESHOLD = 55;
-
-export const claimSentKey = (customerId: string) => `msp.customer.trustClaimSent.${customerId}`;
 
 /**
  * Tre-stegs aktivering av Trust Center hos en kunde:
@@ -51,10 +48,8 @@ export function ActivateTrustCenterDialog({
   customerEmail,
   activeModules,
   onActivated,
+  onOpenGuide,
 }: Props) {
-  const navigate = useNavigate();
-  const { enterCustomerOrg } = useActiveOrganization();
-  const { setMode } = useWorkspaceMode();
   const { current: currentTerms, hasAcceptedCurrent, acceptances, acceptTerms } = useTerms();
   const { totalAnswered, totalQuestions } = useCustomerBaseline(customerId);
 
@@ -99,9 +94,7 @@ export function ActivateTrustCenterDialog({
     });
 
     if (sendClaim) {
-      try {
-        localStorage.setItem(claimSentKey(customerId), new Date().toISOString());
-      } catch {}
+      markClaimSent(customerId);
       toast.success(`Claim-e-post sendt til ${customerEmail ?? customerName}`);
     }
 
@@ -109,13 +102,6 @@ export function ActivateTrustCenterDialog({
     toast.success(`Trust Center aktivert hos ${customerName}`);
     onActivated?.();
     setStep(3);
-  };
-
-  const handleEnterCustomer = () => {
-    enterCustomerOrg({ id: customerId, name: customerName, orgNumber: customerOrgNumber });
-    setMode("compliance");
-    onOpenChange(false);
-    navigate(entryRouteFor({ id: "trust", label: "Trust Center", kind: "module", moduleKey: "trust" }));
   };
 
   return (
@@ -127,7 +113,7 @@ export function ActivateTrustCenterDialog({
             {step === 3 ? "Trust Center er aktivert" : `Aktiver Trust Center hos ${customerName}`}
           </DialogTitle>
           <DialogDescription className="text-xs">
-            {step === 1 && "490 kr per måned eks. mva. Tjenesten aktiveres umiddelbart, og faktureres på neste faktura. Bekreft vilkår for å fortsette."}
+            {step === 1 && "490 kr per måned eks. mva. Alle priser er eks. mva. Tjenesten aktiveres umiddelbart, og faktureres på neste faktura. Bekreft vilkår for å fortsette."}
             {step === 2 && "Slik settes Trust Center opp hos kunden."}
             {step === 3 && "Velg hvor du vil jobbe videre."}
           </DialogDescription>
@@ -218,7 +204,7 @@ export function ActivateTrustCenterDialog({
           <p className="text-xs text-muted-foreground leading-relaxed">
             Trust Center er aktivert hos {customerName}
             {sendClaim ? " og claim-e-posten er sendt" : ""}. Du kan bytte til kundens organisasjon og jobbe med
-            Trust Profilen der, eller fortsette her.
+            Neste steg er at kunden claimer profilen. Åpne veiledningen for å se stegene.
           </p>
         )}
 
@@ -248,7 +234,14 @@ export function ActivateTrustCenterDialog({
               <Button variant="outline" onClick={() => onOpenChange(false)}>
                 Bli her
               </Button>
-              <Button onClick={handleEnterCustomer}>Jobb med Trust Profilen</Button>
+              <Button
+                onClick={() => {
+                  onOpenChange(false);
+                  onOpenGuide?.();
+                }}
+              >
+                Åpne veiledning
+              </Button>
             </>
           )}
         </DialogFooter>
