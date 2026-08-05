@@ -50,7 +50,9 @@ export function CustomerFrameworkRecommendationsCard({
     <Card className="p-5 flex flex-col">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <h3 className="text-sm font-semibold text-foreground">Anbefalte regelverk</h3>
+          <h3 className="text-sm font-semibold text-foreground">
+            Lovpålagte regelverk basert på data om kunden
+          </h3>
           <p className="text-xs text-muted-foreground mt-0.5">
             {confirmed
               ? "Forslaget er basert på kundens egne svar i modenhetsvurderingen."
