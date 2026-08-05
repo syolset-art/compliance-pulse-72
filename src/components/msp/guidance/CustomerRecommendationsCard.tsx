@@ -89,18 +89,6 @@ export function CustomerRecommendationsCard({ customer, onOffer, onActivate, onE
               </TooltipProvider>
             </div>
           )}
-          <TooltipProvider delayDuration={200}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button type="button" className="text-muted-foreground hover:text-foreground shrink-0 mt-0.5" aria-label="Om anbefalingene">
-                  <Info className="h-4 w-4" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent side="left" className="max-w-xs">
-                Velg det du vil selge inn, og lag et tilbud — eller aktiver produkter direkte for kunden.
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
         </div>
       </div>
 
