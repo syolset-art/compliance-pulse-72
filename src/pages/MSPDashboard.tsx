@@ -380,10 +380,10 @@ function RecommendationCell({
             type="button"
             onClick={() => onToggle(s.id)}
             className={cn(
-              "inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] transition-colors",
+              "inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-recommend focus-visible:ring-offset-1",
               on
                 ? "border-recommend bg-recommend text-recommend-foreground"
-                : "border-recommend/40 bg-recommend/10 text-recommend dark:text-recommend hover:border-recommend/70",
+                : "border-recommend/60 bg-recommend/15 text-recommend dark:text-recommend hover:bg-recommend/25 hover:border-recommend",
             )}
           >
             {s.label}
