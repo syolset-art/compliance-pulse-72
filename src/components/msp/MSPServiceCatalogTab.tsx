@@ -741,7 +741,7 @@ export function MSPServiceCatalogTab({ onOpenSecondary, onRegisterActions }: { o
             >
               Tjenesteprofil
             </button>{" "}
-            i innstillingsknappen (<Settings2 className="inline h-3 w-3 align-[-1px]" aria-hidden="true" />) øverst til høyre.
+            i menyknappen (<Settings2 className="inline h-3 w-3 align-[-1px]" aria-hidden="true" />) ved siden av overskriften.
           </span>
         </p>
 
