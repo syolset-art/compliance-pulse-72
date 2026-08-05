@@ -79,6 +79,10 @@ const PRODUCTS: ProductDef[] = [
 
 const FLAT_PRICE: Record<string, number> = { systems: 690, assets: 690 };
 
+/** Månedspris per aktivert regelverk. */
+const FRAMEWORK_PRICE = 490;
+
+
 /** Rene tjenester som må leveres som oppdrag. */
 const SERVICE_SUGGESTIONS: { id: string; label: string; hours: number }[] = [
   { id: "svc-maturity", label: "Modenhetsvurdering", hours: 12 },
