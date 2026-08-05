@@ -1112,7 +1112,7 @@ export default function MSPDashboard() {
                                     return <span className="text-muted-foreground text-sm">—</span>;
                                   }
                                   return (
-                                    <div className="flex flex-wrap items-center gap-1 max-w-[260px]">
+                                    <div className="flex flex-wrap items-center gap-1 max-w-[184px]">
                                       {items.slice(0, 4).map((label) => (
                                         <Badge
                                           key={label}
