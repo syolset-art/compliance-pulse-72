@@ -72,6 +72,7 @@ export default function MSPCustomerDetail() {
   const [offerItems, setOfferItems] = useState<OfferSuggestion[] | null>(null);
   const [activateItems, setActivateItems] = useState<OfferSuggestion[] | null>(null);
   const [enterItems, setEnterItems] = useState<CustomerEntryTarget[] | null>(null);
+  const [enterVariant, setEnterVariant] = useState<"activation" | "work">("activation");
   const { promptOrToast } = usePostActivationPrompt();
   const [searchParams, setSearchParams] = useSearchParams();
   const normalizeTab = (v: string) => (v === "modules" ? "assessment" : v);
@@ -430,11 +431,19 @@ export default function MSPCustomerDetail() {
                   onStartAssessment={() =>
                     setBaselineDrawer({ open: true, review: false, mode: "partner" })
                   }
+                  onEnterCustomer={(targets) => {
+                    setEnterVariant("work");
+                    setEnterItems(targets);
+                  }}
                 />
                 <CustomerRecommendationsCard
                   customer={customer}
                   onOffer={(items) => setOfferItems(items)}
                   onActivate={(items) => setActivateItems(items)}
+                  onEnterCustomer={(targets) => {
+                    setEnterVariant("work");
+                    setEnterItems(targets);
+                  }}
                 />
               </div>
 
@@ -612,7 +621,16 @@ export default function MSPCustomerDetail() {
                 moduleKey: a.moduleKey,
                 frameworkId: a.frameworkId,
               }));
-              if (promptOrToast({ customerName: name, onEnter: () => setEnterItems(targets) })) {
+              setEnterVariant("activation");
+              if (
+                promptOrToast({
+                  customerName: name,
+                  onEnter: () => {
+                    setEnterVariant("activation");
+                    setEnterItems(targets);
+                  },
+                })
+              ) {
                 setEnterItems(targets);
               }
             }}
@@ -631,6 +649,7 @@ export default function MSPCustomerDetail() {
             customerName={customer.name || customer.customer_name || "Kunden"}
             customerOrgNumber={(customer as any).org_number ?? null}
             items={enterItems}
+            variant={enterVariant}
           />
         )}
 
