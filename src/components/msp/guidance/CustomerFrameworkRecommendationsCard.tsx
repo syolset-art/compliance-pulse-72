@@ -64,17 +64,45 @@ export function CustomerFrameworkRecommendationsCard({
               : "Foreløpig forslag ut fra bransje, land, størrelse og funn på kundens nettsted."}
           </p>
         </div>
-        <span
-          className={cn(
-            "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium shrink-0",
-            confirmed
-              ? "border-success/30 bg-success/10 text-success"
-              : "border-recommend/30 bg-recommend/10 text-recommend",
-          )}
-        >
-          {confirmed ? <CheckCircle2 className="h-3 w-3" /> : <Sparkles className="h-3 w-3" />}
-          {confirmed ? "Bekreftet" : "Initiell KI-vurdering"}
-        </span>
+        <TooltipProvider delayDuration={150}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span
+                tabIndex={0}
+                className={cn(
+                  "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium shrink-0 cursor-help focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1",
+                  confirmed
+                    ? "border-success/30 bg-success/10 text-success"
+                    : "border-recommend/30 bg-recommend/10 text-recommend",
+                )}
+              >
+                {confirmed ? <CheckCircle2 className="h-3 w-3" /> : <Sparkles className="h-3 w-3" />}
+                {confirmed ? "Bekreftet" : "Initiell KI-vurdering"}
+              </span>
+            </TooltipTrigger>
+            <TooltipContent side="left" className="max-w-[300px] text-xs leading-relaxed">
+              <p className="font-medium text-foreground">
+                {confirmed
+                  ? "Bekreftet av kunden – bygger på den initielle KI-vurderingen"
+                  : "Basert på informasjon kartlagt da kunden ble lagt til"}
+              </p>
+              <p className="mt-1.5">Vi hentet automatisk:</p>
+              <ul className="mt-1 space-y-0.5 list-disc pl-4">
+                <li>Organisasjonsnummer og selskapsdata fra offentlige registre</li>
+                <li>Bransje og NACE-kode der den finnes</li>
+                <li>Kundens nettsted og personvernerklæring</li>
+              </ul>
+              <p className="mt-1.5">
+                Ut fra dette har KI-agenten anbefalt hvilke regelverk som med stor sannsynlighet er
+                lovpålagte for virksomheten.
+                {confirmed
+                  ? " Kunden har i tillegg bekreftet vurderingen i modenhetsvurderingen."
+                  : " Vurderingen bekreftes når kunden svarer på modenhetsvurderingen."}
+              </p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
       </div>
 
       <div className="mt-4 flex flex-wrap items-center gap-1.5">
