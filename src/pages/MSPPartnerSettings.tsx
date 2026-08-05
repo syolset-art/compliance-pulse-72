@@ -66,6 +66,8 @@ const DEMO_TEAM = PARTNER_TEAM;
 const isValidEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 
 export default function MSPPartnerSettings() {
+  const { enabled: postActivationEnabled, setPreference: setPostActivationPreference } =
+    usePostActivationPrompt();
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = searchParams.get("tab") ?? "generelt";
   const [form, setForm] = useState<ForwardSettings>(defaults);
