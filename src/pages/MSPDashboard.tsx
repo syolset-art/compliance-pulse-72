@@ -1194,6 +1194,20 @@ export default function MSPDashboard() {
                 setActivateFor(null);
                 refetch();
               }}
+              onEnterCustomer={(activated) =>
+                setEnterCustomer({
+                  id: activateFor.id,
+                  name: activateFor.customer_name,
+                  orgNumber: (activateFor as any).org_number ?? null,
+                  items: activated.map((a) => ({
+                    id: a.id,
+                    label: a.label,
+                    kind: a.kind,
+                    moduleKey: a.moduleKey,
+                    frameworkId: a.frameworkId,
+                  })),
+                })
+              }
               onMoveToOffer={() => {
                 const target = activateFor;
                 setActivateFor(null);
