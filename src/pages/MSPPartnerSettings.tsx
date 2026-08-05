@@ -39,6 +39,7 @@ import {
   type PartnerModuleKey,
 } from "@/lib/partnerModules";
 import { toast } from "sonner";
+import { usePostActivationPrompt } from "@/hooks/usePostActivationPrompt";
 
 
 const SETTINGS_KEY = "msp-messages-settings-v1";
