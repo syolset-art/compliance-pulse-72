@@ -15,6 +15,7 @@ import {
   MinusCircle,
   type LucideIcon,
   Paperclip,
+  Send,
 } from "lucide-react";
 
 import { MATURITY_AREAS, deriveLaraSources, type MaturityAnswer, type MaturityAnswers } from "@/lib/trustMaturityQuestions";
@@ -27,6 +28,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { BaselineAreaDocuments } from "@/components/msp/BaselineAreaDocuments";
 import { useBaselineDocuments } from "@/hooks/useBaselineDocuments";
+import { useQuestionnaireDeliveries } from "@/hooks/useQuestionnaireDeliveries";
+import { toast } from "sonner";
 
 interface Props {
   open: boolean;
@@ -45,6 +48,11 @@ interface Props {
   laraRationales?: Record<string, string>;
   /** Whether the drawer is filled by the partner alone or used together with the customer in a meeting. */
   mode?: "partner" | "meeting";
+  /** Kundens kontaktperson — brukes når skjemaet sendes videre til kunden. */
+  contactName?: string | null;
+  contactEmail?: string | null;
+  /** Partnerens navn, vises for kunden i spørreskjemaet. */
+  partnerName?: string;
 }
 
 interface AnswerMeta {
@@ -77,7 +85,11 @@ export function BaselineQuestionsDrawer({
   laraScan,
   laraRationales,
   mode = "partner",
+  contactName,
+  contactEmail,
+  partnerName = "Din partner",
 }: Props) {
+  const { sendDelivery } = useQuestionnaireDeliveries();
   const { t } = useTranslation();
   const laraSources = deriveLaraSources(laraScan ?? null);
   const { docsForArea, docsForQuestion, addDocument, linkDocument, removeDocument } =
@@ -120,6 +132,24 @@ export function BaselineQuestionsDrawer({
     } else {
       setTab(MATURITY_AREAS[currentIndex + 1].id);
     }
+  };
+
+  const handleSendToCustomer = () => {
+    commit();
+    sendDelivery({
+      serviceId: "baseline-maturity",
+      questionnaireId: "gdpr_maturity",
+      customerId: customerId!,
+      customerName,
+      partnerName,
+      intro: `Vi har fylt ut det vi kan av modenhetsvurderingen for ${customerName}. Kan dere svare ut resten?`,
+    });
+    toast.success("Skjemaet er sendt til kunden", {
+      description: contactEmail
+        ? `${contactName ? contactName + " (" : ""}${contactEmail}${contactName ? ")" : ""} får varsel om å svare ut resten.`
+        : "Kunden får varsel om å svare ut resten.",
+    });
+    onOpenChange(false);
   };
 
   const handleDiscard = () => {
@@ -308,9 +338,17 @@ export function BaselineQuestionsDrawer({
           >
             Avslutt uten å lagre
           </button>
-          <Button onClick={handleNext} className="gap-1.5">
-            {isLastArea ? "Ferdig" : (<>Gå videre <ArrowRight className="h-4 w-4" /></>)}
-          </Button>
+          <div className="flex items-center gap-2">
+            {customerId && (
+              <Button variant="outline" className="gap-1.5" onClick={handleSendToCustomer}>
+                <Send className="h-4 w-4" />
+                Send til kunden
+              </Button>
+            )}
+            <Button onClick={handleNext} className="gap-1.5">
+              {isLastArea ? "Ferdig" : (<>Gå videre <ArrowRight className="h-4 w-4" /></>)}
+            </Button>
+          </div>
         </div>
       </SheetContent>
     </Sheet>

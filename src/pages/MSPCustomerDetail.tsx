@@ -52,6 +52,7 @@ import { frameworks as ALL_FRAMEWORKS } from "@/lib/frameworkDefinitions";
 import { CustomerRecommendationsCard } from "@/components/msp/guidance/CustomerRecommendationsCard";
 import { CustomerMaturityMirrorCard } from "@/components/msp/guidance/CustomerMaturityMirrorCard";
 import { useCustomerOnboardingFindings } from "@/hooks/useCustomerOnboardingFindings";
+import { CustomerFrameworkRecommendationsCard, type MaturityAssessmentStatus } from "@/components/msp/guidance/CustomerFrameworkRecommendationsCard";
 import { ActivateRecommendationsDialog } from "@/components/msp/ActivateRecommendationsDialog";
 import type { OfferSuggestion } from "@/lib/offerSuggestions";
 
@@ -97,6 +98,7 @@ export default function MSPCustomerDetail() {
   const mandate = useMandate(customerId || "");
   const { answers: baselineAnswers, setAnswer: setBaselineAnswer, setAllAnswers: setAllBaselineAnswers, laraRationales: baselineRationales, setLaraRationales: setBaselineRationales, areaProgress, totalAnswered, totalQuestions, hasAnyAnswer } = useCustomerBaseline(customerId);
   const { privacyPolicyUrl } = useCustomerOnboardingFindings(customerId);
+
   const [offerDialog, setOfferDialog] = useState<{ open: boolean; templateId?: string; title?: string }>({ open: false });
   const { getLockInfo } = useSavedOffers();
 
@@ -117,6 +119,16 @@ export default function MSPCustomerDetail() {
   });
 
   const { deliveries: questionnaireDeliveries } = useQuestionnaireDeliveries();
+  const baselineDelivery = questionnaireDeliveries.find(
+    (d) => d.customerId === customerId && d.serviceId === "baseline-maturity",
+  );
+  const maturityAssessmentStatus: MaturityAssessmentStatus = baselineDelivery?.status === "completed"
+    ? "confirmed"
+    : baselineDelivery
+      ? "sent_to_customer"
+      : hasAnyAnswer
+        ? "partner_in_progress"
+        : "not_started";
 
   // Aktiverte regelverk for kunden — kombiner DB-felt og localStorage (Regelverk-fanen)
   const activeFrameworkIds = useMemo(() => {
@@ -402,12 +414,23 @@ export default function MSPCustomerDetail() {
 
 
 
-              <div id="msp-recommendations">
-              <CustomerRecommendationsCard
-                customer={customer}
-                onOffer={(items) => setOfferItems(items)}
-                onActivate={(items) => setActivateItems(items)}
-              />
+              <div id="msp-recommendations" className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <CustomerFrameworkRecommendationsCard
+                  customer={customer}
+                  status={maturityAssessmentStatus}
+                  answered={totalAnswered}
+                  totalQuestions={totalQuestions}
+                  onOffer={(items) => setOfferItems(items)}
+                  onActivate={(items) => setActivateItems(items)}
+                  onStartAssessment={() =>
+                    setBaselineDrawer({ open: true, review: false, mode: "partner" })
+                  }
+                />
+                <CustomerRecommendationsCard
+                  customer={customer}
+                  onOffer={(items) => setOfferItems(items)}
+                  onActivate={(items) => setActivateItems(items)}
+                />
               </div>
 
               <CustomerMaturityMirrorCard
@@ -539,6 +562,8 @@ export default function MSPCustomerDetail() {
           customerName={customer.name || customer.customer_name || "Kunden"}
           customerId={customer.id}
 
+          contactName={customer.contact_name}
+          contactEmail={customer.contact_email}
           answers={baselineAnswers}
           onAnswer={setBaselineAnswer}
           reviewMode={baselineDrawer.review}
