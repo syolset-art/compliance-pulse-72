@@ -47,6 +47,7 @@ export function FrameworkOrderConfirmDialog({
   const [declaration, setDeclaration] = useState("");
   const [accept, setAccept] = useState(false);
   const [termsChecked, setTermsChecked] = useState(false);
+  const [operatorRole, setOperatorRole] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { current: currentTerms, hasAcceptedCurrent, acceptTerms } = useTerms();
   const termsOk = termsChecked || hasAcceptedCurrent;
