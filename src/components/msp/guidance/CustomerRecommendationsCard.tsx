@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Sparkles, Info, Zap } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
-import { deriveOfferSuggestions, deriveActivatedItems, type OfferSuggestion } from "@/lib/offerSuggestions";
+import { deriveProductSuggestions, deriveActivatedProducts, type OfferSuggestion } from "@/lib/offerSuggestions";
 
 interface Props {
   customer: any;
@@ -14,8 +14,8 @@ interface Props {
 
 export function CustomerRecommendationsCard({ customer, onOffer, onActivate }: Props) {
   const [picked, setPicked] = useState<string[]>([]);
-  const suggestions = deriveOfferSuggestions(customer);
-  const activated = deriveActivatedItems(customer);
+  const suggestions = deriveProductSuggestions(customer);
+  const activated = deriveActivatedProducts(customer);
 
   const toggle = (id: string) =>
     setPicked((prev) => (prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id]));
@@ -24,13 +24,13 @@ export function CustomerRecommendationsCard({ customer, onOffer, onActivate }: P
   const activatableItems = pickedItems.filter((s) => s.activatable);
 
   return (
-    <Card className="p-5">
+    <Card className="p-5 flex flex-col">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <h3 className="text-sm font-semibold text-foreground">Anbefalte produkter og tjenester</h3>
           <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1.5">
             <Sparkles className="h-3 w-3 text-primary shrink-0" />
-            Regelverk, Mynder-moduler og egne tjenester som kan selges inn til denne kunden. Forslagene er utarbeidet av en KI-agent.
+            Mynder-produkter og egne tjenester fra tjenestekatalogen som kan selges inn til denne kunden. Forslagene er utarbeidet av en KI-agent.
           </p>
         </div>
         <TooltipProvider delayDuration={200}>
@@ -106,7 +106,7 @@ export function CustomerRecommendationsCard({ customer, onOffer, onActivate }: P
         )}
       </div>
 
-      <div className="mt-4 pt-4 border-t border-border/60">
+      <div className="mt-auto pt-4 border-t border-border/60">
         <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Aktivert</p>
         <div className="flex flex-wrap items-center gap-1.5 mt-2">
           {activated.length === 0 ? (
