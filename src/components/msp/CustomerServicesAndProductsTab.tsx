@@ -77,9 +77,16 @@ const PRODUCTS: ProductDef[] = [
     title: "Eiendeler (Assets)",
     description: "System- og eiendelsregister.",
   },
+  {
+    key: "trust",
+    moduleKey: "trust",
+    title: "Trust Center",
+    description: "Del dokumentasjonen én gang og gjenbruk den mot kunder og leverandører.",
+  },
 ];
 
-const FLAT_PRICE: Record<string, number> = { systems: 690, assets: 690 };
+const FLAT_PRICE: Record<string, number> = { systems: 690, assets: 690, trust: 490 };
+
 
 /** Månedspris per aktivert regelverk. */
 const FRAMEWORK_PRICE = 490;
