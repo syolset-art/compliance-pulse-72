@@ -266,94 +266,116 @@ function deriveOfferSuggestions(c: any): OfferSuggestion[] {
     .map(toLabel)
     .filter((f: string) => f && !active.includes(f));
   const score = c.compliance_score || 0;
-  const ind = c.industry || "";
-  const plan = (c.subscription_plan || "").toLowerCase();
   const modules: string[] = c.active_modules || [];
 
   const out: OfferSuggestion[] = [];
 
-  if (!score) {
-    out.push({ id: "svc-maturity", label: "Modenhetsvurdering", kind: "service", hours: 8, activatable: false });
-  }
-
-  for (const f of recommended.slice(0, 2)) {
+  // Regelverk som bør aktiveres
+  for (const f of recommended) {
     out.push({
       id: `fw-${f}`,
-      label: `Aktiver ${f}`,
+      label: f,
       kind: "framework",
       hours: 6,
       activatable: true,
       frameworkId: f,
-      price: 836,
+      price: 490,
     });
   }
 
-  if (!plan || plan.includes("gratis") || plan.includes("free")) {
+  // Mynder-moduler som ikke er aktivert
+  const moduleCandidates: { key: string; label: string; price: number; hours: number }[] = [
+    { key: "core", label: "Mynder Core", price: 995, hours: 4 },
+    { key: "vendors", label: "Leverandørmodul", price: 1089, hours: 5 },
+    { key: "assets", label: "Assets", price: 490, hours: 3 },
+  ];
+  for (const m of moduleCandidates) {
+    if (modules.includes(m.key)) continue;
     out.push({
-      id: "mod-core",
-      label: "Mynder Core",
+      id: `mod-${m.key}`,
+      label: m.label,
       kind: "module",
-      hours: 4,
-      activatable: !modules.includes("core"),
-      moduleKey: "core",
-      price: 2499,
+      hours: m.hours,
+      activatable: true,
+      moduleKey: m.key,
+      price: m.price,
     });
   }
 
-  if (["Energi", "Helse", "Finans", "Transport", "Bygg og anlegg"].includes(ind)) {
+  // Partnerens egne tjenester
+  const activeServices = new Set(deriveActiveServices(c));
+  const serviceHours: Record<string, number> = {
+    Modenhetsvurdering: 8,
+    "Gap-analyse": 10,
+    Penetrasjonstest: 24,
+    "NIS2-klargjøring": 16,
+    "AI Governance-rammeverk": 12,
+  };
+  const serviceNames: string[] = [];
+  if (!score) serviceNames.push("Modenhetsvurdering");
+  if (score > 0 && score < 60) serviceNames.push("Gap-analyse");
+  for (const s of deriveNeededServices(c)) serviceNames.push(s);
+
+  for (const name of Array.from(new Set(serviceNames))) {
+    if (activeServices.has(name)) continue;
     out.push({
-      id: "mod-vendors",
-      label: "Leverandørmodul",
-      kind: "module",
-      hours: 5,
-      activatable: !modules.includes("vendors"),
-      moduleKey: "vendors",
-      price: 1089,
+      id: `svc-${normalizeServiceKey(name)}`,
+      label: name,
+      kind: "service",
+      hours: serviceHours[name] ?? 8,
+      activatable: false,
     });
   }
-
-  if (active.includes("ISO 27001") || score >= 50) {
-    out.push({ id: "svc-pentest", label: "Penetrasjonstest", kind: "service", hours: 24, activatable: false });
-  }
-
-  if (score > 0 && score < 60) {
-    out.push({ id: "svc-gap", label: "Gap-analyse", kind: "service", hours: 10, activatable: false });
-  }
-
 
   const seen = new Set<string>();
-  return out.filter((s) => (seen.has(s.id) ? false : (seen.add(s.id), true))).slice(0, 3);
+  return out.filter((s) => (seen.has(s.id) ? false : (seen.add(s.id), true)));
+}
+
+// Alt kunden allerede har aktivert — regelverk, moduler og leverte tjenester.
+function deriveActivatedItems(c: any): string[] {
+  const toLabel = (f: any): string => (typeof f === "string" ? f : (f?.label ?? f?.frameworkId ?? ""));
+  const frameworks: string[] = (c.active_frameworks || []).map(toLabel).filter(Boolean);
+  const moduleLabels: Record<string, string> = {
+    core: "Mynder Core",
+    vendors: "Leverandørmodul",
+    assets: "Assets",
+    trust: "Trust Profile",
+    frameworks: "Regelverk",
+  };
+  const modules: string[] = (c.active_modules || []).map((m: string) => moduleLabels[m] || m);
+  return Array.from(new Set([...frameworks, ...modules, ...deriveActiveServices(c)]));
 }
 
 // ===== Responsive column config =====
-type ColumnKey = "customer" | "country" | "industry" | "frameworks" | "recommendations" | "score";
+type ColumnKey = "customer" | "country" | "industry" | "recommendations" | "activated" | "score";
 
 
 const COLUMN_LABELS: Record<ColumnKey, string> = {
   customer: "Kunde",
   country: "Land",
   industry: "Bransje",
-  frameworks: "Regelverk",
   recommendations: "Anbefalte produkter og tjenester",
+  activated: "Aktivert",
   score: "Modenhet",
 };
 
-const COLUMN_ORDER: ColumnKey[] = ["customer", "country", "industry", "frameworks", "recommendations", "score"];
+const COLUMN_ORDER: ColumnKey[] = ["customer", "country", "industry", "recommendations", "activated", "score"];
 
 // Min Tailwind breakpoint (in px) where each column becomes visible by default.
 // 0 = always shown; 640=sm, 768=md, 1024=lg, 1280=xl
 const COLUMN_MIN_BP: Record<ColumnKey, number> = {
   customer: 0,
   score: 0,
-  frameworks: 640,
-  recommendations: 1024,
+  recommendations: 640,
+  activated: 1024,
   industry: 1024,
   country: 1280,
 };
 
 
 
-const COLUMN_STORAGE_KEY = "msp_dashboard_columns_v3";
+const COLUMN_STORAGE_KEY = "msp_dashboard_columns_v4";
+
 
 
 function defaultVisibilityForViewport(): Record<ColumnKey, boolean> {
