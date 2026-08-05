@@ -209,7 +209,7 @@ export const FRAMEWORK_ADDONS: Record<string, FrameworkAddon> = {
 // ─── Free inclusions (used in marketing copy) ───────────────────────
 
 export const FREE_INCLUSIONS = [
-  "Trust Center (alle undermenyer)",
+  "Trust Profile-forhåndsvisning",
   "GDPR regelverk",
   "ISO 27001 regelverk",
   "Synlig i Mynder Trust Engine — bli enklere funnet av kunder og partnere",
