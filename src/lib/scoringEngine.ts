@@ -337,3 +337,71 @@ export function scoreWithDeviationImpact(
     penalty: Math.max(0, withoutDeviations.score - withDeviations.score),
   };
 }
+
+// ─── Modenhetsbånd for visning (Mynder Score Model v1) ────────
+
+export type MaturityBandId = "none" | "immature" | "mature" | "high";
+
+export interface MaturityBand {
+  id: MaturityBandId;
+  /** Kort nivå-ord som vises ved siden av prosenten. */
+  label: string;
+  /** Tailwind-klasse for progress-indikatoren. */
+  barClass: string;
+  /** Tailwind-klasse for prosenttekst. */
+  textClass: string;
+  /** Klasse for liten fargeprikk i forklaringslinjen. */
+  dotClass: string;
+}
+
+/**
+ * Fargeskala for modenhet:
+ *  0 %      → ingen farge (kun nøytralt spor)
+ *  1–49 %   → oransje, umoden
+ *  50–74 %  → lys grønn, moden
+ *  75–100 % → sterk grønn, høy modenhet
+ */
+export function getMaturityBand(pct: number): MaturityBand {
+  if (pct <= 0) {
+    return {
+      id: "none",
+      label: "Ikke vurdert",
+      barClass: "bg-transparent",
+      textClass: "text-muted-foreground",
+      dotClass: "bg-muted-foreground/30",
+    };
+  }
+  if (pct < 50) {
+    return {
+      id: "immature",
+      label: "Umoden",
+      barClass: "bg-warning",
+      textClass: "text-warning",
+      dotClass: "bg-warning",
+    };
+  }
+  if (pct < 75) {
+    return {
+      id: "mature",
+      label: "Moden",
+      barClass: "bg-success-soft",
+      textClass: "text-success-soft",
+      dotClass: "bg-success-soft",
+    };
+  }
+  return {
+    id: "high",
+    label: "Høy modenhet",
+    barClass: "bg-success",
+    textClass: "text-success",
+    dotClass: "bg-success",
+  };
+}
+
+/** Rekkefølge til forklaringslinje i UI. */
+export const MATURITY_BANDS: MaturityBand[] = [
+  getMaturityBand(0),
+  getMaturityBand(25),
+  getMaturityBand(60),
+  getMaturityBand(90),
+];
