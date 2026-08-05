@@ -1024,6 +1024,17 @@ export default function MSPDashboard() {
                                           Tilbud ({picked.length})
                                         </button>
                                       )}
+                                      {picked.length > 0 &&
+                                        suggestions.some((s) => picked.includes(s.id) && s.activatable) && (
+                                          <button
+                                            type="button"
+                                            onClick={() => setActivateFor(c)}
+                                            className="inline-flex items-center rounded-full border border-primary/50 bg-background px-2 py-0.5 text-[11px] font-medium text-primary hover:bg-primary/10 transition-colors"
+                                          >
+                                            Aktiver ({suggestions.filter((s) => picked.includes(s.id) && s.activatable).length})
+                                          </button>
+                                        )}
+
                                     </div>
                                   );
                                 })()}
