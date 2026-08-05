@@ -51,10 +51,10 @@ export function ChangeVendorTierDialog({ open, onOpenChange, currentTierId, used
                     <span
                       className={cn(
                         "h-4 w-4 rounded-full border-2 shrink-0 flex items-center justify-center",
-                        isSelected && !disabled ? "border-primary" : "border-muted-foreground/40"
+                        isSelected ? "border-primary" : "border-muted-foreground/40"
                       )}
                     >
-                      {isSelected && !disabled && <span className="h-2 w-2 rounded-full bg-primary" />}
+                      {isSelected && <span className="h-2 w-2 rounded-full bg-primary" />}
                     </span>
                     <span className="text-sm font-medium text-foreground">{tier.label}</span>
                   </div>
