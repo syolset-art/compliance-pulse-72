@@ -168,3 +168,18 @@ export function deriveActivatedProducts(c: any): string[] {
   const frameworks = new Set(deriveActivatedFrameworks(c));
   return deriveActivatedItems(c).filter((l) => !frameworks.has(l));
 }
+
+// ===== Salgspotensial =====
+export const DEFAULT_HOURLY_RATE = 1500;
+
+/** Førsteårs salgspotensial: tjenestetimer + 12 mnd abonnement på anbefalte produkter/regelverk. */
+export function customerSalesPotential(c: any): { total: number; services: number; recurring: number } {
+  const suggestions = deriveOfferSuggestions(c);
+  let services = 0;
+  let recurring = 0;
+  for (const s of suggestions) {
+    if (s.activatable) recurring += (s.price ?? 0) * 12;
+    else services += (s.hours ?? 0) * DEFAULT_HOURLY_RATE;
+  }
+  return { total: services + recurring, services, recurring };
+}
