@@ -3748,6 +3748,7 @@ export type Database = {
         Row: {
           content_md: string
           created_at: string
+          doc_type: string
           effective_date: string
           id: string
           is_current: boolean
@@ -3757,6 +3758,7 @@ export type Database = {
         Insert: {
           content_md: string
           created_at?: string
+          doc_type?: string
           effective_date?: string
           id?: string
           is_current?: boolean
@@ -3766,6 +3768,7 @@ export type Database = {
         Update: {
           content_md?: string
           created_at?: string
+          doc_type?: string
           effective_date?: string
           id?: string
           is_current?: boolean

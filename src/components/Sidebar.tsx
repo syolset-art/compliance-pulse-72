@@ -109,6 +109,7 @@ const settingsMenu = [
   { name: "nav.adminNotifications", href: "/admin/notifications", icon: Bell },
   { name: "Integrasjoner", href: "/settings/integrations", icon: Plug },
   { name: "Aktivitetslogg", href: "/activity-log", icon: ClipboardList },
+  { name: "Avtaler og vilkår", href: "/legal", icon: FileText },
 ];
 
 const TrustCenterMenu = () => {
