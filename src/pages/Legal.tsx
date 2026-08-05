@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useTerms, type LegalDocType } from "@/hooks/useTerms";
 import { LegalDocumentView } from "@/components/legal/LegalDocumentView";
+import { Sidebar } from "@/components/Sidebar";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Check, Download, History, Loader2 } from "lucide-react";
