@@ -1,0 +1,1 @@
+ALTER TABLE public.terms_acceptances ADD COLUMN IF NOT EXISTS operator_role boolean NOT NULL DEFAULT false;
