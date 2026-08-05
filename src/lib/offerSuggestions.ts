@@ -1,6 +1,12 @@
 import { getOffersForCustomer, normalizeServiceKey } from "@/lib/customerOffers";
 import { SERVICE_LIBRARY } from "@/lib/serviceLibrary";
 import type { CustomerEntryTarget } from "@/lib/customerEntryRoutes";
+import {
+  EXTRA_FRAMEWORK_PRICE_KR,
+  TRUST_CENTER_PRICE_KR,
+  getFrameworkMonthlyPrice,
+  isFreeFramework,
+} from "@/lib/planConstants";
 
 // ===== Anbefalte produkter og tjenester (salgbare forslag) =====
 export interface OfferSuggestion {
@@ -286,4 +292,68 @@ export function deriveActivatedProductTargets(c: any): CustomerEntryTarget[] {
 /** Alt kunden har aktivert (regelverk + produkter/tjenester) som inngangspunkter. */
 export function deriveActivatedTargets(c: any): CustomerEntryTarget[] {
   return [...deriveActivatedFrameworkTargets(c), ...deriveActivatedProductTargets(c)];
+}
+
+// ===== Hva kunden betaler i dag =====
+
+export interface LicenseLine {
+  label: string;
+  price: number;
+}
+
+export interface LicenseSummary {
+  monthly: number;
+  lines: LicenseLine[];
+  billedToDate: number;
+  months: number;
+}
+
+const MODULE_MONTHLY_PRICE: Record<string, { label: string; price: number }> = {
+  core: { label: "Mynder Core", price: 995 },
+  vendors: { label: "Leverandørmodul", price: 1089 },
+  assets: { label: "Eiendeler (Assets)", price: 690 },
+  systems: { label: "Systemer", price: 690 },
+  trust: { label: "Trust Center", price: TRUST_CENTER_PRICE_KR },
+  deviations: { label: "Avvikshåndtering", price: 290 },
+  ropa: { label: "RoPA", price: 290 },
+};
+
+function frameworkKey(f: any): { id: string; label: string } {
+  if (typeof f === "string") return { id: f, label: f };
+  return { id: f?.frameworkId ?? f?.id ?? f?.label ?? "", label: f?.label ?? f?.frameworkId ?? "" };
+}
+
+/** Månedlig lisens kunden betaler i dag, og estimert fakturert beløp siden oppstart. */
+export function customerLicenseSummary(c: any): LicenseSummary {
+  const lines: LicenseLine[] = [];
+
+  for (const m of (c?.active_modules || []) as string[]) {
+    const entry = MODULE_MONTHLY_PRICE[m];
+    if (entry) lines.push({ label: entry.label, price: entry.price });
+  }
+
+  const seen = new Set<string>();
+  for (const f of (c?.active_frameworks || []) as any[]) {
+    const { id, label } = frameworkKey(f);
+    if (!label || seen.has(label)) continue;
+    seen.add(label);
+    if (isFreeFramework(id)) continue;
+    const price = getFrameworkMonthlyPrice(id) || EXTRA_FRAMEWORK_PRICE_KR;
+    lines.push({ label, price });
+  }
+
+  const monthly = lines.reduce((sum, l) => sum + l.price, 0);
+
+  const started = c?.created_at ? new Date(c.created_at) : null;
+  let months = 0;
+  if (started && !Number.isNaN(started.getTime())) {
+    const now = new Date();
+    months =
+      (now.getFullYear() - started.getFullYear()) * 12 + (now.getMonth() - started.getMonth());
+    if (now.getDate() < started.getDate()) months -= 1;
+  }
+  if (monthly > 0) months = Math.max(1, months);
+  else months = Math.max(0, months);
+
+  return { monthly, lines, billedToDate: monthly * months, months };
 }
