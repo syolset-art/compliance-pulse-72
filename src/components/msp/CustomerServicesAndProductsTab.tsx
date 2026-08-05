@@ -25,6 +25,7 @@ import {
   type ActivatableItem,
 } from "./ActivateRecommendationsDialog";
 import { EnterCustomerContextDialog } from "./EnterCustomerContextDialog";
+import { usePostActivationPrompt } from "@/hooks/usePostActivationPrompt";
 import { ActivateTrustCenterDialog } from "./ActivateTrustCenterDialog";
 import { TrustCenterGuideSheet } from "./TrustCenterGuideSheet";
 import {
@@ -128,6 +129,7 @@ export function CustomerServicesAndProductsTab({
     };
   }, []);
 
+  const { promptOrToast } = usePostActivationPrompt();
   const [showAll, setShowAll] = useState(false);
   const [selectedFrameworks, setSelectedFrameworks] = useState<string[]>([]);
   const [activateItems, setActivateItems] = useState<ActivatableItem[] | null>(null);
@@ -435,17 +437,19 @@ export function CustomerServicesAndProductsTab({
             setTick((n) => n + 1);
             onUpdate?.();
           }}
-          onEnterCustomer={(activated) =>
-            setEnterItems(
-              activated.map((a) => ({
-                id: a.id,
-                label: a.label,
-                kind: a.kind,
-                moduleKey: a.moduleKey,
-                frameworkId: a.frameworkId,
-              })),
-            )
-          }
+          onEnterCustomer={(activated) => {
+            const targets: CustomerEntryTarget[] = activated.map((a) => ({
+              id: a.id,
+              label: a.label,
+              kind: a.kind,
+              moduleKey: a.moduleKey,
+              frameworkId: a.frameworkId,
+            }));
+            if (promptOrToast({ customerName, onEnter: () => setEnterItems(targets) })) {
+              setEnterItems(targets);
+            }
+          }}
+
           onMoveToOffer={() => {
             const labels = activateItems.map((i) => ({ label: i.label, hours: 8 }));
             setActivateItems(null);

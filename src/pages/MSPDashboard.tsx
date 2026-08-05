@@ -32,6 +32,7 @@ import { toast } from "sonner";
 import { getOffersForCustomer, normalizeServiceKey } from "@/lib/customerOffers";
 import { SERVICE_LIBRARY } from "@/lib/serviceLibrary";
 import { deriveOfferSuggestions, deriveActivatedItems, deriveNeededServices, deriveActiveServices, type OfferSuggestion } from "@/lib/offerSuggestions";
+import { usePostActivationPrompt } from "@/hooks/usePostActivationPrompt";
 
 type ViewMode = "cards" | "table";
 
@@ -425,6 +426,7 @@ export default function MSPDashboard() {
   const [offerSelection, setOfferSelection] = useState<Record<string, string[]>>({});
   const [offerFor, setOfferFor] = useState<any | null>(null);
   const [activateFor, setActivateFor] = useState<any | null>(null);
+  const { promptOrToast } = usePostActivationPrompt();
   const [enterCustomer, setEnterCustomer] = useState<{
     id: string;
     name: string;
@@ -1078,8 +1080,8 @@ export default function MSPDashboard() {
                 setActivateFor(null);
                 refetch();
               }}
-              onEnterCustomer={(activated) =>
-                setEnterCustomer({
+              onEnterCustomer={(activated) => {
+                const payload = {
                   id: activateFor.id,
                   name: activateFor.customer_name,
                   orgNumber: (activateFor as any).org_number ?? null,
@@ -1090,8 +1092,17 @@ export default function MSPDashboard() {
                     moduleKey: a.moduleKey,
                     frameworkId: a.frameworkId,
                   })),
-                })
-              }
+                };
+                if (
+                  promptOrToast({
+                    customerName: activateFor.customer_name,
+                    onEnter: () => setEnterCustomer(payload),
+                  })
+                ) {
+                  setEnterCustomer(payload);
+                }
+              }}
+
               onMoveToOffer={() => {
                 const target = activateFor;
                 setActivateFor(null);

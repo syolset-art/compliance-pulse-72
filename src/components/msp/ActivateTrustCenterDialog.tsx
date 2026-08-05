@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { usePostActivationPrompt } from "@/hooks/usePostActivationPrompt";
 import { toast } from "sonner";
 import { CheckCircle2, Mail, ShieldCheck, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -58,6 +59,8 @@ export function ActivateTrustCenterDialog({
   const [operatorRole, setOperatorRole] = useState(false);
   const [sendClaim, setSendClaim] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [dontAskAgain, setDontAskAgain] = useState(false);
+  const { enabled: promptEnabled, setPreference } = usePostActivationPrompt();
 
   const hasOperatorRole = acceptances.some((a) => a.operator_role);
   const termsOk = termsChecked || hasAcceptedCurrent;
@@ -99,10 +102,19 @@ export function ActivateTrustCenterDialog({
     }
 
     setSaving(false);
-    toast.success(`Trust Center aktivert hos ${customerName}`);
     onActivated?.();
+    if (!promptEnabled) {
+      toast.success(`Trust Center aktivert hos ${customerName}`, {
+        description: "Neste steg er at kunden claimer profilen.",
+        action: { label: "Åpne veiledning", onClick: () => onOpenGuide?.() },
+      });
+      onOpenChange(false);
+      return;
+    }
+    toast.success(`Trust Center aktivert hos ${customerName}`);
     setStep(3);
   };
+
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -201,12 +213,23 @@ export function ActivateTrustCenterDialog({
         )}
 
         {step === 3 && (
-          <p className="text-xs text-muted-foreground leading-relaxed">
-            Trust Center er aktivert hos {customerName}
-            {sendClaim ? " og claim-e-posten er sendt" : ""}. Du kan bytte til kundens organisasjon og jobbe med
-            Neste steg er at kunden claimer profilen. Åpne veiledningen for å se stegene.
-          </p>
+          <div className="space-y-3">
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              Trust Center er aktivert hos {customerName}
+              {sendClaim ? " og claim-e-posten er sendt" : ""}. Neste steg er at kunden claimer
+              profilen. Du kan åpne veiledningen nå, eller fortsette senere – aktiveringen er
+              allerede fullført.
+            </p>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <Checkbox
+                checked={dontAskAgain}
+                onCheckedChange={(v) => setDontAskAgain(v === true)}
+              />
+              <span className="text-xs text-muted-foreground">Ikke spør meg om dette igjen</span>
+            </label>
+          </div>
         )}
+
 
         <DialogFooter className="gap-2 sm:gap-2">
           {step === 1 && (
@@ -231,17 +254,25 @@ export function ActivateTrustCenterDialog({
           )}
           {step === 3 && (
             <>
-              <Button variant="outline" onClick={() => onOpenChange(false)}>
-                Bli her
+              <Button
+                variant="outline"
+                onClick={() => {
+                  if (dontAskAgain) setPreference(false);
+                  onOpenChange(false);
+                }}
+              >
+                Senere
               </Button>
               <Button
                 onClick={() => {
+                  if (dontAskAgain) setPreference(false);
                   onOpenChange(false);
                   onOpenGuide?.();
                 }}
               >
                 Åpne veiledning
               </Button>
+
             </>
           )}
         </DialogFooter>

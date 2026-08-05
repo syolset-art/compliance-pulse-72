@@ -39,6 +39,7 @@ import {
   type PartnerModuleKey,
 } from "@/lib/partnerModules";
 import { toast } from "sonner";
+import { usePostActivationPrompt } from "@/hooks/usePostActivationPrompt";
 
 
 const SETTINGS_KEY = "msp-messages-settings-v1";
@@ -66,6 +67,8 @@ const DEMO_TEAM = PARTNER_TEAM;
 const isValidEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 
 export default function MSPPartnerSettings() {
+  const { enabled: postActivationEnabled, setPreference: setPostActivationPreference } =
+    usePostActivationPrompt();
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = searchParams.get("tab") ?? "generelt";
   const [form, setForm] = useState<ForwardSettings>(defaults);
@@ -338,6 +341,25 @@ export default function MSPPartnerSettings() {
               </Card>
 
               <PartnerTaxCard />
+
+              {/* Etter aktivering */}
+              <Card className="p-4">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="space-y-0.5">
+                    <p className="text-sm font-medium">Spør etter aktivering</p>
+                    <p className="text-xs text-muted-foreground">
+                      Vis dialog om å jobbe videre hos kunden når du har aktivert produkter eller
+                      regelverk. Er den av, får du kun en varsling med snarvei.
+                    </p>
+                  </div>
+                  <Switch
+                    checked={postActivationEnabled}
+                    onCheckedChange={setPostActivationPreference}
+                    aria-label="Spør om å jobbe videre hos kunden etter aktivering"
+                  />
+                </div>
+              </Card>
+
 
               {/* 4. Lenke til fakturering */}
               <Card className="p-0 overflow-hidden">

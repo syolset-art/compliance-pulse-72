@@ -54,6 +54,9 @@ import { CustomerMaturityMirrorCard } from "@/components/msp/guidance/CustomerMa
 import { useCustomerOnboardingFindings } from "@/hooks/useCustomerOnboardingFindings";
 import { CustomerFrameworkRecommendationsCard, type MaturityAssessmentStatus } from "@/components/msp/guidance/CustomerFrameworkRecommendationsCard";
 import { ActivateRecommendationsDialog } from "@/components/msp/ActivateRecommendationsDialog";
+import { EnterCustomerContextDialog } from "@/components/msp/EnterCustomerContextDialog";
+import type { CustomerEntryTarget } from "@/lib/customerEntryRoutes";
+import { usePostActivationPrompt } from "@/hooks/usePostActivationPrompt";
 import type { OfferSuggestion } from "@/lib/offerSuggestions";
 
 import { MSPCreateOfferDialog } from "@/components/msp/MSPCreateOfferDialog";
@@ -68,6 +71,8 @@ export default function MSPCustomerDetail() {
   const [acronisOpen, setAcronisOpen] = useState(false);
   const [offerItems, setOfferItems] = useState<OfferSuggestion[] | null>(null);
   const [activateItems, setActivateItems] = useState<OfferSuggestion[] | null>(null);
+  const [enterItems, setEnterItems] = useState<CustomerEntryTarget[] | null>(null);
+  const { promptOrToast } = usePostActivationPrompt();
   const [searchParams, setSearchParams] = useSearchParams();
   const normalizeTab = (v: string) => (v === "modules" ? "assessment" : v);
   const initialTab = normalizeTab(searchParams.get("tab") || "guidance");
@@ -598,12 +603,37 @@ export default function MSPCustomerDetail() {
               setActivateItems(null);
               queryClient.invalidateQueries({ queryKey: ["msp-customer", customerId] });
             }}
+            onEnterCustomer={(activated) => {
+              const name = customer.name || customer.customer_name || "Kunden";
+              const targets: CustomerEntryTarget[] = activated.map((a) => ({
+                id: a.id,
+                label: a.label,
+                kind: a.kind,
+                moduleKey: a.moduleKey,
+                frameworkId: a.frameworkId,
+              }));
+              if (promptOrToast({ customerName: name, onEnter: () => setEnterItems(targets) })) {
+                setEnterItems(targets);
+              }
+            }}
             onMoveToOffer={() => {
               setOfferItems(activateItems);
               setActivateItems(null);
             }}
           />
         )}
+
+        {enterItems && (
+          <EnterCustomerContextDialog
+            open={!!enterItems}
+            onOpenChange={(o) => !o && setEnterItems(null)}
+            customerId={customerId!}
+            customerName={customer.name || customer.customer_name || "Kunden"}
+            customerOrgNumber={(customer as any).org_number ?? null}
+            items={enterItems}
+          />
+        )}
+
 
         <MSPCreateOfferDialog
           open={offerDialog.open}

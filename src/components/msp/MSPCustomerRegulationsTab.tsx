@@ -16,6 +16,9 @@ import { ALL_ADDITIONAL_REQUIREMENTS } from "@/lib/additionalFrameworkRequiremen
 import type { ComplianceRequirement } from "@/lib/complianceRequirementsData";
 import { FrameworkOrderConfirmDialog, type FrameworkOrderResult } from "./FrameworkOrderConfirmDialog";
 import { FrameworkPreviewSheet } from "./FrameworkPreviewSheet";
+import { EnterCustomerContextDialog } from "./EnterCustomerContextDialog";
+import type { CustomerEntryTarget } from "@/lib/customerEntryRoutes";
+import { usePostActivationPrompt } from "@/hooks/usePostActivationPrompt";
 
 interface Props {
   customerId: string;
@@ -188,6 +191,8 @@ export function MSPCustomerRegulationsTab({ customerId, customerName, customer }
   const [previewFramework, setPreviewFramework] = useState<Framework | null>(null);
   const [pickedRecommended, setPickedRecommended] = useState<string[]>([]);
   const [bulkOpen, setBulkOpen] = useState(false);
+  const [enterItems, setEnterItems] = useState<CustomerEntryTarget[] | null>(null);
+  const { promptOrToast } = usePostActivationPrompt();
   const [liveCounts, setLiveCounts] = useState<
     Record<string, { met: number; partial: number; notMet: number; auto: number; manual: number; total: number }>
   >({});
@@ -422,17 +427,37 @@ export function MSPCustomerRegulationsTab({ customerId, customerName, customer }
           },
         ]}
         onActivated={() => {
+          const newIds = pickedRecommended.filter((id) => !activatedIds.has(id));
           const next = [
             ...activated,
-            ...pickedRecommended
-              .filter((id) => !activatedIds.has(id))
-              .map((id) => ({ id, orderedAt: new Date().toISOString(), method: "legacy" as const })),
+            ...newIds.map((id) => ({ id, orderedAt: new Date().toISOString(), method: "legacy" as const })),
           ];
           setActivated(next);
           saveActivated(customerId, next);
           setPickedRecommended([]);
+          const targets: CustomerEntryTarget[] = newIds.map((id) => ({
+            id,
+            label: frameworks.find((f) => f.id === id)?.name ?? id,
+            kind: "framework" as const,
+            frameworkId: id,
+          }));
+          if (targets.length === 0) return;
+          if (promptOrToast({ customerName, onEnter: () => setEnterItems(targets) })) {
+            setEnterItems(targets);
+          }
         }}
       />
+
+      {enterItems && (
+        <EnterCustomerContextDialog
+          open={!!enterItems}
+          onOpenChange={(o) => !o && setEnterItems(null)}
+          customerId={customerId}
+          customerName={customerName}
+          items={enterItems}
+        />
+      )}
+
 
       <EditActiveFrameworksDialog
         open={showEditDialog}
