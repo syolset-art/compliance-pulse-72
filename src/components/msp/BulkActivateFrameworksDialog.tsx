@@ -87,7 +87,7 @@ export function BulkActivateFrameworksDialog({
 
     if (ok > 0) {
       toast.success(`Regelverk aktivert hos ${ok} kunde${ok === 1 ? "" : "r"}`, {
-        description: `${frameworkNames.join(", ")} · ${totalMonthly} kr per måned totalt.`,
+        description: `${frameworkNames.join(", ")} · ${totalMonthly} kr per måned eks. mva.`,
       });
     }
     if (failed > 0) toast.error(`Kunne ikke aktivere hos ${failed} kunde(r)`);
@@ -102,7 +102,7 @@ export function BulkActivateFrameworksDialog({
           <DialogTitle className="text-base">Aktiver regelverk hos valgte kunder</DialogTitle>
           <DialogDescription className="text-xs">
             {frameworkNames.join(", ")} aktiveres hos {affected.length} kunde
-            {affected.length === 1 ? "" : "r"}. {FRAMEWORK_PRICE} kr per regelverk per måned.
+            {affected.length === 1 ? "" : "r"}. {FRAMEWORK_PRICE} kr per regelverk per måned eks. mva. Tjenesten aktiveres umiddelbart, og faktureres på neste faktura.
           </DialogDescription>
         </DialogHeader>
 
@@ -128,7 +128,7 @@ export function BulkActivateFrameworksDialog({
         </ScrollArea>
 
         <div className="flex items-center justify-between text-xs border-t border-border pt-3">
-          <span className="text-muted-foreground">Samlet månedspris</span>
+          <span className="text-muted-foreground">Samlet månedspris (eks. mva.)</span>
           <span className="font-semibold text-foreground tabular-nums">{totalMonthly} kr</span>
         </div>
 

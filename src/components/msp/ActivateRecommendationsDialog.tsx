@@ -152,6 +152,9 @@ export function ActivateRecommendationsDialog({
           <>
             <DialogHeader>
               <DialogTitle className="text-lg">Aktiver hos {customerName}</DialogTitle>
+              <DialogDescription className="text-xs text-muted-foreground">
+                Alle priser er eks. mva.
+              </DialogDescription>
             </DialogHeader>
 
             <div className="space-y-4">
@@ -270,7 +273,8 @@ export function ActivateRecommendationsDialog({
             </DialogHeader>
 
             <DialogDescription className="text-sm text-muted-foreground leading-relaxed">
-              Endringen gjelder med én gang hos {customerName}, og eventuelle kostnader kommer på neste faktura.
+              Tjenesten aktiveres umiddelbart hos {customerName}, og faktureres på neste faktura. Alle priser er
+              eks. mva.
             </DialogDescription>
 
 
@@ -293,7 +297,7 @@ export function ActivateRecommendationsDialog({
                 {saving
                   ? "Aktiverer…"
                   : monthlyTotal > 0
-                    ? `Aktiver for ${formatKr(monthlyTotal)}/mnd`
+                    ? `Aktiver for ${formatKr(monthlyTotal)}/mnd eks. mva.`
                     : "Aktiver"}
               </Button>
             </DialogFooter>
