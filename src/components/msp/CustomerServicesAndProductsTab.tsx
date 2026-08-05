@@ -24,6 +24,8 @@ import {
   ActivateRecommendationsDialog,
   type ActivatableItem,
 } from "./ActivateRecommendationsDialog";
+import { EnterCustomerContextDialog } from "./EnterCustomerContextDialog";
+import type { CustomerEntryTarget } from "@/lib/customerEntryRoutes";
 import { MSPCreateOfferDialog } from "./MSPCreateOfferDialog";
 import { CustomerModulesTab } from "./CustomerModulesTab";
 import { MSPMaturityServiceMatrix } from "./MSPMaturityServiceMatrix";
@@ -110,6 +112,7 @@ export function CustomerServicesAndProductsTab({
   const [showAll, setShowAll] = useState(false);
   const [selectedFrameworks, setSelectedFrameworks] = useState<string[]>([]);
   const [activateItems, setActivateItems] = useState<ActivatableItem[] | null>(null);
+  const [enterItems, setEnterItems] = useState<CustomerEntryTarget[] | null>(null);
   const [offerItems, setOfferItems] = useState<{ label: string; hours: number }[] | null>(null);
 
   const products = useMemo(
@@ -365,6 +368,17 @@ export function CustomerServicesAndProductsTab({
             setTick((n) => n + 1);
             onUpdate?.();
           }}
+          onEnterCustomer={(activated) =>
+            setEnterItems(
+              activated.map((a) => ({
+                id: a.id,
+                label: a.label,
+                kind: a.kind,
+                moduleKey: a.moduleKey,
+                frameworkId: a.frameworkId,
+              })),
+            )
+          }
           onMoveToOffer={() => {
             const labels = activateItems.map((i) => ({ label: i.label, hours: 8 }));
             setActivateItems(null);
@@ -372,6 +386,17 @@ export function CustomerServicesAndProductsTab({
           }}
         />
       )}
+
+      {enterItems && (
+        <EnterCustomerContextDialog
+          open={!!enterItems}
+          onOpenChange={(o) => !o && setEnterItems(null)}
+          customerId={customerId}
+          customerName={customerName}
+          items={enterItems}
+        />
+      )}
+
 
       {offerItems && (
         <MSPCreateOfferDialog

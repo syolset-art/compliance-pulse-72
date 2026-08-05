@@ -14,6 +14,8 @@ import { AddMSPCustomerDialog } from "@/components/msp/AddMSPCustomerDialog";
 import { GapAnalysisWizardDialog } from "@/components/msp/GapAnalysisWizardDialog";
 import { MSPCreateOfferDialog } from "@/components/msp/MSPCreateOfferDialog";
 import { ActivateRecommendationsDialog } from "@/components/msp/ActivateRecommendationsDialog";
+import { EnterCustomerContextDialog } from "@/components/msp/EnterCustomerContextDialog";
+import type { CustomerEntryTarget } from "@/lib/customerEntryRoutes";
 
 
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -550,6 +552,12 @@ export default function MSPDashboard() {
   const [offerSelection, setOfferSelection] = useState<Record<string, string[]>>({});
   const [offerFor, setOfferFor] = useState<any | null>(null);
   const [activateFor, setActivateFor] = useState<any | null>(null);
+  const [enterCustomer, setEnterCustomer] = useState<{
+    id: string;
+    name: string;
+    orgNumber?: string | null;
+    items: CustomerEntryTarget[];
+  } | null>(null);
 
   const toggleSuggestion = (customerId: string, suggestionId: string) => {
     setOfferSelection((prev) => {
@@ -1194,6 +1202,20 @@ export default function MSPDashboard() {
                 setActivateFor(null);
                 refetch();
               }}
+              onEnterCustomer={(activated) =>
+                setEnterCustomer({
+                  id: activateFor.id,
+                  name: activateFor.customer_name,
+                  orgNumber: (activateFor as any).org_number ?? null,
+                  items: activated.map((a) => ({
+                    id: a.id,
+                    label: a.label,
+                    kind: a.kind,
+                    moduleKey: a.moduleKey,
+                    frameworkId: a.frameworkId,
+                  })),
+                })
+              }
               onMoveToOffer={() => {
                 const target = activateFor;
                 setActivateFor(null);
@@ -1202,6 +1224,18 @@ export default function MSPDashboard() {
             />
           );
         })()}
+
+        {enterCustomer && (
+          <EnterCustomerContextDialog
+            open={!!enterCustomer}
+            onOpenChange={(o) => !o && setEnterCustomer(null)}
+            customerId={enterCustomer.id}
+            customerName={enterCustomer.name}
+            customerOrgNumber={enterCustomer.orgNumber}
+            items={enterCustomer.items}
+          />
+        )}
+
 
         {offerFor && (() => {
           const picked = offerSelection[offerFor.id] || [];
