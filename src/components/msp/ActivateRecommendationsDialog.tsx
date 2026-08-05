@@ -142,6 +142,7 @@ export function ActivateRecommendationsDialog({
     );
     onActivated();
     onOpenChange(false);
+    onEnterCustomer?.(activatable);
   };
 
   return (
