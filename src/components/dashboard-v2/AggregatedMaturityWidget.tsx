@@ -52,12 +52,21 @@ function applyFloor(key: string, raw: number) {
   return Math.max(raw, PILLAR_DEMO_FLOOR[key] ?? 0);
 }
 
-/** Returnerer modenhetsnivå med farge-tokens. */
+/**
+ * Returnerer modenhetsnivå med farge-tokens.
+ * Terskler følger Mynders scoringsmodell (v1): 0 = ikke vurdert,
+ * 1–49 % lav, 50–74 % middels, 75–100 % høy.
+ */
 function maturityLevel(score: number, isNb: boolean) {
-  if (score >= 67) {
+  if (score >= 75) {
     return {
+      id: "high",
       label: isNb ? "Høy modenhet" : "High maturity",
       shortLabel: isNb ? "Høy" : "High",
+      range: "75–100 %",
+      hint: isNb
+        ? "De fleste krav er oppfylt og dokumentert."
+        : "Most requirements are fulfilled and documented.",
       badgeClass: "bg-success/15 text-success dark:bg-success/25 dark:text-success",
       textClass: "text-success",
       progressClass: "[&>div]:bg-success",
@@ -65,10 +74,15 @@ function maturityLevel(score: number, isNb: boolean) {
       gaugeColor: "hsl(var(--success))",
     };
   }
-  if (score >= 34) {
+  if (score >= 50) {
     return {
+      id: "medium",
       label: isNb ? "Middels modenhet" : "Medium maturity",
       shortLabel: isNb ? "Middels" : "Medium",
+      range: "50–74 %",
+      hint: isNb
+        ? "På god vei, men det er fortsatt vesentlige hull."
+        : "On track, but significant gaps remain.",
       badgeClass: "bg-warning/15 text-warning dark:bg-warning/25 dark:text-warning",
       textClass: "text-warning",
       progressClass: "[&>div]:bg-warning",
@@ -76,16 +90,57 @@ function maturityLevel(score: number, isNb: boolean) {
       gaugeColor: "hsl(var(--warning))",
     };
   }
+  if (score > 0) {
+    return {
+      id: "low",
+      label: isNb ? "Lav modenhet" : "Low maturity",
+      shortLabel: isNb ? "Lav" : "Low",
+      range: "1–49 %",
+      hint: isNb
+        ? "Få krav er oppfylt eller dokumentert."
+        : "Few requirements are fulfilled or documented.",
+      badgeClass: "bg-destructive/15 text-destructive dark:bg-destructive/25 dark:text-destructive",
+      textClass: "text-destructive",
+      progressClass: "[&>div]:bg-destructive",
+      dotClass: "bg-destructive",
+      gaugeColor: "hsl(var(--destructive))",
+    };
+  }
   return {
-    label: isNb ? "Lav modenhet" : "Low maturity",
-    shortLabel: isNb ? "Lav" : "Low",
-    badgeClass: "bg-destructive/15 text-destructive dark:bg-destructive/25 dark:text-destructive",
-    textClass: "text-destructive",
-    progressClass: "[&>div]:bg-destructive",
-    dotClass: "bg-destructive",
-    gaugeColor: "hsl(var(--destructive))",
+    id: "none",
+    label: isNb ? "Ikke vurdert" : "Not assessed",
+    shortLabel: isNb ? "Ikke vurdert" : "Not assessed",
+    range: "0 %",
+    hint: isNb
+      ? "Ingen krav er besvart ennå."
+      : "No requirements answered yet.",
+    badgeClass: "bg-muted text-muted-foreground",
+    textClass: "text-muted-foreground",
+    progressClass: "[&>div]:bg-muted-foreground/30",
+    dotClass: "bg-muted-foreground/30",
+    gaugeColor: "hsl(var(--muted-foreground))",
   };
 }
+
+/** Fargeforklaring – hva rød/gul/grønn betyr. */
+function MaturityLegend({ isNb }: { isNb: boolean }) {
+  const levels = [100, 60, 25, 0].map((v) => maturityLevel(v, isNb)).reverse();
+  return (
+    <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1.5 border-t border-border pt-3">
+      {levels.map((lvl) => (
+        <span key={lvl.id} className="inline-flex items-center gap-1.5 text-[11px] text-muted-foreground">
+          <span className={cn("h-2 w-2 rounded-full shrink-0", lvl.dotClass)} />
+          <span className="font-medium text-foreground">{lvl.label}</span>
+          <span className="tabular-nums">{lvl.range}</span>
+        </span>
+      ))}
+      <span className="ml-auto text-[11px] text-muted-foreground">
+        {isNb ? "Basert på Mynders scoringsmodell (v1)" : "Based on Mynder's scoring model (v1)"}
+      </span>
+    </div>
+  );
+}
+
 
 function generateFrameworkHistory(currentScore: number) {
   const months = ["Okt", "Nov", "Des", "Jan", "Feb", "Mar", "Apr"];
@@ -250,7 +305,13 @@ export function AggregatedMaturityWidget() {
                       ? "Prosenten viser hvor mye du har dokumentert av etterlevelse av lover og regler, basert på besvarte kontrollpunkter med bekreftet dokumentasjon."
                       : "The percentage shows how much compliance you have documented, based on answered control points with verified evidence."}
                   </p>
+                  <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
+                    {isNb
+                      ? "Fargene følger Mynders scoringsmodell (v1): rød 1–49 % (lav), gul 50–74 % (middels), grønn 75–100 % (høy). Grå betyr at området ikke er vurdert ennå."
+                      : "Colors follow Mynder's scoring model (v1): red 1–49% (low), amber 50–74% (medium), green 75–100% (high). Grey means the area is not assessed yet."}
+                  </p>
                 </div>
+
                 <div className="rounded-lg bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
                   {isNb
                     ? `Bygger på ${totalAssessed} av ${totalControls} kontrollpunkter. «Ikke relevant» teller ikke med.`
@@ -434,7 +495,9 @@ export function AggregatedMaturityWidget() {
                 return (
                   <button
                     key={pillar.key}
+                    title={`${lvl.label} (${percent} %) – ${lvl.hint}`}
                     onClick={() => navigate("/reports/compliance")}
+
                     className="flex items-center gap-2 w-full p-1.5 rounded-md hover:bg-muted/50 transition-colors"
                   >
                     <div className="p-1 rounded-md bg-primary/10 shrink-0">
@@ -462,7 +525,9 @@ export function AggregatedMaturityWidget() {
                 return (
                   <button
                     key={pillar.key}
+                    title={`${lvl.label} (${percent} %) – ${lvl.hint}`}
                     onClick={() => navigate("/reports/compliance")}
+
                     className={cn(
                       "rounded-lg border border-border bg-muted/20 overflow-hidden transition-all text-left hover:border-primary/50 hover:bg-muted/40 cursor-pointer",
                       index === PILLARS.length - 1 && PILLARS.length % 2 !== 0 && "col-span-2"
@@ -504,7 +569,10 @@ export function AggregatedMaturityWidget() {
                 );
               })}
             </div>
+
+            <MaturityLegend isNb={isNb} />
           </>
+
         )}
 
       </div>
