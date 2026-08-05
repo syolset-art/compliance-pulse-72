@@ -369,7 +369,7 @@ function RecommendationCell({
   const activatableCount = suggestions.filter((s) => picked.includes(s.id) && s.activatable).length;
 
   return (
-    <div className="flex flex-wrap items-center gap-1 max-w-[320px]">
+    <div className="flex flex-wrap items-center gap-1 max-w-[284px]">
       {shown.map((s) => {
         const on = picked.includes(s.id);
         return (
