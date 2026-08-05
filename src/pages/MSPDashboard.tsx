@@ -1078,8 +1078,8 @@ export default function MSPDashboard() {
                 setActivateFor(null);
                 refetch();
               }}
-              onEnterCustomer={(activated) =>
-                setEnterCustomer({
+              onEnterCustomer={(activated) => {
+                const payload = {
                   id: activateFor.id,
                   name: activateFor.customer_name,
                   orgNumber: (activateFor as any).org_number ?? null,
@@ -1090,8 +1090,17 @@ export default function MSPDashboard() {
                     moduleKey: a.moduleKey,
                     frameworkId: a.frameworkId,
                   })),
-                })
-              }
+                };
+                if (
+                  promptOrToast({
+                    customerName: activateFor.customer_name,
+                    onEnter: () => setEnterCustomer(payload),
+                  })
+                ) {
+                  setEnterCustomer(payload);
+                }
+              }}
+
               onMoveToOffer={() => {
                 const target = activateFor;
                 setActivateFor(null);
