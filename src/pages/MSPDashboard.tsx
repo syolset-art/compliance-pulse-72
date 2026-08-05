@@ -981,92 +981,44 @@ export default function MSPDashboard() {
                             {isVisible("industry") && (
                               <TableCell className="text-muted-foreground">{c.industry || "—"}</TableCell>
                             )}
-                            {isVisible("frameworks") && (
-                              <TableCell onClick={(e) => e.stopPropagation()}>
-                                {(() => {
-                                  const toLabel = (f: any): string =>
-                                    typeof f === "string" ? f : (f?.label ?? f?.frameworkId ?? "");
-                                  const active: string[] = (c.active_frameworks || []).map(toLabel).filter(Boolean);
-                                  const recommended: string[] = (c.recommended_frameworks || [])
-                                    .map(toLabel)
-                                    .filter((f: string) => f && !active.includes(f));
-                                  const all = [...active, ...recommended];
-                                  if (all.length === 0) {
-                                    return <span className="text-muted-foreground text-sm">—</span>;
-                                  }
-                                  return (
-                                    <div className="flex flex-wrap items-center gap-1 max-w-[180px]">
-                                      {active.slice(0, 3).map((f) => (
-                                        <Badge key={f} variant="outline" className="font-normal bg-success/10 text-foreground border-success/30 text-[11px]">
-                                          {f}
-                                        </Badge>
-                                      ))}
-                                      {recommended.slice(0, Math.max(0, 3 - active.length)).map((f) => (
-                                        <Badge key={f} variant="outline" className="font-normal bg-primary/10 text-foreground dark:text-primary-foreground border-primary/30 dark:border-primary/50 text-[11px]">
-                                          {f}
-                                        </Badge>
-                                      ))}
-                                      {all.length > 3 && (
-                                        <span className="text-[11px] text-muted-foreground">+{all.length - 3}</span>
-                                      )}
-                                    </div>
-                                  );
-                                })()}
-                              </TableCell>
-                            )}
                             {isVisible("recommendations") && (
-                              <TableCell onClick={(e) => e.stopPropagation()}>
+                              <TableCell onClick={(e) => e.stopPropagation()} className="align-top">
+                                <RecommendationCell
+                                  suggestions={deriveOfferSuggestions(c)}
+                                  picked={offerSelection[c.id] || []}
+                                  onToggle={(id) => toggleSuggestion(c.id, id)}
+                                  onOffer={() => setOfferFor(c)}
+                                  onActivate={() => setActivateFor(c)}
+                                />
+                              </TableCell>
+                            )}
+                            {isVisible("activated") && (
+                              <TableCell className="align-top">
                                 {(() => {
-                                  const suggestions = deriveOfferSuggestions(c);
-                                  if (suggestions.length === 0) {
+                                  const items = deriveActivatedItems(c);
+                                  if (items.length === 0) {
                                     return <span className="text-muted-foreground text-sm">—</span>;
                                   }
-                                  const picked = offerSelection[c.id] || [];
                                   return (
-                                    <div className="flex flex-wrap items-center gap-1">
-                                      {suggestions.map((s) => {
-                                        const on = picked.includes(s.id);
-                                        return (
-                                          <button
-                                            key={s.id}
-                                            type="button"
-                                            onClick={() => toggleSuggestion(c.id, s.id)}
-                                            className={cn(
-                                              "inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] transition-colors",
-                                              on
-                                                ? "border-primary/50 bg-primary/10 text-foreground"
-                                                : "border-border bg-muted/40 text-muted-foreground hover:text-foreground hover:border-foreground/30",
-                                            )}
-                                          >
-                                            {s.label}
-                                          </button>
-                                        );
-                                      })}
-                                      {picked.length > 0 && (
-                                        <button
-                                          type="button"
-                                          onClick={() => setOfferFor(c)}
-                                          className="inline-flex items-center rounded-full bg-primary px-2 py-0.5 text-[11px] font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+                                    <div className="flex flex-wrap items-center gap-1 max-w-[260px]">
+                                      {items.slice(0, 4).map((label) => (
+                                        <Badge
+                                          key={label}
+                                          variant="outline"
+                                          className="font-normal bg-success/10 text-foreground border-success/30 text-[11px]"
                                         >
-                                          Tilbud ({picked.length})
-                                        </button>
+                                          {label}
+                                        </Badge>
+                                      ))}
+                                      {items.length > 4 && (
+                                        <span className="text-[11px] text-muted-foreground">+{items.length - 4}</span>
                                       )}
-                                      {picked.length > 0 &&
-                                        suggestions.some((s) => picked.includes(s.id) && s.activatable) && (
-                                          <button
-                                            type="button"
-                                            onClick={() => setActivateFor(c)}
-                                            className="inline-flex items-center rounded-full border border-primary/50 bg-background px-2 py-0.5 text-[11px] font-medium text-primary hover:bg-primary/10 transition-colors"
-                                          >
-                                            Aktiver ({suggestions.filter((s) => picked.includes(s.id) && s.activatable).length})
-                                          </button>
-                                        )}
-
                                     </div>
                                   );
                                 })()}
                               </TableCell>
                             )}
+
 
                             {isVisible("score") && (
                               <TableCell className="text-right">
