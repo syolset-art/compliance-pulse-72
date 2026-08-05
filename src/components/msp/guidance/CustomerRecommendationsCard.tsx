@@ -209,6 +209,23 @@ export function CustomerRecommendationsCard({ customer, onOffer, onActivate, onE
               <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
                 Aktivert – jobb som driftspartner
               </p>
+              <TooltipProvider delayDuration={200}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      type="button"
+                      className="text-muted-foreground hover:text-foreground"
+                      aria-label="Om aktiverte produkter"
+                    >
+                      <Info className="h-3.5 w-3.5" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top" className="max-w-[260px] text-xs">
+                    Klikk på et aktivert produkt for å gå inn i kundens organisasjon og jobbe med
+                    etterlevelsen på vegne av kunden.
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
               {activatedTargets.length > 0 && onEnterCustomer && (
                 <button
                   type="button"
@@ -220,10 +237,6 @@ export function CustomerRecommendationsCard({ customer, onOffer, onActivate, onE
                 </button>
               )}
             </div>
-            <p className="text-[11px] text-muted-foreground mt-1">
-              Klikk på et aktivert produkt for å gå inn i kundens organisasjon og jobbe med
-              etterlevelsen på vegne av kunden.
-            </p>
             <div className="flex flex-wrap items-center gap-1.5 mt-2">
               {activated.length === 0 ? (
                 <span className="text-sm text-muted-foreground">Ingenting aktivert ennå</span>
