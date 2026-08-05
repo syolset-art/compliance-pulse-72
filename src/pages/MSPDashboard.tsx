@@ -767,11 +767,11 @@ export default function MSPDashboard() {
                   <TooltipTrigger asChild>
                     <Button variant="outline" onClick={() => setGapOpen(true)} className="gap-2">
                       <ScanSearch className="h-4 w-4" />
-                      Kjør GAP-analyse
+                      Behovsanalyse
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent side="bottom" className="max-w-xs">
-                    Se hvilke krav i valgte regelverk kundene mangler dekning for – og hvilke av dine tjenester som kan lukke gapene.
+                    Finn hvilke kunder som matcher valgte regelverk, se hvilke tjenester som dekker behovet – og opprett tilbud til alle i én kampanje.
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
