@@ -685,16 +685,24 @@ export default function Subscriptions() {
 
             <ModuleCard
               icon={Globe}
-              title="Trust Profile"
-              description="Offentlig tillitsside"
-              status="included"
-              price={0}
-              priceLabel="Inkludert i Core"
-              action="open"
-              onClick={() => window.open(trustProfileUrl, "_blank", "noopener,noreferrer")}
+              title="Trust Center"
+              description="Del dokumentasjonen én gang — gjenbruk mot kunder og leverandører"
+              status={deactivatedModules.has("trust") ? "inactive" : moduleStatusOf("trust")}
+              cancelAtLabel={cancelAtLabelOf("trust")}
+              onResume={() => undoCancellation("trust")}
+              price={deactivatedModules.has("trust") ? 0 : TRUST_CENTER_PRICE_KR}
+              priceLabel={deactivatedModules.has("trust") ? "Ikke aktivert" : "Trust Profile og deling"}
+              action={deactivatedModules.has("trust") ? "activate" : "open"}
+              onClick={() =>
+                deactivatedModules.has("trust")
+                  ? requestActivate("trust", "Trust Center")
+                  : window.open(trustProfileUrl, "_blank", "noopener,noreferrer")
+              }
+              onDeactivate={() => requestDeactivate("trust", "Trust Center")}
               accentColor="rose"
               onReadMore={() => setReadMoreKey("trust")}
             />
+
 
             <ModuleCard
               icon={Users}
