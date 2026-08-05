@@ -144,3 +144,27 @@ export function deriveActivatedItems(c: any): string[] {
   const modules: string[] = (c.active_modules || []).map((m: string) => moduleLabels[m] || m);
   return Array.from(new Set([...frameworks, ...modules, ...deriveActiveServices(c)]));
 }
+
+// ===== Delte selektorer: regelverk vs. produkter/tjenester =====
+
+/** Kun regelverk som er anbefalt, men ikke aktivert. */
+export function deriveFrameworkSuggestions(c: any): OfferSuggestion[] {
+  return deriveOfferSuggestions(c).filter((s) => s.kind === "framework");
+}
+
+/** Mynder-produkter og partnerens egne tjenester (uten regelverk). */
+export function deriveProductSuggestions(c: any): OfferSuggestion[] {
+  return deriveOfferSuggestions(c).filter((s) => s.kind !== "framework");
+}
+
+/** Regelverk kunden allerede har aktivert. */
+export function deriveActivatedFrameworks(c: any): string[] {
+  const toLabel = (f: any): string => (typeof f === "string" ? f : (f?.label ?? f?.frameworkId ?? ""));
+  return Array.from(new Set(((c.active_frameworks || []) as any[]).map(toLabel).filter(Boolean)));
+}
+
+/** Aktiverte moduler og leverte tjenester (uten regelverk). */
+export function deriveActivatedProducts(c: any): string[] {
+  const frameworks = new Set(deriveActivatedFrameworks(c));
+  return deriveActivatedItems(c).filter((l) => !frameworks.has(l));
+}
