@@ -214,15 +214,16 @@ export default function MSPCustomerDetail() {
       autoRunLabel: "La Lara koble til",
       autoRunMessage: "Lara henter Acronis-tenanten via partner-API-et, mapper enhetene til kundens systemregister og importerer backup-status.",
     },
-    (!customer.initial_assessment_score || customer.initial_assessment_score < 50) && {
+    totalAnswered < totalQuestions && {
       severity: "critical",
       category: "Modenhet · Baseline",
-      title: "Fullfør innledende vurdering",
-      desc: "Lara trenger svar på sikkerhetsspørsmål for å beregne modenhet.",
-      cta: "Start vurdering",
-      onClick: () => setActiveTab("assessment"),
-      infoGap: "Vurderingen krever at en hos partner svarer på 12 spørsmål basert på kundens drift. Lara kan ikke gjette dette.",
+      title: "Baseline-kartlegging",
+      desc: `Kartlegg modenhet sammen med kunden — grunnlaget for Trust Profile og gap-analyse. ${totalAnswered}/${totalQuestions} besvart.`,
+      cta: "Start kartlegging",
+      onClick: () => setBaselineDrawer({ open: true, review: false, mode: "meeting" }),
+      infoGap: "Vurderingen krever at en hos partner svarer på spørsmålene basert på kundens drift. Lara kan ikke gjette dette.",
     },
+
     !customer.active_frameworks?.includes("NIS2") && {
       severity: "medium",
       category: "Regelverk · NIS2",
