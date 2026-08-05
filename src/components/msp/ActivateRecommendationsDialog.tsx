@@ -268,8 +268,7 @@ export function ActivateRecommendationsDialog({
               Endringen gjelder med én gang hos {customerName}, og eventuelle kostnader kommer på neste faktura.
             </DialogDescription>
 
-              )}
-            </DialogDescription>
+
 
             <TermsAcceptRow
               id={`terms-activate-${customerId}`}
