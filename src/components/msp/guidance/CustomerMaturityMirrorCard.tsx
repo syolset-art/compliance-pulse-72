@@ -12,7 +12,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { ShieldCheck, Info, Globe, ArrowRight, Lock, ChevronRight } from "lucide-react";
+import { ShieldCheck, Info, Globe, ArrowRight, Lock, ChevronRight, FileCheck, TrendingUp } from "lucide-react";
 import { MATURITY_AREAS } from "@/lib/trustMaturityQuestions";
 import { getMaturityBand, MATURITY_BANDS } from "@/lib/scoringEngine";
 import { getModuleState } from "@/lib/moduleActivationState";
