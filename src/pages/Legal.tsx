@@ -158,6 +158,7 @@ export default function Legal() {
           </Collapsible>
         )}
       </div>
+      </main>
     </div>
   );
 }
