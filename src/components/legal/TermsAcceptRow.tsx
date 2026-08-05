@@ -1,4 +1,6 @@
 import { Checkbox } from "@/components/ui/checkbox";
+import { Info } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface TermsAcceptRowProps {
   checked: boolean;
@@ -6,6 +8,10 @@ interface TermsAcceptRowProps {
   version?: string | null;
   disabled?: boolean;
   id?: string;
+  /** Show the extra "Skal du ha rolle som Driftpartner?" confirmation (partner flows). */
+  showOperatorRole?: boolean;
+  operatorRole?: boolean;
+  onOperatorRoleChange?: (checked: boolean) => void;
 }
 
 /**
@@ -18,29 +24,67 @@ export function TermsAcceptRow({
   version,
   disabled,
   id = "terms-accept",
+  showOperatorRole,
+  operatorRole = false,
+  onOperatorRoleChange,
 }: TermsAcceptRowProps) {
   return (
-    <div className="flex items-start gap-2">
-      <Checkbox
-        id={id}
-        checked={checked}
-        disabled={disabled}
-        onCheckedChange={(v) => onCheckedChange(v === true)}
-        className="mt-0.5"
-      />
-      <label htmlFor={id} className="text-xs text-muted-foreground leading-relaxed cursor-pointer">
-        Jeg godtar{" "}
-        <a
-          href="/terms"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-foreground underline underline-offset-2 hover:text-primary"
-          onClick={(e) => e.stopPropagation()}
-        >
-          vilkår og betingelser
-        </a>
-        {version ? ` (versjon ${version})` : ""}
-      </label>
+    <div className="space-y-2">
+      <div className="flex items-start gap-2">
+        <Checkbox
+          id={id}
+          checked={checked}
+          disabled={disabled}
+          onCheckedChange={(v) => onCheckedChange(v === true)}
+          className="mt-0.5"
+        />
+        <label htmlFor={id} className="text-xs text-muted-foreground leading-relaxed cursor-pointer">
+          Jeg godtar{" "}
+          <a
+            href="/terms"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-foreground underline underline-offset-2 hover:text-primary"
+            onClick={(e) => e.stopPropagation()}
+          >
+            vilkår og betingelser
+          </a>
+          {version ? ` (versjon ${version})` : ""}
+        </label>
+      </div>
+
+      {showOperatorRole && (
+        <div className="flex items-start gap-2">
+          <Checkbox
+            id={`${id}-operator`}
+            checked={operatorRole}
+            disabled={disabled}
+            onCheckedChange={(v) => onOperatorRoleChange?.(v === true)}
+            className="mt-0.5"
+          />
+          <label
+            htmlFor={`${id}-operator`}
+            className="text-xs text-muted-foreground leading-relaxed cursor-pointer flex items-center gap-1.5"
+          >
+            Skal du ha rolle som Driftpartner?
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span
+                  className="inline-flex text-muted-foreground/70 hover:text-foreground"
+                  onClick={(e) => e.preventDefault()}
+                >
+                  <Info className="h-3.5 w-3.5" />
+                </span>
+              </TooltipTrigger>
+              <TooltipContent className="max-w-xs text-xs">
+                Som driftpartner kan du utføre arbeid på dette produktet eller tjenesten på vegne av
+                kunden, og bekrefter at du har fått godkjenning fra kunden.
+              </TooltipContent>
+            </Tooltip>
+          </label>
+        </div>
+      )}
     </div>
   );
 }
+
