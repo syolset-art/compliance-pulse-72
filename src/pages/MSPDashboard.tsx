@@ -986,7 +986,7 @@ export default function MSPDashboard() {
                           </TableHead>
                         )}
                         {isVisible("industry") && (
-                          <TableHead className="w-[140px] text-foreground/80 align-middle">
+                          <TableHead className="w-[100px] text-foreground/80 align-middle">
                             <div className="inline-flex h-8 items-center">
                               <ColumnFilter
                                 label="Bransje"
