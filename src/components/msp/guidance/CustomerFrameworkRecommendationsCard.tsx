@@ -1,6 +1,7 @@
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Sparkles, Zap, ClipboardCheck, CheckCircle2, Send, ArrowRight } from "lucide-react";
+import { Sparkles, Zap, ClipboardCheck, CheckCircle2, Send, ArrowRight, Plus, X } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
@@ -10,6 +11,7 @@ import {
   deriveActivatedFrameworkTargets,
   type OfferSuggestion,
 } from "@/lib/offerSuggestions";
+import { AddFrameworkDialog } from "./AddFrameworkDialog";
 import type { CustomerEntryTarget } from "@/lib/customerEntryRoutes";
 
 export type MaturityAssessmentStatus =
