@@ -1225,6 +1225,18 @@ export default function MSPDashboard() {
           );
         })()}
 
+        {enterCustomer && (
+          <EnterCustomerContextDialog
+            open={!!enterCustomer}
+            onOpenChange={(o) => !o && setEnterCustomer(null)}
+            customerId={enterCustomer.id}
+            customerName={enterCustomer.name}
+            customerOrgNumber={enterCustomer.orgNumber}
+            items={enterCustomer.items}
+          />
+        )}
+
+
         {offerFor && (() => {
           const picked = offerSelection[offerFor.id] || [];
           const items = deriveOfferSuggestions(offerFor).filter((s) => picked.includes(s.id));
