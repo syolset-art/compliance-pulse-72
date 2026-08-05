@@ -457,9 +457,9 @@ const COLUMN_ORDER: ColumnKey[] = ["customer", "country", "industry", "recommend
 // 0 = always shown; 640=sm, 768=md, 1024=lg, 1280=xl
 const COLUMN_MIN_BP: Record<ColumnKey, number> = {
   customer: 0,
+  potential: 0,
   score: 0,
-  recommendations: 640,
-  potential: 768,
+  recommendations: 1024,
   activated: 1024,
   industry: 1024,
   country: 1280,
@@ -467,7 +467,7 @@ const COLUMN_MIN_BP: Record<ColumnKey, number> = {
 
 
 
-const COLUMN_STORAGE_KEY = "msp_dashboard_columns_v5";
+const COLUMN_STORAGE_KEY = "msp_dashboard_columns_v6";
 
 
 
