@@ -402,6 +402,7 @@ export default function Subscriptions() {
     if (activeFrameworkCount > 0) total += frameworkMonthlyPrice;
     if (!deactivatedModules.has("vendors")) total += vendorMonthlyPrice;
     if (!deactivatedModules.has("assets")) total += assetMonthlyPrice;
+    if (!deactivatedModules.has("trust")) total += TRUST_CENTER_PRICE_KR;
     if (hasPartnerAccess && !deactivatedModules.has("partner")) total += partnerWorkspaceMonthlyPrice;
     return total;
   }, [corePrice, activeFrameworkCount, frameworkMonthlyPrice, vendorMonthlyPrice, assetMonthlyPrice, hasPartnerAccess, deactivatedModules]);
