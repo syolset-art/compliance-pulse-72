@@ -1,13 +1,15 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Sparkles, Zap, ClipboardCheck, CheckCircle2, Send } from "lucide-react";
+import { Sparkles, Zap, ClipboardCheck, CheckCircle2, Send, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   deriveFrameworkSuggestions,
   deriveActivatedFrameworks,
+  deriveActivatedFrameworkTargets,
   type OfferSuggestion,
 } from "@/lib/offerSuggestions";
+import type { CustomerEntryTarget } from "@/lib/customerEntryRoutes";
 
 export type MaturityAssessmentStatus =
   | "not_started"
@@ -24,6 +26,8 @@ interface Props {
   onOffer: (items: OfferSuggestion[]) => void;
   onActivate: (items: OfferSuggestion[]) => void;
   onStartAssessment: () => void;
+  /** Gå inn i kundens organisasjon og jobbe med et aktivert regelverk. */
+  onEnterCustomer?: (items: CustomerEntryTarget[]) => void;
 }
 
 const STATUS_TEXT: Record<MaturityAssessmentStatus, string> = {
@@ -41,9 +45,11 @@ export function CustomerFrameworkRecommendationsCard({
   onOffer,
   onActivate,
   onStartAssessment,
+  onEnterCustomer,
 }: Props) {
   const suggestions = deriveFrameworkSuggestions(customer);
   const activated = deriveActivatedFrameworks(customer);
+  const activatedTargets = deriveActivatedFrameworkTargets(customer);
   const confirmed = status === "confirmed";
 
   return (
@@ -91,14 +97,24 @@ export function CustomerFrameworkRecommendationsCard({
             {s.label}
           </button>
         ))}
-        {activated.map((label) => (
-          <Badge
-            key={label}
-            variant="outline"
-            className="font-normal bg-success/10 text-foreground border-success/30 text-[11px]"
+        {activatedTargets.map((target) => (
+          <button
+            key={target.id}
+            type="button"
+            onClick={() => onEnterCustomer?.([target])}
+            disabled={!onEnterCustomer}
+            title={`Jobb med ${target.label} hos kunden`}
+            className={cn(
+              "inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-normal transition-colors",
+              "bg-success/10 text-foreground border-success/30",
+              onEnterCustomer
+                ? "hover:bg-success/20 hover:border-success/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 cursor-pointer"
+                : "cursor-default",
+            )}
           >
-            {label}
-          </Badge>
+            {target.label}
+            {onEnterCustomer && <ArrowRight className="h-2.5 w-2.5 opacity-70" />}
+          </button>
         ))}
       </div>
 
