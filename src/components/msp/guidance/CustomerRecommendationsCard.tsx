@@ -4,7 +4,8 @@ import { Badge } from "@/components/ui/badge";
 import { Sparkles, Info, Zap } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
-import { deriveProductSuggestions, deriveActivatedProducts, type OfferSuggestion } from "@/lib/offerSuggestions";
+import { deriveProductSuggestions, deriveActivatedProducts, customerSalesPotential, type OfferSuggestion } from "@/lib/offerSuggestions";
+import { formatKr } from "@/lib/planConstants";
 
 interface Props {
   customer: any;
