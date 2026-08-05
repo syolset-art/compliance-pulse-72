@@ -263,14 +263,8 @@ Apple-inspired professional aesthetic: clean whites, subtle grays, crisp blue ac
     line-height: 1.25rem !important;
   }
 
-  /* Small text should not also be low-contrast: lift muted micro-copy */
-  .text-\[9px\].text-muted-foreground,
-  .text-\[10px\].text-muted-foreground,
-  .text-\[11px\].text-muted-foreground,
-  .text-xs.text-muted-foreground {
-    color: hsl(var(--muted-foreground) / 0.95);
-  }
 }
+
 
 
 /* ===== PROFESSIONAL UTILITY CLASSES ===== */
