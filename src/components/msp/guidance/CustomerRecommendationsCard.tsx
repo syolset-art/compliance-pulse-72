@@ -1,10 +1,16 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, Info, Zap } from "lucide-react";
+import { Sparkles, Info, Zap, Plus, X } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
-import { deriveProductSuggestions, deriveActivatedProducts, customerSalesPotential, type OfferSuggestion } from "@/lib/offerSuggestions";
+import {
+  deriveProductSuggestions,
+  deriveActivatedProducts,
+  salesPotentialFor,
+  type OfferSuggestion,
+} from "@/lib/offerSuggestions";
+import { AddOfferItemDialog } from "./AddOfferItemDialog";
 import { formatKr } from "@/lib/planConstants";
 
 interface Props {
@@ -15,9 +21,18 @@ interface Props {
 
 export function CustomerRecommendationsCard({ customer, onOffer, onActivate }: Props) {
   const [picked, setPicked] = useState<string[]>([]);
-  const suggestions = deriveProductSuggestions(customer);
+  const [manual, setManual] = useState<OfferSuggestion[]>([]);
+  const [addOpen, setAddOpen] = useState(false);
+  const recommended = deriveProductSuggestions(customer);
   const activated = deriveActivatedProducts(customer);
-  const potential = customerSalesPotential(customer);
+  const manualIds = new Set(manual.map((m) => m.id));
+  const suggestions = [...recommended.filter((r) => !manualIds.has(r.id)), ...manual];
+  const potential = salesPotentialFor(suggestions);
+
+  const removeManual = (id: string) => {
+    setManual((prev) => prev.filter((m) => m.id !== id));
+    setPicked((prev) => prev.filter((p) => p !== id));
+  };
 
   const toggle = (id: string) =>
     setPicked((prev) => (prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id]));
@@ -56,24 +71,54 @@ export function CustomerRecommendationsCard({ customer, onOffer, onActivate }: P
           <div className="flex flex-wrap items-center gap-1.5">
             {suggestions.map((s) => {
               const on = picked.includes(s.id);
+              const isManual = manualIds.has(s.id);
               return (
-                <button
+                <span
                   key={s.id}
-                  type="button"
-                  onClick={() => toggle(s.id)}
-                  title={s.activatable ? "Kan aktiveres direkte" : "Tjeneste – leveres som oppdrag"}
                   className={cn(
-                    "inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-recommend focus-visible:ring-offset-1",
+                    "inline-flex items-center rounded-full border text-[11px] font-medium transition-colors",
                     on
-                      ? "border-recommend bg-recommend text-recommend-foreground"
-                      : s.activatable
-                        ? "border-recommend/60 bg-recommend/15 text-recommend hover:bg-recommend/25 hover:border-recommend"
-                        : "border-dashed border-recommend/50 text-recommend/90 hover:bg-recommend/10",
+                      ? isManual
+                        ? "border-foreground/40 bg-foreground/10 text-foreground"
+                        : "border-recommend bg-recommend text-recommend-foreground"
+                      : isManual
+                        ? "border-border bg-muted/40 text-foreground hover:bg-muted"
+                        : s.activatable
+                          ? "border-recommend/60 bg-recommend/15 text-recommend hover:bg-recommend/25 hover:border-recommend"
+                          : "border-dashed border-recommend/50 text-recommend/90 hover:bg-recommend/10",
                   )}
                 >
-                  {s.activatable && <Zap className="h-2.5 w-2.5 shrink-0" />}
-                  {s.label}
-                </button>
+                  <button
+                    type="button"
+                    onClick={() => toggle(s.id)}
+                    title={
+                      isManual
+                        ? "Lagt til av deg — ikke foreslått av KI-agenten"
+                        : s.activatable
+                          ? "Kan aktiveres direkte"
+                          : "Tjeneste – leveres som oppdrag"
+                    }
+                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-recommend focus-visible:ring-offset-1"
+                  >
+                    {s.activatable && <Zap className="h-2.5 w-2.5 shrink-0" />}
+                    {s.label}
+                    {isManual && (
+                      <span className="text-[9px] uppercase tracking-wide opacity-70">
+                        Manuelt valgt
+                      </span>
+                    )}
+                  </button>
+                  {isManual && (
+                    <button
+                      type="button"
+                      onClick={() => removeManual(s.id)}
+                      aria-label={`Fjern ${s.label}`}
+                      className="pr-2 pl-0.5 py-1 opacity-60 hover:opacity-100"
+                    >
+                      <X className="h-2.5 w-2.5" />
+                    </button>
+                  )}
+                </span>
               );
             })}
             {pickedItems.length > 0 && (
@@ -106,7 +151,27 @@ export function CustomerRecommendationsCard({ customer, onOffer, onActivate }: P
             )}
           </div>
         )}
+
+        <button
+          type="button"
+          onClick={() => setAddOpen(true)}
+          className="mt-3 inline-flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground underline underline-offset-2 transition-colors"
+        >
+          <Plus className="h-3 w-3" />
+          Legg til tjeneste eller produkt
+        </button>
       </div>
+
+      <AddOfferItemDialog
+        open={addOpen}
+        onOpenChange={setAddOpen}
+        activatedLabels={activated}
+        existingIds={suggestions.map((s) => s.id)}
+        onAdd={(item) => {
+          setManual((prev) => (prev.some((m) => m.id === item.id) ? prev : [...prev, item]));
+          setPicked((prev) => (prev.includes(item.id) ? prev : [...prev, item.id]));
+        }}
+      />
 
       <div className="mt-auto pt-4 border-t border-border/60">
         <div className="flex items-start justify-between gap-4">

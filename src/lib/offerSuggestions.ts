@@ -145,7 +145,60 @@ export function deriveActivatedItems(c: any): string[] {
   return Array.from(new Set([...frameworks, ...modules, ...deriveActiveServices(c)]));
 }
 
+// ===== Manuelle valg (overstyrer KI-anbefalingen) =====
+
+/** Mynder-produkter partneren kan aktivere manuelt, uavhengig av anbefaling. */
+export const MANUAL_PRODUCTS: { moduleKey: string; label: string; price: number; hours: number }[] = [
+  { moduleKey: "core", label: "Mynder Core", price: 995, hours: 4 },
+  { moduleKey: "vendors", label: "Leverandørmodul", price: 1089, hours: 5 },
+  { moduleKey: "assets", label: "Eiendeler (Assets)", price: 690, hours: 3 },
+  { moduleKey: "systems", label: "Systemer", price: 690, hours: 3 },
+  { moduleKey: "trust", label: "Trust Center", price: 490, hours: 3 },
+];
+
+/** Lager et forslag for et manuelt valgt Mynder-produkt. */
+export function buildManualProductSuggestion(moduleKey: string): OfferSuggestion | null {
+  const p = MANUAL_PRODUCTS.find((m) => m.moduleKey === moduleKey);
+  if (!p) return null;
+  return {
+    id: `mod-${p.moduleKey}`,
+    label: p.label,
+    kind: "module",
+    hours: p.hours,
+    activatable: true,
+    moduleKey: p.moduleKey,
+    price: p.price,
+  };
+}
+
+/** Lager et forslag for en manuelt valgt tjeneste fra tjenestekatalogen. */
+export function buildManualServiceSuggestion(name: string, hours = 8): OfferSuggestion {
+  return {
+    id: `svc-${normalizeServiceKey(name)}`,
+    label: name,
+    kind: "service",
+    hours,
+    activatable: false,
+  };
+}
+
+/** Førsteårs potensial for en vilkårlig liste med forslag. */
+export function salesPotentialFor(items: OfferSuggestion[]): {
+  total: number;
+  services: number;
+  recurring: number;
+} {
+  let services = 0;
+  let recurring = 0;
+  for (const s of items) {
+    if (s.activatable) recurring += (s.price ?? 0) * 12;
+    else services += (s.hours ?? 0) * DEFAULT_HOURLY_RATE;
+  }
+  return { total: services + recurring, services, recurring };
+}
+
 // ===== Delte selektorer: regelverk vs. produkter/tjenester =====
+
 
 /** Kun regelverk som er anbefalt, men ikke aktivert. */
 export function deriveFrameworkSuggestions(c: any): OfferSuggestion[] {
