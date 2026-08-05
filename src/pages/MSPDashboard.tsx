@@ -346,6 +346,79 @@ function deriveActivatedItems(c: any): string[] {
   return Array.from(new Set([...frameworks, ...modules, ...deriveActiveServices(c)]));
 }
 
+function RecommendationCell({
+  suggestions,
+  picked,
+  onToggle,
+  onOffer,
+  onActivate,
+}: {
+  suggestions: OfferSuggestion[];
+  picked: string[];
+  onToggle: (id: string) => void;
+  onOffer: () => void;
+  onActivate: () => void;
+}) {
+  const [expanded, setExpanded] = useState(false);
+  if (suggestions.length === 0) return <span className="text-muted-foreground text-sm">—</span>;
+
+  const shown = expanded ? suggestions : suggestions.slice(0, 4);
+  const hidden = suggestions.length - shown.length;
+  const activatableCount = suggestions.filter((s) => picked.includes(s.id) && s.activatable).length;
+
+  return (
+    <div className="flex flex-wrap items-center gap-1 max-w-[320px]">
+      {shown.map((s) => {
+        const on = picked.includes(s.id);
+        return (
+          <button
+            key={s.id}
+            type="button"
+            onClick={() => onToggle(s.id)}
+            className={cn(
+              "inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] transition-colors",
+              on
+                ? "border-primary bg-primary text-primary-foreground"
+                : "border-primary/30 bg-primary/10 text-foreground dark:text-primary-foreground hover:border-primary/60",
+            )}
+          >
+            {s.label}
+          </button>
+        );
+      })}
+      {hidden > 0 && (
+        <button
+          type="button"
+          onClick={() => setExpanded(true)}
+          className="text-[11px] text-muted-foreground hover:text-foreground transition-colors"
+        >
+          +{hidden}
+        </button>
+      )}
+      {picked.length > 0 && (
+        <button
+          type="button"
+          onClick={onOffer}
+          className="inline-flex items-center rounded-full bg-foreground px-2 py-0.5 text-[11px] font-medium text-background hover:bg-foreground/90 transition-colors"
+        >
+          Tilbud ({picked.length})
+        </button>
+      )}
+      {activatableCount > 0 && (
+        <button
+          type="button"
+          onClick={onActivate}
+          className="inline-flex items-center rounded-full border border-success/50 bg-success/10 px-2 py-0.5 text-[11px] font-medium text-foreground hover:bg-success/20 transition-colors"
+        >
+          Aktiver ({activatableCount})
+        </button>
+      )}
+    </div>
+  );
+}
+
+
+
 // ===== Responsive column config =====
 type ColumnKey = "customer" | "country" | "industry" | "recommendations" | "activated" | "score";
 
