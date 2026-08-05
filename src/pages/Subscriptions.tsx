@@ -38,6 +38,7 @@ import {
   CORE_TIERS, DEFAULT_CORE_TIER_ID, getCoreTier, getNextCoreTier,
   VENDOR_TIERS, DEFAULT_VENDOR_TIER_ID, getVendorTier, getNextVendorTier,
   type PlanId, type BillingInterval, type CoreTierId, type VendorTierId,
+  TRUST_CENTER_PRICE_KR,
 } from "@/lib/planConstants";
 import { OrganizationContextBanner } from "@/components/OrganizationContextBanner";
 import { ModuleCard } from "@/components/subscriptions/ModuleCard";
