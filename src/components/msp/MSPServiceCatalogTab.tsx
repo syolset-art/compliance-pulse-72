@@ -253,6 +253,10 @@ export function MSPServiceCatalogTab({ onOpenSecondary, onRegisterActions }: { o
     }, 1800);
   };
   const openWizard = () => { markWizardSeen(); setWizardOpen(true); };
+  useEffect(() => {
+    onRegisterActions?.({ openWizard });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [onRegisterActions]);
   const [curatedPicks, setCuratedPicks] = useState<Pick[] | null>(null);
   const [curationSummary, setCurationSummary] = useState<string | null>(null);
   const [onlyRecommended, setOnlyRecommended] = useState(false);
