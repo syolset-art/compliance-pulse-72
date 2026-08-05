@@ -16,6 +16,9 @@ import { ALL_ADDITIONAL_REQUIREMENTS } from "@/lib/additionalFrameworkRequiremen
 import type { ComplianceRequirement } from "@/lib/complianceRequirementsData";
 import { FrameworkOrderConfirmDialog, type FrameworkOrderResult } from "./FrameworkOrderConfirmDialog";
 import { FrameworkPreviewSheet } from "./FrameworkPreviewSheet";
+import { EnterCustomerContextDialog } from "./EnterCustomerContextDialog";
+import type { CustomerEntryTarget } from "@/lib/customerEntryRoutes";
+import { usePostActivationPrompt } from "@/hooks/usePostActivationPrompt";
 
 interface Props {
   customerId: string;
