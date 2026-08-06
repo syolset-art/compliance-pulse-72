@@ -410,7 +410,9 @@ export default function Subscriptions() {
 
   const coreTier = getCoreTier(coreTierId);
   const corePrice = coreTier.monthlyPriceKr;
-  const vendorTier = getVendorTier(vendorTierId);
+  // Nivået kan aldri være lavere enn faktisk bruk.
+  const vendorCapacity = resolveVendorCapacity(vendorCount ?? 0, vendorTierId);
+  const vendorTier = vendorCapacity.tier;
   const vendorMonthlyPrice = vendorTier.monthlyPriceKr;
   const assetMonthlyPrice = 690;
   const partnerWorkspaceMonthlyPrice = 990;
@@ -702,9 +704,9 @@ export default function Subscriptions() {
             />
 
             {(() => {
-              const used = vendorCount ?? 0;
-              const atCap = used >= vendorTier.vendorLimit;
-              const nextTier = getNextVendorTier(vendorTierId);
+              const used = vendorCapacity.used;
+              const atCap = vendorCapacity.atCap;
+              const nextTier = vendorCapacity.nextTier;
               const isDeactivated = deactivatedModules.has("vendors");
               const capFooter = !isDeactivated && atCap && nextTier ? (
                 <div className="rounded-md border border-amber-200 bg-amber-50/60 px-3 py-2">

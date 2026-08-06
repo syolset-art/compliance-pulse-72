@@ -176,6 +176,8 @@ export function CustomerServicesAndProductsTab({
   });
 
   const usedVendors = counts?.vendors ?? 0;
+  // Nivå og grense hentes fra samme kapasitetslogikk som leverandørregisteret.
+  const vendorCapacity = resolveVendorCapacity(usedVendors);
   const usedSystems = counts?.systems ?? 0;
 
   const products = useMemo(
@@ -188,7 +190,7 @@ export function CustomerServicesAndProductsTab({
         const tier = isCore
           ? getCoreTier((state.tierId as CoreTierId) ?? CORE_TIERS[0].id)
           : isVendors
-            ? getVendorTier((state.tierId as VendorTierId) ?? VENDOR_TIERS[0].id)
+            ? vendorCapacity.tier
             : null;
         const scheduledTier = state.scheduledTierId
           ? isCore
@@ -286,8 +288,7 @@ export function CustomerServicesAndProductsTab({
 
   const coreTierId =
     (getModuleState("core").tierId as CoreTierId) ?? CORE_TIERS[0].id;
-  const vendorTierId =
-    (getModuleState("vendors").tierId as VendorTierId) ?? VENDOR_TIERS[0].id;
+  const vendorTierId = vendorCapacity.tierId;
 
   const commitCoreTier = () => {
     if (!pendingCoreTierId) return;
