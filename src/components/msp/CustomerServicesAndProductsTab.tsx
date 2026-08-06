@@ -50,11 +50,11 @@ import { EnterCustomerContextDialog } from "./EnterCustomerContextDialog";
 import { usePostActivationPrompt } from "@/hooks/usePostActivationPrompt";
 
 import {
-  TRUST_CENTER_EVENT,
   TRUST_CENTER_NEXT_STEP,
   TRUST_CENTER_STATUS_LABEL,
   trustCenterStatusFor,
 } from "@/lib/trustCenterStatus";
+
 import type { CustomerEntryTarget } from "@/lib/customerEntryRoutes";
 import { MSPCreateOfferDialog } from "./MSPCreateOfferDialog";
 import { CustomerModulesTab } from "./CustomerModulesTab";
@@ -133,12 +133,11 @@ export function CustomerServicesAndProductsTab({
   useEffect(() => {
     const refresh = () => setTick((n) => n + 1);
     window.addEventListener(CUSTOMER_MODULES_EVENT, refresh);
-    window.addEventListener(TRUST_CENTER_EVENT, refresh);
     return () => {
       window.removeEventListener(CUSTOMER_MODULES_EVENT, refresh);
-      window.removeEventListener(TRUST_CENTER_EVENT, refresh);
     };
   }, []);
+
 
   const { promptOrToast } = usePostActivationPrompt();
   const [showAll, setShowAll] = useState(false);
