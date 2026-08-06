@@ -311,7 +311,7 @@ export function CustomerServicesAndProductsTab({
         {
           label: "Gå inn i kundens profil",
           description: "Jobb med systemene som teller mot nivået.",
-          onClick: () => setEnterItems([{ kind: "module", label: "Mynder Core", moduleKey: "core" } as CustomerEntryTarget]),
+          onClick: () => setEnterItems([{ id: "core", kind: "module", label: "Mynder Core", moduleKey: "core" }]),
         },
         {
           label: "Lag tilbud på oppsett",
@@ -360,7 +360,7 @@ export function CustomerServicesAndProductsTab({
         {
           label: "Gå inn i kundens leverandører",
           description: "Se leverandørene som teller mot nivået.",
-          onClick: () => setEnterItems([{ kind: "module", label: "Leverandørmodul", moduleKey: "vendors" } as CustomerEntryTarget]),
+          onClick: () => setEnterItems([{ id: "vendors", kind: "module", label: "Leverandørmodul", moduleKey: "vendors" }]),
         },
         {
           label: "Lag tilbud på leverandøroppfølging",
@@ -681,6 +681,48 @@ export function CustomerServicesAndProductsTab({
           }))}
         />
       )}
+
+      <ChangeCoreTierDialog
+        open={coreTierOpen}
+        onOpenChange={setCoreTierOpen}
+        currentTierId={coreTierId}
+        usedSystems={usedSystems}
+        onConfirm={(next) => {
+          setPendingCoreTierId(next);
+          setCoreTierOpen(false);
+        }}
+      />
+
+      <ConfirmCoreTierChangeDialog
+        open={!!pendingCoreTierId}
+        onOpenChange={(o) => { if (!o) setPendingCoreTierId(null); }}
+        currentTierId={coreTierId}
+        nextTierId={pendingCoreTierId}
+        onConfirm={commitCoreTier}
+      />
+
+      <ChangeVendorTierDialog
+        open={vendorTierOpen}
+        onOpenChange={setVendorTierOpen}
+        currentTierId={vendorTierId}
+        usedVendors={usedVendors}
+        mode={vendorTierMode}
+        onConfirm={(next) => {
+          setPendingVendorTierId(next);
+          setVendorTierOpen(false);
+        }}
+      />
+
+      <ConfirmVendorTierChangeDialog
+        open={!!pendingVendorTierId}
+        onOpenChange={(o) => { if (!o) setPendingVendorTierId(null); }}
+        currentTierId={vendorTierId}
+        nextTierId={pendingVendorTierId}
+        mode={vendorTierMode}
+        onConfirm={commitVendorTier}
+      />
+
+      <ModuleChangeReceiptSheet receipt={receipt} onOpenChange={(o) => !o && setReceipt(null)} />
     </div>
   );
 }
