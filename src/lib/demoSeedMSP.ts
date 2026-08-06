@@ -15,6 +15,19 @@ const DEMO_CUSTOMERS = [
 
 const DEMO_USER_ID = "00000000-0000-0000-0000-000000000000";
 
+/** Hvilke Mynder-produkter hver demokunde allerede har aktivert. */
+const DEMO_ACTIVE_MODULES: Record<string, string[]> = {
+  "Bergen Energi AS": ["core", "vendors"],
+  "Fjordtech Solutions": ["core", "assets"],
+  "Vest Helse Klinikk": ["core"],
+  "Kystbygg Entreprenør": [],
+  "NordFinans Rådgivning": ["core", "vendors", "trust"],
+  "Stavanger Logistikk": ["core"],
+  "Larvik Handel AS": [],
+  "Digitale Løsninger Nord": ["core", "assets", "trust"],
+  "Tromsø Utdanning": ["core"],
+};
+
 export interface SeedResult {
   customers: number;
   purchases: number;
