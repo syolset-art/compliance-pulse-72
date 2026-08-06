@@ -117,12 +117,6 @@ const FLAT_PRICE: Record<string, number> = { assets: 690, trust: 490 };
 const FRAMEWORK_PRICE = 490;
 
 
-/** Rene tjenester som må leveres som oppdrag. */
-const SERVICE_SUGGESTIONS: { id: string; label: string; hours: number }[] = [
-  { id: "svc-maturity", label: "Modenhetsvurdering", hours: 12 },
-  { id: "svc-pentest", label: "Penetrasjonstest", hours: 30 },
-  { id: "svc-ropa", label: "Behandlingsprotokoll (RoPA)", hours: 10 },
-];
 
 export function CustomerServicesAndProductsTab({
   customerId,
