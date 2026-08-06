@@ -90,7 +90,7 @@ export function ActivateTrustCenterDialog({
       return;
     }
 
-    activateModule("trust");
+    activateCustomerModule(customerId, "trust");
     await acceptTerms("module_activation", `msp-customer:${customerId}`, {
       operatorRole: hasOperatorRole || operatorRole,
     });
