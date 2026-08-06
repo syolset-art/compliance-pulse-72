@@ -88,6 +88,24 @@ export function ChangeVendorTierDialog({
                   </div>
                 </div>
               </button>
+              {belowUsage && (
+                <p className="mt-1.5 pl-7 text-xs text-muted-foreground">
+                  Dere har {usedVendors} leverandører. Fjern {overflow} leverandør{overflow === 1 ? "" : "er"} for å velge dette nivået.
+                  {onManageUsage && (
+                    <>
+                      {" "}
+                      <button
+                        type="button"
+                        onClick={() => { onOpenChange(false); onManageUsage(); }}
+                        className="underline underline-offset-2 text-foreground hover:text-primary"
+                      >
+                        Gå til Leverandører
+                      </button>
+                    </>
+                  )}
+                </p>
+              )}
+              </div>
             );
           })}
         </div>
