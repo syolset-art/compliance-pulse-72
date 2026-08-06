@@ -426,6 +426,15 @@ export function CustomerServicesAndProductsTab({
                     else setTrustGuideOpen(true);
                     return;
                   }
+                  if (p.moduleKey === "core") {
+                    setCoreTierOpen(true);
+                    return;
+                  }
+                  if (p.moduleKey === "vendors") {
+                    setVendorTierMode(p.status === "inactive" ? "activate" : "change");
+                    setVendorTierOpen(true);
+                    return;
+                  }
                   if (p.status === "inactive") activateProduct(p);
                   else onUpdate?.();
                 }}
