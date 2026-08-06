@@ -55,7 +55,9 @@ export function ChangeVendorTierDialog({
                 onClick={() => setSelected(tier.id)}
                 className={cn(
                   "w-full text-left rounded-lg border p-3 transition-all",
-                  isSelected ? "border-primary ring-1 ring-primary/30 bg-primary/5" : "border-border hover:border-primary/40"
+                  isSelected && !disabled && "border-primary ring-1 ring-primary/30 bg-primary/5",
+                  !isSelected && !disabled && "border-border hover:border-primary/40",
+                  disabled && "border-border/60 opacity-60 cursor-not-allowed"
                 )}
               >
                 <div className="flex items-center justify-between gap-3">
