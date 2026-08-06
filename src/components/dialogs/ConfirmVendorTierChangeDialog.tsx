@@ -50,22 +50,34 @@ export function ConfirmVendorTierChangeDialog({ open, onOpenChange, currentTierI
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-base">Endre til {next.label.toLowerCase()}?</DialogTitle>
+          <DialogTitle className="text-base">
+            {mode === "activate"
+              ? `Aktiver Leverandørmodul – ${next.label.toLowerCase()}?`
+              : `Endre til ${next.label.toLowerCase()}?`}
+          </DialogTitle>
         </DialogHeader>
 
         <p className="text-sm text-muted-foreground leading-relaxed">
-          {isUpgrade ? (
+          {mode === "activate" ? (
             <>
-              Prisen går fra {formatKr(current.monthlyPriceKr)} til {formatKr(next.monthlyPriceKr)} i måneden.
-              Det nye nivået gjelder med én gang, og differansen kommer på neste faktura.
+              {next.monthlyPriceKr === 0
+                ? "Nivået er gratis for inntil 5 leverandører."
+                : `Modulen koster ${formatKr(next.monthlyPriceKr)} i måneden eks. mva.`}{" "}
+              Tjenesten aktiveres umiddelbart, og faktureres på neste faktura.
+            </>
+          ) : isUpgrade ? (
+            <>
+              Prisen går fra {formatKr(current.monthlyPriceKr)} til {formatKr(next.monthlyPriceKr)} i måneden eks. mva.
+              Tjenesten aktiveres umiddelbart, og faktureres på neste faktura.
             </>
           ) : (
             <>
-              Prisen går fra {formatKr(current.monthlyPriceKr)} til {formatKr(next.monthlyPriceKr)} i måneden.
+              Prisen går fra {formatKr(current.monthlyPriceKr)} til {formatKr(next.monthlyPriceKr)} i måneden eks. mva.
               Nivået endres ved neste fakturaperiode, {nextBillingDate()}. Fram til da beholder dere plass til {current.vendorLimit} leverandører.
             </>
           )}
         </p>
+
 
         <TermsAcceptRow
           id="terms-vendor-tier"
