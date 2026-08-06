@@ -158,7 +158,6 @@ export function deriveOfferSuggestions(c: any): OfferSuggestion[] {
 export const MODULE_LABELS: Record<string, string> = {
   core: "Mynder Core",
   vendors: "Leverandørmodul",
-  systems: "Systemer",
   assets: "Eiendeler (Assets)",
   trust: "Trust Center",
   deviations: "Avvikshåndtering",
@@ -403,7 +402,6 @@ const MODULE_MONTHLY_PRICE: Record<string, { label: string; price: number }> = {
   core: { label: "Mynder Core", price: 995 },
   vendors: { label: "Leverandørmodul", price: 1089 },
   assets: { label: "Eiendeler (Assets)", price: 690 },
-  systems: { label: "Systemer", price: 690 },
   trust: { label: "Trust Center", price: TRUST_CENTER_PRICE_KR },
   deviations: { label: "Avvikshåndtering", price: 290 },
   ropa: { label: "RoPA", price: 290 },
