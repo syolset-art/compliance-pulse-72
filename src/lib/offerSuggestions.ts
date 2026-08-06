@@ -85,8 +85,13 @@ export const MODULE_CANDIDATES: { key: string; label: string; price: number; hou
   { key: "core", label: "Mynder Core", price: CORE_TIERS[0].monthlyPriceKr, hours: 4 },
   { key: "vendors", label: "Leverandørmodul", price: VENDOR_TIERS[1].monthlyPriceKr, hours: 5 },
   { key: "assets", label: "Eiendeler", price: 690, hours: 3 },
+  // V2 — IKKE IMPLEMENTER NÅ: Trust Center er planlagt som eget produkt i v2.
   { key: "trust", label: "Trust Center", price: TRUST_CENTER_PRICE_KR, hours: 3 },
 ];
+
+/** Kandidater som skal vises i tilbud/forslag. Trust Center (v2) filtreres bort. */
+export const ACTIVE_MODULE_CANDIDATES = MODULE_CANDIDATES.filter((m) => m.key !== "trust");
+
 
 export function deriveOfferSuggestions(c: any): OfferSuggestion[] {
   const toLabel = (f: any): string => (typeof f === "string" ? f : (f?.label ?? f?.frameworkId ?? ""));
