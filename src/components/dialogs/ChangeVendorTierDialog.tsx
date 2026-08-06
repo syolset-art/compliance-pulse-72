@@ -10,9 +10,15 @@ interface Props {
   currentTierId: VendorTierId;
   usedVendors: number;
   onConfirm: (nextTierId: VendorTierId) => void;
+  /** Overskriver tittel/knapp når modulen aktiveres på nytt. */
+  mode?: "change" | "activate";
+  /** Åpner leverandørregisteret slik at brukeren kan frigjøre plass. */
+  onManageUsage?: () => void;
 }
 
-export function ChangeVendorTierDialog({ open, onOpenChange, currentTierId, usedVendors, onConfirm }: Props) {
+export function ChangeVendorTierDialog({
+  open, onOpenChange, currentTierId, usedVendors, onConfirm, mode = "change", onManageUsage,
+}: Props) {
   const [selected, setSelected] = useState<VendorTierId>(currentTierId);
 
   useEffect(() => {
