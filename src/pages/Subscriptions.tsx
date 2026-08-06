@@ -59,6 +59,8 @@ import {
   activateModule,
   getModuleTier,
   setModuleTier,
+  scheduleModuleTier,
+  clearScheduledTier,
   formatPeriodEnd,
   formatDateLong,
   getPeriodEnd,
@@ -66,6 +68,8 @@ import {
   type CancellationMeta,
 } from "@/lib/moduleActivationState";
 import { RetireModuleDialog } from "@/components/subscriptions/RetireModuleDialog";
+import { ModuleChangeReceiptSheet, type ModuleChangeReceipt } from "@/components/subscriptions/ModuleChangeReceiptSheet";
+import { useTerms } from "@/hooks/useTerms";
 
 
 
