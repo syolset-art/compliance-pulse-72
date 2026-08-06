@@ -132,9 +132,23 @@ export function ModuleCard({
                 Sagt opp{cancelAtLabel ? ` — aktiv til ${cancelAtLabel}` : ""}
               </span>
             )}
+            {scheduledChange && !isPendingCancel && (
+              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium border border-warning/30 bg-warning/10 text-warning-foreground">
+                Nedgradering til {scheduledChange.tierLabel.toLowerCase()} fra {scheduledChange.atLabel}
+              </span>
+            )}
           </div>
           {description && (
             <p className="text-xs text-muted-foreground leading-snug mt-1">{description}</p>
+          )}
+          {scheduledChange && !isPendingCancel && (
+            <button
+              type="button"
+              onClick={scheduledChange.onUndo}
+              className="text-xs text-muted-foreground hover:text-foreground underline underline-offset-2 mt-1.5 transition-colors"
+            >
+              Angre nedgraderingen
+            </button>
           )}
           {usageLine}
           {onReadMore && (
