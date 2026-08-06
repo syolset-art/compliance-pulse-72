@@ -133,7 +133,7 @@ export function ModuleCard({
               </span>
             )}
             {scheduledChange && !isPendingCancel && (
-              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium border border-warning/30 bg-warning/10 text-warning-foreground">
+              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium border border-warning/40 bg-warning/10 text-foreground">
                 Nedgradering til {scheduledChange.tierLabel.toLowerCase()} fra {scheduledChange.atLabel}
               </span>
             )}
