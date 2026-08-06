@@ -214,13 +214,15 @@ export interface FrameworkAddon {
 }
 
 export const FRAMEWORK_ADDONS: Record<string, FrameworkAddon> = {
-  nis2: { id: "nis2", name: "NIS2", yearlyPriceKr: 4900, monthlyPriceKr: 490, includes: ["Gap-analyse", "Tiltaksliste", "Modenhetsvurdering", "Rapportdeling"] },
-  dora: { id: "dora", name: "DORA", yearlyPriceKr: 8900, monthlyPriceKr: 890, includes: ["Gap-analyse", "Tiltaksliste", "Modenhetsvurdering", "Rapportdeling"] },
-  apenhetsloven: { id: "apenhetsloven", name: "Åpenhetsloven", yearlyPriceKr: 4900, monthlyPriceKr: 490, includes: ["Gap-analyse", "Tiltaksliste", "Modenhetsvurdering", "Rapportdeling"] },
-  "ai-act": { id: "ai-act", name: "EU AI Act", yearlyPriceKr: 8900, monthlyPriceKr: 890, includes: ["Gap-analyse", "Tiltaksliste", "Modenhetsvurdering", "Rapportdeling"] },
-  cra: { id: "cra", name: "CRA", yearlyPriceKr: 4900, monthlyPriceKr: 490, includes: ["Gap-analyse", "Tiltaksliste", "Modenhetsvurdering", "Rapportdeling"] },
-  transparency_act: { id: "transparency_act", name: "Åpenhetsloven", yearlyPriceKr: 4900, monthlyPriceKr: 490, includes: ["Gap-analyse", "Tiltaksliste", "Modenhetsvurdering", "Rapportdeling"] },
-  ai_act: { id: "ai_act", name: "EU AI Act", yearlyPriceKr: 8900, monthlyPriceKr: 890, includes: ["Gap-analyse", "Tiltaksliste", "Modenhetsvurdering", "Rapportdeling"] },
+  // V2 — IKKE IMPLEMENTER NÅ: Modenhetsvurdering som egen produktisert tjeneste er planlagt i v2.
+  // Baseline-spørreskjema og modenhetsflyt beholdes, men salgsartikkelen merkes V2.
+  nis2: { id: "nis2", name: "NIS2", yearlyPriceKr: 4900, monthlyPriceKr: 490, includes: ["Gap-analyse", "Tiltaksliste", "Modenhetsvurdering (V2)", "Rapportdeling"] },
+  dora: { id: "dora", name: "DORA", yearlyPriceKr: 8900, monthlyPriceKr: 890, includes: ["Gap-analyse", "Tiltaksliste", "Modenhetsvurdering (V2)", "Rapportdeling"] },
+  apenhetsloven: { id: "apenhetsloven", name: "Åpenhetsloven", yearlyPriceKr: 4900, monthlyPriceKr: 490, includes: ["Gap-analyse", "Tiltaksliste", "Modenhetsvurdering (V2)", "Rapportdeling"] },
+  "ai-act": { id: "ai-act", name: "EU AI Act", yearlyPriceKr: 8900, monthlyPriceKr: 890, includes: ["Gap-analyse", "Tiltaksliste", "Modenhetsvurdering (V2)", "Rapportdeling"] },
+  cra: { id: "cra", name: "CRA", yearlyPriceKr: 4900, monthlyPriceKr: 490, includes: ["Gap-analyse", "Tiltaksliste", "Modenhetsvurdering (V2)", "Rapportdeling"] },
+  transparency_act: { id: "transparency_act", name: "Åpenhetsloven", yearlyPriceKr: 4900, monthlyPriceKr: 490, includes: ["Gap-analyse", "Tiltaksliste", "Modenhetsvurdering (V2)", "Rapportdeling"] },
+  ai_act: { id: "ai_act", name: "EU AI Act", yearlyPriceKr: 8900, monthlyPriceKr: 890, includes: ["Gap-analyse", "Tiltaksliste", "Modenhetsvurdering (V2)", "Rapportdeling"] },
 };
 
 // ─── Free inclusions (used in marketing copy) ───────────────────────
