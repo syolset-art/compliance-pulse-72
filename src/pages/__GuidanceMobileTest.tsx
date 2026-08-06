@@ -39,11 +39,11 @@ const mockCustomer = {
 };
 
 const areaProgress = [
-  { id: "governance", answered: 2, total: 5 },
-  { id: "privacy", answered: 4, total: 8 },
-  { id: "operations", answered: 1, total: 6 },
-  { id: "identity", answered: 0, total: 4 },
-  { id: "thirdparty", answered: 1, total: 4 },
+  { id: "governance", title: "Styring og ansvar", answered: 2, total: 5 },
+  { id: "privacy", title: "Personvern", answered: 4, total: 8 },
+  { id: "operations", title: "Drift og sikkerhet", answered: 1, total: 6 },
+  { id: "identity", title: "Identitet og tilgang", answered: 0, total: 4 },
+  { id: "thirdparty", title: "Tredjepart og verdikjede", answered: 1, total: 4 },
 ];
 
 const planTasks = [
