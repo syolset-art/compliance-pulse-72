@@ -58,6 +58,7 @@ export function ModuleCard({
   cancelAtLabel,
   onResume,
   breakdown,
+  scheduledChange,
   footer,
   ctaOverride,
   onReadMore,
