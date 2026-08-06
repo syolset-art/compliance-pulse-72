@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Shield, Package, ChevronDown, Check, Plus } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { frameworks as ALL_FRAMEWORKS } from "@/lib/frameworkDefinitions";
 import { formatPeriodEnd, formatDateLong } from "@/lib/moduleActivationState";
 import { supabase } from "@/integrations/supabase/client";
