@@ -662,6 +662,11 @@ export default function Subscriptions() {
                   usageLimit={String(coreTier.systemLimit)}
                   usageSuffix="systemer"
                   action="change"
+                  scheduledChange={scheduledCore ? {
+                    tierLabel: scheduledCore.tier.label,
+                    atLabel: formatDateLong(scheduledCore.at),
+                    onUndo: () => undoScheduledTier("core", "Mynder Core"),
+                  } : undefined}
                   onClick={() => setChangeCoreTierOpen(true)}
                   accentColor="purple"
                   footer={capFooter}
