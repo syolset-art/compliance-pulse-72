@@ -117,8 +117,9 @@ export function deriveOfferSuggestions(c: any): OfferSuggestion[] {
     });
   }
 
-  // Mynder-moduler som ikke er aktivert
-  for (const m of MODULE_CANDIDATES) {
+  // Mynder-moduler som ikke er aktivert (Trust Center er v2 og filtreres bort).
+  for (const m of ACTIVE_MODULE_CANDIDATES) {
+
     if (modules.includes(m.key)) continue;
     out.push({
       id: `mod-${m.key}`,
