@@ -151,8 +151,27 @@ export function getModuleTier(id: string): string | undefined {
 }
 
 export function setModuleTier(id: string, tierId: string) {
-  patch(id, { tierId });
+  patch(id, { tierId, scheduledTierId: undefined, scheduledAt: undefined });
 }
+
+/** Planlegger en nedgradering fra neste fakturaperiode. */
+export function scheduleModuleTier(id: string, tierId: string, effectiveAt?: string): string {
+  const scheduledAt = effectiveAt ?? getPeriodEnd().toISOString();
+  patch(id, { scheduledTierId: tierId, scheduledAt });
+  return scheduledAt;
+}
+
+/** Angrer en planlagt nedgradering. */
+export function clearScheduledTier(id: string) {
+  patch(id, { scheduledTierId: undefined, scheduledAt: undefined });
+}
+
+export function getScheduledTier(id: string): { tierId: string; at: string } | null {
+  const state = getModuleState(id);
+  if (!state.scheduledTierId || !state.scheduledAt) return null;
+  return { tierId: state.scheduledTierId, at: state.scheduledAt };
+}
+
 
 /** Moduler som ikke lenger er tilgjengelige (oppsigelsen har trådt i kraft). */
 export function getDeactivatedModules(): Set<string> {
