@@ -31,6 +31,7 @@ import { seedDemoMSP, deleteDemoMSP } from "@/lib/demoSeedMSP";
 import { toast } from "sonner";
 import { getOffersForCustomer, normalizeServiceKey } from "@/lib/customerOffers";
 import { SERVICE_LIBRARY } from "@/lib/serviceLibrary";
+import { CUSTOMER_MODULES_EVENT } from "@/lib/customerModuleState";
 import { deriveOfferSuggestions, deriveActivatedItems, deriveNeededServices, deriveActiveServices, type OfferSuggestion } from "@/lib/offerSuggestions";
 import { usePostActivationPrompt } from "@/hooks/usePostActivationPrompt";
 
