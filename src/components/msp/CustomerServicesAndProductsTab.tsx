@@ -1,4 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -9,6 +12,11 @@ import { frameworks as ALL_FRAMEWORKS } from "@/lib/frameworkDefinitions";
 import {
   getModuleState,
   formatPeriodEnd,
+  formatDateLong,
+  setModuleTier,
+  scheduleModuleTier,
+  clearScheduledTier,
+  activateModule,
 } from "@/lib/moduleActivationState";
 import {
   CORE_TIERS,
@@ -18,6 +26,14 @@ import {
   type CoreTierId,
   type VendorTierId,
 } from "@/lib/planConstants";
+import { ChangeCoreTierDialog } from "@/components/dialogs/ChangeCoreTierDialog";
+import { ConfirmCoreTierChangeDialog } from "@/components/dialogs/ConfirmCoreTierChangeDialog";
+import { ChangeVendorTierDialog } from "@/components/dialogs/ChangeVendorTierDialog";
+import { ConfirmVendorTierChangeDialog } from "@/components/dialogs/ConfirmVendorTierChangeDialog";
+import {
+  ModuleChangeReceiptSheet,
+  type ModuleChangeReceipt,
+} from "@/components/subscriptions/ModuleChangeReceiptSheet";
 import type { FrameworkRecommendation } from "@/lib/regulationRecommender";
 import { ModuleCard } from "@/components/subscriptions/ModuleCard";
 import {
