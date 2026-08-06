@@ -90,7 +90,7 @@ export const ValidationTab = ({ systemId, systemAsAsset }: ValidationTabProps) =
         />
       )}
 
-      {/* 2. Modenhetsvurdering — full kontrollpanel */}
+      {/* 2. Modenhetsvurdering — full kontrollpanel (V2: beholdes som visningskomponent i prototype) */}
       {systemAsAsset && (
         <SystemMetrics systemAsAsset={systemAsAsset as any} tasksCount={0} />
       )}

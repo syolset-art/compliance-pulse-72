@@ -168,8 +168,13 @@ export function BaselineQuestionsDrawer({
               : mode === "meeting"
                 ? t("baselineDrawer.meetingTitle", "Fyll ut modenhetsvurdering sammen med kunden")
                 : t("baselineDrawer.partnerTitle", "Fyll ut modenhetsvurdering")}
+            <span className="ml-2 inline-flex items-center rounded border border-muted-foreground/20 bg-muted/40 px-1.5 py-0 text-[10px] font-medium text-muted-foreground">
+              V2
+            </span>
           </SheetTitle>
           <SheetDescription>
+            {/* V2 — IKKE IMPLEMENTER NÅ: Modenhetsvurdering som produktisert tjeneste er planlagt i v2.
+                Baseline-spørreskjema og modenhetsflyt beholdes i prototype for å fullføre flyten. */}
             {t(
               "baselineDrawer.description",
               "Modenhetsvurdering er kundens utgangspunkt: en kort kartlegging av om sentrale GDPR- og sikkerhetstiltak er på plass, fordelt på fem kontrollområder. Svarene blir startpunktet for kundens Trust Profile og gap-analysen.",

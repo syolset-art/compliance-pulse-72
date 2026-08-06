@@ -142,7 +142,9 @@ export function deriveOfferSuggestions(c: any): OfferSuggestion[] {
     "AI Governance-rammeverk": 12,
   };
   const serviceNames: string[] = [];
-  if (!score) serviceNames.push("Modenhetsvurdering");
+  // V2 — IKKE IMPLEMENTER NÅ: "Modenhetsvurdering" som selvstendig salgsartikkel er V2.
+  // Baseline-spørreskjema og modenhetsflyt beholdes i prototype, men ikke tilbys som fakturerbar tjeneste.
+  // if (!score) serviceNames.push("Modenhetsvurdering");
   if (score > 0 && score < 60) serviceNames.push("Gap-analyse");
   for (const s of deriveNeededServices(c)) serviceNames.push(s);
 
