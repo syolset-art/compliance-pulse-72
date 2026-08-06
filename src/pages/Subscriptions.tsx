@@ -409,7 +409,17 @@ export default function Subscriptions() {
   }));
   const frameworkMonthlyPrice = frameworkBreakdown.reduce((sum, item) => sum + item.priceKr, 0);
 
-  const coreTier = getCoreTier(coreTierId);
+  const requiredCoreTier =
+    CORE_TIERS.find((t) => (systemsCount ?? 0) <= t.systemLimit) ?? CORE_TIERS[CORE_TIERS.length - 1];
+  const storedCoreTier = getCoreTier(coreTierId);
+  const coreTier =
+    requiredCoreTier.systemLimit > storedCoreTier.systemLimit ? requiredCoreTier : storedCoreTier;
+  useEffect(() => {
+    if (coreTier.id !== coreTierId) {
+      setModuleTier("core", coreTier.id);
+      setCoreTierId(coreTier.id);
+    }
+  }, [coreTier.id, coreTierId]);
   const corePrice = coreTier.monthlyPriceKr;
   // Nivået kan aldri være lavere enn faktisk bruk.
   const vendorCapacity = resolveVendorCapacity(vendorCount ?? 0, vendorTierId);
