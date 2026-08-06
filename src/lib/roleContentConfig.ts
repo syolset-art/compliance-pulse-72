@@ -198,6 +198,7 @@ export const ROLE_HERO_CTAS: Record<AppRole, RoleHeroCTA[]> = {
   ],
   compliance_ansvarlig: [
     { labelNb: "Regelverk & kontroller", labelEn: "Regulations & controls", route: "/regulations" },
+    // V2 — IKKE IMPLEMENTER NÅ: "Modenhetsvurdering" som egen rute / salgsartikkel planlegges i v2.
     { labelNb: "Modenhetsvurdering", labelEn: "Maturity assessment", route: "/reports" },
   ],
   daglig_leder: [
