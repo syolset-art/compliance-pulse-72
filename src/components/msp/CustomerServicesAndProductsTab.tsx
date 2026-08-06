@@ -284,6 +284,103 @@ export function CustomerServicesAndProductsTab({
     ]);
   };
 
+  const coreTierId =
+    (getModuleState("core").tierId as CoreTierId) ?? CORE_TIERS[0].id;
+  const vendorTierId =
+    (getModuleState("vendors").tierId as VendorTierId) ?? VENDOR_TIERS[0].id;
+
+  const commitCoreTier = () => {
+    if (!pendingCoreTierId) return;
+    const prevTier = getCoreTier(coreTierId);
+    const nextTier = getCoreTier(pendingCoreTierId);
+    const isUpgrade = nextTier.monthlyPriceKr >= prevTier.monthlyPriceKr;
+    let effectiveAt: string | undefined;
+    if (isUpgrade) setModuleTier("core", pendingCoreTierId);
+    else effectiveAt = scheduleModuleTier("core", pendingCoreTierId);
+    setPendingCoreTierId(null);
+    setTick((n) => n + 1);
+    setReceipt({
+      moduleId: "core",
+      moduleTitle: "Mynder Core",
+      kind: isUpgrade ? "upgrade" : "downgrade",
+      fromLabel: prevTier.label,
+      toLabel: nextTier.label,
+      monthlyPriceKr: nextTier.monthlyPriceKr,
+      effectiveAt,
+      nextSteps: [
+        {
+          label: "Gå inn i kundens profil",
+          description: "Jobb med systemene som teller mot nivået.",
+          onClick: () => setEnterItems([{ kind: "module", label: "Mynder Core", moduleKey: "core" } as CustomerEntryTarget]),
+        },
+        {
+          label: "Lag tilbud på oppsett",
+          description: "Tilby kunden hjelp med kartlegging og oppsett.",
+          onClick: () => setOfferItems([{ label: "Oppsett av Mynder Core", hours: 8 }]),
+        },
+      ],
+      onUndo: () => {
+        if (isUpgrade) setModuleTier("core", coreTierId);
+        else clearScheduledTier("core");
+        setTick((n) => n + 1);
+        setReceipt(null);
+        toast.success("Endringen er angret.");
+      },
+    });
+    onUpdate?.();
+  };
+
+  const commitVendorTier = () => {
+    if (!pendingVendorTierId) return;
+    const prevTier = getVendorTier(vendorTierId);
+    const nextTier = getVendorTier(pendingVendorTierId);
+    const isActivation = vendorTierMode === "activate";
+    const isUpgrade = nextTier.monthlyPriceKr >= prevTier.monthlyPriceKr;
+    let effectiveAt: string | undefined;
+    if (isActivation) {
+      activateModule("vendors");
+      setModuleTier("vendors", pendingVendorTierId);
+      setVendorTierMode("change");
+    } else if (isUpgrade) {
+      setModuleTier("vendors", pendingVendorTierId);
+    } else {
+      effectiveAt = scheduleModuleTier("vendors", pendingVendorTierId);
+    }
+    setPendingVendorTierId(null);
+    setTick((n) => n + 1);
+    setReceipt({
+      moduleId: "vendors",
+      moduleTitle: "Leverandørmodul",
+      kind: isActivation ? "activation" : isUpgrade ? "upgrade" : "downgrade",
+      fromLabel: isActivation ? undefined : prevTier.label,
+      toLabel: nextTier.label,
+      monthlyPriceKr: nextTier.monthlyPriceKr,
+      effectiveAt,
+      nextSteps: [
+        {
+          label: "Gå inn i kundens leverandører",
+          description: "Se leverandørene som teller mot nivået.",
+          onClick: () => setEnterItems([{ kind: "module", label: "Leverandørmodul", moduleKey: "vendors" } as CustomerEntryTarget]),
+        },
+        {
+          label: "Lag tilbud på leverandøroppfølging",
+          description: "Tilby kunden løpende oppfølging av tredjeparter.",
+          onClick: () => setOfferItems([{ label: "Leverandøroppfølging (TPRM)", hours: 10 }]),
+        },
+      ],
+      onUndo: isActivation
+        ? undefined
+        : () => {
+            if (isUpgrade) setModuleTier("vendors", vendorTierId);
+            else clearScheduledTier("vendors");
+            setTick((n) => n + 1);
+            setReceipt(null);
+            toast.success("Endringen er angret.");
+          },
+    });
+    onUpdate?.();
+  };
+
   const frameworkFooter =
     recommendedFrameworks.length > 0 ? (
       <div className="flex flex-wrap items-center gap-1.5">
