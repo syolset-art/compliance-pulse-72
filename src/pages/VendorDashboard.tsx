@@ -171,7 +171,7 @@ export default function VendorDashboard() {
               <VendorOverviewTab
                 vendors={vendors}
                 relationships={relationships}
-                onAddVendor={() => setIsVendorDialogOpen(true)}
+                onAddVendor={requestAddVendor}
                 onDiscoverAI={handleDiscoverAI}
                 onDelete={(id) => deleteAsset.mutate(id)}
               />
