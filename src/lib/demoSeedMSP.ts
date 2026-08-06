@@ -15,6 +15,19 @@ const DEMO_CUSTOMERS = [
 
 const DEMO_USER_ID = "00000000-0000-0000-0000-000000000000";
 
+/** Hvilke Mynder-produkter hver demokunde allerede har aktivert. */
+const DEMO_ACTIVE_MODULES: Record<string, string[]> = {
+  "Bergen Energi AS": ["core", "vendors"],
+  "Fjordtech Solutions": ["core", "assets"],
+  "Vest Helse Klinikk": ["core"],
+  "Kystbygg Entreprenør": [],
+  "NordFinans Rådgivning": ["core", "vendors", "trust"],
+  "Stavanger Logistikk": ["core"],
+  "Larvik Handel AS": [],
+  "Digitale Løsninger Nord": ["core", "assets", "trust"],
+  "Tromsø Utdanning": ["core"],
+};
+
 export interface SeedResult {
   customers: number;
   purchases: number;
@@ -87,7 +100,7 @@ export async function seedDemoMSP(): Promise<SeedResult> {
   // 3) Customers — seed only if none exist
   const { data: existingCustomers } = await supabase
     .from("msp_customers" as any)
-    .select("id, customer_name, url, business_description, contact_company_role")
+    .select("id, customer_name, url, business_description, contact_company_role, active_modules")
     .eq("msp_user_id", effectiveUserId);
 
   let custIds: string[];
@@ -98,6 +111,7 @@ export async function seedDemoMSP(): Promise<SeedResult> {
       msp_user_id: effectiveUserId,
       onboarding_completed: c.status === "active",
       active_frameworks: c.subscription_plan === "Premium" ? ["ISO 27001", "GDPR"] : ["GDPR"],
+      active_modules: DEMO_ACTIVE_MODULES[c.customer_name] ?? [],
     }));
     const { data: inserted, error: cErr } = await supabase
       .from("msp_customers" as any)
@@ -121,14 +135,19 @@ export async function seedDemoMSP(): Promise<SeedResult> {
     for (const row of existingCustomers as any[]) {
       const demo = DEMO_CUSTOMERS.find(d => d.customer_name === row.customer_name);
       if (!demo) continue;
-      const patch: Record<string, string> = {};
+      const patch: Record<string, any> = {};
       if (!row.url) patch.url = demo.url;
       if (!row.business_description) patch.business_description = demo.business_description;
       if (!row.contact_company_role) patch.contact_company_role = demo.contact_company_role;
+      const modules = DEMO_ACTIVE_MODULES[row.customer_name];
+      if (modules && (!row.active_modules || row.active_modules.length === 0)) {
+        patch.active_modules = modules;
+      }
       if (Object.keys(patch).length === 0) continue;
       await supabase.from("msp_customers" as any).update(patch).eq("id", row.id);
     }
   }
+
 
   // 4) Invoices — seed only if none exist
   const { data: existingInvoices } = await supabase

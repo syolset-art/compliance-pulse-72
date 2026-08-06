@@ -31,6 +31,7 @@ import { seedDemoMSP, deleteDemoMSP } from "@/lib/demoSeedMSP";
 import { toast } from "sonner";
 import { getOffersForCustomer, normalizeServiceKey } from "@/lib/customerOffers";
 import { SERVICE_LIBRARY } from "@/lib/serviceLibrary";
+import { CUSTOMER_MODULES_EVENT } from "@/lib/customerModuleState";
 import { deriveOfferSuggestions, deriveActivatedItems, deriveNeededServices, deriveActiveServices, type OfferSuggestion } from "@/lib/offerSuggestions";
 import { usePostActivationPrompt } from "@/hooks/usePostActivationPrompt";
 
@@ -469,6 +470,19 @@ export default function MSPDashboard() {
       return data as any[];
     },
   });
+
+  // Pillene skal endre seg med én gang partneren aktiverer eller endrer nivå.
+  const [, setModuleTick] = useState(0);
+  useEffect(() => {
+    const refresh = () => {
+      setModuleTick((n) => n + 1);
+      refetch();
+    };
+    window.addEventListener(CUSTOMER_MODULES_EVENT, refresh);
+    return () => window.removeEventListener(CUSTOMER_MODULES_EVENT, refresh);
+  }, [refetch]);
+
+
 
   // Highlight newly added customers for a few seconds (visual nudge in the table)
   const [highlightIds, setHighlightIds] = useState<Set<string>>(new Set());

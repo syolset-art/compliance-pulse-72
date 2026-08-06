@@ -1,7 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import { resolveVendorCapacity, persistVendorTier } from "@/lib/vendorCapacity";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -10,18 +7,24 @@ import { Shield, Package, ChevronDown, Check, Plus, Wrench } from "lucide-react"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
 import { frameworks as ALL_FRAMEWORKS } from "@/lib/frameworkDefinitions";
+import { formatPeriodEnd, formatDateLong } from "@/lib/moduleActivationState";
+import { supabase } from "@/integrations/supabase/client";
 import {
-  getModuleState,
-  formatPeriodEnd,
-  formatDateLong,
-  setModuleTier,
-  scheduleModuleTier,
-  clearScheduledTier,
-  activateModule,
-} from "@/lib/moduleActivationState";
+  CUSTOMER_MODULES_EVENT,
+  activateCustomerModule,
+  clearCustomerScheduledTier,
+  getCustomerModuleState,
+  getCustomerModuleTier,
+  getCustomerUsage,
+  requiredCoreTierId,
+  requiredVendorTierId,
+  scheduleCustomerModuleTier,
+  setCustomerModuleTier,
+  syncCustomerModules,
+} from "@/lib/customerModuleState";
 import {
-  CORE_TIERS,
-  VENDOR_TIERS,
+  DEFAULT_CORE_TIER_ID,
+  DEFAULT_VENDOR_TIER_ID,
   getCoreTier,
   getVendorTier,
   type CoreTierId,
@@ -139,10 +142,10 @@ export function CustomerServicesAndProductsTab({
   const [tick, setTick] = useState(0);
   useEffect(() => {
     const refresh = () => setTick((n) => n + 1);
-    window.addEventListener("modules:changed", refresh);
+    window.addEventListener(CUSTOMER_MODULES_EVENT, refresh);
     window.addEventListener(TRUST_CENTER_EVENT, refresh);
     return () => {
-      window.removeEventListener("modules:changed", refresh);
+      window.removeEventListener(CUSTOMER_MODULES_EVENT, refresh);
       window.removeEventListener(TRUST_CENTER_EVENT, refresh);
     };
   }, []);
@@ -164,37 +167,62 @@ export function CustomerServicesAndProductsTab({
   const [pendingVendorTierId, setPendingVendorTierId] = useState<VendorTierId | null>(null);
   const [receipt, setReceipt] = useState<ModuleChangeReceipt | null>(null);
 
-  // Faktiske tall fra registeret — aldri hardkodet.
-  const { data: counts } = useQuery({
-    queryKey: ["msp-customer-usage-counts"],
-    queryFn: async () => {
-      const [vendorRes, systemRes] = await Promise.all([
-        supabase.from("assets").select("id", { count: "exact", head: true }).eq("asset_type", "vendor"),
-        supabase.from("assets").select("id", { count: "exact", head: true }).eq("asset_type", "system"),
-      ]);
-      return { vendors: vendorRes.count ?? 0, systems: systemRes.count ?? 0 };
-    },
-  });
+  // Forbruk hører til kunden — ikke partnerens eget register.
+  const usage = useMemo(
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    () => getCustomerUsage(customerId, customerName),
+    [customerId, customerName, tick],
+  );
+  const usedVendors = usage.vendors;
+  const usedSystems = usage.systems;
 
-  const usedVendors = counts?.vendors ?? 0;
-  // Nivå og grense hentes fra samme kapasitetslogikk som leverandørregisteret.
-  const vendorCapacity = resolveVendorCapacity(usedVendors);
+  // Kundens `active_modules` i databasen er fasit for hva som er aktivert.
   useEffect(() => {
-    persistVendorTier(vendorCapacity.tierId);
-  }, [vendorCapacity.tierId]);
-  const usedSystems = counts?.systems ?? 0;
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("msp_customers" as any)
+        .select("active_modules")
+        .eq("id", customerId)
+        .maybeSingle();
+      if (cancelled) return;
+      const modules: string[] = ((data as any)?.active_modules || []).filter(Boolean);
+      syncCustomerModules(customerId, modules, usage);
+      setTick((n) => n + 1);
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [customerId]);
+
+  // Nivå løftes til det minste nivået som rommer faktisk bruk (aldri «26 av 5»).
+  const coreTierId = useMemo(() => {
+    const stored = (getCustomerModuleTier(customerId, "core") as CoreTierId) ?? DEFAULT_CORE_TIER_ID;
+    const required = requiredCoreTierId(usedSystems);
+    return getCoreTier(required).systemLimit > getCoreTier(stored).systemLimit ? required : stored;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [customerId, usedSystems, tick]);
+
+  const vendorTierId = useMemo(() => {
+    const stored = (getCustomerModuleTier(customerId, "vendors") as VendorTierId) ?? DEFAULT_VENDOR_TIER_ID;
+    const required = requiredVendorTierId(usedVendors);
+    return getVendorTier(required).vendorLimit > getVendorTier(stored).vendorLimit ? required : stored;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [customerId, usedVendors, tick]);
+
 
   const products = useMemo(
     () =>
       PRODUCTS.map((p) => {
         const stateKey = p.moduleKey ?? p.key;
-        const state = getModuleState(stateKey);
+        const state = getCustomerModuleState(customerId, stateKey);
         const isCore = p.moduleKey === "core";
         const isVendors = p.moduleKey === "vendors";
         const tier = isCore
-          ? getCoreTier((state.tierId as CoreTierId) ?? CORE_TIERS[0].id)
+          ? getCoreTier(coreTierId)
           : isVendors
-            ? vendorCapacity.tier
+            ? getVendorTier(vendorTierId)
             : null;
         const scheduledTier = state.scheduledTierId
           ? isCore
@@ -224,8 +252,9 @@ export function CustomerServicesAndProductsTab({
         };
       }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [tick, usedVendors, usedSystems, vendorCapacity],
+    [tick, customerId, usedVendors, usedSystems, coreTierId, vendorTierId],
   );
+
 
   const activeSet = useMemo(() => new Set(activeFrameworkIds), [activeFrameworkIds]);
 
@@ -290,18 +319,14 @@ export function CustomerServicesAndProductsTab({
     ]);
   };
 
-  const coreTierId =
-    (getModuleState("core").tierId as CoreTierId) ?? CORE_TIERS[0].id;
-  const vendorTierId = vendorCapacity.tierId;
-
   const commitCoreTier = () => {
     if (!pendingCoreTierId) return;
     const prevTier = getCoreTier(coreTierId);
     const nextTier = getCoreTier(pendingCoreTierId);
     const isUpgrade = nextTier.monthlyPriceKr >= prevTier.monthlyPriceKr;
     let effectiveAt: string | undefined;
-    if (isUpgrade) setModuleTier("core", pendingCoreTierId);
-    else effectiveAt = scheduleModuleTier("core", pendingCoreTierId);
+    if (isUpgrade) setCustomerModuleTier(customerId, "core", pendingCoreTierId);
+    else effectiveAt = scheduleCustomerModuleTier(customerId, "core", pendingCoreTierId);
     setPendingCoreTierId(null);
     setTick((n) => n + 1);
     setReceipt({
@@ -325,8 +350,8 @@ export function CustomerServicesAndProductsTab({
         },
       ],
       onUndo: () => {
-        if (isUpgrade) setModuleTier("core", coreTierId);
-        else clearScheduledTier("core");
+        if (isUpgrade) setCustomerModuleTier(customerId, "core", coreTierId);
+        else clearCustomerScheduledTier(customerId, "core");
         setTick((n) => n + 1);
         setReceipt(null);
         toast.success("Endringen er angret.");
@@ -343,13 +368,13 @@ export function CustomerServicesAndProductsTab({
     const isUpgrade = nextTier.monthlyPriceKr >= prevTier.monthlyPriceKr;
     let effectiveAt: string | undefined;
     if (isActivation) {
-      activateModule("vendors");
-      setModuleTier("vendors", pendingVendorTierId);
+      activateCustomerModule(customerId, "vendors", pendingVendorTierId);
+      setCustomerModuleTier(customerId, "vendors", pendingVendorTierId);
       setVendorTierMode("change");
     } else if (isUpgrade) {
-      setModuleTier("vendors", pendingVendorTierId);
+      setCustomerModuleTier(customerId, "vendors", pendingVendorTierId);
     } else {
-      effectiveAt = scheduleModuleTier("vendors", pendingVendorTierId);
+      effectiveAt = scheduleCustomerModuleTier(customerId, "vendors", pendingVendorTierId);
     }
     setPendingVendorTierId(null);
     setTick((n) => n + 1);
@@ -376,8 +401,8 @@ export function CustomerServicesAndProductsTab({
       onUndo: isActivation
         ? undefined
         : () => {
-            if (isUpgrade) setModuleTier("vendors", vendorTierId);
-            else clearScheduledTier("vendors");
+            if (isUpgrade) setCustomerModuleTier(customerId, "vendors", vendorTierId);
+            else clearCustomerScheduledTier(customerId, "vendors");
             setTick((n) => n + 1);
             setReceipt(null);
             toast.success("Endringen er angret.");
@@ -482,7 +507,7 @@ export function CustomerServicesAndProductsTab({
                         tierLabel: p.scheduled.tierLabel,
                         atLabel: formatDateLong(p.scheduled.at),
                         onUndo: () => {
-                          clearScheduledTier(p.stateKey);
+                          clearCustomerScheduledTier(customerId, p.stateKey);
                           toast.success("Nedgraderingen er angret.");
                         },
                       }

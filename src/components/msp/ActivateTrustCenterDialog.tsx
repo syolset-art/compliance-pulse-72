@@ -17,7 +17,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { TermsAcceptRow } from "@/components/legal/TermsAcceptRow";
 import { useTerms } from "@/hooks/useTerms";
 import { useCustomerBaseline } from "@/hooks/useCustomerBaseline";
-import { activateModule } from "@/lib/moduleActivationState";
+import { activateCustomerModule } from "@/lib/customerModuleState";
 import { markClaimSent } from "@/lib/trustCenterStatus";
 
 interface Props {
@@ -90,7 +90,7 @@ export function ActivateTrustCenterDialog({
       return;
     }
 
-    activateModule("trust");
+    activateCustomerModule(customerId, "trust");
     await acceptTerms("module_activation", `msp-customer:${customerId}`, {
       operatorRole: hasOperatorRole || operatorRole,
     });

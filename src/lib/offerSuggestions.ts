@@ -1,7 +1,10 @@
 import { getOffersForCustomer, normalizeServiceKey } from "@/lib/customerOffers";
 import { SERVICE_LIBRARY } from "@/lib/serviceLibrary";
 import type { CustomerEntryTarget } from "@/lib/customerEntryRoutes";
+import { getCustomerActiveModules } from "@/lib/customerModuleState";
 import {
+  CORE_TIERS,
+  VENDOR_TIERS,
   EXTRA_FRAMEWORK_PRICE_KR,
   TRUST_CENTER_PRICE_KR,
   getFrameworkMonthlyPrice,
@@ -65,6 +68,27 @@ export function deriveActiveServices(c: any): string[] {
   return Array.from(names);
 }
 
+/** Union av kundens aktiverte moduler i databasen og lokal (demo)tilstand. */
+export function customerActiveModules(c: any): string[] {
+  const fromDb: string[] = (c?.active_modules || []).filter(Boolean);
+  let local: string[] = [];
+  try {
+    if (c?.id) local = getCustomerActiveModules(c.id);
+  } catch {
+    /* ignore */
+  }
+  return Array.from(new Set([...fromDb, ...local]));
+}
+
+/** Mynder-produkter som kan aktiveres, med pris lik produktkortene. */
+export const MODULE_CANDIDATES: { key: string; label: string; price: number; hours: number }[] = [
+  { key: "core", label: "Mynder Core", price: CORE_TIERS[0].monthlyPriceKr, hours: 4 },
+  { key: "vendors", label: "Leverandørmodul", price: VENDOR_TIERS[1].monthlyPriceKr, hours: 5 },
+  { key: "systems", label: "Systemer", price: 690, hours: 3 },
+  { key: "assets", label: "Eiendeler (Assets)", price: 690, hours: 3 },
+  { key: "trust", label: "Trust Center", price: TRUST_CENTER_PRICE_KR, hours: 3 },
+];
+
 export function deriveOfferSuggestions(c: any): OfferSuggestion[] {
   const toLabel = (f: any): string => (typeof f === "string" ? f : (f?.label ?? f?.frameworkId ?? ""));
   const active: string[] = (c.active_frameworks || []).map(toLabel).filter(Boolean);
@@ -72,7 +96,7 @@ export function deriveOfferSuggestions(c: any): OfferSuggestion[] {
     .map(toLabel)
     .filter((f: string) => f && !active.includes(f));
   const score = c.compliance_score || 0;
-  const modules: string[] = c.active_modules || [];
+  const modules: string[] = customerActiveModules(c);
 
   const out: OfferSuggestion[] = [];
 
@@ -90,12 +114,7 @@ export function deriveOfferSuggestions(c: any): OfferSuggestion[] {
   }
 
   // Mynder-moduler som ikke er aktivert
-  const moduleCandidates: { key: string; label: string; price: number; hours: number }[] = [
-    { key: "core", label: "Mynder Core", price: 995, hours: 4 },
-    { key: "vendors", label: "Leverandørmodul", price: 1089, hours: 5 },
-    { key: "assets", label: "Eiendeler", price: 490, hours: 3 },
-  ];
-  for (const m of moduleCandidates) {
+  for (const m of MODULE_CANDIDATES) {
     if (modules.includes(m.key)) continue;
     out.push({
       id: `mod-${m.key}`,
@@ -137,20 +156,25 @@ export function deriveOfferSuggestions(c: any): OfferSuggestion[] {
   return out.filter((s) => (seen.has(s.id) ? false : (seen.add(s.id), true)));
 }
 
+export const MODULE_LABELS: Record<string, string> = {
+  core: "Mynder Core",
+  vendors: "Leverandørmodul",
+  systems: "Systemer",
+  assets: "Eiendeler (Assets)",
+  trust: "Trust Center",
+  deviations: "Avvikshåndtering",
+  ropa: "RoPA",
+  frameworks: "Regelverk",
+};
+
 // Alt kunden allerede har aktivert — regelverk, moduler og leverte tjenester.
 export function deriveActivatedItems(c: any): string[] {
   const toLabel = (f: any): string => (typeof f === "string" ? f : (f?.label ?? f?.frameworkId ?? ""));
   const frameworks: string[] = (c.active_frameworks || []).map(toLabel).filter(Boolean);
-  const moduleLabels: Record<string, string> = {
-    core: "Mynder Core",
-    vendors: "Leverandørmodul",
-    assets: "Eiendeler",
-    trust: "Trust Profile",
-    frameworks: "Regelverk",
-  };
-  const modules: string[] = (c.active_modules || []).map((m: string) => moduleLabels[m] || m);
+  const modules: string[] = customerActiveModules(c).map((m: string) => MODULE_LABELS[m] || m);
   return Array.from(new Set([...frameworks, ...modules, ...deriveActiveServices(c)]));
 }
+
 
 // ===== Manuelle valg (overstyrer KI-anbefalingen) =====
 

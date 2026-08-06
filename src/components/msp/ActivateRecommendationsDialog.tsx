@@ -13,6 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { TermsAcceptRow } from "@/components/legal/TermsAcceptRow";
 import { useTerms } from "@/hooks/useTerms";
 import { cn } from "@/lib/utils";
+import { activateCustomerModule } from "@/lib/customerModuleState";
 import {
   CORE_TIERS,
   VENDOR_TIERS,
@@ -131,6 +132,12 @@ export function ActivateRecommendationsDialog({
       setSaving(false);
       toast.error("Kunne ikke aktivere", { description: error.message });
       return;
+    }
+
+    // Lokal kundestatus speiler databasen, med valgt nivå der modulen har nivåer.
+    for (const item of activatable) {
+      if (!item.moduleKey) continue;
+      activateCustomerModule(customerId, item.moduleKey, tierByModule[item.moduleKey]);
     }
 
     await acceptTerms("module_activation", `msp-customer:${customerId}`, { operatorRole });
