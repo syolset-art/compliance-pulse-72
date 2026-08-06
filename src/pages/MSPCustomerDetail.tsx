@@ -245,9 +245,9 @@ export default function MSPCustomerDetail() {
     },
     totalAnswered < totalQuestions && {
       severity: "critical",
-      category: "Modenhet · Modenhetsvurdering",
+      category: "Modenhet · Modenhetsvurdering (V2)",
       title: "Modenhetsvurdering",
-      desc: `Kartlegg modenhet sammen med kunden — grunnlaget for Trust Profile og gap-analyse. ${totalAnswered}/${totalQuestions} besvart.`,
+      desc: `Kartlegg modenhet sammen med kunden — grunnlaget for Trust Profile og gap-analyse. ${totalAnswered}/${totalQuestions} besvart. (V2 — ikke implementert som produkt enda.)`,
       cta: "Start kartlegging",
       onClick: () => setBaselineDrawer({ open: true, review: false, mode: "meeting" }),
       infoGap: "Vurderingen krever at en hos partner svarer på spørsmålene basert på kundens drift. Lara kan ikke gjette dette.",
