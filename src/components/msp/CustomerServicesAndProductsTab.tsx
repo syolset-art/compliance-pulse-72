@@ -155,21 +155,59 @@ export function CustomerServicesAndProductsTab({
   const [trustActivateOpen, setTrustActivateOpen] = useState(false);
   const [trustGuideOpen, setTrustGuideOpen] = useState(false);
 
+  // Nivåflyt (samme som i Innstillinger > Produkter)
+  const [coreTierOpen, setCoreTierOpen] = useState(false);
+  const [pendingCoreTierId, setPendingCoreTierId] = useState<CoreTierId | null>(null);
+  const [vendorTierOpen, setVendorTierOpen] = useState(false);
+  const [vendorTierMode, setVendorTierMode] = useState<"change" | "activate">("change");
+  const [pendingVendorTierId, setPendingVendorTierId] = useState<VendorTierId | null>(null);
+  const [receipt, setReceipt] = useState<ModuleChangeReceipt | null>(null);
+
+  // Faktiske tall fra registeret — aldri hardkodet.
+  const { data: counts } = useQuery({
+    queryKey: ["msp-customer-usage-counts"],
+    queryFn: async () => {
+      const [vendorRes, systemRes] = await Promise.all([
+        supabase.from("assets").select("id", { count: "exact", head: true }).eq("asset_type", "vendor"),
+        supabase.from("assets").select("id", { count: "exact", head: true }).eq("asset_type", "system"),
+      ]);
+      return { vendors: vendorRes.count ?? 0, systems: systemRes.count ?? 0 };
+    },
+  });
+
+  const usedVendors = counts?.vendors ?? 0;
+  const usedSystems = counts?.systems ?? 0;
+
   const products = useMemo(
     () =>
       PRODUCTS.map((p) => {
-        const state = getModuleState(p.key);
-        const tier =
-          p.moduleKey === "core"
-            ? getCoreTier((state.tierId as CoreTierId) ?? CORE_TIERS[0].id)
-            : p.moduleKey === "vendors"
-              ? getVendorTier((state.tierId as VendorTierId) ?? VENDOR_TIERS[0].id)
-              : null;
+        const stateKey = p.moduleKey ?? p.key;
+        const state = getModuleState(stateKey);
+        const isCore = p.moduleKey === "core";
+        const isVendors = p.moduleKey === "vendors";
+        const tier = isCore
+          ? getCoreTier((state.tierId as CoreTierId) ?? CORE_TIERS[0].id)
+          : isVendors
+            ? getVendorTier((state.tierId as VendorTierId) ?? VENDOR_TIERS[0].id)
+            : null;
+        const scheduledTier = state.scheduledTierId
+          ? isCore
+            ? getCoreTier(state.scheduledTierId as CoreTierId)
+            : isVendors
+              ? getVendorTier(state.scheduledTierId as VendorTierId)
+              : null
+          : null;
         return {
           ...p,
+          stateKey,
           status: state.status,
           cancelAt: state.cancelAt,
           tierLabel: tier?.label,
+          scheduled:
+            scheduledTier && state.scheduledAt
+              ? { tierLabel: scheduledTier.label, at: state.scheduledAt }
+              : null,
+          used: isCore ? usedSystems : isVendors ? usedVendors : undefined,
           limit:
             tier && "systemLimit" in tier
               ? tier.systemLimit
