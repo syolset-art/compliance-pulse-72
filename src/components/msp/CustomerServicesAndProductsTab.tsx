@@ -370,10 +370,22 @@ export function CustomerServicesAndProductsTab({
                 status={p.status}
                 price={p.price}
                 priceLabel={isTrust ? undefined : p.tierLabel}
-                usage={p.usage ? String(p.usage.current) : undefined}
-                usageSuffix={p.usage?.suffix}
+                usage={p.used != null ? String(p.used) : undefined}
+                usageSuffix={p.usageSuffix}
                 usageLimit={p.limit != null ? String(p.limit) : undefined}
                 cancelAtLabel={p.cancelAt ? formatPeriodEnd(p.cancelAt) : undefined}
+                scheduledChange={
+                  p.scheduled
+                    ? {
+                        tierLabel: p.scheduled.tierLabel,
+                        atLabel: formatDateLong(p.scheduled.at),
+                        onUndo: () => {
+                          clearScheduledTier(p.stateKey);
+                          toast.success("Nedgraderingen er angret.");
+                        },
+                      }
+                    : undefined
+                }
                 action={
                   isTrust
                     ? "activate"
