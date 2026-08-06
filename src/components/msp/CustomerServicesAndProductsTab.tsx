@@ -745,6 +745,7 @@ export function CustomerServicesAndProductsTab({
         currentTierId={vendorTierId}
         nextTierId={pendingVendorTierId}
         mode={vendorTierMode}
+        customerName={customerName}
         onConfirm={commitVendorTier}
       />
 
