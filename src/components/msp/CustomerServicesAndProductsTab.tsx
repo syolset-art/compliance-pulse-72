@@ -546,37 +546,7 @@ export function CustomerServicesAndProductsTab({
       </div>
 
 
-      {/* ── 3. Anbefalte tjenester (leveres som oppdrag) ── */}
-      <Card className="p-4">
-        <div className="flex flex-wrap items-center gap-2">
-          <Wrench className="h-4 w-4 text-primary shrink-0" />
-          <span className="text-sm font-semibold text-foreground">Tjenester</span>
-          <div className="flex flex-wrap gap-1.5">
-            {SERVICE_SUGGESTIONS.map((s) => (
-              <Badge key={s.id} variant="outline" className="text-[11px]">
-                {s.label}
-              </Badge>
-            ))}
-          </div>
-          <Button
-            variant="outline"
-            size="sm"
-            className="ml-auto h-7 text-xs"
-            onClick={() => setOfferItems(SERVICE_SUGGESTIONS.map((s) => ({ label: s.label, hours: s.hours })))}
-          >
-            Legg i tilbud
-          </Button>
-        </div>
-      </Card>
-
-      {/* ── 4. Anbefalt for økt modenhet ── */}
-      <RecommendedNextStepsCard
-        customerId={customerId}
-        activeFrameworkIds={activeFrameworkIds}
-        recommended={recommended}
-        confirmed={confirmed}
-        onShowAll={() => setShowAll(true)}
-      />
+      {/* ── Alt tilgjengelig å tilby ── */}
 
       {/* ── Alt tilgjengelig å tilby ── */}
       <Collapsible open={showAll} onOpenChange={setShowAll}>
