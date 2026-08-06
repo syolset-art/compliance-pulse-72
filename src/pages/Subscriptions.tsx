@@ -940,6 +940,7 @@ export default function Subscriptions() {
         currentTierId={coreTierId}
         usedSystems={systemsCount ?? 0}
         onConfirm={handleCoreTierSelect}
+        onManageUsage={() => { setChangeCoreTierOpen(false); navigate("/systems"); }}
       />
       <ConfirmCoreTierChangeDialog
         open={!!pendingCoreTierId}
@@ -955,6 +956,8 @@ export default function Subscriptions() {
         currentTierId={vendorTierId}
         usedVendors={vendorCount ?? 0}
         onConfirm={handleVendorTierSelect}
+        mode={vendorTierMode}
+        onManageUsage={() => { setChangeVendorTierOpen(false); navigate("/vendors"); }}
       />
       <ConfirmVendorTierChangeDialog
         open={!!pendingVendorTierId}
@@ -962,7 +965,14 @@ export default function Subscriptions() {
         currentTierId={vendorTierId}
         nextTierId={pendingVendorTierId}
         onConfirm={handleVendorTierConfirm}
+        mode={vendorTierMode}
       />
+
+      <ModuleChangeReceiptSheet
+        receipt={receipt}
+        onOpenChange={(open) => { if (!open) setReceipt(null); }}
+      />
+
 
 
 
