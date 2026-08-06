@@ -3,7 +3,7 @@ import { toast } from "sonner";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Shield, Package, ChevronDown, Check, Plus, Wrench } from "lucide-react";
+import { Shield, Package, ChevronDown, Check, Plus } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
 import { frameworks as ALL_FRAMEWORKS } from "@/lib/frameworkDefinitions";
@@ -58,7 +58,6 @@ import type { CustomerEntryTarget } from "@/lib/customerEntryRoutes";
 import { MSPCreateOfferDialog } from "./MSPCreateOfferDialog";
 import { CustomerModulesTab } from "./CustomerModulesTab";
 import { MSPMaturityServiceMatrix } from "./MSPMaturityServiceMatrix";
-import { RecommendedNextStepsCard } from "./RecommendedNextStepsCard";
 
 interface Props {
   customerId: string;
@@ -118,12 +117,6 @@ const FLAT_PRICE: Record<string, number> = { assets: 690, trust: 490 };
 const FRAMEWORK_PRICE = 490;
 
 
-/** Rene tjenester som må leveres som oppdrag. */
-const SERVICE_SUGGESTIONS: { id: string; label: string; hours: number }[] = [
-  { id: "svc-maturity", label: "Modenhetsvurdering", hours: 12 },
-  { id: "svc-pentest", label: "Penetrasjonstest", hours: 30 },
-  { id: "svc-ropa", label: "Behandlingsprotokoll (RoPA)", hours: 10 },
-];
 
 export function CustomerServicesAndProductsTab({
   customerId,
@@ -545,38 +538,6 @@ export function CustomerServicesAndProductsTab({
         </div>
       </div>
 
-
-      {/* ── 3. Anbefalte tjenester (leveres som oppdrag) ── */}
-      <Card className="p-4">
-        <div className="flex flex-wrap items-center gap-2">
-          <Wrench className="h-4 w-4 text-primary shrink-0" />
-          <span className="text-sm font-semibold text-foreground">Tjenester</span>
-          <div className="flex flex-wrap gap-1.5">
-            {SERVICE_SUGGESTIONS.map((s) => (
-              <Badge key={s.id} variant="outline" className="text-[11px]">
-                {s.label}
-              </Badge>
-            ))}
-          </div>
-          <Button
-            variant="outline"
-            size="sm"
-            className="ml-auto h-7 text-xs"
-            onClick={() => setOfferItems(SERVICE_SUGGESTIONS.map((s) => ({ label: s.label, hours: s.hours })))}
-          >
-            Legg i tilbud
-          </Button>
-        </div>
-      </Card>
-
-      {/* ── 4. Anbefalt for økt modenhet ── */}
-      <RecommendedNextStepsCard
-        customerId={customerId}
-        activeFrameworkIds={activeFrameworkIds}
-        recommended={recommended}
-        confirmed={confirmed}
-        onShowAll={() => setShowAll(true)}
-      />
 
       {/* ── Alt tilgjengelig å tilby ── */}
       <Collapsible open={showAll} onOpenChange={setShowAll}>
