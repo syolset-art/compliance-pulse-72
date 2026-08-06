@@ -36,8 +36,9 @@ export default function VendorDashboard() {
   const [newlyAddedId, setNewlyAddedId] = useState<string | null>(null);
   const [helpOpen, setHelpOpen] = useState(false);
   usePageHelpListener(setHelpOpen);
-  const [activateOpen, setActivateOpen] = useState(false);
-  const [isPremium, setIsPremium] = useState(() => localStorage.getItem("vendor_premium_activated") === "true");
+  const [tierDialogOpen, setTierDialogOpen] = useState(false);
+  const [pendingTierId, setPendingTierId] = useState<VendorTierId | null>(null);
+  const [vendorTierId, setVendorTierId] = useState<VendorTierId>(() => getCurrentVendorTierId());
   const [searchParams, setSearchParams] = useSearchParams();
   const tabFromUrl = searchParams.get("tab") || "overview";
 
