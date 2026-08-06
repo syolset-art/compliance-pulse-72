@@ -23,8 +23,6 @@ import {
   syncCustomerModules,
 } from "@/lib/customerModuleState";
 import {
-  CORE_TIERS,
-  VENDOR_TIERS,
   DEFAULT_CORE_TIER_ID,
   DEFAULT_VENDOR_TIER_ID,
   getCoreTier,
