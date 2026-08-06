@@ -1,7 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import { resolveVendorCapacity, persistVendorTier } from "@/lib/vendorCapacity";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -10,18 +7,25 @@ import { Shield, Package, ChevronDown, Check, Plus, Wrench } from "lucide-react"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
 import { frameworks as ALL_FRAMEWORKS } from "@/lib/frameworkDefinitions";
+import { formatPeriodEnd, formatDateLong } from "@/lib/moduleActivationState";
 import {
-  getModuleState,
-  formatPeriodEnd,
-  formatDateLong,
-  setModuleTier,
-  scheduleModuleTier,
-  clearScheduledTier,
-  activateModule,
-} from "@/lib/moduleActivationState";
+  CUSTOMER_MODULES_EVENT,
+  activateCustomerModule,
+  clearCustomerScheduledTier,
+  getCustomerModuleState,
+  getCustomerModuleTier,
+  getCustomerUsage,
+  requiredCoreTierId,
+  requiredVendorTierId,
+  scheduleCustomerModuleTier,
+  setCustomerModuleTier,
+  syncCustomerModules,
+} from "@/lib/customerModuleState";
 import {
   CORE_TIERS,
   VENDOR_TIERS,
+  DEFAULT_CORE_TIER_ID,
+  DEFAULT_VENDOR_TIER_ID,
   getCoreTier,
   getVendorTier,
   type CoreTierId,
