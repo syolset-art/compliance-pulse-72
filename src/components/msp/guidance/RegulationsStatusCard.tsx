@@ -120,7 +120,7 @@ export function RegulationsStatusCard({
             : undefined,
       },
       { key: "vendors", title: "Leverandørmodul", activated: true },
-      { key: "assets", title: "Assets", activated: true },
+      { key: "assets", title: "Eiendeler", activated: true },
       { key: "trust-profile", title: "Trust Profile", activated: true },
     ],
     [activeFrameworkIds],

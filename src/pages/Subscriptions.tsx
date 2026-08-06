@@ -70,6 +70,7 @@ import {
 import { RetireModuleDialog } from "@/components/subscriptions/RetireModuleDialog";
 import { ModuleChangeReceiptSheet, type ModuleChangeReceipt } from "@/components/subscriptions/ModuleChangeReceiptSheet";
 import { useTerms } from "@/hooks/useTerms";
+import { useModuleActivation } from "@/hooks/useModuleActivation";
 
 
 
@@ -233,7 +234,6 @@ export default function Subscriptions() {
   const [changeVendorTierOpen, setChangeVendorTierOpen] = useState(false);
   const [pendingVendorTierId, setPendingVendorTierId] = useState<VendorTierId | null>(null);
   const [readMoreKey, setReadMoreKey] = useState<ModuleKey | null>(null);
-  const [confirmActivate, setConfirmActivate] = useState<{ id: string; title: string } | null>(null);
   const [vendorTierMode, setVendorTierMode] = useState<"change" | "activate">("change");
   const [receipt, setReceipt] = useState<ModuleChangeReceipt | null>(null);
   const { current: currentTerms } = useTerms();
@@ -315,12 +315,14 @@ export default function Subscriptions() {
     toast.success("Oppsigelsen er angret. Modulen fortsetter som før.");
   };
 
-  const reactivateModule = (id: string) => {
-    activateModule(id);
-    syncModuleState();
-    toast.success("Modulen er aktivert og er klar til bruk.");
-  };
-  const requestActivate = (id: string, title: string) => setConfirmActivate({ id, title });
+  const {
+    pending: pendingActivation,
+    setPending: setPendingActivation,
+    requestActivation: requestActivate,
+    confirmActivation,
+    receipt: activationReceipt,
+    setReceipt: setActivationReceipt,
+  } = useModuleActivation(() => syncModuleState());
 
 
   const { data: selectedFrameworks, refetch: refetchFrameworks } = useQuery({
@@ -690,7 +692,7 @@ export default function Subscriptions() {
               usageLimit={String(allFrameworkDefs.length)}
               usageSuffix="aktive"
               action={deactivatedModules.has("frameworks") ? "activate" : "manage"}
-              onClick={() => deactivatedModules.has("frameworks") ? requestActivate("frameworks", "Regelverk") : setEditFrameworksOpen(true)}
+              onClick={() => deactivatedModules.has("frameworks") ? requestActivate("frameworks") : setEditFrameworksOpen(true)}
               onDeactivate={() => requestDeactivate("frameworks", "Regelverk")}
               deactivateLabel="Deaktiver alle regelverk"
               breakdown={deactivatedModules.has("frameworks") ? undefined : frameworkBreakdown}
@@ -751,7 +753,7 @@ export default function Subscriptions() {
 
             <ModuleCard
               icon={Server}
-              title="Assets"
+              title="Eiendeler"
               description="System- og eiendelsregister"
               status={deactivatedModules.has("assets") ? "inactive" : moduleStatusOf("assets")}
               cancelAtLabel={cancelAtLabelOf("assets")}
@@ -762,8 +764,8 @@ export default function Subscriptions() {
               usageLimit={assetLimit}
               usageSuffix="eiendeler"
               action={deactivatedModules.has("assets") ? "activate" : "open"}
-              onClick={() => deactivatedModules.has("assets") ? requestActivate("assets", "Assets") : navigate("/assets")}
-              onDeactivate={() => requestDeactivate("assets", "Assets")}
+              onClick={() => deactivatedModules.has("assets") ? requestActivate("assets", { monthlyPriceKr: assetMonthlyPrice }) : navigate("/assets")}
+              onDeactivate={() => requestDeactivate("assets", "Eiendeler")}
               accentColor="emerald"
               onReadMore={() => setReadMoreKey("assets")}
             />
@@ -780,7 +782,7 @@ export default function Subscriptions() {
               action={deactivatedModules.has("trust") ? "activate" : "open"}
               onClick={() =>
                 deactivatedModules.has("trust")
-                  ? requestActivate("trust", "Trust Center")
+                  ? requestActivate("trust", { monthlyPriceKr: TRUST_CENTER_PRICE_KR })
                   : window.open(trustProfileUrl, "_blank", "noopener,noreferrer")
               }
               onDeactivate={() => requestDeactivate("trust", "Trust Center")}
@@ -801,7 +803,7 @@ export default function Subscriptions() {
 
               action={deactivatedModules.has("partner") ? "activate" : hasPartnerAccess ? "open" : "activate"}
               onClick={() => {
-                if (deactivatedModules.has("partner")) return requestActivate("partner", "Partner Workspace");
+                if (deactivatedModules.has("partner")) return requestActivate("partner", { monthlyPriceKr: partnerWorkspaceMonthlyPrice });
                 return hasPartnerAccess ? navigate("/msp") : toast.info("Ta kontakt med salg på sales@mynder.no for å aktivere Partner Workspace.");
               }}
               onDeactivate={hasPartnerAccess ? () => requestDeactivate("partner", "Partner Workspace") : undefined}
@@ -813,16 +815,20 @@ export default function Subscriptions() {
           <ModuleInfoDialog moduleKey={readMoreKey} onOpenChange={(open) => !open && setReadMoreKey(null)} />
 
           <TermsGateDialog
-            open={!!confirmActivate}
-            onOpenChange={(open) => !open && setConfirmActivate(null)}
-            title={`Aktiver ${confirmActivate?.title ?? "modul"}`}
-            description="Aktiveringen trer i kraft umiddelbart og faktureres fra neste periode."
+            open={!!pendingActivation}
+            onOpenChange={(open) => !open && setPendingActivation(null)}
+            title={`Aktiver ${pendingActivation?.title ?? "modul"}`}
+            description="Bekreft vilkårene for å aktivere produktet."
+            monthlyPriceKr={pendingActivation?.monthlyPriceKr}
+            priceLabel={pendingActivation?.tierLabel ?? "Månedspris"}
             context="module_activation"
-            contextRef={confirmActivate?.id}
-            onConfirmed={() => {
-              if (confirmActivate) reactivateModule(confirmActivate.id);
-              setConfirmActivate(null);
-            }}
+            contextRef={pendingActivation?.key}
+            onConfirmed={confirmActivation}
+          />
+
+          <ModuleChangeReceiptSheet
+            receipt={activationReceipt}
+            onOpenChange={(open) => !open && setActivationReceipt(null)}
           />
 
           {/* Payment method */}

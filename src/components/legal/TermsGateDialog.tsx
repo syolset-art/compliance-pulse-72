@@ -5,6 +5,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { TermsAcceptRow } from "@/components/legal/TermsAcceptRow";
 import { useTerms, TermsContext } from "@/hooks/useTerms";
+import { formatKr } from "@/lib/planConstants";
 
 interface TermsGateDialogProps {
   open: boolean;
@@ -14,6 +15,10 @@ interface TermsGateDialogProps {
   confirmLabel?: string;
   context: TermsContext;
   contextRef?: string;
+  /** Månedspris eks. mva. Vises som prislinje når satt. */
+  monthlyPriceKr?: number;
+  /** Nivå-/planetikett som vises sammen med prisen. */
+  priceLabel?: string;
   onConfirmed: () => void | Promise<void>;
 }
 
@@ -29,6 +34,8 @@ export function TermsGateDialog({
   confirmLabel = "Aktiver",
   context,
   contextRef,
+  monthlyPriceKr,
+  priceLabel,
   onConfirmed,
 }: TermsGateDialogProps) {
   const { current, hasAcceptedCurrent, acceptTerms } = useTerms();
@@ -56,6 +63,25 @@ export function TermsGateDialog({
           <DialogTitle className="text-base">{title}</DialogTitle>
           {description && <DialogDescription>{description}</DialogDescription>}
         </DialogHeader>
+
+        {monthlyPriceKr !== undefined && (
+          <div className="rounded-lg border border-border bg-muted/30 px-3 py-2.5 space-y-1">
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-sm text-muted-foreground">
+                {priceLabel ?? "Månedspris"}
+              </span>
+              <span className="text-sm font-semibold text-foreground tabular-nums">
+                {monthlyPriceKr === 0 ? "Gratis" : `${formatKr(monthlyPriceKr)} /mnd`}
+                {monthlyPriceKr > 0 && (
+                  <span className="ml-1 text-xs font-normal text-muted-foreground">eks. mva</span>
+                )}
+              </span>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Tjenesten aktiveres umiddelbart, og faktureres på neste faktura.
+            </p>
+          </div>
+        )}
 
         <TermsAcceptRow
           id="terms-gate"

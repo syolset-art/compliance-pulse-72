@@ -55,7 +55,7 @@ export const MODULE_INFO: Record<ModuleKey, ModuleInfo> = {
     ],
   },
   assets: {
-    title: "Assets",
+    title: "Eiendeler",
     tagline: "System- og eiendelsregister",
     description:
       "Full oversikt over systemer, tjenester og eiendeler — eid av arbeidsområdene som faktisk bruker dem. Oppdag nye systemer automatisk via integrasjoner.",
