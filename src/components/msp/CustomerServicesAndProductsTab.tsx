@@ -25,11 +25,13 @@ import {
 import {
   DEFAULT_CORE_TIER_ID,
   DEFAULT_VENDOR_TIER_ID,
+  TRUST_CENTER_V2,
   getCoreTier,
   getVendorTier,
   type CoreTierId,
   type VendorTierId,
 } from "@/lib/planConstants";
+
 import { ChangeCoreTierDialog } from "@/components/dialogs/ChangeCoreTierDialog";
 import { ConfirmCoreTierChangeDialog } from "@/components/dialogs/ConfirmCoreTierChangeDialog";
 import { ChangeVendorTierDialog } from "@/components/dialogs/ChangeVendorTierDialog";
@@ -46,8 +48,7 @@ import {
 } from "./ActivateRecommendationsDialog";
 import { EnterCustomerContextDialog } from "./EnterCustomerContextDialog";
 import { usePostActivationPrompt } from "@/hooks/usePostActivationPrompt";
-import { ActivateTrustCenterDialog } from "./ActivateTrustCenterDialog";
-import { TrustCenterGuideSheet } from "./TrustCenterGuideSheet";
+
 import {
   TRUST_CENTER_EVENT,
   TRUST_CENTER_NEXT_STEP,
@@ -145,10 +146,9 @@ export function CustomerServicesAndProductsTab({
   const [activateItems, setActivateItems] = useState<ActivatableItem[] | null>(null);
   const [enterItems, setEnterItems] = useState<CustomerEntryTarget[] | null>(null);
   const [offerItems, setOfferItems] = useState<{ label: string; hours: number }[] | null>(null);
-  const [trustActivateOpen, setTrustActivateOpen] = useState(false);
-  const [trustGuideOpen, setTrustGuideOpen] = useState(false);
 
   // Nivåflyt (samme som i Innstillinger > Produkter)
+
   const [coreTierOpen, setCoreTierOpen] = useState(false);
   const [pendingCoreTierId, setPendingCoreTierId] = useState<CoreTierId | null>(null);
   const [vendorTierOpen, setVendorTierOpen] = useState(false);
@@ -293,9 +293,12 @@ export function CustomerServicesAndProductsTab({
 
   const activateProduct = (p: (typeof products)[number]) => {
     if (p.key === "trust") {
-      setTrustActivateOpen(true);
+      toast.info("Trust Center er planlagt i v2", {
+        description: "Dette produktet skal ikke implementeres i prototype.",
+      });
       return;
     }
+
     setActivateItems([
       {
         id: p.key,
@@ -482,7 +485,7 @@ export function CustomerServicesAndProductsTab({
                 }
                 action={
                   isTrust
-                    ? "activate"
+                    ? "none"
                     : p.status === "inactive"
                       ? "activate"
                       : p.moduleKey
@@ -491,36 +494,43 @@ export function CustomerServicesAndProductsTab({
                 }
                 ctaOverride={
                   isTrust
-                    ? {
-                        label: p.status === "inactive" ? "Aktiver" : "Åpne veiledning",
-                        variant: p.status === "inactive" ? "default" : "outline",
-                      }
+                    ? { label: "V2 / planlagt", variant: "outline" }
                     : undefined
                 }
                 footer={
-                  isTrust && trustStatus && trustStatus !== "inactive" ? (
+                  isTrust ? (
                     <div className="space-y-1">
                       <Badge
                         variant="outline"
-                        className="text-[10px] font-normal border-primary/30 bg-primary/5 text-primary"
+                        className="text-[10px] font-normal border-warning/30 bg-warning/10 text-warning"
                       >
-                        {TRUST_CENTER_STATUS_LABEL[trustStatus]}
+                        V2 — ikke implementert nå
                       </Badge>
-                      {TRUST_CENTER_NEXT_STEP[trustStatus] && (
-                        <p className="text-[11px] text-muted-foreground">
-                          {TRUST_CENTER_NEXT_STEP[trustStatus]}
-                        </p>
+                      {trustStatus && trustStatus !== "inactive" && (
+                        <>
+                          <p className="text-[11px] text-muted-foreground">
+                            {TRUST_CENTER_STATUS_LABEL[trustStatus]}
+                          </p>
+                          {TRUST_CENTER_NEXT_STEP[trustStatus] && (
+                            <p className="text-[11px] text-muted-foreground">
+                              {TRUST_CENTER_NEXT_STEP[trustStatus]}
+                            </p>
+                          )}
+                        </>
                       )}
                     </div>
                   ) : undefined
                 }
+
                 onClick={() => {
                   if (isTrust) {
-                    if (p.status === "inactive") setTrustActivateOpen(true);
-                    else setTrustGuideOpen(true);
+                    toast.info("Trust Center er planlagt i v2", {
+                      description: "Dette produktet skal ikke implementeres i prototype.",
+                    });
                     return;
                   }
                   if (p.moduleKey === "core") {
+
                     setCoreTierOpen(true);
                     return;
                   }
@@ -595,28 +605,6 @@ export function CustomerServicesAndProductsTab({
           }}
         />
       )}
-
-      <ActivateTrustCenterDialog
-        open={trustActivateOpen}
-        onOpenChange={setTrustActivateOpen}
-        customerId={customerId}
-        customerName={customerName}
-        customerEmail={customerEmail}
-        activeModules={products.filter((p) => p.status === "active").map((p) => p.moduleKey ?? p.key)}
-        onActivated={() => {
-          setTick((n) => n + 1);
-          onUpdate?.();
-        }}
-        onOpenGuide={() => setTrustGuideOpen(true)}
-      />
-
-      <TrustCenterGuideSheet
-        open={trustGuideOpen}
-        onOpenChange={setTrustGuideOpen}
-        customerId={customerId}
-        customerName={customerName}
-        customerEmail={customerEmail}
-      />
 
       {enterItems && (
         <EnterCustomerContextDialog

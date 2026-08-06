@@ -37,9 +37,14 @@ interface Props {
 const CLAIM_THRESHOLD = 55;
 
 /**
+ * V2 — IKKE IMPLEMENTER NÅ
+ * Denne dialogen aktiverer Trust Center, som er planlagt som eget produkt i v2.
+ * Behold koden for fremtidig referanse, men vis ikke aktiveringsflyten i prototype.
+ *
  * Tre-stegs aktivering av Trust Center hos en kunde:
  * vilkår (+ driftspartnerrolle) → praktisk oppsett/claim → hva nå.
  */
+
 export function ActivateTrustCenterDialog({
   open,
   onOpenChange,
