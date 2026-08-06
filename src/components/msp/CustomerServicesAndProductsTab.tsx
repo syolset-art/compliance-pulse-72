@@ -217,13 +217,13 @@ export function CustomerServicesAndProductsTab({
     () =>
       PRODUCTS.map((p) => {
         const stateKey = p.moduleKey ?? p.key;
-        const state = getModuleState(stateKey);
+        const state = getCustomerModuleState(customerId, stateKey);
         const isCore = p.moduleKey === "core";
         const isVendors = p.moduleKey === "vendors";
         const tier = isCore
-          ? getCoreTier((state.tierId as CoreTierId) ?? CORE_TIERS[0].id)
+          ? getCoreTier(coreTierId)
           : isVendors
-            ? vendorCapacity.tier
+            ? getVendorTier(vendorTierId)
             : null;
         const scheduledTier = state.scheduledTierId
           ? isCore
@@ -253,8 +253,9 @@ export function CustomerServicesAndProductsTab({
         };
       }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [tick, usedVendors, usedSystems, vendorCapacity],
+    [tick, customerId, usedVendors, usedSystems, coreTierId, vendorTierId],
   );
+
 
   const activeSet = useMemo(() => new Set(activeFrameworkIds), [activeFrameworkIds]);
 
