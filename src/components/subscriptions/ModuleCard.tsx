@@ -23,6 +23,8 @@ export interface ModuleCardProps {
   onResume?: () => void;
   accentColor?: "purple" | "blue" | "emerald" | "amber" | "rose" | "slate";
   breakdown?: Array<{ label: string; priceKr: number }>;
+  /** Planlagt nedgradering: nytt nivå og når det trer i kraft. */
+  scheduledChange?: { tierLabel: string; atLabel: string; onUndo: () => void };
   footer?: React.ReactNode;
   ctaOverride?: { label: string; variant?: "default" | "outline" };
   onReadMore?: () => void;
