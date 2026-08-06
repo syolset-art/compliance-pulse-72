@@ -220,7 +220,7 @@ export function CustomerServicesAndProductsTab({
         };
       }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [tick, usedVendors, usedSystems],
+    [tick, usedVendors, usedSystems, vendorCapacity],
   );
 
   const activeSet = useMemo(() => new Set(activeFrameworkIds), [activeFrameworkIds]);

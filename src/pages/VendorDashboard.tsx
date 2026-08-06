@@ -140,6 +140,11 @@ export default function VendorDashboard() {
               <Button
                 onClick={requestAddVendor}
                 className="gap-2"
+                title={
+                  capacity.atCap
+                    ? `Grensen på ${capacity.limit} leverandører er nådd. Endre nivå for å legge til flere.`
+                    : undefined
+                }
               >
                 <Plus className="h-4 w-4" aria-hidden="true" />
                 {t("vendorDashboard.addVendor", "Legg til")}
