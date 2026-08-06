@@ -40,7 +40,7 @@ import {
   type AdoptedRef,
 } from "@/lib/laraScopeDiff";
 
-import { CORE_TIERS, VENDOR_TIERS, TRUST_CENTER_PRICE_KR } from "@/lib/planConstants";
+import { CORE_TIERS, VENDOR_TIERS, TRUST_CENTER_PRICE_KR, TRUST_CENTER_V2 } from "@/lib/planConstants";
 import { usePartnerBranding } from "@/hooks/usePartnerBranding";
 import { formatTaxNote } from "@/lib/partnerTax";
 import { useSavedOffers, type LockInfo } from "@/lib/customerOffers";
@@ -1270,9 +1270,20 @@ export function MSPServiceCatalogTab({ onOpenSecondary, onRegisterActions }: { o
                           aria-expanded={isOpen}
                         >
                           <div className="flex-1 min-w-0">
-                            <div className="text-sm font-medium text-foreground">{p.name}</div>
+                            <div className="flex items-center gap-2">
+                              <div className="text-sm font-medium text-foreground">{p.name}</div>
+                              {p.moduleKey === "trust" && TRUST_CENTER_V2 && (
+                                <Badge
+                                  variant="outline"
+                                  className="text-[10px] font-normal border-warning/30 bg-warning/10 text-warning"
+                                >
+                                  V2
+                                </Badge>
+                              )}
+                            </div>
                             <div className="text-xs text-muted-foreground truncate">{info.tagline}</div>
                           </div>
+
                           <div className="hidden sm:flex items-center gap-2 text-xs text-muted-foreground whitespace-nowrap">
                             <span className="tabular-nums">Fra {fmtPrice(p.fromPrice)}/mnd</span>
                             <span>·</span>

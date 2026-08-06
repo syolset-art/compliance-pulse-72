@@ -67,6 +67,8 @@ export const MODULE_INFO: Record<ModuleKey, ModuleInfo> = {
       "Livssyklus fra onboarding til avvikling",
     ],
   },
+  // V2 — IKKE IMPLEMENTER NÅ: Trust Center er planlagt som eget produkt i v2.
+  // Ikke vis/aktiver dette i prototype før produktteamet har landet scope.
   trust: {
     title: "Trust Center",
     tagline: "Del én gang — gjenbruk mot alle",
@@ -81,6 +83,7 @@ export const MODULE_INFO: Record<ModuleKey, ModuleInfo> = {
       "490 kr per måned",
     ],
   },
+
 
   partner: {
     title: "Partner Workspace",

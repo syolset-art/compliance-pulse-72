@@ -60,6 +60,8 @@ export const MODULE_ACTIVATION_TARGETS: Record<string, ModuleActivationTarget> =
       { label: "Velg regelverk", description: "Aktiver regelverkene som gjelder dere.", route: "/compliance" },
     ],
   },
+  // V2 — IKKE IMPLEMENTER NÅ: Trust Center er planlagt som eget produkt i v2.
+  // Behold targeten for fremtidig referanse, men ikke aktiver den i prototype.
   trust: {
     key: "trust",
     title: "Trust Center",
@@ -69,6 +71,7 @@ export const MODULE_ACTIVATION_TARGETS: Record<string, ModuleActivationTarget> =
       { label: "Del profilen", description: "Lag en delbar lenke til kunder.", route: "/trust-center/profile" },
     ],
   },
+
   partner: {
     key: "partner",
     title: "Partnerarbeidsflate",

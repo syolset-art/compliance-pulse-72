@@ -146,10 +146,14 @@ export function getNextCoreTier(id: CoreTierId): CoreTier | null {
   return idx >= 0 && idx < CORE_TIERS.length - 1 ? CORE_TIERS[idx + 1] : null;
 }
 
-// ─── Trust Center ───────────────────────────────────────────────────
-// Trust Center er et eget produkt: del dokumentasjonen én gang og gjenbruk
-// den mot kunder, leverandører og revisorer.
+// ─── Trust Center (V2 — IKKE IMPLEMENTER NÅ) ───────────────────────
+// Trust Center er planlagt som eget produkt i v2. Konstanten og prisen
+// under skal IKKE brukes til å aktivere produktet i prototype/PR før
+// produktteamet har landet v2-scope. Behold koden for fremtidig referanse.
+// V2: del dokumentasjonen én gang og gjenbruk den mot kunder, leverandører og revisorer.
 export const TRUST_CENTER_PRICE_KR = 490;
+export const TRUST_CENTER_V2 = true; // Sentinell: v2-produkt — ikke aktiver nå.
+
 
 
 
