@@ -64,12 +64,12 @@ export function VendorPremiumBanner({ vendorCount, maxFreeVendors, isActivated, 
             <div>
               <p className="text-sm font-semibold text-foreground">
                 {isLimitReached
-                  ? "Du har brukt alle gratis-plassene"
+                  ? "Du har brukt opp plassene på nivået"
                   : "Forhåndsvisning – Premium-modul"}
               </p>
               <p className="text-xs text-muted-foreground">
                 {isLimitReached
-                  ? `Du har lagt til ${vendorCount} av ${maxFreeVendors} gratis leverandører. Aktiver for å fortsette.`
+                  ? `Du har ${vendorCount} av ${maxFreeVendors} leverandører. Oppgrader nivået for å legge til flere.`
                   : `Aktiver for full tilgang til automatisert leverandørstyring, DPA-sporing og risikoanalyse. Du kan prøve med opptil ${maxFreeVendors} leverandører gratis.`}
               </p>
             </div>
@@ -79,8 +79,9 @@ export function VendorPremiumBanner({ vendorCount, maxFreeVendors, isActivated, 
             className="gap-2 bg-gradient-to-r from-accent to-primary hover:from-accent hover:to-primary/90 text-white shrink-0"
           >
             <Sparkles className="h-4 w-4" />
-            Aktiver for 990 kr/mnd
+            {isLimitReached ? "Oppgrader nivå" : "Velg nivå"}
           </Button>
+
         </div>
       </Card>
 
