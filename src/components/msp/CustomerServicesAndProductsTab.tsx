@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { resolveVendorCapacity } from "@/lib/vendorCapacity";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
