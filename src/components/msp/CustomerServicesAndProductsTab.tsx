@@ -8,6 +8,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { cn } from "@/lib/utils";
 import { frameworks as ALL_FRAMEWORKS } from "@/lib/frameworkDefinitions";
 import { formatPeriodEnd, formatDateLong } from "@/lib/moduleActivationState";
+import { supabase } from "@/integrations/supabase/client";
 import {
   CUSTOMER_MODULES_EVENT,
   activateCustomerModule,
@@ -320,18 +321,14 @@ export function CustomerServicesAndProductsTab({
     ]);
   };
 
-  const coreTierId =
-    (getModuleState("core").tierId as CoreTierId) ?? CORE_TIERS[0].id;
-  const vendorTierId = vendorCapacity.tierId;
-
   const commitCoreTier = () => {
     if (!pendingCoreTierId) return;
     const prevTier = getCoreTier(coreTierId);
     const nextTier = getCoreTier(pendingCoreTierId);
     const isUpgrade = nextTier.monthlyPriceKr >= prevTier.monthlyPriceKr;
     let effectiveAt: string | undefined;
-    if (isUpgrade) setModuleTier("core", pendingCoreTierId);
-    else effectiveAt = scheduleModuleTier("core", pendingCoreTierId);
+    if (isUpgrade) setCustomerModuleTier(customerId, "core", pendingCoreTierId);
+    else effectiveAt = scheduleCustomerModuleTier(customerId, "core", pendingCoreTierId);
     setPendingCoreTierId(null);
     setTick((n) => n + 1);
     setReceipt({
@@ -355,8 +352,8 @@ export function CustomerServicesAndProductsTab({
         },
       ],
       onUndo: () => {
-        if (isUpgrade) setModuleTier("core", coreTierId);
-        else clearScheduledTier("core");
+        if (isUpgrade) setCustomerModuleTier(customerId, "core", coreTierId);
+        else clearCustomerScheduledTier(customerId, "core");
         setTick((n) => n + 1);
         setReceipt(null);
         toast.success("Endringen er angret.");
@@ -373,13 +370,13 @@ export function CustomerServicesAndProductsTab({
     const isUpgrade = nextTier.monthlyPriceKr >= prevTier.monthlyPriceKr;
     let effectiveAt: string | undefined;
     if (isActivation) {
-      activateModule("vendors");
-      setModuleTier("vendors", pendingVendorTierId);
+      activateCustomerModule(customerId, "vendors", pendingVendorTierId);
+      setCustomerModuleTier(customerId, "vendors", pendingVendorTierId);
       setVendorTierMode("change");
     } else if (isUpgrade) {
-      setModuleTier("vendors", pendingVendorTierId);
+      setCustomerModuleTier(customerId, "vendors", pendingVendorTierId);
     } else {
-      effectiveAt = scheduleModuleTier("vendors", pendingVendorTierId);
+      effectiveAt = scheduleCustomerModuleTier(customerId, "vendors", pendingVendorTierId);
     }
     setPendingVendorTierId(null);
     setTick((n) => n + 1);
@@ -406,8 +403,8 @@ export function CustomerServicesAndProductsTab({
       onUndo: isActivation
         ? undefined
         : () => {
-            if (isUpgrade) setModuleTier("vendors", vendorTierId);
-            else clearScheduledTier("vendors");
+            if (isUpgrade) setCustomerModuleTier(customerId, "vendors", vendorTierId);
+            else clearCustomerScheduledTier(customerId, "vendors");
             setTick((n) => n + 1);
             setReceipt(null);
             toast.success("Endringen er angret.");
@@ -512,7 +509,7 @@ export function CustomerServicesAndProductsTab({
                         tierLabel: p.scheduled.tierLabel,
                         atLabel: formatDateLong(p.scheduled.at),
                         onUndo: () => {
-                          clearScheduledTier(p.stateKey);
+                          clearCustomerScheduledTier(customerId, p.stateKey);
                           toast.success("Nedgraderingen er angret.");
                         },
                       }
