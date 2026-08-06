@@ -107,6 +107,7 @@ import PublicTrustProfile from "./pages/PublicTrustProfile";
 import SharedTrustProfile from "./pages/SharedTrustProfile";
 import MynderAdminDashboard from "./pages/MynderAdminDashboard";
 import BoardDashboard from "./pages/BoardDashboard";
+import GuidanceMobileTest from "./pages/__GuidanceMobileTest";
 
 const queryClient = new QueryClient();
 
