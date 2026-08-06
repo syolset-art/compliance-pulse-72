@@ -725,7 +725,20 @@ export default function Subscriptions() {
                   usageLimit={String(vendorTier.vendorLimit)}
                   usageSuffix="leverandører"
                   action={isDeactivated ? "activate" : "change"}
-                  onClick={() => isDeactivated ? requestActivate("vendors", "Leverandørmodul") : setChangeVendorTierOpen(true)}
+                  scheduledChange={!isDeactivated && scheduledVendor ? {
+                    tierLabel: scheduledVendor.tier.label,
+                    atLabel: formatDateLong(scheduledVendor.at),
+                    onUndo: () => undoScheduledTier("vendors", "Leverandørmodulen"),
+                  } : undefined}
+                  onClick={() => {
+                    if (isDeactivated) {
+                      setVendorTierMode("activate");
+                      setChangeVendorTierOpen(true);
+                    } else {
+                      setVendorTierMode("change");
+                      setChangeVendorTierOpen(true);
+                    }
+                  }}
                   onDeactivate={() => requestDeactivate("vendors", "Leverandørmodul")}
 
                   accentColor="amber"
