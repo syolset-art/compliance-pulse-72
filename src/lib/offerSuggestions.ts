@@ -1,7 +1,10 @@
 import { getOffersForCustomer, normalizeServiceKey } from "@/lib/customerOffers";
 import { SERVICE_LIBRARY } from "@/lib/serviceLibrary";
 import type { CustomerEntryTarget } from "@/lib/customerEntryRoutes";
+import { getCustomerActiveModules } from "@/lib/customerModuleState";
 import {
+  CORE_TIERS,
+  VENDOR_TIERS,
   EXTRA_FRAMEWORK_PRICE_KR,
   TRUST_CENTER_PRICE_KR,
   getFrameworkMonthlyPrice,
