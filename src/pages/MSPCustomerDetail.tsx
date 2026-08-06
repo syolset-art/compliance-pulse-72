@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft, Server, Wifi, RefreshCw, Sparkles, AlertTriangle, CheckCircle2, ShieldCheck, Shield, EyeOff, Clock as ClockIcon, ArrowRight, HelpCircle, FileText, MessageSquare, BookOpen, Scale, Zap, Target, ClipboardList, Users, Lightbulb } from "lucide-react";
 import { ContextualHelpPanel } from "@/components/shared/ContextualHelpPanel";
 import { usePageHelpListener } from "@/hooks/usePageHelpListener";
@@ -62,6 +63,15 @@ import type { OfferSuggestion } from "@/lib/offerSuggestions";
 import { MSPCreateOfferDialog } from "@/components/msp/MSPCreateOfferDialog";
 import { useSavedOffers } from "@/lib/customerOffers";
 import type { FrameworkRecommendation } from "@/lib/regulationRecommender";
+
+const CUSTOMER_TABS = [
+  { value: "guidance", label: "Veiledning fra Mynder" },
+  { value: "assessment", label: "Tjenester og produkter" },
+  { value: "messages", label: "Meldinger" },
+  { value: "documentation", label: "Dokumentasjon" },
+  { value: "regulations", label: "Regelverk" },
+  { value: "deliveries", label: "Leveranser" },
+] as const;
 
 
 export default function MSPCustomerDetail() {
@@ -341,35 +351,47 @@ export default function MSPCustomerDetail() {
 
           {/* Tabs */}
           <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full min-w-0">
-            <nav aria-label="Kunde-faner" className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
-              <TabsList className="flex bg-muted/30 border border-border rounded-xl p-1 h-auto gap-0.5 min-w-0" role="tablist">
-                <TabsTrigger value="guidance" className="relative text-sm font-medium text-foreground/75 data-[state=active]:text-foreground data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap px-3 py-2">
-                  Veiledning fra Mynder
-                  {tasks.length > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 flex h-2 w-2">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-destructive opacity-75" />
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-destructive" />
-                    </span>
-                  )}
-                </TabsTrigger>
-                <TabsTrigger value="assessment" className="text-sm font-medium text-foreground/75 data-[state=active]:text-foreground data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap px-3 py-2">
-                  Tjenester og produkter
+            {/* Mobil: nedtrekksvelger */}
+            <div className="sm:hidden">
+              <Select value={activeTab} onValueChange={handleTabChange}>
+                <SelectTrigger aria-label="Velg fane" className="w-full h-11 bg-muted/30 border-border rounded-xl text-sm font-medium">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="z-50 bg-popover">
+                  {CUSTOMER_TABS.map((tab) => (
+                    <SelectItem key={tab.value} value={tab.value}>
+                      <span className="flex items-center gap-2">
+                        {tab.label}
+                        {tab.value === "guidance" && tasks.length > 0 && (
+                          <span className="inline-flex h-2 w-2 rounded-full bg-destructive" />
+                        )}
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
-                </TabsTrigger>
-                <TabsTrigger value="messages" className="text-sm font-medium text-foreground/75 data-[state=active]:text-foreground data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap px-3 py-2">
-                  Meldinger
-                </TabsTrigger>
-                <TabsTrigger value="documentation" className="text-sm font-medium text-foreground/75 data-[state=active]:text-foreground data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap px-3 py-2">
-                  Dokumentasjon
-                </TabsTrigger>
-                <TabsTrigger value="regulations" className="text-sm font-medium text-foreground/75 data-[state=active]:text-foreground data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap px-3 py-2">
-                  Regelverk
-                </TabsTrigger>
-                <TabsTrigger value="deliveries" className="text-sm font-medium text-foreground/75 data-[state=active]:text-foreground data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap px-3 py-2">
-                  Leveranser
-                </TabsTrigger>
+            <nav aria-label="Kunde-faner" className="hidden sm:block overflow-x-auto">
+              <TabsList className="flex bg-muted/30 border border-border rounded-xl p-1 h-auto gap-0.5 min-w-0" role="tablist">
+                {CUSTOMER_TABS.map((tab) => (
+                  <TabsTrigger
+                    key={tab.value}
+                    value={tab.value}
+                    className="relative text-sm font-medium text-foreground/75 data-[state=active]:text-foreground data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap px-3 py-2"
+                  >
+                    {tab.label}
+                    {tab.value === "guidance" && tasks.length > 0 && (
+                      <span className="absolute -top-0.5 -right-0.5 flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-destructive opacity-75" />
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-destructive" />
+                      </span>
+                    )}
+                  </TabsTrigger>
+                ))}
               </TabsList>
             </nav>
+
 
             {/* ── Veiledning fra Mynder ── */}
             <TabsContent value="guidance" className="mt-6 space-y-5">
