@@ -782,7 +782,7 @@ export default function Subscriptions() {
               action={deactivatedModules.has("trust") ? "activate" : "open"}
               onClick={() =>
                 deactivatedModules.has("trust")
-                  ? requestActivate("trust", "Trust Center")
+                  ? requestActivate("trust", { monthlyPriceKr: TRUST_CENTER_PRICE_KR })
                   : window.open(trustProfileUrl, "_blank", "noopener,noreferrer")
               }
               onDeactivate={() => requestDeactivate("trust", "Trust Center")}
@@ -803,7 +803,7 @@ export default function Subscriptions() {
 
               action={deactivatedModules.has("partner") ? "activate" : hasPartnerAccess ? "open" : "activate"}
               onClick={() => {
-                if (deactivatedModules.has("partner")) return requestActivate("partner", "Partner Workspace");
+                if (deactivatedModules.has("partner")) return requestActivate("partner", { monthlyPriceKr: partnerWorkspaceMonthlyPrice });
                 return hasPartnerAccess ? navigate("/msp") : toast.info("Ta kontakt med salg på sales@mynder.no for å aktivere Partner Workspace.");
               }}
               onDeactivate={hasPartnerAccess ? () => requestDeactivate("partner", "Partner Workspace") : undefined}
