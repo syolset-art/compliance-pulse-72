@@ -57,10 +57,14 @@ export function OpportunityWidget({ customers = OPPORTUNITY_CUSTOMERS }: Props) 
   const groupingLabel = grouping === "industry" ? "bransje" : "regelverk";
 
   return (
-    <Card className="p-5">
-      <div className="flex items-center justify-between gap-3">
+    <Card className="p-4 sm:p-5">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
         <h2 className="text-base font-semibold text-foreground">Salgspotensial</h2>
-        <div className="inline-flex rounded-lg border border-border p-0.5" role="group" aria-label="Velg fordeling">
+        <div
+          className="inline-flex w-full sm:w-auto rounded-lg border border-border p-0.5"
+          role="group"
+          aria-label="Velg fordeling"
+        >
           {(["industry", "framework"] as Grouping[]).map((g) => (
             <button
               key={g}
@@ -68,7 +72,7 @@ export function OpportunityWidget({ customers = OPPORTUNITY_CUSTOMERS }: Props) 
               onClick={() => setGrouping(g)}
               aria-pressed={grouping === g}
               className={cn(
-                "px-3 py-1.5 text-xs font-medium rounded-md transition-colors",
+                "flex-1 sm:flex-none whitespace-nowrap px-3 py-1.5 text-xs font-medium rounded-md transition-colors",
                 grouping === g
                   ? "bg-primary text-primary-foreground"
                   : "text-muted-foreground hover:text-foreground",
@@ -85,7 +89,7 @@ export function OpportunityWidget({ customers = OPPORTUNITY_CUSTOMERS }: Props) 
 
       <div className="mt-4 flex flex-wrap items-center gap-2">
 
-        <p className="text-2xl font-bold text-foreground tabular-nums">
+        <p className="text-xl sm:text-2xl font-bold text-foreground tabular-nums">
           {formatPotential(potential, currency)}
         </p>
         <Popover>
@@ -98,7 +102,7 @@ export function OpportunityWidget({ customers = OPPORTUNITY_CUSTOMERS }: Props) 
               KI-generert estimat
             </button>
           </PopoverTrigger>
-          <PopoverContent className="w-80 text-sm leading-relaxed">
+          <PopoverContent className="w-[min(20rem,calc(100vw-2rem))] text-sm leading-relaxed">
             Estimatet er utarbeidet av Lara (KI). Det bygger på timeestimat per mulig oppgave
             ganget med timeprisen din ({defaultHourlyRate.toLocaleString("nb-NO")} {currency}/t)
             fra tjenesteinnstillinger, avrundet til nærmeste tusen. Beløpene er eks. mva og
@@ -110,17 +114,22 @@ export function OpportunityWidget({ customers = OPPORTUNITY_CUSTOMERS }: Props) 
         {taskTotal} mulige oppgaver hos {customers.length} kunder · eks. mva
       </p>
 
-      <ul className="mt-4 space-y-2">
+      <ul className="mt-4 space-y-3 sm:space-y-2">
         {slices.map((s) => (
-          <li key={s.label} className="flex items-center gap-3">
-            <span className="w-40 shrink-0 text-sm text-foreground">{s.label}</span>
-            <span className="flex-1 h-2 rounded-full bg-muted overflow-hidden" aria-hidden="true">
+          <li
+            key={s.label}
+            className="flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-3"
+          >
+            <span className="min-w-0 sm:w-40 sm:shrink-0 text-sm text-foreground truncate">
+              {s.label}
+            </span>
+            <span className="order-last sm:order-none flex-1 h-2 rounded-full bg-muted overflow-hidden" aria-hidden="true">
               <span
                 className="block h-full rounded-full bg-primary"
                 style={{ width: `${Math.round((s.potential / max) * 100)}%` }}
               />
             </span>
-            <span className="w-52 shrink-0 text-right text-sm text-foreground tabular-nums">
+            <span className="sm:w-52 sm:shrink-0 sm:text-right text-sm text-foreground tabular-nums">
               {formatPotential(s.potential, currency)}
               <span className="text-muted-foreground"> · {s.taskCount} oppgaver</span>
             </span>
@@ -138,7 +147,7 @@ export function OpportunityWidget({ customers = OPPORTUNITY_CUSTOMERS }: Props) 
         .
       </p>
 
-      <Button className="mt-4" onClick={() => navigate("/msp-partner/muligheter")}>
+      <Button className="mt-4 w-full sm:w-auto" onClick={() => navigate("/msp-partner/muligheter")}>
         Se alle muligheter
       </Button>
     </Card>
