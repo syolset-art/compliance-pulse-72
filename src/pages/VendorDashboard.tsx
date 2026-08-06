@@ -219,11 +219,27 @@ export default function VendorDashboard() {
         }}
       />
 
-      <VendorActivateDialog
-        open={activateOpen}
-        onOpenChange={setActivateOpen}
-        onActivated={() => setIsPremium(true)}
+      <ChangeVendorTierDialog
+        open={tierDialogOpen}
+        onOpenChange={setTierDialogOpen}
+        currentTierId={vendorTierId}
+        usedVendors={vendors.length}
+        mode={capacity.isFree ? "activate" : "change"}
+        onConfirm={(next) => {
+          setPendingTierId(next);
+          setTierDialogOpen(false);
+        }}
       />
+
+      <ConfirmVendorTierChangeDialog
+        open={!!pendingTierId}
+        onOpenChange={(o) => { if (!o) setPendingTierId(null); }}
+        currentTierId={vendorTierId}
+        nextTierId={pendingTierId}
+        mode={capacity.isFree ? "activate" : "change"}
+        onConfirm={handleTierConfirm}
+      />
+
 
       <ContextualHelpPanel
         open={helpOpen}
