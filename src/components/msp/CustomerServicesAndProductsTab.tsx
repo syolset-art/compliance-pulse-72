@@ -58,7 +58,6 @@ import type { CustomerEntryTarget } from "@/lib/customerEntryRoutes";
 import { MSPCreateOfferDialog } from "./MSPCreateOfferDialog";
 import { CustomerModulesTab } from "./CustomerModulesTab";
 import { MSPMaturityServiceMatrix } from "./MSPMaturityServiceMatrix";
-import { RecommendedNextStepsCard } from "./RecommendedNextStepsCard";
 
 interface Props {
   customerId: string;
