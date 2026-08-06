@@ -764,7 +764,7 @@ export default function Subscriptions() {
               usageLimit={assetLimit}
               usageSuffix="eiendeler"
               action={deactivatedModules.has("assets") ? "activate" : "open"}
-              onClick={() => deactivatedModules.has("assets") ? requestActivate("assets") : navigate("/assets")}
+              onClick={() => deactivatedModules.has("assets") ? requestActivate("assets", { monthlyPriceKr: assetMonthlyPrice }) : navigate("/assets")}
               onDeactivate={() => requestDeactivate("assets", "Eiendeler")}
               accentColor="emerald"
               onReadMore={() => setReadMoreKey("assets")}
