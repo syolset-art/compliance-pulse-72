@@ -132,16 +132,6 @@ export function EnterCustomerContextDialog({
           </p>
         </div>
 
-        {variant === "activation" && (
-          <label className="flex items-center gap-2 cursor-pointer">
-            <Checkbox
-              checked={dontAskAgain}
-              onCheckedChange={(v) => setDontAskAgain(v === true)}
-            />
-            <span className="text-xs text-muted-foreground">Ikke spør meg om dette igjen</span>
-          </label>
-        )}
-
         <DialogFooter className="pt-2">
           <Button variant="ghost" onClick={handleLater}>
             {variant === "work" ? "Avbryt" : "Senere"}
