@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { usePageHelpListener } from "@/hooks/usePageHelpListener";
 import { ContextualHelpPanel } from "@/components/shared/ContextualHelpPanel";
 import { Handshake, FileText, Shield, HelpCircle, AlertTriangle, Upload, BarChart3, Send, Share2 } from "lucide-react";

@@ -101,6 +101,11 @@ export function ModuleCard({
             style={{ width: `${pct}%` }}
           />
         </div>
+        {atCap && (
+          <p className="text-xs text-amber-700">
+            Grensen er nådd — endre nivå for å legge til flere.
+          </p>
+        )}
 
       </div>
     );
