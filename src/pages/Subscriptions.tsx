@@ -234,6 +234,22 @@ export default function Subscriptions() {
   const [pendingVendorTierId, setPendingVendorTierId] = useState<VendorTierId | null>(null);
   const [readMoreKey, setReadMoreKey] = useState<ModuleKey | null>(null);
   const [confirmActivate, setConfirmActivate] = useState<{ id: string; title: string } | null>(null);
+  const [vendorTierMode, setVendorTierMode] = useState<"change" | "activate">("change");
+  const [receipt, setReceipt] = useState<ModuleChangeReceipt | null>(null);
+  const { current: currentTerms } = useTerms();
+
+  const scheduledCore = moduleStates["core"]?.scheduledTierId
+    ? { tier: getCoreTier(moduleStates["core"]!.scheduledTierId as CoreTierId), at: moduleStates["core"]!.scheduledAt! }
+    : null;
+  const scheduledVendor = moduleStates["vendors"]?.scheduledTierId
+    ? { tier: getVendorTier(moduleStates["vendors"]!.scheduledTierId as VendorTierId), at: moduleStates["vendors"]!.scheduledAt! }
+    : null;
+
+  const undoScheduledTier = (id: string, label: string) => {
+    clearScheduledTier(id);
+    setModuleStates(getModuleStates());
+    toast.success(`Nedgraderingen av ${label} er angret.`);
+  };
 
   const syncModuleState = () => {
     setModuleStates(getModuleStates());
