@@ -122,7 +122,7 @@ export function CustomerMaturityMirrorCard({
   return (
     <>
       <Card className="p-4">
-        <div className="flex items-start justify-between gap-3 mb-3">
+        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mb-3">
           <div className="flex items-center gap-2 min-w-0 flex-wrap">
             <ShieldCheck className="h-4 w-4 text-primary shrink-0" />
             <h3 className="text-sm font-semibold text-foreground">Modenhet per kontrollområde</h3>
@@ -132,7 +132,7 @@ export function CustomerMaturityMirrorCard({
             </span>
           </div>
 
-          <div className="flex items-center gap-1.5 shrink-0">
+          <div className="flex flex-wrap items-center gap-1.5 sm:shrink-0">
             <span className="text-xs text-muted-foreground">Modenhet</span>
             <span className={cn("text-sm font-semibold tabular-nums", totalBand.textClass)}>
               {score}

@@ -66,7 +66,7 @@ export function CustomerFrameworkRecommendationsCard({
 
   return (
     <Card className="p-5 flex flex-col">
-      <div className="flex items-start justify-between gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
         <div className="min-w-0">
           <h3 className="text-sm font-semibold text-foreground">
             Lovpålagte regelverk basert på data om kunden
