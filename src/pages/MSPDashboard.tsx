@@ -470,6 +470,19 @@ export default function MSPDashboard() {
     },
   });
 
+  // Pillene skal endre seg med én gang partneren aktiverer eller endrer nivå.
+  const [, setModuleTick] = useState(0);
+  useEffect(() => {
+    const refresh = () => {
+      setModuleTick((n) => n + 1);
+      refetch();
+    };
+    window.addEventListener(CUSTOMER_MODULES_EVENT, refresh);
+    return () => window.removeEventListener(CUSTOMER_MODULES_EVENT, refresh);
+  }, [refetch]);
+
+
+
   // Highlight newly added customers for a few seconds (visual nudge in the table)
   const [highlightIds, setHighlightIds] = useState<Set<string>>(new Set());
   const seenIdsRef = useRef<Set<string> | null>(null);
