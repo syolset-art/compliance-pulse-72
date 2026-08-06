@@ -74,7 +74,8 @@ interface ProductDef {
   moduleKey?: string;
   title: string;
   description: string;
-  usage?: { current: number; suffix: string };
+  /** Hva som telles mot nivået (faktisk antall hentes fra registeret). */
+  usageSuffix?: string;
 }
 
 const PRODUCTS: ProductDef[] = [
@@ -83,14 +84,14 @@ const PRODUCTS: ProductDef[] = [
     moduleKey: "core",
     title: "Mynder Core",
     description: "Grunnmodulen. Oppgaver, avvik, samsvar, behandlingsprotokoll og dokumenter.",
-    usage: { current: 10, suffix: "systemer" },
+    usageSuffix: "systemer",
   },
   {
     key: "vendor",
     moduleKey: "vendors",
     title: "Leverandørmodul",
     description: "TPRM og leverandørvurdering.",
-    usage: { current: 11, suffix: "leverandører" },
+    usageSuffix: "leverandører",
   },
   {
     key: "systems",
