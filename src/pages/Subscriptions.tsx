@@ -462,7 +462,7 @@ export default function Subscriptions() {
       nextSteps: [
         { label: "Gå til Systemer", description: "Se og administrer systemene som teller mot nivået.", onClick: () => navigate("/systems") },
         { label: "Oppdag systemer", description: "La Lara kartlegge systemer automatisk fra Microsoft, Google eller regneark.", onClick: () => navigate("/systems?discover=1") },
-        { label: "Se behandlingsprotokoll", description: "Kontroller at nye systemer er dekket i protokollen.", onClick: () => navigate("/processing-activities") },
+        { label: "Se behandlingsprotokoll", description: "Kontroller at nye systemer er dekket i protokollen.", onClick: () => navigate("/protocols") },
       ],
       onUndo: () => {
         if (isUpgrade) {
