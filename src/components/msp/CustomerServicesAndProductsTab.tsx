@@ -218,7 +218,7 @@ export function CustomerServicesAndProductsTab({
         };
       }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [tick],
+    [tick, usedVendors, usedSystems],
   );
 
   const activeSet = useMemo(() => new Set(activeFrameworkIds), [activeFrameworkIds]);
