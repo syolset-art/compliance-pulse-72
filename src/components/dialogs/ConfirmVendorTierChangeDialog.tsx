@@ -11,6 +11,7 @@ interface Props {
   currentTierId: VendorTierId;
   nextTierId: VendorTierId | null;
   onConfirm: () => void;
+  mode?: "change" | "activate";
 }
 
 function nextBillingDate(): string {
