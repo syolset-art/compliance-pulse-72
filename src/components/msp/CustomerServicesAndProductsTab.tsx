@@ -374,36 +374,12 @@ export function CustomerServicesAndProductsTab({
     }
     setPendingVendorTierId(null);
     setTick((n) => n + 1);
-    setReceipt({
-      moduleId: "vendors",
-      moduleTitle: "Leverandørmodul",
-      kind: isActivation ? "activation" : isUpgrade ? "upgrade" : "downgrade",
-      fromLabel: isActivation ? undefined : prevTier.label,
-      toLabel: nextTier.label,
-      monthlyPriceKr: nextTier.monthlyPriceKr,
-      effectiveAt,
-      nextSteps: [
-        {
-          label: "Gå inn i kundens leverandører",
-          description: "Se leverandørene som teller mot nivået.",
-          onClick: () => setEnterItems([{ id: "vendors", kind: "module", label: "Leverandørmodul", moduleKey: "vendors" }]),
-        },
-        {
-          label: "Lag tilbud på leverandøroppfølging",
-          description: "Tilby kunden løpende oppfølging av tredjeparter.",
-          onClick: () => setOfferItems([{ label: "Leverandøroppfølging (TPRM)", hours: 10 }]),
-        },
-      ],
-      onUndo: isActivation
-        ? undefined
-        : () => {
-            if (isUpgrade) setCustomerModuleTier(customerId, "vendors", vendorTierId);
-            else clearCustomerScheduledTier(customerId, "vendors");
-            setTick((n) => n + 1);
-            setReceipt(null);
-            toast.success("Endringen er angret.");
-          },
-    });
+    setEnterItems([{ id: "vendors", kind: "module", label: "Leverandørmodul", moduleKey: "vendors" }]);
+    toast.success(
+      isActivation
+        ? `Leverandørmodul aktivert${effectiveAt ? "" : ""} hos ${customerName}`
+        : `Nivå endret til ${nextTier.label}`,
+    );
     onUpdate?.();
   };
 
