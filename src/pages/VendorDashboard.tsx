@@ -20,10 +20,12 @@ import { VendorCompareTab } from "@/components/vendor-dashboard/VendorCompareTab
 import { useGlobalChat } from "@/components/GlobalChatProvider";
 
 import { VendorPremiumBanner } from "@/components/vendor-dashboard/VendorPremiumBanner";
-import { VendorActivateDialog } from "@/components/vendor-dashboard/VendorActivateDialog";
 import { VendorPortfolioActions } from "@/components/vendor-dashboard/VendorPortfolioActions";
-
-const MAX_FREE_VENDORS = 5;
+import { ChangeVendorTierDialog } from "@/components/dialogs/ChangeVendorTierDialog";
+import { ConfirmVendorTierChangeDialog } from "@/components/dialogs/ConfirmVendorTierChangeDialog";
+import { getVendorCapacity, getCurrentVendorTierId } from "@/lib/vendorCapacity";
+import { setModuleTier, activateModule } from "@/lib/moduleActivationState";
+import { getVendorTier, type VendorTierId } from "@/lib/planConstants";
 
 export default function VendorDashboard() {
   const { t } = useTranslation();
