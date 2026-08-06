@@ -340,6 +340,7 @@ const ACTIVATED_LABEL_TO_MODULE: Record<string, string> = {
   leverandører: "vendors",
   assets: "assets",
   "eiendeler (assets)": "assets",
+  eiendeler: "assets",
   systemer: "core",
   "trust profile": "trust",
   "trust center": "trust",
