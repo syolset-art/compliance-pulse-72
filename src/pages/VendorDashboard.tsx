@@ -88,6 +88,33 @@ export default function VendorDashboard() {
     openChatWithMessage(t("vendorDashboard.discoverAI", "Discover with AI"));
   };
 
+  const capacity = getVendorCapacity(vendors.length, vendorTierId);
+
+  /** Åpner leverandørdialogen — eller nivådialogen når nivået er fullt. */
+  const requestAddVendor = () => {
+    if (capacity.atCap) {
+      toast.info(
+        `Nivået «${capacity.tier.label.toLowerCase()}» er fullt. Velg et høyere nivå for å legge til flere.`,
+      );
+      setTierDialogOpen(true);
+      return;
+    }
+    setIsVendorDialogOpen(true);
+  };
+
+  const handleTierConfirm = () => {
+    if (!pendingTierId) return;
+    const prevTier = getVendorTier(vendorTierId);
+    const nextTier = getVendorTier(pendingTierId);
+    activateModule("vendors");
+    setModuleTier("vendors", pendingTierId);
+    setVendorTierId(pendingTierId);
+    setPendingTierId(null);
+    toast.success(
+      `Leverandørmodulen er satt til ${nextTier.label.toLowerCase()} (fra ${prevTier.label.toLowerCase()}). Tjenesten aktiveres umiddelbart og faktureres på neste faktura.`,
+    );
+  };
+
   return (
     <div className="flex min-h-screen bg-background">
       <Sidebar />
