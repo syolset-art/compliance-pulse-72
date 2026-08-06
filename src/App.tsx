@@ -225,7 +225,6 @@ const App = () => (
                   <Route path="/risk" element={<BusinessRiskDetail />} />
                   <Route path="/mynder-admin" element={<MynderAdminDashboard />} />
                   <Route path="/mynder-admin/dashboard" element={<MynderAdminDashboard />} />
-                  <Route path="/__guidance-test" element={<GuidanceMobileTest />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </GlobalChatProvider>
