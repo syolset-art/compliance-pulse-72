@@ -133,13 +133,7 @@ export default function VendorDashboard() {
             <div className="flex items-center gap-2">
               <VendorPortfolioActions vendors={vendors} />
               <Button
-                onClick={() => {
-                  if (!isPremium && vendors.length >= MAX_FREE_VENDORS) {
-                    setActivateOpen(true);
-                  } else {
-                    setIsVendorDialogOpen(true);
-                  }
-                }}
+                onClick={requestAddVendor}
                 className="gap-2"
               >
                 <Plus className="h-4 w-4" aria-hidden="true" />
@@ -148,13 +142,14 @@ export default function VendorDashboard() {
             </div>
           </div>
 
-          {/* Premium banner */}
+          {/* Kapasitetsbanner */}
           <VendorPremiumBanner
             vendorCount={vendors.length}
-            maxFreeVendors={MAX_FREE_VENDORS}
-            isActivated={isPremium}
-            onActivate={() => setActivateOpen(true)}
+            maxFreeVendors={capacity.limit}
+            isActivated={!capacity.isFree}
+            onActivate={() => setTierDialogOpen(true)}
           />
+
 
           <Tabs value={tabFromUrl} onValueChange={(v) => { const next = new URLSearchParams(searchParams); next.set("tab", v); setSearchParams(next, { replace: true }); }} className="space-y-4">
             <div className="flex items-center justify-between">
