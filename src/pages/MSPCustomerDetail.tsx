@@ -64,6 +64,15 @@ import { MSPCreateOfferDialog } from "@/components/msp/MSPCreateOfferDialog";
 import { useSavedOffers } from "@/lib/customerOffers";
 import type { FrameworkRecommendation } from "@/lib/regulationRecommender";
 
+const CUSTOMER_TABS = [
+  { value: "guidance", label: "Veiledning fra Mynder" },
+  { value: "assessment", label: "Tjenester og produkter" },
+  { value: "messages", label: "Meldinger" },
+  { value: "documentation", label: "Dokumentasjon" },
+  { value: "regulations", label: "Regelverk" },
+  { value: "deliveries", label: "Leveranser" },
+] as const;
+
 
 export default function MSPCustomerDetail() {
   const { customerId } = useParams();
