@@ -25,6 +25,10 @@ export interface ModuleState {
   cancelAt?: string;
   /** Valgt nivå (tier) for moduler som har nivåer. */
   tierId?: string;
+  /** Planlagt nedgradering til dette nivået. */
+  scheduledTierId?: string;
+  /** ISO-dato for når den planlagte nedgraderingen trer i kraft. */
+  scheduledAt?: string;
   /** Detaljer registrert ved oppsigelse. */
   cancellation?: CancellationMeta;
 }
