@@ -124,7 +124,9 @@ export function ChangeVendorTierDialog({
 
         <DialogFooter className="pt-2">
           <Button variant="ghost" onClick={() => onOpenChange(false)}>Avbryt</Button>
-          <Button disabled={!changed} onClick={() => onConfirm(selected)}>Endre nivå</Button>
+          <Button disabled={mode === "change" && !changed} onClick={() => onConfirm(selected)}>
+            {mode === "activate" ? "Fortsett" : "Endre nivå"}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
