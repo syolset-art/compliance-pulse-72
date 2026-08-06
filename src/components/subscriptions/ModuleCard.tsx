@@ -77,7 +77,9 @@ export function ModuleCard({
   let usageLine: React.ReactNode = null;
   const usageNum = usage ? Number(usage) : NaN;
   const limitNum = usageLimit ? Number(usageLimit) : NaN;
-  const hasBar = !Number.isNaN(usageNum) && !Number.isNaN(limitNum) && limitNum > 0;
+  // Et forbruk høyere enn grensen er alltid feil data — da vises kun antallet.
+  const hasBar =
+    !Number.isNaN(usageNum) && !Number.isNaN(limitNum) && limitNum > 0 && usageNum <= limitNum;
 
   if (breakdown && breakdown.length > 0) {
     const names = breakdown.slice(0, 4).map((b) => b.label).join(", ");
@@ -101,6 +103,11 @@ export function ModuleCard({
             style={{ width: `${pct}%` }}
           />
         </div>
+        {atCap && (
+          <p className="text-xs text-amber-700">
+            Grensen er nådd — endre nivå for å legge til flere.
+          </p>
+        )}
 
       </div>
     );

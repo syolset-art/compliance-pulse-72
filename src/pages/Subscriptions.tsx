@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Sparkles, Check, CreditCard, FileText,
@@ -7,6 +7,7 @@ import {
   LayoutGrid, Server, BookOpen, Briefcase, Users, ShieldCheck, Globe,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import { resolveVendorCapacity, persistVendorTier } from "@/lib/vendorCapacity";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -408,9 +409,27 @@ export default function Subscriptions() {
   }));
   const frameworkMonthlyPrice = frameworkBreakdown.reduce((sum, item) => sum + item.priceKr, 0);
 
-  const coreTier = getCoreTier(coreTierId);
+  const requiredCoreTier =
+    CORE_TIERS.find((t) => (systemsCount ?? 0) <= t.systemLimit) ?? CORE_TIERS[CORE_TIERS.length - 1];
+  const storedCoreTier = getCoreTier(coreTierId);
+  const coreTier =
+    requiredCoreTier.systemLimit > storedCoreTier.systemLimit ? requiredCoreTier : storedCoreTier;
+  useEffect(() => {
+    if (coreTier.id !== coreTierId) {
+      setModuleTier("core", coreTier.id);
+      setCoreTierId(coreTier.id);
+    }
+  }, [coreTier.id, coreTierId]);
   const corePrice = coreTier.monthlyPriceKr;
-  const vendorTier = getVendorTier(vendorTierId);
+  // Nivået kan aldri være lavere enn faktisk bruk.
+  const vendorCapacity = resolveVendorCapacity(vendorCount ?? 0, vendorTierId);
+  const vendorTier = vendorCapacity.tier;
+  useEffect(() => {
+    if (vendorCapacity.tierId !== vendorTierId) {
+      persistVendorTier(vendorCapacity.tierId);
+      setVendorTierId(vendorCapacity.tierId);
+    }
+  }, [vendorCapacity.tierId, vendorTierId]);
   const vendorMonthlyPrice = vendorTier.monthlyPriceKr;
   const assetMonthlyPrice = 690;
   const partnerWorkspaceMonthlyPrice = 990;
@@ -702,9 +721,9 @@ export default function Subscriptions() {
             />
 
             {(() => {
-              const used = vendorCount ?? 0;
-              const atCap = used >= vendorTier.vendorLimit;
-              const nextTier = getNextVendorTier(vendorTierId);
+              const used = vendorCapacity.used;
+              const atCap = vendorCapacity.atCap;
+              const nextTier = vendorCapacity.nextTier;
               const isDeactivated = deactivatedModules.has("vendors");
               const capFooter = !isDeactivated && atCap && nextTier ? (
                 <div className="rounded-md border border-amber-200 bg-amber-50/60 px-3 py-2">

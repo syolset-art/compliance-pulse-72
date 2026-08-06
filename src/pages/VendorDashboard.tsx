@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { usePageHelpListener } from "@/hooks/usePageHelpListener";
 import { ContextualHelpPanel } from "@/components/shared/ContextualHelpPanel";
 import { Handshake, FileText, Shield, HelpCircle, AlertTriangle, Upload, BarChart3, Send, Share2 } from "lucide-react";
@@ -23,7 +23,7 @@ import { VendorPremiumBanner } from "@/components/vendor-dashboard/VendorPremium
 import { VendorPortfolioActions } from "@/components/vendor-dashboard/VendorPortfolioActions";
 import { ChangeVendorTierDialog } from "@/components/dialogs/ChangeVendorTierDialog";
 import { ConfirmVendorTierChangeDialog } from "@/components/dialogs/ConfirmVendorTierChangeDialog";
-import { getVendorCapacity, getCurrentVendorTierId } from "@/lib/vendorCapacity";
+import { resolveVendorCapacity, persistVendorTier, getCurrentVendorTierId } from "@/lib/vendorCapacity";
 import { setModuleTier, activateModule } from "@/lib/moduleActivationState";
 import { getVendorTier, type VendorTierId } from "@/lib/planConstants";
 
@@ -88,7 +88,15 @@ export default function VendorDashboard() {
     openChatWithMessage(t("vendorDashboard.discoverAI", "Discover with AI"));
   };
 
-  const capacity = getVendorCapacity(vendors.length, vendorTierId);
+  // Nivået løftes automatisk hvis registeret allerede har flere leverandører
+  // enn nivået rommer — forbruket kan aldri overstige grensen.
+  const capacity = resolveVendorCapacity(vendors.length, vendorTierId);
+  useEffect(() => {
+    if (capacity.tierId !== vendorTierId) {
+      persistVendorTier(capacity.tierId);
+      setVendorTierId(capacity.tierId);
+    }
+  }, [capacity.tierId, vendorTierId]);
 
   /** Åpner leverandørdialogen — eller nivådialogen når nivået er fullt. */
   const requestAddVendor = () => {
@@ -135,6 +143,11 @@ export default function VendorDashboard() {
               <Button
                 onClick={requestAddVendor}
                 className="gap-2"
+                title={
+                  capacity.atCap
+                    ? `Grensen på ${capacity.limit} leverandører er nådd. Endre nivå for å legge til flere.`
+                    : undefined
+                }
               >
                 <Plus className="h-4 w-4" aria-hidden="true" />
                 {t("vendorDashboard.addVendor", "Legg til")}

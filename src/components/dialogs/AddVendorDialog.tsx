@@ -28,6 +28,7 @@ import {
 import { useVendorLookup, VendorSearchResult } from "@/hooks/useVendorLookup";
 import { VendorRelationshipDiscoveryDialog } from "@/components/dialogs/VendorRelationshipDiscoveryDialog";
 import { cn } from "@/lib/utils";
+import { resolveVendorCapacity } from "@/lib/vendorCapacity";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Building2,
@@ -71,6 +72,21 @@ type Country = "NO" | "SE" | "DK" | "other";
 type VendorCategory = "saas" | "infrastructure" | "consulting" | "it_operations" | "facilities" | "other";
 type GdprRole = "databehandler" | "underdatabehandler" | "ingen";
 type DocumentType = "vendor_list" | "policy" | "dpa" | "dpia" | "certificate" | "report" | "other";
+
+/** Sikrer at nivågrensen ikke kan omgås, uansett hvor leverandøren registreres. */
+async function assertVendorCapacity(adding: number) {
+  const { count } = await supabase
+    .from("assets")
+    .select("id", { count: "exact", head: true })
+    .eq("asset_type", "vendor");
+  const used = count ?? 0;
+  const capacity = resolveVendorCapacity(used);
+  if (used + adding > capacity.limit) {
+    throw new Error(
+      `Nivået «${capacity.tier.label.toLowerCase()}» er fullt (${used} av ${capacity.limit}). Endre nivå for å legge til flere leverandører.`,
+    );
+  }
+}
 
 const SCAN_LIMIT = 5;
 const SCAN_COUNTER_KEY = "mynder_scan_count";
@@ -354,6 +370,7 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
 
   const createVendor = useMutation({
     mutationFn: async () => {
+      await assertVendorCapacity(1);
       const vendor = selected || {
         name: manualName,
         orgNumber: null,
@@ -398,14 +415,16 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
         resetForm();
       }
     },
-    onError: () => {
-      toast.error(t("addVendor.error", "Kunne ikke legge til leverandør"));
+    onError: (error: unknown) => {
+      const message = error instanceof Error ? error.message : "";
+      toast.error(message || t("addVendor.error", "Kunne ikke legge til leverandør"));
     },
   });
 
   // Bulk import vendors from classification
   const importVendors = useMutation({
     mutationFn: async (vendors: { name: string; description?: string }[]) => {
+      await assertVendorCapacity(vendors.length);
       const inserts = vendors.map((v) => ({
         name: v.name,
         asset_type: "vendor" as const,
@@ -422,8 +441,9 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
       onOpenChange(false);
       resetForm();
     },
-    onError: () => {
-      toast.error("Kunne ikke importere leverandører");
+    onError: (error: unknown) => {
+      const message = error instanceof Error ? error.message : "";
+      toast.error(message || "Kunne ikke importere leverandører");
     },
   });
 

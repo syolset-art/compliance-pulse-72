@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { resolveVendorCapacity, persistVendorTier } from "@/lib/vendorCapacity";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -176,6 +177,11 @@ export function CustomerServicesAndProductsTab({
   });
 
   const usedVendors = counts?.vendors ?? 0;
+  // Nivå og grense hentes fra samme kapasitetslogikk som leverandørregisteret.
+  const vendorCapacity = resolveVendorCapacity(usedVendors);
+  useEffect(() => {
+    persistVendorTier(vendorCapacity.tierId);
+  }, [vendorCapacity.tierId]);
   const usedSystems = counts?.systems ?? 0;
 
   const products = useMemo(
@@ -188,7 +194,7 @@ export function CustomerServicesAndProductsTab({
         const tier = isCore
           ? getCoreTier((state.tierId as CoreTierId) ?? CORE_TIERS[0].id)
           : isVendors
-            ? getVendorTier((state.tierId as VendorTierId) ?? VENDOR_TIERS[0].id)
+            ? vendorCapacity.tier
             : null;
         const scheduledTier = state.scheduledTierId
           ? isCore
@@ -218,7 +224,7 @@ export function CustomerServicesAndProductsTab({
         };
       }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [tick, usedVendors, usedSystems],
+    [tick, usedVendors, usedSystems, vendorCapacity],
   );
 
   const activeSet = useMemo(() => new Set(activeFrameworkIds), [activeFrameworkIds]);
@@ -286,8 +292,7 @@ export function CustomerServicesAndProductsTab({
 
   const coreTierId =
     (getModuleState("core").tierId as CoreTierId) ?? CORE_TIERS[0].id;
-  const vendorTierId =
-    (getModuleState("vendors").tierId as VendorTierId) ?? VENDOR_TIERS[0].id;
+  const vendorTierId = vendorCapacity.tierId;
 
   const commitCoreTier = () => {
     if (!pendingCoreTierId) return;
