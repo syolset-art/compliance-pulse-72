@@ -1,4 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -9,6 +12,11 @@ import { frameworks as ALL_FRAMEWORKS } from "@/lib/frameworkDefinitions";
 import {
   getModuleState,
   formatPeriodEnd,
+  formatDateLong,
+  setModuleTier,
+  scheduleModuleTier,
+  clearScheduledTier,
+  activateModule,
 } from "@/lib/moduleActivationState";
 import {
   CORE_TIERS,
@@ -18,6 +26,14 @@ import {
   type CoreTierId,
   type VendorTierId,
 } from "@/lib/planConstants";
+import { ChangeCoreTierDialog } from "@/components/dialogs/ChangeCoreTierDialog";
+import { ConfirmCoreTierChangeDialog } from "@/components/dialogs/ConfirmCoreTierChangeDialog";
+import { ChangeVendorTierDialog } from "@/components/dialogs/ChangeVendorTierDialog";
+import { ConfirmVendorTierChangeDialog } from "@/components/dialogs/ConfirmVendorTierChangeDialog";
+import {
+  ModuleChangeReceiptSheet,
+  type ModuleChangeReceipt,
+} from "@/components/subscriptions/ModuleChangeReceiptSheet";
 import type { FrameworkRecommendation } from "@/lib/regulationRecommender";
 import { ModuleCard } from "@/components/subscriptions/ModuleCard";
 import {
@@ -58,7 +74,8 @@ interface ProductDef {
   moduleKey?: string;
   title: string;
   description: string;
-  usage?: { current: number; suffix: string };
+  /** Hva som telles mot nivået (faktisk antall hentes fra registeret). */
+  usageSuffix?: string;
 }
 
 const PRODUCTS: ProductDef[] = [
@@ -67,14 +84,14 @@ const PRODUCTS: ProductDef[] = [
     moduleKey: "core",
     title: "Mynder Core",
     description: "Grunnmodulen. Oppgaver, avvik, samsvar, behandlingsprotokoll og dokumenter.",
-    usage: { current: 10, suffix: "systemer" },
+    usageSuffix: "systemer",
   },
   {
     key: "vendor",
     moduleKey: "vendors",
     title: "Leverandørmodul",
     description: "TPRM og leverandørvurdering.",
-    usage: { current: 11, suffix: "leverandører" },
+    usageSuffix: "leverandører",
   },
   {
     key: "systems",
@@ -138,21 +155,59 @@ export function CustomerServicesAndProductsTab({
   const [trustActivateOpen, setTrustActivateOpen] = useState(false);
   const [trustGuideOpen, setTrustGuideOpen] = useState(false);
 
+  // Nivåflyt (samme som i Innstillinger > Produkter)
+  const [coreTierOpen, setCoreTierOpen] = useState(false);
+  const [pendingCoreTierId, setPendingCoreTierId] = useState<CoreTierId | null>(null);
+  const [vendorTierOpen, setVendorTierOpen] = useState(false);
+  const [vendorTierMode, setVendorTierMode] = useState<"change" | "activate">("change");
+  const [pendingVendorTierId, setPendingVendorTierId] = useState<VendorTierId | null>(null);
+  const [receipt, setReceipt] = useState<ModuleChangeReceipt | null>(null);
+
+  // Faktiske tall fra registeret — aldri hardkodet.
+  const { data: counts } = useQuery({
+    queryKey: ["msp-customer-usage-counts"],
+    queryFn: async () => {
+      const [vendorRes, systemRes] = await Promise.all([
+        supabase.from("assets").select("id", { count: "exact", head: true }).eq("asset_type", "vendor"),
+        supabase.from("assets").select("id", { count: "exact", head: true }).eq("asset_type", "system"),
+      ]);
+      return { vendors: vendorRes.count ?? 0, systems: systemRes.count ?? 0 };
+    },
+  });
+
+  const usedVendors = counts?.vendors ?? 0;
+  const usedSystems = counts?.systems ?? 0;
+
   const products = useMemo(
     () =>
       PRODUCTS.map((p) => {
-        const state = getModuleState(p.key);
-        const tier =
-          p.moduleKey === "core"
-            ? getCoreTier((state.tierId as CoreTierId) ?? CORE_TIERS[0].id)
-            : p.moduleKey === "vendors"
-              ? getVendorTier((state.tierId as VendorTierId) ?? VENDOR_TIERS[0].id)
-              : null;
+        const stateKey = p.moduleKey ?? p.key;
+        const state = getModuleState(stateKey);
+        const isCore = p.moduleKey === "core";
+        const isVendors = p.moduleKey === "vendors";
+        const tier = isCore
+          ? getCoreTier((state.tierId as CoreTierId) ?? CORE_TIERS[0].id)
+          : isVendors
+            ? getVendorTier((state.tierId as VendorTierId) ?? VENDOR_TIERS[0].id)
+            : null;
+        const scheduledTier = state.scheduledTierId
+          ? isCore
+            ? getCoreTier(state.scheduledTierId as CoreTierId)
+            : isVendors
+              ? getVendorTier(state.scheduledTierId as VendorTierId)
+              : null
+          : null;
         return {
           ...p,
+          stateKey,
           status: state.status,
           cancelAt: state.cancelAt,
           tierLabel: tier?.label,
+          scheduled:
+            scheduledTier && state.scheduledAt
+              ? { tierLabel: scheduledTier.label, at: state.scheduledAt }
+              : null,
+          used: isCore ? usedSystems : isVendors ? usedVendors : undefined,
           limit:
             tier && "systemLimit" in tier
               ? tier.systemLimit
@@ -163,7 +218,7 @@ export function CustomerServicesAndProductsTab({
         };
       }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [tick],
+    [tick, usedVendors, usedSystems],
   );
 
   const activeSet = useMemo(() => new Set(activeFrameworkIds), [activeFrameworkIds]);
@@ -227,6 +282,103 @@ export function CustomerServicesAndProductsTab({
         price: p.price,
       },
     ]);
+  };
+
+  const coreTierId =
+    (getModuleState("core").tierId as CoreTierId) ?? CORE_TIERS[0].id;
+  const vendorTierId =
+    (getModuleState("vendors").tierId as VendorTierId) ?? VENDOR_TIERS[0].id;
+
+  const commitCoreTier = () => {
+    if (!pendingCoreTierId) return;
+    const prevTier = getCoreTier(coreTierId);
+    const nextTier = getCoreTier(pendingCoreTierId);
+    const isUpgrade = nextTier.monthlyPriceKr >= prevTier.monthlyPriceKr;
+    let effectiveAt: string | undefined;
+    if (isUpgrade) setModuleTier("core", pendingCoreTierId);
+    else effectiveAt = scheduleModuleTier("core", pendingCoreTierId);
+    setPendingCoreTierId(null);
+    setTick((n) => n + 1);
+    setReceipt({
+      moduleId: "core",
+      moduleTitle: "Mynder Core",
+      kind: isUpgrade ? "upgrade" : "downgrade",
+      fromLabel: prevTier.label,
+      toLabel: nextTier.label,
+      monthlyPriceKr: nextTier.monthlyPriceKr,
+      effectiveAt,
+      nextSteps: [
+        {
+          label: "Gå inn i kundens profil",
+          description: "Jobb med systemene som teller mot nivået.",
+          onClick: () => setEnterItems([{ id: "core", kind: "module", label: "Mynder Core", moduleKey: "core" }]),
+        },
+        {
+          label: "Lag tilbud på oppsett",
+          description: "Tilby kunden hjelp med kartlegging og oppsett.",
+          onClick: () => setOfferItems([{ label: "Oppsett av Mynder Core", hours: 8 }]),
+        },
+      ],
+      onUndo: () => {
+        if (isUpgrade) setModuleTier("core", coreTierId);
+        else clearScheduledTier("core");
+        setTick((n) => n + 1);
+        setReceipt(null);
+        toast.success("Endringen er angret.");
+      },
+    });
+    onUpdate?.();
+  };
+
+  const commitVendorTier = () => {
+    if (!pendingVendorTierId) return;
+    const prevTier = getVendorTier(vendorTierId);
+    const nextTier = getVendorTier(pendingVendorTierId);
+    const isActivation = vendorTierMode === "activate";
+    const isUpgrade = nextTier.monthlyPriceKr >= prevTier.monthlyPriceKr;
+    let effectiveAt: string | undefined;
+    if (isActivation) {
+      activateModule("vendors");
+      setModuleTier("vendors", pendingVendorTierId);
+      setVendorTierMode("change");
+    } else if (isUpgrade) {
+      setModuleTier("vendors", pendingVendorTierId);
+    } else {
+      effectiveAt = scheduleModuleTier("vendors", pendingVendorTierId);
+    }
+    setPendingVendorTierId(null);
+    setTick((n) => n + 1);
+    setReceipt({
+      moduleId: "vendors",
+      moduleTitle: "Leverandørmodul",
+      kind: isActivation ? "activation" : isUpgrade ? "upgrade" : "downgrade",
+      fromLabel: isActivation ? undefined : prevTier.label,
+      toLabel: nextTier.label,
+      monthlyPriceKr: nextTier.monthlyPriceKr,
+      effectiveAt,
+      nextSteps: [
+        {
+          label: "Gå inn i kundens leverandører",
+          description: "Se leverandørene som teller mot nivået.",
+          onClick: () => setEnterItems([{ id: "vendors", kind: "module", label: "Leverandørmodul", moduleKey: "vendors" }]),
+        },
+        {
+          label: "Lag tilbud på leverandøroppfølging",
+          description: "Tilby kunden løpende oppfølging av tredjeparter.",
+          onClick: () => setOfferItems([{ label: "Leverandøroppfølging (TPRM)", hours: 10 }]),
+        },
+      ],
+      onUndo: isActivation
+        ? undefined
+        : () => {
+            if (isUpgrade) setModuleTier("vendors", vendorTierId);
+            else clearScheduledTier("vendors");
+            setTick((n) => n + 1);
+            setReceipt(null);
+            toast.success("Endringen er angret.");
+          },
+    });
+    onUpdate?.();
   };
 
   const frameworkFooter =
@@ -315,10 +467,22 @@ export function CustomerServicesAndProductsTab({
                 status={p.status}
                 price={p.price}
                 priceLabel={isTrust ? undefined : p.tierLabel}
-                usage={p.usage ? String(p.usage.current) : undefined}
-                usageSuffix={p.usage?.suffix}
+                usage={p.used != null ? String(p.used) : undefined}
+                usageSuffix={p.usageSuffix}
                 usageLimit={p.limit != null ? String(p.limit) : undefined}
                 cancelAtLabel={p.cancelAt ? formatPeriodEnd(p.cancelAt) : undefined}
+                scheduledChange={
+                  p.scheduled
+                    ? {
+                        tierLabel: p.scheduled.tierLabel,
+                        atLabel: formatDateLong(p.scheduled.at),
+                        onUndo: () => {
+                          clearScheduledTier(p.stateKey);
+                          toast.success("Nedgraderingen er angret.");
+                        },
+                      }
+                    : undefined
+                }
                 action={
                   isTrust
                     ? "activate"
@@ -357,6 +521,15 @@ export function CustomerServicesAndProductsTab({
                   if (isTrust) {
                     if (p.status === "inactive") setTrustActivateOpen(true);
                     else setTrustGuideOpen(true);
+                    return;
+                  }
+                  if (p.moduleKey === "core") {
+                    setCoreTierOpen(true);
+                    return;
+                  }
+                  if (p.moduleKey === "vendors") {
+                    setVendorTierMode(p.status === "inactive" ? "activate" : "change");
+                    setVendorTierOpen(true);
                     return;
                   }
                   if (p.status === "inactive") activateProduct(p);
@@ -508,6 +681,48 @@ export function CustomerServicesAndProductsTab({
           }))}
         />
       )}
+
+      <ChangeCoreTierDialog
+        open={coreTierOpen}
+        onOpenChange={setCoreTierOpen}
+        currentTierId={coreTierId}
+        usedSystems={usedSystems}
+        onConfirm={(next) => {
+          setPendingCoreTierId(next);
+          setCoreTierOpen(false);
+        }}
+      />
+
+      <ConfirmCoreTierChangeDialog
+        open={!!pendingCoreTierId}
+        onOpenChange={(o) => { if (!o) setPendingCoreTierId(null); }}
+        currentTierId={coreTierId}
+        nextTierId={pendingCoreTierId}
+        onConfirm={commitCoreTier}
+      />
+
+      <ChangeVendorTierDialog
+        open={vendorTierOpen}
+        onOpenChange={setVendorTierOpen}
+        currentTierId={vendorTierId}
+        usedVendors={usedVendors}
+        mode={vendorTierMode}
+        onConfirm={(next) => {
+          setPendingVendorTierId(next);
+          setVendorTierOpen(false);
+        }}
+      />
+
+      <ConfirmVendorTierChangeDialog
+        open={!!pendingVendorTierId}
+        onOpenChange={(o) => { if (!o) setPendingVendorTierId(null); }}
+        currentTierId={vendorTierId}
+        nextTierId={pendingVendorTierId}
+        mode={vendorTierMode}
+        onConfirm={commitVendorTier}
+      />
+
+      <ModuleChangeReceiptSheet receipt={receipt} onOpenChange={(o) => !o && setReceipt(null)} />
     </div>
   );
 }

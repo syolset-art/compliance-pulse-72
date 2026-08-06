@@ -20,10 +20,12 @@ import { VendorCompareTab } from "@/components/vendor-dashboard/VendorCompareTab
 import { useGlobalChat } from "@/components/GlobalChatProvider";
 
 import { VendorPremiumBanner } from "@/components/vendor-dashboard/VendorPremiumBanner";
-import { VendorActivateDialog } from "@/components/vendor-dashboard/VendorActivateDialog";
 import { VendorPortfolioActions } from "@/components/vendor-dashboard/VendorPortfolioActions";
-
-const MAX_FREE_VENDORS = 5;
+import { ChangeVendorTierDialog } from "@/components/dialogs/ChangeVendorTierDialog";
+import { ConfirmVendorTierChangeDialog } from "@/components/dialogs/ConfirmVendorTierChangeDialog";
+import { getVendorCapacity, getCurrentVendorTierId } from "@/lib/vendorCapacity";
+import { setModuleTier, activateModule } from "@/lib/moduleActivationState";
+import { getVendorTier, type VendorTierId } from "@/lib/planConstants";
 
 export default function VendorDashboard() {
   const { t } = useTranslation();
@@ -34,8 +36,9 @@ export default function VendorDashboard() {
   const [newlyAddedId, setNewlyAddedId] = useState<string | null>(null);
   const [helpOpen, setHelpOpen] = useState(false);
   usePageHelpListener(setHelpOpen);
-  const [activateOpen, setActivateOpen] = useState(false);
-  const [isPremium, setIsPremium] = useState(() => localStorage.getItem("vendor_premium_activated") === "true");
+  const [tierDialogOpen, setTierDialogOpen] = useState(false);
+  const [pendingTierId, setPendingTierId] = useState<VendorTierId | null>(null);
+  const [vendorTierId, setVendorTierId] = useState<VendorTierId>(() => getCurrentVendorTierId());
   const [searchParams, setSearchParams] = useSearchParams();
   const tabFromUrl = searchParams.get("tab") || "overview";
 
@@ -85,6 +88,33 @@ export default function VendorDashboard() {
     openChatWithMessage(t("vendorDashboard.discoverAI", "Discover with AI"));
   };
 
+  const capacity = getVendorCapacity(vendors.length, vendorTierId);
+
+  /** Åpner leverandørdialogen — eller nivådialogen når nivået er fullt. */
+  const requestAddVendor = () => {
+    if (capacity.atCap) {
+      toast.info(
+        `Nivået «${capacity.tier.label.toLowerCase()}» er fullt. Velg et høyere nivå for å legge til flere.`,
+      );
+      setTierDialogOpen(true);
+      return;
+    }
+    setIsVendorDialogOpen(true);
+  };
+
+  const handleTierConfirm = () => {
+    if (!pendingTierId) return;
+    const prevTier = getVendorTier(vendorTierId);
+    const nextTier = getVendorTier(pendingTierId);
+    activateModule("vendors");
+    setModuleTier("vendors", pendingTierId);
+    setVendorTierId(pendingTierId);
+    setPendingTierId(null);
+    toast.success(
+      `Leverandørmodulen er satt til ${nextTier.label.toLowerCase()} (fra ${prevTier.label.toLowerCase()}). Tjenesten aktiveres umiddelbart og faktureres på neste faktura.`,
+    );
+  };
+
   return (
     <div className="flex min-h-screen bg-background">
       <Sidebar />
@@ -103,13 +133,7 @@ export default function VendorDashboard() {
             <div className="flex items-center gap-2">
               <VendorPortfolioActions vendors={vendors} />
               <Button
-                onClick={() => {
-                  if (!isPremium && vendors.length >= MAX_FREE_VENDORS) {
-                    setActivateOpen(true);
-                  } else {
-                    setIsVendorDialogOpen(true);
-                  }
-                }}
+                onClick={requestAddVendor}
                 className="gap-2"
               >
                 <Plus className="h-4 w-4" aria-hidden="true" />
@@ -118,13 +142,14 @@ export default function VendorDashboard() {
             </div>
           </div>
 
-          {/* Premium banner */}
+          {/* Kapasitetsbanner */}
           <VendorPremiumBanner
             vendorCount={vendors.length}
-            maxFreeVendors={MAX_FREE_VENDORS}
-            isActivated={isPremium}
-            onActivate={() => setActivateOpen(true)}
+            maxFreeVendors={capacity.limit}
+            isActivated={!capacity.isFree}
+            onActivate={() => setTierDialogOpen(true)}
           />
+
 
           <Tabs value={tabFromUrl} onValueChange={(v) => { const next = new URLSearchParams(searchParams); next.set("tab", v); setSearchParams(next, { replace: true }); }} className="space-y-4">
             <div className="flex items-center justify-between">
@@ -146,7 +171,7 @@ export default function VendorDashboard() {
               <VendorOverviewTab
                 vendors={vendors}
                 relationships={relationships}
-                onAddVendor={() => setIsVendorDialogOpen(true)}
+                onAddVendor={requestAddVendor}
                 onDiscoverAI={handleDiscoverAI}
                 onDelete={(id) => deleteAsset.mutate(id)}
               />
@@ -194,11 +219,27 @@ export default function VendorDashboard() {
         }}
       />
 
-      <VendorActivateDialog
-        open={activateOpen}
-        onOpenChange={setActivateOpen}
-        onActivated={() => setIsPremium(true)}
+      <ChangeVendorTierDialog
+        open={tierDialogOpen}
+        onOpenChange={setTierDialogOpen}
+        currentTierId={vendorTierId}
+        usedVendors={vendors.length}
+        mode={capacity.isFree ? "activate" : "change"}
+        onConfirm={(next) => {
+          setPendingTierId(next);
+          setTierDialogOpen(false);
+        }}
       />
+
+      <ConfirmVendorTierChangeDialog
+        open={!!pendingTierId}
+        onOpenChange={(o) => { if (!o) setPendingTierId(null); }}
+        currentTierId={vendorTierId}
+        nextTierId={pendingTierId}
+        mode={capacity.isFree ? "activate" : "change"}
+        onConfirm={handleTierConfirm}
+      />
+
 
       <ContextualHelpPanel
         open={helpOpen}
