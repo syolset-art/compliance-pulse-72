@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft, Server, Wifi, RefreshCw, Sparkles, AlertTriangle, CheckCircle2, ShieldCheck, Shield, EyeOff, Clock as ClockIcon, ArrowRight, HelpCircle, FileText, MessageSquare, BookOpen, Scale, Zap, Target, ClipboardList, Users, Lightbulb } from "lucide-react";
 import { ContextualHelpPanel } from "@/components/shared/ContextualHelpPanel";
 import { usePageHelpListener } from "@/hooks/usePageHelpListener";
