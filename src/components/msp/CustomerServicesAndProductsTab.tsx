@@ -540,8 +540,6 @@ export function CustomerServicesAndProductsTab({
 
 
       {/* ── Alt tilgjengelig å tilby ── */}
-
-      {/* ── Alt tilgjengelig å tilby ── */}
       <Collapsible open={showAll} onOpenChange={setShowAll}>
         <CollapsibleTrigger asChild>
           <Button variant="outline" size="sm" className="w-full justify-between text-xs">
