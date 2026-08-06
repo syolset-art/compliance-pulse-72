@@ -104,7 +104,7 @@ export function CustomerModulesTab({ customerId, customerName, activeFrameworkId
     },
     {
       key: "assets",
-      title: "Assets",
+      title: "Eiendeler",
       icon: Server,
       description: "Oversikt over IT-eiendelene og systemene organisasjonen bruker.",
       activated: true,

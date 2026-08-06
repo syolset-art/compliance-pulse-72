@@ -93,7 +93,7 @@ export function deriveOfferSuggestions(c: any): OfferSuggestion[] {
   const moduleCandidates: { key: string; label: string; price: number; hours: number }[] = [
     { key: "core", label: "Mynder Core", price: 995, hours: 4 },
     { key: "vendors", label: "Leverandørmodul", price: 1089, hours: 5 },
-    { key: "assets", label: "Assets", price: 490, hours: 3 },
+    { key: "assets", label: "Eiendeler", price: 490, hours: 3 },
   ];
   for (const m of moduleCandidates) {
     if (modules.includes(m.key)) continue;
@@ -144,7 +144,7 @@ export function deriveActivatedItems(c: any): string[] {
   const moduleLabels: Record<string, string> = {
     core: "Mynder Core",
     vendors: "Leverandørmodul",
-    assets: "Assets",
+    assets: "Eiendeler",
     trust: "Trust Profile",
     frameworks: "Regelverk",
   };

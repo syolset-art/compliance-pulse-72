@@ -105,7 +105,7 @@ const MYNDER_PRODUCTS: Array<{
   {
     id: "assets",
     moduleKey: "assets",
-    name: "Assets",
+    name: "Eiendeler",
     commissionPct: 25,
     fromPrice: 490,
     tiers: [{ label: "Standard", priceKr: 490 }],
