@@ -14,6 +14,10 @@ interface TermsGateDialogProps {
   confirmLabel?: string;
   context: TermsContext;
   contextRef?: string;
+  /** Månedspris eks. mva. Vises som prislinje når satt. */
+  monthlyPriceKr?: number;
+  /** Nivå-/planetikett som vises sammen med prisen. */
+  priceLabel?: string;
   onConfirmed: () => void | Promise<void>;
 }
 
