@@ -12,6 +12,8 @@ interface Props {
   nextTierId: VendorTierId | null;
   onConfirm: () => void;
   mode?: "change" | "activate";
+  /** Partnerkontekst: viser driftspartner-bekreftelse og navngir kunden. */
+  customerName?: string;
 }
 
 function nextBillingDate(): string {
@@ -20,13 +22,17 @@ function nextBillingDate(): string {
   return next.toLocaleDateString("nb-NO", { day: "numeric", month: "long" });
 }
 
-export function ConfirmVendorTierChangeDialog({ open, onOpenChange, currentTierId, nextTierId, onConfirm, mode = "change" }: Props) {
+export function ConfirmVendorTierChangeDialog({ open, onOpenChange, currentTierId, nextTierId, onConfirm, mode = "change", customerName }: Props) {
   const { current: currentTerms, hasAcceptedCurrent, acceptTerms } = useTerms();
   const [accepted, setAccepted] = useState(false);
+  const [operatorRole, setOperatorRole] = useState(false);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    if (!open) setAccepted(false);
+    if (!open) {
+      setAccepted(false);
+      setOperatorRole(false);
+    }
   }, [open]);
 
   if (!nextTierId) return null;
@@ -38,7 +44,7 @@ export function ConfirmVendorTierChangeDialog({ open, onOpenChange, currentTierI
   const handleConfirm = async () => {
     setSaving(true);
     try {
-      await acceptTerms("license_purchase", nextTierId);
+      await acceptTerms("license_purchase", nextTierId, { operatorRole });
       onConfirm();
     } finally {
       setSaving(false);
@@ -63,7 +69,7 @@ export function ConfirmVendorTierChangeDialog({ open, onOpenChange, currentTierI
               {next.monthlyPriceKr === 0
                 ? "Nivået er gratis for inntil 5 leverandører."
                 : `Modulen koster ${formatKr(next.monthlyPriceKr)} i måneden eks. mva.`}{" "}
-              Tjenesten aktiveres umiddelbart, og faktureres på neste faktura.
+              Tjenesten aktiveres umiddelbart{customerName ? ` hos ${customerName}` : ""}, og faktureres på neste faktura.
             </>
           ) : isUpgrade ? (
             <>
@@ -84,6 +90,9 @@ export function ConfirmVendorTierChangeDialog({ open, onOpenChange, currentTierI
           checked={checked}
           onCheckedChange={setAccepted}
           version={currentTerms?.version}
+          showOperatorRole={!!customerName}
+          operatorRole={operatorRole}
+          onOperatorRoleChange={setOperatorRole}
         />
 
         <DialogFooter className="pt-2">
