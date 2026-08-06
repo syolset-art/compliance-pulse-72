@@ -219,13 +219,6 @@ export function ActivateTrustCenterDialog({
               profilen. Du kan åpne veiledningen nå, eller fortsette senere – aktiveringen er
               allerede fullført.
             </p>
-            <label className="flex items-center gap-2 cursor-pointer">
-              <Checkbox
-                checked={dontAskAgain}
-                onCheckedChange={(v) => setDontAskAgain(v === true)}
-              />
-              <span className="text-xs text-muted-foreground">Ikke spør meg om dette igjen</span>
-            </label>
           </div>
         )}
 
