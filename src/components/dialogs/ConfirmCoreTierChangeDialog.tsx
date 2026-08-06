@@ -54,12 +54,12 @@ export function ConfirmCoreTierChangeDialog({ open, onOpenChange, currentTierId,
         <p className="text-sm text-muted-foreground leading-relaxed">
           {isUpgrade ? (
             <>
-              Prisen går fra {formatKr(current.monthlyPriceKr)} til {formatKr(next.monthlyPriceKr)} i måneden.
-              Det nye nivået gjelder med én gang, og differansen kommer på neste faktura.
+              Prisen går fra {formatKr(current.monthlyPriceKr)} til {formatKr(next.monthlyPriceKr)} i måneden eks. mva.
+              Tjenesten aktiveres umiddelbart, og faktureres på neste faktura.
             </>
           ) : (
             <>
-              Prisen går fra {formatKr(current.monthlyPriceKr)} til {formatKr(next.monthlyPriceKr)} i måneden.
+              Prisen går fra {formatKr(current.monthlyPriceKr)} til {formatKr(next.monthlyPriceKr)} i måneden eks. mva.
               Nivået endres ved neste fakturaperiode, {nextBillingDate()}. Fram til da beholder dere plass til {current.systemLimit} systemer.
             </>
           )}

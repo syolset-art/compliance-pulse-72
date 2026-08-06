@@ -59,6 +59,8 @@ import {
   activateModule,
   getModuleTier,
   setModuleTier,
+  scheduleModuleTier,
+  clearScheduledTier,
   formatPeriodEnd,
   formatDateLong,
   getPeriodEnd,
@@ -66,6 +68,8 @@ import {
   type CancellationMeta,
 } from "@/lib/moduleActivationState";
 import { RetireModuleDialog } from "@/components/subscriptions/RetireModuleDialog";
+import { ModuleChangeReceiptSheet, type ModuleChangeReceipt } from "@/components/subscriptions/ModuleChangeReceiptSheet";
+import { useTerms } from "@/hooks/useTerms";
 
 
 
@@ -230,6 +234,22 @@ export default function Subscriptions() {
   const [pendingVendorTierId, setPendingVendorTierId] = useState<VendorTierId | null>(null);
   const [readMoreKey, setReadMoreKey] = useState<ModuleKey | null>(null);
   const [confirmActivate, setConfirmActivate] = useState<{ id: string; title: string } | null>(null);
+  const [vendorTierMode, setVendorTierMode] = useState<"change" | "activate">("change");
+  const [receipt, setReceipt] = useState<ModuleChangeReceipt | null>(null);
+  const { current: currentTerms } = useTerms();
+
+  const scheduledCore = moduleStates["core"]?.scheduledTierId
+    ? { tier: getCoreTier(moduleStates["core"]!.scheduledTierId as CoreTierId), at: moduleStates["core"]!.scheduledAt! }
+    : null;
+  const scheduledVendor = moduleStates["vendors"]?.scheduledTierId
+    ? { tier: getVendorTier(moduleStates["vendors"]!.scheduledTierId as VendorTierId), at: moduleStates["vendors"]!.scheduledAt! }
+    : null;
+
+  const undoScheduledTier = (id: string, label: string) => {
+    clearScheduledTier(id);
+    setModuleStates(getModuleStates());
+    toast.success(`Nedgraderingen av ${label} er angret.`);
+  };
 
   const syncModuleState = () => {
     setModuleStates(getModuleStates());
@@ -416,27 +436,46 @@ export default function Subscriptions() {
     if (!pendingCoreTierId) return;
     const prev = coreTierId;
     const next = pendingCoreTierId;
+    const prevTier = getCoreTier(prev);
     const nextTier = getCoreTier(next);
-    const isUpgrade = nextTier.monthlyPriceKr >= getCoreTier(prev).monthlyPriceKr;
-    setCoreTierId(next);
-    setModuleTier("core", next);
+    const isUpgrade = nextTier.monthlyPriceKr >= prevTier.monthlyPriceKr;
     setPendingCoreTierId(null);
-    toast(
-      isUpgrade
-        ? `Mynder Core er oppgradert til ${nextTier.label.toLowerCase()} — tilgjengelig nå.`
-        : `Mynder Core endres til ${nextTier.label.toLowerCase()} fra ${formatPeriodEnd()}.`,
-      {
-        action: {
-          label: "Angre",
-          onClick: () => {
-            setCoreTierId(prev);
-            setModuleTier("core", prev);
-            toast.success("Endringen er angret.");
-          },
-        },
-        duration: 10000,
-      }
-    );
+
+    let effectiveAt: string | undefined;
+    if (isUpgrade) {
+      setCoreTierId(next);
+      setModuleTier("core", next);
+    } else {
+      effectiveAt = scheduleModuleTier("core", next);
+    }
+    setModuleStates(getModuleStates());
+
+    setReceipt({
+      moduleId: "core",
+      moduleTitle: "Mynder Core",
+      kind: isUpgrade ? "upgrade" : "downgrade",
+      fromLabel: prevTier.label,
+      toLabel: nextTier.label,
+      monthlyPriceKr: nextTier.monthlyPriceKr,
+      effectiveAt,
+      termsVersion: currentTerms?.version,
+      nextSteps: [
+        { label: "Gå til Systemer", description: "Se og administrer systemene som teller mot nivået.", onClick: () => navigate("/systems") },
+        { label: "Oppdag systemer", description: "La Lara kartlegge systemer automatisk fra Microsoft, Google eller regneark.", onClick: () => navigate("/systems?discover=1") },
+        { label: "Se behandlingsprotokoll", description: "Kontroller at nye systemer er dekket i protokollen.", onClick: () => navigate("/protocols") },
+      ],
+      onUndo: () => {
+        if (isUpgrade) {
+          setCoreTierId(prev);
+          setModuleTier("core", prev);
+        } else {
+          clearScheduledTier("core");
+        }
+        setModuleStates(getModuleStates());
+        setReceipt(null);
+        toast.success("Endringen er angret.");
+      },
+    });
   };
 
   const handleVendorTierSelect = (nextTierId: VendorTierId) => {
@@ -448,28 +487,54 @@ export default function Subscriptions() {
     if (!pendingVendorTierId) return;
     const prev = vendorTierId;
     const next = pendingVendorTierId;
+    const prevTier = getVendorTier(prev);
     const nextTier = getVendorTier(next);
-    const isUpgrade = nextTier.monthlyPriceKr >= getVendorTier(prev).monthlyPriceKr;
-    setVendorTierId(next);
-    setModuleTier("vendors", next);
+    const isActivation = vendorTierMode === "activate";
+    const isUpgrade = nextTier.monthlyPriceKr >= prevTier.monthlyPriceKr;
     setPendingVendorTierId(null);
-    toast(
-      isUpgrade
-        ? `Leverandørmodulen er oppgradert til ${nextTier.label.toLowerCase()} — tilgjengelig nå.`
-        : `Leverandørmodulen endres til ${nextTier.label.toLowerCase()} fra ${formatPeriodEnd()}.`,
-      {
-        action: {
-          label: "Angre",
-          onClick: () => {
-            setVendorTierId(prev);
-            setModuleTier("vendors", prev);
+
+    let effectiveAt: string | undefined;
+    if (isActivation) {
+      activateModule("vendors");
+      setVendorTierId(next);
+      setModuleTier("vendors", next);
+      setVendorTierMode("change");
+    } else if (isUpgrade) {
+      setVendorTierId(next);
+      setModuleTier("vendors", next);
+    } else {
+      effectiveAt = scheduleModuleTier("vendors", next);
+    }
+    syncModuleState();
+
+    setReceipt({
+      moduleId: "vendors",
+      moduleTitle: "Leverandørmodul",
+      kind: isActivation ? "activation" : isUpgrade ? "upgrade" : "downgrade",
+      fromLabel: isActivation ? undefined : prevTier.label,
+      toLabel: nextTier.label,
+      monthlyPriceKr: nextTier.monthlyPriceKr,
+      effectiveAt,
+      termsVersion: currentTerms?.version,
+      nextSteps: [
+        { label: "Gå til Leverandører", description: "Se leverandørene som teller mot nivået.", onClick: () => navigate("/vendors") },
+        { label: "Legg til leverandør", description: "Start leverandøronboarding med Lara-analyse.", onClick: () => navigate("/vendors?add=1") },
+        { label: "Send spørreskjema", description: "Be leverandørene dokumentere etterlevelsen.", onClick: () => navigate("/vendors?tab=questionnaires") },
+      ],
+      onUndo: isActivation
+        ? undefined
+        : () => {
+            if (isUpgrade) {
+              setVendorTierId(prev);
+              setModuleTier("vendors", prev);
+            } else {
+              clearScheduledTier("vendors");
+            }
+            syncModuleState();
+            setReceipt(null);
             toast.success("Endringen er angret.");
           },
-        },
-        duration: 10000,
-      }
-    );
-
+    });
   };
 
   const activeModuleCount = useMemo(() => {
@@ -597,6 +662,11 @@ export default function Subscriptions() {
                   usageLimit={String(coreTier.systemLimit)}
                   usageSuffix="systemer"
                   action="change"
+                  scheduledChange={scheduledCore ? {
+                    tierLabel: scheduledCore.tier.label,
+                    atLabel: formatDateLong(scheduledCore.at),
+                    onUndo: () => undoScheduledTier("core", "Mynder Core"),
+                  } : undefined}
                   onClick={() => setChangeCoreTierOpen(true)}
                   accentColor="purple"
                   footer={capFooter}
@@ -655,7 +725,20 @@ export default function Subscriptions() {
                   usageLimit={String(vendorTier.vendorLimit)}
                   usageSuffix="leverandører"
                   action={isDeactivated ? "activate" : "change"}
-                  onClick={() => isDeactivated ? requestActivate("vendors", "Leverandørmodul") : setChangeVendorTierOpen(true)}
+                  scheduledChange={!isDeactivated && scheduledVendor ? {
+                    tierLabel: scheduledVendor.tier.label,
+                    atLabel: formatDateLong(scheduledVendor.at),
+                    onUndo: () => undoScheduledTier("vendors", "Leverandørmodulen"),
+                  } : undefined}
+                  onClick={() => {
+                    if (isDeactivated) {
+                      setVendorTierMode("activate");
+                      setChangeVendorTierOpen(true);
+                    } else {
+                      setVendorTierMode("change");
+                      setChangeVendorTierOpen(true);
+                    }
+                  }}
                   onDeactivate={() => requestDeactivate("vendors", "Leverandørmodul")}
 
                   accentColor="amber"
@@ -857,6 +940,7 @@ export default function Subscriptions() {
         currentTierId={coreTierId}
         usedSystems={systemsCount ?? 0}
         onConfirm={handleCoreTierSelect}
+        onManageUsage={() => { setChangeCoreTierOpen(false); navigate("/systems"); }}
       />
       <ConfirmCoreTierChangeDialog
         open={!!pendingCoreTierId}
@@ -872,6 +956,8 @@ export default function Subscriptions() {
         currentTierId={vendorTierId}
         usedVendors={vendorCount ?? 0}
         onConfirm={handleVendorTierSelect}
+        mode={vendorTierMode}
+        onManageUsage={() => { setChangeVendorTierOpen(false); navigate("/vendors"); }}
       />
       <ConfirmVendorTierChangeDialog
         open={!!pendingVendorTierId}
@@ -879,7 +965,14 @@ export default function Subscriptions() {
         currentTierId={vendorTierId}
         nextTierId={pendingVendorTierId}
         onConfirm={handleVendorTierConfirm}
+        mode={vendorTierMode}
       />
+
+      <ModuleChangeReceiptSheet
+        receipt={receipt}
+        onOpenChange={(open) => { if (!open) setReceipt(null); }}
+      />
+
 
 
 

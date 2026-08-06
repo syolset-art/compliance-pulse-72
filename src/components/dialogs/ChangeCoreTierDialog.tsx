@@ -10,9 +10,11 @@ interface Props {
   currentTierId: CoreTierId;
   usedSystems: number;
   onConfirm: (nextTierId: CoreTierId) => void;
+  /** Åpner systemregisteret slik at brukeren kan frigjøre plass. */
+  onManageUsage?: () => void;
 }
 
-export function ChangeCoreTierDialog({ open, onOpenChange, currentTierId, usedSystems, onConfirm }: Props) {
+export function ChangeCoreTierDialog({ open, onOpenChange, currentTierId, usedSystems, onConfirm, onManageUsage }: Props) {
   const [selected, setSelected] = useState<CoreTierId>(currentTierId);
 
   useEffect(() => {
@@ -40,8 +42,8 @@ export function ChangeCoreTierDialog({ open, onOpenChange, currentTierId, usedSy
             const overflow = usedSystems - tier.systemLimit;
 
             return (
+              <div key={tier.id}>
               <button
-                key={tier.id}
                 type="button"
                 disabled={disabled}
                 onClick={() => setSelected(tier.id)}
@@ -79,12 +81,25 @@ export function ChangeCoreTierDialog({ open, onOpenChange, currentTierId, usedSy
                     </div>
                   </div>
                 </div>
-                {belowUsage && (
-                  <p className="mt-2 pl-7 text-xs text-destructive">
-                    Dere bruker {usedSystems} systemer. Fjern {overflow} system{overflow === 1 ? "" : "er"} for å velge dette nivået.
-                  </p>
-                )}
               </button>
+              {belowUsage && (
+                <p className="mt-1.5 pl-7 text-xs text-muted-foreground">
+                  Dere bruker {usedSystems} systemer. Fjern {overflow} system{overflow === 1 ? "" : "er"} for å velge dette nivået.
+                  {onManageUsage && (
+                    <>
+                      {" "}
+                      <button
+                        type="button"
+                        onClick={() => { onOpenChange(false); onManageUsage(); }}
+                        className="underline underline-offset-2 text-foreground hover:text-primary"
+                      >
+                        Gå til Systemer
+                      </button>
+                    </>
+                  )}
+                </p>
+              )}
+              </div>
             );
           })}
         </div>

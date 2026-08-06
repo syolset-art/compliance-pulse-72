@@ -10,9 +10,15 @@ interface Props {
   currentTierId: VendorTierId;
   usedVendors: number;
   onConfirm: (nextTierId: VendorTierId) => void;
+  /** Overskriver tittel/knapp når modulen aktiveres på nytt. */
+  mode?: "change" | "activate";
+  /** Åpner leverandørregisteret slik at brukeren kan frigjøre plass. */
+  onManageUsage?: () => void;
 }
 
-export function ChangeVendorTierDialog({ open, onOpenChange, currentTierId, usedVendors, onConfirm }: Props) {
+export function ChangeVendorTierDialog({
+  open, onOpenChange, currentTierId, usedVendors, onConfirm, mode = "change", onManageUsage,
+}: Props) {
   const [selected, setSelected] = useState<VendorTierId>(currentTierId);
 
   useEffect(() => {
@@ -28,22 +34,30 @@ export function ChangeVendorTierDialog({ open, onOpenChange, currentTierId, used
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle className="text-lg">Endre nivå på Leverandørmodul</DialogTitle>
+          <DialogTitle className="text-lg">
+            {mode === "activate" ? "Aktiver Leverandørmodul — velg nivå" : "Endre nivå på Leverandørmodul"}
+          </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-2">
           {VENDOR_TIERS.map((tier) => {
-            const isCurrent = tier.id === currentTierId;
+            const isCurrent = tier.id === currentTierId && mode === "change";
             const isSelected = tier.id === selected;
+            const belowUsage = usedVendors > tier.vendorLimit;
+            const disabled = belowUsage;
+            const overflow = usedVendors - tier.vendorLimit;
 
             return (
+              <div key={tier.id}>
               <button
-                key={tier.id}
                 type="button"
+                disabled={disabled}
                 onClick={() => setSelected(tier.id)}
                 className={cn(
                   "w-full text-left rounded-lg border p-3 transition-all",
-                  isSelected ? "border-primary ring-1 ring-primary/30 bg-primary/5" : "border-border hover:border-primary/40"
+                  isSelected && !disabled && "border-primary ring-1 ring-primary/30 bg-primary/5",
+                  !isSelected && !disabled && "border-border hover:border-primary/40",
+                  disabled && "border-border/60 opacity-60 cursor-not-allowed"
                 )}
               >
                 <div className="flex items-center justify-between gap-3">
@@ -74,6 +88,24 @@ export function ChangeVendorTierDialog({ open, onOpenChange, currentTierId, used
                   </div>
                 </div>
               </button>
+              {belowUsage && (
+                <p className="mt-1.5 pl-7 text-xs text-muted-foreground">
+                  Dere har {usedVendors} leverandører. Fjern {overflow} leverandør{overflow === 1 ? "" : "er"} for å velge dette nivået.
+                  {onManageUsage && (
+                    <>
+                      {" "}
+                      <button
+                        type="button"
+                        onClick={() => { onOpenChange(false); onManageUsage(); }}
+                        className="underline underline-offset-2 text-foreground hover:text-primary"
+                      >
+                        Gå til Leverandører
+                      </button>
+                    </>
+                  )}
+                </p>
+              )}
+              </div>
             );
           })}
         </div>
@@ -92,7 +124,9 @@ export function ChangeVendorTierDialog({ open, onOpenChange, currentTierId, used
 
         <DialogFooter className="pt-2">
           <Button variant="ghost" onClick={() => onOpenChange(false)}>Avbryt</Button>
-          <Button disabled={!changed} onClick={() => onConfirm(selected)}>Endre nivå</Button>
+          <Button disabled={mode === "change" && !changed} onClick={() => onConfirm(selected)}>
+            {mode === "activate" ? "Fortsett" : "Endre nivå"}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
