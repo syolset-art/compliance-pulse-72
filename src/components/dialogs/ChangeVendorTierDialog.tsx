@@ -34,18 +34,24 @@ export function ChangeVendorTierDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle className="text-lg">Endre nivå på Leverandørmodul</DialogTitle>
+          <DialogTitle className="text-lg">
+            {mode === "activate" ? "Aktiver Leverandørmodul — velg nivå" : "Endre nivå på Leverandørmodul"}
+          </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-2">
           {VENDOR_TIERS.map((tier) => {
-            const isCurrent = tier.id === currentTierId;
+            const isCurrent = tier.id === currentTierId && mode === "change";
             const isSelected = tier.id === selected;
+            const belowUsage = usedVendors > tier.vendorLimit;
+            const disabled = belowUsage;
+            const overflow = usedVendors - tier.vendorLimit;
 
             return (
+              <div key={tier.id}>
               <button
-                key={tier.id}
                 type="button"
+                disabled={disabled}
                 onClick={() => setSelected(tier.id)}
                 className={cn(
                   "w-full text-left rounded-lg border p-3 transition-all",
