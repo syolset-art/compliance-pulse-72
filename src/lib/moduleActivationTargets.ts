@@ -29,7 +29,7 @@ export const MODULE_ACTIVATION_TARGETS: Record<string, ModuleActivationTarget> =
     route: "/systems",
     nextSteps: [
       { label: "Åpne Mynder Core", description: "Se oppgaver, avvik og samsvar.", route: "/systems" },
-      { label: "Legg til systemer", description: "Kartlegg systemene dere bruker.", route: "/systems?add=1" },
+      { label: "Legg til systemer", description: "Kartlegg systemene dere bruker.", route: "/systems" },
     ],
   },
   vendors: {
@@ -38,7 +38,7 @@ export const MODULE_ACTIVATION_TARGETS: Record<string, ModuleActivationTarget> =
     route: "/vendors",
     nextSteps: [
       { label: "Åpne Leverandørmodulen", description: "Se leverandørregisteret.", route: "/vendors" },
-      { label: "Legg til første leverandør", description: "Start med de mest kritiske.", route: "/vendors?add=1" },
+      { label: "Legg til første leverandør", description: "Start med de mest kritiske.", route: "/vendors" },
     ],
   },
   assets: {
@@ -57,7 +57,7 @@ export const MODULE_ACTIVATION_TARGETS: Record<string, ModuleActivationTarget> =
     route: "/compliance",
     nextSteps: [
       { label: "Åpne Regelverk", description: "Se kontrollområder og krav.", route: "/compliance" },
-      { label: "Velg regelverk", description: "Aktiver regelverkene som gjelder dere.", route: "/compliance?select=1" },
+      { label: "Velg regelverk", description: "Aktiver regelverkene som gjelder dere.", route: "/compliance" },
     ],
   },
   trust: {
@@ -66,7 +66,7 @@ export const MODULE_ACTIVATION_TARGETS: Record<string, ModuleActivationTarget> =
     route: "/trust-center/profile",
     nextSteps: [
       { label: "Åpne Trust Center", description: "Fyll ut og del tillitsprofilen.", route: "/trust-center/profile" },
-      { label: "Del profilen", description: "Lag en delbar lenke til kunder.", route: "/trust-center/profile?share=1" },
+      { label: "Del profilen", description: "Lag en delbar lenke til kunder.", route: "/trust-center/profile" },
     ],
   },
   partner: {
