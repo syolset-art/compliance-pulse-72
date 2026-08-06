@@ -99,7 +99,8 @@ const PRODUCTS: ProductDef[] = [
   },
   {
     key: "assets",
-    title: "Eiendeler (Assets)",
+    moduleKey: "assets",
+    title: "Eiendeler",
     description: "System- og eiendelsregister.",
   },
   {

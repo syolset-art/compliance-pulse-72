@@ -26,7 +26,7 @@ const GATE_MODULES: { key: string; label: string }[] = [
   { key: "core", label: "Mynder Core" },
   { key: "vendors", label: "Leverandørmodul" },
   { key: "systems", label: "Systemer" },
-  { key: "assets", label: "Eiendeler (Assets)" },
+  { key: "assets", label: "Eiendeler" },
   { key: "trust", label: "Trust Center" },
 ];
 
