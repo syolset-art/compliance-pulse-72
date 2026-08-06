@@ -249,7 +249,6 @@ export function ActivateTrustCenterDialog({
               <Button
                 variant="outline"
                 onClick={() => {
-                  if (dontAskAgain) setPreference(false);
                   onOpenChange(false);
                 }}
               >
@@ -257,7 +256,6 @@ export function ActivateTrustCenterDialog({
               </Button>
               <Button
                 onClick={() => {
-                  if (dontAskAgain) setPreference(false);
                   onOpenChange(false);
                   onOpenGuide?.();
                 }}
