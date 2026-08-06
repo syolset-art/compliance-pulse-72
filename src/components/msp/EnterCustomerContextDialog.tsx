@@ -15,7 +15,6 @@ import { cn } from "@/lib/utils";
 import { useActiveOrganization } from "@/contexts/ActiveOrganizationContext";
 import { useWorkspaceMode } from "@/contexts/WorkspaceModeContext";
 import { entryRouteFor, type CustomerEntryTarget } from "@/lib/customerEntryRoutes";
-import { usePostActivationPrompt } from "@/hooks/usePostActivationPrompt";
 
 interface Props {
   open: boolean;
