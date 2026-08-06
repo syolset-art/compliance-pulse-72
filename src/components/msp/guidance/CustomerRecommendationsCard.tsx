@@ -48,7 +48,7 @@ export function CustomerRecommendationsCard({ customer, onOffer, onActivate, onE
 
   return (
     <Card className="p-5 flex flex-col">
-      <div className="flex items-start justify-between gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="flex items-center gap-1.5">
             <h3 className="text-sm font-semibold text-foreground">Anbefalte produkter og tjenester</h3>
@@ -67,9 +67,9 @@ export function CustomerRecommendationsCard({ customer, onOffer, onActivate, onE
             </TooltipProvider>
           </div>
         </div>
-        <div className="flex items-start gap-3 shrink-0">
+        <div className="flex items-start gap-3 sm:shrink-0">
           {potential.total > 0 && (
-            <div className="text-right">
+            <div className="text-left sm:text-right">
               <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
                 Salgspotensial
               </p>
@@ -202,7 +202,7 @@ export function CustomerRecommendationsCard({ customer, onOffer, onActivate, onE
       />
 
       <div className="mt-auto pt-4 border-t border-border/60">
-        <div className="flex items-start justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
@@ -263,7 +263,7 @@ export function CustomerRecommendationsCard({ customer, onOffer, onActivate, onE
             </div>
           </div>
 
-        <div className="text-right shrink-0">
+          <div className="text-left sm:text-right sm:shrink-0 sm:min-w-[140px]">
             <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
               Månedlig lisens
             </p>
@@ -311,7 +311,6 @@ export function CustomerRecommendationsCard({ customer, onOffer, onActivate, onE
               </Tooltip>
             </TooltipProvider>
           </div>
-
         </div>
       </div>
     </Card>

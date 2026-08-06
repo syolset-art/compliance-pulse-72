@@ -163,12 +163,20 @@ export function LaraRecommendationBanner({
   return (
     <div className="rounded-2xl border border-primary/20 bg-primary/5 p-3 sm:p-5 space-y-4">
       {/* Header */}
-      <div className="flex items-start gap-3 sm:gap-4">
-        <div className="h-10 w-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center shrink-0">
+      <div className="flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-4">
+        <div className="h-10 w-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center shrink-0 hidden sm:flex">
           <Diamond className="h-4 w-4" />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-foreground">
+          <div className="flex items-start gap-3 sm:hidden">
+            <div className="h-9 w-9 rounded-full bg-primary text-primary-foreground flex items-center justify-center shrink-0">
+              <Diamond className="h-4 w-4" />
+            </div>
+            <p className="text-sm font-semibold text-foreground">
+              {isNb ? "Lara har lagt en plan" : "Lara has prepared a plan"}
+            </p>
+          </div>
+          <p className="hidden sm:block text-sm font-semibold text-foreground">
             {isNb ? "Lara har lagt en plan" : "Lara has prepared a plan"}
           </p>
           <p className="text-sm text-foreground/80 mt-0.5">
@@ -177,7 +185,7 @@ export function LaraRecommendationBanner({
               : `${totalCount} task${totalCount === 1 ? "" : "s"} total — starting with the ${total} most critical · ~${total * 3} min`}
           </p>
         </div>
-        <div className="flex items-center gap-1 shrink-0">
+        <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-1 sm:shrink-0">
           <div className="inline-flex items-center rounded-full border border-border bg-card p-0.5">
             <button
               onClick={() => setViewMode("single")}
@@ -188,7 +196,7 @@ export function LaraRecommendationBanner({
               title={isNb ? "Én og én" : "One by one"}
             >
               <LayoutList className="h-3.5 w-3.5" />
-              {isNb ? "Én og én" : "One by one"}
+              <span className="hidden sm:inline">{isNb ? "Én og én" : "One by one"}</span>
             </button>
             <button
               onClick={() => setViewMode("table")}
@@ -199,7 +207,7 @@ export function LaraRecommendationBanner({
               title={isNb ? "Tabell" : "Table"}
             >
               <TableIcon className="h-3.5 w-3.5" />
-              {isNb ? "Tabell" : "Table"}
+              <span className="hidden sm:inline">{isNb ? "Tabell" : "Table"}</span>
             </button>
           </div>
           <button
@@ -212,8 +220,8 @@ export function LaraRecommendationBanner({
       </div>
 
       {viewMode === "table" ? (
-        <div className="rounded-xl border border-border bg-card overflow-hidden">
-          <Table>
+        <div className="rounded-xl border border-border bg-card overflow-x-auto -mx-3 sm:mx-0">
+          <Table className="min-w-[640px]">
             <TableHeader>
               <TableRow>
                 <TableHead className="w-[100px]">{isNb ? "Alvorlighet" : "Severity"}</TableHead>
