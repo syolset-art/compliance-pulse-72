@@ -441,8 +441,9 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
       onOpenChange(false);
       resetForm();
     },
-    onError: () => {
-      toast.error("Kunne ikke importere leverandører");
+    onError: (error: unknown) => {
+      const message = error instanceof Error ? error.message : "";
+      toast.error(message || "Kunne ikke importere leverandører");
     },
   });
 
