@@ -84,7 +84,7 @@ export function customerActiveModules(c: any): string[] {
 export const MODULE_CANDIDATES: { key: string; label: string; price: number; hours: number }[] = [
   { key: "core", label: "Mynder Core", price: CORE_TIERS[0].monthlyPriceKr, hours: 4 },
   { key: "vendors", label: "Leverandørmodul", price: VENDOR_TIERS[1].monthlyPriceKr, hours: 5 },
-  { key: "assets", label: "Eiendeler (Assets)", price: 690, hours: 3 },
+  { key: "assets", label: "Eiendeler", price: 690, hours: 3 },
   { key: "trust", label: "Trust Center", price: TRUST_CENTER_PRICE_KR, hours: 3 },
 ];
 
@@ -158,10 +158,8 @@ export function deriveOfferSuggestions(c: any): OfferSuggestion[] {
 export const MODULE_LABELS: Record<string, string> = {
   core: "Mynder Core",
   vendors: "Leverandørmodul",
-  assets: "Eiendeler (Assets)",
+  assets: "Eiendeler",
   trust: "Trust Center",
-  deviations: "Avvikshåndtering",
-  ropa: "RoPA",
   frameworks: "Regelverk",
 };
 
@@ -180,7 +178,7 @@ export function deriveActivatedItems(c: any): string[] {
 export const MANUAL_PRODUCTS: { moduleKey: string; label: string; price: number; hours: number }[] = [
   { moduleKey: "core", label: "Mynder Core", price: 995, hours: 4 },
   { moduleKey: "vendors", label: "Leverandørmodul", price: 1089, hours: 5 },
-  { moduleKey: "assets", label: "Eiendeler (Assets)", price: 690, hours: 3 },
+  { moduleKey: "assets", label: "Eiendeler", price: 690, hours: 3 },
   { moduleKey: "trust", label: "Trust Center", price: 490, hours: 3 },
 ];
 
@@ -342,13 +340,14 @@ const ACTIVATED_LABEL_TO_MODULE: Record<string, string> = {
   leverandører: "vendors",
   assets: "assets",
   "eiendeler (assets)": "assets",
+  eiendeler: "assets",
   systemer: "core",
   "trust profile": "trust",
   "trust center": "trust",
-  avvikshåndtering: "deviations",
-  avviksregister: "deviations",
-  ropa: "ropa",
-  behandlingsprotokoll: "ropa",
+  avvikshåndtering: "core",
+  avviksregister: "core",
+  ropa: "core",
+  behandlingsprotokoll: "core",
 };
 
 /** Regelverk kunden har aktivert, som inngangspunkter. */
@@ -401,10 +400,8 @@ export interface LicenseSummary {
 const MODULE_MONTHLY_PRICE: Record<string, { label: string; price: number }> = {
   core: { label: "Mynder Core", price: 995 },
   vendors: { label: "Leverandørmodul", price: 1089 },
-  assets: { label: "Eiendeler (Assets)", price: 690 },
+  assets: { label: "Eiendeler", price: 690 },
   trust: { label: "Trust Center", price: TRUST_CENTER_PRICE_KR },
-  deviations: { label: "Avvikshåndtering", price: 290 },
-  ropa: { label: "RoPA", price: 290 },
 };
 
 function frameworkKey(f: any): { id: string; label: string } {
