@@ -154,6 +154,12 @@ export function getNextCoreTier(id: CoreTierId): CoreTier | null {
 export const TRUST_CENTER_PRICE_KR = 490;
 export const TRUST_CENTER_V2 = true; // Sentinell: v2-produkt — ikke aktiver nå.
 
+// ─── Modenhetsvurdering (V2 — IKKE IMPLEMENTER NÅ) ───────────────────
+// Modenhetsvurdering som egen produktisert tjeneste / salgsartikkel er
+// planlagt i v2. Behold baseline-spørreskjema og modenhetsflyt som de er
+// i prototype, men marker tjenesten som V2 der den listes som produkt.
+export const MATURITY_ASSESSMENT_V2 = true; // Sentinell: v2-tjeneste — ikke selges/aktiveres nå.
+
 
 
 
