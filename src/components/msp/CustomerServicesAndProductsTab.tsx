@@ -377,8 +377,10 @@ export function CustomerServicesAndProductsTab({
     setEnterItems([{ id: "vendors", kind: "module", label: "Leverandørmodul", moduleKey: "vendors" }]);
     toast.success(
       isActivation
-        ? `Leverandørmodul aktivert${effectiveAt ? "" : ""} hos ${customerName}`
-        : `Nivå endret til ${nextTier.label}`,
+        ? `Leverandørmodul aktivert hos ${customerName}`
+        : effectiveAt
+          ? `Nivå endres til ${nextTier.label} ${effectiveAt}`
+          : `Nivå endret til ${nextTier.label}`,
     );
     onUpdate?.();
   };
