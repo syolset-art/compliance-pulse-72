@@ -20,7 +20,7 @@ function nextBillingDate(): string {
   return next.toLocaleDateString("nb-NO", { day: "numeric", month: "long" });
 }
 
-export function ConfirmVendorTierChangeDialog({ open, onOpenChange, currentTierId, nextTierId, onConfirm }: Props) {
+export function ConfirmVendorTierChangeDialog({ open, onOpenChange, currentTierId, nextTierId, onConfirm, mode = "change" }: Props) {
   const { current: currentTerms, hasAcceptedCurrent, acceptTerms } = useTerms();
   const [accepted, setAccepted] = useState(false);
   const [saving, setSaving] = useState(false);
