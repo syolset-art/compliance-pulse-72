@@ -230,8 +230,11 @@ export function CustomerFrameworkRecommendationsCard({
       <div className="mt-auto pt-4">
         <div className="rounded-lg border border-border/60 bg-muted/20 px-3 py-2.5">
           <div className="flex items-center justify-between gap-2">
-            <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
+            <span className="inline-flex items-center gap-2 text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
               Modenhetsvurdering
+              <span className="inline-flex items-center rounded border border-muted-foreground/20 bg-muted/40 px-1.5 py-0 text-[10px] font-medium text-muted-foreground">
+                V2
+              </span>
             </span>
             <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground tabular-nums">
               {status === "sent_to_customer" && <Send className="h-3 w-3" />}
@@ -240,6 +243,7 @@ export function CustomerFrameworkRecommendationsCard({
             </span>
           </div>
           <p className="text-[11px] text-muted-foreground mt-1 leading-relaxed">
+            {/* V2 — IKKE IMPLEMENTER NÅ: Modenhetsvurdering som produktisert tjeneste er planlagt i v2. */}
             Bekreft hvilke regelverk som faktisk gjelder ved å kartlegge kundens modenhet. Du svarer
             på det du kan, og sender resten til kunden.
           </p>
