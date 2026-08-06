@@ -10,9 +10,11 @@ interface Props {
   currentTierId: CoreTierId;
   usedSystems: number;
   onConfirm: (nextTierId: CoreTierId) => void;
+  /** Åpner systemregisteret slik at brukeren kan frigjøre plass. */
+  onManageUsage?: () => void;
 }
 
-export function ChangeCoreTierDialog({ open, onOpenChange, currentTierId, usedSystems, onConfirm }: Props) {
+export function ChangeCoreTierDialog({ open, onOpenChange, currentTierId, usedSystems, onConfirm, onManageUsage }: Props) {
   const [selected, setSelected] = useState<CoreTierId>(currentTierId);
 
   useEffect(() => {
