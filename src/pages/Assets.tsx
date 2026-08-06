@@ -1,4 +1,5 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { usePageHelpListener } from "@/hooks/usePageHelpListener";
 import { ContextualHelpPanel } from "@/components/shared/ContextualHelpPanel";
 import { HelpCircle, Shield, Server as ServerIcon, Layers } from "lucide-react";
@@ -36,7 +37,17 @@ export default function Assets() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(() => searchParams.get("add") === "1");
+
+  // Åpner registreringsdialogen når brukeren kommer fra aktiveringskvitteringen.
+  useEffect(() => {
+    if (searchParams.get("add") === "1") {
+      setIsAddDialogOpen(true);
+      searchParams.delete("add");
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
   const [isSeeding, setIsSeeding] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
