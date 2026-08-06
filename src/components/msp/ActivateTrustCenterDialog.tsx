@@ -59,8 +59,7 @@ export function ActivateTrustCenterDialog({
   const [operatorRole, setOperatorRole] = useState(false);
   const [sendClaim, setSendClaim] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [dontAskAgain, setDontAskAgain] = useState(false);
-  const { enabled: promptEnabled, setPreference } = usePostActivationPrompt();
+  const { enabled: promptEnabled } = usePostActivationPrompt();
 
   const hasOperatorRole = acceptances.some((a) => a.operator_role);
   const termsOk = termsChecked || hasAcceptedCurrent;
@@ -220,13 +219,6 @@ export function ActivateTrustCenterDialog({
               profilen. Du kan åpne veiledningen nå, eller fortsette senere – aktiveringen er
               allerede fullført.
             </p>
-            <label className="flex items-center gap-2 cursor-pointer">
-              <Checkbox
-                checked={dontAskAgain}
-                onCheckedChange={(v) => setDontAskAgain(v === true)}
-              />
-              <span className="text-xs text-muted-foreground">Ikke spør meg om dette igjen</span>
-            </label>
           </div>
         )}
 
@@ -257,7 +249,6 @@ export function ActivateTrustCenterDialog({
               <Button
                 variant="outline"
                 onClick={() => {
-                  if (dontAskAgain) setPreference(false);
                   onOpenChange(false);
                 }}
               >
@@ -265,7 +256,6 @@ export function ActivateTrustCenterDialog({
               </Button>
               <Button
                 onClick={() => {
-                  if (dontAskAgain) setPreference(false);
                   onOpenChange(false);
                   onOpenGuide?.();
                 }}
