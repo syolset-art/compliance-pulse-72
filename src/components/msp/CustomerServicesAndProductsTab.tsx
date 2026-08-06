@@ -143,10 +143,10 @@ export function CustomerServicesAndProductsTab({
   const [tick, setTick] = useState(0);
   useEffect(() => {
     const refresh = () => setTick((n) => n + 1);
-    window.addEventListener("modules:changed", refresh);
+    window.addEventListener(CUSTOMER_MODULES_EVENT, refresh);
     window.addEventListener(TRUST_CENTER_EVENT, refresh);
     return () => {
-      window.removeEventListener("modules:changed", refresh);
+      window.removeEventListener(CUSTOMER_MODULES_EVENT, refresh);
       window.removeEventListener(TRUST_CENTER_EVENT, refresh);
     };
   }, []);
@@ -168,25 +168,50 @@ export function CustomerServicesAndProductsTab({
   const [pendingVendorTierId, setPendingVendorTierId] = useState<VendorTierId | null>(null);
   const [receipt, setReceipt] = useState<ModuleChangeReceipt | null>(null);
 
-  // Faktiske tall fra registeret — aldri hardkodet.
-  const { data: counts } = useQuery({
-    queryKey: ["msp-customer-usage-counts"],
-    queryFn: async () => {
-      const [vendorRes, systemRes] = await Promise.all([
-        supabase.from("assets").select("id", { count: "exact", head: true }).eq("asset_type", "vendor"),
-        supabase.from("assets").select("id", { count: "exact", head: true }).eq("asset_type", "system"),
-      ]);
-      return { vendors: vendorRes.count ?? 0, systems: systemRes.count ?? 0 };
-    },
-  });
+  // Forbruk hører til kunden — ikke partnerens eget register.
+  const usage = useMemo(
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    () => getCustomerUsage(customerId, customerName),
+    [customerId, customerName, tick],
+  );
+  const usedVendors = usage.vendors;
+  const usedSystems = usage.systems;
 
-  const usedVendors = counts?.vendors ?? 0;
-  // Nivå og grense hentes fra samme kapasitetslogikk som leverandørregisteret.
-  const vendorCapacity = resolveVendorCapacity(usedVendors);
+  // Kundens `active_modules` i databasen er fasit for hva som er aktivert.
   useEffect(() => {
-    persistVendorTier(vendorCapacity.tierId);
-  }, [vendorCapacity.tierId]);
-  const usedSystems = counts?.systems ?? 0;
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("msp_customers" as any)
+        .select("active_modules")
+        .eq("id", customerId)
+        .maybeSingle();
+      if (cancelled) return;
+      const modules: string[] = ((data as any)?.active_modules || []).filter(Boolean);
+      syncCustomerModules(customerId, modules, usage);
+      setTick((n) => n + 1);
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [customerId]);
+
+  // Nivå løftes til det minste nivået som rommer faktisk bruk (aldri «26 av 5»).
+  const coreTierId = useMemo(() => {
+    const stored = (getCustomerModuleTier(customerId, "core") as CoreTierId) ?? DEFAULT_CORE_TIER_ID;
+    const required = requiredCoreTierId(usedSystems);
+    return getCoreTier(required).systemLimit > getCoreTier(stored).systemLimit ? required : stored;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [customerId, usedSystems, tick]);
+
+  const vendorTierId = useMemo(() => {
+    const stored = (getCustomerModuleTier(customerId, "vendors") as VendorTierId) ?? DEFAULT_VENDOR_TIER_ID;
+    const required = requiredVendorTierId(usedVendors);
+    return getVendorTier(required).vendorLimit > getVendorTier(stored).vendorLimit ? required : stored;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [customerId, usedVendors, tick]);
+
 
   const products = useMemo(
     () =>
