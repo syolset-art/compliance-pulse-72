@@ -84,7 +84,6 @@ export function customerActiveModules(c: any): string[] {
 export const MODULE_CANDIDATES: { key: string; label: string; price: number; hours: number }[] = [
   { key: "core", label: "Mynder Core", price: CORE_TIERS[0].monthlyPriceKr, hours: 4 },
   { key: "vendors", label: "Leverandørmodul", price: VENDOR_TIERS[1].monthlyPriceKr, hours: 5 },
-  { key: "systems", label: "Systemer", price: 690, hours: 3 },
   { key: "assets", label: "Eiendeler (Assets)", price: 690, hours: 3 },
   { key: "trust", label: "Trust Center", price: TRUST_CENTER_PRICE_KR, hours: 3 },
 ];
@@ -159,7 +158,6 @@ export function deriveOfferSuggestions(c: any): OfferSuggestion[] {
 export const MODULE_LABELS: Record<string, string> = {
   core: "Mynder Core",
   vendors: "Leverandørmodul",
-  systems: "Systemer",
   assets: "Eiendeler (Assets)",
   trust: "Trust Center",
   deviations: "Avvikshåndtering",
@@ -183,7 +181,6 @@ export const MANUAL_PRODUCTS: { moduleKey: string; label: string; price: number;
   { moduleKey: "core", label: "Mynder Core", price: 995, hours: 4 },
   { moduleKey: "vendors", label: "Leverandørmodul", price: 1089, hours: 5 },
   { moduleKey: "assets", label: "Eiendeler (Assets)", price: 690, hours: 3 },
-  { moduleKey: "systems", label: "Systemer", price: 690, hours: 3 },
   { moduleKey: "trust", label: "Trust Center", price: 490, hours: 3 },
 ];
 
@@ -345,7 +342,7 @@ const ACTIVATED_LABEL_TO_MODULE: Record<string, string> = {
   leverandører: "vendors",
   assets: "assets",
   "eiendeler (assets)": "assets",
-  systemer: "systems",
+  systemer: "core",
   "trust profile": "trust",
   "trust center": "trust",
   avvikshåndtering: "deviations",
@@ -405,7 +402,6 @@ const MODULE_MONTHLY_PRICE: Record<string, { label: string; price: number }> = {
   core: { label: "Mynder Core", price: 995 },
   vendors: { label: "Leverandørmodul", price: 1089 },
   assets: { label: "Eiendeler (Assets)", price: 690 },
-  systems: { label: "Systemer", price: 690 },
   trust: { label: "Trust Center", price: TRUST_CENTER_PRICE_KR },
   deviations: { label: "Avvikshåndtering", price: 290 },
   ropa: { label: "RoPA", price: 290 },

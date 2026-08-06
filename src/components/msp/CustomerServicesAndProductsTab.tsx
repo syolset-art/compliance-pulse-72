@@ -98,11 +98,6 @@ const PRODUCTS: ProductDef[] = [
     usageSuffix: "leverandører",
   },
   {
-    key: "systems",
-    title: "Systemer",
-    description: "Automatisk kartlegging og oversikt over systemene kunden bruker.",
-  },
-  {
     key: "assets",
     title: "Eiendeler (Assets)",
     description: "System- og eiendelsregister.",
@@ -115,7 +110,7 @@ const PRODUCTS: ProductDef[] = [
   },
 ];
 
-const FLAT_PRICE: Record<string, number> = { systems: 690, assets: 690, trust: 490 };
+const FLAT_PRICE: Record<string, number> = { assets: 690, trust: 490 };
 
 
 /** Månedspris per aktivert regelverk. */
