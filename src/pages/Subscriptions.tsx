@@ -7,7 +7,7 @@ import {
   LayoutGrid, Server, BookOpen, Briefcase, Users, ShieldCheck, Globe,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import { resolveVendorCapacity } from "@/lib/vendorCapacity";
+import { resolveVendorCapacity, persistVendorTier } from "@/lib/vendorCapacity";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -415,7 +415,10 @@ export default function Subscriptions() {
   const vendorCapacity = resolveVendorCapacity(vendorCount ?? 0, vendorTierId);
   const vendorTier = vendorCapacity.tier;
   useEffect(() => {
-    if (vendorCapacity.tierId !== vendorTierId) setVendorTierId(vendorCapacity.tierId);
+    if (vendorCapacity.tierId !== vendorTierId) {
+      persistVendorTier(vendorCapacity.tierId);
+      setVendorTierId(vendorCapacity.tierId);
+    }
   }, [vendorCapacity.tierId, vendorTierId]);
   const vendorMonthlyPrice = vendorTier.monthlyPriceKr;
   const assetMonthlyPrice = 690;

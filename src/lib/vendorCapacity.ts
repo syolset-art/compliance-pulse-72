@@ -50,18 +50,21 @@ export function getVendorCapacity(used: number, tierId?: VendorTierId): VendorCa
 }
 
 /**
- * Kapasitet basert på faktisk bruk. Lagret nivå løftes automatisk til
- * det minste nivået som rommer bruken, slik at forbruket aldri kan
- * overstige grensen (aldri «26 av 5»).
+ * Kapasitet basert på faktisk bruk. Ren funksjon: nivået løftes til det
+ * minste nivået som rommer bruken, slik at forbruket aldri kan overstige
+ * grensen (aldri «26 av 5»).
  */
 export function resolveVendorCapacity(used: number, tierId?: VendorTierId): VendorCapacity {
   const currentId = tierId ?? getCurrentVendorTierId();
   const requiredId = getRequiredVendorTierId(used);
-  const currentLimit = getVendorTier(currentId).vendorLimit;
-  const requiredLimit = getVendorTier(requiredId).vendorLimit;
-  if (requiredLimit > currentLimit) {
-    setModuleTier("vendors", requiredId);
-    return getVendorCapacity(used, requiredId);
-  }
-  return getVendorCapacity(used, currentId);
+  const effectiveId =
+    getVendorTier(requiredId).vendorLimit > getVendorTier(currentId).vendorLimit
+      ? requiredId
+      : currentId;
+  return getVendorCapacity(used, effectiveId);
+}
+
+/** Lagrer et løftet nivå. Kall kun fra effekter, aldri under render. */
+export function persistVendorTier(tierId: VendorTierId) {
+  if (getCurrentVendorTierId() !== tierId) setModuleTier("vendors", tierId);
 }

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { resolveVendorCapacity } from "@/lib/vendorCapacity";
+import { resolveVendorCapacity, persistVendorTier } from "@/lib/vendorCapacity";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -179,6 +179,9 @@ export function CustomerServicesAndProductsTab({
   const usedVendors = counts?.vendors ?? 0;
   // Nivå og grense hentes fra samme kapasitetslogikk som leverandørregisteret.
   const vendorCapacity = resolveVendorCapacity(usedVendors);
+  useEffect(() => {
+    persistVendorTier(vendorCapacity.tierId);
+  }, [vendorCapacity.tierId]);
   const usedSystems = counts?.systems ?? 0;
 
   const products = useMemo(

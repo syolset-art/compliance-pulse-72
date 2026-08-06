@@ -23,7 +23,7 @@ import { VendorPremiumBanner } from "@/components/vendor-dashboard/VendorPremium
 import { VendorPortfolioActions } from "@/components/vendor-dashboard/VendorPortfolioActions";
 import { ChangeVendorTierDialog } from "@/components/dialogs/ChangeVendorTierDialog";
 import { ConfirmVendorTierChangeDialog } from "@/components/dialogs/ConfirmVendorTierChangeDialog";
-import { resolveVendorCapacity, getCurrentVendorTierId } from "@/lib/vendorCapacity";
+import { resolveVendorCapacity, persistVendorTier, getCurrentVendorTierId } from "@/lib/vendorCapacity";
 import { setModuleTier, activateModule } from "@/lib/moduleActivationState";
 import { getVendorTier, type VendorTierId } from "@/lib/planConstants";
 
@@ -92,7 +92,10 @@ export default function VendorDashboard() {
   // enn nivået rommer — forbruket kan aldri overstige grensen.
   const capacity = resolveVendorCapacity(vendors.length, vendorTierId);
   useEffect(() => {
-    if (capacity.tierId !== vendorTierId) setVendorTierId(capacity.tierId);
+    if (capacity.tierId !== vendorTierId) {
+      persistVendorTier(capacity.tierId);
+      setVendorTierId(capacity.tierId);
+    }
   }, [capacity.tierId, vendorTierId]);
 
   /** Åpner leverandørdialogen — eller nivådialogen når nivået er fullt. */
