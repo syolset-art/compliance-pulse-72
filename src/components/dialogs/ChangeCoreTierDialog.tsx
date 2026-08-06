@@ -42,8 +42,8 @@ export function ChangeCoreTierDialog({ open, onOpenChange, currentTierId, usedSy
             const overflow = usedSystems - tier.systemLimit;
 
             return (
+              <div key={tier.id}>
               <button
-                key={tier.id}
                 type="button"
                 disabled={disabled}
                 onClick={() => setSelected(tier.id)}
