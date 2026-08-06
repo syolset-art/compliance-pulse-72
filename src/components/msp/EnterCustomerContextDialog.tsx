@@ -9,7 +9,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { ArrowRight, Briefcase, Building2, CheckCircle2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useActiveOrganization } from "@/contexts/ActiveOrganizationContext";
