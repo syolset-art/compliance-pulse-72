@@ -89,7 +89,9 @@ export function ConfirmVendorTierChangeDialog({ open, onOpenChange, currentTierI
         <DialogFooter className="pt-2">
           <Button variant="ghost" onClick={() => onOpenChange(false)}>Avbryt</Button>
           <Button onClick={handleConfirm} disabled={!checked || saving}>
-            {isUpgrade ? `Endre for ${formatKr(next.monthlyPriceKr)}/mnd` : "Endre nivå"}
+            {mode === "activate"
+              ? "Aktiver modulen"
+              : isUpgrade ? `Endre for ${formatKr(next.monthlyPriceKr)}/mnd` : "Endre nivå"}
           </Button>
         </DialogFooter>
 
