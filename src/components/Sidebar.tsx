@@ -609,7 +609,7 @@ const SidebarContent = () => {
 
 
         {/* Separator */}
-        {(showCoreNormal || showRegistries) && <div className="my-2 border-b border-sidebar-border/40" />}
+        {(showCoreNormal || showVendorsNormal || showRegistries) && <div className="my-2 border-b border-sidebar-border/40" />}
 
         {/* Mynder Core — only if selected at onboarding or paid */}
         {showCoreNormal && !partnerHides("core") && (isCoreActivating ? (
@@ -622,6 +622,26 @@ const SidebarContent = () => {
           setManagementOpen,
           isManagementActive,
         ))}
+
+        {/* Leverandørmodulen — eget produkt på samme nivå som Mynder Core */}
+        {showVendorsNormal && !partnerHides("registries") && (isVendorsActivating ? (
+          <ModuleSkeletonRow label={t(vendorLink.name, "Leverandører")} />
+        ) : (
+          <Link
+            to={vendorLink.href}
+            className={cn(
+              "flex items-center gap-2.5 rounded-lg px-3 py-2 text-[0.9375rem] font-medium transition-all duration-200 relative",
+              isVendorsActive
+                ? "bg-gradient-to-r from-primary/10 to-transparent text-sidebar-primary border-l-2 border-primary"
+                : "text-sidebar-foreground/80 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
+            )}
+          >
+            {isVendorsActive && <span className="h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />}
+            <vendorLink.icon className="h-4 w-4" />
+            <span className="text-sm font-semibold">{t(vendorLink.name)}</span>
+          </Link>
+        ))}
+
 
         {/* Registre — Systemer (Core) + Aktiva (Assets) */}
         {showRegistries && registriesItems.length > 0 && !partnerHides("registries") && ((isCoreActivating || isAssetsActivating) ? (
