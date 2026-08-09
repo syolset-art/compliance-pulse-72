@@ -246,8 +246,8 @@ export function AggregatedMaturityWidget() {
   return (
     <div className="rounded-2xl border border-border bg-card">
       {/* Header */}
-      <div className="p-5 pb-4 space-y-3">
-        <div className="flex items-start justify-between gap-3">
+      <div className="p-4 sm:p-5 pb-4 space-y-3">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
           <div className="space-y-1 min-w-0">
             <div className="flex items-center gap-2">
               <Shield className="h-4 w-4 text-primary shrink-0" />
@@ -259,7 +259,8 @@ export function AggregatedMaturityWidget() {
               {isNb ? "Aggregert på tvers av leverandører og systemer" : "Aggregated across vendors and systems"}
             </p>
           </div>
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center justify-between sm:justify-end gap-2 sm:shrink-0">
+
             {/* Segmented control */}
             <div className="flex items-center rounded-lg border border-border bg-muted/30 p-0.5">
               {VIEW_MODES.map((mode) => {
@@ -366,7 +367,7 @@ export function AggregatedMaturityWidget() {
       </div>
 
       {/* Content */}
-      <div className="px-5 pb-5 pt-0">
+      <div className="px-4 sm:px-5 pb-5 pt-0">
         {viewMode === "history" && (
           <div className="space-y-4">
             <h4 className="text-xs font-semibold text-foreground">

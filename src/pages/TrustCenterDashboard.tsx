@@ -129,7 +129,7 @@ export default function TrustCenterDashboard() {
     <div className="flex min-h-screen w-full bg-background">
       <Sidebar />
       <main className="flex-1 overflow-y-auto pt-11">
-        <div className="container max-w-5xl mx-auto p-6 lg:p-8 space-y-5">
+        <div className="container max-w-5xl mx-auto p-4 sm:p-6 lg:p-8 space-y-5">
           <div>
             <h1 className="text-2xl font-bold text-foreground tracking-tight">
               {getGreeting(isNb)}
