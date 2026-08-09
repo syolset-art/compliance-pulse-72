@@ -256,7 +256,7 @@ export function AggregatedMaturityWidget() {
               </h3>
             </div>
             <p className="text-xs text-muted-foreground">
-              {isNb ? "Aggregert på tvers av leverandører og systemer" : "Aggregated across vendors and systemer"}
+              {isNb ? "Aggregert på tvers av leverandører og systemer" : "Aggregated across vendors and systems"}
             </p>
           </div>
           <div className="flex items-center justify-between sm:justify-end gap-2 sm:shrink-0">
