@@ -367,7 +367,7 @@ export function AggregatedMaturityWidget() {
       </div>
 
       {/* Content */}
-      <div className="px-5 pb-5 pt-0">
+      <div className="px-4 sm:px-5 pb-5 pt-0">
         {viewMode === "history" && (
           <div className="space-y-4">
             <h4 className="text-xs font-semibold text-foreground">
