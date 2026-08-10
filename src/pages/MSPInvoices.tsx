@@ -314,27 +314,29 @@ export default function MSPInvoices() {
                   </div>
                   <Pills items={r.activated} empty="Ingen aktive abonnement" />
                   <div className="pt-2 border-t border-border space-y-1 text-sm">
-                    {r.fixed > 0 && (
-                      <div className="flex items-center justify-between">
-                        <span className="text-muted-foreground">Fastpris</span>
-                        <span className="text-foreground tabular-nums">{fmt(r.fixed)} kr</span>
-                      </div>
-                    )}
-                    {r.setup > 0 && (
-                      <div className="flex items-center justify-between">
-                        <span className="text-muted-foreground">Etablering</span>
-                        <span className="text-foreground tabular-nums">{fmt(r.setup)} kr</span>
-                      </div>
-                    )}
                     <div className="flex items-center justify-between">
                       <span className="text-muted-foreground">{taxLabel}</span>
                       <span className="text-foreground tabular-nums">{fmt(taxFor(r))} kr</span>
                     </div>
+                    {oneTimeFor(r) > 0 && (
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted-foreground">
+                          Fastpris og etablering
+                          {r.fixed > 0 && r.setup > 0 && (
+                            <span className="block text-[11px]">
+                              fastpris {fmt(r.fixed)} · etablering {fmt(r.setup)}
+                            </span>
+                          )}
+                        </span>
+                        <span className="text-foreground tabular-nums">{fmt(oneTimeFor(r))} kr</span>
+                      </div>
+                    )}
                     <div className="flex items-center justify-between font-semibold">
                       <span className="text-foreground">Total inkl. {tax.label}</span>
                       <span className="text-foreground tabular-nums">{fmt(grossFor(r))} kr</span>
                     </div>
                   </div>
+
                 </Card>
               ))}
               {rows.length > 0 && (
