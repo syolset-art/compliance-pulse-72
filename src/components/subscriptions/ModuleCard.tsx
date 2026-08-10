@@ -197,7 +197,7 @@ export function ModuleCard({
                   onClick={onDeactivate}
                   className="text-xs text-muted-foreground hover:text-destructive transition-colors"
                 >
-                  {deactivateLabel || "Avslutt"}
+                  {deactivateLabel || "Avvikle"}
                 </button>
               )}
               <Button
