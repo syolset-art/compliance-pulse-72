@@ -19,6 +19,8 @@ import {
 import { getOffersForCustomer, normalizeServiceKey } from "@/lib/customerOffers";
 import { SERVICE_LIBRARY } from "@/lib/serviceLibrary";
 import { CUSTOMER_MODULES_EVENT } from "@/lib/customerModuleState";
+import { computeTaxBreakdown } from "@/lib/partnerTax";
+import { usePartnerBranding } from "@/hooks/usePartnerBranding";
 
 const fmt = (n: number) => n.toLocaleString("nb-NO");
 
@@ -48,7 +50,10 @@ interface Row {
   monthly: number;
   fixed: number;
   fixedCount: number;
+  /** Engangs etableringsgebyr — ikke alle kunder har dette. */
+  setup: number;
 }
+
 
 function Pills({ items, empty }: { items: string[]; empty?: string }) {
   if (items.length === 0) {
@@ -66,6 +71,9 @@ function Pills({ items, empty }: { items: string[]; empty?: string }) {
 }
 
 export default function MSPInvoices() {
+  const { branding } = usePartnerBranding();
+  const tax = branding.tax;
+
   const { data: customers = [], refetch } = useQuery({
     queryKey: ["msp-customers-invoices"],
     queryFn: async () => {
@@ -106,6 +114,7 @@ export default function MSPInvoices() {
           monthly,
           fixed: fixed.total,
           fixedCount: fixed.count,
+          setup: Number(c.setup_fee) > 0 ? Number(c.setup_fee) : 0,
         };
       })
       .sort((a, b) => b.monthly - a.monthly || a.name.localeCompare(b.name, "nb-NO"));
@@ -113,7 +122,16 @@ export default function MSPInvoices() {
 
   const monthlyTotal = rows.reduce((s, r) => s + r.monthly, 0);
   const fixedTotal = rows.reduce((s, r) => s + r.fixed, 0);
+  const setupTotal = rows.reduce((s, r) => s + r.setup, 0);
   const payingCount = rows.filter((r) => r.monthly > 0).length;
+
+  const netFor = (r: Row) => r.monthly + r.fixed + r.setup;
+  const taxFor = (r: Row) => computeTaxBreakdown(netFor(r), tax).taxAmount;
+  const grossFor = (r: Row) => computeTaxBreakdown(netFor(r), tax).gross;
+  const netTotal = monthlyTotal + fixedTotal + setupTotal;
+  const totalBreakdown = computeTaxBreakdown(netTotal, tax);
+  const taxLabel = tax.enabled && tax.rate > 0 ? `${tax.label} (${tax.rate} %)` : tax.label;
+
 
   return (
     <TooltipProvider delayDuration={200}>
@@ -193,6 +211,24 @@ export default function MSPInvoices() {
                           </TooltipContent>
                         </Tooltip>
                       </TableHead>
+                      <TableHead className="w-[120px] text-right text-foreground/80">
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span className="inline-flex items-center gap-1.5 cursor-help">
+                              Etablering <Info className="h-3.5 w-3.5 text-foreground/50" />
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent side="top" className="max-w-[260px] text-xs">
+                            Valgfritt engangs etableringsgebyr. Står tomt for kunder uten etableringsgebyr.
+                          </TooltipContent>
+                        </Tooltip>
+                      </TableHead>
+                      <TableHead className="w-[120px] text-right text-foreground/80 whitespace-nowrap">
+                        {taxLabel}
+                      </TableHead>
+                      <TableHead className="w-[140px] text-right text-foreground/80 whitespace-nowrap">
+                        Total inkl. {tax.label}
+                      </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -216,6 +252,15 @@ export default function MSPInvoices() {
                         <TableCell className="text-right text-foreground tabular-nums">
                           {r.fixed > 0 ? `${fmt(r.fixed)} kr` : "—"}
                         </TableCell>
+                        <TableCell className="text-right text-foreground tabular-nums">
+                          {r.setup > 0 ? `${fmt(r.setup)} kr` : "—"}
+                        </TableCell>
+                        <TableCell className="text-right text-muted-foreground tabular-nums">
+                          {netFor(r) > 0 ? `${fmt(taxFor(r))} kr` : "—"}
+                        </TableCell>
+                        <TableCell className="text-right font-semibold text-foreground tabular-nums">
+                          {netFor(r) > 0 ? `${fmt(grossFor(r))} kr` : "—"}
+                        </TableCell>
                       </TableRow>
                     ))}
                     {rows.length > 0 && (
@@ -229,7 +274,17 @@ export default function MSPInvoices() {
                         <TableCell className="text-right font-semibold text-foreground tabular-nums">
                           {fmt(fixedTotal)} kr
                         </TableCell>
+                        <TableCell className="text-right font-semibold text-foreground tabular-nums">
+                          {setupTotal > 0 ? `${fmt(setupTotal)} kr` : "—"}
+                        </TableCell>
+                        <TableCell className="text-right font-semibold text-foreground tabular-nums">
+                          {fmt(totalBreakdown.taxAmount)} kr
+                        </TableCell>
+                        <TableCell className="text-right font-semibold text-foreground tabular-nums">
+                          {fmt(totalBreakdown.gross)} kr
+                        </TableCell>
                       </TableRow>
+
                     )}
                   </TableBody>
                 </Table>
@@ -261,20 +316,43 @@ export default function MSPInvoices() {
                     </div>
                   </div>
                   <Pills items={r.activated} empty="Ingen aktive abonnement" />
-                  {r.fixed > 0 && (
-                    <div className="flex items-center justify-between pt-2 border-t border-border text-sm">
-                      <span className="text-muted-foreground">Fastpris</span>
-                      <span className="text-foreground tabular-nums">{fmt(r.fixed)} kr</span>
+                  <div className="pt-2 border-t border-border space-y-1 text-sm">
+                    {r.fixed > 0 && (
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted-foreground">Fastpris</span>
+                        <span className="text-foreground tabular-nums">{fmt(r.fixed)} kr</span>
+                      </div>
+                    )}
+                    {r.setup > 0 && (
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted-foreground">Etablering</span>
+                        <span className="text-foreground tabular-nums">{fmt(r.setup)} kr</span>
+                      </div>
+                    )}
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">{taxLabel}</span>
+                      <span className="text-foreground tabular-nums">{fmt(taxFor(r))} kr</span>
                     </div>
-                  )}
+                    <div className="flex items-center justify-between font-semibold">
+                      <span className="text-foreground">Total inkl. {tax.label}</span>
+                      <span className="text-foreground tabular-nums">{fmt(grossFor(r))} kr</span>
+                    </div>
+                  </div>
                 </Card>
               ))}
               {rows.length > 0 && (
-                <Card className="p-4 bg-muted/30 flex items-center justify-between">
-                  <span className="text-sm font-medium text-foreground">Totalt per mnd</span>
-                  <span className="text-sm font-semibold text-foreground tabular-nums">{fmt(monthlyTotal)} kr</span>
+                <Card className="p-4 bg-muted/30 space-y-1">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Totalt per mnd</span>
+                    <span className="text-foreground tabular-nums">{fmt(monthlyTotal)} kr</span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm font-semibold">
+                    <span className="text-foreground">Total inkl. {tax.label}</span>
+                    <span className="text-foreground tabular-nums">{fmt(totalBreakdown.gross)} kr</span>
+                  </div>
                 </Card>
               )}
+
               {rows.length === 0 && (
                 <Card className="p-10 text-center text-sm text-muted-foreground">Ingen kunder ennå</Card>
               )}
