@@ -143,19 +143,59 @@ function RecipientCard({ r, period }: { r: RecipientBasis; period: Period }) {
   );
 }
 
+function RateInput({ id, value, onChange }: { id: string; value: number; onChange: (n: number) => void }) {
+  const [draft, setDraft] = useState(String(value));
+
+  const commit = () => {
+    const n = Number(draft.replace(",", "."));
+    const safe = Number.isFinite(n) ? Math.min(100, Math.max(0, Math.round(n))) : value;
+    setDraft(String(safe));
+    setCommissionPct(id, safe);
+    onChange(safe);
+  };
+
+  return (
+    <span className="inline-flex items-center gap-1">
+      <input
+        type="number"
+        min={0}
+        max={100}
+        value={draft}
+        onChange={(e) => setDraft(e.target.value)}
+        onBlur={commit}
+        onKeyDown={(e) => e.key === "Enter" && (e.target as HTMLInputElement).blur()}
+        onClick={(e) => e.stopPropagation()}
+        aria-label="Partnersats i prosent"
+        className="w-16 rounded-md border border-input bg-background px-2 py-1 text-right text-sm tabular-nums text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+      />
+      <span className="text-sm text-muted-foreground">%</span>
+    </span>
+  );
+}
+
 export function InvoiceBasisView() {
   const [period, setPeriod] = useState<Period>(currentPeriod());
+  const [rateVersion, setRateVersion] = useState(0);
 
-  const partners = useMemo(() => partnerRecipients(period), [period]);
+  const partners = useMemo(() => partnerRecipients(period), [period, rateVersion]);
   const direct = useMemo(() => directRecipients(period), [period]);
 
   const partnerTotal = partners.reduce((s, r) => s + r.toInvoice, 0);
+  const partnerGross = partners.reduce((s, r) => s + r.subtotal, 0);
+  const commissionTotal = partners.reduce((s, r) => s + r.commission, 0);
   const directTotal = direct.reduce((s, r) => s + r.toInvoice, 0);
   const newCount = [...partners, ...direct].reduce((s, r) => s + r.newCount, 0);
   const recipientCount = partners.filter((p) => p.subtotal > 0).length + direct.filter((d) => d.subtotal > 0).length;
+  const grossAll = partnerGross + directTotal;
+  const directShare = grossAll > 0 ? Math.round((directTotal / grossAll) * 100) : 0;
 
   return (
     <div className="space-y-5">
+      <p className="text-sm text-muted-foreground">
+        Mynders eget fakturagrunnlag: alle partnere med sine kunder, og direktekunder uten partner. Partnersatsen er
+        andelen av abonnementet partneren beholder — den kan justeres per partner.
+      </p>
+
       {/* Periodevelger */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-2">
@@ -192,7 +232,7 @@ export function InvoiceBasisView() {
         <Card className="p-4">
           <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Partnerkanal</div>
           <div className="text-xl md:text-2xl font-semibold tabular-nums text-foreground mt-1">{kr(partnerTotal)}</div>
-          <div className="text-xs text-muted-foreground mt-0.5">etter provisjon</div>
+          <div className="text-xs text-muted-foreground mt-0.5">etter {kr(commissionTotal)} i provisjon</div>
         </Card>
         <Card className="p-4">
           <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Direktekunder</div>
@@ -200,25 +240,70 @@ export function InvoiceBasisView() {
           <div className="text-xs text-muted-foreground mt-0.5">{recipientCount} fakturamottakere</div>
         </Card>
         <Card className="p-4">
-          <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Nye aktiveringer</div>
-          <div className="text-xl md:text-2xl font-semibold tabular-nums text-foreground mt-1">{newCount}</div>
-          <div className="text-xs text-muted-foreground mt-0.5">i valgt periode</div>
+          <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Andel direktesalg</div>
+          <div className="text-xl md:text-2xl font-semibold tabular-nums text-foreground mt-1">{directShare} %</div>
+          <div className="text-xs text-muted-foreground mt-0.5">{newCount} nye aktiveringer i perioden</div>
         </Card>
       </div>
 
       <section className="space-y-2">
         <h2 className="text-sm font-semibold text-foreground">Partnere</h2>
+
+        {/* Oversikt per partner */}
+        <Card className="overflow-x-auto">
+          <table className="w-full text-sm min-w-[640px]">
+            <thead>
+              <tr className="text-left text-xs uppercase tracking-wide text-muted-foreground">
+                <th className="px-4 py-2 font-medium">Partner</th>
+                <th className="px-4 py-2 font-medium">Kunder</th>
+                <th className="px-4 py-2 font-medium text-right">Abonnement/mnd</th>
+                <th className="px-4 py-2 font-medium text-right">Sats</th>
+                <th className="px-4 py-2 font-medium text-right">Provisjon</th>
+                <th className="px-4 py-2 font-medium text-right">Å fakturere</th>
+              </tr>
+            </thead>
+            <tbody>
+              {partners.map((r) => (
+                <tr key={r.id} className="border-t border-border">
+                  <td className="px-4 py-2 font-medium text-foreground">{r.name}</td>
+                  <td className="px-4 py-2 text-muted-foreground tabular-nums">{r.customers.length}</td>
+                  <td className="px-4 py-2 text-right tabular-nums text-foreground">{kr(r.subtotal)}</td>
+                  <td className="px-4 py-2 text-right">
+                    <RateInput id={r.id} value={r.commissionPct} onChange={() => setRateVersion((v) => v + 1)} />
+                  </td>
+                  <td className="px-4 py-2 text-right tabular-nums text-muted-foreground">−{kr(r.commission)}</td>
+                  <td className="px-4 py-2 text-right tabular-nums font-semibold text-foreground">{kr(r.toInvoice)}</td>
+                </tr>
+              ))}
+              <tr className="border-t border-border bg-muted/30">
+                <td className="px-4 py-2 font-medium text-foreground" colSpan={2}>
+                  Totalt partnerkanal
+                </td>
+                <td className="px-4 py-2 text-right tabular-nums font-semibold text-foreground">{kr(partnerGross)}</td>
+                <td />
+                <td className="px-4 py-2 text-right tabular-nums font-semibold text-foreground">−{kr(commissionTotal)}</td>
+                <td className="px-4 py-2 text-right tabular-nums font-semibold text-foreground">{kr(partnerTotal)}</td>
+              </tr>
+            </tbody>
+          </table>
+        </Card>
+
         {partners.map((r) => (
           <RecipientCard key={r.id} r={r} period={period} />
         ))}
       </section>
 
       <section className="space-y-2">
-        <h2 className="text-sm font-semibold text-foreground">Direktekunder</h2>
+        <h2 className="text-sm font-semibold text-foreground">Direktekunder (uten partner)</h2>
         {direct.map((r) => (
           <RecipientCard key={r.id} r={r} period={period} />
         ))}
+        <Card className="p-4 flex items-center justify-between">
+          <span className="text-sm font-medium text-foreground">Totalt direktesalg</span>
+          <span className="text-sm font-semibold tabular-nums text-foreground">{kr(directTotal)}</span>
+        </Card>
       </section>
     </div>
   );
 }
+
