@@ -261,7 +261,19 @@ const KIND_LABEL: Record<BillingLineKind, string> = {
 
 export function buildCsv(recipients: RecipientBasis[], p: Period): string {
   const rows: string[][] = [
-    ["Periode", "Mottaker", "Kanal", "Kunde", "Type", "Linje", "Aktivert", "Avviklet", "Beløp per mnd (NOK)"],
+    [
+      "Periode",
+      "Mottaker",
+      "Kanal",
+      "Kunde",
+      "Type",
+      "Linje",
+      "Aktivert",
+      "Avviklet",
+      "Beløp per mnd (NOK)",
+      "Partnersats (%)",
+      "Provisjon mottaker (NOK)",
+    ],
   ];
   for (const r of recipients) {
     for (const c of r.customers) {
@@ -276,12 +288,15 @@ export function buildCsv(recipients: RecipientBasis[], p: Period): string {
           l.activatedAt,
           l.endedAt ?? "",
           String(l.monthlyNok),
+          r.partner ? String(r.commissionPct) : "",
+          r.partner ? String(r.commission) : "",
         ]);
       }
     }
   }
   return rows.map((r) => r.map((v) => `"${v.replace(/"/g, '""')}"`).join(";")).join("\n");
 }
+
 
 export function downloadCsv(filename: string, csv: string) {
   const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
