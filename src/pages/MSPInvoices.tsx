@@ -191,6 +191,19 @@ export default function MSPInvoices() {
                     <TableRow>
                       <TableHead className="w-[200px] text-foreground/80">Kunde</TableHead>
                       <TableHead className="text-foreground/80">Aktiverte produkter og regelverk</TableHead>
+                      <TableHead className="w-[170px] text-right text-foreground/80">
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span className="inline-flex items-center gap-1.5 cursor-help">
+                              Fastpris og etablering <Info className="h-3.5 w-3.5 text-foreground/50" />
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent side="top" className="max-w-[260px] text-xs">
+                            Engangsbeløp: leverte fastprisprosjekter og eventuelt etableringsgebyr. Tom når kunden ikke
+                            har noen av delene.
+                          </TooltipContent>
+                        </Tooltip>
+                      </TableHead>
                       <TableHead className="w-[140px] text-right text-foreground/80">
                         <Tooltip>
                           <TooltipTrigger asChild>
@@ -205,19 +218,6 @@ export default function MSPInvoices() {
                       </TableHead>
                       <TableHead className="w-[120px] text-right text-foreground/80 whitespace-nowrap">
                         {taxLabel}
-                      </TableHead>
-                      <TableHead className="w-[170px] text-right text-foreground/80">
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <span className="inline-flex items-center gap-1.5 cursor-help">
-                              Fastpris og etablering <Info className="h-3.5 w-3.5 text-foreground/50" />
-                            </span>
-                          </TooltipTrigger>
-                          <TooltipContent side="top" className="max-w-[260px] text-xs">
-                            Engangsbeløp: leverte fastprisprosjekter og eventuelt etableringsgebyr. Tom når kunden ikke
-                            har noen av delene.
-                          </TooltipContent>
-                        </Tooltip>
                       </TableHead>
                       <TableHead className="w-[140px] text-right text-foreground/80 whitespace-nowrap">
                         Total inkl. {tax.label}
@@ -239,12 +239,6 @@ export default function MSPInvoices() {
                         <TableCell>
                           <Pills items={r.activated} empty="Ingen aktive abonnement" />
                         </TableCell>
-                        <TableCell className="text-right font-semibold text-foreground tabular-nums">
-                          {r.monthly > 0 ? `${fmt(r.monthly)} kr` : "—"}
-                        </TableCell>
-                        <TableCell className="text-right text-muted-foreground tabular-nums">
-                          {netFor(r) > 0 ? `${fmt(taxFor(r))} kr` : "—"}
-                        </TableCell>
                         <TableCell className="text-right text-foreground tabular-nums">
                           {oneTimeFor(r) > 0 ? (
                             <>
@@ -260,6 +254,12 @@ export default function MSPInvoices() {
                           )}
                         </TableCell>
                         <TableCell className="text-right font-semibold text-foreground tabular-nums">
+                          {r.monthly > 0 ? `${fmt(r.monthly)} kr` : "—"}
+                        </TableCell>
+                        <TableCell className="text-right text-muted-foreground tabular-nums">
+                          {netFor(r) > 0 ? `${fmt(taxFor(r))} kr` : "—"}
+                        </TableCell>
+                        <TableCell className="text-right font-semibold text-foreground tabular-nums">
                           {netFor(r) > 0 ? `${fmt(grossFor(r))} kr` : "—"}
                         </TableCell>
                       </TableRow>
@@ -270,13 +270,13 @@ export default function MSPInvoices() {
                           Totalt
                         </TableCell>
                         <TableCell className="text-right font-semibold text-foreground tabular-nums">
+                          {oneTimeTotal > 0 ? `${fmt(oneTimeTotal)} kr` : "—"}
+                        </TableCell>
+                        <TableCell className="text-right font-semibold text-foreground tabular-nums">
                           {fmt(monthlyTotal)} kr
                         </TableCell>
                         <TableCell className="text-right font-semibold text-foreground tabular-nums">
                           {fmt(totalBreakdown.taxAmount)} kr
-                        </TableCell>
-                        <TableCell className="text-right font-semibold text-foreground tabular-nums">
-                          {oneTimeTotal > 0 ? `${fmt(oneTimeTotal)} kr` : "—"}
                         </TableCell>
                         <TableCell className="text-right font-semibold text-foreground tabular-nums">
                           {fmt(totalBreakdown.gross)} kr
@@ -315,10 +315,6 @@ export default function MSPInvoices() {
                   </div>
                   <Pills items={r.activated} empty="Ingen aktive abonnement" />
                   <div className="pt-2 border-t border-border space-y-1 text-sm">
-                    <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground">{taxLabel}</span>
-                      <span className="text-foreground tabular-nums">{fmt(taxFor(r))} kr</span>
-                    </div>
                     {oneTimeFor(r) > 0 && (
                       <div className="flex items-center justify-between">
                         <span className="text-muted-foreground">
@@ -332,6 +328,14 @@ export default function MSPInvoices() {
                         <span className="text-foreground tabular-nums">{fmt(oneTimeFor(r))} kr</span>
                       </div>
                     )}
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">Abonnement/mnd</span>
+                      <span className="text-foreground tabular-nums">{r.monthly > 0 ? `${fmt(r.monthly)} kr` : "—"}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">{taxLabel}</span>
+                      <span className="text-foreground tabular-nums">{fmt(taxFor(r))} kr</span>
+                    </div>
                     <div className="flex items-center justify-between font-semibold">
                       <span className="text-foreground">Total inkl. {tax.label}</span>
                       <span className="text-foreground tabular-nums">{fmt(grossFor(r))} kr</span>
@@ -342,6 +346,10 @@ export default function MSPInvoices() {
               ))}
               {rows.length > 0 && (
                 <Card className="p-4 bg-muted/30 space-y-1">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Engangsbeløp</span>
+                    <span className="text-foreground tabular-nums">{oneTimeTotal > 0 ? `${fmt(oneTimeTotal)} kr` : "—"}</span>
+                  </div>
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-muted-foreground">Totalt per mnd</span>
                     <span className="text-foreground tabular-nums">{fmt(monthlyTotal)} kr</span>
