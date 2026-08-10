@@ -2,10 +2,11 @@ import { Sidebar } from "@/components/Sidebar";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MetricCard } from "@/components/widgets/MetricCard";
-import { Building2, Coins, Download, Handshake, ShieldCheck, Users } from "lucide-react";
+import { Building2, Coins, Download, Handshake, Receipt, ShieldCheck, Users } from "lucide-react";
 import { AdminRouteGuard } from "@/components/mynder-admin/AdminRouteGuard";
 import { PartnerChannelView } from "@/components/mynder-admin/PartnerChannelView";
 import { DirectSalesView } from "@/components/mynder-admin/DirectSalesView";
+import { InvoiceBasisView } from "@/components/mynder-admin/InvoiceBasisView";
 import { PARTNERS, CUSTOMERS } from "@/components/mynder-admin/adminDemoData";
 
 export default function MynderAdminDashboard() {
@@ -48,7 +49,7 @@ export default function MynderAdminDashboard() {
 
             {/* Tabs */}
             <Tabs defaultValue="partner" className="w-full">
-              <TabsList>
+              <TabsList className="flex-wrap h-auto">
                 <TabsTrigger value="partner" className="gap-2">
                   <Handshake className="h-4 w-4" />
                   Partnerkanal ({partnerCustomers.length})
@@ -57,12 +58,19 @@ export default function MynderAdminDashboard() {
                   <Building2 className="h-4 w-4" />
                   Direktesalg ({directCustomers.length})
                 </TabsTrigger>
+                <TabsTrigger value="invoice" className="gap-2">
+                  <Receipt className="h-4 w-4" />
+                  Fakturagrunnlag
+                </TabsTrigger>
               </TabsList>
               <TabsContent value="partner" className="mt-4">
                 <PartnerChannelView />
               </TabsContent>
               <TabsContent value="direct" className="mt-4">
                 <DirectSalesView />
+              </TabsContent>
+              <TabsContent value="invoice" className="mt-4">
+                <InvoiceBasisView />
               </TabsContent>
             </Tabs>
           </div>
