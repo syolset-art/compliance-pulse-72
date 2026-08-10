@@ -19,6 +19,8 @@ import {
 import { getOffersForCustomer, normalizeServiceKey } from "@/lib/customerOffers";
 import { SERVICE_LIBRARY } from "@/lib/serviceLibrary";
 import { CUSTOMER_MODULES_EVENT } from "@/lib/customerModuleState";
+import { computeTaxBreakdown } from "@/lib/partnerTax";
+import { usePartnerBranding } from "@/hooks/usePartnerBranding";
 
 const fmt = (n: number) => n.toLocaleString("nb-NO");
 
