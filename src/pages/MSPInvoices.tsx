@@ -211,6 +211,24 @@ export default function MSPInvoices() {
                           </TooltipContent>
                         </Tooltip>
                       </TableHead>
+                      <TableHead className="w-[120px] text-right text-foreground/80">
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span className="inline-flex items-center gap-1.5 cursor-help">
+                              Etablering <Info className="h-3.5 w-3.5 text-foreground/50" />
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent side="top" className="max-w-[260px] text-xs">
+                            Valgfritt engangs etableringsgebyr. Står tomt for kunder uten etableringsgebyr.
+                          </TooltipContent>
+                        </Tooltip>
+                      </TableHead>
+                      <TableHead className="w-[120px] text-right text-foreground/80 whitespace-nowrap">
+                        {taxLabel}
+                      </TableHead>
+                      <TableHead className="w-[140px] text-right text-foreground/80 whitespace-nowrap">
+                        Total inkl. {tax.label}
+                      </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -234,6 +252,15 @@ export default function MSPInvoices() {
                         <TableCell className="text-right text-foreground tabular-nums">
                           {r.fixed > 0 ? `${fmt(r.fixed)} kr` : "—"}
                         </TableCell>
+                        <TableCell className="text-right text-foreground tabular-nums">
+                          {r.setup > 0 ? `${fmt(r.setup)} kr` : "—"}
+                        </TableCell>
+                        <TableCell className="text-right text-muted-foreground tabular-nums">
+                          {netFor(r) > 0 ? `${fmt(taxFor(r))} kr` : "—"}
+                        </TableCell>
+                        <TableCell className="text-right font-semibold text-foreground tabular-nums">
+                          {netFor(r) > 0 ? `${fmt(grossFor(r))} kr` : "—"}
+                        </TableCell>
                       </TableRow>
                     ))}
                     {rows.length > 0 && (
@@ -247,7 +274,17 @@ export default function MSPInvoices() {
                         <TableCell className="text-right font-semibold text-foreground tabular-nums">
                           {fmt(fixedTotal)} kr
                         </TableCell>
+                        <TableCell className="text-right font-semibold text-foreground tabular-nums">
+                          {setupTotal > 0 ? `${fmt(setupTotal)} kr` : "—"}
+                        </TableCell>
+                        <TableCell className="text-right font-semibold text-foreground tabular-nums">
+                          {fmt(totalBreakdown.taxAmount)} kr
+                        </TableCell>
+                        <TableCell className="text-right font-semibold text-foreground tabular-nums">
+                          {fmt(totalBreakdown.gross)} kr
+                        </TableCell>
                       </TableRow>
+
                     )}
                   </TableBody>
                 </Table>
