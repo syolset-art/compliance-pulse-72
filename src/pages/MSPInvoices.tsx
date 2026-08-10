@@ -270,13 +270,13 @@ export default function MSPInvoices() {
                           Totalt
                         </TableCell>
                         <TableCell className="text-right font-semibold text-foreground tabular-nums">
+                          {oneTimeTotal > 0 ? `${fmt(oneTimeTotal)} kr` : "—"}
+                        </TableCell>
+                        <TableCell className="text-right font-semibold text-foreground tabular-nums">
                           {fmt(monthlyTotal)} kr
                         </TableCell>
                         <TableCell className="text-right font-semibold text-foreground tabular-nums">
                           {fmt(totalBreakdown.taxAmount)} kr
-                        </TableCell>
-                        <TableCell className="text-right font-semibold text-foreground tabular-nums">
-                          {oneTimeTotal > 0 ? `${fmt(oneTimeTotal)} kr` : "—"}
                         </TableCell>
                         <TableCell className="text-right font-semibold text-foreground tabular-nums">
                           {fmt(totalBreakdown.gross)} kr
