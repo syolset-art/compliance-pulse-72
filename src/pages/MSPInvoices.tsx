@@ -124,8 +124,11 @@ export default function MSPInvoices() {
   const fixedTotal = rows.reduce((s, r) => s + r.fixed, 0);
   const setupTotal = rows.reduce((s, r) => s + r.setup, 0);
   const payingCount = rows.filter((r) => r.monthly > 0).length;
+  const oneTimeTotal = fixedTotal + setupTotal;
 
+  const oneTimeFor = (r: Row) => r.fixed + r.setup;
   const netFor = (r: Row) => r.monthly + r.fixed + r.setup;
+
   const taxFor = (r: Row) => computeTaxBreakdown(netFor(r), tax).taxAmount;
   const grossFor = (r: Row) => computeTaxBreakdown(netFor(r), tax).gross;
   const netTotal = monthlyTotal + fixedTotal + setupTotal;
