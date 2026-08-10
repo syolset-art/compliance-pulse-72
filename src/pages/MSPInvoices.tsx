@@ -176,10 +176,11 @@ export default function MSPInvoices() {
                 <div className="text-xs text-muted-foreground mt-0.5">moduler og betalte regelverk</div>
               </Card>
               <Card className="p-4">
-                <div className="text-[12px] uppercase tracking-wide text-muted-foreground">Fastpris / prosjekter</div>
-                <div className="text-2xl font-semibold text-foreground tabular-nums mt-1">{fmt(fixedTotal)} kr</div>
-                <div className="text-xs text-muted-foreground mt-0.5">leverte engangsleveranser</div>
+                <div className="text-[12px] uppercase tracking-wide text-muted-foreground">Engangsbeløp</div>
+                <div className="text-2xl font-semibold text-foreground tabular-nums mt-1">{fmt(oneTimeTotal)} kr</div>
+                <div className="text-xs text-muted-foreground mt-0.5">fastpris og etablering</div>
               </Card>
+
             </div>
 
             {/* Desktop: tabell */}
