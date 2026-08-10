@@ -48,7 +48,7 @@ export default function MynderAdminDashboard() {
 
             {/* Tabs */}
             <Tabs defaultValue="partner" className="w-full">
-              <TabsList>
+              <TabsList className="flex-wrap h-auto">
                 <TabsTrigger value="partner" className="gap-2">
                   <Handshake className="h-4 w-4" />
                   Partnerkanal ({partnerCustomers.length})
@@ -57,12 +57,19 @@ export default function MynderAdminDashboard() {
                   <Building2 className="h-4 w-4" />
                   Direktesalg ({directCustomers.length})
                 </TabsTrigger>
+                <TabsTrigger value="invoice" className="gap-2">
+                  <Receipt className="h-4 w-4" />
+                  Fakturagrunnlag
+                </TabsTrigger>
               </TabsList>
               <TabsContent value="partner" className="mt-4">
                 <PartnerChannelView />
               </TabsContent>
               <TabsContent value="direct" className="mt-4">
                 <DirectSalesView />
+              </TabsContent>
+              <TabsContent value="invoice" className="mt-4">
+                <InvoiceBasisView />
               </TabsContent>
             </Tabs>
           </div>
