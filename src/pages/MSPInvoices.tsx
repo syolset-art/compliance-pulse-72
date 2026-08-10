@@ -124,8 +124,11 @@ export default function MSPInvoices() {
   const fixedTotal = rows.reduce((s, r) => s + r.fixed, 0);
   const setupTotal = rows.reduce((s, r) => s + r.setup, 0);
   const payingCount = rows.filter((r) => r.monthly > 0).length;
+  const oneTimeTotal = fixedTotal + setupTotal;
 
+  const oneTimeFor = (r: Row) => r.fixed + r.setup;
   const netFor = (r: Row) => r.monthly + r.fixed + r.setup;
+
   const taxFor = (r: Row) => computeTaxBreakdown(netFor(r), tax).taxAmount;
   const grossFor = (r: Row) => computeTaxBreakdown(netFor(r), tax).gross;
   const netTotal = monthlyTotal + fixedTotal + setupTotal;
@@ -173,10 +176,11 @@ export default function MSPInvoices() {
                 <div className="text-xs text-muted-foreground mt-0.5">moduler og betalte regelverk</div>
               </Card>
               <Card className="p-4">
-                <div className="text-[12px] uppercase tracking-wide text-muted-foreground">Fastpris / prosjekter</div>
-                <div className="text-2xl font-semibold text-foreground tabular-nums mt-1">{fmt(fixedTotal)} kr</div>
-                <div className="text-xs text-muted-foreground mt-0.5">leverte engangsleveranser</div>
+                <div className="text-[12px] uppercase tracking-wide text-muted-foreground">Engangsbeløp</div>
+                <div className="text-2xl font-semibold text-foreground tabular-nums mt-1">{fmt(oneTimeTotal)} kr</div>
+                <div className="text-xs text-muted-foreground mt-0.5">fastpris og etablering</div>
               </Card>
+
             </div>
 
             {/* Desktop: tabell */}
@@ -199,32 +203,21 @@ export default function MSPInvoices() {
                           </TooltipContent>
                         </Tooltip>
                       </TableHead>
-                      <TableHead className="w-[120px] text-right text-foreground/80">
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <span className="inline-flex items-center gap-1.5 cursor-help">
-                              Fastpris <Info className="h-3.5 w-3.5 text-foreground/50" />
-                            </span>
-                          </TooltipTrigger>
-                          <TooltipContent side="top" className="max-w-[260px] text-xs">
-                            Leverte engangsleveranser fra tilbud — prosjekter med fast pris.
-                          </TooltipContent>
-                        </Tooltip>
-                      </TableHead>
-                      <TableHead className="w-[120px] text-right text-foreground/80">
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <span className="inline-flex items-center gap-1.5 cursor-help">
-                              Etablering <Info className="h-3.5 w-3.5 text-foreground/50" />
-                            </span>
-                          </TooltipTrigger>
-                          <TooltipContent side="top" className="max-w-[260px] text-xs">
-                            Valgfritt engangs etableringsgebyr. Står tomt for kunder uten etableringsgebyr.
-                          </TooltipContent>
-                        </Tooltip>
-                      </TableHead>
                       <TableHead className="w-[120px] text-right text-foreground/80 whitespace-nowrap">
                         {taxLabel}
+                      </TableHead>
+                      <TableHead className="w-[170px] text-right text-foreground/80">
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span className="inline-flex items-center gap-1.5 cursor-help">
+                              Fastpris og etablering <Info className="h-3.5 w-3.5 text-foreground/50" />
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent side="top" className="max-w-[260px] text-xs">
+                            Engangsbeløp: leverte fastprisprosjekter og eventuelt etableringsgebyr. Tom når kunden ikke
+                            har noen av delene.
+                          </TooltipContent>
+                        </Tooltip>
                       </TableHead>
                       <TableHead className="w-[140px] text-right text-foreground/80 whitespace-nowrap">
                         Total inkl. {tax.label}
@@ -249,14 +242,22 @@ export default function MSPInvoices() {
                         <TableCell className="text-right font-semibold text-foreground tabular-nums">
                           {r.monthly > 0 ? `${fmt(r.monthly)} kr` : "—"}
                         </TableCell>
-                        <TableCell className="text-right text-foreground tabular-nums">
-                          {r.fixed > 0 ? `${fmt(r.fixed)} kr` : "—"}
-                        </TableCell>
-                        <TableCell className="text-right text-foreground tabular-nums">
-                          {r.setup > 0 ? `${fmt(r.setup)} kr` : "—"}
-                        </TableCell>
                         <TableCell className="text-right text-muted-foreground tabular-nums">
                           {netFor(r) > 0 ? `${fmt(taxFor(r))} kr` : "—"}
+                        </TableCell>
+                        <TableCell className="text-right text-foreground tabular-nums">
+                          {oneTimeFor(r) > 0 ? (
+                            <>
+                              <div>{fmt(oneTimeFor(r))} kr</div>
+                              {r.fixed > 0 && r.setup > 0 && (
+                                <div className="text-[11px] text-muted-foreground font-normal">
+                                  fastpris {fmt(r.fixed)} · etablering {fmt(r.setup)}
+                                </div>
+                              )}
+                            </>
+                          ) : (
+                            "—"
+                          )}
                         </TableCell>
                         <TableCell className="text-right font-semibold text-foreground tabular-nums">
                           {netFor(r) > 0 ? `${fmt(grossFor(r))} kr` : "—"}
@@ -272,20 +273,17 @@ export default function MSPInvoices() {
                           {fmt(monthlyTotal)} kr
                         </TableCell>
                         <TableCell className="text-right font-semibold text-foreground tabular-nums">
-                          {fmt(fixedTotal)} kr
-                        </TableCell>
-                        <TableCell className="text-right font-semibold text-foreground tabular-nums">
-                          {setupTotal > 0 ? `${fmt(setupTotal)} kr` : "—"}
-                        </TableCell>
-                        <TableCell className="text-right font-semibold text-foreground tabular-nums">
                           {fmt(totalBreakdown.taxAmount)} kr
+                        </TableCell>
+                        <TableCell className="text-right font-semibold text-foreground tabular-nums">
+                          {oneTimeTotal > 0 ? `${fmt(oneTimeTotal)} kr` : "—"}
                         </TableCell>
                         <TableCell className="text-right font-semibold text-foreground tabular-nums">
                           {fmt(totalBreakdown.gross)} kr
                         </TableCell>
                       </TableRow>
-
                     )}
+
                   </TableBody>
                 </Table>
               </div>
@@ -317,27 +315,29 @@ export default function MSPInvoices() {
                   </div>
                   <Pills items={r.activated} empty="Ingen aktive abonnement" />
                   <div className="pt-2 border-t border-border space-y-1 text-sm">
-                    {r.fixed > 0 && (
-                      <div className="flex items-center justify-between">
-                        <span className="text-muted-foreground">Fastpris</span>
-                        <span className="text-foreground tabular-nums">{fmt(r.fixed)} kr</span>
-                      </div>
-                    )}
-                    {r.setup > 0 && (
-                      <div className="flex items-center justify-between">
-                        <span className="text-muted-foreground">Etablering</span>
-                        <span className="text-foreground tabular-nums">{fmt(r.setup)} kr</span>
-                      </div>
-                    )}
                     <div className="flex items-center justify-between">
                       <span className="text-muted-foreground">{taxLabel}</span>
                       <span className="text-foreground tabular-nums">{fmt(taxFor(r))} kr</span>
                     </div>
+                    {oneTimeFor(r) > 0 && (
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted-foreground">
+                          Fastpris og etablering
+                          {r.fixed > 0 && r.setup > 0 && (
+                            <span className="block text-[11px]">
+                              fastpris {fmt(r.fixed)} · etablering {fmt(r.setup)}
+                            </span>
+                          )}
+                        </span>
+                        <span className="text-foreground tabular-nums">{fmt(oneTimeFor(r))} kr</span>
+                      </div>
+                    )}
                     <div className="flex items-center justify-between font-semibold">
                       <span className="text-foreground">Total inkl. {tax.label}</span>
                       <span className="text-foreground tabular-nums">{fmt(grossFor(r))} kr</span>
                     </div>
                   </div>
+
                 </Card>
               ))}
               {rows.length > 0 && (

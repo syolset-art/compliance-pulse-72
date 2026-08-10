@@ -144,7 +144,41 @@ export function linesForPeriod(c: CustomerRow, p: Period): BillingLine[] {
   });
 }
 
+// ─── Provisjonssats ──────────────────────────────────────────────────
+
+/** Standard andel av abonnementet partneren beholder. Kan overstyres per partner. */
+export const DEFAULT_COMMISSION_PCT = 20;
+
+const COMMISSION_KEY = "mynder.admin.partnerCommissionPct";
+
+function readOverrides(): Record<string, number> {
+  try {
+    const raw = localStorage.getItem(COMMISSION_KEY);
+    return raw ? (JSON.parse(raw) as Record<string, number>) : {};
+  } catch {
+    return {};
+  }
+}
+
+/** Gjeldende sats for en partner — overstyring, ellers avtalt sats, ellers standard. */
+export function commissionPctFor(partner: PartnerRow): number {
+  const override = readOverrides()[partner.id];
+  if (typeof override === "number" && Number.isFinite(override)) return override;
+  return partner.commissionPct ?? DEFAULT_COMMISSION_PCT;
+}
+
+export function setCommissionPct(partnerId: string, pct: number) {
+  const next = { ...readOverrides(), [partnerId]: Math.min(100, Math.max(0, Math.round(pct))) };
+  try {
+    localStorage.setItem(COMMISSION_KEY, JSON.stringify(next));
+  } catch {
+    /* ignorer lagringsfeil */
+  }
+}
+
 // ─── Summering ───────────────────────────────────────────────────────
+
+
 
 export interface CustomerBasis {
   customer: CustomerRow;
@@ -182,14 +216,16 @@ export function partnerRecipients(p: Period): RecipientBasis[] {
       customerBasis(c, p),
     );
     const subtotal = customers.reduce((s, c) => s + c.total, 0);
-    const commission = Math.round((subtotal * partner.commissionPct) / 100);
+    const pct = commissionPctFor(partner);
+    const commission = Math.round((subtotal * pct) / 100);
     return {
       id: partner.id,
       name: partner.name,
       partner,
       customers,
       subtotal,
-      commissionPct: partner.commissionPct,
+      commissionPct: pct,
+
       commission,
       toInvoice: subtotal - commission,
       newCount: customers.reduce((s, c) => s + c.newCount, 0),
@@ -225,7 +261,19 @@ const KIND_LABEL: Record<BillingLineKind, string> = {
 
 export function buildCsv(recipients: RecipientBasis[], p: Period): string {
   const rows: string[][] = [
-    ["Periode", "Mottaker", "Kanal", "Kunde", "Type", "Linje", "Aktivert", "Avviklet", "Beløp per mnd (NOK)"],
+    [
+      "Periode",
+      "Mottaker",
+      "Kanal",
+      "Kunde",
+      "Type",
+      "Linje",
+      "Aktivert",
+      "Avviklet",
+      "Beløp per mnd (NOK)",
+      "Partnersats (%)",
+      "Provisjon mottaker (NOK)",
+    ],
   ];
   for (const r of recipients) {
     for (const c of r.customers) {
@@ -240,12 +288,15 @@ export function buildCsv(recipients: RecipientBasis[], p: Period): string {
           l.activatedAt,
           l.endedAt ?? "",
           String(l.monthlyNok),
+          r.partner ? String(r.commissionPct) : "",
+          r.partner ? String(r.commission) : "",
         ]);
       }
     }
   }
   return rows.map((r) => r.map((v) => `"${v.replace(/"/g, '""')}"`).join(";")).join("\n");
 }
+
 
 export function downloadCsv(filename: string, csv: string) {
   const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
