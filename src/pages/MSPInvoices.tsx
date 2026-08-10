@@ -21,6 +21,8 @@ import { SERVICE_LIBRARY } from "@/lib/serviceLibrary";
 import { CUSTOMER_MODULES_EVENT } from "@/lib/customerModuleState";
 import { computeTaxBreakdown } from "@/lib/partnerTax";
 import { usePartnerBranding } from "@/hooks/usePartnerBranding";
+import { ExportInvoiceBasisDialog } from "@/components/msp/ExportInvoiceBasisDialog";
+
 
 const fmt = (n: number) => n.toLocaleString("nb-NO");
 
@@ -135,6 +137,19 @@ export default function MSPInvoices() {
   const totalBreakdown = computeTaxBreakdown(netTotal, tax);
   const taxLabel = tax.enabled && tax.rate > 0 ? `${tax.label} (${tax.rate} %)` : tax.label;
 
+  const [exportOpen, setExportOpen] = useState(false);
+  const periodLabel = new Date().toLocaleDateString("nb-NO", { month: "long", year: "numeric" });
+  const exportRows = rows.map((r) => ({
+    name: r.name,
+    meta: r.meta,
+    activated: r.activated,
+    monthly: r.monthly,
+    oneTime: r.fixed + r.setup,
+    fixed: r.fixed,
+    setup: r.setup,
+  }));
+
+
 
   return (
     <TooltipProvider delayDuration={200}>
@@ -150,10 +165,11 @@ export default function MSPInvoices() {
                 </p>
               </div>
               <div className="flex gap-2 flex-wrap">
-                <Button variant="outline" size="sm" className="gap-2" onClick={() => toast.success("Eksporterer fakturagrunnlag…")}>
+                <Button variant="outline" size="sm" className="gap-2" onClick={() => setExportOpen(true)}>
                   <Download className="h-4 w-4" />
                   Eksporter
                 </Button>
+
                 <Link to="/msp-billing">
                   <Button variant="outline" size="sm" className="gap-2">
                     <Settings className="h-4 w-4" />
@@ -365,7 +381,17 @@ export default function MSPInvoices() {
                 <Card className="p-10 text-center text-sm text-muted-foreground">Ingen kunder ennå</Card>
               )}
             </div>
+
+            <ExportInvoiceBasisDialog
+              open={exportOpen}
+              onOpenChange={setExportOpen}
+              rows={exportRows}
+              branding={branding}
+              tax={tax}
+              periodLabel={periodLabel}
+            />
           </div>
+
         </main>
       </div>
     </TooltipProvider>
