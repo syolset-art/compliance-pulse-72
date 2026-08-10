@@ -150,10 +150,11 @@ export default function MSPInvoices() {
                 </p>
               </div>
               <div className="flex gap-2 flex-wrap">
-                <Button variant="outline" size="sm" className="gap-2" onClick={() => toast.success("Eksporterer fakturagrunnlag…")}>
+                <Button variant="outline" size="sm" className="gap-2" onClick={() => setExportOpen(true)}>
                   <Download className="h-4 w-4" />
                   Eksporter
                 </Button>
+
                 <Link to="/msp-billing">
                   <Button variant="outline" size="sm" className="gap-2">
                     <Settings className="h-4 w-4" />
