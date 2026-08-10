@@ -315,10 +315,6 @@ export default function MSPInvoices() {
                   </div>
                   <Pills items={r.activated} empty="Ingen aktive abonnement" />
                   <div className="pt-2 border-t border-border space-y-1 text-sm">
-                    <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground">{taxLabel}</span>
-                      <span className="text-foreground tabular-nums">{fmt(taxFor(r))} kr</span>
-                    </div>
                     {oneTimeFor(r) > 0 && (
                       <div className="flex items-center justify-between">
                         <span className="text-muted-foreground">
@@ -332,6 +328,14 @@ export default function MSPInvoices() {
                         <span className="text-foreground tabular-nums">{fmt(oneTimeFor(r))} kr</span>
                       </div>
                     )}
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">Abonnement/mnd</span>
+                      <span className="text-foreground tabular-nums">{r.monthly > 0 ? `${fmt(r.monthly)} kr` : "—"}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">{taxLabel}</span>
+                      <span className="text-foreground tabular-nums">{fmt(taxFor(r))} kr</span>
+                    </div>
                     <div className="flex items-center justify-between font-semibold">
                       <span className="text-foreground">Total inkl. {tax.label}</span>
                       <span className="text-foreground tabular-nums">{fmt(grossFor(r))} kr</span>
@@ -342,6 +346,10 @@ export default function MSPInvoices() {
               ))}
               {rows.length > 0 && (
                 <Card className="p-4 bg-muted/30 space-y-1">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Engangsbeløp</span>
+                    <span className="text-foreground tabular-nums">{oneTimeTotal > 0 ? `${fmt(oneTimeTotal)} kr` : "—"}</span>
+                  </div>
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-muted-foreground">Totalt per mnd</span>
                     <span className="text-foreground tabular-nums">{fmt(monthlyTotal)} kr</span>
