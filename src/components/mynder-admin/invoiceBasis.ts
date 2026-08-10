@@ -216,14 +216,16 @@ export function partnerRecipients(p: Period): RecipientBasis[] {
       customerBasis(c, p),
     );
     const subtotal = customers.reduce((s, c) => s + c.total, 0);
-    const commission = Math.round((subtotal * partner.commissionPct) / 100);
+    const pct = commissionPctFor(partner);
+    const commission = Math.round((subtotal * pct) / 100);
     return {
       id: partner.id,
       name: partner.name,
       partner,
       customers,
       subtotal,
-      commissionPct: partner.commissionPct,
+      commissionPct: pct,
+
       commission,
       toInvoice: subtotal - commission,
       newCount: customers.reduce((s, c) => s + c.newCount, 0),
