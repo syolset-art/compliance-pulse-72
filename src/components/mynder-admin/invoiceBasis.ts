@@ -144,7 +144,41 @@ export function linesForPeriod(c: CustomerRow, p: Period): BillingLine[] {
   });
 }
 
+// ─── Provisjonssats ──────────────────────────────────────────────────
+
+/** Standard andel av abonnementet partneren beholder. Kan overstyres per partner. */
+export const DEFAULT_COMMISSION_PCT = 20;
+
+const COMMISSION_KEY = "mynder.admin.partnerCommissionPct";
+
+function readOverrides(): Record<string, number> {
+  try {
+    const raw = localStorage.getItem(COMMISSION_KEY);
+    return raw ? (JSON.parse(raw) as Record<string, number>) : {};
+  } catch {
+    return {};
+  }
+}
+
+/** Gjeldende sats for en partner — overstyring, ellers avtalt sats, ellers standard. */
+export function commissionPctFor(partner: PartnerRow): number {
+  const override = readOverrides()[partner.id];
+  if (typeof override === "number" && Number.isFinite(override)) return override;
+  return partner.commissionPct ?? DEFAULT_COMMISSION_PCT;
+}
+
+export function setCommissionPct(partnerId: string, pct: number) {
+  const next = { ...readOverrides(), [partnerId]: Math.min(100, Math.max(0, Math.round(pct))) };
+  try {
+    localStorage.setItem(COMMISSION_KEY, JSON.stringify(next));
+  } catch {
+    /* ignorer lagringsfeil */
+  }
+}
+
 // ─── Summering ───────────────────────────────────────────────────────
+
+
 
 export interface CustomerBasis {
   customer: CustomerRow;
