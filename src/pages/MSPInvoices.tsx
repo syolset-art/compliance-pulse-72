@@ -21,6 +21,8 @@ import { SERVICE_LIBRARY } from "@/lib/serviceLibrary";
 import { CUSTOMER_MODULES_EVENT } from "@/lib/customerModuleState";
 import { computeTaxBreakdown } from "@/lib/partnerTax";
 import { usePartnerBranding } from "@/hooks/usePartnerBranding";
+import { ExportInvoiceBasisDialog } from "@/components/msp/ExportInvoiceBasisDialog";
+
 
 const fmt = (n: number) => n.toLocaleString("nb-NO");
 
@@ -134,6 +136,19 @@ export default function MSPInvoices() {
   const netTotal = monthlyTotal + fixedTotal + setupTotal;
   const totalBreakdown = computeTaxBreakdown(netTotal, tax);
   const taxLabel = tax.enabled && tax.rate > 0 ? `${tax.label} (${tax.rate} %)` : tax.label;
+
+  const [exportOpen, setExportOpen] = useState(false);
+  const periodLabel = new Date().toLocaleDateString("nb-NO", { month: "long", year: "numeric" });
+  const exportRows = rows.map((r) => ({
+    name: r.name,
+    meta: r.meta,
+    activated: r.activated,
+    monthly: r.monthly,
+    oneTime: r.fixed + r.setup,
+    fixed: r.fixed,
+    setup: r.setup,
+  }));
+
 
 
   return (
