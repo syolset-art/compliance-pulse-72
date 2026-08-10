@@ -15,7 +15,6 @@ import {
   customerLicenseSummary,
   deriveActivatedFrameworks,
   deriveActivatedProducts,
-  deriveActiveServices,
 } from "@/lib/offerSuggestions";
 import { getOffersForCustomer, normalizeServiceKey } from "@/lib/customerOffers";
 import { SERVICE_LIBRARY } from "@/lib/serviceLibrary";
@@ -45,9 +44,7 @@ interface Row {
   id: string;
   name: string;
   meta: string;
-  products: string[];
-  frameworks: string[];
-  services: string[];
+  activated: string[];
   monthly: number;
   fixed: number;
   fixedCount: number;
@@ -105,9 +102,7 @@ export default function MSPInvoices() {
           id: c.id,
           name: c.customer_name || "Uten navn",
           meta: [c.country_code || "NO", c.industry].filter(Boolean).join(" · "),
-          products: deriveActivatedProducts(c),
-          frameworks: deriveActivatedFrameworks(c),
-          services: deriveActiveServices(c),
+          activated: [...deriveActivatedProducts(c), ...deriveActivatedFrameworks(c)],
           monthly,
           fixed: fixed.total,
           fixedCount: fixed.count,
@@ -173,9 +168,7 @@ export default function MSPInvoices() {
                   <TableHeader>
                     <TableRow>
                       <TableHead className="w-[200px] text-foreground/80">Kunde</TableHead>
-                      <TableHead className="w-[180px] text-foreground/80">Aktiverte produkter</TableHead>
-                      <TableHead className="w-[200px] text-foreground/80">Aktiverte regelverk</TableHead>
-                      <TableHead className="w-[200px] text-foreground/80">Tjenester</TableHead>
+                      <TableHead className="text-foreground/80">Aktiverte produkter og regelverk</TableHead>
                       <TableHead className="w-[140px] text-right text-foreground/80">
                         <Tooltip>
                           <TooltipTrigger asChild>
@@ -215,13 +208,7 @@ export default function MSPInvoices() {
                           <div className="text-xs text-muted-foreground">{r.meta || "—"}</div>
                         </TableCell>
                         <TableCell>
-                          <Pills items={r.products} empty="Ingen aktive abonnement" />
-                        </TableCell>
-                        <TableCell>
-                          <Pills items={r.frameworks} />
-                        </TableCell>
-                        <TableCell>
-                          <Pills items={r.services} />
+                          <Pills items={r.activated} empty="Ingen aktive abonnement" />
                         </TableCell>
                         <TableCell className="text-right font-semibold text-foreground tabular-nums">
                           {r.monthly > 0 ? `${fmt(r.monthly)} kr` : "—"}
@@ -233,7 +220,7 @@ export default function MSPInvoices() {
                     ))}
                     {rows.length > 0 && (
                       <TableRow className="bg-muted/30">
-                        <TableCell colSpan={4} className="text-sm font-medium text-foreground">
+                        <TableCell colSpan={2} className="text-sm font-medium text-foreground">
                           Totalt
                         </TableCell>
                         <TableCell className="text-right font-semibold text-foreground tabular-nums">
@@ -273,7 +260,7 @@ export default function MSPInvoices() {
                       <div className="text-[11px] text-muted-foreground">per mnd</div>
                     </div>
                   </div>
-                  <Pills items={[...r.products, ...r.frameworks, ...r.services]} empty="Ingen aktive abonnement" />
+                  <Pills items={r.activated} empty="Ingen aktive abonnement" />
                   {r.fixed > 0 && (
                     <div className="flex items-center justify-between pt-2 border-t border-border text-sm">
                       <span className="text-muted-foreground">Fastpris</span>
