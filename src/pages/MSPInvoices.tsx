@@ -381,7 +381,17 @@ export default function MSPInvoices() {
                 <Card className="p-10 text-center text-sm text-muted-foreground">Ingen kunder ennå</Card>
               )}
             </div>
+
+            <ExportInvoiceBasisDialog
+              open={exportOpen}
+              onOpenChange={setExportOpen}
+              rows={exportRows}
+              branding={branding}
+              tax={tax}
+              periodLabel={periodLabel}
+            />
           </div>
+
         </main>
       </div>
     </TooltipProvider>
