@@ -48,7 +48,10 @@ interface Row {
   monthly: number;
   fixed: number;
   fixedCount: number;
+  /** Engangs etableringsgebyr — ikke alle kunder har dette. */
+  setup: number;
 }
+
 
 function Pills({ items, empty }: { items: string[]; empty?: string }) {
   if (items.length === 0) {
