@@ -71,6 +71,9 @@ function Pills({ items, empty }: { items: string[]; empty?: string }) {
 }
 
 export default function MSPInvoices() {
+  const { branding } = usePartnerBranding();
+  const tax = branding.tax;
+
   const { data: customers = [], refetch } = useQuery({
     queryKey: ["msp-customers-invoices"],
     queryFn: async () => {
