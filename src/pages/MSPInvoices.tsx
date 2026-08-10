@@ -239,12 +239,6 @@ export default function MSPInvoices() {
                         <TableCell>
                           <Pills items={r.activated} empty="Ingen aktive abonnement" />
                         </TableCell>
-                        <TableCell className="text-right font-semibold text-foreground tabular-nums">
-                          {r.monthly > 0 ? `${fmt(r.monthly)} kr` : "—"}
-                        </TableCell>
-                        <TableCell className="text-right text-muted-foreground tabular-nums">
-                          {netFor(r) > 0 ? `${fmt(taxFor(r))} kr` : "—"}
-                        </TableCell>
                         <TableCell className="text-right text-foreground tabular-nums">
                           {oneTimeFor(r) > 0 ? (
                             <>
@@ -258,6 +252,12 @@ export default function MSPInvoices() {
                           ) : (
                             "—"
                           )}
+                        </TableCell>
+                        <TableCell className="text-right font-semibold text-foreground tabular-nums">
+                          {r.monthly > 0 ? `${fmt(r.monthly)} kr` : "—"}
+                        </TableCell>
+                        <TableCell className="text-right text-muted-foreground tabular-nums">
+                          {netFor(r) > 0 ? `${fmt(taxFor(r))} kr` : "—"}
                         </TableCell>
                         <TableCell className="text-right font-semibold text-foreground tabular-nums">
                           {netFor(r) > 0 ? `${fmt(grossFor(r))} kr` : "—"}
