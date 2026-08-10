@@ -109,6 +109,7 @@ export default function MSPInvoices() {
           monthly,
           fixed: fixed.total,
           fixedCount: fixed.count,
+          setup: Number(c.setup_fee) > 0 ? Number(c.setup_fee) : 0,
         };
       })
       .sort((a, b) => b.monthly - a.monthly || a.name.localeCompare(b.name, "nb-NO"));
@@ -116,7 +117,16 @@ export default function MSPInvoices() {
 
   const monthlyTotal = rows.reduce((s, r) => s + r.monthly, 0);
   const fixedTotal = rows.reduce((s, r) => s + r.fixed, 0);
+  const setupTotal = rows.reduce((s, r) => s + r.setup, 0);
   const payingCount = rows.filter((r) => r.monthly > 0).length;
+
+  const netFor = (r: Row) => r.monthly + r.fixed + r.setup;
+  const taxFor = (r: Row) => computeTaxBreakdown(netFor(r), tax).taxAmount;
+  const grossFor = (r: Row) => computeTaxBreakdown(netFor(r), tax).gross;
+  const netTotal = monthlyTotal + fixedTotal + setupTotal;
+  const totalBreakdown = computeTaxBreakdown(netTotal, tax);
+  const taxLabel = tax.enabled && tax.rate > 0 ? `${tax.label} (${tax.rate} %)` : tax.label;
+
 
   return (
     <TooltipProvider delayDuration={200}>
