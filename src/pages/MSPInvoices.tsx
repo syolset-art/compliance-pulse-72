@@ -316,20 +316,43 @@ export default function MSPInvoices() {
                     </div>
                   </div>
                   <Pills items={r.activated} empty="Ingen aktive abonnement" />
-                  {r.fixed > 0 && (
-                    <div className="flex items-center justify-between pt-2 border-t border-border text-sm">
-                      <span className="text-muted-foreground">Fastpris</span>
-                      <span className="text-foreground tabular-nums">{fmt(r.fixed)} kr</span>
+                  <div className="pt-2 border-t border-border space-y-1 text-sm">
+                    {r.fixed > 0 && (
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted-foreground">Fastpris</span>
+                        <span className="text-foreground tabular-nums">{fmt(r.fixed)} kr</span>
+                      </div>
+                    )}
+                    {r.setup > 0 && (
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted-foreground">Etablering</span>
+                        <span className="text-foreground tabular-nums">{fmt(r.setup)} kr</span>
+                      </div>
+                    )}
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">{taxLabel}</span>
+                      <span className="text-foreground tabular-nums">{fmt(taxFor(r))} kr</span>
                     </div>
-                  )}
+                    <div className="flex items-center justify-between font-semibold">
+                      <span className="text-foreground">Total inkl. {tax.label}</span>
+                      <span className="text-foreground tabular-nums">{fmt(grossFor(r))} kr</span>
+                    </div>
+                  </div>
                 </Card>
               ))}
               {rows.length > 0 && (
-                <Card className="p-4 bg-muted/30 flex items-center justify-between">
-                  <span className="text-sm font-medium text-foreground">Totalt per mnd</span>
-                  <span className="text-sm font-semibold text-foreground tabular-nums">{fmt(monthlyTotal)} kr</span>
+                <Card className="p-4 bg-muted/30 space-y-1">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Totalt per mnd</span>
+                    <span className="text-foreground tabular-nums">{fmt(monthlyTotal)} kr</span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm font-semibold">
+                    <span className="text-foreground">Total inkl. {tax.label}</span>
+                    <span className="text-foreground tabular-nums">{fmt(totalBreakdown.gross)} kr</span>
+                  </div>
                 </Card>
               )}
+
               {rows.length === 0 && (
                 <Card className="p-10 text-center text-sm text-muted-foreground">Ingen kunder ennå</Card>
               )}
