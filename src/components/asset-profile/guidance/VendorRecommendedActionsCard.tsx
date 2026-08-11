@@ -56,7 +56,6 @@ export function VendorRecommendedActionsCard({
   const [workOpen, setWorkOpen] = useState(false);
 
   const criticalCount = actions.filter((a) => a.criticality === "kritisk").length;
-  const docCount = actions.filter((a) => a.documentType).length;
 
   const hasTrustCenter = trustCenter.status !== "none";
   const delivered = trustCenter.deliveredCount ?? 0;
