@@ -60,7 +60,14 @@ const defaults: ForwardSettings = {
   dailyDigest: false,
 };
 
-import { PARTNER_TEAM, type PartnerTeamMember } from "@/lib/partnerTeam";
+import {
+  PARTNER_TEAM,
+  PARTNER_ROLE_DESC,
+  PARTNER_ACCESS_LABEL,
+  type PartnerTeamMember,
+  type PartnerRole,
+  type PartnerAccess,
+} from "@/lib/partnerTeam";
 type TeamMember = PartnerTeamMember;
 const DEMO_TEAM = PARTNER_TEAM;
 
@@ -72,12 +79,23 @@ export default function MSPPartnerSettings() {
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = searchParams.get("tab") ?? "tilgangsstyring";
   const [form, setForm] = useState<ForwardSettings>(defaults);
-  const [team] = useState<TeamMember[]>(DEMO_TEAM);
+  const [team, setTeam] = useState<TeamMember[]>(DEMO_TEAM);
   const [inviteOpen, setInviteOpen] = useState(false);
-  const [invite, setInvite] = useState({ name: "", email: "", role: "Partner-rådgiver" as TeamMember["role"] });
+  const [invite, setInvite] = useState<{ name: string; email: string; role: PartnerRole; access: PartnerAccess }>({
+    name: "",
+    email: "",
+    role: "Kundeansvarlig",
+    access: "write",
+  });
   const [inviteTerms, setInviteTerms] = useState(false);
   const [inviteLoading, setInviteLoading] = useState(false);
   const [enabledModules, setEnabledModules] = useState<PartnerModuleKey[]>(() => getEnabledPartnerModules());
+
+  const updateMember = (id: string, patch: Partial<TeamMember>) => {
+    setTeam((prev) => prev.map((m) => (m.id === id ? { ...m, ...patch } : m)));
+    toast.success("Tilgang oppdatert");
+  };
+
 
   // Normalize legacy "generelt" tab into "tilgangsstyring" so the Tilgangsstyring menu
   // always shows the user-management section.
@@ -102,12 +120,24 @@ export default function MSPPartnerSettings() {
     setTimeout(() => {
       setInviteLoading(false);
       setInviteOpen(false);
+      setTeam((prev) => [
+        ...prev,
+        {
+          id: `u${Date.now()}`,
+          name: invite.name.trim(),
+          email: invite.email.trim(),
+          role: invite.role,
+          access: invite.access,
+          initials: invite.name.trim().split(/\s+/).map((p) => p[0]).slice(0, 2).join("").toUpperCase(),
+        },
+      ]);
       toast.success(`Invitasjon sendt til ${invite.email}`, {
-        description: "Brukeren får tilgang så snart invitasjonen aksepteres.",
+        description: `${invite.role} — ${PARTNER_ACCESS_LABEL[invite.access].toLowerCase()}.`,
       });
-      setInvite({ name: "", email: "", role: "Partner-rådgiver" });
+      setInvite({ name: "", email: "", role: "Kundeansvarlig", access: "write" });
     }, 600);
   };
+
 
   useEffect(() => {
     try {
@@ -159,10 +189,12 @@ export default function MSPPartnerSettings() {
             >
               <ArrowLeft className="h-4 w-4" /> Tilbake til partner-dashbord
             </Link>
-            <h1 className="text-2xl font-semibold text-foreground">Innstillinger</h1>
+            <h1 className="text-2xl font-semibold text-foreground">Tilgangsstyring</h1>
             <p className="text-base text-muted-foreground mt-1">
-              Administrer tilgang og varsler for partnerdelen av Mynder.
+              Legg til brukere, gi dem rolle som Kundeansvarlig eller Driftspartner, og styr om de har
+              lese- eller skrivetilgang.
             </p>
+
           </div>
 
           <Tabs value={activeTab} onValueChange={(v) => setSearchParams({ tab: v })} className="space-y-4">
@@ -209,27 +241,50 @@ export default function MSPPartnerSettings() {
 
                 <div className="rounded-xl border border-border divide-y divide-border">
                   {team.map((m) => (
-                    <div key={m.id} className="flex items-center gap-3 px-4 py-3">
+                    <div key={m.id} className="flex flex-wrap items-center gap-3 px-4 py-3">
                       <div className="h-9 w-9 rounded-full bg-muted flex items-center justify-center text-sm font-medium text-foreground shrink-0">
                         {m.initials}
                       </div>
-                      <div className="flex-1 min-w-0">
+                      <div className="flex-1 min-w-[160px]">
                         <p className="text-base font-medium text-foreground truncate">{m.name}</p>
                         <p className="text-sm text-muted-foreground truncate">{m.email}</p>
                       </div>
-                      <Badge
-                        variant="outline"
-                        className={
-                          m.role === "Partner-admin"
-                            ? "bg-primary/5 text-primary border-primary/30 text-xs"
-                            : "text-xs"
-                        }
+                      <Select
+                        value={m.role}
+                        onValueChange={(v) => updateMember(m.id, { role: v as PartnerRole })}
                       >
-                        <Shield className="h-3 w-3 mr-1" /> {m.role}
-                      </Badge>
+                        <SelectTrigger className="h-9 w-[172px] text-sm">
+                          <Shield className="h-3.5 w-3.5 mr-1.5 text-muted-foreground shrink-0" />
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Kundeansvarlig">Kundeansvarlig</SelectItem>
+                          <SelectItem value="Driftspartner">Driftspartner</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <Select
+                        value={m.access}
+                        onValueChange={(v) => updateMember(m.id, { access: v as PartnerAccess })}
+                      >
+                        <SelectTrigger className="h-9 w-[196px] text-sm">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="read">{PARTNER_ACCESS_LABEL.read}</SelectItem>
+                          <SelectItem value="write">{PARTNER_ACCESS_LABEL.write}</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                   ))}
                 </div>
+
+                <p className="text-sm text-muted-foreground mt-3">
+                  <span className="font-medium text-foreground">Kundeansvarlig:</span>{" "}
+                  {PARTNER_ROLE_DESC.Kundeansvarlig}{" "}
+                  <span className="font-medium text-foreground">Driftspartner:</span>{" "}
+                  {PARTNER_ROLE_DESC.Driftspartner}
+                </p>
+
               </Card>
 
               {/* 2. E-postvideresending */}
@@ -433,15 +488,35 @@ export default function MSPPartnerSettings() {
                 <Label className="text-base">Rolle</Label>
                 <Select
                   value={invite.role}
-                  onValueChange={(v) => setInvite({ ...invite, role: v as TeamMember["role"] })}
+                  onValueChange={(v) => setInvite({ ...invite, role: v as PartnerRole })}
                 >
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Partner-rådgiver">Partner-rådgiver</SelectItem>
-                    <SelectItem value="Partner-admin">Partner-admin</SelectItem>
+                    <SelectItem value="Kundeansvarlig">Kundeansvarlig</SelectItem>
+                    <SelectItem value="Driftspartner">Driftspartner</SelectItem>
                   </SelectContent>
                 </Select>
+                <p className="text-sm text-muted-foreground">{PARTNER_ROLE_DESC[invite.role]}</p>
               </div>
+              <div className="space-y-1.5 col-span-2">
+                <Label className="text-base">Tilgangsnivå</Label>
+                <Select
+                  value={invite.access}
+                  onValueChange={(v) => setInvite({ ...invite, access: v as PartnerAccess })}
+                >
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="read">{PARTNER_ACCESS_LABEL.read}</SelectItem>
+                    <SelectItem value="write">{PARTNER_ACCESS_LABEL.write}</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-sm text-muted-foreground">
+                  {invite.access === "read"
+                    ? "Kan se kunder og dokumentasjon, men ikke endre noe."
+                    : "Kan aktivere produkter, lage tilbud og endre dokumentasjon."}
+                </p>
+              </div>
+
             </div>
           </div>
 
