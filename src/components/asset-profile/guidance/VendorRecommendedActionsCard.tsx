@@ -126,21 +126,69 @@ export function VendorRecommendedActionsCard({
       ) : (
         <>
           <p className="text-[13px] text-foreground leading-relaxed">
-            {isNb
-              ? "Leverandøren mangler Agentisk Trust Profile — dokumentasjon må etterspørres manuelt."
-              : "This vendor has no Agentic Trust Profile — documentation must be requested manually."}
+            {isNb ? NOT_REQUESTED_LABEL.nb : NOT_REQUESTED_LABEL.en}
           </p>
+
+          {/* Leverandør-arketype — styrer signalene Lara vurderer (prototype) */}
+          <div className="mt-2 flex flex-wrap items-center gap-1.5">
+            <span className="text-[11px] text-muted-foreground mr-0.5">
+              {isNb ? "Leverandørtype:" : "Vendor type:"}
+            </span>
+            {VENDOR_ARCHETYPES.map((a) => (
+              <button
+                key={a.key}
+                type="button"
+                onClick={() => selectArchetype(a.key)}
+                className={cn(
+                  "rounded-full border px-2 py-0.5 text-[11px] transition-colors",
+                  a.key === sourcing.archetype
+                    ? "border-primary bg-primary/10 text-primary"
+                    : "border-border text-muted-foreground hover:bg-muted",
+                )}
+              >
+                {a.name}
+              </button>
+            ))}
+          </div>
+
+          <div className="mt-2 rounded-md border border-border bg-background/60 p-2.5">
+            <p className="text-[11px] text-muted-foreground">
+              {isNb ? archetypeByKey(sourcing.archetype).hint.nb : archetypeByKey(sourcing.archetype).hint.en}
+            </p>
+            <p className="text-[12px] text-foreground mt-1 leading-relaxed">
+              {isNb ? recommendation.rationale.nb : recommendation.rationale.en}
+            </p>
+            <p className="text-[11px] text-muted-foreground mt-1">
+              {isNb ? "Bevisnivå: " : "Evidence level: "}
+              {isNb ? primaryMethod.evidenceLabel.nb : primaryMethod.evidenceLabel.en}
+              {" · "}
+              {isNb ? primaryMethod.vendorEffortLabel.nb : primaryMethod.vendorEffortLabel.en}
+            </p>
+          </div>
+
           <div className="mt-2 flex flex-wrap gap-2">
-            <Button size="sm" className="h-7 text-xs" onClick={onInviteTrustCenter}>
+            <Button size="sm" className="h-7 text-xs" onClick={() => startSourcing(recommendation.primary)}>
               <Sparkles className="h-3 w-3 mr-1" />
-              {isNb ? "Inviter til Agentisk Trust Profile" : "Invite to Agentic Trust Profile"}
+              {isNb ? primaryMethod.cta.nb : primaryMethod.cta.en}
             </Button>
+            {recommendation.alternative && (
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-7 text-xs"
+                onClick={() => startSourcing(recommendation.alternative!)}
+              >
+                {isNb
+                  ? SOURCING_METHOD_META[recommendation.alternative].cta.nb
+                  : SOURCING_METHOD_META[recommendation.alternative].cta.en}
+              </Button>
+            )}
             <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={onCreateVendorActivity}>
               <ListPlus className="h-3 w-3 mr-1" />
               {isNb ? "Opprett aktivitet" : "Create activity"}
             </Button>
-
           </div>
+
         </>
       )}
     </div>
