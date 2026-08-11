@@ -68,6 +68,56 @@ export function CustomerFrameworkRecommendationsCard({
   const mandatory = suggestions.filter((s) => s.confidence === "high");
   const recommended = suggestions.filter((s) => s.confidence !== "high");
 
+  const renderPill = (s: OfferSuggestion) => {
+    const isManual = manualIds.has(s.id);
+    const isHigh = s.confidence === "high";
+    return (
+      <span
+        key={s.id}
+        className={cn(
+          "inline-flex items-center rounded-full border text-[11px] font-medium transition-colors",
+          isManual
+            ? "border-border bg-muted/40 text-foreground hover:bg-muted"
+            : isHigh
+              ? "border-success/40 bg-success/5 text-success-foreground/90 hover:bg-success/10 hover:border-success"
+              : "border-recommend/60 bg-recommend/15 text-recommend hover:bg-recommend/25 hover:border-recommend",
+        )}
+      >
+        <button
+          type="button"
+          onClick={() => onActivate([s])}
+          title={
+            isManual
+              ? "Lagt til av deg — ikke foreslått av KI-agenten. Klikk for å aktivere."
+              : "Aktiver direkte"
+          }
+          className={cn(
+            "inline-flex items-center gap-1 px-2.5 py-1 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1",
+            isHigh ? "focus-visible:ring-success" : "focus-visible:ring-recommend",
+          )}
+        >
+          {s.activatable && <Zap className="h-2.5 w-2.5 shrink-0" />}
+          {s.label}
+          {isManual && (
+            <span className="text-[9px] uppercase tracking-wide opacity-70">
+              {t("customerFrameworkRecommendations.manualLabel")}
+            </span>
+          )}
+        </button>
+        {isManual && (
+          <button
+            type="button"
+            onClick={() => removeManual(s.id)}
+            aria-label={t("customerFrameworkRecommendations.removeAriaLabel", { label: s.label })}
+            className="pr-2 pl-0.5 py-1 opacity-60 hover:opacity-100"
+          >
+            <X className="h-2.5 w-2.5" />
+          </button>
+        )}
+      </span>
+    );
+  };
+
   return (
     <Card className="p-5 flex flex-col">
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
