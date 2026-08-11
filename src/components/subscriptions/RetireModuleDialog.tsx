@@ -87,33 +87,6 @@ export function RetireModuleDialog({
     }
   }, [open]);
 
-  useEffect(() => {
-    if (!open || !moduleId) return;
-    const entries = MODULE_INVENTORY[moduleId] ?? [];
-    if (entries.length === 0) {
-      setInventory([]);
-      return;
-    }
-    let cancelled = false;
-    (async () => {
-      const results = await Promise.all(
-        entries.map(async (e) => {
-          const { count } = await (supabase as never as {
-            from: (t: string) => {
-              select: (c: string, o: { count: "exact"; head: true }) => Promise<{ count: number | null }>;
-            };
-          })
-            .from(e.table)
-            .select("id", { count: "exact", head: true });
-          return { label: e.label, count: count ?? 0 };
-        }),
-      );
-      if (!cancelled) setInventory(results.filter((r) => r.count > 0));
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [open, moduleId]);
 
   const handleExport = async (format: "json" | "csv") => {
     if (!moduleId) return;
