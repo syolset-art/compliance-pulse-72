@@ -26,16 +26,9 @@ import {
   Shield,
   Save,
   Info,
-  Layers,
   Plug,
 } from "lucide-react";
 import { PartnerIntegrationsTab } from "@/components/msp/PartnerIntegrationsTab";
-import {
-  PARTNER_MODULES,
-  getEnabledPartnerModules,
-  setPartnerModuleEnabled,
-  type PartnerModuleKey,
-} from "@/lib/partnerModules";
 import { toast } from "sonner";
 import { usePostActivationPrompt } from "@/hooks/usePostActivationPrompt";
 
@@ -107,7 +100,7 @@ export default function MSPPartnerSettings() {
   const [inviteTerms, setInviteTerms] = useState(false);
   const [inviteLoading, setInviteLoading] = useState(false);
   const [customers, setCustomers] = useState<CustomerOption[]>([]);
-  const [enabledModules, setEnabledModules] = useState<PartnerModuleKey[]>(() => getEnabledPartnerModules());
+  
 
   const updateMember = (id: string, patch: Partial<TeamMember>) => {
     setTeam((prev) => prev.map((m) => (m.id === id ? { ...m, ...patch } : m)));
@@ -149,11 +142,6 @@ export default function MSPPartnerSettings() {
     }
   }, [searchParams, setSearchParams]);
 
-  const handleToggleModule = (key: PartnerModuleKey, enabled: boolean) => {
-    setPartnerModuleEnabled(key, enabled);
-    setEnabledModules(getEnabledPartnerModules());
-    toast.success(enabled ? "Modul aktivert i Compliance-menyen" : "Modul fjernet fra Compliance-menyen");
-  };
 
   const inviteValid =
     invite.name.trim().length > 0 &&
