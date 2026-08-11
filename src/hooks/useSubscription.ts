@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useActivatedServices } from "@/hooks/useActivatedServices";
-import { getDeactivatedModules } from "@/lib/moduleActivationState";
+import { getDeactivatedModules, getModuleStates } from "@/lib/moduleActivationState";
 import {
   PLAN_TIERS,
   FRAMEWORK_ADDONS,
@@ -140,8 +140,13 @@ export function useSubscription() {
 
   // Lokalt deaktiverte moduler (Innstillinger → Produkter)
   const [deactivatedModules, setDeactivatedModules] = useState<Set<string>>(() => getDeactivatedModules());
+  // v1.1 — modulstatus fra Produkter er nå kilden for om moduler vises i menyen
+  const [moduleStates, setModuleStates] = useState(() => getModuleStates());
   useEffect(() => {
-    const sync = () => setDeactivatedModules(getDeactivatedModules());
+    const sync = () => {
+      setDeactivatedModules(getDeactivatedModules());
+      setModuleStates(getModuleStates());
+    };
     window.addEventListener("modules:changed", sync);
     window.addEventListener("storage", sync);
     return () => {
@@ -149,6 +154,7 @@ export function useSubscription() {
       window.removeEventListener("storage", sync);
     };
   }, []);
+
 
   // Derived state
   const currentTier: PlanTier = planNameToTier(subscription?.plan?.name);
@@ -176,8 +182,14 @@ export function useSubscription() {
   // eksplisitt deaktivert under Innstillinger → Produkter.
   const coreDeactivated = deactivatedModules.has("core");
   const hasCoreAccess = !coreDeactivated;
+  // v1.1 — Leverandørmodulen styres av modulstatus i Innstillinger → Produkter.
+  // Aktiv (eller under avvikling frem til periodeslutt) => synlig i menyen.
+  const vendorModuleStatus = moduleStates["vendors"]?.status;
+  const vendorModuleActivatedInProducts =
+    vendorModuleStatus === "active" || vendorModuleStatus === "pending_cancellation";
   const hasRegistriesAccess =
-    !deactivatedModules.has("vendors") && (vendorsActive || selectedRegistriesAtOnboarding);
+    !deactivatedModules.has("vendors") &&
+    (vendorModuleActivatedInProducts || vendorsActive || selectedRegistriesAtOnboarding);
   const hasModule = (moduleId: "systems" | "vendors"): boolean =>
     isServiceActive(`module-${moduleId}`);
 
