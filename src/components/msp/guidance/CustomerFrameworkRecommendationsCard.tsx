@@ -221,7 +221,7 @@ export function CustomerFrameworkRecommendationsCard({
             className="inline-flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground underline underline-offset-2 transition-colors"
           >
             <Zap className="h-3 w-3" />
-            Aktiver alle anbefalte
+            {t("customerFrameworkRecommendations.activateAll")}
           </button>
         )}
         {suggestions.length > 0 && (
@@ -230,7 +230,7 @@ export function CustomerFrameworkRecommendationsCard({
             onClick={() => onOffer(suggestions)}
             className="text-[11px] text-muted-foreground hover:text-foreground underline underline-offset-2 transition-colors"
           >
-            Lag tilbud i stedet
+            {t("customerFrameworkRecommendations.createOffer")}
           </button>
         )}
         <button
@@ -239,7 +239,7 @@ export function CustomerFrameworkRecommendationsCard({
           className="inline-flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground underline underline-offset-2 transition-colors"
         >
           <Plus className="h-3 w-3" />
-          Legg til regelverk, standard eller retningslinje
+          {t("customerFrameworkRecommendations.addButton")}
         </button>
       </div>
 
