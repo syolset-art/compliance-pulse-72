@@ -1,6 +1,9 @@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Info } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
+
+export type OperatorScope = "customer" | "global";
 
 interface TermsAcceptRowProps {
   checked: boolean;
@@ -12,6 +15,11 @@ interface TermsAcceptRowProps {
   showOperatorRole?: boolean;
   operatorRole?: boolean;
   onOperatorRoleChange?: (checked: boolean) => void;
+  /** Om rollen skal gjelde kun denne kunden eller globalt for alle kunder. */
+  operatorScope?: OperatorScope;
+  onOperatorScopeChange?: (scope: OperatorScope) => void;
+  /** Navn på kunden valget gjelder (vises i «Kun denne kunden»). */
+  operatorScopeCustomerName?: string;
 }
 
 /**
