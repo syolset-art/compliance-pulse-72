@@ -148,7 +148,7 @@ export function OpportunityWidget({ customers = OPPORTUNITY_CUSTOMERS }: Props) 
         </p>
       </div>
 
-      <Button className="mt-3 w-full sm:w-auto shrink-0" onClick={() => navigate("/msp-partner/muligheter")}>
+      <Button className="mt-3 shrink-0" onClick={() => navigate("/msp-partner/muligheter")}>
         Se alle muligheter
       </Button>
     </Card>
