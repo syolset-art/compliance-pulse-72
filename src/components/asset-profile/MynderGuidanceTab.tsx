@@ -1,10 +1,15 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useToast } from "@/hooks/use-toast";
 import { LaraRecommendationBanner } from "@/components/lara/LaraRecommendationBanner";
 import { AssetMaturityByDomainCard } from "@/components/asset-profile/AssetMaturityByDomainCard";
 import { VendorActivityTab } from "@/components/asset-profile/tabs/VendorActivityTab";
 import { RegisterActivityDialog } from "@/components/asset-profile/RegisterActivityDialog";
+import { RequestUpdateDialog } from "@/components/asset-profile/RequestUpdateDialog";
+import { DocumentRequestsSection } from "@/components/asset-profile/tabs/DocumentRequestsSection";
+import { VendorFrameworkCard } from "@/components/asset-profile/guidance/VendorFrameworkCard";
+import { VendorRecommendedActionsCard } from "@/components/asset-profile/guidance/VendorRecommendedActionsCard";
+import { AddFrameworkDialog } from "@/components/msp/guidance/AddFrameworkDialog";
 import { MaturityHistoryChart } from "@/components/trust-controls/MaturityHistoryChart";
 import { Card, CardContent } from "@/components/ui/card";
 import { ChevronDown, ChevronUp, Activity } from "lucide-react";
@@ -13,6 +18,16 @@ import {
   generateGuidanceForVendor,
   type SuggestedActivity,
 } from "@/utils/vendorGuidanceData";
+import {
+  deriveVendorActions,
+  deriveVendorFrameworks,
+  fallbackActionFor,
+  frameworkById,
+  readFrameworkState,
+  writeFrameworkState,
+  type VendorFramework,
+  type VendorFrameworkAction,
+} from "@/lib/vendorFrameworkSuggestions";
 import type { VendorActivity } from "@/utils/vendorActivityData";
 
 interface Props {
@@ -23,6 +38,13 @@ interface Props {
   externalActivities?: VendorActivity[];
   dismissedSuggestionIds: string[];
   onActivitySaved: (activity: VendorActivity, fromSuggestion?: SuggestedActivity) => void;
+  /** Kontekst Lara bruker for å foreslå regelverk. */
+  vendorType?: string | null;
+  industry?: string | null;
+  country?: string | null;
+  criticality?: string | null;
+  contactPerson?: string | null;
+  contactEmail?: string | null;
 }
 
 export function MynderGuidanceTab({
@@ -33,6 +55,12 @@ export function MynderGuidanceTab({
   externalActivities,
   dismissedSuggestionIds,
   onActivitySaved,
+  vendorType,
+  industry,
+  country,
+  criticality,
+  contactPerson,
+  contactEmail,
 }: Props) {
   const { i18n } = useTranslation();
   const { toast } = useToast();
@@ -41,6 +69,70 @@ export function MynderGuidanceTab({
   const guidance = useMemo(() => generateGuidanceForVendor(assetId), [assetId]);
   const [locallyDismissed, setLocallyDismissed] = useState<string[]>([]);
   const [activePrefill, setActivePrefill] = useState<SuggestedActivity | null>(null);
+
+  // ── Regelverk leverandøren skal etterleve ──
+
+  const laraFrameworks = useMemo(
+    () =>
+      deriveVendorFrameworks({
+        id: assetId,
+        name: assetName,
+        vendorType,
+        industry,
+        country,
+        criticality,
+      }),
+    [assetId, assetName, vendorType, industry, country, criticality],
+  );
+
+  const [fwState, setFwState] = useState(() => readFrameworkState(assetId));
+  useEffect(() => setFwState(readFrameworkState(assetId)), [assetId]);
+
+  const updateFwState = (next: typeof fwState) => {
+    setFwState(next);
+    writeFrameworkState(assetId, next);
+  };
+
+  const frameworks: VendorFramework[] = useMemo(() => {
+    const base = laraFrameworks.filter((f) => !fwState.removed.includes(f.id));
+    const extra = fwState.added.filter((f) => !base.some((b) => b.id === f.id));
+    return [...base, ...extra];
+  }, [laraFrameworks, fwState]);
+
+  const actions: VendorFrameworkAction[] = useMemo(() => {
+    const known = frameworks.filter((f) => frameworkById(f.id));
+    const unknown = frameworks.filter((f) => !frameworkById(f.id));
+    return [...deriveVendorActions(known), ...unknown.map(fallbackActionFor)];
+  }, [frameworks]);
+
+  const [addFrameworkOpen, setAddFrameworkOpen] = useState(false);
+  const [docRequestType, setDocRequestType] = useState<string | null>(null);
+
+  const openDocRequest = (action: VendorFrameworkAction) =>
+    setDocRequestType(action.documentType ?? "general");
+
+  const createActivityFromAction = (action: VendorFrameworkAction) => {
+    setActivePrefill({
+      id: `fw-${action.id}`,
+      gapId: action.frameworkId,
+      titleNb: action.titleNb,
+      titleEn: action.titleEn,
+      descriptionNb: action.reasonNb,
+      descriptionEn: action.reasonEn,
+      reasonNb: action.reasonNb,
+      reasonEn: action.reasonEn,
+      statusNoteNb: `Dekker ${action.requirement}`,
+      statusNoteEn: `Covers ${action.requirement}`,
+      status: "open",
+      criticality: action.criticality,
+      level: "taktisk",
+      themeNb: action.frameworkLabel,
+      themeEn: action.frameworkLabel,
+      suggestedType: action.documentType ? "document" : "review",
+      suggestedPhase: "ongoing",
+    });
+  };
+
 
   const [showActivityLog, setShowActivityLog] = useState(() => {
     try {
@@ -115,6 +207,31 @@ export function MynderGuidanceTab({
           }}
         />
       )}
+
+      {/* Regelverk + tiltak — Laras kobling mellom krav og handling */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <VendorFrameworkCard
+          frameworks={frameworks}
+          onAdd={() => setAddFrameworkOpen(true)}
+          onRemove={(id) =>
+            updateFwState({
+              added: fwState.added.filter((f) => f.id !== id),
+              removed: fwState.removed.includes(id) ? fwState.removed : [...fwState.removed, id],
+            })
+          }
+        />
+        <VendorRecommendedActionsCard
+          actions={actions}
+          onRequestDocumentation={openDocRequest}
+          onCreateActivity={createActivityFromAction}
+          onRequestAllMissing={() => setDocRequestType("general")}
+        />
+      </div>
+
+      {/* Aktive dokumentasjonsforespørsler */}
+      <DocumentRequestsSection assetId={assetId} />
+
+
 
       {/* Standard Trust Profile-blokk: modenhet per kontrollområde */}
       <AssetMaturityByDomainCard assetId={assetId} />
@@ -194,6 +311,43 @@ export function MynderGuidanceTab({
         onSubmit={handleSubmit}
         hideTrigger
       />
+
+      {/* Dokumentasjonsforespørsel — forhåndsvalgt type fra tiltaket */}
+      <RequestUpdateDialog
+        open={!!docRequestType}
+        onOpenChange={(o) => { if (!o) setDocRequestType(null); }}
+        assetId={assetId}
+        assetName={assetName ?? ""}
+        preselectedType={docRequestType ?? undefined}
+        contactPerson={contactPerson ?? null}
+        contactEmail={contactEmail ?? null}
+      />
+
+      {/* Legg til eget regelverk, standard eller retningslinje */}
+      <AddFrameworkDialog
+        open={addFrameworkOpen}
+        onOpenChange={setAddFrameworkOpen}
+        activatedLabels={[]}
+        existingIds={frameworks.map((f) => f.id)}
+        onAdd={(item) => {
+          const id = item.frameworkId ?? item.id;
+          updateFwState({
+            added: [
+              ...fwState.added,
+              {
+                id,
+                label: item.label,
+                confidence: "medium",
+                reasonNb: "Lagt til av deg — ikke foreslått av Lara.",
+                reasonEn: "Added by you — not suggested by Lara.",
+                manual: true,
+              },
+            ],
+            removed: fwState.removed.filter((r) => r !== id),
+          });
+        }}
+      />
     </div>
+
   );
 }
