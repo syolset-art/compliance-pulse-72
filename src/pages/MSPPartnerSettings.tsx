@@ -30,6 +30,8 @@ import {
   Trash2,
 } from "lucide-react";
 import { PartnerIntegrationsTab } from "@/components/msp/PartnerIntegrationsTab";
+import { PartnerMemberProfileSheet } from "@/components/msp/PartnerMemberProfileSheet";
+
 import { toast } from "sonner";
 import { usePostActivationPrompt } from "@/hooks/usePostActivationPrompt";
 
