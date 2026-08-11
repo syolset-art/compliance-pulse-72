@@ -204,6 +204,28 @@ const TrustCenterEvidence = () => {
     enabled: docIds.length > 0,
   });
 
+  // Aktiverte regelverk → påkrevd compliance-dokumentasjon
+  const { data: frameworks = [] } = useQuery({
+    queryKey: ["selected-frameworks-evidence"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("selected_frameworks")
+        .select("framework_id, framework_name, is_selected")
+        .eq("is_selected", true);
+      return data || [];
+    },
+  });
+
+  const coverage = useMemo(
+    () =>
+      buildComplianceCoverage(
+        (frameworks as any[]).map((f) => ({ framework_id: f.framework_id, framework_name: f.framework_name })),
+        vendorDocs as any,
+      ),
+    [frameworks, vendorDocs],
+  );
+
+
   const grantsByDoc = (grantsRows as any[]).reduce<Record<string, number>>((acc, r) => {
     acc[r.document_id] = (acc[r.document_id] || 0) + 1;
     return acc;
