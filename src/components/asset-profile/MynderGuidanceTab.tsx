@@ -9,6 +9,12 @@ import { RequestUpdateDialog } from "@/components/asset-profile/RequestUpdateDia
 import { DocumentRequestsSection } from "@/components/asset-profile/tabs/DocumentRequestsSection";
 import { VendorFrameworkCard } from "@/components/asset-profile/guidance/VendorFrameworkCard";
 import { VendorRecommendedActionsCard } from "@/components/asset-profile/guidance/VendorRecommendedActionsCard";
+import { InviteAgenticTrustCenterDialog } from "@/components/asset-profile/guidance/InviteAgenticTrustCenterDialog";
+import {
+  readTrustCenterState,
+  writeTrustCenterState,
+  trustCenterLink,
+} from "@/lib/agenticTrustCenter";
 import { AddFrameworkDialog } from "@/components/msp/guidance/AddFrameworkDialog";
 import { MaturityHistoryChart } from "@/components/trust-controls/MaturityHistoryChart";
 import { Card, CardContent } from "@/components/ui/card";
@@ -108,8 +114,15 @@ export function MynderGuidanceTab({
   const [addFrameworkOpen, setAddFrameworkOpen] = useState(false);
   const [docRequestType, setDocRequestType] = useState<string | null>(null);
 
+  // ── Agentisk Trust Center ──
+  const [trustCenter, setTrustCenter] = useState(() => readTrustCenterState(assetId));
+  useEffect(() => setTrustCenter(readTrustCenterState(assetId)), [assetId]);
+  const [inviteTrustCenterOpen, setInviteTrustCenterOpen] = useState(false);
+
   const openDocRequest = (action: VendorFrameworkAction) =>
     setDocRequestType(action.documentType ?? "general");
+
+
 
   const createActivityFromAction = (action: VendorFrameworkAction) => {
     setActivePrefill({
@@ -225,7 +238,25 @@ export function MynderGuidanceTab({
           onRequestDocumentation={openDocRequest}
           onCreateActivity={createActivityFromAction}
           onRequestAllMissing={() => setDocRequestType("general")}
+          trustCenter={trustCenter}
+          onInviteTrustCenter={() => setInviteTrustCenterOpen(true)}
+          onOpenTrustCenter={() => {
+            const link = trustCenter.link ?? trustCenterLink(assetId);
+            window.open(link, "_blank", "noopener");
+          }}
+          onRemindTrustCenter={() => {
+            const next = { ...trustCenter, remindedAt: new Date().toISOString() };
+            setTrustCenter(next);
+            writeTrustCenterState(assetId, next);
+            toast({
+              title: isNb ? "Påminnelse sendt" : "Reminder sent",
+              description: isNb
+                ? "Lara har purret kontaktpersonene hos leverandøren."
+                : "Lara reminded the vendor contacts.",
+            });
+          }}
         />
+
       </div>
 
       {/* Aktive dokumentasjonsforespørsler */}
@@ -322,6 +353,20 @@ export function MynderGuidanceTab({
         contactPerson={contactPerson ?? null}
         contactEmail={contactEmail ?? null}
       />
+
+      {/* Agentisk Trust Center — kontinuerlig oppdatert dokumentasjon fra leverandøren */}
+      <InviteAgenticTrustCenterDialog
+        open={inviteTrustCenterOpen}
+        onOpenChange={setInviteTrustCenterOpen}
+        assetId={assetId}
+        vendorName={assetName ?? ""}
+        actions={actions}
+        contactPerson={contactPerson ?? null}
+        contactEmail={contactEmail ?? null}
+        onSaved={setTrustCenter}
+      />
+
+
 
       {/* Legg til eget regelverk, standard eller retningslinje */}
       <AddFrameworkDialog

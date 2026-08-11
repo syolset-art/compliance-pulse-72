@@ -10,20 +10,31 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { FileText, ListChecks, Send, Info, ArrowRight } from "lucide-react";
+import { FileText, ListChecks, Send, Info, ArrowRight, Sparkles, ShieldCheck, BellRing, Users } from "lucide-react";
 import { LaraAvatar } from "@/components/asset-profile/LaraAvatar";
 import { cn } from "@/lib/utils";
 import {
   CRITICALITY_STYLE,
   type VendorFrameworkAction,
 } from "@/lib/vendorFrameworkSuggestions";
+import {
+  INTERVAL_LABEL,
+  coversDocumentType,
+  type AgenticTrustCenterState,
+} from "@/lib/agenticTrustCenter";
 
 interface Props {
   actions: VendorFrameworkAction[];
   onRequestDocumentation: (action: VendorFrameworkAction) => void;
   onCreateActivity: (action: VendorFrameworkAction) => void;
   onRequestAllMissing: () => void;
+  /** Agentisk Trust Center — status og handlinger. */
+  trustCenter: AgenticTrustCenterState;
+  onInviteTrustCenter: () => void;
+  onOpenTrustCenter: () => void;
+  onRemindTrustCenter: () => void;
 }
+
 
 /**
  * Anbefalte tiltak — kompakt dashbord-visning.
@@ -35,6 +46,10 @@ export function VendorRecommendedActionsCard({
   onRequestDocumentation,
   onCreateActivity,
   onRequestAllMissing,
+  trustCenter,
+  onInviteTrustCenter,
+  onOpenTrustCenter,
+  onRemindTrustCenter,
 }: Props) {
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
@@ -44,10 +59,89 @@ export function VendorRecommendedActionsCard({
   const docCount = actions.filter((a) => a.documentType).length;
   const top = actions.slice(0, 3);
 
+  const hasTrustCenter = trustCenter.status !== "none";
+  const delivered = trustCenter.deliveredCount ?? 0;
+  const requested = trustCenter.requestedDocumentTypes.length;
+
   const stat = (value: number, labelNb: string, labelEn: string, tone?: string) => (
     <div className="min-w-0">
       <p className={cn("text-xl font-semibold leading-none", tone ?? "text-foreground")}>{value}</p>
       <p className="text-[11px] text-muted-foreground mt-1 truncate">{isNb ? labelNb : labelEn}</p>
+    </div>
+  );
+
+  /** Primær-CTA: kontinuerlig dokumentasjon via Agentisk Trust Center. */
+  const trustCenterBlock = (
+    <div
+      className={cn(
+        "rounded-lg border p-3",
+        hasTrustCenter ? "border-success/30 bg-success/5" : "border-primary/25 bg-primary/5",
+      )}
+    >
+      {hasTrustCenter ? (
+        <>
+          <div className="flex items-start gap-2">
+            <ShieldCheck className="h-4 w-4 text-success shrink-0 mt-0.5" />
+            <div className="min-w-0 flex-1">
+              <p className="text-[13px] font-medium text-foreground">
+                {trustCenter.status === "active"
+                  ? isNb
+                    ? "Agentisk Trust Center aktivt"
+                    : "Agentic Trust Center active"
+                  : isNb
+                    ? "Leverandøren er invitert til Agentisk Trust Center"
+                    : "Vendor invited to Agentic Trust Center"}
+              </p>
+              <p className="text-[11px] text-muted-foreground mt-0.5">
+                {delivered} {isNb ? "av" : "of"} {requested}{" "}
+                {isNb ? "dokumenter levert" : "documents delivered"}
+                {" · "}
+                {isNb ? INTERVAL_LABEL[trustCenter.interval].nb : INTERVAL_LABEL[trustCenter.interval].en}
+              </p>
+              {trustCenter.contacts.length > 0 && (
+                <p className="text-[11px] text-muted-foreground mt-0.5 flex items-center gap-1 truncate">
+                  <Users className="h-3 w-3 shrink-0" />
+                  <span className="truncate">
+                    {trustCenter.contacts.map((c) => c.name || c.email).join(", ")}
+                  </span>
+                </p>
+              )}
+            </div>
+          </div>
+          <div className="mt-2 flex flex-wrap gap-2">
+            <Button size="sm" className="h-7 text-xs" onClick={onOpenTrustCenter}>
+              {isNb ? "Åpne trust center" : "Open trust center"}
+            </Button>
+            <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={onRemindTrustCenter}>
+              <BellRing className="h-3 w-3 mr-1" />
+              {isNb ? "Purr" : "Remind"}
+            </Button>
+            <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={onInviteTrustCenter}>
+              {isNb ? "Endre kontaktpersoner" : "Edit contacts"}
+            </Button>
+          </div>
+        </>
+      ) : (
+        <>
+          <p className="text-[13px] text-foreground leading-relaxed">
+            {isNb
+              ? "Leverandøren mangler Agentisk Trust Center — dokumentasjon må etterspørres manuelt."
+              : "This vendor has no Agentic Trust Center — documentation must be requested manually."}
+          </p>
+          <div className="mt-2 flex flex-wrap gap-2">
+            <Button size="sm" className="h-7 text-xs" onClick={onInviteTrustCenter}>
+              <Sparkles className="h-3 w-3 mr-1" />
+              {isNb ? "Inviter til Agentisk Trust Center" : "Invite to Agentic Trust Center"}
+            </Button>
+            {docCount > 0 && (
+              <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={onRequestAllMissing}>
+                <Send className="h-3 w-3 mr-1" />
+                {isNb ? "Be om alt" : "Request all"}
+              </Button>
+            )}
+          </div>
+        </>
+      )}
     </div>
   );
 
@@ -59,12 +153,6 @@ export function VendorRecommendedActionsCard({
           <h3 className="text-sm font-semibold text-foreground flex-1 min-w-0 truncate">
             {isNb ? "Anbefalte tiltak" : "Recommended actions"}
           </h3>
-          {docCount > 0 && (
-            <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={onRequestAllMissing}>
-              <Send className="h-3 w-3 mr-1" />
-              {isNb ? "Be om alt" : "Request all"}
-            </Button>
-          )}
         </div>
 
         {/* Nøkkeltall — dashbord, ikke liste */}
@@ -73,6 +161,9 @@ export function VendorRecommendedActionsCard({
           {stat(criticalCount, "kritiske", "critical", criticalCount > 0 ? "text-destructive" : undefined)}
           {stat(docCount, "mangler dok.", "missing docs")}
         </div>
+
+        {/* Agentisk Trust Center — kontinuerlig oppdatert dokumentasjon */}
+        <div className="mt-3">{trustCenterBlock}</div>
 
         {/* De viktigste tiltakene, én linje hver */}
         <ul className="mt-3 space-y-1.5">
@@ -116,6 +207,7 @@ export function VendorRecommendedActionsCard({
         )}
       </Card>
 
+
       {/* Arbeidsvindu — full liste med handlinger */}
       <Sheet open={workOpen} onOpenChange={setWorkOpen}>
         <SheetContent side="right" className="w-full sm:max-w-lg overflow-y-auto">
@@ -128,12 +220,8 @@ export function VendorRecommendedActionsCard({
             </SheetDescription>
           </SheetHeader>
 
-          {docCount > 0 && (
-            <Button size="sm" variant="outline" className="mt-4 h-8 text-xs" onClick={onRequestAllMissing}>
-              <Send className="h-3.5 w-3.5 mr-1.5" />
-              {isNb ? "Be om alt som mangler" : "Request all missing"}
-            </Button>
-          )}
+          <div className="mt-4">{trustCenterBlock}</div>
+
 
           <div className="mt-4 space-y-2 pb-8">
             {actions.map((a) => {
@@ -177,17 +265,24 @@ export function VendorRecommendedActionsCard({
                   </div>
 
                   <div className="mt-2 flex flex-wrap items-center gap-2">
-                    {a.documentType && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="h-7 text-xs"
-                        onClick={() => onRequestDocumentation(a)}
-                      >
-                        <FileText className="h-3 w-3 mr-1" />
-                        {isNb ? "Be om dokumentasjon" : "Request documentation"}
-                      </Button>
-                    )}
+                    {a.documentType &&
+                      (coversDocumentType(trustCenter, a.documentType) ? (
+                        <span className="inline-flex items-center gap-1 rounded-full border border-success/40 bg-success/10 px-2 py-0.5 text-[10px] font-medium text-success">
+                          <ShieldCheck className="h-3 w-3" />
+                          {isNb ? "Via Trust Center" : "Via Trust Center"}
+                        </span>
+                      ) : (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-7 text-xs"
+                          onClick={() => onRequestDocumentation(a)}
+                        >
+                          <FileText className="h-3 w-3 mr-1" />
+                          {isNb ? "Be om dokumentasjon" : "Request documentation"}
+                        </Button>
+                      ))}
+
                     <Button
                       size="sm"
                       variant="ghost"
