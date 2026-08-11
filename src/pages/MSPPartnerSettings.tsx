@@ -60,7 +60,14 @@ const defaults: ForwardSettings = {
   dailyDigest: false,
 };
 
-import { PARTNER_TEAM, type PartnerTeamMember } from "@/lib/partnerTeam";
+import {
+  PARTNER_TEAM,
+  PARTNER_ROLE_DESC,
+  PARTNER_ACCESS_LABEL,
+  type PartnerTeamMember,
+  type PartnerRole,
+  type PartnerAccess,
+} from "@/lib/partnerTeam";
 type TeamMember = PartnerTeamMember;
 const DEMO_TEAM = PARTNER_TEAM;
 
@@ -72,12 +79,23 @@ export default function MSPPartnerSettings() {
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = searchParams.get("tab") ?? "tilgangsstyring";
   const [form, setForm] = useState<ForwardSettings>(defaults);
-  const [team] = useState<TeamMember[]>(DEMO_TEAM);
+  const [team, setTeam] = useState<TeamMember[]>(DEMO_TEAM);
   const [inviteOpen, setInviteOpen] = useState(false);
-  const [invite, setInvite] = useState({ name: "", email: "", role: "Partner-rådgiver" as TeamMember["role"] });
+  const [invite, setInvite] = useState<{ name: string; email: string; role: PartnerRole; access: PartnerAccess }>({
+    name: "",
+    email: "",
+    role: "Kundeansvarlig",
+    access: "write",
+  });
   const [inviteTerms, setInviteTerms] = useState(false);
   const [inviteLoading, setInviteLoading] = useState(false);
   const [enabledModules, setEnabledModules] = useState<PartnerModuleKey[]>(() => getEnabledPartnerModules());
+
+  const updateMember = (id: string, patch: Partial<TeamMember>) => {
+    setTeam((prev) => prev.map((m) => (m.id === id ? { ...m, ...patch } : m)));
+    toast.success("Tilgang oppdatert");
+  };
+
 
   // Normalize legacy "generelt" tab into "tilgangsstyring" so the Tilgangsstyring menu
   // always shows the user-management section.
