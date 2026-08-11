@@ -427,43 +427,6 @@ export default function MSPPartnerSettings() {
               </Card>
 
 
-              {/* 3. Andre moduler — aktivering for Compliance-menyen */}
-              <Card className="p-5">
-                <div className="flex items-start gap-3 mb-4">
-                  <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                    <Layers className="h-4 w-4 text-primary" />
-                  </div>
-                  <div>
-                    <h2 className="text-base font-semibold text-foreground">Andre moduler</h2>
-                    <p className="text-base text-muted-foreground mt-0.5">
-                      Som partner ser du som standard kun Trust Center, Regelverk og Meldinger
-                      under «Min organisasjon – Compliance og styring». Aktiver flere moduler her
-                      hvis du også vil bruke dem på din egen virksomhet.
-                    </p>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  {PARTNER_MODULES.map((m) => {
-                    const enabled = enabledModules.includes(m.key);
-                    return (
-                      <div
-                        key={m.key}
-                        className="flex items-start justify-between gap-3 rounded-lg border border-border p-3"
-                      >
-                        <div className="min-w-0">
-                          <p className="text-sm font-medium text-foreground">{m.labelNb}</p>
-                          <p className="text-sm text-muted-foreground mt-0.5">{m.descNb}</p>
-                        </div>
-                        <Switch
-                          checked={enabled}
-                          onCheckedChange={(v) => handleToggleModule(m.key, v)}
-                          aria-label={`Aktiver ${m.labelNb}`}
-                        />
-                      </div>
-                    );
-                  })}
-                </div>
-              </Card>
 
               {/* Etter aktivering */}
               <Card className="p-4">
