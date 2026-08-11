@@ -321,7 +321,6 @@ export default function MSPPartnerSettings() {
 
                 <div className="rounded-xl border border-border divide-y divide-border">
                   {team.map((m) => {
-                    const isOps = m.roles.includes("Driftspartner");
                     return (
                       <div key={m.id} className="px-4 py-3.5">
                         <div className="flex flex-col sm:flex-row sm:items-start gap-3">
@@ -332,6 +331,9 @@ export default function MSPPartnerSettings() {
                             <div className="min-w-0">
                               <p className="text-base font-medium text-foreground truncate">{m.name}</p>
                               <p className="text-sm text-muted-foreground truncate">{m.email}</p>
+                              <p className="text-xs text-muted-foreground/80 truncate mt-0.5">
+                                {describeMemberAccess(m)}
+                              </p>
                             </div>
                           </div>
 
@@ -379,65 +381,66 @@ export default function MSPPartnerSettings() {
                                       </SelectContent>
                                     </Select>
                                   )}
+                                  {on && (
+                                    <div className="w-full flex flex-wrap items-center gap-2 pl-11">
+                                      <Shield className="h-3.5 w-3.5 text-muted-foreground" />
+                                      <span className="text-sm text-muted-foreground">Gjelder</span>
+                                      <Select
+                                        value={memberScope(m, role)}
+                                        onValueChange={(v) => setMemberScope(m, role, v as PartnerScope)}
+                                      >
+                                        <SelectTrigger className="h-8 w-[150px] text-sm bg-background">
+                                          <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                          <SelectItem value="all">{PARTNER_SCOPE_LABEL.all}</SelectItem>
+                                          <SelectItem value="selected">{PARTNER_SCOPE_LABEL.selected}</SelectItem>
+                                        </SelectContent>
+                                      </Select>
+                                      {memberScope(m, role) === "selected" && (
+                                        <Popover>
+                                          <PopoverTrigger asChild>
+                                            <Button variant="outline" size="sm" className="h-8 text-sm">
+                                              {memberCustomers(m, role).length > 0
+                                                ? `${memberCustomers(m, role).length} ${memberCustomers(m, role).length === 1 ? "kunde" : "kunder"}`
+                                                : "Velg kunder"}
+                                            </Button>
+                                          </PopoverTrigger>
+                                          <PopoverContent className="w-72 p-2" align="start">
+                                            <p className="px-2 py-1 text-xs uppercase tracking-wider text-muted-foreground">
+                                              Kunder {m.name.split(" ")[0]} har {role.toLowerCase()} for
+                                            </p>
+                                            <div className="max-h-64 overflow-auto space-y-0.5">
+                                              {customers.length === 0 && (
+                                                <p className="px-2 py-2 text-sm text-muted-foreground">Ingen kunder ennå.</p>
+                                              )}
+                                              {customers.map((c) => (
+                                                <label
+                                                  key={c.id}
+                                                  className="flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-muted cursor-pointer"
+                                                >
+                                                  <Checkbox
+                                                    checked={memberCustomers(m, role).includes(c.id)}
+                                                    onCheckedChange={(v) => toggleMemberCustomer(m, role, c.id, v === true)}
+                                                  />
+                                                  <span className="text-sm text-foreground truncate">{c.name}</span>
+                                                </label>
+                                              ))}
+                                            </div>
+                                          </PopoverContent>
+                                        </Popover>
+                                      )}
+                                      {memberScope(m, role) === "selected" &&
+                                        memberCustomers(m, role).length === 0 && (
+                                          <span className="text-sm text-muted-foreground">Ingen kunder valgt ennå</span>
+                                        )}
+                                    </div>
+                                  )}
                                 </div>
                               );
                             })}
 
 
-                            {isOps && (
-                              <div className="flex flex-wrap items-center gap-2">
-                                <Shield className="h-3.5 w-3.5 text-muted-foreground" />
-                                <span className="text-sm text-muted-foreground">Driftspartner gjelder</span>
-                                <Select
-                                  value={m.scope}
-                                  onValueChange={(v) => updateMember(m.id, { scope: v as PartnerScope })}
-                                >
-                                  <SelectTrigger className="h-8 w-[150px] text-sm">
-                                    <SelectValue />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    <SelectItem value="all">{PARTNER_SCOPE_LABEL.all}</SelectItem>
-                                    <SelectItem value="selected">{PARTNER_SCOPE_LABEL.selected}</SelectItem>
-                                  </SelectContent>
-                                </Select>
-                                {m.scope === "selected" && (
-                                  <Popover>
-                                    <PopoverTrigger asChild>
-                                      <Button variant="outline" size="sm" className="h-8 text-sm">
-                                        {m.customerIds.length > 0
-                                          ? `${m.customerIds.length} ${m.customerIds.length === 1 ? "kunde" : "kunder"}`
-                                          : "Velg kunder"}
-                                      </Button>
-                                    </PopoverTrigger>
-                                    <PopoverContent className="w-72 p-2" align="start">
-                                      <p className="px-2 py-1 text-xs uppercase tracking-wider text-muted-foreground">
-                                        Kunder {m.name.split(" ")[0]} kan jobbe hos
-                                      </p>
-                                      <div className="max-h-64 overflow-auto space-y-0.5">
-                                        {customers.length === 0 && (
-                                          <p className="px-2 py-2 text-sm text-muted-foreground">Ingen kunder ennå.</p>
-                                        )}
-                                        {customers.map((c) => (
-                                          <label
-                                            key={c.id}
-                                            className="flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-muted cursor-pointer"
-                                          >
-                                            <Checkbox
-                                              checked={m.customerIds.includes(c.id)}
-                                              onCheckedChange={(v) => toggleMemberCustomer(m, c.id, v === true)}
-                                            />
-                                            <span className="text-sm text-foreground truncate">{c.name}</span>
-                                          </label>
-                                        ))}
-                                      </div>
-                                    </PopoverContent>
-                                  </Popover>
-                                )}
-                                {m.scope === "selected" && m.customerIds.length === 0 && (
-                                  <span className="text-sm text-muted-foreground">Ingen kunder valgt ennå</span>
-                                )}
-                              </div>
-                            )}
                           </div>
 
                           <div className="shrink-0 sm:pt-1">
