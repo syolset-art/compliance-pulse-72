@@ -202,10 +202,14 @@ export default function MSPPartnerSettings() {
               <TabsTrigger value="tilgangsstyring" className="gap-1.5">
                 <Users className="h-3.5 w-3.5" /> Tilgangsstyring
               </TabsTrigger>
+              <TabsTrigger value="kommunikasjon" className="gap-1.5">
+                <Mail className="h-3.5 w-3.5" /> Kommunikasjon
+              </TabsTrigger>
               <TabsTrigger value="integrasjoner" className="gap-1.5">
                 <Plug className="h-3.5 w-3.5" /> Integrasjoner
               </TabsTrigger>
             </TabsList>
+
 
             <TabsContent value="tilgangsstyring" className="space-y-4">
               {/* 1. Team-tilgang */}
