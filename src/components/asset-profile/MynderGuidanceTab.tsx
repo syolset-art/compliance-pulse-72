@@ -249,8 +249,19 @@ export function MynderGuidanceTab({
 
   return (
     <div className="space-y-5">
+      {/* Ingen grunnlag etterspurt ennå — første steg er å be om det */}
+      {needsBaseline && (
+        <RequestBaselineCard
+          vendorName={assetName ?? (isNb ? "leverandøren" : "the vendor")}
+          archetype={sourcing.archetype}
+          onSelectArchetype={(archetype) => updateSourcing({ ...sourcing, archetype })}
+          onRequestBaseline={() => setRequestBaselineOpen(true)}
+          onRegisterExisting={() => setDocRequestType("general")}
+        />
+      )}
+
       {/* Lara-anbefalingsbanner — samme komponent som dashbordet */}
-      {planTasks.length > 0 && (
+      {!needsBaseline && planTasks.length > 0 && (
         <LaraRecommendationBanner
           totalCount={planTasks.length}
           criticalCount={planCriticalCount}
