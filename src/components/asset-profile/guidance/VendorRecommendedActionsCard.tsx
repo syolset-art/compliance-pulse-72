@@ -35,8 +35,8 @@ export function VendorRecommendedActionsCard({
 
   return (
     <Card className="p-5 flex flex-col">
-      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
-        <div className="min-w-0 flex items-start gap-2">
+      <div className="flex flex-wrap items-start justify-between gap-2">
+        <div className="min-w-0 flex-1 basis-[60%] flex items-start gap-2">
           <LaraAvatar size={28} />
           <div className="min-w-0">
             <h3 className="text-sm font-semibold text-foreground">
