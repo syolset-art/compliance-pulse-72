@@ -99,6 +99,7 @@ export function ActivateTrustCenterDialog({
     activateCustomerModule(customerId, "trust");
     await acceptTerms("module_activation", `msp-customer:${customerId}`, {
       operatorRole: hasOperatorRole || operatorRole,
+      operatorScope,
     });
 
     if (sendClaim) {
@@ -163,6 +164,27 @@ export function ActivateTrustCenterDialog({
                   <span className="text-foreground font-medium">Vi tar rollen som driftspartner.</span>{" "}
                   Da kan vi arbeide med compliance i kundens egen virksomhetsprofil på deres vegne.
                 </label>
+                {operatorRole && (
+                  <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                    <span className="text-[11px] text-muted-foreground">Gjelder:</span>
+                    {([{ value: "customer" as const, label: "Kun denne kunden" }, { value: "global" as const, label: "Alle kunder (globalt)" }]).map((opt) => (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => setOperatorScope(opt.value)}
+                        aria-pressed={operatorScope === opt.value}
+                        className={`rounded-full border px-2.5 py-0.5 text-[11px] transition-colors ${
+                          operatorScope === opt.value
+                            ? "border-primary bg-primary/10 text-foreground font-medium"
+                            : "border-border text-muted-foreground hover:bg-muted"
+                        }`}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+
               </div>
             )}
           </div>
