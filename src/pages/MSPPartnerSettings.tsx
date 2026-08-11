@@ -158,15 +158,15 @@ export default function MSPPartnerSettings() {
 
           <Tabs value={activeTab} onValueChange={(v) => setSearchParams({ tab: v })} className="space-y-4">
             <TabsList className="h-10">
-              <TabsTrigger value="generelt" className="gap-1.5">
-                <Settings className="h-3.5 w-3.5" /> Generelt
+              <TabsTrigger value="tilgangsstyring" className="gap-1.5">
+                <Users className="h-3.5 w-3.5" /> Tilgangsstyring
               </TabsTrigger>
               <TabsTrigger value="integrasjoner" className="gap-1.5">
                 <Plug className="h-3.5 w-3.5" /> Integrasjoner
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="generelt" className="space-y-4">
+            <TabsContent value="tilgangsstyring" className="space-y-4">
               {/* 1. Team-tilgang */}
               <Card className="p-5">
                 <div className="flex items-start justify-between gap-3 mb-4">
