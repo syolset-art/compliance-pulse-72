@@ -713,6 +713,32 @@ export default function MSPPartnerSettings() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <Dialog open={!!memberToRemove} onOpenChange={() => setMemberToRemove(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Fjern bruker?</DialogTitle>
+            <DialogDescription>
+              {memberToRemove && (
+                <>
+                  Er du sikker på at du vil fjerne <strong>{memberToRemove.name}</strong> fra partner-teamet? 
+                  Brukeren mister umiddelbar tilgang til partnerdelen og kundene dere deler.
+                </>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setMemberToRemove(null)}>Avbryt</Button>
+            <Button
+              variant="destructive"
+              onClick={() => memberToRemove && removeMember(memberToRemove)}
+              disabled={!memberToRemove}
+            >
+              Fjern bruker
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
