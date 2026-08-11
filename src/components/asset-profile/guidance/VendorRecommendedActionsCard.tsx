@@ -66,7 +66,7 @@ export function VendorRecommendedActionsCard({
           </p>
         )}
 
-        {actions.map((a) => {
+        {visible.map((a) => {
           const crit = CRITICALITY_STYLE[a.criticality];
           return (
             <div
