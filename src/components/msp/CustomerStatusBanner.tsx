@@ -659,7 +659,7 @@ export function CustomerStatusBanner({ customer, actionSlot, onUpdate }: { custo
                             <InitialAvatar name={m.name} />
                             <span className="flex-1 min-w-0">
                               <span className="block text-sm font-medium text-foreground truncate">{m.name}</span>
-                              <span className="block text-xs text-muted-foreground truncate">{m.role}</span>
+                              <span className="block text-xs text-muted-foreground truncate">{m.roles[0] ?? "Medlem"}</span>
                             </span>
                           </button>
                         ))}
@@ -744,7 +744,7 @@ export function CustomerStatusBanner({ customer, actionSlot, onUpdate }: { custo
                             <InitialAvatar name={m.name} />
                             <span className="flex-1 min-w-0">
                               <span className="block text-sm font-medium text-foreground truncate">{m.name}</span>
-                              <span className="block text-xs text-muted-foreground truncate">{m.role}</span>
+                              <span className="block text-xs text-muted-foreground truncate">{m.roles[0] ?? "Medlem"}</span>
                             </span>
                           </button>
                         ))}

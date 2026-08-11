@@ -14,6 +14,9 @@ import {
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { supabase } from "@/integrations/supabase/client";
 import {
   Settings,
   ArrowLeft,
@@ -58,15 +61,39 @@ const defaults: ForwardSettings = {
 import {
   PARTNER_TEAM,
   PARTNER_ROLE_DESC,
+  PARTNER_MEMBER_DESC,
   PARTNER_ACCESS_LABEL,
+  PARTNER_SCOPE_LABEL,
+  describeMemberAccess,
   type PartnerTeamMember,
   type PartnerRole,
   type PartnerAccess,
+  type PartnerScope,
 } from "@/lib/partnerTeam";
 type TeamMember = PartnerTeamMember;
 const DEMO_TEAM = PARTNER_TEAM;
 
+interface CustomerOption { id: string; name: string }
+
 const isValidEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+
+type InviteDraft = {
+  name: string;
+  email: string;
+  roles: PartnerRole[];
+  access: PartnerAccess;
+  scope: PartnerScope;
+  customerIds: string[];
+};
+
+const emptyInvite: InviteDraft = {
+  name: "",
+  email: "",
+  roles: ["Kundeansvarlig"],
+  access: "write",
+  scope: "all",
+  customerIds: [],
+};
 
 export default function MSPPartnerSettings() {
   const { enabled: postActivationEnabled, setPreference: setPostActivationPreference } =
@@ -76,14 +103,10 @@ export default function MSPPartnerSettings() {
   const [form, setForm] = useState<ForwardSettings>(defaults);
   const [team, setTeam] = useState<TeamMember[]>(DEMO_TEAM);
   const [inviteOpen, setInviteOpen] = useState(false);
-  const [invite, setInvite] = useState<{ name: string; email: string; role: PartnerRole; access: PartnerAccess }>({
-    name: "",
-    email: "",
-    role: "Kundeansvarlig",
-    access: "write",
-  });
+  const [invite, setInvite] = useState<InviteDraft>(emptyInvite);
   const [inviteTerms, setInviteTerms] = useState(false);
   const [inviteLoading, setInviteLoading] = useState(false);
+  const [customers, setCustomers] = useState<CustomerOption[]>([]);
   const [enabledModules, setEnabledModules] = useState<PartnerModuleKey[]>(() => getEnabledPartnerModules());
 
   const updateMember = (id: string, patch: Partial<TeamMember>) => {
@@ -91,6 +114,31 @@ export default function MSPPartnerSettings() {
     toast.success("Tilgang oppdatert");
   };
 
+  const toggleMemberRole = (m: TeamMember, role: PartnerRole, on: boolean) => {
+    const roles = on ? [...m.roles, role] : m.roles.filter((r) => r !== role);
+    updateMember(m.id, { roles });
+  };
+
+  const toggleMemberCustomer = (m: TeamMember, customerId: string, on: boolean) => {
+    const customerIds = on
+      ? [...m.customerIds, customerId]
+      : m.customerIds.filter((id) => id !== customerId);
+    setTeam((prev) => prev.map((x) => (x.id === m.id ? { ...x, customerIds } : x)));
+  };
+
+  // Kundeliste til omfangsvelgeren for driftspartnere.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("msp_customers")
+        .select("id, customer_name")
+        .order("customer_name");
+      if (cancelled || !data) return;
+      setCustomers(data.map((c) => ({ id: c.id as string, name: c.customer_name as string })));
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
   // Normalize legacy "generelt" tab into "tilgangsstyring" so the Tilgangsstyring menu
   // always shows the user-management section.
@@ -107,7 +155,12 @@ export default function MSPPartnerSettings() {
     toast.success(enabled ? "Modul aktivert i Compliance-menyen" : "Modul fjernet fra Compliance-menyen");
   };
 
-  const inviteValid = invite.name.trim().length > 0 && isValidEmail(invite.email);
+  const inviteValid =
+    invite.name.trim().length > 0 &&
+    isValidEmail(invite.email) &&
+    (!invite.roles.includes("Driftspartner") ||
+      invite.scope === "all" ||
+      invite.customerIds.length > 0);
 
   const handleSendInvite = () => {
     if (!inviteValid) return;
@@ -115,23 +168,24 @@ export default function MSPPartnerSettings() {
     setTimeout(() => {
       setInviteLoading(false);
       setInviteOpen(false);
-      setTeam((prev) => [
-        ...prev,
-        {
-          id: `u${Date.now()}`,
-          name: invite.name.trim(),
-          email: invite.email.trim(),
-          role: invite.role,
-          access: invite.access,
-          initials: invite.name.trim().split(/\s+/).map((p) => p[0]).slice(0, 2).join("").toUpperCase(),
-        },
-      ]);
+      const newMember: TeamMember = {
+        id: `u${Date.now()}`,
+        name: invite.name.trim(),
+        email: invite.email.trim(),
+        roles: invite.roles,
+        access: invite.access,
+        scope: invite.scope,
+        customerIds: invite.customerIds,
+        initials: invite.name.trim().split(/\s+/).map((p) => p[0]).slice(0, 2).join("").toUpperCase(),
+      };
+      setTeam((prev) => [...prev, newMember]);
       toast.success(`Invitasjon sendt til ${invite.email}`, {
-        description: `${invite.role} — ${PARTNER_ACCESS_LABEL[invite.access].toLowerCase()}.`,
+        description: describeMemberAccess(newMember),
       });
-      setInvite({ name: "", email: "", role: "Kundeansvarlig", access: "write" });
+      setInvite(emptyInvite);
     }, 600);
   };
+
 
 
   useEffect(() => {
@@ -249,50 +303,126 @@ export default function MSPPartnerSettings() {
                 </div>
 
                 <div className="rounded-xl border border-border divide-y divide-border">
-                  {team.map((m) => (
-                    <div key={m.id} className="flex flex-wrap items-center gap-3 px-4 py-3">
-                      <div className="h-9 w-9 rounded-full bg-muted flex items-center justify-center text-sm font-medium text-foreground shrink-0">
-                        {m.initials}
+                  {team.map((m) => {
+                    const isOps = m.roles.includes("Driftspartner");
+                    return (
+                      <div key={m.id} className="px-4 py-3 space-y-2.5">
+                        <div className="flex flex-wrap items-center gap-3">
+                          <div className="h-9 w-9 rounded-full bg-muted flex items-center justify-center text-sm font-medium text-foreground shrink-0">
+                            {m.initials}
+                          </div>
+                          <div className="flex-1 min-w-[160px]">
+                            <div className="flex items-center gap-2">
+                              <p className="text-base font-medium text-foreground truncate">{m.name}</p>
+                              <Badge variant="secondary" className="text-xs">Medlem</Badge>
+                            </div>
+                            <p className="text-sm text-muted-foreground truncate">{m.email}</p>
+                          </div>
+                          <div className="flex flex-wrap items-center gap-4">
+                            <label className="flex items-center gap-2 text-sm text-foreground">
+                              <Switch
+                                checked={m.roles.includes("Kundeansvarlig")}
+                                onCheckedChange={(v) => toggleMemberRole(m, "Kundeansvarlig", v)}
+                                aria-label={`Kundeansvarlig for ${m.name}`}
+                              />
+                              Kundeansvarlig
+                            </label>
+                            <label className="flex items-center gap-2 text-sm text-foreground">
+                              <Switch
+                                checked={isOps}
+                                onCheckedChange={(v) => toggleMemberRole(m, "Driftspartner", v)}
+                                aria-label={`Driftspartner for ${m.name}`}
+                              />
+                              Driftspartner
+                            </label>
+                          </div>
+                        </div>
+
+                        {isOps && (
+                          <div className="flex flex-wrap items-center gap-2 pl-12">
+                            <Shield className="h-3.5 w-3.5 text-muted-foreground" />
+                            <Select
+                              value={m.access}
+                              onValueChange={(v) => updateMember(m.id, { access: v as PartnerAccess })}
+                            >
+                              <SelectTrigger className="h-8 w-[196px] text-sm">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="read">{PARTNER_ACCESS_LABEL.read}</SelectItem>
+                                <SelectItem value="write">{PARTNER_ACCESS_LABEL.write}</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <Select
+                              value={m.scope}
+                              onValueChange={(v) => updateMember(m.id, { scope: v as PartnerScope })}
+                            >
+                              <SelectTrigger className="h-8 w-[150px] text-sm">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="all">{PARTNER_SCOPE_LABEL.all}</SelectItem>
+                                <SelectItem value="selected">{PARTNER_SCOPE_LABEL.selected}</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            {m.scope === "selected" && (
+                              <Popover>
+                                <PopoverTrigger asChild>
+                                  <Button variant="outline" size="sm" className="h-8 text-sm">
+                                    {m.customerIds.length > 0
+                                      ? `${m.customerIds.length} ${m.customerIds.length === 1 ? "kunde" : "kunder"}`
+                                      : "Velg kunder"}
+                                  </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-72 p-2" align="start">
+                                  <p className="px-2 py-1 text-xs uppercase tracking-wider text-muted-foreground">
+                                    Kunder {m.name.split(" ")[0]} kan jobbe hos
+                                  </p>
+                                  <div className="max-h-64 overflow-auto space-y-0.5">
+                                    {customers.length === 0 && (
+                                      <p className="px-2 py-2 text-sm text-muted-foreground">Ingen kunder ennå.</p>
+                                    )}
+                                    {customers.map((c) => (
+                                      <label
+                                        key={c.id}
+                                        className="flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-muted cursor-pointer"
+                                      >
+                                        <Checkbox
+                                          checked={m.customerIds.includes(c.id)}
+                                          onCheckedChange={(v) => toggleMemberCustomer(m, c.id, v === true)}
+                                        />
+                                        <span className="text-sm text-foreground truncate">{c.name}</span>
+                                      </label>
+                                    ))}
+                                  </div>
+                                </PopoverContent>
+                              </Popover>
+                            )}
+                            {m.scope === "selected" && m.customerIds.length === 0 && (
+                              <span className="text-sm text-muted-foreground">Ingen kunder valgt ennå</span>
+                            )}
+                          </div>
+                        )}
                       </div>
-                      <div className="flex-1 min-w-[160px]">
-                        <p className="text-base font-medium text-foreground truncate">{m.name}</p>
-                        <p className="text-sm text-muted-foreground truncate">{m.email}</p>
-                      </div>
-                      <Select
-                        value={m.role}
-                        onValueChange={(v) => updateMember(m.id, { role: v as PartnerRole })}
-                      >
-                        <SelectTrigger className="h-9 w-[172px] text-sm">
-                          <Shield className="h-3.5 w-3.5 mr-1.5 text-muted-foreground shrink-0" />
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Kundeansvarlig">Kundeansvarlig</SelectItem>
-                          <SelectItem value="Driftspartner">Driftspartner</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <Select
-                        value={m.access}
-                        onValueChange={(v) => updateMember(m.id, { access: v as PartnerAccess })}
-                      >
-                        <SelectTrigger className="h-9 w-[196px] text-sm">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="read">{PARTNER_ACCESS_LABEL.read}</SelectItem>
-                          <SelectItem value="write">{PARTNER_ACCESS_LABEL.write}</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
 
-                <p className="text-sm text-muted-foreground mt-3">
-                  <span className="font-medium text-foreground">Kundeansvarlig:</span>{" "}
-                  {PARTNER_ROLE_DESC.Kundeansvarlig}{" "}
-                  <span className="font-medium text-foreground">Driftspartner:</span>{" "}
-                  {PARTNER_ROLE_DESC.Driftspartner}
-                </p>
+                <div className="mt-3 space-y-1 text-sm text-muted-foreground">
+                  <p>
+                    <span className="font-medium text-foreground">Medlem:</span> {PARTNER_MEMBER_DESC}
+                  </p>
+                  <p>
+                    <span className="font-medium text-foreground">Kundeansvarlig:</span>{" "}
+                    {PARTNER_ROLE_DESC.Kundeansvarlig}
+                  </p>
+                  <p>
+                    <span className="font-medium text-foreground">Driftspartner:</span>{" "}
+                    {PARTNER_ROLE_DESC.Driftspartner} Velg lese- eller skrivetilgang og om det gjelder
+                    alle kunder eller et utvalg.
+                  </p>
+                </div>
+
 
               </Card>
 
@@ -477,38 +607,97 @@ export default function MSPPartnerSettings() {
                   onChange={(e) => setInvite({ ...invite, email: e.target.value })}
                 />
               </div>
-              <div className="space-y-1.5 col-span-2">
-                <Label className="text-base">Rolle</Label>
-                <Select
-                  value={invite.role}
-                  onValueChange={(v) => setInvite({ ...invite, role: v as PartnerRole })}
-                >
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Kundeansvarlig">Kundeansvarlig</SelectItem>
-                    <SelectItem value="Driftspartner">Driftspartner</SelectItem>
-                  </SelectContent>
-                </Select>
-                <p className="text-sm text-muted-foreground">{PARTNER_ROLE_DESC[invite.role]}</p>
+              <div className="col-span-2 rounded-lg border border-border bg-muted/30 px-3 py-2.5">
+                <p className="text-sm font-medium text-foreground">Blir medlem</p>
+                <p className="text-sm text-muted-foreground">{PARTNER_MEMBER_DESC}</p>
               </div>
-              <div className="space-y-1.5 col-span-2">
-                <Label className="text-base">Tilgangsnivå</Label>
-                <Select
-                  value={invite.access}
-                  onValueChange={(v) => setInvite({ ...invite, access: v as PartnerAccess })}
-                >
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="read">{PARTNER_ACCESS_LABEL.read}</SelectItem>
-                    <SelectItem value="write">{PARTNER_ACCESS_LABEL.write}</SelectItem>
-                  </SelectContent>
-                </Select>
-                <p className="text-sm text-muted-foreground">
-                  {invite.access === "read"
-                    ? "Kan se kunder og dokumentasjon, men ikke endre noe."
-                    : "Kan aktivere produkter, lage tilbud og endre dokumentasjon."}
-                </p>
+
+              <div className="space-y-2 col-span-2">
+                <Label className="text-base">Roller (valgfritt)</Label>
+                <div className="rounded-lg border border-border divide-y divide-border">
+                  {(["Kundeansvarlig", "Driftspartner"] as PartnerRole[]).map((role) => (
+                    <div key={role} className="flex items-start justify-between gap-3 px-3 py-2.5">
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium text-foreground">{role}</p>
+                        <p className="text-sm text-muted-foreground">{PARTNER_ROLE_DESC[role]}</p>
+                      </div>
+                      <Switch
+                        checked={invite.roles.includes(role)}
+                        onCheckedChange={(v) =>
+                          setInvite({
+                            ...invite,
+                            roles: v ? [...invite.roles, role] : invite.roles.filter((r) => r !== role),
+                          })
+                        }
+                        aria-label={role}
+                      />
+                    </div>
+                  ))}
+                </div>
               </div>
+
+              {invite.roles.includes("Driftspartner") && (
+                <div className="space-y-3 col-span-2 rounded-lg border border-border p-3">
+                  <div className="space-y-1.5">
+                    <Label className="text-base">Tilgangsnivå hos kunden</Label>
+                    <Select
+                      value={invite.access}
+                      onValueChange={(v) => setInvite({ ...invite, access: v as PartnerAccess })}
+                    >
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="read">{PARTNER_ACCESS_LABEL.read}</SelectItem>
+                        <SelectItem value="write">{PARTNER_ACCESS_LABEL.write}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <p className="text-sm text-muted-foreground">
+                      {invite.access === "read"
+                        ? "Kan se kundens compliance-profil og dokumentasjon, men ikke endre noe."
+                        : "Kan jobbe i kundens compliance-profil og endre dokumentasjon."}
+                    </p>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-base">Omfang</Label>
+                    <Select
+                      value={invite.scope}
+                      onValueChange={(v) => setInvite({ ...invite, scope: v as PartnerScope })}
+                    >
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">{PARTNER_SCOPE_LABEL.all}</SelectItem>
+                        <SelectItem value="selected">{PARTNER_SCOPE_LABEL.selected}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  {invite.scope === "selected" && (
+                    <div className="max-h-48 overflow-auto rounded-lg border border-border p-1">
+                      {customers.length === 0 && (
+                        <p className="px-2 py-2 text-sm text-muted-foreground">Ingen kunder ennå.</p>
+                      )}
+                      {customers.map((c) => (
+                        <label
+                          key={c.id}
+                          className="flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-muted cursor-pointer"
+                        >
+                          <Checkbox
+                            checked={invite.customerIds.includes(c.id)}
+                            onCheckedChange={(v) =>
+                              setInvite({
+                                ...invite,
+                                customerIds: v === true
+                                  ? [...invite.customerIds, c.id]
+                                  : invite.customerIds.filter((id) => id !== c.id),
+                              })
+                            }
+                          />
+                          <span className="text-sm text-foreground truncate">{c.name}</span>
+                        </label>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
 
             </div>
           </div>
