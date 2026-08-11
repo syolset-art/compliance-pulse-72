@@ -45,28 +45,6 @@ const REASONS: Array<{ id: string; label: string }> = [
   { id: "other", label: "Annet" },
 ];
 
-/** Tabeller som telles opp per modul for datainnsynet. */
-const MODULE_INVENTORY: Record<string, Array<{ table: string; label: string }>> = {
-  core: [
-    { table: "systems", label: "systemer" },
-    { table: "system_incidents", label: "avvik" },
-    { table: "system_processes", label: "behandlingsaktiviteter" },
-    { table: "uploaded_documents", label: "dokumenter" },
-  ],
-  frameworks: [
-    { table: "selected_frameworks", label: "aktiverte regelverk" },
-    { table: "framework_documents", label: "regelverksdokumenter" },
-  ],
-  vendors: [
-    { table: "vendor_documents", label: "leverandører og dokumenter" },
-    { table: "vendor_deliveries", label: "leveranser" },
-  ],
-  assets: [
-    { table: "assets", label: "verdier" },
-    { table: "work_area_documents", label: "dokumenter i arbeidsområder" },
-  ],
-  partner: [{ table: "msp_customers", label: "kunder" }],
-};
 
 export interface RetireModuleDialogProps {
   open: boolean;
