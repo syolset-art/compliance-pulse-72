@@ -176,6 +176,36 @@ export default function MSPBillingSettings() {
     }
   }, [existing]);
 
+  const { branding } = usePartnerBranding();
+  const tax = branding.tax;
+
+  // Fetch all customers to show what Mynder will invoice the partner for.
+  const { data: customers = [] } = useQuery({
+    queryKey: ["msp-customers-billing-settings"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("msp_customers" as any)
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data as any[];
+    },
+    enabled: !!user?.id,
+  });
+
+  const summary = useMemo(() => buildCostSummary(customers, tax), [customers, tax]);
+
+  // Refresh customer list when modules change elsewhere.
+  useEffect(() => {
+    const refresh = () => queryClient.invalidateQueries({ queryKey: ["msp-customers-billing-settings"] });
+    window.addEventListener(CUSTOMER_MODULES_EVENT, refresh);
+    window.addEventListener("modules:changed", refresh);
+    return () => {
+      window.removeEventListener(CUSTOMER_MODULES_EVENT, refresh);
+      window.removeEventListener("modules:changed", refresh);
+    };
+  }, [queryClient]);
+
   const mutation = useMutation({
     mutationFn: async (data: BillingSettings) => {
       const payload = {
