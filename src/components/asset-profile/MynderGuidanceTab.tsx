@@ -1,10 +1,15 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useToast } from "@/hooks/use-toast";
 import { LaraRecommendationBanner } from "@/components/lara/LaraRecommendationBanner";
 import { AssetMaturityByDomainCard } from "@/components/asset-profile/AssetMaturityByDomainCard";
 import { VendorActivityTab } from "@/components/asset-profile/tabs/VendorActivityTab";
 import { RegisterActivityDialog } from "@/components/asset-profile/RegisterActivityDialog";
+import { RequestUpdateDialog } from "@/components/asset-profile/RequestUpdateDialog";
+import { DocumentRequestsSection } from "@/components/asset-profile/tabs/DocumentRequestsSection";
+import { VendorFrameworkCard } from "@/components/asset-profile/guidance/VendorFrameworkCard";
+import { VendorRecommendedActionsCard } from "@/components/asset-profile/guidance/VendorRecommendedActionsCard";
+import { AddFrameworkDialog } from "@/components/msp/guidance/AddFrameworkDialog";
 import { MaturityHistoryChart } from "@/components/trust-controls/MaturityHistoryChart";
 import { Card, CardContent } from "@/components/ui/card";
 import { ChevronDown, ChevronUp, Activity } from "lucide-react";
@@ -13,6 +18,16 @@ import {
   generateGuidanceForVendor,
   type SuggestedActivity,
 } from "@/utils/vendorGuidanceData";
+import {
+  deriveVendorActions,
+  deriveVendorFrameworks,
+  fallbackActionFor,
+  frameworkById,
+  readFrameworkState,
+  writeFrameworkState,
+  type VendorFramework,
+  type VendorFrameworkAction,
+} from "@/lib/vendorFrameworkSuggestions";
 import type { VendorActivity } from "@/utils/vendorActivityData";
 
 interface Props {
@@ -23,6 +38,13 @@ interface Props {
   externalActivities?: VendorActivity[];
   dismissedSuggestionIds: string[];
   onActivitySaved: (activity: VendorActivity, fromSuggestion?: SuggestedActivity) => void;
+  /** Kontekst Lara bruker for å foreslå regelverk. */
+  vendorType?: string | null;
+  industry?: string | null;
+  country?: string | null;
+  criticality?: string | null;
+  contactPerson?: string | null;
+  contactEmail?: string | null;
 }
 
 export function MynderGuidanceTab({
@@ -33,6 +55,12 @@ export function MynderGuidanceTab({
   externalActivities,
   dismissedSuggestionIds,
   onActivitySaved,
+  vendorType,
+  industry,
+  country,
+  criticality,
+  contactPerson,
+  contactEmail,
 }: Props) {
   const { i18n } = useTranslation();
   const { toast } = useToast();
