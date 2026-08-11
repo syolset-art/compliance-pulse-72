@@ -65,6 +65,8 @@ export function CustomerFrameworkRecommendationsCard({
     ...manual.filter((m) => !aiSuggestions.some((s) => s.id === m.id)),
   ];
   const removeManual = (id: string) => setManual((prev) => prev.filter((m) => m.id !== id));
+  const mandatory = suggestions.filter((s) => s.confidence === "high");
+  const recommended = suggestions.filter((s) => s.confidence !== "high");
 
   return (
     <Card className="p-5 flex flex-col">
