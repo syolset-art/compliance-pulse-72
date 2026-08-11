@@ -437,7 +437,13 @@ export function InviteAgenticTrustCenterDialog({
                 </Button>
               </div>
             </div>
+            <p className="text-[11px] text-muted-foreground leading-relaxed">
+              {isNb
+                ? "Trust profilen er foreløpig ikke offentlig. Snart kan leverandører publisere sin agentiske trust profil i et Trust Center."
+                : "The trust profile is not public yet. Soon vendors will be able to publish their agentic trust profile in a Trust Center."}
+            </p>
           </div>
+
         )}
 
         <DialogFooter className={cn("gap-2", step < 4 && "sm:justify-between")}>
