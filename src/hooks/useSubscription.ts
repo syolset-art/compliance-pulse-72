@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useActivatedServices } from "@/hooks/useActivatedServices";
-import { getDeactivatedModules } from "@/lib/moduleActivationState";
+import { getDeactivatedModules, getModuleStates } from "@/lib/moduleActivationState";
 import {
   PLAN_TIERS,
   FRAMEWORK_ADDONS,
