@@ -1364,9 +1364,15 @@ export function MSPCreateOfferDialog({
           {view === "edit" && (
             <>
               <Button variant="outline" size="sm" onClick={() => onOpenChange(false)}>Avbryt</Button>
-              <Button size="sm" onClick={handleGenerate} className="gap-1.5">
-                <Eye className="h-3.5 w-3.5" /> Generer tilbud
-              </Button>
+              <div className="flex gap-2">
+                {/* v1.1: egen forhåndsvisning før tilbudet genereres */}
+                <Button variant="outline" size="sm" onClick={handlePreview} className="gap-1.5">
+                  <Eye className="h-3.5 w-3.5" /> Forhåndsvis tilbud
+                </Button>
+                <Button size="sm" onClick={handleGenerate} className="gap-1.5">
+                  <FileText className="h-3.5 w-3.5" /> Generer tilbud
+                </Button>
+              </div>
             </>
           )}
           {view === "preview" && (
