@@ -300,50 +300,126 @@ export default function MSPPartnerSettings() {
                 </div>
 
                 <div className="rounded-xl border border-border divide-y divide-border">
-                  {team.map((m) => (
-                    <div key={m.id} className="flex flex-wrap items-center gap-3 px-4 py-3">
-                      <div className="h-9 w-9 rounded-full bg-muted flex items-center justify-center text-sm font-medium text-foreground shrink-0">
-                        {m.initials}
+                  {team.map((m) => {
+                    const isOps = m.roles.includes("Driftspartner");
+                    return (
+                      <div key={m.id} className="px-4 py-3 space-y-2.5">
+                        <div className="flex flex-wrap items-center gap-3">
+                          <div className="h-9 w-9 rounded-full bg-muted flex items-center justify-center text-sm font-medium text-foreground shrink-0">
+                            {m.initials}
+                          </div>
+                          <div className="flex-1 min-w-[160px]">
+                            <div className="flex items-center gap-2">
+                              <p className="text-base font-medium text-foreground truncate">{m.name}</p>
+                              <Badge variant="secondary" className="text-xs">Medlem</Badge>
+                            </div>
+                            <p className="text-sm text-muted-foreground truncate">{m.email}</p>
+                          </div>
+                          <div className="flex flex-wrap items-center gap-4">
+                            <label className="flex items-center gap-2 text-sm text-foreground">
+                              <Switch
+                                checked={m.roles.includes("Kundeansvarlig")}
+                                onCheckedChange={(v) => toggleMemberRole(m, "Kundeansvarlig", v)}
+                                aria-label={`Kundeansvarlig for ${m.name}`}
+                              />
+                              Kundeansvarlig
+                            </label>
+                            <label className="flex items-center gap-2 text-sm text-foreground">
+                              <Switch
+                                checked={isOps}
+                                onCheckedChange={(v) => toggleMemberRole(m, "Driftspartner", v)}
+                                aria-label={`Driftspartner for ${m.name}`}
+                              />
+                              Driftspartner
+                            </label>
+                          </div>
+                        </div>
+
+                        {isOps && (
+                          <div className="flex flex-wrap items-center gap-2 pl-12">
+                            <Shield className="h-3.5 w-3.5 text-muted-foreground" />
+                            <Select
+                              value={m.access}
+                              onValueChange={(v) => updateMember(m.id, { access: v as PartnerAccess })}
+                            >
+                              <SelectTrigger className="h-8 w-[196px] text-sm">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="read">{PARTNER_ACCESS_LABEL.read}</SelectItem>
+                                <SelectItem value="write">{PARTNER_ACCESS_LABEL.write}</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <Select
+                              value={m.scope}
+                              onValueChange={(v) => updateMember(m.id, { scope: v as PartnerScope })}
+                            >
+                              <SelectTrigger className="h-8 w-[150px] text-sm">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="all">{PARTNER_SCOPE_LABEL.all}</SelectItem>
+                                <SelectItem value="selected">{PARTNER_SCOPE_LABEL.selected}</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            {m.scope === "selected" && (
+                              <Popover>
+                                <PopoverTrigger asChild>
+                                  <Button variant="outline" size="sm" className="h-8 text-sm">
+                                    {m.customerIds.length > 0
+                                      ? `${m.customerIds.length} ${m.customerIds.length === 1 ? "kunde" : "kunder"}`
+                                      : "Velg kunder"}
+                                  </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-72 p-2" align="start">
+                                  <p className="px-2 py-1 text-xs uppercase tracking-wider text-muted-foreground">
+                                    Kunder {m.name.split(" ")[0]} kan jobbe hos
+                                  </p>
+                                  <div className="max-h-64 overflow-auto space-y-0.5">
+                                    {customers.length === 0 && (
+                                      <p className="px-2 py-2 text-sm text-muted-foreground">Ingen kunder ennå.</p>
+                                    )}
+                                    {customers.map((c) => (
+                                      <label
+                                        key={c.id}
+                                        className="flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-muted cursor-pointer"
+                                      >
+                                        <Checkbox
+                                          checked={m.customerIds.includes(c.id)}
+                                          onCheckedChange={(v) => toggleMemberCustomer(m, c.id, v === true)}
+                                        />
+                                        <span className="text-sm text-foreground truncate">{c.name}</span>
+                                      </label>
+                                    ))}
+                                  </div>
+                                </PopoverContent>
+                              </Popover>
+                            )}
+                            {m.scope === "selected" && m.customerIds.length === 0 && (
+                              <span className="text-sm text-muted-foreground">Ingen kunder valgt ennå</span>
+                            )}
+                          </div>
+                        )}
                       </div>
-                      <div className="flex-1 min-w-[160px]">
-                        <p className="text-base font-medium text-foreground truncate">{m.name}</p>
-                        <p className="text-sm text-muted-foreground truncate">{m.email}</p>
-                      </div>
-                      <Select
-                        value={m.role}
-                        onValueChange={(v) => updateMember(m.id, { role: v as PartnerRole })}
-                      >
-                        <SelectTrigger className="h-9 w-[172px] text-sm">
-                          <Shield className="h-3.5 w-3.5 mr-1.5 text-muted-foreground shrink-0" />
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Kundeansvarlig">Kundeansvarlig</SelectItem>
-                          <SelectItem value="Driftspartner">Driftspartner</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <Select
-                        value={m.access}
-                        onValueChange={(v) => updateMember(m.id, { access: v as PartnerAccess })}
-                      >
-                        <SelectTrigger className="h-9 w-[196px] text-sm">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="read">{PARTNER_ACCESS_LABEL.read}</SelectItem>
-                          <SelectItem value="write">{PARTNER_ACCESS_LABEL.write}</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
 
-                <p className="text-sm text-muted-foreground mt-3">
-                  <span className="font-medium text-foreground">Kundeansvarlig:</span>{" "}
-                  {PARTNER_ROLE_DESC.Kundeansvarlig}{" "}
-                  <span className="font-medium text-foreground">Driftspartner:</span>{" "}
-                  {PARTNER_ROLE_DESC.Driftspartner}
-                </p>
+                <div className="mt-3 space-y-1 text-sm text-muted-foreground">
+                  <p>
+                    <span className="font-medium text-foreground">Medlem:</span> {PARTNER_MEMBER_DESC}
+                  </p>
+                  <p>
+                    <span className="font-medium text-foreground">Kundeansvarlig:</span>{" "}
+                    {PARTNER_ROLE_DESC.Kundeansvarlig}
+                  </p>
+                  <p>
+                    <span className="font-medium text-foreground">Driftspartner:</span>{" "}
+                    {PARTNER_ROLE_DESC.Driftspartner} Velg lese- eller skrivetilgang og om det gjelder
+                    alle kunder eller et utvalg.
+                  </p>
+                </div>
+
 
               </Card>
 
