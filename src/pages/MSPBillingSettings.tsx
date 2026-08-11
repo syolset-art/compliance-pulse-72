@@ -280,34 +280,6 @@ export default function MSPBillingSettings() {
             </CardContent>
           </Card>
 
-          {/* Payment method */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <CreditCard className="h-5 w-5" />
-                Betalingsmetode
-              </CardTitle>
-              <CardDescription>Velg hvordan du vil betale</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <RadioGroup value={form.payment_method} onValueChange={(v) => update("payment_method", v)} className="space-y-3">
-                <div className="flex items-start gap-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors">
-                  <RadioGroupItem value="invoice" id="pm-invoice" className="mt-0.5" />
-                  <label htmlFor="pm-invoice" className="cursor-pointer">
-                    <p className="font-medium text-sm">Faktura</p>
-                    <p className="text-xs text-muted-foreground">Betales innen 14 dager etter mottak</p>
-                  </label>
-                </div>
-                <div className="flex items-start gap-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors">
-                  <RadioGroupItem value="card" id="pm-card" className="mt-0.5" />
-                  <label htmlFor="pm-card" className="cursor-pointer">
-                    <p className="font-medium text-sm">Kredittkort (Stripe)</p>
-                    <p className="text-xs text-muted-foreground">Trekkes automatisk ved kjøp og fornyelse</p>
-                  </label>
-                </div>
-              </RadioGroup>
-            </CardContent>
-          </Card>
 
           {/* Notes */}
           <Card>
