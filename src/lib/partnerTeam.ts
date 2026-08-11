@@ -30,9 +30,16 @@ export const PARTNER_ROLE_DESC: Record<PartnerRole, string> = {
 export const PARTNER_MEMBER_DESC =
   "Alle som inviteres blir medlem. Medlemmer ser partnerdelen og kundeoversikten, men jobber ikke inne hos kundene.";
 
+/** En bruker kan ha én eller begge rollene – de er uavhengige. */
+export const PARTNER_ROLE_INDEPENDENCE_NOTE =
+  "En bruker kan ha én eller begge rollene – de er uavhengige. For hver rolle velger du om brukeren kan utføre oppgaver eller kun lese.";
+
+export const PARTNER_DUAL_ROLE_WARNING =
+  "Denne brukeren har både kundeansvar og compliance-ansvar. Vurder ansvarsdeling – den som utfører compliance-arbeid bør helst ikke være den samme som eier kunderelasjonen.";
+
 export const PARTNER_ACCESS_LABEL: Record<PartnerAccess, string> = {
   read: "Kun lesetilgang",
-  write: "Lese- og skrivetilgang",
+  write: "Kan utføre oppgaver",
 };
 
 export const PARTNER_ACCESS_SHORT: Record<PartnerAccess, string> = {
@@ -67,7 +74,7 @@ export function describeMemberAccess(m: PartnerTeamMember): string {
   if (m.roles.length === 0) return "Medlem";
   const parts = [
     "Medlem",
-    ...m.roles.map((r) => `${r} (${PARTNER_ACCESS_SHORT[m.roleAccess[r]]})`),
+    ...m.roles.map((r) => `${r} (${PARTNER_ACCESS_SHORT[m.roleAccess?.[r] ?? "read"]})`),
   ];
   if (m.roles.includes("Driftspartner")) {
     const scope =
