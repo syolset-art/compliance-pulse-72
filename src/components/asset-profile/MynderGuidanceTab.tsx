@@ -275,7 +275,7 @@ export function MynderGuidanceTab({
       )}
 
       {/* Regelverk + tiltak — Laras kobling mellom krav og handling */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className={needsBaseline ? "grid grid-cols-1 gap-4" : "grid grid-cols-1 lg:grid-cols-2 gap-4"}>
         <VendorFrameworkCard
           frameworks={frameworks}
           onAdd={() => setAddFrameworkOpen(true)}
@@ -286,31 +286,32 @@ export function MynderGuidanceTab({
             })
           }
         />
-        <VendorRecommendedActionsCard
-          assetId={assetId}
-          actions={actions}
-
-          onRequestDocumentation={openDocRequest}
-          onCreateActivity={createActivityFromAction}
-          onCreateVendorActivity={() => setCreateActivityOpen(true)}
-          trustCenter={trustCenter}
-          onInviteTrustCenter={() => setInviteTrustCenterOpen(true)}
-          onOpenTrustCenter={() => {
-            const link = trustCenter.link ?? trustCenterLink(assetId);
-            window.open(link, "_blank", "noopener");
-          }}
-          onRemindTrustCenter={() => {
-            const next = { ...trustCenter, remindedAt: new Date().toISOString() };
-            setTrustCenter(next);
-            writeTrustCenterState(assetId, next);
-            toast({
-              title: isNb ? "Påminnelse sendt" : "Reminder sent",
-              description: isNb
-                ? "Lara har purret kontaktpersonene hos leverandøren."
-                : "Lara reminded the vendor contacts.",
-            });
-          }}
-        />
+        {!needsBaseline && (
+          <VendorRecommendedActionsCard
+            assetId={assetId}
+            actions={actions}
+            onRequestDocumentation={openDocRequest}
+            onCreateActivity={createActivityFromAction}
+            onCreateVendorActivity={() => setCreateActivityOpen(true)}
+            trustCenter={trustCenter}
+            onInviteTrustCenter={() => setInviteTrustCenterOpen(true)}
+            onOpenTrustCenter={() => {
+              const link = trustCenter.link ?? trustCenterLink(assetId);
+              window.open(link, "_blank", "noopener");
+            }}
+            onRemindTrustCenter={() => {
+              const next = { ...trustCenter, remindedAt: new Date().toISOString() };
+              setTrustCenter(next);
+              writeTrustCenterState(assetId, next);
+              toast({
+                title: isNb ? "Påminnelse sendt" : "Reminder sent",
+                description: isNb
+                  ? "Lara har purret kontaktpersonene hos leverandøren."
+                  : "Lara reminded the vendor contacts.",
+              });
+            }}
+          />
+        )}
 
       </div>
 
