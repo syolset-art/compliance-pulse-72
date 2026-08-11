@@ -750,17 +750,17 @@ const SidebarContent = () => {
               <div className="mt-1 ml-2 space-y-1 animate-fade-in max-h-[50vh] overflow-y-auto pr-1">
                 {workspaceMode === "partner" ? (
                   <button
-                    onClick={() => navigate("/msp-settings?tab=generelt")}
+                    onClick={() => navigate("/msp-settings?tab=tilgangsstyring")}
                     className={cn(
                       "flex w-full items-center gap-3 rounded-lg px-3 py-1.5 text-[0.9375rem] font-medium transition-colors",
                       location.pathname === "/msp-settings" &&
-                        (new URLSearchParams(location.search).get("tab") ?? "generelt") === "generelt"
+                        (new URLSearchParams(location.search).get("tab") ?? "tilgangsstyring") === "tilgangsstyring"
                         ? "bg-sidebar-accent text-sidebar-primary"
                         : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
                     )}
                   >
-                    <SettingsIcon className="h-3.5 w-3.5" />
-                    {isNb ? "Generelt" : "General"}
+                    <Users className="h-3.5 w-3.5" />
+                    {isNb ? "Tilgangsstyring" : "Access management"}
                   </button>
                 ) : (
                   settingsMenu.map((item) => {
