@@ -32,6 +32,9 @@ export function VendorRecommendedActionsCard({
 
   const criticalCount = actions.filter((a) => a.criticality === "kritisk").length;
   const docCount = actions.filter((a) => a.documentType).length;
+  // Hold listen kort — Lara viser de viktigste tiltakene først.
+  const [showAll, setShowAll] = useState(false);
+  const visible = showAll ? actions : actions.slice(0, 4);
 
   return (
     <Card className="p-5 flex flex-col">
