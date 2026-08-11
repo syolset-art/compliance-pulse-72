@@ -35,6 +35,9 @@ export function TermsAcceptRow({
   showOperatorRole,
   operatorRole = false,
   onOperatorRoleChange,
+  operatorScope = "customer",
+  onOperatorScopeChange,
+  operatorScopeCustomerName,
 }: TermsAcceptRowProps) {
   return (
     <div className="space-y-2">
