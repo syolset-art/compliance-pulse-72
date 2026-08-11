@@ -125,6 +125,7 @@ export function VendorStatusBanner({ asset }: VendorStatusBannerProps) {
   });
 
   const status = deriveVendorStatus({
+    id: asset.id,
     compliance_score: asset.compliance_score,
     risk_level: asset.risk_level,
     lifecycle_status: asset.lifecycle_status,
@@ -259,16 +260,25 @@ export function VendorStatusBanner({ asset }: VendorStatusBannerProps) {
       );
     }
     if (status.key === "claimed") {
-      const claimDate = md.claimed_at_label || "8. mars 2026";
+      const claimDate =
+        md.claimed_at_label ||
+        (md.claimed_at || asset.updated_at
+          ? new Date(md.claimed_at || asset.updated_at!).toLocaleDateString("nb-NO", {
+              day: "numeric",
+              month: "long",
+              year: "numeric",
+            })
+          : "nylig");
       return (
-        <div className="rounded-lg bg-muted/40 border border-border px-4 py-2 flex items-center gap-2">
+        <div className="rounded-lg bg-success/5 border border-success/20 px-4 py-2 flex items-center gap-2">
           <ShieldCheck className="h-3.5 w-3.5 text-success shrink-0" />
           <p className="text-[13px] text-foreground/80">
-            Leverandøren tok eierskap til sin Agentiske Trust Profile {claimDate}
+            Leverandøren tok eierskap til sin Agentiske Trust Profile {claimDate} — oppdateres av leverandøren selv
           </p>
         </div>
       );
     }
+
 
     return (
       <div className="rounded-lg bg-muted/40 border border-border px-4 py-2.5">

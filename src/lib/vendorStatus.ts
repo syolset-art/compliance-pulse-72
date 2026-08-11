@@ -24,6 +24,8 @@ export interface VendorStatusMeta {
 }
 
 interface DeriveInput {
+  /** Brukes til å variere fallback-status per leverandør (prototype). */
+  id?: string | null;
   compliance_score?: number | null;
   risk_level?: string | null;
   lifecycle_status?: string | null;
@@ -87,9 +89,13 @@ export function deriveVendorStatus(input: DeriveInput): VendorStatusMeta {
   if (profileStatus === "invitation_sent" || profileStatus === "invited" || lc === "invited" || md.invited_at) return STATUS_META.invited;
   if (lc === "draft" || profileStatus === "draft") return STATUS_META.draft;
 
-  // Fallback: hvis ingen ownership-data – bruk score for å avlede
+  // Fallback: ingen eierskapsdata. Leverandøren har IKKE tatt over profilen,
+  // så standard er «Utkast» (Mynder eier). For prototypen varieres tilstanden
+  // deterministisk per leverandør slik at ulike statuser blir synlige.
   const score = input.compliance_score || 0;
-  if (score >= 75) return STATUS_META.claimed; // antatt verifisert
+  const seed = (input.id || "").split("").reduce((a, c) => a + c.charCodeAt(0), 0);
+  if (score >= 75 && seed % 3 === 0) return STATUS_META.claimed;
+  if (score >= 50 && seed % 3 === 1) return STATUS_META.invited;
   return STATUS_META.draft;
 }
 
