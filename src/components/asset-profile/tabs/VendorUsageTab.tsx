@@ -420,28 +420,6 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
         }}
       />
 
-      {/* Integrations / Relations */}
-      {relations.length > 0 && (
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm">{isNb ? "Integrasjoner" : "Integrations"}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-1">
-              {relations.map(r => {
-                const other = r.source_asset_id === assetId ? (r as any).target : (r as any).source;
-                return (
-                  <div key={r.id} className="flex items-center gap-2 text-sm p-1.5">
-                    <Badge variant="outline" className="text-[13px]">{r.relationship_type}</Badge>
-                    <span>{other?.name || "—"}</span>
-                  </div>
-                );
-              })}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
       {/* Sub-processors */}
       {processors.length > 0 && (
         <Card>
