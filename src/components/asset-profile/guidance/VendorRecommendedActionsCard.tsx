@@ -57,7 +57,6 @@ export function VendorRecommendedActionsCard({
 
   const criticalCount = actions.filter((a) => a.criticality === "kritisk").length;
   const docCount = actions.filter((a) => a.documentType).length;
-  const top = actions.slice(0, 3);
 
   const hasTrustCenter = trustCenter.status !== "none";
   const delivered = trustCenter.deliveredCount ?? 0;
