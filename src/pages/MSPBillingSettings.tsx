@@ -349,14 +349,14 @@ export default function MSPBillingSettings() {
             </CardContent>
           </Card>
 
-          {/* Delivery method */}
+          {/* Delivery method: how Mynder invoices the partner */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <FileText className="h-5 w-5" />
-                Leveringsmetode
+                Mynders fakturering til deg
               </CardTitle>
-              <CardDescription>Velg hvordan fakturaer skal leveres</CardDescription>
+              <CardDescription>Hvordan Mynder skal sende fakturaer til deg som partner</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <RadioGroup value={form.delivery_method} onValueChange={(v) => update("delivery_method", v)} className="space-y-3">
@@ -388,6 +388,70 @@ export default function MSPBillingSettings() {
                   </div>
                 </div>
               )}
+            </CardContent>
+          </Card>
+
+          {/* Activated products and costs: what Mynder will invoice the partner for */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Wallet className="h-5 w-5" />
+                Dine aktiverte produkter og kostnader
+              </CardTitle>
+              <CardDescription>Dette faktureres deg av Mynder basert på aktiverte produkter og tjenester hos kundene dine</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="p-4 rounded-lg border bg-muted/30">
+                  <div className="text-[12px] uppercase tracking-wide text-muted-foreground">Abonnement per måned</div>
+                  <div className="text-xl font-semibold text-foreground tabular-nums mt-1">{fmt(summary.monthly)} kr</div>
+                  <div className="text-xs text-muted-foreground mt-0.5">ekskl. mva</div>
+                </div>
+                <div className="p-4 rounded-lg border bg-muted/30">
+                  <div className="text-[12px] uppercase tracking-wide text-muted-foreground">Engangsbeløp</div>
+                  <div className="text-xl font-semibold text-foreground tabular-nums mt-1">{fmt(summary.fixed + summary.setup)} kr</div>
+                  <div className="text-xs text-muted-foreground mt-0.5">fastpris + etablering</div>
+                </div>
+                <div className="p-4 rounded-lg border bg-muted/30">
+                  <div className="text-[12px] uppercase tracking-wide text-muted-foreground">Kunder med kostnader</div>
+                  <div className="text-xl font-semibold text-foreground tabular-nums mt-1">{summary.payingCustomers}</div>
+                  <div className="text-xs text-muted-foreground mt-0.5">av {summary.customerCount} kunder</div>
+                </div>
+              </div>
+
+              {summary.topLines.length > 0 && (
+                <div className="space-y-3">
+                  <div className="text-sm font-medium text-foreground">Største aktiverte kostnader</div>
+                  <div className="space-y-2">
+                    {summary.topLines.map((line) => (
+                      <div key={line.label} className="flex items-center justify-between text-sm">
+                        <div className="flex items-center gap-2">
+                          <Badge variant="outline" className="font-normal">{line.count} kunde{line.count === 1 ? "" : "r"}</Badge>
+                          <span className="text-foreground/90">{line.label}</span>
+                        </div>
+                        <span className="tabular-nums font-medium">{fmt(line.price)} kr/mnd</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="flex items-center justify-between pt-2 border-t">
+                <div className="space-y-0.5">
+                  <div className="text-sm font-medium text-foreground">Total å betale Mynder</div>
+                  <div className="text-xs text-muted-foreground">Netto {fmt(summary.totalNet)} kr + {tax.label.toLowerCase()} {fmt(summary.taxAmount)} kr</div>
+                </div>
+                <div className="text-right">
+                  <div className="text-2xl font-semibold text-foreground tabular-nums">{fmt(summary.gross)} kr</div>
+                  <div className="text-xs text-muted-foreground">inkl. mva</div>
+                </div>
+              </div>
+
+              <Link to="/msp-invoices" className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline">
+                <TrendingUp className="h-4 w-4" />
+                Se fullt fakturagrunnlag
+                <ChevronRight className="h-4 w-4" />
+              </Link>
             </CardContent>
           </Card>
 
