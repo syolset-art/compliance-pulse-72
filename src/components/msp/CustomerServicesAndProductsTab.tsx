@@ -334,6 +334,72 @@ export function CustomerServicesAndProductsTab({
     ]);
   };
 
+  // ── Avvikling (samme flyt som Innstillinger > Produkter) ──
+
+  const confirmRetire = async (meta: CancellationMeta) => {
+    if (!retireTarget) return;
+    const { stateKey, moduleId, title, price, scopeLabel } = retireTarget;
+    const cancelAt = cancelCustomerModule(customerId, stateKey, meta);
+    const retentionUntil = meta.retentionUntil ?? getRetentionUntil(cancelAt).toISOString();
+    setRetireTarget(null);
+    setTick((n) => n + 1);
+
+    try {
+      await supabase.from("module_cancellations").insert({
+        module_id: `${moduleId}:${customerId}`,
+        module_title: `${title} — ${customerName}`,
+        reason: meta.reason,
+        reason_note: meta.reasonNote ?? null,
+        competitor: meta.competitor ?? null,
+        data_choice: meta.dataChoice,
+        transfer_email: meta.transferEmail ?? null,
+        effective_at: cancelAt,
+        retention_until: retentionUntil,
+      });
+    } catch (e) {
+      console.error("Kunne ikke logge avviklingen", e);
+    }
+
+    setReceipt({
+      moduleId,
+      moduleTitle: title,
+      kind: "retire",
+      toLabel: scopeLabel ?? "Hele produktet",
+      monthlyPriceKr: price,
+      effectiveAt: cancelAt,
+      retentionUntil,
+      dataNote:
+        meta.dataChoice === "transfer"
+          ? `Overføres til ${meta.transferEmail}`
+          : meta.dataChoice === "download"
+            ? "Eksportlenken er gyldig i 7 dager"
+            : "Beholdes og slettes automatisk",
+      nextSteps: [
+        {
+          label: "Se fakturagrunnlaget",
+          description: "Kontroller hva som faller bort ved neste fakturering.",
+          onClick: () => window.open("/msp-invoices", "_blank"),
+        },
+      ],
+      onUndo: () => {
+        resumeCustomerModule(customerId, stateKey);
+        setTick((n) => n + 1);
+        setReceipt(null);
+        toast.success("Avviklingen er angret.");
+      },
+    });
+    onUpdate?.();
+  };
+
+  const undoRetire = (stateKey: string) => {
+    resumeCustomerModule(customerId, stateKey);
+    setTick((n) => n + 1);
+    toast.success("Avviklingen er angret. Produktet fortsetter som før.");
+    onUpdate?.();
+  };
+
+
+
   const commitCoreTier = () => {
     if (!pendingCoreTierId) return;
     const prevTier = getCoreTier(coreTierId);
