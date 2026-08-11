@@ -63,14 +63,6 @@ export function VendorRecommendedActionsCard({
   const delivered = trustCenter.deliveredCount ?? 0;
   const requested = trustCenter.requestedDocumentTypes.length;
 
-  const criticalCount = actions.filter((a) => a.criticality === "kritisk").length;
-  const docCount = actions.filter((a) => a.documentType).length;
-  const top = actions.slice(0, 3);
-
-  const hasTrustCenter = trustCenter.status !== "none";
-  const delivered = trustCenter.deliveredCount ?? 0;
-  const requested = trustCenter.requestedDocumentTypes.length;
-
   const trustCenterBlock = (
     <div
       className={cn(
