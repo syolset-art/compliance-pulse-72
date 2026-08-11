@@ -35,30 +35,39 @@ export function ModuleChangeReceiptSheet({ receipt, onOpenChange }: Props) {
 
   const {
     moduleTitle, kind, fromLabel, toLabel, monthlyPriceKr,
-    effectiveAt, termsVersion, acceptedAt, nextSteps, onUndo,
+    effectiveAt, retentionUntil, dataNote, termsVersion, acceptedAt, nextSteps, onUndo,
   } = receipt;
 
   const isDowngrade = kind === "downgrade";
+  const isRetire = kind === "retire";
 
   const title =
     kind === "activation"
       ? `${moduleTitle} er aktivert`
-      : isDowngrade
-        ? `Nedgradering av ${moduleTitle} er planlagt`
-        : `${moduleTitle} er oppgradert`;
+      : isRetire
+        ? `${moduleTitle} er avviklet`
+        : isDowngrade
+          ? `Nedgradering av ${moduleTitle} er planlagt`
+          : `${moduleTitle} er oppgradert`;
 
   return (
     <Sheet open={!!receipt} onOpenChange={onOpenChange}>
       <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto">
         <SheetHeader className="text-left">
           <div className="flex items-center gap-2">
-            <CheckCircle2 className="h-5 w-5 text-primary shrink-0" />
+            {isRetire ? (
+              <Archive className="h-5 w-5 text-muted-foreground shrink-0" />
+            ) : (
+              <CheckCircle2 className="h-5 w-5 text-primary shrink-0" />
+            )}
             <SheetTitle className="text-base">{title}</SheetTitle>
           </div>
           <SheetDescription className="text-sm">
-            {isDowngrade
-              ? `Dere beholder dagens nivå fram til ${formatDateLong(effectiveAt)}. Da settes abonnementet ned automatisk.`
-              : "Tjenesten aktiveres umiddelbart, og faktureres på neste faktura."}
+            {isRetire
+              ? `Tilgangen fortsetter ut inneværende periode, til ${formatDateLong(effectiveAt)}. Deretter faktureres ikke abonnementet.`
+              : isDowngrade
+                ? `Dere beholder dagens nivå fram til ${formatDateLong(effectiveAt)}. Da settes abonnementet ned automatisk.`
+                : "Tjenesten aktiveres umiddelbart, og faktureres på neste faktura."}
           </SheetDescription>
         </SheetHeader>
 
@@ -69,7 +78,7 @@ export function ModuleChangeReceiptSheet({ receipt, onOpenChange }: Props) {
             <span className="text-sm font-medium text-foreground">{moduleTitle}</span>
           </div>
           <div className="flex items-center justify-between gap-3">
-            <span className="text-sm text-muted-foreground">Nivå</span>
+            <span className="text-sm text-muted-foreground">{isRetire ? "Omfang" : "Nivå"}</span>
             <span className="text-sm font-medium text-foreground text-right">
               {fromLabel ? (
                 <span className="inline-flex items-center gap-1.5">
@@ -83,7 +92,9 @@ export function ModuleChangeReceiptSheet({ receipt, onOpenChange }: Props) {
             </span>
           </div>
           <div className="flex items-center justify-between gap-3">
-            <span className="text-sm text-muted-foreground">Månedspris</span>
+            <span className="text-sm text-muted-foreground">
+              {isRetire ? "Bortfaller" : "Månedspris"}
+            </span>
             <span className="text-sm font-semibold text-foreground tabular-nums">
               {monthlyPriceKr === 0 ? "Gratis" : `${formatKr(monthlyPriceKr)} /mnd`}
               {monthlyPriceKr > 0 && (
@@ -92,21 +103,39 @@ export function ModuleChangeReceiptSheet({ receipt, onOpenChange }: Props) {
             </span>
           </div>
           <div className="flex items-center justify-between gap-3">
-            <span className="text-sm text-muted-foreground">Trer i kraft</span>
+            <span className="text-sm text-muted-foreground">
+              {isRetire ? "Aktiv til" : "Trer i kraft"}
+            </span>
             <span className="text-sm font-medium text-foreground">
-              {isDowngrade ? formatDateLong(effectiveAt) : "Med én gang"}
+              {isDowngrade || isRetire ? formatDateLong(effectiveAt) : "Med én gang"}
             </span>
           </div>
-          <div className="flex items-start justify-between gap-3 pt-2 border-t border-border/60">
-            <span className="text-sm text-muted-foreground inline-flex items-center gap-1.5">
-              <FileText className="h-3.5 w-3.5" /> Vilkår
-            </span>
-            <span className="text-sm text-foreground text-right">
-              Godkjent{termsVersion ? ` (versjon ${termsVersion})` : ""}
-              <span className="block text-xs text-muted-foreground">{formatDateLong(acceptedAt)}</span>
-            </span>
-          </div>
+          {isRetire && (
+            <div className="flex items-start justify-between gap-3">
+              <span className="text-sm text-muted-foreground">Data</span>
+              <span className="text-sm text-foreground text-right">
+                {dataNote ?? "Beholdes i 90 dager"}
+                {retentionUntil && (
+                  <span className="block text-xs text-muted-foreground">
+                    til {formatDateLong(retentionUntil)}
+                  </span>
+                )}
+              </span>
+            </div>
+          )}
+          {!isRetire && (
+            <div className="flex items-start justify-between gap-3 pt-2 border-t border-border/60">
+              <span className="text-sm text-muted-foreground inline-flex items-center gap-1.5">
+                <FileText className="h-3.5 w-3.5" /> Vilkår
+              </span>
+              <span className="text-sm text-foreground text-right">
+                Godkjent{termsVersion ? ` (versjon ${termsVersion})` : ""}
+                <span className="block text-xs text-muted-foreground">{formatDateLong(acceptedAt)}</span>
+              </span>
+            </div>
+          )}
         </div>
+
 
         {/* Neste steg */}
         {nextSteps.length > 0 && (
