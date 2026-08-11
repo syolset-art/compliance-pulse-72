@@ -375,8 +375,14 @@ export function CustomerStatusBanner({ customer, actionSlot, onUpdate }: { custo
 
             <div className="hidden md:block text-right shrink-0">
               <div className="text-[10px] uppercase tracking-wider text-foreground/60 font-medium">Modenhet</div>
-              <div className={cn("text-2xl font-bold leading-none", maturityLevel.cls)}>
-                {score}% <span className="text-sm font-semibold">{maturityLevel.label}</span>
+              <div className="flex items-center justify-end gap-2">
+                <span className={cn(
+                  "inline-flex items-center justify-center h-10 w-10 rounded-full border border-border bg-muted text-sm font-bold leading-none",
+                  maturityLevel.cls
+                )}>
+                  {score}%
+                </span>
+                <span className={cn("text-sm font-semibold", maturityLevel.cls)}>{maturityLevel.label}</span>
               </div>
             </div>
           </div>
