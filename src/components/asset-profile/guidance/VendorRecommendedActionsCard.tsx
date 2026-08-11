@@ -63,14 +63,6 @@ export function VendorRecommendedActionsCard({
   const delivered = trustCenter.deliveredCount ?? 0;
   const requested = trustCenter.requestedDocumentTypes.length;
 
-  const stat = (value: number, labelNb: string, labelEn: string, tone?: string) => (
-    <div className="min-w-0">
-      <p className={cn("text-xl font-semibold leading-none", tone ?? "text-foreground")}>{value}</p>
-      <p className="text-[11px] text-muted-foreground mt-1 truncate">{isNb ? labelNb : labelEn}</p>
-    </div>
-  );
-
-  /** Primær-CTA: kontinuerlig dokumentasjon via Agentisk Trust Center. */
   const trustCenterBlock = (
     <div
       className={cn(
@@ -152,13 +144,6 @@ export function VendorRecommendedActionsCard({
           <h3 className="text-sm font-semibold text-foreground flex-1 min-w-0 truncate">
             {isNb ? "Anbefalte tiltak" : "Recommended actions"}
           </h3>
-        </div>
-
-        {/* Nøkkeltall — dashbord, ikke liste */}
-        <div className="mt-3 grid grid-cols-3 gap-3 rounded-lg border border-border bg-muted/30 px-3 py-2.5">
-          {stat(actions.length, "tiltak", "actions")}
-          {stat(criticalCount, "kritiske", "critical", criticalCount > 0 ? "text-destructive" : undefined)}
-          {stat(docCount, "mangler dok.", "missing docs")}
         </div>
 
         {/* Agentisk Trust Center — kontinuerlig oppdatert dokumentasjon */}
