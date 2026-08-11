@@ -99,9 +99,22 @@ export const ACTIVE_MODULE_CANDIDATES = MODULE_CANDIDATES.filter((m) => m.key !=
 export function deriveOfferSuggestions(c: any): OfferSuggestion[] {
   const toLabel = (f: any): string => (typeof f === "string" ? f : (f?.label ?? f?.frameworkId ?? ""));
   const active: string[] = (c.active_frameworks || []).map(toLabel).filter(Boolean);
-  const recommended: string[] = (c.recommended_frameworks || [])
+
+  const recommendedFrameworks: any[] = Array.isArray(c.recommended_frameworks) ? c.recommended_frameworks : [];
+  const confidenceMap = new Map<string, Confidence>();
+  for (const f of recommendedFrameworks) {
+    if (typeof f === "string") {
+      confidenceMap.set(f, "medium");
+    } else {
+      const label = f?.label ?? f?.frameworkId ?? "";
+      if (label) confidenceMap.set(label, f?.confidence ?? "medium");
+    }
+  }
+
+  const recommended: string[] = recommendedFrameworks
     .map(toLabel)
     .filter((f: string) => f && !active.includes(f));
+
   const score = c.compliance_score || 0;
   const modules: string[] = customerActiveModules(c);
 
@@ -117,11 +130,10 @@ export function deriveOfferSuggestions(c: any): OfferSuggestion[] {
       activatable: true,
       frameworkId: f,
       price: 490,
+      confidence: confidenceMap.get(f),
     });
   }
 
-  // Mynder-moduler som ikke er aktivert (Trust Center er v2 og filtreres bort).
-  for (const m of ACTIVE_MODULE_CANDIDATES) {
 
     if (modules.includes(m.key)) continue;
     out.push({
