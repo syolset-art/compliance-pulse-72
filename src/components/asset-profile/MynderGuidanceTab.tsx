@@ -108,7 +108,14 @@ export function MynderGuidanceTab({
   const [addFrameworkOpen, setAddFrameworkOpen] = useState(false);
   const [docRequestType, setDocRequestType] = useState<string | null>(null);
 
+  // ── Agentisk Trust Center ──
+  const [trustCenter, setTrustCenter] = useState(() => readTrustCenterState(assetId));
+  useEffect(() => setTrustCenter(readTrustCenterState(assetId)), [assetId]);
+  const [inviteTrustCenterOpen, setInviteTrustCenterOpen] = useState(false);
+
   const openDocRequest = (action: VendorFrameworkAction) =>
+    setDocRequestType(action.documentType ?? "general");
+
     setDocRequestType(action.documentType ?? "general");
 
   const createActivityFromAction = (action: VendorFrameworkAction) => {
