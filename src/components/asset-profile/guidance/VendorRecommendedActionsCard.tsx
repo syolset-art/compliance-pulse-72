@@ -135,6 +135,19 @@ export function VendorRecommendedActionsCard({
             </div>
           );
         })}
+
+        {actions.length > 4 && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 text-xs text-primary"
+            onClick={() => setShowAll((v) => !v)}
+          >
+            {showAll
+              ? isNb ? "Vis færre" : "Show fewer"
+              : isNb ? `Vis alle ${actions.length} tiltak` : `Show all ${actions.length} actions`}
+          </Button>
+        )}
       </div>
     </Card>
   );
