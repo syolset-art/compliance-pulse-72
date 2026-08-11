@@ -36,6 +36,7 @@ import {
   Plug,
   Crown,
   ScrollText,
+  Mail,
 } from "lucide-react";
 import mynderLogoInverted from "@/assets/mynder-logo-inverted.png";
 import mynderLogo from "@/assets/mynder-logo.png";
