@@ -25,6 +25,7 @@ interface Props {
   value: string;
   onSave: (next: string) => Promise<void> | void;
   edgeFunction: "suggest-vendor-data-types" | "suggest-vendor-processes";
+  hideHeader?: boolean;
   context: {
     vendorName?: string | null;
     vendorCategory?: string | null;
@@ -42,6 +43,7 @@ export function AISuggestTextarea({
   value,
   onSave,
   edgeFunction,
+  hideHeader,
   context,
 }: Props) {
   const { i18n } = useTranslation();
@@ -104,23 +106,25 @@ export function AISuggestTextarea({
 
   return (
     <Card>
-      <CardHeader className="pb-2 flex flex-row items-center justify-between gap-2 space-y-0">
-        <CardTitle className="text-sm flex items-center gap-2">
-          {icon}
-          {isNb ? titleNb : titleEn}
-        </CardTitle>
-        <Button
-          type="button"
-          size="sm"
-          variant="outline"
-          className="gap-1.5 h-8"
-          onClick={handleSuggest}
-          disabled={loading}
-        >
-          {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5 text-primary" />}
-          {isNb ? "La Lara foreslå" : "Let Lara suggest"}
-        </Button>
-      </CardHeader>
+      {!hideHeader && (
+        <CardHeader className="pb-2 flex flex-row items-center justify-between gap-2 space-y-0">
+          <CardTitle className="text-sm flex items-center gap-2">
+            {icon}
+            {isNb ? titleNb : titleEn}
+          </CardTitle>
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            className="gap-1.5 h-8"
+            onClick={handleSuggest}
+            disabled={loading}
+          >
+            {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5 text-primary" />}
+            {isNb ? "La Lara foreslå" : "Let Lara suggest"}
+          </Button>
+        </CardHeader>
+      )}
       <CardContent className="space-y-3">
         <Textarea
           value={draft}
