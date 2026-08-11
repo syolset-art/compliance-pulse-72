@@ -122,18 +122,6 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
     },
   });
 
-  const { data: relations = [] } = useQuery({
-    queryKey: ["asset-relations-usage", assetId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("asset_relationships")
-        .select("*, source:assets!asset_relationships_source_asset_id_fkey(id,name), target:assets!asset_relationships_target_asset_id_fkey(id,name)")
-        .or(`source_asset_id.eq.${assetId},target_asset_id.eq.${assetId}`);
-      if (error) throw error;
-      return data || [];
-    },
-  });
-
   const updateMutation = useMutation({
     mutationFn: async (updates: Record<string, any>) => {
       const { error } = await supabase
