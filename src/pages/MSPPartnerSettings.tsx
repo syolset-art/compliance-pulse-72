@@ -79,6 +79,15 @@ export default function MSPPartnerSettings() {
   const [inviteLoading, setInviteLoading] = useState(false);
   const [enabledModules, setEnabledModules] = useState<PartnerModuleKey[]>(() => getEnabledPartnerModules());
 
+  // Normalize legacy "generelt" tab into "tilgangsstyring" so the Tilgangsstyring menu
+  // always shows the user-management section.
+  useEffect(() => {
+    const tab = searchParams.get("tab");
+    if (tab === "generelt") {
+      setSearchParams({ tab: "tilgangsstyring" }, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
+
   const handleToggleModule = (key: PartnerModuleKey, enabled: boolean) => {
     setPartnerModuleEnabled(key, enabled);
     setEnabledModules(getEnabledPartnerModules());
