@@ -26,6 +26,7 @@ export function ConfirmVendorTierChangeDialog({ open, onOpenChange, currentTierI
   const { current: currentTerms, hasAcceptedCurrent, acceptTerms } = useTerms();
   const [accepted, setAccepted] = useState(false);
   const [operatorRole, setOperatorRole] = useState(false);
+  const [operatorScope, setOperatorScope] = useState<"customer" | "global">("customer");
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -44,7 +45,7 @@ export function ConfirmVendorTierChangeDialog({ open, onOpenChange, currentTierI
   const handleConfirm = async () => {
     setSaving(true);
     try {
-      await acceptTerms("license_purchase", nextTierId, { operatorRole });
+      await acceptTerms("license_purchase", nextTierId, { operatorRole , operatorScope });
       onConfirm();
     } finally {
       setSaving(false);
@@ -92,6 +93,9 @@ export function ConfirmVendorTierChangeDialog({ open, onOpenChange, currentTierI
           version={currentTerms?.version}
           showOperatorRole={!!customerName}
           operatorRole={operatorRole}
+            operatorScope={operatorScope}
+            onOperatorScopeChange={setOperatorScope}
+            operatorScopeCustomerName={customerName}
           onOperatorRoleChange={setOperatorRole}
         />
 

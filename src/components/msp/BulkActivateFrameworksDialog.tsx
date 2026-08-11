@@ -48,6 +48,7 @@ export function BulkActivateFrameworksDialog({
   const { current: currentTerms, hasAcceptedCurrent, acceptances, acceptTerms } = useTerms();
   const [termsChecked, setTermsChecked] = useState(false);
   const [operatorRole, setOperatorRole] = useState(false);
+  const [operatorScope, setOperatorScope] = useState<"customer" | "global">("customer");
   const [saving, setSaving] = useState(false);
 
   const hasOperatorRole = acceptances.some((a) => a.operator_role);
@@ -82,6 +83,7 @@ export function BulkActivateFrameworksDialog({
     }
     await acceptTerms("framework_activation", `bulk:${affected.length}`, {
       operatorRole: hasOperatorRole || operatorRole,
+      operatorScope,
     });
     setSaving(false);
 
@@ -146,7 +148,7 @@ export function BulkActivateFrameworksDialog({
             Driftspartner-rollen er allerede bekreftet.
           </p>
         ) : (
-          <div className="flex items-start gap-2 rounded-lg border border-border bg-muted/30 p-3">
+          <div className="flex flex-wrap items-start gap-2 rounded-lg border border-border bg-muted/30 p-3">
             <Checkbox
               id="bulk-operator"
               checked={operatorRole}
@@ -157,6 +159,27 @@ export function BulkActivateFrameworksDialog({
               <span className="text-foreground font-medium">Vi tar rollen som driftspartner.</span> Da kan vi arbeide
               med compliance i kundenes egne virksomhetsprofiler på deres vegne.
             </label>
+                {operatorRole && (
+                  <div className="mt-2 basis-full ml-6 flex flex-wrap items-center gap-1.5">
+                    <span className="text-[11px] text-muted-foreground">Gjelder:</span>
+                    {([{ value: "customer" as const, label: "Kun valgte kunder" }, { value: "global" as const, label: "Alle kunder (globalt)" }]).map((opt) => (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => setOperatorScope(opt.value)}
+                        aria-pressed={operatorScope === opt.value}
+                        className={`rounded-full border px-2.5 py-0.5 text-[11px] transition-colors ${
+                          operatorScope === opt.value
+                            ? "border-primary bg-primary/10 text-foreground font-medium"
+                            : "border-border text-muted-foreground hover:bg-muted"
+                        }`}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+
           </div>
         )}
 

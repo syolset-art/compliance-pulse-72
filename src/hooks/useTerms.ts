@@ -99,16 +99,30 @@ export function useTerms() {
     async (
       context: TermsContext,
       contextRef?: string,
-      options?: { operatorRole?: boolean }
+      options?: { operatorRole?: boolean; operatorScope?: "customer" | "global" }
     ) => {
       if (!user?.id || !current) return false;
-      const { error } = await supabase.from("terms_acceptances").insert({
-        user_id: user.id,
-        terms_version_id: current.id,
-        context,
-        context_ref: contextRef ?? null,
-        operator_role: options?.operatorRole ?? false,
-      });
+      const rows = [
+        {
+          user_id: user.id,
+          terms_version_id: current.id,
+          context,
+          context_ref: contextRef ?? null,
+          operator_role: options?.operatorRole ?? false,
+        },
+      ];
+      // Global driftspartner-rolle: lagres som egen aksept uten context_ref
+      // slik at den gjelder for alle kunder.
+      if (options?.operatorRole && options.operatorScope === "global" && contextRef) {
+        rows.push({
+          user_id: user.id,
+          terms_version_id: current.id,
+          context,
+          context_ref: null,
+          operator_role: true,
+        });
+      }
+      const { error } = await supabase.from("terms_acceptances").insert(rows);
       if (error) return false;
       await load();
       return true;

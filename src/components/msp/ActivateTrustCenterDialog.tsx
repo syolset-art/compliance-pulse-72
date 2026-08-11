@@ -62,6 +62,7 @@ export function ActivateTrustCenterDialog({
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [termsChecked, setTermsChecked] = useState(false);
   const [operatorRole, setOperatorRole] = useState(false);
+  const [operatorScope, setOperatorScope] = useState<"customer" | "global">("customer");
   const [sendClaim, setSendClaim] = useState(true);
   const [saving, setSaving] = useState(false);
   const { enabled: promptEnabled } = usePostActivationPrompt();
@@ -98,6 +99,7 @@ export function ActivateTrustCenterDialog({
     activateCustomerModule(customerId, "trust");
     await acceptTerms("module_activation", `msp-customer:${customerId}`, {
       operatorRole: hasOperatorRole || operatorRole,
+      operatorScope,
     });
 
     if (sendClaim) {
@@ -151,7 +153,7 @@ export function ActivateTrustCenterDialog({
                 Driftspartner-rollen er allerede bekreftet.
               </p>
             ) : (
-              <div className="flex items-start gap-2 rounded-lg border border-border bg-muted/30 p-3">
+              <div className="flex flex-wrap items-start gap-2 rounded-lg border border-border bg-muted/30 p-3">
                 <Checkbox
                   id="trust-operator"
                   checked={operatorRole}
@@ -162,6 +164,27 @@ export function ActivateTrustCenterDialog({
                   <span className="text-foreground font-medium">Vi tar rollen som driftspartner.</span>{" "}
                   Da kan vi arbeide med compliance i kundens egen virksomhetsprofil på deres vegne.
                 </label>
+                {operatorRole && (
+                  <div className="mt-2 basis-full ml-6 flex flex-wrap items-center gap-1.5">
+                    <span className="text-[11px] text-muted-foreground">Gjelder:</span>
+                    {([{ value: "customer" as const, label: "Kun denne kunden" }, { value: "global" as const, label: "Alle kunder (globalt)" }]).map((opt) => (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => setOperatorScope(opt.value)}
+                        aria-pressed={operatorScope === opt.value}
+                        className={`rounded-full border px-2.5 py-0.5 text-[11px] transition-colors ${
+                          operatorScope === opt.value
+                            ? "border-primary bg-primary/10 text-foreground font-medium"
+                            : "border-border text-muted-foreground hover:bg-muted"
+                        }`}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+
               </div>
             )}
           </div>
