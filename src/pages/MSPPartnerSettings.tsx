@@ -630,7 +630,8 @@ export default function MSPPartnerSettings() {
               </div>
 
               <div className="space-y-2 col-span-2">
-                <Label className="text-base">Roller (valgfritt)</Label>
+                <Label className="text-base">Roller</Label>
+                <p className="text-sm text-muted-foreground">{PARTNER_INVITE_ROLE_REQUIRED}</p>
                 <div className="rounded-lg border border-border divide-y divide-border">
                   {(["Kundeansvarlig", "Driftspartner"] as PartnerRole[]).map((role) => (
                     <div key={role} className="flex items-start justify-between gap-3 px-3 py-2.5">
@@ -673,55 +674,61 @@ export default function MSPPartnerSettings() {
                             </SelectContent>
                           </Select>
                         )}
+                        {invite.roles.includes(role) && (
+                          <Select
+                            value={invite.roleScope[role]}
+                            onValueChange={(v) =>
+                              setInvite({
+                                ...invite,
+                                roleScope: { ...invite.roleScope, [role]: v as PartnerScope },
+                              })
+                            }
+                          >
+                            <SelectTrigger className="h-8 w-[186px] text-sm">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="all">{PARTNER_SCOPE_LABEL.all}</SelectItem>
+                              <SelectItem value="selected">{PARTNER_SCOPE_LABEL.selected}</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        )}
+                        {invite.roles.includes(role) && invite.roleScope[role] === "selected" && (
+                          <div className="w-[186px] max-h-40 overflow-auto rounded-lg border border-border p-1">
+                            {customers.length === 0 && (
+                              <p className="px-2 py-2 text-sm text-muted-foreground">Ingen kunder ennå.</p>
+                            )}
+                            {customers.map((c) => (
+                              <label
+                                key={c.id}
+                                className="flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-muted cursor-pointer"
+                              >
+                                <Checkbox
+                                  checked={invite.roleCustomerIds[role].includes(c.id)}
+                                  onCheckedChange={(v) =>
+                                    setInvite({
+                                      ...invite,
+                                      roleCustomerIds: {
+                                        ...invite.roleCustomerIds,
+                                        [role]:
+                                          v === true
+                                            ? [...invite.roleCustomerIds[role], c.id]
+                                            : invite.roleCustomerIds[role].filter((id) => id !== c.id),
+                                      },
+                                    })
+                                  }
+                                />
+                                <span className="text-sm text-foreground truncate">{c.name}</span>
+                              </label>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     </div>
                   ))}
                 </div>
               </div>
 
-              {invite.roles.includes("Driftspartner") && (
-                <div className="space-y-3 col-span-2 rounded-lg border border-border p-3">
-                  <div className="space-y-1.5">
-                    <Label className="text-base">Omfang</Label>
-                    <Select
-                      value={invite.scope}
-                      onValueChange={(v) => setInvite({ ...invite, scope: v as PartnerScope })}
-                    >
-                      <SelectTrigger><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">{PARTNER_SCOPE_LABEL.all}</SelectItem>
-                        <SelectItem value="selected">{PARTNER_SCOPE_LABEL.selected}</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  {invite.scope === "selected" && (
-                    <div className="max-h-48 overflow-auto rounded-lg border border-border p-1">
-                      {customers.length === 0 && (
-                        <p className="px-2 py-2 text-sm text-muted-foreground">Ingen kunder ennå.</p>
-                      )}
-                      {customers.map((c) => (
-                        <label
-                          key={c.id}
-                          className="flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-muted cursor-pointer"
-                        >
-                          <Checkbox
-                            checked={invite.customerIds.includes(c.id)}
-                            onCheckedChange={(v) =>
-                              setInvite({
-                                ...invite,
-                                customerIds: v === true
-                                  ? [...invite.customerIds, c.id]
-                                  : invite.customerIds.filter((id) => id !== c.id),
-                              })
-                            }
-                          />
-                          <span className="text-sm text-foreground truncate">{c.name}</span>
-                        </label>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
 
 
             </div>
