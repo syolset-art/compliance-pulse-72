@@ -11,6 +11,13 @@ import { VendorFrameworkCard } from "@/components/asset-profile/guidance/VendorF
 import { VendorRecommendedActionsCard } from "@/components/asset-profile/guidance/VendorRecommendedActionsCard";
 import { InviteAgenticTrustCenterDialog } from "@/components/asset-profile/guidance/InviteAgenticTrustCenterDialog";
 import { CreateVendorActivityDialog } from "@/components/asset-profile/guidance/CreateVendorActivityDialog";
+import { RequestBaselineCard } from "@/components/asset-profile/guidance/RequestBaselineCard";
+import { RequestBaselineDialog } from "@/components/asset-profile/guidance/RequestBaselineDialog";
+import {
+  readSourcingState,
+  writeSourcingState,
+  type SourcingMethod,
+} from "@/lib/vendorSourcingMethod";
 import {
   readTrustCenterState,
   writeTrustCenterState,
@@ -121,6 +128,39 @@ export function MynderGuidanceTab({
   const [inviteTrustCenterOpen, setInviteTrustCenterOpen] = useState(false);
   const [createActivityOpen, setCreateActivityOpen] = useState(false);
 
+  // ── Innhenting av grunnlag ──
+  // Ny leverandør uten etterspurt grunnlag: første steg er å be om det.
+  const [sourcing, setSourcing] = useState(() => readSourcingState(assetId));
+  useEffect(() => setSourcing(readSourcingState(assetId)), [assetId]);
+  const [requestBaselineOpen, setRequestBaselineOpen] = useState(false);
+  const needsBaseline = !sourcing.method && trustCenter.status === "none";
+
+  const updateSourcing = (next: typeof sourcing) => {
+    setSourcing(next);
+    writeSourcingState(assetId, next);
+  };
+
+  const startSourcing = (method: SourcingMethod) => {
+    if (method === "vendor_agentic") {
+      setInviteTrustCenterOpen(true);
+      return;
+    }
+    updateSourcing({ ...sourcing, method, startedAt: new Date().toISOString() });
+    toast({
+      title:
+        method === "public_harvest"
+          ? isNb
+            ? "Lara kartlegger offentlige kilder"
+            : "Lara is mapping public sources"
+          : isNb
+            ? "Forespørsel sendt på e-post"
+            : "Email request sent",
+      description: isNb
+        ? "Lara forbereder utkast til vurdering når grunnlaget kommer inn."
+        : "Lara drafts the assessment once the evidence arrives.",
+    });
+  };
+
   const openDocRequest = (action: VendorFrameworkAction) =>
     setDocRequestType(action.documentType ?? "general");
 
@@ -209,8 +249,19 @@ export function MynderGuidanceTab({
 
   return (
     <div className="space-y-5">
+      {/* Ingen grunnlag etterspurt ennå — første steg er å be om det */}
+      {needsBaseline && (
+        <RequestBaselineCard
+          vendorName={assetName ?? (isNb ? "leverandøren" : "the vendor")}
+          archetype={sourcing.archetype}
+          onSelectArchetype={(archetype) => updateSourcing({ ...sourcing, archetype })}
+          onRequestBaseline={() => setRequestBaselineOpen(true)}
+          onRegisterExisting={() => setDocRequestType("general")}
+        />
+      )}
+
       {/* Lara-anbefalingsbanner — samme komponent som dashbordet */}
-      {planTasks.length > 0 && (
+      {!needsBaseline && planTasks.length > 0 && (
         <LaraRecommendationBanner
           totalCount={planTasks.length}
           criticalCount={planCriticalCount}
@@ -224,7 +275,7 @@ export function MynderGuidanceTab({
       )}
 
       {/* Regelverk + tiltak — Laras kobling mellom krav og handling */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className={needsBaseline ? "grid grid-cols-1 gap-4" : "grid grid-cols-1 lg:grid-cols-2 gap-4"}>
         <VendorFrameworkCard
           frameworks={frameworks}
           onAdd={() => setAddFrameworkOpen(true)}
@@ -235,31 +286,32 @@ export function MynderGuidanceTab({
             })
           }
         />
-        <VendorRecommendedActionsCard
-          assetId={assetId}
-          actions={actions}
-
-          onRequestDocumentation={openDocRequest}
-          onCreateActivity={createActivityFromAction}
-          onCreateVendorActivity={() => setCreateActivityOpen(true)}
-          trustCenter={trustCenter}
-          onInviteTrustCenter={() => setInviteTrustCenterOpen(true)}
-          onOpenTrustCenter={() => {
-            const link = trustCenter.link ?? trustCenterLink(assetId);
-            window.open(link, "_blank", "noopener");
-          }}
-          onRemindTrustCenter={() => {
-            const next = { ...trustCenter, remindedAt: new Date().toISOString() };
-            setTrustCenter(next);
-            writeTrustCenterState(assetId, next);
-            toast({
-              title: isNb ? "Påminnelse sendt" : "Reminder sent",
-              description: isNb
-                ? "Lara har purret kontaktpersonene hos leverandøren."
-                : "Lara reminded the vendor contacts.",
-            });
-          }}
-        />
+        {!needsBaseline && (
+          <VendorRecommendedActionsCard
+            assetId={assetId}
+            actions={actions}
+            onRequestDocumentation={openDocRequest}
+            onCreateActivity={createActivityFromAction}
+            onCreateVendorActivity={() => setCreateActivityOpen(true)}
+            trustCenter={trustCenter}
+            onInviteTrustCenter={() => setInviteTrustCenterOpen(true)}
+            onOpenTrustCenter={() => {
+              const link = trustCenter.link ?? trustCenterLink(assetId);
+              window.open(link, "_blank", "noopener");
+            }}
+            onRemindTrustCenter={() => {
+              const next = { ...trustCenter, remindedAt: new Date().toISOString() };
+              setTrustCenter(next);
+              writeTrustCenterState(assetId, next);
+              toast({
+                title: isNb ? "Påminnelse sendt" : "Reminder sent",
+                description: isNb
+                  ? "Lara har purret kontaktpersonene hos leverandøren."
+                  : "Lara reminded the vendor contacts.",
+              });
+            }}
+          />
+        )}
 
       </div>
 
@@ -359,6 +411,15 @@ export function MynderGuidanceTab({
       />
 
       {/* Opprett aktivitet — velg hvordan dokumentasjonen skaffes */}
+      {/* Be om grunnlag — velg innhentingsmetode */}
+      <RequestBaselineDialog
+        open={requestBaselineOpen}
+        onOpenChange={setRequestBaselineOpen}
+        vendorName={assetName ?? (isNb ? "leverandøren" : "the vendor")}
+        archetype={sourcing.archetype}
+        onConfirm={startSourcing}
+      />
+
       <CreateVendorActivityDialog
         open={createActivityOpen}
         onOpenChange={setCreateActivityOpen}
