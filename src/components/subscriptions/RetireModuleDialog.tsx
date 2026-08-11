@@ -106,8 +106,7 @@ export function RetireModuleDialog({
       setReason("");
       setReasonNote("");
       setCompetitor("");
-      setDataChoice("download");
-      setTransferEmail("");
+      setDataChoice("retain");
       setConfirmed(false);
       setInventory(null);
       setExportUrl(null);
@@ -163,8 +162,7 @@ export function RetireModuleDialog({
   };
 
   const canContinue = reason !== "" && (reason !== "other" || reasonNote.trim().length > 2);
-  const canConfirm =
-    confirmed && (dataChoice !== "transfer" || /\S+@\S+\.\S+/.test(transferEmail));
+  const canConfirm = confirmed;
 
   const handleConfirm = () => {
     onConfirm({
@@ -172,7 +170,6 @@ export function RetireModuleDialog({
       reasonNote: reasonNote.trim() || undefined,
       competitor: competitor.trim() || undefined,
       dataChoice,
-      transferEmail: dataChoice === "transfer" ? transferEmail.trim() : undefined,
       retentionUntil: retentionUntil.toISOString(),
     });
   };
