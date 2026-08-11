@@ -120,12 +120,24 @@ export default function MSPPartnerSettings() {
     setTimeout(() => {
       setInviteLoading(false);
       setInviteOpen(false);
+      setTeam((prev) => [
+        ...prev,
+        {
+          id: `u${Date.now()}`,
+          name: invite.name.trim(),
+          email: invite.email.trim(),
+          role: invite.role,
+          access: invite.access,
+          initials: invite.name.trim().split(/\s+/).map((p) => p[0]).slice(0, 2).join("").toUpperCase(),
+        },
+      ]);
       toast.success(`Invitasjon sendt til ${invite.email}`, {
-        description: "Brukeren får tilgang så snart invitasjonen aksepteres.",
+        description: `${invite.role} — ${PARTNER_ACCESS_LABEL[invite.access].toLowerCase()}.`,
       });
-      setInvite({ name: "", email: "", role: "Partner-rådgiver" });
+      setInvite({ name: "", email: "", role: "Kundeansvarlig", access: "write" });
     }, 600);
   };
+
 
   useEffect(() => {
     try {
