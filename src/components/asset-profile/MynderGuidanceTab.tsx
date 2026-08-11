@@ -121,6 +121,39 @@ export function MynderGuidanceTab({
   const [inviteTrustCenterOpen, setInviteTrustCenterOpen] = useState(false);
   const [createActivityOpen, setCreateActivityOpen] = useState(false);
 
+  // ── Innhenting av grunnlag ──
+  // Ny leverandør uten etterspurt grunnlag: første steg er å be om det.
+  const [sourcing, setSourcing] = useState(() => readSourcingState(assetId));
+  useEffect(() => setSourcing(readSourcingState(assetId)), [assetId]);
+  const [requestBaselineOpen, setRequestBaselineOpen] = useState(false);
+  const needsBaseline = !sourcing.method && trustCenter.status === "none";
+
+  const updateSourcing = (next: typeof sourcing) => {
+    setSourcing(next);
+    writeSourcingState(assetId, next);
+  };
+
+  const startSourcing = (method: SourcingMethod) => {
+    if (method === "vendor_agentic") {
+      setInviteTrustCenterOpen(true);
+      return;
+    }
+    updateSourcing({ ...sourcing, method, startedAt: new Date().toISOString() });
+    toast({
+      title:
+        method === "public_harvest"
+          ? isNb
+            ? "Lara kartlegger offentlige kilder"
+            : "Lara is mapping public sources"
+          : isNb
+            ? "Forespørsel sendt på e-post"
+            : "Email request sent",
+      description: isNb
+        ? "Lara forbereder utkast til vurdering når grunnlaget kommer inn."
+        : "Lara drafts the assessment once the evidence arrives.",
+    });
+  };
+
   const openDocRequest = (action: VendorFrameworkAction) =>
     setDocRequestType(action.documentType ?? "general");
 
