@@ -21,6 +21,7 @@ export interface TrustCenterContact {
 export type TrustCenterInterval = "quarterly" | "semiannual" | "annual";
 
 export type TrustCenterStatus = "none" | "invited" | "active";
+export type TrustCenterDeliveryMethod = "manual" | "mcp";
 
 export interface AgenticTrustCenterState {
   status: TrustCenterStatus;
@@ -28,6 +29,8 @@ export interface AgenticTrustCenterState {
   /** documentType-verdier som trust centeret holder oppdatert. */
   requestedDocumentTypes: string[];
   interval: TrustCenterInterval;
+  /** Hvordan dokumentasjon skal leveres — manuell opplasting eller MCP (V2). */
+  deliveryMethod?: TrustCenterDeliveryMethod;
   message?: string;
   /** ISO-dato. */
   invitedAt?: string;
@@ -44,6 +47,7 @@ export const EMPTY_TRUST_CENTER: AgenticTrustCenterState = {
   contacts: [],
   requestedDocumentTypes: [],
   interval: "semiannual",
+  deliveryMethod: "manual",
 };
 
 export const CONTACT_ROLE_LABEL: Record<TrustCenterContactRole, { nb: string; en: string }> = {

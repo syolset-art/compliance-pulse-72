@@ -89,7 +89,19 @@ export function VendorRecommendedActionsCard({
                 {isNb ? "dokumenter levert" : "documents delivered"}
                 {" · "}
                 {isNb ? INTERVAL_LABEL[trustCenter.interval].nb : INTERVAL_LABEL[trustCenter.interval].en}
+                {trustCenter.deliveryMethod === "mcp" && (
+                  <span className="ml-1.5 inline-flex items-center rounded border border-primary/30 bg-primary/10 px-1.5 py-0 text-[10px] text-primary">
+                    MCP
+                  </span>
+                )}
               </p>
+              {trustCenter.deliveryMethod === "mcp" && trustCenter.status === "invited" && (
+                <p className="text-[11px] text-primary mt-0.5">
+                  {isNb
+                    ? "MCP-kobling er planlagt — leverandøren laster opp manuelt inntil videre."
+                    : "MCP connection is planned — the vendor uploads manually for now."}
+                </p>
+              )}
               {trustCenter.contacts.length > 0 && (
                 <p className="text-[11px] text-muted-foreground mt-0.5 flex items-center gap-1 truncate">
                   <Users className="h-3 w-3 shrink-0" />
