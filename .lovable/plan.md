@@ -1,37 +1,45 @@
-# Innhentingsmetode per leverandør — Laras anbefaling
+# Første steg: be om grunnlag når leverandøren er ny
 
-Grunnideen: «be om grunnlag» er ikke én handling, men et valg av innhentingsmetode. Hvem som gjør jobben avhenger av mandatstyrke og hvor offentlig beviset allerede er. Prototypen skal gjøre den variasjonen synlig.
+Når en leverandør nettopp er lagt til finnes det verken bevis eller vurderingsgrunnlag. I dag møter brukeren likevel Laras oppgaveplan og «Anbefalte tiltak», selv om ingenting er etterspurt. Første steg skal i stedet være ett tydelig kort: *Vi mangler grunnlag fra <leverandør>* — med én knapp som åpner valg av innhentingsmetode.
 
-## Tre innhentingsmetoder
+## Slik skal det se ut
 
-1. **Kunde-drevet kartlegging** — agent høster offentlige kilder (Trust Center, ISO/SOC, transparency-rapporter). Leverandøren deltar ikke. Bevisnivå: «AI-utledet fra offentlig kilde» med kilde-URL, dato og scope.
-2. **Lettvekts leverandør-respons** — én e-post, svar med vedlegg. Laveste terskel, standard for de fleste.
-3. **Leverandør-eid agentisk profil** — leverandøren claimer og vedlikeholder profilen. Kun der mandatet er sterkt nok.
+Øverst i «Veiledning fra Mynder», i stedet for oppgaveplanen:
 
-Claim frikobles fra brukbarhet: en profil kan være solid uten at leverandøren noen gang claimer. «Claimet» er et kvalitetsnivå, ikke en forutsetning.
+```text
+ ✦  LARA · NESTE STEG
 
-## Endringer i prototypen
+ Vi mangler grunnlag fra BankID
 
-**1. Ny modell (`src/lib/vendorSourcingMethod.ts`)**
-- Type `SourcingMethod = "public_harvest" | "email_request" | "vendor_agentic"` med norsk/engelsk label, beskrivelse, innsatsnivå for leverandøren og bevisnivå metoden gir.
-- `recommendSourcingMethod(signals)` — Lara-heuristikk basert på signaler vi allerede har: leverandørtype/størrelse, offentlig fotavtrykk, kritikalitet, GDPR-rolle og kundens mandatstyrke. Returnerer primær anbefaling + eventuelt alternativ + kort begrunnelse i Laras stemme.
-- Prototypelagring per assetId i localStorage (samme mønster som `agenticTrustCenter.ts`).
+ Gap-analyse og modenhetsvurdering krever bevis. Vi har ikke bedt
+ leverandøren om det ennå — så det finnes ingenting å vurdere mot
+ rammeverk enda. Start med å be om grunnlag. Lara forbereder utkast
+ til vurdering automatisk når svaret kommer inn — du beslutter.
 
-**2. Statusbanner (`VendorStatusBanner.tsx`)**
-- Valgt element «Overtatt 8. mars 2026» beholdes, men presiseres til at dette er tidspunktet leverandøren tok eierskap til sin agentiske trust profile.
-- Ny tom-tilstand: når ingen innhenting er startet, sier banneret at grunnlag for modenhetsvurdering ikke er etterspurt ennå, og viser Laras anbefalte innhentingsmetode med én primær CTA (og alternativ som sekundærvalg der Lara er i tvil).
-- Metode-spesifikke CTA-er: «La agenten kartlegge offentlige kilder», «Send forespørsel på e-post», «Inviter til Agentisk Trust Profile».
+ [ Be om grunnlag → ]   Eller registrer bevis du allerede har fått på e-post
+```
 
-**3. Leverandør-velger for demo**
-- Liten arketype-velger (Microsoft / BankID / Helse Vest-leverandør) i veiledningsområdet på leverandørprofilen, som bytter signalsettet og dermed Laras anbefaling live.
-  - Microsoft: mandat lavt, offentlig fotavtrykk høyt → kunde-drevet kartlegging.
-  - BankID: i skjæringspunktet → begge tilbys, kartlegging først.
-  - Helse Vest-leverandør: mandat høyt, lite offentlig → agentisk invitasjon.
+Kortet vises kun så lenge ingen innhenting er startet. Så snart en metode er valgt, forsvinner det og den vanlige veiledningen (oppgaveplan, tiltak, dokumentasjon) tar over.
 
-**4. Kobling til eksisterende flyt**
-- `CreateVendorActivityDialog` og `VendorRecommendedActionsCard` forhåndsvelger metoden Lara anbefaler i stedet for å lede med invitasjon for alle.
-- Bevisnivå på leverte dokumenter merkes med opphav (offentlig kilde / oppgitt av leverandør / verifisert), slik at svakere grunnlag vises åpent.
+## Når brukeren klikker «Be om grunnlag»
 
-## Åpent punkt (ikke kode)
+Det åpnes en dialog med de tre innhentingsmetodene som allerede er definert. Laras anbefaling ligger øverst, merket «Laras anbefaling» med kort begrunnelse (mandatstyrke og offentlig fotavtrykk):
 
-Agent-taksonomien (Lara, Motor, Kundeagent, Sonde, Bro) mangler navn på den kunde-drevne kartleggingsagenten som høster offentlige kilder uten leverandørens deltakelse. Foreslås tatt videre til Totto; prototypen bruker inntil videre «Lara kartlegger offentlige kilder».
+1. **Kunde-drevet kartlegging** — agenten høster offentlige kilder. Ingen innsats fra leverandøren.
+2. **Lettvekts leverandør-respons** — én e-post med vedlegg tilbake. Minimal innsats.
+3. **Leverandør-eid agentisk profil** — leverandøren overtar profilen. Full deltakelse.
+
+Hvert valg viser innsatsnivå og hvilket bevisnivå det gir. Ved bekreftelse:
+- Kartlegging: Lara starter høsting, kortet erstattes av «Lara kartlegger offentlige kilder…».
+- E-post: forespørsel sendes, status blir «venter på svar».
+- Agentisk profil: eksisterende inviteringsdialog åpnes.
+
+Sekundærlenken «registrer bevis du allerede har fått på e-post» åpner dagens dialog for å registrere mottatt dokumentasjon manuelt.
+
+## Teknisk
+
+- Ny komponent `src/components/asset-profile/guidance/RequestBaselineCard.tsx` — tom-tilstandskortet, bruker `LaraAvatar` og eksisterende Lara-banner-stil.
+- Ny dialog `src/components/asset-profile/guidance/RequestBaselineDialog.tsx` — metodevalg bygget på `SOURCING_METHOD_META`, `SOURCING_METHOD_ORDER` og `recommendSourcingMethod` fra `src/lib/vendorSourcingMethod.ts`.
+- `src/components/asset-profile/MynderGuidanceTab.tsx`: les `readSourcingState(assetId)`; når `method` er tom og trust center-status er `none`, render kortet og skjul `LaraRecommendationBanner` + `VendorRecommendedActionsCard`. Skriv valgt metode med `writeSourcingState`.
+- `VendorRecommendedActionsCard.tsx`: fjern den nå overflødige tom-tilstanden for innhentingsmetode (arketype-velgeren beholdes som prototyp-bryter, men flyttes inn i det nye kortet slik at Microsoft / BankID / Helse Vest-leverandør viser ulik anbefaling).
+- Alle tekster i nb/en, ingen hardkodede fargeklasser — kun eksisterende tokens.
