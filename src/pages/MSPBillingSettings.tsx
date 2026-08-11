@@ -264,7 +264,7 @@ export default function MSPBillingSettings() {
             </Link>
             <div>
               <h1 className="text-2xl font-bold text-foreground">Fakturainnstillinger</h1>
-              <p className="text-muted-foreground text-sm">Administrer fakturering, leveringsmetode og betalingsinformasjon</p>
+              <p className="text-muted-foreground text-sm">Administrer hvordan Mynder fakturerer deg, og se kostnader for aktiverte produkter og tjenester</p>
             </div>
           </div>
 
