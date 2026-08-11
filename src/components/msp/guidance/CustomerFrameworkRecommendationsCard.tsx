@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Sparkles, Zap, ClipboardCheck, CheckCircle2, Send, ArrowRight, Plus, X } from "lucide-react";
@@ -54,6 +55,7 @@ export function CustomerFrameworkRecommendationsCard({
   const activated = deriveActivatedFrameworks(customer);
   const activatedTargets = deriveActivatedFrameworkTargets(customer);
   const confirmed = status === "confirmed";
+  const { t } = useTranslation();
 
   const [addOpen, setAddOpen] = useState(false);
   const [manual, setManual] = useState<OfferSuggestion[]>([]);
@@ -63,18 +65,68 @@ export function CustomerFrameworkRecommendationsCard({
     ...manual.filter((m) => !aiSuggestions.some((s) => s.id === m.id)),
   ];
   const removeManual = (id: string) => setManual((prev) => prev.filter((m) => m.id !== id));
+  const mandatory = suggestions.filter((s) => s.confidence === "high");
+  const recommended = suggestions.filter((s) => s.confidence !== "high");
+
+  const renderPill = (s: OfferSuggestion) => {
+    const isManual = manualIds.has(s.id);
+    const isHigh = s.confidence === "high";
+    return (
+      <span
+        key={s.id}
+        className={cn(
+          "inline-flex items-center rounded-full border text-[11px] font-medium transition-colors",
+          isManual
+            ? "border-border bg-muted/40 text-foreground hover:bg-muted"
+            : isHigh
+              ? "border-success/40 bg-success/5 text-success-foreground/90 hover:bg-success/10 hover:border-success"
+              : "border-recommend/60 bg-recommend/15 text-recommend hover:bg-recommend/25 hover:border-recommend",
+        )}
+      >
+        <button
+          type="button"
+          onClick={() => onActivate([s])}
+          title={
+            isManual
+              ? "Lagt til av deg — ikke foreslått av KI-agenten. Klikk for å aktivere."
+              : "Aktiver direkte"
+          }
+          className={cn(
+            "inline-flex items-center gap-1 px-2.5 py-1 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1",
+            isHigh ? "focus-visible:ring-success" : "focus-visible:ring-recommend",
+          )}
+        >
+          {s.activatable && <Zap className="h-2.5 w-2.5 shrink-0" />}
+          {s.label}
+          {isManual && (
+            <span className="text-[9px] uppercase tracking-wide opacity-70">
+              {t("customerFrameworkRecommendations.manualLabel")}
+            </span>
+          )}
+        </button>
+        {isManual && (
+          <button
+            type="button"
+            onClick={() => removeManual(s.id)}
+            aria-label={t("customerFrameworkRecommendations.removeAriaLabel", { label: s.label })}
+            className="pr-2 pl-0.5 py-1 opacity-60 hover:opacity-100"
+          >
+            <X className="h-2.5 w-2.5" />
+          </button>
+        )}
+      </span>
+    );
+  };
 
   return (
     <Card className="p-5 flex flex-col">
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
         <div className="min-w-0">
           <h3 className="text-sm font-semibold text-foreground">
-            Lovpålagte regelverk basert på data om kunden
+            {t("customerFrameworkRecommendations.title")}
           </h3>
           <p className="text-xs text-muted-foreground mt-0.5">
-            {confirmed
-              ? "Forslaget er basert på kundens egne svar i modenhetsvurderingen."
-              : "Foreløpig forslag ut fra bransje, land, størrelse og funn på kundens nettsted."}
+            {t("customerFrameworkRecommendations.subtitle")}
           </p>
         </div>
         <TooltipProvider delayDuration={150}>
@@ -90,27 +142,19 @@ export function CustomerFrameworkRecommendationsCard({
                 )}
               >
                 {confirmed ? <CheckCircle2 className="h-3 w-3" /> : <Sparkles className="h-3 w-3" />}
-                {confirmed ? "Bekreftet" : "Initiell KI-vurdering"}
+                {confirmed ? t("customerFrameworkRecommendations.badge.confirmed") : t("customerFrameworkRecommendations.badge.ai")}
               </span>
             </TooltipTrigger>
             <TooltipContent side="left" className="max-w-[300px] text-xs leading-relaxed">
               <p className="font-medium text-foreground">
                 {confirmed
-                  ? "Bekreftet av kunden – bygger på den initielle KI-vurderingen"
-                  : "Basert på informasjon kartlagt da kunden ble lagt til"}
+                  ? t("customerFrameworkRecommendations.badgeTooltip.confirmedTitle")
+                  : t("customerFrameworkRecommendations.badgeTooltip.aiTitle")}
               </p>
-              <p className="mt-1.5">Vi hentet automatisk:</p>
-              <ul className="mt-1 space-y-0.5 list-disc pl-4">
-                <li>Organisasjonsnummer og selskapsdata fra offentlige registre</li>
-                <li>Bransje og NACE-kode der den finnes</li>
-                <li>Kundens nettsted og personvernerklæring</li>
-              </ul>
               <p className="mt-1.5">
-                Ut fra dette har KI-agenten anbefalt hvilke regelverk som med stor sannsynlighet er
-                lovpålagte for virksomheten.
                 {confirmed
-                  ? " Kunden har i tillegg bekreftet vurderingen i modenhetsvurderingen."
-                  : " Vurderingen bekreftes når kunden svarer på modenhetsvurderingen."}
+                  ? t("customerFrameworkRecommendations.badgeTooltip.confirmedDescription")
+                  : t("customerFrameworkRecommendations.badgeTooltip.description")}
               </p>
             </TooltipContent>
           </Tooltip>
@@ -118,72 +162,55 @@ export function CustomerFrameworkRecommendationsCard({
 
       </div>
 
-      <div className="mt-4 flex flex-wrap items-center gap-1.5">
-        {suggestions.length === 0 && activated.length === 0 && (
-          <p className="text-sm text-muted-foreground">Ingen regelverk foreslått ennå.</p>
+      <div className="mt-4 space-y-3">
+        {mandatory.length > 0 && (
+          <div className="space-y-1.5">
+            <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+              {t("customerFrameworkRecommendations.mandatory")}
+            </p>
+            <div className="flex flex-wrap items-center gap-1.5">
+              {mandatory.map((s) => renderPill(s))}
+            </div>
+          </div>
         )}
-        {suggestions.map((s) => {
-          const isManual = manualIds.has(s.id);
-          return (
-            <span
-              key={s.id}
-              className={cn(
-                "inline-flex items-center rounded-full border text-[11px] font-medium transition-colors",
-                isManual
-                  ? "border-border bg-muted/40 text-foreground hover:bg-muted"
-                  : "border-recommend/60 bg-recommend/15 text-recommend hover:bg-recommend/25 hover:border-recommend",
-              )}
-            >
+        {recommended.length > 0 && (
+          <div className="space-y-1.5">
+            <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+              {t("customerFrameworkRecommendations.recommended")}
+            </p>
+            <div className="flex flex-wrap items-center gap-1.5">
+              {recommended.map((s) => renderPill(s))}
+            </div>
+          </div>
+        )}
+        {suggestions.length === 0 && activated.length === 0 && (
+          <p className="text-sm text-muted-foreground">
+            {t("customerFrameworkRecommendations.noSuggestions")}
+          </p>
+        )}
+        {activatedTargets.length > 0 && (
+          <div className="flex flex-wrap items-center gap-1.5">
+            {activatedTargets.map((target) => (
               <button
+                key={target.id}
                 type="button"
-                onClick={() => onActivate([s])}
-                title={
-                  isManual
-                    ? "Lagt til av deg — ikke foreslått av KI-agenten. Klikk for å aktivere."
-                    : "Aktiver direkte"
-                }
-                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-recommend focus-visible:ring-offset-1"
-              >
-                {s.activatable && <Zap className="h-2.5 w-2.5 shrink-0" />}
-                {s.label}
-                {isManual && (
-                  <span className="text-[9px] uppercase tracking-wide opacity-70">
-                    Manuelt valgt
-                  </span>
+                onClick={() => onEnterCustomer?.([target])}
+                disabled={!onEnterCustomer}
+                title={`Jobb med ${target.label} hos kunden`}
+                className={cn(
+                  "inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-normal transition-colors",
+                  "bg-success/10 text-foreground border-success/30",
+                  onEnterCustomer
+                    ? "hover:bg-success/20 hover:border-success/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 cursor-pointer"
+                    : "cursor-default",
                 )}
+              >
+                {target.label}
+                {onEnterCustomer && <ArrowRight className="h-2.5 w-2.5 opacity-70" />}
               </button>
-              {isManual && (
-                <button
-                  type="button"
-                  onClick={() => removeManual(s.id)}
-                  aria-label={`Fjern ${s.label}`}
-                  className="pr-2 pl-0.5 py-1 opacity-60 hover:opacity-100"
-                >
-                  <X className="h-2.5 w-2.5" />
-                </button>
-              )}
-            </span>
-          );
-        })}
-        {activatedTargets.map((target) => (
-          <button
-            key={target.id}
-            type="button"
-            onClick={() => onEnterCustomer?.([target])}
-            disabled={!onEnterCustomer}
-            title={`Jobb med ${target.label} hos kunden`}
-            className={cn(
-              "inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-normal transition-colors",
-              "bg-success/10 text-foreground border-success/30",
-              onEnterCustomer
-                ? "hover:bg-success/20 hover:border-success/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 cursor-pointer"
-                : "cursor-default",
-            )}
-          >
-            {target.label}
-            {onEnterCustomer && <ArrowRight className="h-2.5 w-2.5 opacity-70" />}
-          </button>
-        ))}
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="mt-3 flex flex-wrap items-center gap-3">
@@ -194,7 +221,7 @@ export function CustomerFrameworkRecommendationsCard({
             className="inline-flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground underline underline-offset-2 transition-colors"
           >
             <Zap className="h-3 w-3" />
-            Aktiver alle anbefalte
+            {t("customerFrameworkRecommendations.activateAll")}
           </button>
         )}
         {suggestions.length > 0 && (
@@ -203,7 +230,7 @@ export function CustomerFrameworkRecommendationsCard({
             onClick={() => onOffer(suggestions)}
             className="text-[11px] text-muted-foreground hover:text-foreground underline underline-offset-2 transition-colors"
           >
-            Lag tilbud i stedet
+            {t("customerFrameworkRecommendations.createOffer")}
           </button>
         )}
         <button
@@ -212,7 +239,7 @@ export function CustomerFrameworkRecommendationsCard({
           className="inline-flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground underline underline-offset-2 transition-colors"
         >
           <Plus className="h-3 w-3" />
-          Legg til regelverk, standard eller retningslinje
+          {t("customerFrameworkRecommendations.addButton")}
         </button>
       </div>
 
