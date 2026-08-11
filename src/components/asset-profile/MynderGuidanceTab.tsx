@@ -225,7 +225,25 @@ export function MynderGuidanceTab({
           onRequestDocumentation={openDocRequest}
           onCreateActivity={createActivityFromAction}
           onRequestAllMissing={() => setDocRequestType("general")}
+          trustCenter={trustCenter}
+          onInviteTrustCenter={() => setInviteTrustCenterOpen(true)}
+          onOpenTrustCenter={() => {
+            const link = trustCenter.link ?? trustCenterLink(assetId);
+            window.open(link, "_blank", "noopener");
+          }}
+          onRemindTrustCenter={() => {
+            const next = { ...trustCenter, remindedAt: new Date().toISOString() };
+            setTrustCenter(next);
+            writeTrustCenterState(assetId, next);
+            toast({
+              title: isNb ? "Påminnelse sendt" : "Reminder sent",
+              description: isNb
+                ? "Lara har purret kontaktpersonene hos leverandøren."
+                : "Lara reminded the vendor contacts.",
+            });
+          }}
         />
+
       </div>
 
       {/* Aktive dokumentasjonsforespørsler */}
