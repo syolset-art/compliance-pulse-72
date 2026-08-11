@@ -294,7 +294,6 @@ export default function MSPPartnerSettings() {
                 <div className="rounded-xl border border-border divide-y divide-border">
                   {team.map((m) => {
                     const isOps = m.roles.includes("Driftspartner");
-                    const bothRoles = m.roles.length === 2;
                     return (
                       <div key={m.id} className="px-4 py-3.5">
                         <div className="flex flex-col sm:flex-row sm:items-start gap-3">
