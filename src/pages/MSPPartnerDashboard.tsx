@@ -17,6 +17,7 @@ import { Sparkles, ArrowUpRight, TrendingUp, ChevronRight, ChevronDown, Mail, Ph
 import { Tooltip as UITooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
 import { OpportunityWidget } from "@/components/msp/OpportunityWidget";
+import { ActivityLogWidget } from "@/components/msp/ActivityLogWidget";
 import {
   ResponsiveContainer,
   AreaChart,
@@ -1458,8 +1459,10 @@ export default function MSPPartnerDashboard() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <OpportunityWidget />
-            <PortfolioSegmentation />
+            <ActivityLogWidget />
           </div>
+
+          <PortfolioSegmentation />
 
           <TopServicesWidget />
 
