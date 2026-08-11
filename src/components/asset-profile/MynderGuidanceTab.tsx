@@ -11,6 +11,13 @@ import { VendorFrameworkCard } from "@/components/asset-profile/guidance/VendorF
 import { VendorRecommendedActionsCard } from "@/components/asset-profile/guidance/VendorRecommendedActionsCard";
 import { InviteAgenticTrustCenterDialog } from "@/components/asset-profile/guidance/InviteAgenticTrustCenterDialog";
 import { CreateVendorActivityDialog } from "@/components/asset-profile/guidance/CreateVendorActivityDialog";
+import { RequestBaselineCard } from "@/components/asset-profile/guidance/RequestBaselineCard";
+import { RequestBaselineDialog } from "@/components/asset-profile/guidance/RequestBaselineDialog";
+import {
+  readSourcingState,
+  writeSourcingState,
+  type SourcingMethod,
+} from "@/lib/vendorSourcingMethod";
 import {
   readTrustCenterState,
   writeTrustCenterState,
