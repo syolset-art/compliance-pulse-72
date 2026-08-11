@@ -344,7 +344,7 @@ export default function MSPBillingSettings() {
               <div className="space-y-2">
                 <Label>Faktura e-post</Label>
                 <Input type="email" value={form.invoice_email} onChange={(e) => update("invoice_email", e.target.value)} placeholder="faktura@firma.no" />
-                <p className="text-xs text-muted-foreground">Hit sendes fakturaer om leveringsmetode er e-post</p>
+                <p className="text-xs text-muted-foreground">Hit sendes fakturaer fra Mynder når fakturering til deg er e-post</p>
               </div>
             </CardContent>
           </Card>
