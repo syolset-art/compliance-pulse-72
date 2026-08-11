@@ -63,14 +63,14 @@ export function VendorRecommendedActionsCard({
   const delivered = trustCenter.deliveredCount ?? 0;
   const requested = trustCenter.requestedDocumentTypes.length;
 
-  const stat = (value: number, labelNb: string, labelEn: string, tone?: string) => (
-    <div className="min-w-0">
-      <p className={cn("text-xl font-semibold leading-none", tone ?? "text-foreground")}>{value}</p>
-      <p className="text-[11px] text-muted-foreground mt-1 truncate">{isNb ? labelNb : labelEn}</p>
-    </div>
-  );
+  const criticalCount = actions.filter((a) => a.criticality === "kritisk").length;
+  const docCount = actions.filter((a) => a.documentType).length;
+  const top = actions.slice(0, 3);
 
-  /** Primær-CTA: kontinuerlig dokumentasjon via Agentisk Trust Center. */
+  const hasTrustCenter = trustCenter.status !== "none";
+  const delivered = trustCenter.deliveredCount ?? 0;
+  const requested = trustCenter.requestedDocumentTypes.length;
+
   const trustCenterBlock = (
     <div
       className={cn(
