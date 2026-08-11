@@ -465,6 +465,8 @@ function NeedsFollowUpWidget() {
 }
 
 
+// V2 — IKKE IMPLEMENTER NÅ: "Trust score"-widget med porteføljefordeling er planlagt i v2.
+// Behold widgeten i prototype for å vise fremtidig partner-dashboard, men merk den tydelig som V2.
 function AvgTrustScoreWidget() {
   const navigate = useNavigate();
   const score = 78;
