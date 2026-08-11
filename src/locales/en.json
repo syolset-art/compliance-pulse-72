@@ -1739,6 +1739,28 @@
     "reviewInfo": "Lara has suggested answers based on what is typical for <strong>{{customerName}}</strong>. Go through each question and confirm, adjust or mark as not relevant.",
     "partnerInfo": "You answer on behalf of <strong>{{customerName}}</strong>. The answers are saved as partner-confirmed and used as the maturity assessment when you run the gap analysis.",
     "meetingInfo": "Ask the questions out loud and choose the answer together with <strong>{{customerName}}</strong>. The answers are saved as the maturity assessment and used as the starting point for Trust Profile and gap analysis."
+  },
+  "customerFrameworkRecommendations": {
+    "title": "Regulations, standards and guidelines",
+    "subtitle": "Mandatory items are automatically assessed by Lara. You can add your own standards and guidelines.",
+    "mandatory": "Mandatory",
+    "recommended": "Recommended",
+    "addButton": "Add regulation, standard or guideline",
+    "activateAll": "Activate all recommended",
+    "createOffer": "Create offer instead",
+    "manualLabel": "Manually added",
+    "removeAriaLabel": "Remove {{label}}",
+    "noSuggestions": "No frameworks suggested yet.",
+    "badge": {
+      "ai": "Initial AI assessment",
+      "confirmed": "Confirmed"
+    },
+    "badgeTooltip": {
+      "aiTitle": "Initial AI assessment",
+      "confirmedTitle": "Confirmed",
+      "description": "Lara automatically assesses which regulations are most likely to apply based on industry, size, country and website. You can add your own standards and guidelines.",
+      "confirmedDescription": "The customer has confirmed the regulation assessment. You can still add your own standards and guidelines."
+    }
   }
 }
 
