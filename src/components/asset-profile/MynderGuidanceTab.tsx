@@ -70,6 +70,70 @@ export function MynderGuidanceTab({
   const [locallyDismissed, setLocallyDismissed] = useState<string[]>([]);
   const [activePrefill, setActivePrefill] = useState<SuggestedActivity | null>(null);
 
+  // ── Regelverk leverandøren skal etterleve ──
+
+  const laraFrameworks = useMemo(
+    () =>
+      deriveVendorFrameworks({
+        id: assetId,
+        name: assetName,
+        vendorType,
+        industry,
+        country,
+        criticality,
+      }),
+    [assetId, assetName, vendorType, industry, country, criticality],
+  );
+
+  const [fwState, setFwState] = useState(() => readFrameworkState(assetId));
+  useEffect(() => setFwState(readFrameworkState(assetId)), [assetId]);
+
+  const updateFwState = (next: typeof fwState) => {
+    setFwState(next);
+    writeFrameworkState(assetId, next);
+  };
+
+  const frameworks: VendorFramework[] = useMemo(() => {
+    const base = laraFrameworks.filter((f) => !fwState.removed.includes(f.id));
+    const extra = fwState.added.filter((f) => !base.some((b) => b.id === f.id));
+    return [...base, ...extra];
+  }, [laraFrameworks, fwState]);
+
+  const actions: VendorFrameworkAction[] = useMemo(() => {
+    const known = frameworks.filter((f) => frameworkById(f.id));
+    const unknown = frameworks.filter((f) => !frameworkById(f.id));
+    return [...deriveVendorActions(known), ...unknown.map(fallbackActionFor)];
+  }, [frameworks]);
+
+  const [addFrameworkOpen, setAddFrameworkOpen] = useState(false);
+  const [docRequestType, setDocRequestType] = useState<string | null>(null);
+
+  const openDocRequest = (action: VendorFrameworkAction) =>
+    setDocRequestType(action.documentType ?? "general");
+
+  const createActivityFromAction = (action: VendorFrameworkAction) => {
+    setActivePrefill({
+      id: `fw-${action.id}`,
+      gapId: action.frameworkId,
+      titleNb: action.titleNb,
+      titleEn: action.titleEn,
+      descriptionNb: action.reasonNb,
+      descriptionEn: action.reasonEn,
+      reasonNb: action.reasonNb,
+      reasonEn: action.reasonEn,
+      statusNoteNb: `Dekker ${action.requirement}`,
+      statusNoteEn: `Covers ${action.requirement}`,
+      status: "open",
+      criticality: action.criticality,
+      level: "taktisk",
+      themeNb: action.frameworkLabel,
+      themeEn: action.frameworkLabel,
+      suggestedType: action.documentType ? "document" : "review",
+      suggestedPhase: "ongoing",
+    });
+  };
+
+
   const [showActivityLog, setShowActivityLog] = useState(() => {
     try {
       return localStorage.getItem('mynder_show_activity_log') === 'true';
