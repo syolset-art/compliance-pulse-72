@@ -189,10 +189,12 @@ export default function MSPPartnerSettings() {
             >
               <ArrowLeft className="h-4 w-4" /> Tilbake til partner-dashbord
             </Link>
-            <h1 className="text-2xl font-semibold text-foreground">Innstillinger</h1>
+            <h1 className="text-2xl font-semibold text-foreground">Tilgangsstyring</h1>
             <p className="text-base text-muted-foreground mt-1">
-              Administrer tilgang og varsler for partnerdelen av Mynder.
+              Legg til brukere, gi dem rolle som Kundeansvarlig eller Driftspartner, og styr om de har
+              lese- eller skrivetilgang.
             </p>
+
           </div>
 
           <Tabs value={activeTab} onValueChange={(v) => setSearchParams({ tab: v })} className="space-y-4">
