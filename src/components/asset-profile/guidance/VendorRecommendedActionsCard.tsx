@@ -3,7 +3,14 @@ import { useTranslation } from "react-i18next";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { FileText, ListChecks, Send, Info } from "lucide-react";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import { FileText, ListChecks, Send, Info, ArrowRight } from "lucide-react";
 import { LaraAvatar } from "@/components/asset-profile/LaraAvatar";
 import { cn } from "@/lib/utils";
 import {
@@ -19,8 +26,9 @@ interface Props {
 }
 
 /**
- * Anbefalte tiltak utledet av regelverkene leverandøren skal etterleve.
- * Hvert tiltak viser hvilket krav det dekker og kan handles på direkte.
+ * Anbefalte tiltak — kompakt dashbord-visning.
+ * Kortet viser bare nøkkeltall og de mest kritiske tiltakene. Hele listen med
+ * handlinger åpnes i et arbeidsvindu slik at kortet ikke tar plass i profilen.
  */
 export function VendorRecommendedActionsCard({
   actions,
@@ -30,125 +38,172 @@ export function VendorRecommendedActionsCard({
 }: Props) {
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
+  const [workOpen, setWorkOpen] = useState(false);
 
   const criticalCount = actions.filter((a) => a.criticality === "kritisk").length;
   const docCount = actions.filter((a) => a.documentType).length;
-  // Hold listen kort — Lara viser de viktigste tiltakene først.
-  const [showAll, setShowAll] = useState(false);
-  const visible = showAll ? actions : actions.slice(0, 4);
+  const top = actions.slice(0, 3);
+
+  const stat = (value: number, labelNb: string, labelEn: string, tone?: string) => (
+    <div className="min-w-0">
+      <p className={cn("text-xl font-semibold leading-none", tone ?? "text-foreground")}>{value}</p>
+      <p className="text-[11px] text-muted-foreground mt-1 truncate">{isNb ? labelNb : labelEn}</p>
+    </div>
+  );
 
   return (
-    <Card className="p-5 flex flex-col">
-      <div className="flex flex-wrap items-start justify-between gap-2">
-        <div className="min-w-0 flex-1 basis-[60%] flex items-start gap-2">
-          <LaraAvatar size={28} />
-          <div className="min-w-0">
-            <h3 className="text-sm font-semibold text-foreground">
-              {isNb ? "Anbefalte tiltak" : "Recommended actions"}
-            </h3>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              {isNb
-                ? `${actions.length} tiltak · ${criticalCount} kritiske — utledet av regelverkene til venstre.`
-                : `${actions.length} actions · ${criticalCount} critical — derived from the frameworks on the left.`}
-            </p>
-          </div>
+    <>
+      <Card className="p-4 flex flex-col">
+        <div className="flex items-center gap-2">
+          <LaraAvatar size={24} />
+          <h3 className="text-sm font-semibold text-foreground flex-1 min-w-0 truncate">
+            {isNb ? "Anbefalte tiltak" : "Recommended actions"}
+          </h3>
+          {docCount > 0 && (
+            <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={onRequestAllMissing}>
+              <Send className="h-3 w-3 mr-1" />
+              {isNb ? "Be om alt" : "Request all"}
+            </Button>
+          )}
         </div>
-        {docCount > 0 && (
-          <Button size="sm" variant="outline" className="h-7 text-xs shrink-0" onClick={onRequestAllMissing}>
-            <Send className="h-3 w-3 mr-1" />
-            {isNb ? "Be om alt som mangler" : "Request all missing"}
-          </Button>
-        )}
-      </div>
 
-      <div className="mt-4 space-y-2">
-        {actions.length === 0 && (
-          <p className="text-sm text-muted-foreground">
-            {isNb
-              ? "Legg til et regelverk til venstre, så foreslår Lara tiltak her."
-              : "Add a framework on the left and Lara will suggest actions here."}
-          </p>
-        )}
+        {/* Nøkkeltall — dashbord, ikke liste */}
+        <div className="mt-3 grid grid-cols-3 gap-3 rounded-lg border border-border bg-muted/30 px-3 py-2.5">
+          {stat(actions.length, "tiltak", "actions")}
+          {stat(criticalCount, "kritiske", "critical", criticalCount > 0 ? "text-destructive" : undefined)}
+          {stat(docCount, "mangler dok.", "missing docs")}
+        </div>
 
-        {visible.map((a) => {
-          const crit = CRITICALITY_STYLE[a.criticality];
-          return (
-            <div
-              key={a.id}
-              className="rounded-lg border border-border p-3 hover:bg-accent/30 transition-colors"
-            >
-              <div className="flex items-start justify-between gap-2">
-                <div className="min-w-0">
-                  <p className="text-[13px] font-medium text-foreground">
-                    {isNb ? a.titleNb : a.titleEn}
-                  </p>
-                  <p className="text-[11px] text-muted-foreground mt-0.5">
-                    {isNb ? "Dekker" : "Covers"}: {a.requirement}
-                  </p>
-                </div>
-                <div className="flex items-center gap-1.5 shrink-0">
-                  <span
-                    className={cn(
-                      "inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium",
-                      crit.className,
-                    )}
-                  >
-                    {isNb ? crit.nb : crit.en}
-                  </span>
-                  <TooltipProvider delayDuration={150}>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <span tabIndex={0} className="text-muted-foreground cursor-help">
-                          <Info className="h-3.5 w-3.5" />
-                        </span>
-                      </TooltipTrigger>
-                      <TooltipContent side="left" className="max-w-[280px] text-xs leading-relaxed">
-                        {isNb ? a.reasonNb : a.reasonEn}
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                </div>
-              </div>
-
-              <div className="mt-2 flex flex-wrap items-center gap-2">
-                {a.documentType && (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="h-7 text-xs"
-                    onClick={() => onRequestDocumentation(a)}
-                  >
-                    <FileText className="h-3 w-3 mr-1" />
-                    {isNb ? "Be om dokumentasjon" : "Request documentation"}
-                  </Button>
+        {/* De viktigste tiltakene, én linje hver */}
+        <ul className="mt-3 space-y-1.5">
+          {actions.length === 0 && (
+            <li className="text-xs text-muted-foreground">
+              {isNb
+                ? "Legg til et regelverk til venstre, så foreslår Lara tiltak her."
+                : "Add a framework on the left and Lara will suggest actions here."}
+            </li>
+          )}
+          {top.map((a) => (
+            <li key={a.id} className="flex items-center gap-2 min-w-0">
+              <span
+                className={cn(
+                  "h-1.5 w-1.5 rounded-full shrink-0",
+                  a.criticality === "kritisk"
+                    ? "bg-destructive"
+                    : a.criticality === "hoy"
+                      ? "bg-warning"
+                      : "bg-muted-foreground/50",
                 )}
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  className="h-7 text-xs text-primary"
-                  onClick={() => onCreateActivity(a)}
-                >
-                  <ListChecks className="h-3 w-3 mr-1" />
-                  {isNb ? "Opprett aktivitet" : "Create activity"}
-                </Button>
-              </div>
-            </div>
-          );
-        })}
+              />
+              <span className="text-[13px] text-foreground truncate flex-1 min-w-0">
+                {isNb ? a.titleNb : a.titleEn}
+              </span>
+              <span className="text-[11px] text-muted-foreground shrink-0">{a.requirement}</span>
+            </li>
+          ))}
+        </ul>
 
-        {actions.length > 4 && (
+        {actions.length > 0 && (
           <Button
-            variant="ghost"
+            variant="outline"
             size="sm"
-            className="h-7 text-xs text-primary"
-            onClick={() => setShowAll((v) => !v)}
+            className="mt-3 h-7 text-xs self-start"
+            onClick={() => setWorkOpen(true)}
           >
-            {showAll
-              ? isNb ? "Vis færre" : "Show fewer"
-              : isNb ? `Vis alle ${actions.length} tiltak` : `Show all ${actions.length} actions`}
+            {isNb ? "Åpne arbeidsvindu" : "Open work panel"}
+            <ArrowRight className="h-3 w-3 ml-1" />
           </Button>
         )}
-      </div>
-    </Card>
+      </Card>
+
+      {/* Arbeidsvindu — full liste med handlinger */}
+      <Sheet open={workOpen} onOpenChange={setWorkOpen}>
+        <SheetContent side="right" className="w-full sm:max-w-lg overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle>{isNb ? "Anbefalte tiltak" : "Recommended actions"}</SheetTitle>
+            <SheetDescription>
+              {isNb
+                ? `${actions.length} tiltak · ${criticalCount} kritiske — utledet av regelverkene leverandøren skal etterleve.`
+                : `${actions.length} actions · ${criticalCount} critical — derived from the vendor's frameworks.`}
+            </SheetDescription>
+          </SheetHeader>
+
+          {docCount > 0 && (
+            <Button size="sm" variant="outline" className="mt-4 h-8 text-xs" onClick={onRequestAllMissing}>
+              <Send className="h-3.5 w-3.5 mr-1.5" />
+              {isNb ? "Be om alt som mangler" : "Request all missing"}
+            </Button>
+          )}
+
+          <div className="mt-4 space-y-2 pb-8">
+            {actions.map((a) => {
+              const crit = CRITICALITY_STYLE[a.criticality];
+              return (
+                <div
+                  key={a.id}
+                  className="rounded-lg border border-border p-3 hover:bg-accent/30 transition-colors"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <p className="text-[13px] font-medium text-foreground">
+                        {isNb ? a.titleNb : a.titleEn}
+                      </p>
+                      <p className="text-[11px] text-muted-foreground mt-0.5">
+                        {isNb ? "Dekker" : "Covers"}: {a.requirement}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <span
+                        className={cn(
+                          "inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium",
+                          crit.className,
+                        )}
+                      >
+                        {isNb ? crit.nb : crit.en}
+                      </span>
+                      <TooltipProvider delayDuration={150}>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span tabIndex={0} className="text-muted-foreground cursor-help">
+                              <Info className="h-3.5 w-3.5" />
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent side="left" className="max-w-[280px] text-xs leading-relaxed">
+                            {isNb ? a.reasonNb : a.reasonEn}
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
+                  </div>
+
+                  <div className="mt-2 flex flex-wrap items-center gap-2">
+                    {a.documentType && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-7 text-xs"
+                        onClick={() => onRequestDocumentation(a)}
+                      >
+                        <FileText className="h-3 w-3 mr-1" />
+                        {isNb ? "Be om dokumentasjon" : "Request documentation"}
+                      </Button>
+                    )}
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-7 text-xs text-primary"
+                      onClick={() => onCreateActivity(a)}
+                    >
+                      <ListChecks className="h-3 w-3 mr-1" />
+                      {isNb ? "Opprett aktivitet" : "Create activity"}
+                    </Button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </SheetContent>
+      </Sheet>
+    </>
   );
 }
