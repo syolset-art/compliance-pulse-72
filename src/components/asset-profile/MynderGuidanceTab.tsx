@@ -9,6 +9,12 @@ import { RequestUpdateDialog } from "@/components/asset-profile/RequestUpdateDia
 import { DocumentRequestsSection } from "@/components/asset-profile/tabs/DocumentRequestsSection";
 import { VendorFrameworkCard } from "@/components/asset-profile/guidance/VendorFrameworkCard";
 import { VendorRecommendedActionsCard } from "@/components/asset-profile/guidance/VendorRecommendedActionsCard";
+import { InviteAgenticTrustCenterDialog } from "@/components/asset-profile/guidance/InviteAgenticTrustCenterDialog";
+import {
+  readTrustCenterState,
+  writeTrustCenterState,
+  trustCenterLink,
+} from "@/lib/agenticTrustCenter";
 import { AddFrameworkDialog } from "@/components/msp/guidance/AddFrameworkDialog";
 import { MaturityHistoryChart } from "@/components/trust-controls/MaturityHistoryChart";
 import { Card, CardContent } from "@/components/ui/card";
