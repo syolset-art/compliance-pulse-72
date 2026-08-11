@@ -13,8 +13,8 @@ export interface PartnerTeamMember {
   email: string;
   /** Roller på toppen av grunntilgangen «Medlem». Tom liste = kun medlem. */
   roles: PartnerRole[];
-  /** Gjelder kun for Driftspartner-rollen. */
-  access: PartnerAccess;
+  /** Tilgangsnivå per rolle. Settes uavhengig for Kundeansvarlig og Driftspartner. */
+  roleAccess: Record<PartnerRole, PartnerAccess>;
   /** Gjelder kun for Driftspartner-rollen. */
   scope: PartnerScope;
   /** Kunde-ID-er når scope = "selected". */
@@ -35,6 +35,28 @@ export const PARTNER_ACCESS_LABEL: Record<PartnerAccess, string> = {
   write: "Lese- og skrivetilgang",
 };
 
+export const PARTNER_ACCESS_SHORT: Record<PartnerAccess, string> = {
+  read: "lese",
+  write: "lese og skrive",
+};
+
+/** Hva tilgangsnivået betyr for den enkelte rollen. */
+export const PARTNER_ROLE_ACCESS_HINT: Record<PartnerRole, Record<PartnerAccess, string>> = {
+  Kundeansvarlig: {
+    read: "Kan se portefølje, tilbud og meldinger, men ikke endre.",
+    write: "Kan opprette og endre tilbud, kunder og meldinger.",
+  },
+  Driftspartner: {
+    read: "Kan se kundens compliance-profil og dokumentasjon, men ikke endre.",
+    write: "Kan jobbe i kundens compliance-profil og endre dokumentasjon.",
+  },
+};
+
+export const DEFAULT_ROLE_ACCESS: Record<PartnerRole, PartnerAccess> = {
+  Kundeansvarlig: "write",
+  Driftspartner: "read",
+};
+
 export const PARTNER_SCOPE_LABEL: Record<PartnerScope, string> = {
   all: "Alle kunder",
   selected: "Valgte kunder",
@@ -43,13 +65,16 @@ export const PARTNER_SCOPE_LABEL: Record<PartnerScope, string> = {
 /** Kort oppsummering av en brukers tilgang, til bruk i lister og toasts. */
 export function describeMemberAccess(m: PartnerTeamMember): string {
   if (m.roles.length === 0) return "Medlem";
-  const parts = ["Medlem", ...m.roles];
+  const parts = [
+    "Medlem",
+    ...m.roles.map((r) => `${r} (${PARTNER_ACCESS_SHORT[m.roleAccess[r]]})`),
+  ];
   if (m.roles.includes("Driftspartner")) {
     const scope =
       m.scope === "all"
         ? PARTNER_SCOPE_LABEL.all.toLowerCase()
         : `${m.customerIds.length} ${m.customerIds.length === 1 ? "kunde" : "kunder"}`;
-    parts.push(`${PARTNER_ACCESS_LABEL[m.access].toLowerCase()} · ${scope}`);
+    parts.push(scope);
   }
   return parts.join(" · ");
 }
@@ -61,9 +86,9 @@ export function canOperateCustomer(m: PartnerTeamMember, customerId: string): bo
 }
 
 export const PARTNER_TEAM: PartnerTeamMember[] = [
-  { id: "u1", name: "Truls Berg",   email: "truls@dintero.no", roles: ["Kundeansvarlig"],                  access: "read",  scope: "all",      customerIds: [], initials: "TB" },
-  { id: "u2", name: "Maja Solheim", email: "maja@dintero.no",  roles: ["Kundeansvarlig", "Driftspartner"], access: "write", scope: "all",      customerIds: [], initials: "MS" },
-  { id: "u3", name: "Erik Hansen",  email: "erik@dintero.no",  roles: ["Driftspartner"],                   access: "read",  scope: "selected", customerIds: [], initials: "EH" },
+  { id: "u1", name: "Truls Berg",   email: "truls@dintero.no", roles: ["Kundeansvarlig"],                  roleAccess: { Kundeansvarlig: "write", Driftspartner: "read" },  scope: "all",      customerIds: [], initials: "TB" },
+  { id: "u2", name: "Maja Solheim", email: "maja@dintero.no",  roles: ["Kundeansvarlig", "Driftspartner"], roleAccess: { Kundeansvarlig: "write", Driftspartner: "write" }, scope: "all",      customerIds: [], initials: "MS" },
+  { id: "u3", name: "Erik Hansen",  email: "erik@dintero.no",  roles: ["Driftspartner"],                   roleAccess: { Kundeansvarlig: "read", Driftspartner: "read" },     scope: "selected", customerIds: [], initials: "EH" },
 ];
 
 
