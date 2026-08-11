@@ -38,7 +38,7 @@ interface Props {
 
 /**
  * Anbefalte tiltak — kompakt dashbord-visning.
- * Kortet viser bare nøkkeltall og de mest kritiske tiltakene. Hele listen med
+ * Kortet viser status for Agentisk Trust Profile. Hele listen med
  * handlinger åpnes i et arbeidsvindu slik at kortet ikke tar plass i profilen.
  */
 export function VendorRecommendedActionsCard({
