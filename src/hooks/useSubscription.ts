@@ -182,8 +182,14 @@ export function useSubscription() {
   // eksplisitt deaktivert under Innstillinger → Produkter.
   const coreDeactivated = deactivatedModules.has("core");
   const hasCoreAccess = !coreDeactivated;
+  // v1.1 — Leverandørmodulen styres av modulstatus i Innstillinger → Produkter.
+  // Aktiv (eller under avvikling frem til periodeslutt) => synlig i menyen.
+  const vendorModuleStatus = moduleStates["vendors"]?.status;
+  const vendorModuleActivatedInProducts =
+    vendorModuleStatus === "active" || vendorModuleStatus === "pending_cancellation";
   const hasRegistriesAccess =
-    !deactivatedModules.has("vendors") && (vendorsActive || selectedRegistriesAtOnboarding);
+    !deactivatedModules.has("vendors") &&
+    (vendorModuleActivatedInProducts || vendorsActive || selectedRegistriesAtOnboarding);
   const hasModule = (moduleId: "systems" | "vendors"): boolean =>
     isServiceActive(`module-${moduleId}`);
 
