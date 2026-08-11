@@ -208,6 +208,31 @@ export function MynderGuidanceTab({
         />
       )}
 
+      {/* Regelverk + tiltak — Laras kobling mellom krav og handling */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <VendorFrameworkCard
+          frameworks={frameworks}
+          onAdd={() => setAddFrameworkOpen(true)}
+          onRemove={(id) =>
+            updateFwState({
+              added: fwState.added.filter((f) => f.id !== id),
+              removed: fwState.removed.includes(id) ? fwState.removed : [...fwState.removed, id],
+            })
+          }
+        />
+        <VendorRecommendedActionsCard
+          actions={actions}
+          onRequestDocumentation={openDocRequest}
+          onCreateActivity={createActivityFromAction}
+          onRequestAllMissing={() => setDocRequestType("general")}
+        />
+      </div>
+
+      {/* Aktive dokumentasjonsforespørsler */}
+      <DocumentRequestsSection assetId={assetId} />
+
+
+
       {/* Standard Trust Profile-blokk: modenhet per kontrollområde */}
       <AssetMaturityByDomainCard assetId={assetId} />
 
