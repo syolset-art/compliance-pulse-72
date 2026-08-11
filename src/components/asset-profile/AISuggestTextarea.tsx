@@ -42,7 +42,6 @@ export function AISuggestTextarea({
   value,
   onSave,
   edgeFunction,
-  hideHeader,
   context,
 }: Props) {
   const { i18n } = useTranslation();
