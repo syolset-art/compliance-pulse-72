@@ -92,7 +92,7 @@ export function CustomerFrameworkRecommendationsCard({
                 )}
               >
                 {confirmed ? <CheckCircle2 className="h-3 w-3" /> : <Sparkles className="h-3 w-3" />}
-                {confirmed ? "Bekreftet" : "Initiell KI-vurdering"}
+                {confirmed ? t("customerFrameworkRecommendations.badge.confirmed") : t("customerFrameworkRecommendations.badge.ai")}
               </span>
             </TooltipTrigger>
             <TooltipContent side="left" className="max-w-[300px] text-xs leading-relaxed">
