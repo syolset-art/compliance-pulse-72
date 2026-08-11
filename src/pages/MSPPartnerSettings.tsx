@@ -58,6 +58,8 @@ import {
   PARTNER_ACCESS_LABEL,
   PARTNER_SCOPE_LABEL,
   describeMemberAccess,
+  DEFAULT_ROLE_ACCESS,
+  PARTNER_ROLE_ACCESS_HINT,
   type PartnerTeamMember,
   type PartnerRole,
   type PartnerAccess,
@@ -74,7 +76,7 @@ type InviteDraft = {
   name: string;
   email: string;
   roles: PartnerRole[];
-  access: PartnerAccess;
+  roleAccess: Record<PartnerRole, PartnerAccess>;
   scope: PartnerScope;
   customerIds: string[];
 };
@@ -83,7 +85,7 @@ const emptyInvite: InviteDraft = {
   name: "",
   email: "",
   roles: ["Kundeansvarlig"],
-  access: "write",
+  roleAccess: { ...DEFAULT_ROLE_ACCESS },
   scope: "all",
   customerIds: [],
 };
@@ -161,7 +163,7 @@ export default function MSPPartnerSettings() {
         name: invite.name.trim(),
         email: invite.email.trim(),
         roles: invite.roles,
-        access: invite.access,
+        roleAccess: invite.roleAccess,
         scope: invite.scope,
         customerIds: invite.customerIds,
         initials: invite.name.trim().split(/\s+/).map((p) => p[0]).slice(0, 2).join("").toUpperCase(),
@@ -307,40 +309,46 @@ export default function MSPPartnerSettings() {
                             <p className="text-sm text-muted-foreground truncate">{m.email}</p>
                           </div>
                           <div className="flex flex-wrap items-center gap-4">
-                            <label className="flex items-center gap-2 text-sm text-foreground">
-                              <Switch
-                                checked={m.roles.includes("Kundeansvarlig")}
-                                onCheckedChange={(v) => toggleMemberRole(m, "Kundeansvarlig", v)}
-                                aria-label={`Kundeansvarlig for ${m.name}`}
-                              />
-                              Kundeansvarlig
-                            </label>
-                            <label className="flex items-center gap-2 text-sm text-foreground">
-                              <Switch
-                                checked={isOps}
-                                onCheckedChange={(v) => toggleMemberRole(m, "Driftspartner", v)}
-                                aria-label={`Driftspartner for ${m.name}`}
-                              />
-                              Driftspartner
-                            </label>
+                            {(["Kundeansvarlig", "Driftspartner"] as PartnerRole[]).map((role) => {
+                              const on = m.roles.includes(role);
+                              return (
+                                <div key={role} className="flex items-center gap-2">
+                                  <label className="flex items-center gap-2 text-sm text-foreground">
+                                    <Switch
+                                      checked={on}
+                                      onCheckedChange={(v) => toggleMemberRole(m, role, v)}
+                                      aria-label={`${role} for ${m.name}`}
+                                    />
+                                    {role}
+                                  </label>
+                                  {on && (
+                                    <Select
+                                      value={m.roleAccess[role]}
+                                      onValueChange={(v) =>
+                                        updateMember(m.id, {
+                                          roleAccess: { ...m.roleAccess, [role]: v as PartnerAccess },
+                                        })
+                                      }
+                                    >
+                                      <SelectTrigger className="h-8 w-[186px] text-sm">
+                                        <SelectValue />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        <SelectItem value="read">{PARTNER_ACCESS_LABEL.read}</SelectItem>
+                                        <SelectItem value="write">{PARTNER_ACCESS_LABEL.write}</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                  )}
+                                </div>
+                              );
+                            })}
                           </div>
                         </div>
 
                         {isOps && (
                           <div className="flex flex-wrap items-center gap-2 pl-12">
                             <Shield className="h-3.5 w-3.5 text-muted-foreground" />
-                            <Select
-                              value={m.access}
-                              onValueChange={(v) => updateMember(m.id, { access: v as PartnerAccess })}
-                            >
-                              <SelectTrigger className="h-8 w-[196px] text-sm">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="read">{PARTNER_ACCESS_LABEL.read}</SelectItem>
-                                <SelectItem value="write">{PARTNER_ACCESS_LABEL.write}</SelectItem>
-                              </SelectContent>
-                            </Select>
+                            <span className="text-sm text-muted-foreground">Driftspartner gjelder</span>
                             <Select
                               value={m.scope}
                               onValueChange={(v) => updateMember(m.id, { scope: v as PartnerScope })}
@@ -571,17 +579,43 @@ export default function MSPPartnerSettings() {
                       <div className="min-w-0">
                         <p className="text-sm font-medium text-foreground">{role}</p>
                         <p className="text-sm text-muted-foreground">{PARTNER_ROLE_DESC[role]}</p>
+                        {invite.roles.includes(role) && (
+                          <p className="text-sm text-muted-foreground mt-1">
+                            {PARTNER_ROLE_ACCESS_HINT[role][invite.roleAccess[role]]}
+                          </p>
+                        )}
                       </div>
-                      <Switch
-                        checked={invite.roles.includes(role)}
-                        onCheckedChange={(v) =>
-                          setInvite({
-                            ...invite,
-                            roles: v ? [...invite.roles, role] : invite.roles.filter((r) => r !== role),
-                          })
-                        }
-                        aria-label={role}
-                      />
+                      <div className="flex flex-col items-end gap-2 shrink-0">
+                        <Switch
+                          checked={invite.roles.includes(role)}
+                          onCheckedChange={(v) =>
+                            setInvite({
+                              ...invite,
+                              roles: v ? [...invite.roles, role] : invite.roles.filter((r) => r !== role),
+                            })
+                          }
+                          aria-label={role}
+                        />
+                        {invite.roles.includes(role) && (
+                          <Select
+                            value={invite.roleAccess[role]}
+                            onValueChange={(v) =>
+                              setInvite({
+                                ...invite,
+                                roleAccess: { ...invite.roleAccess, [role]: v as PartnerAccess },
+                              })
+                            }
+                          >
+                            <SelectTrigger className="h-8 w-[186px] text-sm">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="read">{PARTNER_ACCESS_LABEL.read}</SelectItem>
+                              <SelectItem value="write">{PARTNER_ACCESS_LABEL.write}</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -589,24 +623,6 @@ export default function MSPPartnerSettings() {
 
               {invite.roles.includes("Driftspartner") && (
                 <div className="space-y-3 col-span-2 rounded-lg border border-border p-3">
-                  <div className="space-y-1.5">
-                    <Label className="text-base">Tilgangsnivå hos kunden</Label>
-                    <Select
-                      value={invite.access}
-                      onValueChange={(v) => setInvite({ ...invite, access: v as PartnerAccess })}
-                    >
-                      <SelectTrigger><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="read">{PARTNER_ACCESS_LABEL.read}</SelectItem>
-                        <SelectItem value="write">{PARTNER_ACCESS_LABEL.write}</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <p className="text-sm text-muted-foreground">
-                      {invite.access === "read"
-                        ? "Kan se kundens compliance-profil og dokumentasjon, men ikke endre noe."
-                        : "Kan jobbe i kundens compliance-profil og endre dokumentasjon."}
-                    </p>
-                  </div>
                   <div className="space-y-1.5">
                     <Label className="text-base">Omfang</Label>
                     <Select
