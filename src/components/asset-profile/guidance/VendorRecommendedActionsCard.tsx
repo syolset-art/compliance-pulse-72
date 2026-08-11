@@ -160,47 +160,6 @@ export function VendorRecommendedActionsCard({
 
         {/* Agentisk Trust Center — kontinuerlig oppdatert dokumentasjon */}
         <div className="mt-3">{trustCenterBlock}</div>
-
-        {/* De viktigste tiltakene, én linje hver */}
-        <ul className="mt-3 space-y-1.5">
-          {actions.length === 0 && (
-            <li className="text-xs text-muted-foreground">
-              {isNb
-                ? "Legg til et regelverk til venstre, så foreslår Lara tiltak her."
-                : "Add a framework on the left and Lara will suggest actions here."}
-            </li>
-          )}
-          {top.map((a) => (
-            <li key={a.id} className="flex items-center gap-2 min-w-0">
-              <span
-                className={cn(
-                  "h-1.5 w-1.5 rounded-full shrink-0",
-                  a.criticality === "kritisk"
-                    ? "bg-destructive"
-                    : a.criticality === "hoy"
-                      ? "bg-warning"
-                      : "bg-muted-foreground/50",
-                )}
-              />
-              <span className="text-[13px] text-foreground truncate flex-1 min-w-0">
-                {isNb ? a.titleNb : a.titleEn}
-              </span>
-              <span className="text-[11px] text-muted-foreground shrink-0">{a.requirement}</span>
-            </li>
-          ))}
-        </ul>
-
-        {actions.length > 0 && (
-          <Button
-            variant="outline"
-            size="sm"
-            className="mt-3 h-7 text-xs self-start"
-            onClick={() => setWorkOpen(true)}
-          >
-            {isNb ? "Åpne arbeidsvindu" : "Open work panel"}
-            <ArrowRight className="h-3 w-3 ml-1" />
-          </Button>
-        )}
       </Card>
 
 
