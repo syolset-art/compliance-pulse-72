@@ -241,15 +241,23 @@ export function deriveVendorFrameworks(ctx: VendorContext): VendorFramework[] {
   const crit = norm(ctx.criticality);
   const ids: string[] = [];
 
+  // De fleste leverandører behandler personopplysninger; unntaket er rene
+  // fysiske/vare-leveranser.
   const isDataProcessor =
     ctx.processesPersonalData !== false &&
-    (type.includes("saas") || type.includes("it") || type.includes("rådgiv") || type === "");
+    !type.includes("hardware") &&
+    !type.includes("fysisk") &&
+    !type.includes("vare");
   if (isDataProcessor) ids.push("gdpr");
 
-  const highCriticality = crit.includes("høy") || crit.includes("hoy") || crit.includes("kritisk");
-  if (highCriticality || type.includes("infrastruktur") || type.includes("it-drift")) {
+  const highCriticality =
+    crit.includes("høy") || crit.includes("hoy") || crit.includes("high") || crit.includes("kritisk");
+  const isInfra =
+    type.includes("infrastruktur") || type.includes("infrastructure") || type.includes("it-drift");
+  if (highCriticality || isInfra) {
     ids.push("nis2");
   }
+
 
   ids.push("iso27001");
 
