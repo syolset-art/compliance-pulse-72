@@ -122,18 +122,6 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
     },
   });
 
-  const { data: relations = [] } = useQuery({
-    queryKey: ["asset-relations-usage", assetId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("asset_relationships")
-        .select("*, source:assets!asset_relationships_source_asset_id_fkey(id,name), target:assets!asset_relationships_target_asset_id_fkey(id,name)")
-        .or(`source_asset_id.eq.${assetId},target_asset_id.eq.${assetId}`);
-      if (error) throw error;
-      return data || [];
-    },
-  });
-
   const updateMutation = useMutation({
     mutationFn: async (updates: Record<string, any>) => {
       const { error } = await supabase
@@ -419,28 +407,6 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
           vendorUrl: asset?.url,
         }}
       />
-
-      {/* Integrations / Relations */}
-      {relations.length > 0 && (
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm">{isNb ? "Integrasjoner" : "Integrations"}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-1">
-              {relations.map(r => {
-                const other = r.source_asset_id === assetId ? (r as any).target : (r as any).source;
-                return (
-                  <div key={r.id} className="flex items-center gap-2 text-sm p-1.5">
-                    <Badge variant="outline" className="text-[13px]">{r.relationship_type}</Badge>
-                    <span>{other?.name || "—"}</span>
-                  </div>
-                );
-              })}
-            </div>
-          </CardContent>
-        </Card>
-      )}
 
       {/* Sub-processors */}
       {processors.length > 0 && (
