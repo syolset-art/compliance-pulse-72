@@ -81,7 +81,7 @@ export function ActivityLogWidget() {
   const navigate = useNavigate();
 
   return (
-    <Card className="p-5 flex flex-col">
+    <Card className="p-5 flex flex-col h-full max-h-[420px] overflow-hidden">
       <div className="flex items-start justify-between gap-2 mb-3">
         <div className="min-w-0">
           <div className="flex items-center gap-2">
@@ -97,7 +97,7 @@ export function ActivityLogWidget() {
         </Badge>
       </div>
 
-      <ol className="relative flex-1 space-y-3 before:absolute before:left-[13px] before:top-2 before:bottom-2 before:w-px before:bg-border">
+      <ol className="relative flex-1 min-h-0 overflow-auto space-y-3 before:absolute before:left-[13px] before:top-2 before:bottom-2 before:w-px before:bg-border">
         {ENTRIES.map((e) => {
           const meta = KIND_META[e.kind];
           const Icon = meta.icon;
