@@ -57,7 +57,7 @@ export function OpportunityWidget({ customers = OPPORTUNITY_CUSTOMERS }: Props) 
   const groupingLabel = grouping === "industry" ? "bransje" : "regelverk";
 
   return (
-    <Card className="p-4 sm:p-5">
+    <Card className="p-4 sm:p-5 h-full max-h-[420px] flex flex-col">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
         <h2 className="text-base font-semibold text-foreground">Salgspotensial</h2>
         <div
@@ -87,8 +87,7 @@ export function OpportunityWidget({ customers = OPPORTUNITY_CUSTOMERS }: Props) 
         Inntektspotensial om du leverer alle mulige oppgaver hos kundene.
       </p>
 
-      <div className="mt-4 flex flex-wrap items-center gap-2">
-
+      <div className="mt-3 flex flex-wrap items-center gap-2">
         <p className="text-xl sm:text-2xl font-bold text-foreground tabular-nums">
           {formatPotential(potential, currency)}
         </p>
@@ -114,40 +113,42 @@ export function OpportunityWidget({ customers = OPPORTUNITY_CUSTOMERS }: Props) 
         {taskTotal} mulige oppgaver hos {customers.length} kunder · eks. mva
       </p>
 
-      <ul className="mt-4 space-y-3 sm:space-y-2">
-        {slices.map((s) => (
-          <li
-            key={s.label}
-            className="flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-3"
-          >
-            <span className="min-w-0 sm:w-40 sm:shrink-0 text-sm text-foreground truncate">
-              {s.label}
-            </span>
-            <span className="order-last sm:order-none flex-1 h-2 rounded-full bg-muted overflow-hidden" aria-hidden="true">
-              <span
-                className="block h-full rounded-full bg-primary"
-                style={{ width: `${Math.round((s.potential / max) * 100)}%` }}
-              />
-            </span>
-            <span className="sm:w-52 sm:shrink-0 sm:text-right text-sm text-foreground tabular-nums">
-              {formatPotential(s.potential, currency)}
-              <span className="text-muted-foreground"> · {s.taskCount} oppgaver</span>
-            </span>
-          </li>
-        ))}
-      </ul>
-      <p className="sr-only">
-        Fordeling per {groupingLabel}:{" "}
-        {slices
-          .map(
-            (s) =>
-              `${s.label}: ${formatPotential(s.potential, currency)} i estimert salgspotensial fra ${s.taskCount} mulige oppgaver hos ${s.customerCount} kunder`,
-          )
-          .join(". ")}
-        .
-      </p>
+      <div className="flex-1 min-h-0 overflow-auto mt-3 -mr-1 pr-1">
+        <ul className="space-y-3 sm:space-y-2">
+          {slices.map((s) => (
+            <li
+              key={s.label}
+              className="flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-3"
+            >
+              <span className="min-w-0 sm:w-40 sm:shrink-0 text-sm text-foreground truncate">
+                {s.label}
+              </span>
+              <span className="order-last sm:order-none flex-1 h-2 rounded-full bg-muted overflow-hidden" aria-hidden="true">
+                <span
+                  className="block h-full rounded-full bg-primary"
+                  style={{ width: `${Math.round((s.potential / max) * 100)}%` }}
+                />
+              </span>
+              <span className="sm:w-52 sm:shrink-0 sm:text-right text-sm text-foreground tabular-nums">
+                {formatPotential(s.potential, currency)}
+                <span className="text-muted-foreground"> · {s.taskCount} oppgaver</span>
+              </span>
+            </li>
+          ))}
+        </ul>
+        <p className="sr-only">
+          Fordeling per {groupingLabel}:{" "}
+          {slices
+            .map(
+              (s) =>
+                `${s.label}: ${formatPotential(s.potential, currency)} i estimert salgspotensial fra ${s.taskCount} mulige oppgaver hos ${s.customerCount} kunder`,
+            )
+            .join(". ")}
+          .
+        </p>
+      </div>
 
-      <Button className="mt-4 w-full sm:w-auto" onClick={() => navigate("/msp-partner/muligheter")}>
+      <Button className="mt-3 w-full sm:w-auto shrink-0" onClick={() => navigate("/msp-partner/muligheter")}>
         Se alle muligheter
       </Button>
     </Card>
