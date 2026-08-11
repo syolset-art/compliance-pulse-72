@@ -2,6 +2,7 @@ import { getOffersForCustomer, normalizeServiceKey } from "@/lib/customerOffers"
 import { SERVICE_LIBRARY } from "@/lib/serviceLibrary";
 import type { CustomerEntryTarget } from "@/lib/customerEntryRoutes";
 import { getCustomerActiveModules } from "@/lib/customerModuleState";
+import { type Confidence } from "@/lib/regulationRecommender";
 import {
   CORE_TIERS,
   VENDOR_TIERS,
@@ -21,7 +22,9 @@ export interface OfferSuggestion {
   frameworkId?: string;
   moduleKey?: string;
   price?: number | null;
+  confidence?: Confidence;
 }
+
 
 // Suggested services Lara recommends — MUST match titles used in MSPMaturityServiceMatrix
 // (Anbefalte tjenester på kundens TP-detaljside) slik at klikk fra tabellen lander på riktig kort.
