@@ -267,6 +267,7 @@ export function MSPCreateOfferDialog({
     setTasks(p => [...p, { label: "Ny oppgave", hours: 8, owner: "Partner", weeks: "", gapIds: [] }]);
 
   const offerName = serviceTitle || domainName;
+  const displayOfferName = offerName.replace(/^Tilbudsutkast til/i, "Tilbud til");
   const offerNumber = `T-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 9000) + 1000)}`;
   const todayLabel = new Date().toLocaleDateString("nb-NO", { day: "numeric", month: "long", year: "numeric" });
   const snapshotLabel = snapshotDate.toLocaleDateString("nb-NO", { day: "numeric", month: "long", year: "numeric" });
