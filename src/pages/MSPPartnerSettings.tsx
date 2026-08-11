@@ -21,8 +21,6 @@ import {
   UserPlus,
   Mail,
   Shield,
-  CreditCard,
-  ChevronRight,
   Save,
   Info,
   Layers,
