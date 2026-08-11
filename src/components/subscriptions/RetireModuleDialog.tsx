@@ -14,6 +14,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import {
@@ -21,9 +27,9 @@ import {
   Database,
   Download,
   Loader2,
-  Send,
   Archive,
   CalendarClock,
+  Info,
 } from "lucide-react";
 import {
   formatDateLong,
