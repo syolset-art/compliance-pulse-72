@@ -26,7 +26,6 @@ import {
   ArrowLeft,
   Database,
   Download,
-  Loader2,
   Archive,
   CalendarClock,
   Info,
@@ -179,12 +178,12 @@ export function RetireModuleDialog({
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="text-base">
-            {step === 1 ? `Avvikle ${moduleTitle}` : "Dataene dine"}
+            {step === 1 ? `Avvikle ${moduleTitle}` : "Bekreft avviklingen"}
           </DialogTitle>
           <DialogDescription className="text-xs">
             {step === 1
-              ? `Modulen er tilgjengelig ut inneværende periode, til ${formatDateLong(effectiveAt)}.`
-              : "Du har rett til å få med deg dine data. Velg hva som skal skje."}
+              ? `${moduleTitle} er tilgjengelig ut inneværende periode, til ${formatDateLong(effectiveAt)}.`
+              : "Du vil ikke lenger faktureres for produktet fra neste periode. Dataene dine oppbevares trygt frem til sletting."}
           </DialogDescription>
         </DialogHeader>
 
