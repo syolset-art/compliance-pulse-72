@@ -438,7 +438,7 @@ export default function MSPPartnerSettings() {
                   </p>
                 </div>
 
-                </div>
+
 
 
               </Card>
