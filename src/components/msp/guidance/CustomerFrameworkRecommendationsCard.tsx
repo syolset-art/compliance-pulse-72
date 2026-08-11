@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Sparkles, Zap, ClipboardCheck, CheckCircle2, Send, ArrowRight, Plus, X } from "lucide-react";
