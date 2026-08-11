@@ -173,12 +173,22 @@ function formatPartnerCurrency(amount: number, compact = true) {
 }
 
 
-const SEGMENTS = [
+const SEGMENTS_BY_INDUSTRY = [
+  { label: "Industri & produksjon", count: 98, color: "bg-primary", widthPct: 53, activatedPct: 41 },
+  { label: "Helse & biotek", count: 74, color: "bg-recommend", widthPct: 40, activatedPct: 48 },
+  { label: "Energi & utilities", count: 61, color: "bg-success", widthPct: 33, activatedPct: 55 },
+  { label: "Finans & forsikring", count: 55, color: "bg-warning", widthPct: 30, activatedPct: 39 },
+  { label: "Transport & logistikk", count: 42, color: "bg-destructive", widthPct: 23, activatedPct: 35 },
+  { label: "Offentlig & samfunn", count: 36, color: "bg-muted", widthPct: 20, activatedPct: 62 },
+  { label: "Teknologi & SaaS", count: 34, color: "bg-primary/70", widthPct: 18, activatedPct: 58 },
+];
+
+const SEGMENTS_BY_FRAMEWORK = [
   { label: "NIS2-eksponert", count: 71, color: "bg-primary", widthPct: 35, activatedPct: 38 },
-  { label: "Sky-avhengig", count: 186, color: "bg-purple-400", widthPct: 92, activatedPct: 54 },
-  { label: "Særlige kategorier", count: 128, color: "bg-emerald-500", widthPct: 64, activatedPct: 61 },
-  { label: "DORA-finans", count: 42, color: "bg-orange-500", widthPct: 21, activatedPct: 29 },
-  { label: "ISO 27001", count: 23, color: "bg-amber-700", widthPct: 12, activatedPct: 48 },
+  { label: "Sky-avhengig", count: 186, color: "bg-recommend", widthPct: 92, activatedPct: 54 },
+  { label: "Særlige kategorier", count: 128, color: "bg-success", widthPct: 64, activatedPct: 61 },
+  { label: "DORA-finans", count: 42, color: "bg-warning", widthPct: 21, activatedPct: 29 },
+  { label: "ISO 27001", count: 23, color: "bg-destructive", widthPct: 12, activatedPct: 48 },
 ];
 
 const LIVE_SIGNALS = [
