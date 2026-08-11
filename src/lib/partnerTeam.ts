@@ -34,8 +34,6 @@ export const PARTNER_MEMBER_DESC =
 export const PARTNER_ROLE_INDEPENDENCE_NOTE =
   "En bruker kan ha én eller begge rollene – de er uavhengige. For hver rolle velger du om brukeren kan utføre oppgaver eller kun lese.";
 
-export const PARTNER_DUAL_ROLE_WARNING =
-  "Denne brukeren har både kundeansvar og compliance-ansvar. Vurder ansvarsdeling – den som utfører compliance-arbeid bør helst ikke være den samme som eier kunderelasjonen.";
 
 export const PARTNER_ACCESS_LABEL: Record<PartnerAccess, string> = {
   read: "Kun lesetilgang",
