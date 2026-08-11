@@ -465,6 +465,8 @@ function NeedsFollowUpWidget() {
 }
 
 
+// V2 — IKKE IMPLEMENTER NÅ: "Trust score"-widget med porteføljefordeling er planlagt i v2.
+// Behold widgeten i prototype for å vise fremtidig partner-dashboard, men merk den tydelig som V2.
 function AvgTrustScoreWidget() {
   const navigate = useNavigate();
   const score = 78;
@@ -494,6 +496,9 @@ function AvgTrustScoreWidget() {
         <div className="text-[11px] uppercase tracking-[0.15em] text-muted-foreground font-semibold">
           Trust score
         </div>
+        <span className="inline-flex items-center rounded border border-muted-foreground/20 bg-muted/40 px-1.5 py-0 text-[10px] font-medium text-muted-foreground">
+          V2
+        </span>
         <TooltipProvider delayDuration={100}>
           <UITooltip>
             <TooltipTrigger asChild>
@@ -503,7 +508,7 @@ function AvgTrustScoreWidget() {
               />
             </TooltipTrigger>
             <TooltipContent side="top" className="max-w-xs text-xs">
-              Trust Score er en samlet modenhetsvurdering per kunde (0–100) basert på Governance, Operations, Privacy og Third-Party. Snittet viser hvor solid hele porteføljen står samlet.
+              Trust Score er en samlet modenhetsvurdering per kunde (0–100) basert på Governance, Operations, Privacy og Third-Party. Snittet viser hvor solid hele porteføljen står samlet. <span className="font-semibold">V2 — ikke implementer nå.</span>
             </TooltipContent>
           </UITooltip>
         </TooltipProvider>
