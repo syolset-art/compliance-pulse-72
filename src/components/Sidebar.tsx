@@ -777,6 +777,18 @@ const SidebarContent = () => {
                       <Mail className="h-3.5 w-3.5" />
                       {isNb ? "Kommunikasjon" : "Communication"}
                     </button>
+                    <button
+                      onClick={() => navigate("/msp-billing")}
+                      className={cn(
+                        "flex w-full items-center gap-3 rounded-lg px-3 py-1.5 text-[0.9375rem] font-medium transition-colors",
+                        location.pathname === "/msp-billing"
+                          ? "bg-sidebar-accent text-sidebar-primary"
+                          : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                      )}
+                    >
+                      <CreditCard className="h-3.5 w-3.5" />
+                      {isNb ? "Fakturainnstillinger" : "Billing settings"}
+                    </button>
                   </>
                 ) : (
 
