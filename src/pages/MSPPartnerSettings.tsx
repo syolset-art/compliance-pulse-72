@@ -25,12 +25,9 @@ import {
   ChevronRight,
   Save,
   Info,
-  
   Layers,
   Plug,
-  Receipt,
 } from "lucide-react";
-import { PartnerTaxCard } from "@/components/msp/PartnerTaxCard";
 import { PartnerIntegrationsTab } from "@/components/msp/PartnerIntegrationsTab";
 import {
   PARTNER_MODULES,
@@ -339,8 +336,6 @@ export default function MSPPartnerSettings() {
                   })}
                 </div>
               </Card>
-
-              <PartnerTaxCard />
 
               {/* Etter aktivering */}
               <Card className="p-4">
