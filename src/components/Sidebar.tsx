@@ -380,10 +380,12 @@ const SidebarContent = () => {
   // Determine display mode per module (include optimistic activations)
   const showCoreNormal = selectedCoreAtOnboarding || hasCoreAccess || activatingModules.has("core");
   // Vendors and Assets are independent — check registries access for both
-  const showVendorsNormal = selectedRegistriesAtOnboarding || hasRegistriesAccess || activatingModules.has("vendors");
+  // v1.1 — leverandørmodulen følger nå kun hasRegistriesAccess (modulstatus i Produkter),
+  // slik at avvikling alltid skjuler menypunktet.
+  const showVendorsNormal = hasRegistriesAccess || activatingModules.has("vendors");
   const showAssetsNormal = selectedRegistriesAtOnboarding || hasRegistriesAccess || activatingModules.has("assets");
 
-  const isVendorsActivating = activatingModules.has("vendors") && !(selectedRegistriesAtOnboarding || hasRegistriesAccess);
+  const isVendorsActivating = activatingModules.has("vendors") && !hasRegistriesAccess;
   const isCoreActivating = activatingModules.has("core") && !(selectedCoreAtOnboarding || hasCoreAccess);
   const isAssetsActivating = activatingModules.has("assets") && !(selectedRegistriesAtOnboarding || hasRegistriesAccess);
 
