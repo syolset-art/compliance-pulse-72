@@ -501,6 +501,15 @@ export function CustomerServicesAndProductsTab({
       </div>
     ) : undefined;
 
+  // Regelverkskortet kan også være under avvikling.
+  const frameworksState = useMemo(
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    () => getCustomerModuleState(customerId, "frameworks"),
+    [customerId, tick],
+  );
+  const frameworksRetiring = frameworksState.status === "pending_cancellation";
+
+
   return (
     <div className="space-y-5">
       {/* ── 1. Produkter og regelverk ── */}
