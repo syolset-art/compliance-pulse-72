@@ -612,7 +612,13 @@ const TrustCenterEvidence = () => {
       {/* Documents tab content */}
       {activeMainTab === "documents" && (
         <>
+          {vendorDocs.length > 0 && !isLoading && (
+            <h2 className="mb-3 text-base font-semibold text-foreground">
+              {isNb ? "Alle dokumenter" : "All documents"}
+            </h2>
+          )}
           {/* Search and filters */}
+
           {vendorDocs.length > 0 && !isLoading && (
             <div className="mb-6 flex flex-wrap items-center gap-3">
               <div className="relative flex-1 min-w-[200px] max-w-sm">
