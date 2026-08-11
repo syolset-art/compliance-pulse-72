@@ -70,7 +70,7 @@ export default function MSPPartnerSettings() {
   const { enabled: postActivationEnabled, setPreference: setPostActivationPreference } =
     usePostActivationPrompt();
   const [searchParams, setSearchParams] = useSearchParams();
-  const activeTab = searchParams.get("tab") ?? "generelt";
+  const activeTab = searchParams.get("tab") ?? "tilgangsstyring";
   const [form, setForm] = useState<ForwardSettings>(defaults);
   const [team] = useState<TeamMember[]>(DEMO_TEAM);
   const [inviteOpen, setInviteOpen] = useState(false);
