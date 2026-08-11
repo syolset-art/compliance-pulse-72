@@ -27,6 +27,8 @@ import {
   Save,
   Info,
   Plug,
+  AlertTriangle,
+  Info,
 } from "lucide-react";
 import { PartnerIntegrationsTab } from "@/components/msp/PartnerIntegrationsTab";
 import { toast } from "sonner";
@@ -55,6 +57,8 @@ import {
   PARTNER_TEAM,
   PARTNER_ROLE_DESC,
   PARTNER_MEMBER_DESC,
+  PARTNER_ROLE_INDEPENDENCE_NOTE,
+  PARTNER_DUAL_ROLE_WARNING,
   PARTNER_ACCESS_LABEL,
   PARTNER_SCOPE_LABEL,
   describeMemberAccess,
