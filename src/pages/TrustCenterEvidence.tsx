@@ -26,7 +26,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { POLICY_TYPES as policyTypes, CERT_TYPES as certTypes, EVIDENCE_TYPES as evidenceTypes, docTypeLabel } from "@/lib/trustDocumentTypes";
-import { RequiredArtifactsBlock } from "@/components/trust-center/RequiredArtifactsBlock";
+import { FrameworkDocumentCoverage } from "@/components/trust-center/FrameworkDocumentCoverage";
+import { buildComplianceCoverage } from "@/lib/complianceDocumentCoverage";
 import { DocumentComplianceCard } from "@/components/trust-center/DocumentComplianceCard";
 import { DocumentAccessDialog } from "@/components/trust-center/DocumentAccessDialog";
 import { Network, Users } from "lucide-react";
@@ -201,6 +202,28 @@ const TrustCenterEvidence = () => {
     },
     enabled: docIds.length > 0,
   });
+
+  // Aktiverte regelverk → påkrevd compliance-dokumentasjon
+  const { data: frameworks = [] } = useQuery({
+    queryKey: ["selected-frameworks-evidence"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("selected_frameworks")
+        .select("framework_id, framework_name, is_selected")
+        .eq("is_selected", true);
+      return data || [];
+    },
+  });
+
+  const coverage = useMemo(
+    () =>
+      buildComplianceCoverage(
+        (frameworks as any[]).map((f) => ({ framework_id: f.framework_id, framework_name: f.framework_name })),
+        vendorDocs as any,
+      ),
+    [frameworks, vendorDocs],
+  );
+
 
   const grantsByDoc = (grantsRows as any[]).reduce<Record<string, number>>((acc, r) => {
     acc[r.document_id] = (acc[r.document_id] || 0) + 1;
@@ -572,48 +595,29 @@ const TrustCenterEvidence = () => {
         </div>
       )}
 
-      {/* Required artifacts checklist — always visible */}
-      {!isLoading && asset?.id && (
-        <div className="mb-8 rounded-lg border bg-card p-4">
-          <div className="flex items-center justify-between border-b pb-3 mb-4">
-            <div className="flex items-center gap-2">
-              <ShieldCheck className="h-5 w-5 text-primary shrink-0" />
-              <h2 className="text-base font-semibold text-foreground">
-                {isNb ? "Påkrevde artefakter" : "Required artifacts"}
-              </h2>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <button className="text-muted-foreground hover:text-foreground transition-colors p-1 rounded-md" aria-label="info">
-                    <Info className="h-4 w-4" />
-                  </button>
-                </PopoverTrigger>
-                <PopoverContent className="w-80 p-3 text-sm">
-                  <p className="text-muted-foreground leading-relaxed">
-                    {isNb
-                      ? "Dokumenter og bevis som kreves av regelverkene du har aktivert."
-                      : "Documents and evidence required by the frameworks you have activated."}
-                  </p>
-                  <div className="mt-2.5">
-                    <Link
-                      to="/regulations"
-                      className="inline-flex items-center gap-1 text-xs text-primary font-medium hover:underline"
-                    >
-                      {isNb ? "Se aktiverte regelverk" : "View activated frameworks"}
-                      <ChevronRight className="h-3 w-3" />
-                    </Link>
-                  </div>
-                </PopoverContent>
-              </Popover>
-            </div>
-          </div>
-          <RequiredArtifactsBlock assetId={asset.id} vendorDocs={vendorDocs as any} variant="evidence" />
-        </div>
+      {/* Compliance-dokumentasjon: krav fra aktiverte regelverk */}
+      {!isLoading && asset?.id && activeMainTab === "documents" && (
+        <FrameworkDocumentCoverage
+          coverage={coverage}
+          onUpload={() => setDialogOpen(true)}
+          onOpenDoc={(id) => {
+            const doc = (vendorDocs as any[]).find((d) => d.id === id);
+            if (doc) openPreview(doc);
+          }}
+        />
       )}
+
 
       {/* Documents tab content */}
       {activeMainTab === "documents" && (
         <>
+          {vendorDocs.length > 0 && !isLoading && (
+            <h2 className="mb-3 text-base font-semibold text-foreground">
+              {isNb ? "Alle dokumenter" : "All documents"}
+            </h2>
+          )}
           {/* Search and filters */}
+
           {vendorDocs.length > 0 && !isLoading && (
             <div className="mb-6 flex flex-wrap items-center gap-3">
               <div className="relative flex-1 min-w-[200px] max-w-sm">
