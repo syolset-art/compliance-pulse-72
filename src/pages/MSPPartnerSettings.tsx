@@ -337,8 +337,6 @@ export default function MSPPartnerSettings() {
                 </div>
               </Card>
 
-              <PartnerTaxCard />
-
               {/* Etter aktivering */}
               <Card className="p-4">
                 <div className="flex items-start justify-between gap-4">
