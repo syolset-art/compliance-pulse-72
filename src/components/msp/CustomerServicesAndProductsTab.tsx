@@ -623,7 +623,8 @@ export function CustomerServicesAndProductsTab({
           customerId={customerId}
           customerName={customerName}
           customerContactName={customerName}
-          serviceTitle={`Anbefalte produkter og tjenester for ${customerName}`}
+          /* v1.1: partneren er i gang med å lage tilbudet — ikke lenger en anbefalingsliste */
+              serviceTitle={`Tilbudsutkast til ${customerName}`}
           offeredServiceNames={offerItems.map((i) => i.label)}
           activeFrameworks={activeFrameworkIds}
           defaultTasks={offerItems.map((i) => ({
