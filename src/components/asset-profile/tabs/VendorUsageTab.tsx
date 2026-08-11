@@ -393,34 +393,6 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
         </Card>
       </div>
 
-      {/* Data usage (free-text + AI suggestions) */}
-      <AISuggestTextarea
-        icon={<Database className="h-4 w-4" />}
-        titleNb="Databruk"
-        titleEn="Data usage"
-        placeholderNb="Beskriv hvilke data leverandøren behandler – personopplysninger, kategorier, mengde, sensitivitet …"
-        placeholderEn="Describe what data the vendor processes – personal data, categories, volume, sensitivity …"
-        hideHeader
-        value={(asset?.metadata as any)?.data_usage_text || ""}
-        onSave={async (next) => {
-          const newMeta = { ...(asset?.metadata as any || {}), data_usage_text: next };
-          const { error } = await supabase.from("assets").update({ metadata: newMeta }).eq("id", assetId);
-          if (error) {
-            toast.error(isNb ? "Kunne ikke lagre" : "Could not save");
-          } else {
-            toast.success(isNb ? "Lagret" : "Saved");
-            queryClient.invalidateQueries({ queryKey: ["asset-usage", assetId] });
-          }
-        }}
-        edgeFunction="suggest-vendor-data-types"
-        context={{
-          vendorName: asset?.name,
-          vendorCategory: asset?.vendor_category,
-          vendorDescription: asset?.description,
-          vendorUrl: asset?.url,
-        }}
-      />
-
       {/* Processes (free-text + AI suggestions) */}
       <AISuggestTextarea
         icon={<Workflow className="h-4 w-4" />}
