@@ -7,21 +7,32 @@ import { Shield, Package, ChevronDown, Check, Plus } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
 import { frameworks as ALL_FRAMEWORKS } from "@/lib/frameworkDefinitions";
-import { formatPeriodEnd, formatDateLong } from "@/lib/moduleActivationState";
+import {
+  formatPeriodEnd,
+  formatDateLong,
+  getPeriodEnd,
+  getRetentionUntil,
+  type CancellationMeta,
+} from "@/lib/moduleActivationState";
 import { supabase } from "@/integrations/supabase/client";
 import {
   CUSTOMER_MODULES_EVENT,
   activateCustomerModule,
+  cancelCustomerModule,
   clearCustomerScheduledTier,
   getCustomerModuleState,
   getCustomerModuleTier,
   getCustomerUsage,
   requiredCoreTierId,
   requiredVendorTierId,
+  resumeCustomerModule,
   scheduleCustomerModuleTier,
   setCustomerModuleTier,
   syncCustomerModules,
 } from "@/lib/customerModuleState";
+import { RetireModuleDialog } from "@/components/subscriptions/RetireModuleDialog";
+import { RetireFrameworksDialog } from "./RetireFrameworksDialog";
+
 import {
   DEFAULT_CORE_TIER_ID,
   DEFAULT_VENDOR_TIER_ID,
