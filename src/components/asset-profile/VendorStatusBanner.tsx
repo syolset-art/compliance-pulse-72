@@ -10,6 +10,16 @@ import { deriveVendorStatus, deriveCriticality, type VendorStatusMeta } from "@/
 import { VendorInlinePillSelect } from "@/components/vendor-dashboard/VendorInlinePillSelect";
 import { InviteVendorDialog } from "@/components/vendor-dashboard/InviteVendorDialog";
 import { useState } from "react";
+import {
+  NOT_REQUESTED_LABEL,
+  SOURCING_METHOD_META,
+  archetypeByKey,
+  readSourcingState,
+  recommendSourcingMethod,
+  writeSourcingState,
+  type SourcingMethod,
+} from "@/lib/vendorSourcingMethod";
+
 
 interface VendorStatusBannerProps {
   asset: {
