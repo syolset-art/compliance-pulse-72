@@ -477,13 +477,6 @@ function AvgTrustScoreWidget() {
     { label: "< 50 %", count: 30, band: "Lav", color: "bg-destructive" as const },
   ];
 
-  const areas = [
-    { label: "Personvern", pct: 82 },
-    { label: "Styring", pct: 76 },
-    { label: "Drift og sikkerhet", pct: 74 },
-    { label: "Identitet og tilgang", pct: 68 },
-    { label: "Tredjepart og verdikjede", pct: 71 },
-  ];
 
   const r = 42;
   const c = 2 * Math.PI * r;
