@@ -118,6 +118,8 @@ export default function MSPPartnerSettings() {
   const [inviteLoading, setInviteLoading] = useState(false);
   const [customers, setCustomers] = useState<CustomerOption[]>([]);
   const [memberToRemove, setMemberToRemove] = useState<TeamMember | null>(null);
+  const [profileMember, setProfileMember] = useState<TeamMember | null>(null);
+
 
   
 
