@@ -153,7 +153,7 @@ export function ActivateTrustCenterDialog({
                 Driftspartner-rollen er allerede bekreftet.
               </p>
             ) : (
-              <div className="flex items-start gap-2 rounded-lg border border-border bg-muted/30 p-3">
+              <div className="flex flex-wrap items-start gap-2 rounded-lg border border-border bg-muted/30 p-3">
                 <Checkbox
                   id="trust-operator"
                   checked={operatorRole}
@@ -165,7 +165,7 @@ export function ActivateTrustCenterDialog({
                   Da kan vi arbeide med compliance i kundens egen virksomhetsprofil på deres vegne.
                 </label>
                 {operatorRole && (
-                  <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                  <div className="mt-2 basis-full ml-6 flex flex-wrap items-center gap-1.5">
                     <span className="text-[11px] text-muted-foreground">Gjelder:</span>
                     {([{ value: "customer" as const, label: "Kun denne kunden" }, { value: "global" as const, label: "Alle kunder (globalt)" }]).map((opt) => (
                       <button
