@@ -335,18 +335,24 @@ export default function MSPPartnerSettings() {
                     return (
                       <div key={m.id} className="px-4 py-3.5">
                         <div className="flex flex-col sm:flex-row sm:items-start gap-3">
-                          <div className="flex items-center gap-3 sm:w-[220px] shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => setProfileMember(m)}
+                            className="flex items-center gap-3 sm:w-[220px] shrink-0 text-left rounded-lg -m-1 p-1 hover:bg-muted/60 transition-colors"
+                            aria-label={`Åpne profilen til ${m.name}`}
+                          >
                             <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center text-sm font-medium text-primary shrink-0">
                               {m.initials}
                             </div>
                             <div className="min-w-0">
-                              <p className="text-base font-medium text-foreground truncate">{m.name}</p>
+                              <p className="text-base font-medium text-foreground truncate underline-offset-2 hover:underline">{m.name}</p>
                               <p className="text-sm text-muted-foreground truncate">{m.email}</p>
                               <p className="text-xs text-muted-foreground/80 truncate mt-0.5">
                                 {describeMemberAccess(m)}
                               </p>
                             </div>
-                          </div>
+                          </button>
+
 
                           <div className="flex-1 min-w-0 space-y-2">
                             {(["Kundeansvarlig", "Driftspartner"] as PartnerRole[]).map((role) => {
