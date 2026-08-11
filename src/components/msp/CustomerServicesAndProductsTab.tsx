@@ -166,6 +166,19 @@ export function CustomerServicesAndProductsTab({
   const [pendingVendorTierId, setPendingVendorTierId] = useState<VendorTierId | null>(null);
   const [receipt, setReceipt] = useState<ModuleChangeReceipt | null>(null);
 
+  // Avviklingsflyt (samme som i Innstillinger > Produkter)
+  const [retireTarget, setRetireTarget] = useState<{
+    stateKey: string;
+    moduleId: string;
+    title: string;
+    price: number;
+    scopeLabel?: string;
+    frameworkIds?: string[];
+  } | null>(null);
+  const [retireFrameworksOpen, setRetireFrameworksOpen] = useState(false);
+
+
+
   // Forbruk hører til kunden — ikke partnerens eget register.
   const usage = useMemo(
     // eslint-disable-next-line react-hooks/exhaustive-deps
