@@ -24,6 +24,8 @@ export interface VendorStatusMeta {
 }
 
 interface DeriveInput {
+  /** Brukes til å variere fallback-status per leverandør (prototype). */
+  id?: string | null;
   compliance_score?: number | null;
   risk_level?: string | null;
   lifecycle_status?: string | null;
