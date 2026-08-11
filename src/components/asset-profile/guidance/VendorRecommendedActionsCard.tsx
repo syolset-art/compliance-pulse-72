@@ -146,13 +146,6 @@ export function VendorRecommendedActionsCard({
           </h3>
         </div>
 
-        {/* Nøkkeltall — dashbord, ikke liste */}
-        <div className="mt-3 grid grid-cols-3 gap-3 rounded-lg border border-border bg-muted/30 px-3 py-2.5">
-          {stat(actions.length, "tiltak", "actions")}
-          {stat(criticalCount, "kritiske", "critical", criticalCount > 0 ? "text-destructive" : undefined)}
-          {stat(docCount, "mangler dok.", "missing docs")}
-        </div>
-
         {/* Agentisk Trust Center — kontinuerlig oppdatert dokumentasjon */}
         <div className="mt-3">{trustCenterBlock}</div>
 
