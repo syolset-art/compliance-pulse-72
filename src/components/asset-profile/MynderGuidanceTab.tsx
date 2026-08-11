@@ -411,6 +411,15 @@ export function MynderGuidanceTab({
       />
 
       {/* Opprett aktivitet — velg hvordan dokumentasjonen skaffes */}
+      {/* Be om grunnlag — velg innhentingsmetode */}
+      <RequestBaselineDialog
+        open={requestBaselineOpen}
+        onOpenChange={setRequestBaselineOpen}
+        vendorName={assetName ?? (isNb ? "leverandøren" : "the vendor")}
+        archetype={sourcing.archetype}
+        onConfirm={startSourcing}
+      />
+
       <CreateVendorActivityDialog
         open={createActivityOpen}
         onOpenChange={setCreateActivityOpen}
