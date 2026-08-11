@@ -4,13 +4,21 @@
 export type PartnerRole = "Kundeansvarlig" | "Driftspartner";
 /** Lesetilgang eller full lese- og skrivetilgang hos kundene. */
 export type PartnerAccess = "read" | "write";
+/** Omfang for driftspartner-rollen: alle kunder eller et utvalg. */
+export type PartnerScope = "all" | "selected";
 
 export interface PartnerTeamMember {
   id: string;
   name: string;
   email: string;
-  role: PartnerRole;
+  /** Roller på toppen av grunntilgangen «Medlem». Tom liste = kun medlem. */
+  roles: PartnerRole[];
+  /** Gjelder kun for Driftspartner-rollen. */
   access: PartnerAccess;
+  /** Gjelder kun for Driftspartner-rollen. */
+  scope: PartnerScope;
+  /** Kunde-ID-er når scope = "selected". */
+  customerIds: string[];
   initials: string;
 }
 
@@ -19,16 +27,45 @@ export const PARTNER_ROLE_DESC: Record<PartnerRole, string> = {
   Driftspartner: "Utfører compliance-arbeid i kundens virksomhetsprofil.",
 };
 
+export const PARTNER_MEMBER_DESC =
+  "Alle som inviteres blir medlem. Medlemmer ser partnerdelen og kundeoversikten, men jobber ikke inne hos kundene.";
+
 export const PARTNER_ACCESS_LABEL: Record<PartnerAccess, string> = {
   read: "Kun lesetilgang",
   write: "Lese- og skrivetilgang",
 };
 
+export const PARTNER_SCOPE_LABEL: Record<PartnerScope, string> = {
+  all: "Alle kunder",
+  selected: "Valgte kunder",
+};
+
+/** Kort oppsummering av en brukers tilgang, til bruk i lister og toasts. */
+export function describeMemberAccess(m: PartnerTeamMember): string {
+  if (m.roles.length === 0) return "Medlem";
+  const parts = ["Medlem", ...m.roles];
+  if (m.roles.includes("Driftspartner")) {
+    const scope =
+      m.scope === "all"
+        ? PARTNER_SCOPE_LABEL.all.toLowerCase()
+        : `${m.customerIds.length} ${m.customerIds.length === 1 ? "kunde" : "kunder"}`;
+    parts.push(`${PARTNER_ACCESS_LABEL[m.access].toLowerCase()} · ${scope}`);
+  }
+  return parts.join(" · ");
+}
+
+/** Kan brukeren jobbe i denne kundens virksomhetsprofil? */
+export function canOperateCustomer(m: PartnerTeamMember, customerId: string): boolean {
+  if (!m.roles.includes("Driftspartner")) return false;
+  return m.scope === "all" || m.customerIds.includes(customerId);
+}
+
 export const PARTNER_TEAM: PartnerTeamMember[] = [
-  { id: "u1", name: "Truls Berg",    email: "truls@dintero.no", role: "Kundeansvarlig", access: "write", initials: "TB" },
-  { id: "u2", name: "Maja Solheim",  email: "maja@dintero.no",  role: "Driftspartner",  access: "write", initials: "MS" },
-  { id: "u3", name: "Erik Hansen",   email: "erik@dintero.no",  role: "Kundeansvarlig", access: "read",  initials: "EH" },
+  { id: "u1", name: "Truls Berg",   email: "truls@dintero.no", roles: ["Kundeansvarlig"],                  access: "read",  scope: "all",      customerIds: [], initials: "TB" },
+  { id: "u2", name: "Maja Solheim", email: "maja@dintero.no",  roles: ["Kundeansvarlig", "Driftspartner"], access: "write", scope: "all",      customerIds: [], initials: "MS" },
+  { id: "u3", name: "Erik Hansen",  email: "erik@dintero.no",  roles: ["Driftspartner"],                   access: "read",  scope: "selected", customerIds: [], initials: "EH" },
 ];
+
 
 
 const STORAGE_KEY = "msp-account-manager-overrides-v1";
