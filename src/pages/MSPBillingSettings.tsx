@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -10,9 +10,20 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { ArrowLeft, Building2, Mail, FileText, Save, Lock } from "lucide-react";
+import { ArrowLeft, Building2, Mail, FileText, Save, Lock, Settings, TrendingUp, Wallet, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import {
+  customerLicenseSummary,
+  deriveActivatedProducts,
+  deriveActivatedFrameworks,
+} from "@/lib/offerSuggestions";
+import { getOffersForCustomer, normalizeServiceKey } from "@/lib/customerOffers";
+import { SERVICE_LIBRARY } from "@/lib/serviceLibrary";
+import { CUSTOMER_MODULES_EVENT } from "@/lib/customerModuleState";
+import { usePartnerBranding } from "@/hooks/usePartnerBranding";
+import { computeTaxBreakdown } from "@/lib/partnerTax";
 
 interface BillingSettings {
   address_line1: string;
