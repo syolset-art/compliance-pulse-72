@@ -432,7 +432,7 @@ function NeedsFollowUpWidget() {
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5">
-            <div className="text-[11px] uppercase tracking-[0.15em] text-muted-foreground font-semibold">Anbefalte oppgaver</div>
+            <div className="text-xs uppercase tracking-[0.12em] text-muted-foreground font-semibold">Anbefalte oppgaver</div>
             <TooltipProvider delayDuration={100}>
               <UITooltip>
                 <TooltipTrigger asChild>
@@ -449,22 +449,22 @@ function NeedsFollowUpWidget() {
           </div>
           <div className="flex items-baseline gap-1.5">
             <span className="text-2xl font-bold leading-none tabular-nums">{total}</span>
-            <span className="text-xs text-muted-foreground">kunder å følge opp</span>
+            <span className="text-sm text-muted-foreground">kunder å følge opp</span>
           </div>
         </div>
         <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors shrink-0" />
       </div>
-      <div className="space-y-1.5">
-        {tasks.map((t) => (
-          <div key={t.customer} className="flex items-center gap-2 text-[12px]">
-            <span className={`h-1.5 w-1.5 rounded-full shrink-0 ${t.tone}`} aria-hidden="true" />
+      <div className="space-y-2">
+        {tasks.slice(0, 3).map((t) => (
+          <div key={t.customer} className="flex items-center gap-2 text-sm">
+            <span className={`h-2 w-2 rounded-full shrink-0 ${t.tone}`} aria-hidden="true" />
             <div className="min-w-0 flex-1">
               <div className="truncate font-medium">{t.customer}</div>
-              <div className="truncate text-[11px] text-muted-foreground">
+              <div className="truncate text-xs text-muted-foreground">
                 {t.lastActivity} → {t.nextStep}
               </div>
             </div>
-            <span className="tabular-nums text-[11px] text-muted-foreground shrink-0">
+            <span className="tabular-nums text-xs text-muted-foreground shrink-0">
               {t.frameworks} regelverk
             </span>
           </div>
