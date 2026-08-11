@@ -10,7 +10,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { FileText, ListChecks, Send, ListPlus, Info, ArrowRight, Sparkles, ShieldCheck, BellRing, Users } from "lucide-react";
+import { FileText, ListChecks, ListPlus, Info, ArrowRight, Sparkles, ShieldCheck, BellRing, Users } from "lucide-react";
 import { LaraAvatar } from "@/components/asset-profile/LaraAvatar";
 import { cn } from "@/lib/utils";
 import {
@@ -38,7 +38,7 @@ interface Props {
 
 /**
  * Anbefalte tiltak — kompakt dashbord-visning.
- * Kortet viser bare nøkkeltall og de mest kritiske tiltakene. Hele listen med
+ * Kortet viser status for Agentisk Trust Profile. Hele listen med
  * handlinger åpnes i et arbeidsvindu slik at kortet ikke tar plass i profilen.
  */
 export function VendorRecommendedActionsCard({
@@ -56,8 +56,6 @@ export function VendorRecommendedActionsCard({
   const [workOpen, setWorkOpen] = useState(false);
 
   const criticalCount = actions.filter((a) => a.criticality === "kritisk").length;
-  const docCount = actions.filter((a) => a.documentType).length;
-  const top = actions.slice(0, 3);
 
   const hasTrustCenter = trustCenter.status !== "none";
   const delivered = trustCenter.deliveredCount ?? 0;
@@ -160,35 +158,6 @@ export function VendorRecommendedActionsCard({
 
         {/* Agentisk Trust Center — kontinuerlig oppdatert dokumentasjon */}
         <div className="mt-3">{trustCenterBlock}</div>
-
-        {/* De viktigste tiltakene, én linje hver */}
-        <ul className="mt-3 space-y-1.5">
-          {actions.length === 0 && (
-            <li className="text-xs text-muted-foreground">
-              {isNb
-                ? "Legg til et regelverk til venstre, så foreslår Lara tiltak her."
-                : "Add a framework on the left and Lara will suggest actions here."}
-            </li>
-          )}
-          {top.map((a) => (
-            <li key={a.id} className="flex items-center gap-2 min-w-0">
-              <span
-                className={cn(
-                  "h-1.5 w-1.5 rounded-full shrink-0",
-                  a.criticality === "kritisk"
-                    ? "bg-destructive"
-                    : a.criticality === "hoy"
-                      ? "bg-warning"
-                      : "bg-muted-foreground/50",
-                )}
-              />
-              <span className="text-[13px] text-foreground truncate flex-1 min-w-0">
-                {isNb ? a.titleNb : a.titleEn}
-              </span>
-              <span className="text-[11px] text-muted-foreground shrink-0">{a.requirement}</span>
-            </li>
-          ))}
-        </ul>
 
         {actions.length > 0 && (
           <Button
