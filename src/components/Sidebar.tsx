@@ -748,63 +748,43 @@ const SidebarContent = () => {
 
             {companyOpen && (
               <div className="mt-1 ml-2 space-y-1 animate-fade-in max-h-[50vh] overflow-y-auto pr-1">
-                {settingsMenu.map((item) => {
-                  const isActive = location.pathname === item.href;
-                  return (
-                    <button
-                      key={item.href}
-                      onClick={() => navigate(item.href)}
-                      className={cn(
-                        "flex w-full items-center gap-3 rounded-lg px-3 py-1.5 text-[0.9375rem] font-medium transition-colors",
-                        isActive
-                          ? "bg-sidebar-accent text-sidebar-primary"
-                          : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
-                      )}
-                    >
-                      <item.icon className="h-3.5 w-3.5" />
-                      {t(item.name)}
-                    </button>
-                  );
-                })}
-                {workspaceMode === "partner" && (() => {
-                  const partnerSettings = [
-                    { tab: "generelt", labelNb: "Generelt", labelEn: "General", icon: SettingsIcon },
-                    
-                    { tab: "integrasjoner", labelNb: "Integrasjoner", labelEn: "Integrations", icon: Plug },
-                    { tab: "__activity", labelNb: "Aktivitetslogg", labelEn: "Activity log", icon: ClipboardList },
-                  ];
-                  const currentTab = new URLSearchParams(location.search).get("tab") ?? "generelt";
-                  return (
-                    <>
-                      <div className="border-t border-sidebar-border my-2" />
-                      {partnerSettings.map((p) => {
-                        const isActivity = p.tab === "__activity";
-                        const isActive = isActivity
-                          ? location.pathname === "/activity-log"
-                          : location.pathname === "/msp-settings" && currentTab === p.tab;
-                        return (
-                          <button
-                            key={p.tab}
-                            onClick={() =>
-                              navigate(isActivity ? "/activity-log" : `/msp-settings?tab=${p.tab}`)
-                            }
-                            className={cn(
-                              "flex w-full items-center gap-3 rounded-lg px-3 py-1.5 text-[0.9375rem] font-medium transition-colors",
-                              isActive
-                                ? "bg-sidebar-accent text-sidebar-primary"
-                                : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
-                            )}
-                          >
-                            <p.icon className="h-3.5 w-3.5" />
-                            {isNb ? p.labelNb : p.labelEn}
-                          </button>
-                        );
-                      })}
-                    </>
-                  );
-                })()}
-                
+                {workspaceMode === "partner" ? (
+                  <button
+                    onClick={() => navigate("/msp-settings?tab=generelt")}
+                    className={cn(
+                      "flex w-full items-center gap-3 rounded-lg px-3 py-1.5 text-[0.9375rem] font-medium transition-colors",
+                      location.pathname === "/msp-settings" &&
+                        (new URLSearchParams(location.search).get("tab") ?? "generelt") === "generelt"
+                        ? "bg-sidebar-accent text-sidebar-primary"
+                        : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                    )}
+                  >
+                    <SettingsIcon className="h-3.5 w-3.5" />
+                    {isNb ? "Generelt" : "General"}
+                  </button>
+                ) : (
+                  settingsMenu.map((item) => {
+                    const isActive = location.pathname === item.href;
+                    return (
+                      <button
+                        key={item.href}
+                        onClick={() => navigate(item.href)}
+                        className={cn(
+                          "flex w-full items-center gap-3 rounded-lg px-3 py-1.5 text-[0.9375rem] font-medium transition-colors",
+                          isActive
+                            ? "bg-sidebar-accent text-sidebar-primary"
+                            : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                        )}
+                      >
+                        <item.icon className="h-3.5 w-3.5" />
+                        {t(item.name)}
+                      </button>
+                    );
+                  })
+                )}
+
                 {/* Partner-meny er flyttet til workspace-bryteren øverst */}
+
 
 
                 {isMynderAdmin && (
