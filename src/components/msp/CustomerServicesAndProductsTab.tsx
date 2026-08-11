@@ -804,6 +804,41 @@ export function CustomerServicesAndProductsTab({
       />
 
       <ModuleChangeReceiptSheet receipt={receipt} onOpenChange={(o) => !o && setReceipt(null)} />
+
+      <RetireFrameworksDialog
+        open={retireFrameworksOpen}
+        onOpenChange={setRetireFrameworksOpen}
+        customerName={customerName}
+        frameworks={activeFrameworks}
+        pricePerFramework={FRAMEWORK_PRICE}
+        onConfirm={(ids) => {
+          setRetireFrameworksOpen(false);
+          const names = activeFrameworks
+            .filter((f) => ids.includes(f.id))
+            .map((f) => f.name);
+          setRetireTarget({
+            stateKey: "frameworks",
+            moduleId: "frameworks",
+            title: ids.length === activeFrameworks.length ? "Regelverk" : names.join(", "),
+            price: ids.length * FRAMEWORK_PRICE,
+            scopeLabel:
+              ids.length === activeFrameworks.length
+                ? "Alle regelverk"
+                : `${ids.length} av ${activeFrameworks.length} regelverk`,
+            frameworkIds: ids,
+          });
+        }}
+      />
+
+      <RetireModuleDialog
+        open={!!retireTarget}
+        onOpenChange={(o) => { if (!o) setRetireTarget(null); }}
+        moduleId={retireTarget?.moduleId ?? null}
+        moduleTitle={retireTarget?.title ?? ""}
+        effectiveAt={getPeriodEnd().toISOString()}
+        onConfirm={confirmRetire}
+      />
     </div>
   );
 }
+
