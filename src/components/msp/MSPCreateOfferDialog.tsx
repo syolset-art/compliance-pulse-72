@@ -1120,7 +1120,8 @@ export function MSPCreateOfferDialog({
                 </div>
 
                 <div>
-                  <h2 className="text-xl font-bold text-foreground">{offerName}</h2>
+                  {/* v1.1: i forhåndsvisning/generert PDF skal det alltid stå «Tilbud», ikke «Tilbudsutkast» */}
+                  <h2 className="text-xl font-bold text-foreground">{displayOfferName}</h2>
                   <p className="text-sm text-muted-foreground mt-1">Til: {customerContactName}</p>
                 </div>
 
