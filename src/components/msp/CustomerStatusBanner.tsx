@@ -10,7 +10,13 @@ import { COMPANY_ROLES } from "@/lib/mspCustomerConstants";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useNavigate } from "react-router-dom";
-import { PARTNER_TEAM, getAccountManagerOverride, setAccountManagerOverride } from "@/lib/partnerTeam";
+import {
+  PARTNER_TEAM,
+  getAccountManagerOverride,
+  setAccountManagerOverride,
+  assignRoleForCustomer,
+  getCustomerRoleAssignment,
+} from "@/lib/partnerTeam";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useTerms } from "@/hooks/useTerms";
@@ -109,6 +115,22 @@ export function CustomerStatusBanner({ customer, actionSlot, onUpdate }: { custo
       ? "customer"
       : "global"
     : null;
+
+  // Driftspartner kan tildeles direkte på kundekortet, uavhengig av kundeansvarlig.
+  const [opsOpen, setOpsOpen] = useState(false);
+  const [opsPartner, setOpsPartner] = useState<string | null>(
+    getCustomerRoleAssignment(customer.id, "Driftspartner"),
+  );
+  useEffect(() => {
+    setOpsPartner(getCustomerRoleAssignment(customer.id, "Driftspartner"));
+  }, [customer.id]);
+
+  const handleAssignOps = (memberId: string, name: string) => {
+    assignRoleForCustomer(memberId, "Driftspartner", customer.id);
+    setOpsPartner(name);
+    setOpsOpen(false);
+    toast.success(`${name} er satt som driftspartner for denne kunden`);
+  };
 
   const handleAssign = async (name: string) => {
     const { error } = await supabase
@@ -501,6 +523,75 @@ export function CustomerStatusBanner({ customer, actionSlot, onUpdate }: { custo
                   </button>
                 )}
               </FieldRow>
+
+              <FieldRow
+                label="Driftspartner for denne kunden"
+                editButton={
+                  <Popover open={opsOpen} onOpenChange={setOpsOpen}>
+                    <PopoverTrigger asChild>
+                      <button className="p-1 text-muted-foreground hover:text-foreground rounded transition-colors" aria-label="Endre driftspartner">
+                        <Pencil className="h-3 w-3" />
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-64 p-1" align="start">
+                      <p className="px-3 py-2 text-xs uppercase tracking-wider text-muted-foreground">Velg driftspartner</p>
+                      <div className="max-h-64 overflow-auto">
+                        {PARTNER_TEAM.map((m) => (
+                          <button
+                            key={m.id}
+                            type="button"
+                            onClick={() => handleAssignOps(m.id, m.name)}
+                            className="w-full flex items-center gap-2 px-3 py-2 rounded-md hover:bg-muted text-left"
+                          >
+                            <InitialAvatar name={m.name} />
+                            <span className="flex-1 min-w-0">
+                              <span className="block text-sm font-medium text-foreground truncate">{m.name}</span>
+                              <span className="block text-xs text-muted-foreground truncate">{m.email}</span>
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                }
+              >
+                {opsPartner ? (
+                  <span className="inline-flex items-center gap-2 text-sm flex-wrap">
+                    <InitialAvatar name={opsPartner} />
+                    <span>{opsPartner}</span>
+                    <Badge variant="outline" className="gap-1 font-normal text-[11px] bg-success/10 text-success border-success/25">
+                      <ShieldCheck className="h-3 w-3" aria-hidden="true" /> Driftspartner
+                    </Badge>
+                  </span>
+                ) : (
+                  <Popover open={opsOpen} onOpenChange={setOpsOpen}>
+                    <PopoverTrigger asChild>
+                      <button className="inline-flex items-center gap-1 text-primary hover:underline text-xs">
+                        <UserPlus className="h-3 w-3" aria-hidden="true" /> Tildel driftspartner
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-64 p-1" align="start">
+                      <p className="px-3 py-2 text-xs uppercase tracking-wider text-muted-foreground">Velg driftspartner</p>
+                      <div className="max-h-64 overflow-auto">
+                        {PARTNER_TEAM.map((m) => (
+                          <button
+                            key={m.id}
+                            type="button"
+                            onClick={() => handleAssignOps(m.id, m.name)}
+                            className="w-full flex items-center gap-2 px-3 py-2 rounded-md hover:bg-muted text-left"
+                          >
+                            <InitialAvatar name={m.name} />
+                            <span className="flex-1 min-w-0">
+                              <span className="block text-sm font-medium text-foreground truncate">{m.name}</span>
+                              <span className="block text-xs text-muted-foreground truncate">{m.email}</span>
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                )}
+              </FieldRow>
             </section>
 
             {/* Ansvar og kontakt */}
@@ -653,7 +744,7 @@ export function CustomerStatusBanner({ customer, actionSlot, onUpdate }: { custo
                           <button
                             key={m.id}
                             type="button"
-                            onClick={() => handleAssign(m.name)}
+                            onClick={() => { assignRoleForCustomer(m.id, "Kundeansvarlig", customer.id); handleAssign(m.name); }}
                             className="w-full flex items-center gap-2 px-3 py-2 rounded-md hover:bg-muted text-left"
                           >
                             <InitialAvatar name={m.name} />
@@ -738,7 +829,7 @@ export function CustomerStatusBanner({ customer, actionSlot, onUpdate }: { custo
                           <button
                             key={m.id}
                             type="button"
-                            onClick={() => handleAssign(m.name)}
+                            onClick={() => { assignRoleForCustomer(m.id, "Kundeansvarlig", customer.id); handleAssign(m.name); }}
                             className="w-full flex items-center gap-2 px-3 py-2 rounded-md hover:bg-muted text-left"
                           >
                             <InitialAvatar name={m.name} />

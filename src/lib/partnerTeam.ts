@@ -15,10 +15,10 @@ export interface PartnerTeamMember {
   roles: PartnerRole[];
   /** Tilgangsnivå per rolle. Settes uavhengig for Kundeansvarlig og Driftspartner. */
   roleAccess: Record<PartnerRole, PartnerAccess>;
-  /** Gjelder kun for Driftspartner-rollen. */
-  scope: PartnerScope;
-  /** Kunde-ID-er når scope = "selected". */
-  customerIds: string[];
+  /** Omfang per rolle: alle kunder eller et utvalg. Settes uavhengig per rolle. */
+  roleScope: Record<PartnerRole, PartnerScope>;
+  /** Kunde-ID-er per rolle når omfanget er "selected". */
+  roleCustomerIds: Record<PartnerRole, string[]>;
   initials: string;
 }
 
@@ -57,6 +57,15 @@ export const PARTNER_ROLE_ACCESS_HINT: Record<PartnerRole, Record<PartnerAccess,
   },
 };
 
+export const DEFAULT_ROLE_SCOPE: Record<PartnerRole, PartnerScope> = {
+  Kundeansvarlig: "all",
+  Driftspartner: "all",
+};
+
+/** Minst én rolle kreves før invitasjon kan sendes. */
+export const PARTNER_INVITE_ROLE_REQUIRED =
+  "Velg minst én rolle. Brukeren får invitasjon på e-post og kan logge inn når rollen er satt.";
+
 export const DEFAULT_ROLE_ACCESS: Record<PartnerRole, PartnerAccess> = {
   Kundeansvarlig: "write",
   Driftspartner: "read",
@@ -67,33 +76,93 @@ export const PARTNER_SCOPE_LABEL: Record<PartnerScope, string> = {
   selected: "Valgte kunder",
 };
 
+/** Kort tekst for omfanget til én rolle. */
+export function describeRoleScope(m: PartnerTeamMember, role: PartnerRole): string {
+  const scope = m.roleScope?.[role] ?? "all";
+  if (scope === "all") return PARTNER_SCOPE_LABEL.all.toLowerCase();
+  const n = (m.roleCustomerIds?.[role] ?? []).length;
+  return `${n} ${n === 1 ? "kunde" : "kunder"}`;
+}
+
 /** Kort oppsummering av en brukers tilgang, til bruk i lister og toasts. */
 export function describeMemberAccess(m: PartnerTeamMember): string {
   if (m.roles.length === 0) return "Medlem";
-  const parts = [
+  return [
     "Medlem",
-    ...m.roles.map((r) => `${r} (${PARTNER_ACCESS_SHORT[m.roleAccess?.[r] ?? "read"]})`),
-  ];
-  if (m.roles.includes("Driftspartner")) {
-    const scope =
-      m.scope === "all"
-        ? PARTNER_SCOPE_LABEL.all.toLowerCase()
-        : `${m.customerIds.length} ${m.customerIds.length === 1 ? "kunde" : "kunder"}`;
-    parts.push(scope);
-  }
-  return parts.join(" · ");
+    ...m.roles.map(
+      (r) => `${r} (${PARTNER_ACCESS_SHORT[m.roleAccess?.[r] ?? "read"]}, ${describeRoleScope(m, r)})`,
+    ),
+  ].join(" · ");
+}
+
+/** Gjelder rollen for denne kunden? */
+export function hasRoleForCustomer(
+  m: PartnerTeamMember,
+  role: PartnerRole,
+  customerId: string,
+): boolean {
+  if (!m.roles.includes(role)) return false;
+  const scope = m.roleScope?.[role] ?? "all";
+  return scope === "all" || (m.roleCustomerIds?.[role] ?? []).includes(customerId);
 }
 
 /** Kan brukeren jobbe i denne kundens virksomhetsprofil? */
 export function canOperateCustomer(m: PartnerTeamMember, customerId: string): boolean {
-  if (!m.roles.includes("Driftspartner")) return false;
-  return m.scope === "all" || m.customerIds.includes(customerId);
+  return hasRoleForCustomer(m, "Driftspartner", customerId);
+}
+
+/** Eier brukeren kunderelasjonen for denne kunden? */
+export function canManageCustomer(m: PartnerTeamMember, customerId: string): boolean {
+  return hasRoleForCustomer(m, "Kundeansvarlig", customerId);
+}
+
+/**
+ * Tildeler en rolle for én bestemt kunde (fra kundekortet).
+ * Muterer demo-teamet, lagrer i localStorage og varsler åpne visninger.
+ */
+export function assignRoleForCustomer(
+  memberId: string,
+  role: PartnerRole,
+  customerId: string,
+): void {
+  const member = PARTNER_TEAM.find((m) => m.id === memberId);
+  if (!member) return;
+  if (!member.roles.includes(role)) member.roles = [...member.roles, role];
+  if ((member.roleScope?.[role] ?? "all") !== "all") {
+    const ids = member.roleCustomerIds?.[role] ?? [];
+    if (!ids.includes(customerId)) {
+      member.roleCustomerIds = { ...member.roleCustomerIds, [role]: [...ids, customerId] };
+    }
+  }
+  const map = readRoleMap();
+  map[customerId] = { ...(map[customerId] ?? {}), [role]: member.name };
+  localStorage.setItem(ROLE_STORAGE_KEY, JSON.stringify(map));
+  window.dispatchEvent(
+    new CustomEvent("msp-customer-role-changed", { detail: { customerId, role, name: member.name } }),
+  );
+}
+
+const ROLE_STORAGE_KEY = "msp-customer-role-assignments-v1";
+type RoleMap = Record<string, Partial<Record<PartnerRole, string>>>;
+
+function readRoleMap(): RoleMap {
+  try {
+    const raw = localStorage.getItem(ROLE_STORAGE_KEY);
+    return raw ? (JSON.parse(raw) as RoleMap) : {};
+  } catch {
+    return {};
+  }
+}
+
+/** Hvem er tildelt denne rollen for kunden (satt fra kundekortet)? */
+export function getCustomerRoleAssignment(customerId: string, role: PartnerRole): string | null {
+  return readRoleMap()[customerId]?.[role] ?? null;
 }
 
 export const PARTNER_TEAM: PartnerTeamMember[] = [
-  { id: "u1", name: "Truls Berg",   email: "truls@dintero.no", roles: ["Kundeansvarlig"],                  roleAccess: { Kundeansvarlig: "write", Driftspartner: "read" },  scope: "all",      customerIds: [], initials: "TB" },
-  { id: "u2", name: "Maja Solheim", email: "maja@dintero.no",  roles: ["Kundeansvarlig", "Driftspartner"], roleAccess: { Kundeansvarlig: "write", Driftspartner: "write" }, scope: "all",      customerIds: [], initials: "MS" },
-  { id: "u3", name: "Erik Hansen",  email: "erik@dintero.no",  roles: ["Driftspartner"],                   roleAccess: { Kundeansvarlig: "read", Driftspartner: "read" },     scope: "selected", customerIds: [], initials: "EH" },
+  { id: "u1", name: "Truls Berg",   email: "truls@dintero.no", roles: ["Kundeansvarlig"],                  roleAccess: { Kundeansvarlig: "write", Driftspartner: "read" },  roleScope: { Kundeansvarlig: "all", Driftspartner: "all" },           roleCustomerIds: { Kundeansvarlig: [], Driftspartner: [] }, initials: "TB" },
+  { id: "u2", name: "Maja Solheim", email: "maja@dintero.no",  roles: ["Kundeansvarlig", "Driftspartner"], roleAccess: { Kundeansvarlig: "write", Driftspartner: "write" }, roleScope: { Kundeansvarlig: "selected", Driftspartner: "all" },      roleCustomerIds: { Kundeansvarlig: [], Driftspartner: [] }, initials: "MS" },
+  { id: "u3", name: "Erik Hansen",  email: "erik@dintero.no",  roles: ["Driftspartner"],                   roleAccess: { Kundeansvarlig: "read", Driftspartner: "read" },   roleScope: { Kundeansvarlig: "all", Driftspartner: "selected" },      roleCustomerIds: { Kundeansvarlig: [], Driftspartner: [] }, initials: "EH" },
 ];
 
 
