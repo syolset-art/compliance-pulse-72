@@ -94,6 +94,17 @@ const emptyInvite: InviteDraft = {
   roleCustomerIds: { Kundeansvarlig: [], Driftspartner: [] },
 };
 
+const formatSelectedCustomers = (customerIds: string[], customers: CustomerOption[]) => {
+  const names = customerIds
+    .map((id) => customers.find((c) => c.id === id)?.name)
+    .filter(Boolean) as string[];
+  if (names.length === 0) return "Ingen kunder valgt ennå";
+  if (names.length === 1) return names[0];
+  if (names.length === 2) return `${names[0]} og ${names[1]}`;
+  return `${names.slice(0, 2).join(", ")} og ${names.length - 2} til`;
+};
+
+
 export default function MSPPartnerSettings() {
   const { enabled: postActivationEnabled, setPreference: setPostActivationPreference } =
     usePostActivationPrompt();
