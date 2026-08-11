@@ -22,8 +22,22 @@ import {
   coversDocumentType,
   type AgenticTrustCenterState,
 } from "@/lib/agenticTrustCenter";
+import { toast } from "sonner";
+import {
+  NOT_REQUESTED_LABEL,
+  SOURCING_METHOD_META,
+  VENDOR_ARCHETYPES,
+  archetypeByKey,
+  readSourcingState,
+  recommendSourcingMethod,
+  writeSourcingState,
+  type SourcingMethod,
+  type VendorArchetype,
+} from "@/lib/vendorSourcingMethod";
 
 interface Props {
+  /** Brukes til å lagre valgt innhentingsmetode per leverandør. */
+  assetId: string;
   actions: VendorFrameworkAction[];
   onRequestDocumentation: (action: VendorFrameworkAction) => void;
   onCreateActivity: (action: VendorFrameworkAction) => void;
@@ -42,6 +56,7 @@ interface Props {
  * handlinger åpnes i et arbeidsvindu slik at kortet ikke tar plass i profilen.
  */
 export function VendorRecommendedActionsCard({
+  assetId,
   actions,
   onRequestDocumentation,
   onCreateActivity,
@@ -55,11 +70,42 @@ export function VendorRecommendedActionsCard({
   const isNb = i18n.language === "nb";
   const [workOpen, setWorkOpen] = useState(false);
 
+  // Innhentingsmetode — Lara anbefaler ut fra mandat og offentlig fotavtrykk.
+  const [sourcing, setSourcing] = useState(() => readSourcingState(assetId));
+  const recommendation = recommendSourcingMethod(archetypeByKey(sourcing.archetype).signals);
+  const primaryMethod = SOURCING_METHOD_META[recommendation.primary];
+
+  const selectArchetype = (archetype: VendorArchetype) => {
+    const next = { ...sourcing, archetype };
+    setSourcing(next);
+    writeSourcingState(assetId, next);
+  };
+
+  const startSourcing = (method: SourcingMethod) => {
+    if (method === "vendor_agentic") {
+      onInviteTrustCenter();
+      return;
+    }
+    const next = { ...sourcing, method, startedAt: new Date().toISOString() };
+    setSourcing(next);
+    writeSourcingState(assetId, next);
+    toast.success(
+      method === "public_harvest"
+        ? isNb
+          ? "Lara kartlegger offentlige kilder"
+          : "Lara is mapping public sources"
+        : isNb
+          ? "Forespørsel sendt på e-post"
+          : "Email request sent",
+    );
+  };
+
   const criticalCount = actions.filter((a) => a.criticality === "kritisk").length;
 
   const hasTrustCenter = trustCenter.status !== "none";
   const delivered = trustCenter.deliveredCount ?? 0;
   const requested = trustCenter.requestedDocumentTypes.length;
+
 
   const trustCenterBlock = (
     <div
