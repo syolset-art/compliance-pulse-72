@@ -220,12 +220,8 @@ export function VendorRecommendedActionsCard({
             </SheetDescription>
           </SheetHeader>
 
-          {docCount > 0 && (
-            <Button size="sm" variant="outline" className="mt-4 h-8 text-xs" onClick={onRequestAllMissing}>
-              <Send className="h-3.5 w-3.5 mr-1.5" />
-              {isNb ? "Be om alt som mangler" : "Request all missing"}
-            </Button>
-          )}
+          <div className="mt-4">{trustCenterBlock}</div>
+
 
           <div className="mt-4 space-y-2 pb-8">
             {actions.map((a) => {
