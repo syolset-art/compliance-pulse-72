@@ -334,6 +334,15 @@ export function MSPCreateOfferDialog({
     return out.slice(0, 8);
   }, [coveredGaps, sortedGaps, selectedGapIds]);
 
+  // v1.1: la partneren se tilbudet slik kunden får det, før det genereres.
+  const handlePreview = () => {
+    if (tasks.length === 0) {
+      toast.error("Ingenting å forhåndsvise", { description: "Legg til minst én oppgave først." });
+      return;
+    }
+    setView("preview");
+  };
+
   const handleGenerate = () => {
     if (tasks.length === 0) {
       toast.error("Kan ikke generere tilbud", { description: "Legg til minst én oppgave først." });
