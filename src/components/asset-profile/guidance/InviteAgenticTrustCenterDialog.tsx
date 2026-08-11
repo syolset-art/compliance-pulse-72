@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -31,6 +32,8 @@ import {
   Trash2,
   Copy,
   Check,
+  Upload,
+  Plug,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { VendorFrameworkAction } from "@/lib/vendorFrameworkSuggestions";
@@ -44,6 +47,7 @@ import {
   type TrustCenterContact,
   type TrustCenterContactRole,
   type TrustCenterInterval,
+  type TrustCenterDeliveryMethod,
 } from "@/lib/agenticTrustCenter";
 
 interface Props {
@@ -78,6 +82,7 @@ export function InviteAgenticTrustCenterDialog({
   const [contacts, setContacts] = useState<TrustCenterContact[]>([]);
   const [selectedDocs, setSelectedDocs] = useState<string[]>([]);
   const [interval, setIntervalValue] = useState<TrustCenterInterval>("semiannual");
+  const [deliveryMethod, setDeliveryMethod] = useState<TrustCenterDeliveryMethod>("manual");
   const [deadline, setDeadline] = useState("");
   const [message, setMessage] = useState("");
   const [copied, setCopied] = useState(false);
@@ -107,6 +112,7 @@ export function InviteAgenticTrustCenterDialog({
         : docActions.map((a) => a.documentType!),
     );
     setIntervalValue(existing.interval);
+    setDeliveryMethod(existing.deliveryMethod ?? "manual");
     const d = new Date();
     d.setDate(d.getDate() + 21);
     setDeadline(d.toISOString().slice(0, 10));
@@ -135,6 +141,7 @@ export function InviteAgenticTrustCenterDialog({
       contacts,
       requestedDocumentTypes: selectedDocs,
       interval,
+      deliveryMethod,
       message,
       invitedAt: new Date().toISOString(),
       deliveredCount: 0,
@@ -147,8 +154,8 @@ export function InviteAgenticTrustCenterDialog({
       isNb ? "Invitasjon sendt til leverandøren" : "Invitation sent to the vendor",
       {
         description: isNb
-          ? `${contacts.length} kontaktperson(er) · ${selectedDocs.length} dokumenter etterspurt`
-          : `${contacts.length} contact(s) · ${selectedDocs.length} documents requested`,
+          ? `${contacts.length} kontaktperson(er) · ${selectedDocs.length} dokumenter · ${deliveryMethod === "mcp" ? "MCP planlagt" : "Manuell opplasting"}`
+          : `${contacts.length} contact(s) · ${selectedDocs.length} documents · ${deliveryMethod === "mcp" ? "MCP planned" : "Manual upload"}`,
       },
     );
   };
@@ -346,11 +353,65 @@ export function InviteAgenticTrustCenterDialog({
         {/* Steg 3 — dokumentasjon */}
         {step === 3 && (
           <div className="space-y-3">
-            <p className="text-[13px] text-muted-foreground">
-              {isNb
-                ? "Dette etterspør trust profilen — og holder den oppdatert videre."
-                : "This is what the trust profile requests — and keeps up to date."}
-            </p>
+            <div className="space-y-2">
+              <p className="text-[13px] text-muted-foreground">
+                {isNb
+                  ? "Velg leveringsmåte for dokumentasjon."
+                  : "Choose how documentation should be delivered."}
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setDeliveryMethod("manual")}
+                  className={cn(
+                    "relative flex flex-col items-start gap-2 rounded-lg border p-3 text-left transition-colors",
+                    deliveryMethod === "manual"
+                      ? "border-primary bg-primary/5"
+                      : "border-border bg-card hover:bg-accent/30",
+                  )}
+                >
+                  <div className="flex items-center gap-2 w-full">
+                    <div className="h-7 w-7 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                      <Upload className="h-3.5 w-3.5 text-primary" />
+                    </div>
+                    <span className="flex-1 text-[13px] font-medium text-foreground">
+                      {isNb ? "Manuell opplasting" : "Manual upload"}
+                    </span>
+                    {deliveryMethod === "manual" && (
+                      <Check className="h-3.5 w-3.5 text-primary shrink-0" />
+                    )}
+                  </div>
+                  <p className="text-[11px] text-muted-foreground leading-relaxed">
+                    {isNb
+                      ? "Leverandøren laster opp dokumenter i trust profile-rommet."
+                      : "The vendor uploads documents in the trust profile room."}
+                  </p>
+                </button>
+
+                <div
+                  className={cn(
+                    "relative flex flex-col items-start gap-2 rounded-lg border border-border bg-muted/40 p-3 opacity-75",
+                  )}
+                >
+                  <div className="flex items-center gap-2 w-full">
+                    <div className="h-7 w-7 rounded-full bg-muted flex items-center justify-center shrink-0">
+                      <Plug className="h-3.5 w-3.5 text-muted-foreground" />
+                    </div>
+                    <span className="flex-1 text-[13px] font-medium text-foreground">
+                      {isNb ? "Koble til systemer via MCP" : "Connect systems via MCP"}
+                    </span>
+                    <Badge variant="outline" className="text-[10px] h-5 px-1.5">
+                      V2
+                    </Badge>
+                  </div>
+                  <p className="text-[11px] text-muted-foreground leading-relaxed">
+                    {isNb
+                      ? "Lara henter dokumenter automatisk fra leverandørens systemer. Kommer snart."
+                      : "Lara automatically pulls documents from the vendor's systems. Coming soon."}
+                  </p>
+                </div>
+              </div>
+            </div>
 
             <div className="rounded-lg border border-border divide-y divide-border">
               {docActions.length === 0 && (
