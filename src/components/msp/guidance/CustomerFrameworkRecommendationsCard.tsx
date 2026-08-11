@@ -34,12 +34,6 @@ interface Props {
   onEnterCustomer?: (items: CustomerEntryTarget[]) => void;
 }
 
-const STATUS_TEXT: Record<MaturityAssessmentStatus, string> = {
-  not_started: "Ikke startet",
-  partner_in_progress: "Delvis besvart av partner",
-  sent_to_customer: "Sendt til kunde – venter på svar",
-  confirmed: "Bekreftet av kunden",
-};
 
 export function CustomerFrameworkRecommendationsCard({
   customer,
