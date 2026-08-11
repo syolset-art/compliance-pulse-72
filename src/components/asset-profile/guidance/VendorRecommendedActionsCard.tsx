@@ -10,7 +10,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { FileText, ListChecks, Send, ListPlus, Info, ArrowRight, Sparkles, ShieldCheck, BellRing, Users } from "lucide-react";
+import { FileText, ListChecks, ListPlus, Info, ArrowRight, Sparkles, ShieldCheck, BellRing, Users } from "lucide-react";
 import { LaraAvatar } from "@/components/asset-profile/LaraAvatar";
 import { cn } from "@/lib/utils";
 import {
