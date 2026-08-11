@@ -98,21 +98,13 @@ export function CustomerFrameworkRecommendationsCard({
             <TooltipContent side="left" className="max-w-[300px] text-xs leading-relaxed">
               <p className="font-medium text-foreground">
                 {confirmed
-                  ? "Bekreftet av kunden – bygger på den initielle KI-vurderingen"
-                  : "Basert på informasjon kartlagt da kunden ble lagt til"}
+                  ? t("customerFrameworkRecommendations.badgeTooltip.confirmedTitle")
+                  : t("customerFrameworkRecommendations.badgeTooltip.aiTitle")}
               </p>
-              <p className="mt-1.5">Vi hentet automatisk:</p>
-              <ul className="mt-1 space-y-0.5 list-disc pl-4">
-                <li>Organisasjonsnummer og selskapsdata fra offentlige registre</li>
-                <li>Bransje og NACE-kode der den finnes</li>
-                <li>Kundens nettsted og personvernerklæring</li>
-              </ul>
               <p className="mt-1.5">
-                Ut fra dette har KI-agenten anbefalt hvilke regelverk som med stor sannsynlighet er
-                lovpålagte for virksomheten.
                 {confirmed
-                  ? " Kunden har i tillegg bekreftet vurderingen i modenhetsvurderingen."
-                  : " Vurderingen bekreftes når kunden svarer på modenhetsvurderingen."}
+                  ? t("customerFrameworkRecommendations.badgeTooltip.confirmedDescription")
+                  : t("customerFrameworkRecommendations.badgeTooltip.description")}
               </p>
             </TooltipContent>
           </Tooltip>
