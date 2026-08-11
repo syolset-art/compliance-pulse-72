@@ -354,6 +354,20 @@ export function MynderGuidanceTab({
         contactEmail={contactEmail ?? null}
       />
 
+      {/* Agentisk Trust Center — kontinuerlig oppdatert dokumentasjon fra leverandøren */}
+      <InviteAgenticTrustCenterDialog
+        open={inviteTrustCenterOpen}
+        onOpenChange={setInviteTrustCenterOpen}
+        assetId={assetId}
+        vendorName={assetName ?? ""}
+        actions={actions}
+        contactPerson={contactPerson ?? null}
+        contactEmail={contactEmail ?? null}
+        onSaved={setTrustCenter}
+      />
+
+
+
       {/* Legg til eget regelverk, standard eller retningslinje */}
       <AddFrameworkDialog
         open={addFrameworkOpen}
