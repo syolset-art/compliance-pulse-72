@@ -58,15 +58,39 @@ const defaults: ForwardSettings = {
 import {
   PARTNER_TEAM,
   PARTNER_ROLE_DESC,
+  PARTNER_MEMBER_DESC,
   PARTNER_ACCESS_LABEL,
+  PARTNER_SCOPE_LABEL,
+  describeMemberAccess,
   type PartnerTeamMember,
   type PartnerRole,
   type PartnerAccess,
+  type PartnerScope,
 } from "@/lib/partnerTeam";
 type TeamMember = PartnerTeamMember;
 const DEMO_TEAM = PARTNER_TEAM;
 
+interface CustomerOption { id: string; name: string }
+
 const isValidEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+
+type InviteDraft = {
+  name: string;
+  email: string;
+  roles: PartnerRole[];
+  access: PartnerAccess;
+  scope: PartnerScope;
+  customerIds: string[];
+};
+
+const emptyInvite: InviteDraft = {
+  name: "",
+  email: "",
+  roles: ["Kundeansvarlig"],
+  access: "write",
+  scope: "all",
+  customerIds: [],
+};
 
 export default function MSPPartnerSettings() {
   const { enabled: postActivationEnabled, setPreference: setPostActivationPreference } =
@@ -76,14 +100,10 @@ export default function MSPPartnerSettings() {
   const [form, setForm] = useState<ForwardSettings>(defaults);
   const [team, setTeam] = useState<TeamMember[]>(DEMO_TEAM);
   const [inviteOpen, setInviteOpen] = useState(false);
-  const [invite, setInvite] = useState<{ name: string; email: string; role: PartnerRole; access: PartnerAccess }>({
-    name: "",
-    email: "",
-    role: "Kundeansvarlig",
-    access: "write",
-  });
+  const [invite, setInvite] = useState<InviteDraft>(emptyInvite);
   const [inviteTerms, setInviteTerms] = useState(false);
   const [inviteLoading, setInviteLoading] = useState(false);
+  const [customers, setCustomers] = useState<CustomerOption[]>([]);
   const [enabledModules, setEnabledModules] = useState<PartnerModuleKey[]>(() => getEnabledPartnerModules());
 
   const updateMember = (id: string, patch: Partial<TeamMember>) => {
@@ -91,6 +111,31 @@ export default function MSPPartnerSettings() {
     toast.success("Tilgang oppdatert");
   };
 
+  const toggleMemberRole = (m: TeamMember, role: PartnerRole, on: boolean) => {
+    const roles = on ? [...m.roles, role] : m.roles.filter((r) => r !== role);
+    updateMember(m.id, { roles });
+  };
+
+  const toggleMemberCustomer = (m: TeamMember, customerId: string, on: boolean) => {
+    const customerIds = on
+      ? [...m.customerIds, customerId]
+      : m.customerIds.filter((id) => id !== customerId);
+    setTeam((prev) => prev.map((x) => (x.id === m.id ? { ...x, customerIds } : x)));
+  };
+
+  // Kundeliste til omfangsvelgeren for driftspartnere.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("msp_customers")
+        .select("id, customer_name")
+        .order("customer_name");
+      if (cancelled || !data) return;
+      setCustomers(data.map((c) => ({ id: c.id as string, name: c.customer_name as string })));
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
   // Normalize legacy "generelt" tab into "tilgangsstyring" so the Tilgangsstyring menu
   // always shows the user-management section.
@@ -107,7 +152,12 @@ export default function MSPPartnerSettings() {
     toast.success(enabled ? "Modul aktivert i Compliance-menyen" : "Modul fjernet fra Compliance-menyen");
   };
 
-  const inviteValid = invite.name.trim().length > 0 && isValidEmail(invite.email);
+  const inviteValid =
+    invite.name.trim().length > 0 &&
+    isValidEmail(invite.email) &&
+    (!invite.roles.includes("Driftspartner") ||
+      invite.scope === "all" ||
+      invite.customerIds.length > 0);
 
   const handleSendInvite = () => {
     if (!inviteValid) return;
@@ -115,23 +165,24 @@ export default function MSPPartnerSettings() {
     setTimeout(() => {
       setInviteLoading(false);
       setInviteOpen(false);
-      setTeam((prev) => [
-        ...prev,
-        {
-          id: `u${Date.now()}`,
-          name: invite.name.trim(),
-          email: invite.email.trim(),
-          role: invite.role,
-          access: invite.access,
-          initials: invite.name.trim().split(/\s+/).map((p) => p[0]).slice(0, 2).join("").toUpperCase(),
-        },
-      ]);
+      const newMember: TeamMember = {
+        id: `u${Date.now()}`,
+        name: invite.name.trim(),
+        email: invite.email.trim(),
+        roles: invite.roles,
+        access: invite.access,
+        scope: invite.scope,
+        customerIds: invite.customerIds,
+        initials: invite.name.trim().split(/\s+/).map((p) => p[0]).slice(0, 2).join("").toUpperCase(),
+      };
+      setTeam((prev) => [...prev, newMember]);
       toast.success(`Invitasjon sendt til ${invite.email}`, {
-        description: `${invite.role} — ${PARTNER_ACCESS_LABEL[invite.access].toLowerCase()}.`,
+        description: describeMemberAccess(newMember),
       });
-      setInvite({ name: "", email: "", role: "Kundeansvarlig", access: "write" });
+      setInvite(emptyInvite);
     }, 600);
   };
+
 
 
   useEffect(() => {
