@@ -140,8 +140,13 @@ export function useSubscription() {
 
   // Lokalt deaktiverte moduler (Innstillinger → Produkter)
   const [deactivatedModules, setDeactivatedModules] = useState<Set<string>>(() => getDeactivatedModules());
+  // v1.1 — modulstatus fra Produkter er nå kilden for om moduler vises i menyen
+  const [moduleStates, setModuleStates] = useState(() => getModuleStates());
   useEffect(() => {
-    const sync = () => setDeactivatedModules(getDeactivatedModules());
+    const sync = () => {
+      setDeactivatedModules(getDeactivatedModules());
+      setModuleStates(getModuleStates());
+    };
     window.addEventListener("modules:changed", sync);
     window.addEventListener("storage", sync);
     return () => {
@@ -149,6 +154,7 @@ export function useSubscription() {
       window.removeEventListener("storage", sync);
     };
   }, []);
+
 
   // Derived state
   const currentTier: PlanTier = planNameToTier(subscription?.plan?.name);
