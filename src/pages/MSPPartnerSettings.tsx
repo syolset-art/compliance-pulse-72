@@ -709,35 +709,41 @@ export default function MSPPartnerSettings() {
                           </Select>
                         )}
                         {invite.roles.includes(role) && invite.roleScope[role] === "selected" && (
-                          <div className="w-[186px] max-h-40 overflow-auto rounded-lg border border-border p-1">
-                            {customers.length === 0 && (
-                              <p className="px-2 py-2 text-sm text-muted-foreground">Ingen kunder ennå.</p>
-                            )}
-                            {customers.map((c) => (
-                              <label
-                                key={c.id}
-                                className="flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-muted cursor-pointer"
-                              >
-                                <Checkbox
-                                  checked={invite.roleCustomerIds[role].includes(c.id)}
-                                  onCheckedChange={(v) =>
-                                    setInvite({
-                                      ...invite,
-                                      roleCustomerIds: {
-                                        ...invite.roleCustomerIds,
-                                        [role]:
-                                          v === true
-                                            ? [...invite.roleCustomerIds[role], c.id]
-                                            : invite.roleCustomerIds[role].filter((id) => id !== c.id),
-                                      },
-                                    })
-                                  }
-                                />
-                                <span className="text-sm text-foreground truncate">{c.name}</span>
-                              </label>
-                            ))}
+                          <div className="w-[186px] space-y-1">
+                            <p className="text-xs text-muted-foreground">
+                              {formatSelectedCustomers(invite.roleCustomerIds[role], customers)}
+                            </p>
+                            <div className="max-h-40 overflow-auto rounded-lg border border-border p-1">
+                              {customers.length === 0 && (
+                                <p className="px-2 py-2 text-sm text-muted-foreground">Ingen kunder ennå.</p>
+                              )}
+                              {customers.map((c) => (
+                                <label
+                                  key={c.id}
+                                  className="flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-muted cursor-pointer"
+                                >
+                                  <Checkbox
+                                    checked={invite.roleCustomerIds[role].includes(c.id)}
+                                    onCheckedChange={(v) =>
+                                      setInvite({
+                                        ...invite,
+                                        roleCustomerIds: {
+                                          ...invite.roleCustomerIds,
+                                          [role]:
+                                            v === true
+                                              ? [...invite.roleCustomerIds[role], c.id]
+                                              : invite.roleCustomerIds[role].filter((id) => id !== c.id),
+                                        },
+                                      })
+                                    }
+                                  />
+                                  <span className="text-sm text-foreground truncate">{c.name}</span>
+                                </label>
+                              ))}
+                            </div>
                           </div>
                         )}
+
                       </div>
                     </div>
                   ))}
