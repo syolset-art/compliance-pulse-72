@@ -61,6 +61,8 @@ import {
   PARTNER_SCOPE_LABEL,
   describeMemberAccess,
   DEFAULT_ROLE_ACCESS,
+  DEFAULT_ROLE_SCOPE,
+  PARTNER_INVITE_ROLE_REQUIRED,
   PARTNER_ROLE_ACCESS_HINT,
   type PartnerTeamMember,
   type PartnerRole,
@@ -124,11 +126,27 @@ export default function MSPPartnerSettings() {
     updateMember(m.id, { roles });
   };
 
-  const toggleMemberCustomer = (m: TeamMember, customerId: string, on: boolean) => {
-    const customerIds = on
-      ? [...m.customerIds, customerId]
-      : m.customerIds.filter((id) => id !== customerId);
-    setTeam((prev) => prev.map((x) => (x.id === m.id ? { ...x, customerIds } : x)));
+  const memberScope = (m: TeamMember, role: PartnerRole): PartnerScope =>
+    m.roleScope?.[role] ?? DEFAULT_ROLE_SCOPE[role];
+  const memberCustomers = (m: TeamMember, role: PartnerRole): string[] =>
+    m.roleCustomerIds?.[role] ?? [];
+
+  const setMemberScope = (m: TeamMember, role: PartnerRole, scope: PartnerScope) => {
+    updateMember(m.id, {
+      roleScope: { ...DEFAULT_ROLE_SCOPE, ...m.roleScope, [role]: scope },
+    });
+  };
+
+  const toggleMemberCustomer = (m: TeamMember, role: PartnerRole, customerId: string, on: boolean) => {
+    const current = memberCustomers(m, role);
+    const next = on ? [...current, customerId] : current.filter((id) => id !== customerId);
+    setTeam((prev) =>
+      prev.map((x) =>
+        x.id === m.id
+          ? { ...x, roleCustomerIds: { ...x.roleCustomerIds, [role]: next } }
+          : x,
+      ),
+    );
   };
 
   // Kundeliste til omfangsvelgeren for driftspartnere.
@@ -158,9 +176,10 @@ export default function MSPPartnerSettings() {
   const inviteValid =
     invite.name.trim().length > 0 &&
     isValidEmail(invite.email) &&
-    (!invite.roles.includes("Driftspartner") ||
-      invite.scope === "all" ||
-      invite.customerIds.length > 0);
+    invite.roles.length > 0 &&
+    invite.roles.every(
+      (r) => invite.roleScope[r] === "all" || invite.roleCustomerIds[r].length > 0,
+    );
 
   const handleSendInvite = () => {
     if (!inviteValid) return;
@@ -174,8 +193,8 @@ export default function MSPPartnerSettings() {
         email: invite.email.trim(),
         roles: invite.roles,
         roleAccess: invite.roleAccess,
-        scope: invite.scope,
-        customerIds: invite.customerIds,
+        roleScope: invite.roleScope,
+        roleCustomerIds: invite.roleCustomerIds,
         initials: invite.name.trim().split(/\s+/).map((p) => p[0]).slice(0, 2).join("").toUpperCase(),
       };
       setTeam((prev) => [...prev, newMember]);
