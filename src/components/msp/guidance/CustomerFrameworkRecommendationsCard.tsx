@@ -55,6 +55,7 @@ export function CustomerFrameworkRecommendationsCard({
   const activated = deriveActivatedFrameworks(customer);
   const activatedTargets = deriveActivatedFrameworkTargets(customer);
   const confirmed = status === "confirmed";
+  const { t } = useTranslation();
 
   const [addOpen, setAddOpen] = useState(false);
   const [manual, setManual] = useState<OfferSuggestion[]>([]);
