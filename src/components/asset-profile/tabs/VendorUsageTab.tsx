@@ -400,6 +400,7 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
         titleEn="Data usage"
         placeholderNb="Beskriv hvilke data leverandøren behandler – personopplysninger, kategorier, mengde, sensitivitet …"
         placeholderEn="Describe what data the vendor processes – personal data, categories, volume, sensitivity …"
+        hideHeader
         value={(asset?.metadata as any)?.data_usage_text || ""}
         onSave={async (next) => {
           const newMeta = { ...(asset?.metadata as any || {}), data_usage_text: next };
