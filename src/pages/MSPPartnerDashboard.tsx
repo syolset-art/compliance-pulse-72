@@ -555,21 +555,6 @@ function AvgTrustScoreWidget() {
           );
         })}
       </div>
-
-      <div className="w-full space-y-1.5">
-        <div className="text-[11px] uppercase tracking-[0.15em] text-muted-foreground font-semibold">
-          Per kontrollområde
-        </div>
-        {areas.map((a) => (
-          <div key={a.label} className="flex items-center gap-2 text-[11px]">
-            <span className="w-32 shrink-0 truncate text-muted-foreground">{a.label}</span>
-            <span className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden" aria-hidden="true">
-              <span className="block h-full rounded-full bg-primary" style={{ width: `${a.pct}%` }} />
-            </span>
-            <span className="w-10 shrink-0 text-right tabular-nums text-foreground">{a.pct}%</span>
-          </div>
-        ))}
-      </div>
     </Card>
   );
 }
