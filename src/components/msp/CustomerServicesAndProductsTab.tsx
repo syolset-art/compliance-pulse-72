@@ -527,7 +527,13 @@ export function CustomerServicesAndProductsTab({
             icon={Shield}
             title="Regelverk"
             description="Regelverkene kunden etterlever, med krav og dokumentasjonskrav."
-            status={activeFrameworks.length > 0 ? "active" : "inactive"}
+            status={
+              frameworksRetiring
+                ? "pending_cancellation"
+                : activeFrameworks.length > 0
+                  ? "active"
+                  : "inactive"
+            }
             price={activeFrameworks.length * FRAMEWORK_PRICE}
             priceLabel={
               activeFrameworks.length > 0 ? `${activeFrameworks.length} aktive regelverk` : undefined
@@ -540,6 +546,13 @@ export function CustomerServicesAndProductsTab({
                 ? activeFrameworks.map((f) => ({ label: f.name, priceKr: FRAMEWORK_PRICE }))
                 : undefined
             }
+            cancelAtLabel={
+              frameworksState.cancelAt ? formatPeriodEnd(frameworksState.cancelAt) : undefined
+            }
+            onDeactivate={
+              activeFrameworks.length > 0 ? () => setRetireFrameworksOpen(true) : undefined
+            }
+            onResume={() => undoRetire("frameworks")}
             action={activeFrameworks.length > 0 ? "manage" : "activate"}
             onClick={() => {
               if (recommendedFrameworks.length > 0 && selectedFrameworks.length === 0) {
@@ -551,6 +564,7 @@ export function CustomerServicesAndProductsTab({
             }}
             footer={frameworkFooter}
           />
+
 
           {products.map((p) => {
             const isTrust = p.key === "trust";
