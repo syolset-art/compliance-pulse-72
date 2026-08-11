@@ -173,12 +173,22 @@ function formatPartnerCurrency(amount: number, compact = true) {
 }
 
 
-const SEGMENTS = [
+const SEGMENTS_BY_INDUSTRY = [
+  { label: "Industri & produksjon", count: 98, color: "bg-primary", widthPct: 53, activatedPct: 41 },
+  { label: "Helse & biotek", count: 74, color: "bg-recommend", widthPct: 40, activatedPct: 48 },
+  { label: "Energi & utilities", count: 61, color: "bg-success", widthPct: 33, activatedPct: 55 },
+  { label: "Finans & forsikring", count: 55, color: "bg-warning", widthPct: 30, activatedPct: 39 },
+  { label: "Transport & logistikk", count: 42, color: "bg-destructive", widthPct: 23, activatedPct: 35 },
+  { label: "Offentlig & samfunn", count: 36, color: "bg-muted", widthPct: 20, activatedPct: 62 },
+  { label: "Teknologi & SaaS", count: 34, color: "bg-primary/70", widthPct: 18, activatedPct: 58 },
+];
+
+const SEGMENTS_BY_FRAMEWORK = [
   { label: "NIS2-eksponert", count: 71, color: "bg-primary", widthPct: 35, activatedPct: 38 },
-  { label: "Sky-avhengig", count: 186, color: "bg-purple-400", widthPct: 92, activatedPct: 54 },
-  { label: "Særlige kategorier", count: 128, color: "bg-emerald-500", widthPct: 64, activatedPct: 61 },
-  { label: "DORA-finans", count: 42, color: "bg-orange-500", widthPct: 21, activatedPct: 29 },
-  { label: "ISO 27001", count: 23, color: "bg-amber-700", widthPct: 12, activatedPct: 48 },
+  { label: "Sky-avhengig", count: 186, color: "bg-recommend", widthPct: 92, activatedPct: 54 },
+  { label: "Særlige kategorier", count: 128, color: "bg-success", widthPct: 64, activatedPct: 61 },
+  { label: "DORA-finans", count: 42, color: "bg-warning", widthPct: 21, activatedPct: 29 },
+  { label: "ISO 27001", count: 23, color: "bg-destructive", widthPct: 12, activatedPct: 48 },
 ];
 
 const LIVE_SIGNALS = [
@@ -1261,6 +1271,10 @@ function ClaimDevelopmentChart() {
 
 function PortfolioSegmentation() {
   const navigate = useNavigate();
+  const [grouping, setGrouping] = useState<"industry" | "framework">("industry");
+  const segments = grouping === "industry" ? SEGMENTS_BY_INDUSTRY : SEGMENTS_BY_FRAMEWORK;
+  const groupingLabel = grouping === "industry" ? "bransje" : "regelverk";
+
   return (
     <Card onClick={() => navigate("/msp-partner/widget/segmentation")} className="p-5 cursor-pointer hover:border-primary/40 transition-colors">
       <div className="flex items-center justify-between mb-4">
@@ -1279,14 +1293,36 @@ function PortfolioSegmentation() {
                 </button>
               </TooltipTrigger>
               <TooltipContent side="top" className="max-w-xs text-xs leading-relaxed">
-                Porteføljen din gruppert etter hovedkategori. «Treffer» viser hvor mange kunder
+                Porteføljen din gruppert etter {groupingLabel}. «Treffer» viser hvor mange kunder
                 som tilhører segmentet, «Aktivert» viser andelen av dem som har aktivert
                 tilhørende regelverk. Klikk widgeten for å se detaljer.
               </TooltipContent>
             </UITooltip>
           </TooltipProvider>
         </div>
-        <span className="text-xs text-muted-foreground">Lara · oppdatert i går</span>
+        <div
+          className="inline-flex rounded-lg border border-border p-0.5"
+          role="group"
+          aria-label="Velg segmentering"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {(["industry", "framework"] as const).map((g) => (
+            <button
+              key={g}
+              type="button"
+              onClick={() => setGrouping(g)}
+              aria-pressed={grouping === g}
+              className={
+                "flex-1 sm:flex-none whitespace-nowrap px-3 py-1.5 text-xs font-medium rounded-md transition-colors " +
+                (grouping === g
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:text-foreground")
+              }
+            >
+              {g === "industry" ? "Per bransje" : "Per regelverk"}
+            </button>
+          ))}
+        </div>
       </div>
       <div className="flex items-center gap-3 mb-2 text-[10px] uppercase tracking-wide text-muted-foreground">
         <div className="w-36">Segment</div>
@@ -1295,7 +1331,7 @@ function PortfolioSegmentation() {
         <div className="w-16 text-right">Aktivert</div>
       </div>
       <div className="space-y-3">
-        {SEGMENTS.map((s) => (
+        {segments.map((s) => (
           <div key={s.label} className="flex items-center gap-3">
             <div className="w-36 text-sm text-foreground">{s.label}</div>
             <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden" aria-hidden="true">
