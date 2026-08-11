@@ -24,7 +24,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import {
   ArrowLeft,
-  Database,
   Download,
   Archive,
   CalendarClock,
@@ -46,28 +45,6 @@ const REASONS: Array<{ id: string; label: string }> = [
   { id: "other", label: "Annet" },
 ];
 
-/** Tabeller som telles opp per modul for datainnsynet. */
-const MODULE_INVENTORY: Record<string, Array<{ table: string; label: string }>> = {
-  core: [
-    { table: "systems", label: "systemer" },
-    { table: "system_incidents", label: "avvik" },
-    { table: "system_processes", label: "behandlingsaktiviteter" },
-    { table: "uploaded_documents", label: "dokumenter" },
-  ],
-  frameworks: [
-    { table: "selected_frameworks", label: "aktiverte regelverk" },
-    { table: "framework_documents", label: "regelverksdokumenter" },
-  ],
-  vendors: [
-    { table: "vendor_documents", label: "leverandører og dokumenter" },
-    { table: "vendor_deliveries", label: "leveranser" },
-  ],
-  assets: [
-    { table: "assets", label: "verdier" },
-    { table: "work_area_documents", label: "dokumenter i arbeidsområder" },
-  ],
-  partner: [{ table: "msp_customers", label: "kunder" }],
-};
 
 export interface RetireModuleDialogProps {
   open: boolean;
@@ -93,7 +70,6 @@ export function RetireModuleDialog({
   const [competitor, setCompetitor] = useState("");
   const [dataChoice, setDataChoice] = useState<CancellationDataChoice>("retain");
   const [confirmed, setConfirmed] = useState(false);
-  const [inventory, setInventory] = useState<Array<{ label: string; count: number }> | null>(null);
   const [exporting, setExporting] = useState(false);
   const [exportUrl, setExportUrl] = useState<string | null>(null);
 
@@ -107,38 +83,10 @@ export function RetireModuleDialog({
       setCompetitor("");
       setDataChoice("retain");
       setConfirmed(false);
-      setInventory(null);
       setExportUrl(null);
     }
   }, [open]);
 
-  useEffect(() => {
-    if (!open || !moduleId) return;
-    const entries = MODULE_INVENTORY[moduleId] ?? [];
-    if (entries.length === 0) {
-      setInventory([]);
-      return;
-    }
-    let cancelled = false;
-    (async () => {
-      const results = await Promise.all(
-        entries.map(async (e) => {
-          const { count } = await (supabase as never as {
-            from: (t: string) => {
-              select: (c: string, o: { count: "exact"; head: true }) => Promise<{ count: number | null }>;
-            };
-          })
-            .from(e.table)
-            .select("id", { count: "exact", head: true });
-          return { label: e.label, count: count ?? 0 };
-        }),
-      );
-      if (!cancelled) setInventory(results.filter((r) => r.count > 0));
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [open, moduleId]);
 
   const handleExport = async (format: "json" | "csv") => {
     if (!moduleId) return;
@@ -241,24 +189,6 @@ export function RetireModuleDialog({
           </div>
         ) : (
           <div className="space-y-4">
-            <div className="rounded-md border border-border bg-muted/30 px-3 py-2.5">
-              <div className="flex items-center gap-2 text-xs font-medium text-foreground">
-                <Database className="h-3.5 w-3.5 text-muted-foreground" />
-                Dette er registrert på modulen
-              </div>
-              {inventory === null ? (
-                <p className="text-xs text-muted-foreground mt-1.5">Henter oversikt …</p>
-              ) : inventory.length === 0 ? (
-                <p className="text-xs text-muted-foreground mt-1.5">
-                  Ingen registrerte data å ta med videre.
-                </p>
-              ) : (
-                <p className="text-xs text-muted-foreground mt-1.5">
-                  {inventory.map((i) => `${i.count} ${i.label}`).join(" · ")}
-                </p>
-              )}
-            </div>
-
             <div className="rounded-md border border-primary/20 bg-primary/5 px-3 py-2.5">
               <div className="flex items-start gap-2">
                 <Info className="h-4 w-4 text-primary shrink-0 mt-0.5" />
