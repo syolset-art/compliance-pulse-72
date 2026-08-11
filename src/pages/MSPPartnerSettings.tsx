@@ -26,16 +26,9 @@ import {
   Shield,
   Save,
   Info,
-  Layers,
   Plug,
 } from "lucide-react";
 import { PartnerIntegrationsTab } from "@/components/msp/PartnerIntegrationsTab";
-import {
-  PARTNER_MODULES,
-  getEnabledPartnerModules,
-  setPartnerModuleEnabled,
-  type PartnerModuleKey,
-} from "@/lib/partnerModules";
 import { toast } from "sonner";
 import { usePostActivationPrompt } from "@/hooks/usePostActivationPrompt";
 
@@ -107,7 +100,7 @@ export default function MSPPartnerSettings() {
   const [inviteTerms, setInviteTerms] = useState(false);
   const [inviteLoading, setInviteLoading] = useState(false);
   const [customers, setCustomers] = useState<CustomerOption[]>([]);
-  const [enabledModules, setEnabledModules] = useState<PartnerModuleKey[]>(() => getEnabledPartnerModules());
+  
 
   const updateMember = (id: string, patch: Partial<TeamMember>) => {
     setTeam((prev) => prev.map((m) => (m.id === id ? { ...m, ...patch } : m)));
@@ -149,11 +142,6 @@ export default function MSPPartnerSettings() {
     }
   }, [searchParams, setSearchParams]);
 
-  const handleToggleModule = (key: PartnerModuleKey, enabled: boolean) => {
-    setPartnerModuleEnabled(key, enabled);
-    setEnabledModules(getEnabledPartnerModules());
-    toast.success(enabled ? "Modul aktivert i Compliance-menyen" : "Modul fjernet fra Compliance-menyen");
-  };
 
   const inviteValid =
     invite.name.trim().length > 0 &&
@@ -427,43 +415,6 @@ export default function MSPPartnerSettings() {
               </Card>
 
 
-              {/* 3. Andre moduler — aktivering for Compliance-menyen */}
-              <Card className="p-5">
-                <div className="flex items-start gap-3 mb-4">
-                  <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                    <Layers className="h-4 w-4 text-primary" />
-                  </div>
-                  <div>
-                    <h2 className="text-base font-semibold text-foreground">Andre moduler</h2>
-                    <p className="text-base text-muted-foreground mt-0.5">
-                      Som partner ser du som standard kun Trust Center, Regelverk og Meldinger
-                      under «Min organisasjon – Compliance og styring». Aktiver flere moduler her
-                      hvis du også vil bruke dem på din egen virksomhet.
-                    </p>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  {PARTNER_MODULES.map((m) => {
-                    const enabled = enabledModules.includes(m.key);
-                    return (
-                      <div
-                        key={m.key}
-                        className="flex items-start justify-between gap-3 rounded-lg border border-border p-3"
-                      >
-                        <div className="min-w-0">
-                          <p className="text-sm font-medium text-foreground">{m.labelNb}</p>
-                          <p className="text-sm text-muted-foreground mt-0.5">{m.descNb}</p>
-                        </div>
-                        <Switch
-                          checked={enabled}
-                          onCheckedChange={(v) => handleToggleModule(m.key, v)}
-                          aria-label={`Aktiver ${m.labelNb}`}
-                        />
-                      </div>
-                    );
-                  })}
-                </div>
-              </Card>
 
               {/* Etter aktivering */}
               <Card className="p-4">
