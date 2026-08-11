@@ -15,10 +15,12 @@ import {
   customerLicenseSummary,
   deriveActivatedFrameworks,
   deriveActivatedProducts,
+  moduleKeyForActivatedLabel,
 } from "@/lib/offerSuggestions";
 import { getOffersForCustomer, normalizeServiceKey } from "@/lib/customerOffers";
 import { SERVICE_LIBRARY } from "@/lib/serviceLibrary";
-import { CUSTOMER_MODULES_EVENT } from "@/lib/customerModuleState";
+import { CUSTOMER_MODULES_EVENT, getCustomerRetiringModules } from "@/lib/customerModuleState";
+import { formatPeriodEnd } from "@/lib/moduleActivationState";
 import { computeTaxBreakdown } from "@/lib/partnerTax";
 import { usePartnerBranding } from "@/hooks/usePartnerBranding";
 import { ExportInvoiceBasisDialog } from "@/components/msp/ExportInvoiceBasisDialog";
@@ -54,20 +56,44 @@ interface Row {
   fixedCount: number;
   /** Engangs etableringsgebyr — ikke alle kunder har dette. */
   setup: number;
+  /** Avviklede linjer: etikett → dato de faller bort. */
+  retiring: Record<string, string>;
 }
 
 
-function Pills({ items, empty }: { items: string[]; empty?: string }) {
+function Pills({
+  items,
+  empty,
+  retiring = {},
+}: {
+  items: string[];
+  empty?: string;
+  /** Etiketter som er sagt opp, med sluttdato. */
+  retiring?: Record<string, string>;
+}) {
   if (items.length === 0) {
     return <span className="text-xs text-muted-foreground">{empty ?? "—"}</span>;
   }
   return (
     <div className="flex flex-wrap gap-1">
-      {items.map((label) => (
-        <Badge key={label} variant="outline" className="bg-muted/60 text-foreground/80 text-[11px] font-normal">
-          {label}
-        </Badge>
-      ))}
+      {items.map((label) => {
+        const endsAt = retiring[label];
+        return (
+          <Badge
+            key={label}
+            variant="outline"
+            className={cn(
+              "text-[11px] font-normal",
+              endsAt
+                ? "border-dashed border-border bg-transparent text-muted-foreground"
+                : "bg-muted/60 text-foreground/80",
+            )}
+          >
+            <span className={endsAt ? "line-through" : undefined}>{label}</span>
+            {endsAt && <span className="ml-1">til {formatPeriodEnd(endsAt)}</span>}
+          </Badge>
+        );
+      })}
     </div>
   );
 }
@@ -108,11 +134,23 @@ export default function MSPInvoices() {
       .map((c: any) => {
         const { monthly } = customerLicenseSummary(c);
         const fixed = fixedPriceForCustomer(c.id);
+        const retiringModules = getCustomerRetiringModules(c.id);
+        const products = deriveActivatedProducts(c);
+        const frameworkLabels = deriveActivatedFrameworks(c);
+        const retiring: Record<string, string> = {};
+        for (const label of products) {
+          const key = moduleKeyForActivatedLabel(label);
+          if (key && retiringModules[key]) retiring[label] = retiringModules[key];
+        }
+        if (retiringModules.frameworks) {
+          for (const label of frameworkLabels) retiring[label] = retiringModules.frameworks;
+        }
         return {
           id: c.id,
           name: c.customer_name || "Uten navn",
           meta: [c.country_code || "NO", c.industry].filter(Boolean).join(" · "),
-          activated: [...deriveActivatedProducts(c), ...deriveActivatedFrameworks(c)],
+          activated: [...products, ...frameworkLabels],
+          retiring,
           monthly,
           fixed: fixed.total,
           fixedCount: fixed.count,
@@ -253,7 +291,7 @@ export default function MSPInvoices() {
                           <div className="text-xs text-muted-foreground">{r.meta || "—"}</div>
                         </TableCell>
                         <TableCell>
-                          <Pills items={r.activated} empty="Ingen aktive abonnement" />
+                          <Pills items={r.activated} retiring={r.retiring} empty="Ingen aktive abonnement" />
                         </TableCell>
                         <TableCell className="text-right text-foreground tabular-nums">
                           {oneTimeFor(r) > 0 ? (
@@ -329,7 +367,7 @@ export default function MSPInvoices() {
                       <div className="text-[11px] text-muted-foreground">per mnd</div>
                     </div>
                   </div>
-                  <Pills items={r.activated} empty="Ingen aktive abonnement" />
+                  <Pills items={r.activated} retiring={r.retiring} empty="Ingen aktive abonnement" />
                   <div className="pt-2 border-t border-border space-y-1 text-sm">
                     {oneTimeFor(r) > 0 && (
                       <div className="flex items-center justify-between">
