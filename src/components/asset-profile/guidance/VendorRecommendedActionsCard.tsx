@@ -10,7 +10,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { FileText, ListChecks, Send, Info, ArrowRight, Sparkles, ShieldCheck, BellRing, Users } from "lucide-react";
+import { FileText, ListChecks, Send, ListPlus, Info, ArrowRight, Sparkles, ShieldCheck, BellRing, Users } from "lucide-react";
 import { LaraAvatar } from "@/components/asset-profile/LaraAvatar";
 import { cn } from "@/lib/utils";
 import {
@@ -27,7 +27,7 @@ interface Props {
   actions: VendorFrameworkAction[];
   onRequestDocumentation: (action: VendorFrameworkAction) => void;
   onCreateActivity: (action: VendorFrameworkAction) => void;
-  onRequestAllMissing: () => void;
+  onCreateVendorActivity: () => void;
   /** Agentisk Trust Center — status og handlinger. */
   trustCenter: AgenticTrustCenterState;
   onInviteTrustCenter: () => void;
@@ -45,7 +45,7 @@ export function VendorRecommendedActionsCard({
   actions,
   onRequestDocumentation,
   onCreateActivity,
-  onRequestAllMissing,
+  onCreateVendorActivity,
   trustCenter,
   onInviteTrustCenter,
   onOpenTrustCenter,
@@ -133,12 +133,11 @@ export function VendorRecommendedActionsCard({
               <Sparkles className="h-3 w-3 mr-1" />
               {isNb ? "Inviter til Agentisk Trust Profile" : "Invite to Agentic Trust Profile"}
             </Button>
-            {docCount > 0 && (
-              <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={onRequestAllMissing}>
-                <Send className="h-3 w-3 mr-1" />
-                {isNb ? "Be om alt" : "Request all"}
-              </Button>
-            )}
+            <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={onCreateVendorActivity}>
+              <ListPlus className="h-3 w-3 mr-1" />
+              {isNb ? "Opprett aktivitet" : "Create activity"}
+            </Button>
+
           </div>
         </>
       )}

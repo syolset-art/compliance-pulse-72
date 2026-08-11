@@ -10,6 +10,7 @@ import { DocumentRequestsSection } from "@/components/asset-profile/tabs/Documen
 import { VendorFrameworkCard } from "@/components/asset-profile/guidance/VendorFrameworkCard";
 import { VendorRecommendedActionsCard } from "@/components/asset-profile/guidance/VendorRecommendedActionsCard";
 import { InviteAgenticTrustCenterDialog } from "@/components/asset-profile/guidance/InviteAgenticTrustCenterDialog";
+import { CreateVendorActivityDialog } from "@/components/asset-profile/guidance/CreateVendorActivityDialog";
 import {
   readTrustCenterState,
   writeTrustCenterState,
@@ -118,6 +119,7 @@ export function MynderGuidanceTab({
   const [trustCenter, setTrustCenter] = useState(() => readTrustCenterState(assetId));
   useEffect(() => setTrustCenter(readTrustCenterState(assetId)), [assetId]);
   const [inviteTrustCenterOpen, setInviteTrustCenterOpen] = useState(false);
+  const [createActivityOpen, setCreateActivityOpen] = useState(false);
 
   const openDocRequest = (action: VendorFrameworkAction) =>
     setDocRequestType(action.documentType ?? "general");
@@ -237,7 +239,7 @@ export function MynderGuidanceTab({
           actions={actions}
           onRequestDocumentation={openDocRequest}
           onCreateActivity={createActivityFromAction}
-          onRequestAllMissing={() => setDocRequestType("general")}
+          onCreateVendorActivity={() => setCreateActivityOpen(true)}
           trustCenter={trustCenter}
           onInviteTrustCenter={() => setInviteTrustCenterOpen(true)}
           onOpenTrustCenter={() => {
@@ -352,6 +354,20 @@ export function MynderGuidanceTab({
         preselectedType={docRequestType ?? undefined}
         contactPerson={contactPerson ?? null}
         contactEmail={contactEmail ?? null}
+      />
+
+      {/* Opprett aktivitet — velg hvordan dokumentasjonen skaffes */}
+      <CreateVendorActivityDialog
+        open={createActivityOpen}
+        onOpenChange={setCreateActivityOpen}
+        vendorName={assetName ?? ""}
+        actions={actions}
+        onRequestDocumentation={() => setDocRequestType("general")}
+        onRegisterManualActivity={() => {
+          const first = actions[0];
+          if (first) createActivityFromAction(first);
+        }}
+        onInviteTrustProfile={() => setInviteTrustCenterOpen(true)}
       />
 
       {/* Agentisk Trust Center — kontinuerlig oppdatert dokumentasjon fra leverandøren */}

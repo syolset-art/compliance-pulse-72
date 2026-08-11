@@ -37,6 +37,7 @@ import Regulations from "./pages/Regulations";
 import Subscriptions from "./pages/Subscriptions";
 import ActivityLog from "./pages/ActivityLog";
 import Integrations from "./pages/Integrations";
+import McpAgentConnections from "./pages/McpAgentConnections";
 import TermsAndConsent from "./pages/TermsAndConsent";
 import Terms from "./pages/Terms";
 import Legal from "./pages/Legal";
@@ -155,6 +156,7 @@ const App = () => (
                   <Route path="/subscriptions" element={<Subscriptions />} />
                   <Route path="/activity-log" element={<ActivityLog />} />
                   <Route path="/settings/integrations" element={<Integrations />} />
+                  <Route path="/settings/mcp" element={<McpAgentConnections />} />
                   <Route path="/terms-and-consent" element={<TermsAndConsent />} />
                   <Route path="/terms" element={<Terms />} />
                   <Route path="/legal" element={<Legal />} />
