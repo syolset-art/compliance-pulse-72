@@ -25,7 +25,6 @@ interface Props {
   value: string;
   onSave: (next: string) => Promise<void> | void;
   edgeFunction: "suggest-vendor-data-types" | "suggest-vendor-processes";
-  hideHeader?: boolean;
   context: {
     vendorName?: string | null;
     vendorCategory?: string | null;
