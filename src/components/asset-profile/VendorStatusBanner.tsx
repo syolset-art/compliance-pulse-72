@@ -125,6 +125,7 @@ export function VendorStatusBanner({ asset }: VendorStatusBannerProps) {
   });
 
   const status = deriveVendorStatus({
+    id: asset.id,
     compliance_score: asset.compliance_score,
     risk_level: asset.risk_level,
     lifecycle_status: asset.lifecycle_status,
