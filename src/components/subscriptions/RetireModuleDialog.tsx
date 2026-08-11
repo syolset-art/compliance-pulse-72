@@ -92,8 +92,7 @@ export function RetireModuleDialog({
   const [reason, setReason] = useState("");
   const [reasonNote, setReasonNote] = useState("");
   const [competitor, setCompetitor] = useState("");
-  const [dataChoice, setDataChoice] = useState<CancellationDataChoice>("download");
-  const [transferEmail, setTransferEmail] = useState("");
+  const [dataChoice, setDataChoice] = useState<CancellationDataChoice>("retain");
   const [confirmed, setConfirmed] = useState(false);
   const [inventory, setInventory] = useState<Array<{ label: string; count: number }> | null>(null);
   const [exporting, setExporting] = useState(false);
