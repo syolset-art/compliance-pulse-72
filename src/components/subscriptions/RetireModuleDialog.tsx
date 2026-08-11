@@ -189,24 +189,6 @@ export function RetireModuleDialog({
           </div>
         ) : (
           <div className="space-y-4">
-            <div className="rounded-md border border-border bg-muted/30 px-3 py-2.5">
-              <div className="flex items-center gap-2 text-xs font-medium text-foreground">
-                <Database className="h-3.5 w-3.5 text-muted-foreground" />
-                Dette er registrert på modulen
-              </div>
-              {inventory === null ? (
-                <p className="text-xs text-muted-foreground mt-1.5">Henter oversikt …</p>
-              ) : inventory.length === 0 ? (
-                <p className="text-xs text-muted-foreground mt-1.5">
-                  Ingen registrerte data å ta med videre.
-                </p>
-              ) : (
-                <p className="text-xs text-muted-foreground mt-1.5">
-                  {inventory.map((i) => `${i.count} ${i.label}`).join(" · ")}
-                </p>
-              )}
-            </div>
-
             <div className="rounded-md border border-primary/20 bg-primary/5 px-3 py-2.5">
               <div className="flex items-start gap-2">
                 <Info className="h-4 w-4 text-primary shrink-0 mt-0.5" />
