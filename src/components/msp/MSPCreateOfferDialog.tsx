@@ -688,7 +688,10 @@ export function MSPCreateOfferDialog({
             )}
             <span className="text-xs text-muted-foreground">{effectivePartnerName}</span>
           </div>
-          <DialogTitle className="text-lg">{offerName}</DialogTitle>
+          {/* v1.1: «utkast» gjelder kun redigering — etter generering er tilbudet laget */}
+          <DialogTitle className="text-lg">
+            {view === "edit" ? offerName : offerName.replace(/^Tilbudsutkast til/i, "Tilbud til")}
+          </DialogTitle>
           <DialogDescription className="text-sm">
             {view === "edit"
               ? "Juster oppgaver og timer. Når tilbudet er generert kan du sende det direkte til kunden, eller laste det ned som PDF og sende fra ditt eget tilbudssystem."
