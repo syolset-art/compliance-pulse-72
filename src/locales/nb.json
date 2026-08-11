@@ -1740,6 +1740,28 @@
     "reviewInfo": "Lara har foreslått svar basert på hva som er typisk for <strong>{{customerName}}</strong>. Gå gjennom hvert spørsmål og bekreft, juster eller marker som ikke relevant.",
     "partnerInfo": "Du svarer på vegne av <strong>{{customerName}}</strong>. Svarene lagres som partner-bekreftet og brukes som modenhetsvurdering når du kjører gap-analysen.",
     "meetingInfo": "Still spørsmålene høyt og velg svaret sammen med <strong>{{customerName}}</strong>. Svarene lagres som modenhetsvurdering og brukes som utgangspunkt for Trust Profile og gap-analyse."
+  },
+  "customerFrameworkRecommendations": {
+    "title": "Regelverk, standarder og retningslinjer",
+    "subtitle": "Lovpålagte er automatisk vurdert av Lara. Du kan legge til egne standarder og retningslinjer.",
+    "mandatory": "Lovpålagte",
+    "recommended": "Anbefalte",
+    "addButton": "Legg til regelverk, standard eller retningslinje",
+    "activateAll": "Aktiver alle anbefalte",
+    "createOffer": "Lag tilbud i stedet",
+    "manualLabel": "Manuelt valgt",
+    "removeAriaLabel": "Fjern {{label}}",
+    "noSuggestions": "Ingen regelverk foreslått ennå.",
+    "badge": {
+      "ai": "Initiell KI-vurdering",
+      "confirmed": "Bekreftet"
+    },
+    "badgeTooltip": {
+      "aiTitle": "Initiell KI-vurdering",
+      "confirmedTitle": "Bekreftet",
+      "description": "Lara vurderer automatisk hvilke regelverk som mest sannsynlig gjelder, basert på bransje, størrelse, land og nettsted. Du kan legge til egne standarder og retningslinjer.",
+      "confirmedDescription": "Kunden har bekreftet regelverksvurderingen. Du kan fortsatt legge til egne standarder og retningslinjer."
+    }
   }
 }
 
