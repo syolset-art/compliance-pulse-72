@@ -468,6 +468,22 @@ function AvgTrustScoreWidget() {
   const navigate = useNavigate();
   const score = 78;
   const delta = 4;
+  const totalCustomers = 300;
+
+  const distribution = [
+    { label: "≥ 75 %", count: 186, band: "Høy", color: "bg-success" as const },
+    { label: "50–74 %", count: 84, band: "Middels", color: "bg-warning" as const },
+    { label: "< 50 %", count: 30, band: "Lav", color: "bg-destructive" as const },
+  ];
+
+  const areas = [
+    { label: "Personvern", pct: 82 },
+    { label: "Styring", pct: 76 },
+    { label: "Drift og sikkerhet", pct: 74 },
+    { label: "Identitet og tilgang", pct: 68 },
+    { label: "Tredjepart og verdikjede", pct: 71 },
+  ];
+
   const r = 42;
   const c = 2 * Math.PI * r;
   const dash = (score / 100) * c;
@@ -479,50 +495,91 @@ function AvgTrustScoreWidget() {
   return (
     <Card
       onClick={() => navigate("/msp-partner/widget/trust-score")}
-      className="p-5 flex items-center gap-4 cursor-pointer hover:border-primary/40 transition-colors group relative"
+      className="p-5 flex flex-col items-start gap-4 cursor-pointer hover:border-primary/40 transition-colors group relative"
     >
-      <div className="relative h-24 w-24 shrink-0">
-        <svg viewBox="0 0 100 100" className="h-full w-full -rotate-90">
-          <circle cx="50" cy="50" r={r} className="stroke-muted" strokeWidth="8" fill="none" />
-          <circle
-            cx="50" cy="50" r={r}
-            className={ring}
-            strokeWidth="8"
-            fill="none"
-            strokeLinecap="round"
-            strokeDasharray={`${dash} ${c}`}
-          />
-        </svg>
-        <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <div className={`text-2xl font-bold leading-none ${tone}`}>{score}</div>
-          <div className="text-[11px] uppercase tracking-wider text-muted-foreground mt-0.5">score</div>
+      <div className="flex items-start gap-4 w-full">
+        <div className="relative h-16 w-16 shrink-0">
+          <svg viewBox="0 0 100 100" className="h-full w-full -rotate-90">
+            <circle cx="50" cy="50" r={r} className="stroke-muted" strokeWidth="8" fill="none" />
+            <circle
+              cx="50"
+              cy="50"
+              r={r}
+              className={ring}
+              strokeWidth="8"
+              fill="none"
+              strokeLinecap="round"
+              strokeDasharray={`${dash} ${c}`}
+            />
+          </svg>
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <div className={`text-xl font-bold leading-none ${tone}`}>{score}</div>
+            <div className="text-[10px] uppercase tracking-wider text-muted-foreground mt-0.5">score</div>
+          </div>
         </div>
+        <div className="min-w-0">
+          <div className="flex items-center gap-1.5">
+            <div className="text-[11px] uppercase tracking-[0.15em] text-muted-foreground font-semibold">Trust score</div>
+            <TooltipProvider delayDuration={100}>
+              <UITooltip>
+                <TooltipTrigger asChild>
+                  <HelpCircle
+                    className="h-3.5 w-3.5 text-muted-foreground cursor-help"
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                </TooltipTrigger>
+                <TooltipContent side="top" className="max-w-xs text-xs">
+                  Trust Score er en samlet modenhetsvurdering per kunde (0–100) basert på Governance, Operations, Privacy og Third-Party. Snittet viser hvor solid hele porteføljen står samlet.
+                </TooltipContent>
+              </UITooltip>
+            </TooltipProvider>
+          </div>
+          <div className="text-sm text-foreground mt-0.5">Snitt portefølje</div>
+          <div className="text-xs text-muted-foreground mt-1">
+            <span className="text-success font-semibold">+{delta}</span> siste 30 dager
+          </div>
+        </div>
+        <ChevronRight className="absolute top-3 right-3 h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors shrink-0" />
       </div>
-      <div className="min-w-0">
-        <div className="flex items-center gap-1.5">
-          <div className="text-[11px] uppercase tracking-[0.15em] text-muted-foreground font-semibold">Trust score</div>
-          <TooltipProvider delayDuration={100}>
-            <UITooltip>
-              <TooltipTrigger asChild>
-                <HelpCircle
-                  className="h-3.5 w-3.5 text-muted-foreground cursor-help"
-                  onClick={(e) => e.stopPropagation()}
-                />
-              </TooltipTrigger>
-              <TooltipContent side="top" className="max-w-xs text-xs">
-                Trust Score er en samlet modenhetsvurdering per kunde (0–100) basert på Governance, Operations, Privacy og Third-Party. Snittet viser hvor solid hele porteføljen står samlet.
-              </TooltipContent>
-            </UITooltip>
-          </TooltipProvider>
+
+      <div className="w-full space-y-1.5">
+        <div className="text-[11px] uppercase tracking-[0.15em] text-muted-foreground font-semibold">
+          Fordeling
         </div>
-        <div className="text-sm text-foreground mt-0.5">Snitt portefølje</div>
-        <div className="text-xs text-muted-foreground mt-1">
-          <span className="text-success font-semibold">+{delta}</span> siste 30 dager
+        {distribution.map((d) => {
+          const pct = Math.round((d.count / totalCustomers) * 100);
+          return (
+            <div key={d.label} className="flex items-center gap-2 text-[11px]">
+              <span className="w-16 shrink-0 text-muted-foreground">{d.label}</span>
+              <span className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden" aria-hidden="true">
+                <span className={`block h-full rounded-full ${d.color}`} style={{ width: `${pct}%` }} />
+              </span>
+              <span className="w-20 shrink-0 text-right tabular-nums text-foreground">
+                {pct}% · {d.count}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="w-full space-y-1.5">
+        <div className="text-[11px] uppercase tracking-[0.15em] text-muted-foreground font-semibold">
+          Per kontrollområde
         </div>
+        {areas.map((a) => (
+          <div key={a.label} className="flex items-center gap-2 text-[11px]">
+            <span className="w-32 shrink-0 truncate text-muted-foreground">{a.label}</span>
+            <span className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden" aria-hidden="true">
+              <span className="block h-full rounded-full bg-primary" style={{ width: `${a.pct}%` }} />
+            </span>
+            <span className="w-10 shrink-0 text-right tabular-nums text-foreground">{a.pct}%</span>
+          </div>
+        ))}
       </div>
     </Card>
   );
 }
+
 
 
 const REG_STYLES: Record<LaraSuggestion["regulation"], string> = {
