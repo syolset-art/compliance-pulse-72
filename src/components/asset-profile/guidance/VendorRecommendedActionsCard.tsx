@@ -169,11 +169,35 @@ export function VendorRecommendedActionsCard({
             </Button>
           </div>
         </>
+      ) : sourcing.method ? (
+        <>
+          {/* Innhenting er i gang — vis metode og bevisnivå */}
+          <p className="text-[13px] text-foreground leading-relaxed">
+            {isNb
+              ? SOURCING_METHOD_META[sourcing.method].label.nb
+              : SOURCING_METHOD_META[sourcing.method].label.en}
+            {" · "}
+            {isNb
+              ? SOURCING_METHOD_META[sourcing.method].evidenceLabel.nb
+              : SOURCING_METHOD_META[sourcing.method].evidenceLabel.en}
+          </p>
+          <div className="mt-2 flex flex-wrap gap-2">
+            <Button size="sm" variant="outline" className="h-7 text-xs" onClick={onInviteTrustCenter}>
+              <Sparkles className="h-3 w-3 mr-1" />
+              {isNb ? "Inviter til Agentisk Trust Profile" : "Invite to Agentic Trust Profile"}
+            </Button>
+            <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={onCreateVendorActivity}>
+              <ListPlus className="h-3 w-3 mr-1" />
+              {isNb ? "Opprett aktivitet" : "Create activity"}
+            </Button>
+          </div>
+        </>
       ) : (
         <>
           <p className="text-[13px] text-foreground leading-relaxed">
             {isNb ? NOT_REQUESTED_LABEL.nb : NOT_REQUESTED_LABEL.en}
           </p>
+
 
           {/* Leverandør-arketype — styrer signalene Lara vurderer (prototype) */}
           <div className="mt-2 flex flex-wrap items-center gap-1.5">
