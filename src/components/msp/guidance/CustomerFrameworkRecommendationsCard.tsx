@@ -162,72 +162,55 @@ export function CustomerFrameworkRecommendationsCard({
 
       </div>
 
-      <div className="mt-4 flex flex-wrap items-center gap-1.5">
-        {suggestions.length === 0 && activated.length === 0 && (
-          <p className="text-sm text-muted-foreground">Ingen regelverk foreslått ennå.</p>
+      <div className="mt-4 space-y-3">
+        {mandatory.length > 0 && (
+          <div className="space-y-1.5">
+            <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+              {t("customerFrameworkRecommendations.mandatory")}
+            </p>
+            <div className="flex flex-wrap items-center gap-1.5">
+              {mandatory.map((s) => renderPill(s))}
+            </div>
+          </div>
         )}
-        {suggestions.map((s) => {
-          const isManual = manualIds.has(s.id);
-          return (
-            <span
-              key={s.id}
-              className={cn(
-                "inline-flex items-center rounded-full border text-[11px] font-medium transition-colors",
-                isManual
-                  ? "border-border bg-muted/40 text-foreground hover:bg-muted"
-                  : "border-recommend/60 bg-recommend/15 text-recommend hover:bg-recommend/25 hover:border-recommend",
-              )}
-            >
+        {recommended.length > 0 && (
+          <div className="space-y-1.5">
+            <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+              {t("customerFrameworkRecommendations.recommended")}
+            </p>
+            <div className="flex flex-wrap items-center gap-1.5">
+              {recommended.map((s) => renderPill(s))}
+            </div>
+          </div>
+        )}
+        {suggestions.length === 0 && activated.length === 0 && (
+          <p className="text-sm text-muted-foreground">
+            {t("customerFrameworkRecommendations.noSuggestions")}
+          </p>
+        )}
+        {activatedTargets.length > 0 && (
+          <div className="flex flex-wrap items-center gap-1.5">
+            {activatedTargets.map((target) => (
               <button
+                key={target.id}
                 type="button"
-                onClick={() => onActivate([s])}
-                title={
-                  isManual
-                    ? "Lagt til av deg — ikke foreslått av KI-agenten. Klikk for å aktivere."
-                    : "Aktiver direkte"
-                }
-                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-recommend focus-visible:ring-offset-1"
-              >
-                {s.activatable && <Zap className="h-2.5 w-2.5 shrink-0" />}
-                {s.label}
-                {isManual && (
-                  <span className="text-[9px] uppercase tracking-wide opacity-70">
-                    Manuelt valgt
-                  </span>
+                onClick={() => onEnterCustomer?.([target])}
+                disabled={!onEnterCustomer}
+                title={`Jobb med ${target.label} hos kunden`}
+                className={cn(
+                  "inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-normal transition-colors",
+                  "bg-success/10 text-foreground border-success/30",
+                  onEnterCustomer
+                    ? "hover:bg-success/20 hover:border-success/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 cursor-pointer"
+                    : "cursor-default",
                 )}
+              >
+                {target.label}
+                {onEnterCustomer && <ArrowRight className="h-2.5 w-2.5 opacity-70" />}
               </button>
-              {isManual && (
-                <button
-                  type="button"
-                  onClick={() => removeManual(s.id)}
-                  aria-label={`Fjern ${s.label}`}
-                  className="pr-2 pl-0.5 py-1 opacity-60 hover:opacity-100"
-                >
-                  <X className="h-2.5 w-2.5" />
-                </button>
-              )}
-            </span>
-          );
-        })}
-        {activatedTargets.map((target) => (
-          <button
-            key={target.id}
-            type="button"
-            onClick={() => onEnterCustomer?.([target])}
-            disabled={!onEnterCustomer}
-            title={`Jobb med ${target.label} hos kunden`}
-            className={cn(
-              "inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-normal transition-colors",
-              "bg-success/10 text-foreground border-success/30",
-              onEnterCustomer
-                ? "hover:bg-success/20 hover:border-success/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 cursor-pointer"
-                : "cursor-default",
-            )}
-          >
-            {target.label}
-            {onEnterCustomer && <ArrowRight className="h-2.5 w-2.5 opacity-70" />}
-          </button>
-        ))}
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="mt-3 flex flex-wrap items-center gap-3">
