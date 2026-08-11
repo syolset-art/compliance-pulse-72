@@ -116,7 +116,7 @@ export function MynderGuidanceTab({
   const openDocRequest = (action: VendorFrameworkAction) =>
     setDocRequestType(action.documentType ?? "general");
 
-    setDocRequestType(action.documentType ?? "general");
+
 
   const createActivityFromAction = (action: VendorFrameworkAction) => {
     setActivePrefill({
