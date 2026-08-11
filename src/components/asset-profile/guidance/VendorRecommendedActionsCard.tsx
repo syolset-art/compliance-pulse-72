@@ -160,6 +160,18 @@ export function VendorRecommendedActionsCard({
 
         {/* Agentisk Trust Center — kontinuerlig oppdatert dokumentasjon */}
         <div className="mt-3">{trustCenterBlock}</div>
+
+        {actions.length > 0 && (
+          <Button
+            variant="outline"
+            size="sm"
+            className="mt-3 h-7 text-xs self-start"
+            onClick={() => setWorkOpen(true)}
+          >
+            {isNb ? "Åpne arbeidsvindu" : "Open work panel"}
+            <ArrowRight className="h-3 w-3 ml-1" />
+          </Button>
+        )}
       </Card>
 
 
