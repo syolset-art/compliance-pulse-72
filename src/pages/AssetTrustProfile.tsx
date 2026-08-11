@@ -546,6 +546,12 @@ const AssetTrustProfile = () => {
                     externalActivities={guidanceActivities}
                     dismissedSuggestionIds={dismissedSuggestionIds}
                     onActivitySaved={handleGuidanceActivitySaved}
+                    vendorType={(asset as any).vendor_category ?? (asset as any).category}
+                    industry={(asset as any).category}
+                    country={(asset as any).country}
+                    criticality={(asset as any).criticality ?? asset.risk_level}
+                    contactPerson={(asset as any).contact_person}
+                    contactEmail={(asset as any).contact_email}
                   />
                 </TabsContent>
                 <TabsContent value="vendor-tasks" className="mt-6">
