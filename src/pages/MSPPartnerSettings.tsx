@@ -488,15 +488,35 @@ export default function MSPPartnerSettings() {
                 <Label className="text-base">Rolle</Label>
                 <Select
                   value={invite.role}
-                  onValueChange={(v) => setInvite({ ...invite, role: v as TeamMember["role"] })}
+                  onValueChange={(v) => setInvite({ ...invite, role: v as PartnerRole })}
                 >
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Partner-rådgiver">Partner-rådgiver</SelectItem>
-                    <SelectItem value="Partner-admin">Partner-admin</SelectItem>
+                    <SelectItem value="Kundeansvarlig">Kundeansvarlig</SelectItem>
+                    <SelectItem value="Driftspartner">Driftspartner</SelectItem>
                   </SelectContent>
                 </Select>
+                <p className="text-sm text-muted-foreground">{PARTNER_ROLE_DESC[invite.role]}</p>
               </div>
+              <div className="space-y-1.5 col-span-2">
+                <Label className="text-base">Tilgangsnivå</Label>
+                <Select
+                  value={invite.access}
+                  onValueChange={(v) => setInvite({ ...invite, access: v as PartnerAccess })}
+                >
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="read">{PARTNER_ACCESS_LABEL.read}</SelectItem>
+                    <SelectItem value="write">{PARTNER_ACCESS_LABEL.write}</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-sm text-muted-foreground">
+                  {invite.access === "read"
+                    ? "Kan se kunder og dokumentasjon, men ikke endre noe."
+                    : "Kan aktivere produkter, lage tilbud og endre dokumentasjon."}
+                </p>
+              </div>
+
             </div>
           </div>
 
