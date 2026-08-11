@@ -113,8 +113,8 @@ export function InviteAgenticTrustCenterDialog({
     setMessage(
       existing.message ??
         (isNb
-          ? `Hei!\n\nVi setter opp et Agentisk Trust Center for ${vendorName}. Der laster dere opp compliance-dokumentasjonen én gang, og Lara holder den oppdatert automatisk — vi slipper å purre, og dere slipper gjentatte skjemaer.`
-          : `Hi!\n\nWe are setting up an Agentic Trust Center for ${vendorName}. Upload your compliance documentation once, and Lara keeps it up to date automatically.`),
+          ? `Hei!\n\nVi setter opp en Agentisk Trust Profile for ${vendorName}. Der laster dere opp compliance-dokumentasjonen én gang, og Lara holder den oppdatert automatisk — vi slipper å purre, og dere slipper gjentatte skjemaer.`
+          : `Hi!\n\nWe are setting up an Agentic Trust Profile for ${vendorName}. Upload your compliance documentation once, and Lara keeps it up to date automatically.`),
     );
   }, [open, assetId, contactPerson, contactEmail, docActions, vendorName, isNb]);
 
@@ -189,7 +189,7 @@ export function InviteAgenticTrustCenterDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <LaraAvatar size={22} />
-            {isNb ? "Agentisk Trust Center" : "Agentic Trust Center"}
+            {isNb ? "Agentisk Trust Profile" : "Agentic Trust Profile"}
           </DialogTitle>
           <DialogDescription>
             {step === 4
@@ -207,8 +207,8 @@ export function InviteAgenticTrustCenterDialog({
           <div className="space-y-4">
             <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 text-[13px] leading-relaxed text-foreground">
               {isNb
-                ? "Leverandøren får sitt eget trust center-rom. Dokumentasjonen lastes opp én gang og holdes løpende oppdatert — dere slipper å purre hver gang dere trenger noe."
-                : "The vendor gets their own trust center room. Documentation is uploaded once and kept continuously up to date — no more chasing."}
+                ? "Leverandøren får sitt eget rom for trust profile. Dokumentasjonen lastes opp én gang og holdes løpende oppdatert — dere slipper å purre hver gang dere trenger noe."
+                : "The vendor gets their own trust profile room. Documentation is uploaded once and kept continuously up to date — no more chasing."}
             </div>
 
             <div className="space-y-3">
@@ -250,7 +250,7 @@ export function InviteAgenticTrustCenterDialog({
             <p className="text-[13px] text-muted-foreground">
               {isNb
                 ? "Trust centeret kobles til én eier hos leverandøren. Legg gjerne til flere brukere som kan bidra."
-                : "The trust center is linked to one owner at the vendor. Add more users who can contribute."}
+                : "The trust profile is linked to one owner at the vendor. Add more users who can contribute."}
             </p>
 
             {contacts.map((c, idx) => (
@@ -348,8 +348,8 @@ export function InviteAgenticTrustCenterDialog({
           <div className="space-y-3">
             <p className="text-[13px] text-muted-foreground">
               {isNb
-                ? "Dette etterspør trust centeret — og holder oppdatert videre."
-                : "This is what the trust center requests — and keeps up to date."}
+                ? "Dette etterspør trust profilen — og holder den oppdatert videre."
+                : "This is what the trust profile requests — and keeps up to date."}
             </p>
 
             <div className="rounded-lg border border-border divide-y divide-border">
@@ -437,7 +437,13 @@ export function InviteAgenticTrustCenterDialog({
                 </Button>
               </div>
             </div>
+            <p className="text-[11px] text-muted-foreground leading-relaxed">
+              {isNb
+                ? "Trust profilen er foreløpig ikke offentlig. Snart kan leverandører publisere sin agentiske trust profil i et Trust Center."
+                : "The trust profile is not public yet. Soon vendors will be able to publish their agentic trust profile in a Trust Center."}
+            </p>
           </div>
+
         )}
 
         <DialogFooter className={cn("gap-2", step < 4 && "sm:justify-between")}>
