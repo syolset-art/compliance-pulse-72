@@ -14,16 +14,21 @@ import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import {
   ArrowLeft,
   Database,
   Download,
-  Loader2,
-  Send,
   Archive,
   CalendarClock,
+  Info,
 } from "lucide-react";
 import {
   formatDateLong,
@@ -86,8 +91,7 @@ export function RetireModuleDialog({
   const [reason, setReason] = useState("");
   const [reasonNote, setReasonNote] = useState("");
   const [competitor, setCompetitor] = useState("");
-  const [dataChoice, setDataChoice] = useState<CancellationDataChoice>("download");
-  const [transferEmail, setTransferEmail] = useState("");
+  const [dataChoice, setDataChoice] = useState<CancellationDataChoice>("retain");
   const [confirmed, setConfirmed] = useState(false);
   const [inventory, setInventory] = useState<Array<{ label: string; count: number }> | null>(null);
   const [exporting, setExporting] = useState(false);
@@ -101,8 +105,7 @@ export function RetireModuleDialog({
       setReason("");
       setReasonNote("");
       setCompetitor("");
-      setDataChoice("download");
-      setTransferEmail("");
+      setDataChoice("retain");
       setConfirmed(false);
       setInventory(null);
       setExportUrl(null);
@@ -158,8 +161,7 @@ export function RetireModuleDialog({
   };
 
   const canContinue = reason !== "" && (reason !== "other" || reasonNote.trim().length > 2);
-  const canConfirm =
-    confirmed && (dataChoice !== "transfer" || /\S+@\S+\.\S+/.test(transferEmail));
+  const canConfirm = confirmed;
 
   const handleConfirm = () => {
     onConfirm({
@@ -167,7 +169,6 @@ export function RetireModuleDialog({
       reasonNote: reasonNote.trim() || undefined,
       competitor: competitor.trim() || undefined,
       dataChoice,
-      transferEmail: dataChoice === "transfer" ? transferEmail.trim() : undefined,
       retentionUntil: retentionUntil.toISOString(),
     });
   };
@@ -177,12 +178,12 @@ export function RetireModuleDialog({
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="text-base">
-            {step === 1 ? `Avvikle ${moduleTitle}` : "Dataene dine"}
+            {step === 1 ? `Avvikle ${moduleTitle}` : "Bekreft avviklingen"}
           </DialogTitle>
           <DialogDescription className="text-xs">
             {step === 1
-              ? `Modulen er tilgjengelig ut inneværende periode, til ${formatDateLong(effectiveAt)}.`
-              : "Du har rett til å få med deg dine data. Velg hva som skal skje."}
+              ? `${moduleTitle} er tilgjengelig ut inneværende periode, til ${formatDateLong(effectiveAt)}.`
+              : "Du vil ikke lenger faktureres for produktet fra neste periode. Dataene dine oppbevares trygt frem til sletting."}
           </DialogDescription>
         </DialogHeader>
 
@@ -258,6 +259,22 @@ export function RetireModuleDialog({
               )}
             </div>
 
+            <div className="rounded-md border border-primary/20 bg-primary/5 px-3 py-2.5">
+              <div className="flex items-start gap-2">
+                <Info className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                <div className="space-y-1">
+                  <p className="text-xs font-medium text-foreground">
+                    Data-nedlasting kommer snart
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Vi jobber med en enkel måte å laste ned dataene dine på. Inntil videre
+                    oppbevarer vi dem trygt frem til sletting, og du vil ikke faktureres for
+                    produktet fra neste periode.
+                  </p>
+                </div>
+              </div>
+            </div>
+
             <RadioGroup
               value={dataChoice}
               onValueChange={(v) => setDataChoice(v as CancellationDataChoice)}
@@ -268,30 +285,54 @@ export function RetireModuleDialog({
                 className="flex items-start gap-2.5 rounded-md border border-border px-3 py-2.5 cursor-pointer hover:bg-muted/40 transition-colors"
               >
                 <RadioGroupItem value="download" id="dc-download" className="mt-0.5" />
-                <div className="min-w-0">
+                <div className="min-w-0 flex-1">
                   <div className="text-sm font-medium flex items-center gap-1.5">
                     <Download className="h-3.5 w-3.5 text-muted-foreground" />
                     Last ned dataene mine
                   </div>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    Maskinlesbar fil (JSON eller CSV) med alt innhold i modulen.
+                    Maskinlesbar fil (JSON eller CSV) — kommer snart.
                   </p>
-                </div>
-              </label>
-
-              <label
-                htmlFor="dc-transfer"
-                className="flex items-start gap-2.5 rounded-md border border-border px-3 py-2.5 cursor-pointer hover:bg-muted/40 transition-colors"
-              >
-                <RadioGroupItem value="transfer" id="dc-transfer" className="mt-0.5" />
-                <div className="min-w-0">
-                  <div className="text-sm font-medium flex items-center gap-1.5">
-                    <Send className="h-3.5 w-3.5 text-muted-foreground" />
-                    Overfør til en annen mottaker
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    Vi sender en sikker nedlastingslenke til valgt e-postadresse.
-                  </p>
+                  {dataChoice === "download" && (
+                    <div className="flex items-center gap-2 mt-2">
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="h-8 text-xs"
+                              disabled
+                            >
+                              <Download className="h-3.5 w-3.5 mr-1.5" />
+                              Last ned JSON
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p className="text-xs">Kommer snart</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="h-8 text-xs"
+                              disabled
+                            >
+                              <Download className="h-3.5 w-3.5 mr-1.5" />
+                              Last ned CSV
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p className="text-xs">Kommer snart</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
+                  )}
                 </div>
               </label>
 
@@ -312,60 +353,12 @@ export function RetireModuleDialog({
               </label>
             </RadioGroup>
 
-            {dataChoice === "download" && (
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="h-8 text-xs"
-                  disabled={exporting}
-                  onClick={() => handleExport("json")}
-                >
-                  {exporting ? (
-                    <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
-                  ) : (
-                    <Download className="h-3.5 w-3.5 mr-1.5" />
-                  )}
-                  Last ned JSON
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="h-8 text-xs"
-                  disabled={exporting}
-                  onClick={() => handleExport("csv")}
-                >
-                  <Download className="h-3.5 w-3.5 mr-1.5" />
-                  Last ned CSV
-                </Button>
-                {exportUrl && (
-                  <span className="text-xs text-muted-foreground">Lenken varer i 7 dager</span>
-                )}
-              </div>
-            )}
-
-            {dataChoice === "transfer" && (
-              <div className="space-y-1.5">
-                <Label htmlFor="transfer-email" className="text-xs">
-                  E-postadresse for overføring
-                </Label>
-                <Input
-                  id="transfer-email"
-                  type="email"
-                  value={transferEmail}
-                  onChange={(e) => setTransferEmail(e.target.value)}
-                  placeholder="navn@virksomhet.no"
-                  className="h-9 text-sm"
-                />
-              </div>
-            )}
-
             <Separator />
 
             <div className="flex items-start gap-2 text-xs text-muted-foreground">
               <CalendarClock className="h-3.5 w-3.5 mt-0.5 shrink-0" />
               <span>
-                Modulen er aktiv til {formatDateLong(effectiveAt)}. Deretter stanses
+                {moduleTitle} er aktivt til {formatDateLong(effectiveAt)}. Deretter stanses
                 faktureringen, og dataene oppbevares til {formatDateLong(retentionUntil)} før de
                 slettes permanent. Du kan angre oppsigelsen når som helst før den trer i kraft.
               </span>
@@ -378,7 +371,8 @@ export function RetireModuleDialog({
                 className="mt-0.5"
               />
               <span className="text-xs text-foreground/80">
-                Jeg bekrefter oppsigelsen og har forstått fristen for sletting av data.
+                Jeg bekrefter oppsigelsen av {moduleTitle} og har forstått fristen for sletting av
+                data.
               </span>
             </label>
           </div>
