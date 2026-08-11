@@ -189,11 +189,21 @@ export default function MSPPartnerSettings() {
             >
               <ArrowLeft className="h-4 w-4" /> Tilbake til partner-dashbord
             </Link>
-            <h1 className="text-2xl font-semibold text-foreground">Tilgangsstyring</h1>
+            <h1 className="text-2xl font-semibold text-foreground">
+              {activeTab === "kommunikasjon"
+                ? "Kommunikasjon"
+                : activeTab === "integrasjoner"
+                ? "Integrasjoner"
+                : "Tilgangsstyring"}
+            </h1>
             <p className="text-base text-muted-foreground mt-1">
-              Legg til brukere, gi dem rolle som Kundeansvarlig eller Driftspartner, og styr om de har
-              lese- eller skrivetilgang.
+              {activeTab === "kommunikasjon"
+                ? "Styr hvordan meldinger fra kunder når deg og teamet ditt."
+                : activeTab === "integrasjoner"
+                ? "Koble Mynder til verktøyene dere allerede bruker."
+                : "Legg til brukere, gi dem rolle som Kundeansvarlig eller Driftspartner, og styr om de har lese- eller skrivetilgang."}
             </p>
+
 
           </div>
 
