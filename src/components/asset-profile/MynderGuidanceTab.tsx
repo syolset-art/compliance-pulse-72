@@ -311,6 +311,43 @@ export function MynderGuidanceTab({
         onSubmit={handleSubmit}
         hideTrigger
       />
+
+      {/* Dokumentasjonsforespørsel — forhåndsvalgt type fra tiltaket */}
+      <RequestUpdateDialog
+        open={!!docRequestType}
+        onOpenChange={(o) => { if (!o) setDocRequestType(null); }}
+        assetId={assetId}
+        assetName={assetName ?? ""}
+        preselectedType={docRequestType ?? undefined}
+        contactPerson={contactPerson ?? null}
+        contactEmail={contactEmail ?? null}
+      />
+
+      {/* Legg til eget regelverk, standard eller retningslinje */}
+      <AddFrameworkDialog
+        open={addFrameworkOpen}
+        onOpenChange={setAddFrameworkOpen}
+        activatedLabels={[]}
+        existingIds={frameworks.map((f) => f.id)}
+        onAdd={(item) => {
+          const id = item.frameworkId ?? item.id;
+          updateFwState({
+            added: [
+              ...fwState.added,
+              {
+                id,
+                label: item.label,
+                confidence: "medium",
+                reasonNb: "Lagt til av deg — ikke foreslått av Lara.",
+                reasonEn: "Added by you — not suggested by Lara.",
+                manual: true,
+              },
+            ],
+            removed: fwState.removed.filter((r) => r !== id),
+          });
+        }}
+      />
     </div>
+
   );
 }
