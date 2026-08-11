@@ -384,13 +384,31 @@ function ClaimRateWidget() {
 
 function NeedsFollowUpWidget() {
   const navigate = useNavigate();
-  const breakdown = [
-    { label: "NIS2-aktivering", count: 28, tone: "bg-primary" },
-    { label: "ISO 27001-resertifisering", count: 12, tone: "bg-warning" },
-    { label: "DORA gap-analyse", count: 9, tone: "bg-destructive" },
+  // Kunder med flest aktiverte regelverk — beriket med siste hendelse fra aktivitetsloggen
+  const tasks = [
+    {
+      customer: "Bergen Energi AS",
+      frameworks: 4,
+      lastActivity: "NIS2 aktivert · 3 dager siden",
+      nextStep: "Fullfør risikovurdering",
+      tone: "bg-primary",
+    },
+    {
+      customer: "Nordvik Helse",
+      frameworks: 3,
+      lastActivity: "Leverandørmodul tatt i bruk · 6 dager siden",
+      nextStep: "Registrer 4 leverandører",
+      tone: "bg-warning",
+    },
+    {
+      customer: "Fjord Logistikk",
+      frameworks: 3,
+      lastActivity: "ISO 27001 aktivert · 2 uker siden",
+      nextStep: "Ingen aktivitet — følg opp",
+      tone: "bg-destructive",
+    },
   ];
-  const total = breakdown.reduce((sum, b) => sum + b.count, 0);
-  const max = Math.max(...breakdown.map((b) => b.count));
+  const total = tasks.length;
 
   return (
     <Card
@@ -403,7 +421,7 @@ function NeedsFollowUpWidget() {
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5">
-            <div className="text-[11px] uppercase tracking-[0.15em] text-muted-foreground font-semibold">Pågående Kampanjer</div>
+            <div className="text-[11px] uppercase tracking-[0.15em] text-muted-foreground font-semibold">Anbefalte oppgaver</div>
             <TooltipProvider delayDuration={100}>
               <UITooltip>
                 <TooltipTrigger asChild>
@@ -413,32 +431,38 @@ function NeedsFollowUpWidget() {
                   />
                 </TooltipTrigger>
                 <TooltipContent side="top" className="max-w-xs text-xs">
-                  Oversikt over aktive kampanjer per kunde — for eksempel NIS2-aktivering, ISO 27001-resertifisering og DORA gap-analyse. Tallene viser hvor mange kunder som deltar i hver kampanje.
+                  Kunder med flest aktiverte regelverk hvor det er mer å jobbe med. Basert på aktivitetsloggen vurderer Lara hva som sist ble utført og hva som er neste steg.
                 </TooltipContent>
               </UITooltip>
             </TooltipProvider>
           </div>
           <div className="flex items-baseline gap-1.5">
             <span className="text-2xl font-bold leading-none tabular-nums">{total}</span>
-            <span className="text-xs text-muted-foreground">kunder</span>
+            <span className="text-xs text-muted-foreground">kunder å følge opp</span>
           </div>
         </div>
         <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors shrink-0" />
       </div>
       <div className="space-y-1.5">
-        {breakdown.map((b) => (
-          <div key={b.label} className="flex items-center gap-2 text-[12px]">
-            <span className="text-muted-foreground flex-1 truncate">{b.label}</span>
-            <div className="h-1.5 w-16 rounded-full bg-muted overflow-hidden">
-              <div className={`h-full ${b.tone}`} style={{ width: `${(b.count / max) * 100}%` }} />
+        {tasks.map((t) => (
+          <div key={t.customer} className="flex items-center gap-2 text-[12px]">
+            <span className={`h-1.5 w-1.5 rounded-full shrink-0 ${t.tone}`} aria-hidden="true" />
+            <div className="min-w-0 flex-1">
+              <div className="truncate font-medium">{t.customer}</div>
+              <div className="truncate text-[11px] text-muted-foreground">
+                {t.lastActivity} → {t.nextStep}
+              </div>
             </div>
-            <span className="tabular-nums font-semibold w-5 text-right">{b.count}</span>
+            <span className="tabular-nums text-[11px] text-muted-foreground shrink-0">
+              {t.frameworks} regelverk
+            </span>
           </div>
         ))}
       </div>
     </Card>
   );
 }
+
 
 function AvgTrustScoreWidget() {
   const navigate = useNavigate();
