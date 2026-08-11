@@ -133,7 +133,26 @@ export function VendorStatusBanner({ asset }: VendorStatusBannerProps) {
     inboxCount,
   });
 
+  // Innhentingsmetode — Laras anbefaling avhenger av mandat og offentlig fotavtrykk.
+  const [sourcing, setSourcing] = useState(() => readSourcingState(asset.id));
+  const recommendation = recommendSourcingMethod(archetypeByKey(sourcing.archetype).signals);
+  const startSourcing = (method: SourcingMethod) => {
+    if (method === "vendor_agentic") {
+      setInviteOpen(true);
+      return;
+    }
+    const next = { ...sourcing, method, startedAt: new Date().toISOString() };
+    setSourcing(next);
+    writeSourcingState(asset.id, next);
+    toast.success(
+      method === "public_harvest"
+        ? "Lara kartlegger offentlige kilder"
+        : "Forespørsel sendt på e-post",
+    );
+  };
+
   const score = asset.compliance_score || 0;
+
   const md = asset.metadata || {};
   const [inviteOpen, setInviteOpen] = useState(false);
   const criticality = deriveCriticality({ risk_level: asset.risk_level });
