@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -10,9 +10,20 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { ArrowLeft, Building2, Mail, FileText, Save, Lock } from "lucide-react";
+import { ArrowLeft, Building2, Mail, FileText, Save, Lock, TrendingUp, Wallet, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import {
+  customerLicenseSummary,
+  deriveActivatedProducts,
+  deriveActivatedFrameworks,
+} from "@/lib/offerSuggestions";
+import { getOffersForCustomer, normalizeServiceKey } from "@/lib/customerOffers";
+import { SERVICE_LIBRARY } from "@/lib/serviceLibrary";
+import { CUSTOMER_MODULES_EVENT } from "@/lib/customerModuleState";
+import { usePartnerBranding } from "@/hooks/usePartnerBranding";
+import { computeTaxBreakdown } from "@/lib/partnerTax";
 
 interface BillingSettings {
   address_line1: string;
@@ -43,6 +54,76 @@ const defaults: BillingSettings = {
   ehf_enabled: false,
   notes: "",
 };
+
+const fmt = (n: number) => n.toLocaleString("nb-NO");
+
+function fixedPriceForCustomer(customerId: string): number {
+  const offers = getOffersForCustomer(customerId).filter((o) => o.status === "delivered");
+  let total = 0;
+  for (const offer of offers) {
+    const keys = new Set([...(offer.templateIds || []), ...(offer.serviceKeys || [])]);
+    for (const t of SERVICE_LIBRARY) {
+      const match = keys.has(t.id) || keys.has(normalizeServiceKey(t.name));
+      if (!match) continue;
+      if (t.recommendedPrice.model !== "fixed") continue;
+      total += t.recommendedPrice.min;
+    }
+  }
+  return total;
+}
+
+interface CostSummary {
+  monthly: number;
+  fixed: number;
+  setup: number;
+  totalNet: number;
+  gross: number;
+  taxAmount: number;
+  payingCustomers: number;
+  customerCount: number;
+  topLines: { label: string; price: number; count: number }[];
+}
+
+function buildCostSummary(customers: any[], tax: any): CostSummary {
+  const lineMap = new Map<string, { price: number; count: number }>();
+  let monthly = 0;
+  let fixed = 0;
+  let setup = 0;
+
+  for (const c of customers) {
+    const summary = customerLicenseSummary(c);
+    monthly += summary.monthly;
+    for (const l of summary.lines) {
+      const existing = lineMap.get(l.label) || { price: 0, count: 0 };
+      existing.price += l.price;
+      existing.count += 1;
+      lineMap.set(l.label, existing);
+    }
+    fixed += fixedPriceForCustomer(c.id);
+    setup += Number(c.setup_fee) > 0 ? Number(c.setup_fee) : 0;
+  }
+
+  const totalNet = monthly + fixed + setup;
+  const breakdown = computeTaxBreakdown(totalNet, tax);
+  const payingCustomers = customers.filter((c) => customerLicenseSummary(c).monthly > 0 || fixedPriceForCustomer(c.id) > 0).length;
+
+  const topLines = Array.from(lineMap.entries())
+    .map(([label, { price, count }]) => ({ label, price, count }))
+    .sort((a, b) => b.price - a.price)
+    .slice(0, 5);
+
+  return {
+    monthly,
+    fixed,
+    setup,
+    totalNet,
+    gross: breakdown.gross,
+    taxAmount: breakdown.taxAmount,
+    payingCustomers,
+    customerCount: customers.length,
+    topLines,
+  };
+}
 
 export default function MSPBillingSettings() {
   const { user } = useAuth();
@@ -94,6 +175,36 @@ export default function MSPBillingSettings() {
       });
     }
   }, [existing]);
+
+  const { branding } = usePartnerBranding();
+  const tax = branding.tax;
+
+  // Fetch all customers to show what Mynder will invoice the partner for.
+  const { data: customers = [] } = useQuery({
+    queryKey: ["msp-customers-billing-settings"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("msp_customers" as any)
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data as any[];
+    },
+    enabled: !!user?.id,
+  });
+
+  const summary = useMemo(() => buildCostSummary(customers, tax), [customers, tax]);
+
+  // Refresh customer list when modules change elsewhere.
+  useEffect(() => {
+    const refresh = () => queryClient.invalidateQueries({ queryKey: ["msp-customers-billing-settings"] });
+    window.addEventListener(CUSTOMER_MODULES_EVENT, refresh);
+    window.addEventListener("modules:changed", refresh);
+    return () => {
+      window.removeEventListener(CUSTOMER_MODULES_EVENT, refresh);
+      window.removeEventListener("modules:changed", refresh);
+    };
+  }, [queryClient]);
 
   const mutation = useMutation({
     mutationFn: async (data: BillingSettings) => {
@@ -153,7 +264,7 @@ export default function MSPBillingSettings() {
             </Link>
             <div>
               <h1 className="text-2xl font-bold text-foreground">Fakturainnstillinger</h1>
-              <p className="text-muted-foreground text-sm">Administrer fakturering, leveringsmetode og betalingsinformasjon</p>
+              <p className="text-muted-foreground text-sm">Administrer hvordan Mynder fakturerer deg, og se kostnader for aktiverte produkter og tjenester</p>
             </div>
           </div>
 
@@ -233,19 +344,19 @@ export default function MSPBillingSettings() {
               <div className="space-y-2">
                 <Label>Faktura e-post</Label>
                 <Input type="email" value={form.invoice_email} onChange={(e) => update("invoice_email", e.target.value)} placeholder="faktura@firma.no" />
-                <p className="text-xs text-muted-foreground">Hit sendes fakturaer om leveringsmetode er e-post</p>
+                <p className="text-xs text-muted-foreground">Hit sendes fakturaer fra Mynder når fakturering til deg er e-post</p>
               </div>
             </CardContent>
           </Card>
 
-          {/* Delivery method */}
+          {/* Delivery method: how Mynder invoices the partner */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <FileText className="h-5 w-5" />
-                Leveringsmetode
+                Mynders fakturering til deg
               </CardTitle>
-              <CardDescription>Velg hvordan fakturaer skal leveres</CardDescription>
+              <CardDescription>Hvordan Mynder skal sende fakturaer til deg som partner</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <RadioGroup value={form.delivery_method} onValueChange={(v) => update("delivery_method", v)} className="space-y-3">
@@ -277,6 +388,70 @@ export default function MSPBillingSettings() {
                   </div>
                 </div>
               )}
+            </CardContent>
+          </Card>
+
+          {/* Activated products and costs: what Mynder will invoice the partner for */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Wallet className="h-5 w-5" />
+                Dine aktiverte produkter og kostnader
+              </CardTitle>
+              <CardDescription>Dette faktureres deg av Mynder basert på aktiverte produkter og tjenester hos kundene dine</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="p-4 rounded-lg border bg-muted/30">
+                  <div className="text-[12px] uppercase tracking-wide text-muted-foreground">Abonnement per måned</div>
+                  <div className="text-xl font-semibold text-foreground tabular-nums mt-1">{fmt(summary.monthly)} kr</div>
+                  <div className="text-xs text-muted-foreground mt-0.5">ekskl. mva</div>
+                </div>
+                <div className="p-4 rounded-lg border bg-muted/30">
+                  <div className="text-[12px] uppercase tracking-wide text-muted-foreground">Engangsbeløp</div>
+                  <div className="text-xl font-semibold text-foreground tabular-nums mt-1">{fmt(summary.fixed + summary.setup)} kr</div>
+                  <div className="text-xs text-muted-foreground mt-0.5">fastpris + etablering</div>
+                </div>
+                <div className="p-4 rounded-lg border bg-muted/30">
+                  <div className="text-[12px] uppercase tracking-wide text-muted-foreground">Kunder med kostnader</div>
+                  <div className="text-xl font-semibold text-foreground tabular-nums mt-1">{summary.payingCustomers}</div>
+                  <div className="text-xs text-muted-foreground mt-0.5">av {summary.customerCount} kunder</div>
+                </div>
+              </div>
+
+              {summary.topLines.length > 0 && (
+                <div className="space-y-3">
+                  <div className="text-sm font-medium text-foreground">Største aktiverte kostnader</div>
+                  <div className="space-y-2">
+                    {summary.topLines.map((line) => (
+                      <div key={line.label} className="flex items-center justify-between text-sm">
+                        <div className="flex items-center gap-2">
+                          <Badge variant="outline" className="font-normal">{line.count} kunde{line.count === 1 ? "" : "r"}</Badge>
+                          <span className="text-foreground/90">{line.label}</span>
+                        </div>
+                        <span className="tabular-nums font-medium">{fmt(line.price)} kr/mnd</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="flex items-center justify-between pt-2 border-t">
+                <div className="space-y-0.5">
+                  <div className="text-sm font-medium text-foreground">Total å betale Mynder</div>
+                  <div className="text-xs text-muted-foreground">Netto {fmt(summary.totalNet)} kr + {tax.label.toLowerCase()} {fmt(summary.taxAmount)} kr</div>
+                </div>
+                <div className="text-right">
+                  <div className="text-2xl font-semibold text-foreground tabular-nums">{fmt(summary.gross)} kr</div>
+                  <div className="text-xs text-muted-foreground">inkl. mva</div>
+                </div>
+              </div>
+
+              <Link to="/msp-invoices" className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline">
+                <TrendingUp className="h-4 w-4" />
+                Se fullt fakturagrunnlag
+                <ChevronRight className="h-4 w-4" />
+              </Link>
             </CardContent>
           </Card>
 
