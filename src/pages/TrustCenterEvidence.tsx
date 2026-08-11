@@ -572,43 +572,18 @@ const TrustCenterEvidence = () => {
         </div>
       )}
 
-      {/* Required artifacts checklist — always visible */}
-      {!isLoading && asset?.id && (
-        <div className="mb-8 rounded-lg border bg-card p-4">
-          <div className="flex items-center justify-between border-b pb-3 mb-4">
-            <div className="flex items-center gap-2">
-              <ShieldCheck className="h-5 w-5 text-primary shrink-0" />
-              <h2 className="text-base font-semibold text-foreground">
-                {isNb ? "Påkrevde artefakter" : "Required artifacts"}
-              </h2>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <button className="text-muted-foreground hover:text-foreground transition-colors p-1 rounded-md" aria-label="info">
-                    <Info className="h-4 w-4" />
-                  </button>
-                </PopoverTrigger>
-                <PopoverContent className="w-80 p-3 text-sm">
-                  <p className="text-muted-foreground leading-relaxed">
-                    {isNb
-                      ? "Dokumenter og bevis som kreves av regelverkene du har aktivert."
-                      : "Documents and evidence required by the frameworks you have activated."}
-                  </p>
-                  <div className="mt-2.5">
-                    <Link
-                      to="/regulations"
-                      className="inline-flex items-center gap-1 text-xs text-primary font-medium hover:underline"
-                    >
-                      {isNb ? "Se aktiverte regelverk" : "View activated frameworks"}
-                      <ChevronRight className="h-3 w-3" />
-                    </Link>
-                  </div>
-                </PopoverContent>
-              </Popover>
-            </div>
-          </div>
-          <RequiredArtifactsBlock assetId={asset.id} vendorDocs={vendorDocs as any} variant="evidence" />
-        </div>
+      {/* Compliance-dokumentasjon: krav fra aktiverte regelverk */}
+      {!isLoading && asset?.id && activeMainTab === "documents" && (
+        <FrameworkDocumentCoverage
+          coverage={coverage}
+          onUpload={() => setDialogOpen(true)}
+          onOpenDoc={(id) => {
+            const doc = (vendorDocs as any[]).find((d) => d.id === id);
+            if (doc) openPreview(doc);
+          }}
+        />
       )}
+
 
       {/* Documents tab content */}
       {activeMainTab === "documents" && (
