@@ -260,7 +260,6 @@ export function VendorStatusBanner({ asset }: VendorStatusBannerProps) {
       );
     }
     if (status.key === "claimed") {
-    if (status.key === "claimed") {
       const claimDate =
         md.claimed_at_label ||
         (md.claimed_at || asset.updated_at
