@@ -86,11 +86,11 @@ export function VendorRecommendedActionsCard({
               <p className="text-[13px] font-medium text-foreground">
                 {trustCenter.status === "active"
                   ? isNb
-                    ? "Agentisk Trust Center aktivt"
-                    : "Agentic Trust Center active"
+                    ? "Agentisk Trust Profile aktiv"
+                    : "Agentic Trust Profile active"
                   : isNb
-                    ? "Leverandøren er invitert til Agentisk Trust Center"
-                    : "Vendor invited to Agentic Trust Center"}
+                    ? "Leverandøren er invitert til Agentisk Trust Profile"
+                    : "Vendor invited to Agentic Trust Profile"}
               </p>
               <p className="text-[11px] text-muted-foreground mt-0.5">
                 {delivered} {isNb ? "av" : "of"} {requested}{" "}
@@ -110,7 +110,7 @@ export function VendorRecommendedActionsCard({
           </div>
           <div className="mt-2 flex flex-wrap gap-2">
             <Button size="sm" className="h-7 text-xs" onClick={onOpenTrustCenter}>
-              {isNb ? "Åpne trust center" : "Open trust center"}
+              {isNb ? "Åpne trust profile" : "Open trust profile"}
             </Button>
             <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={onRemindTrustCenter}>
               <BellRing className="h-3 w-3 mr-1" />
@@ -125,13 +125,13 @@ export function VendorRecommendedActionsCard({
         <>
           <p className="text-[13px] text-foreground leading-relaxed">
             {isNb
-              ? "Leverandøren mangler Agentisk Trust Center — dokumentasjon må etterspørres manuelt."
-              : "This vendor has no Agentic Trust Center — documentation must be requested manually."}
+              ? "Leverandøren mangler Agentisk Trust Profile — dokumentasjon må etterspørres manuelt."
+              : "This vendor has no Agentic Trust Profile — documentation must be requested manually."}
           </p>
           <div className="mt-2 flex flex-wrap gap-2">
             <Button size="sm" className="h-7 text-xs" onClick={onInviteTrustCenter}>
               <Sparkles className="h-3 w-3 mr-1" />
-              {isNb ? "Inviter til Agentisk Trust Center" : "Invite to Agentic Trust Center"}
+              {isNb ? "Inviter til Agentisk Trust Profile" : "Invite to Agentic Trust Profile"}
             </Button>
             {docCount > 0 && (
               <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={onRequestAllMissing}>
@@ -269,7 +269,7 @@ export function VendorRecommendedActionsCard({
                       (coversDocumentType(trustCenter, a.documentType) ? (
                         <span className="inline-flex items-center gap-1 rounded-full border border-success/40 bg-success/10 px-2 py-0.5 text-[10px] font-medium text-success">
                           <ShieldCheck className="h-3 w-3" />
-                          {isNb ? "Via Trust Center" : "Via Trust Center"}
+                          {isNb ? "Via Trust Profile" : "Via Trust Profile"}
                         </span>
                       ) : (
                         <Button
