@@ -133,12 +133,11 @@ export function VendorRecommendedActionsCard({
               <Sparkles className="h-3 w-3 mr-1" />
               {isNb ? "Inviter til Agentisk Trust Profile" : "Invite to Agentic Trust Profile"}
             </Button>
-            {docCount > 0 && (
-              <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={onCreateVendorActivity}>
-                <ListPlus className="h-3 w-3 mr-1" />
-                {isNb ? "Opprett aktivitet" : "Create activity"}
-              </Button>
-            )}
+            <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={onCreateVendorActivity}>
+              <ListPlus className="h-3 w-3 mr-1" />
+              {isNb ? "Opprett aktivitet" : "Create activity"}
+            </Button>
+
           </div>
         </>
       )}
