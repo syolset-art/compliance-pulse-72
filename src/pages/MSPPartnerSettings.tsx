@@ -239,27 +239,50 @@ export default function MSPPartnerSettings() {
 
                 <div className="rounded-xl border border-border divide-y divide-border">
                   {team.map((m) => (
-                    <div key={m.id} className="flex items-center gap-3 px-4 py-3">
+                    <div key={m.id} className="flex flex-wrap items-center gap-3 px-4 py-3">
                       <div className="h-9 w-9 rounded-full bg-muted flex items-center justify-center text-sm font-medium text-foreground shrink-0">
                         {m.initials}
                       </div>
-                      <div className="flex-1 min-w-0">
+                      <div className="flex-1 min-w-[160px]">
                         <p className="text-base font-medium text-foreground truncate">{m.name}</p>
                         <p className="text-sm text-muted-foreground truncate">{m.email}</p>
                       </div>
-                      <Badge
-                        variant="outline"
-                        className={
-                          m.role === "Partner-admin"
-                            ? "bg-primary/5 text-primary border-primary/30 text-xs"
-                            : "text-xs"
-                        }
+                      <Select
+                        value={m.role}
+                        onValueChange={(v) => updateMember(m.id, { role: v as PartnerRole })}
                       >
-                        <Shield className="h-3 w-3 mr-1" /> {m.role}
-                      </Badge>
+                        <SelectTrigger className="h-9 w-[172px] text-sm">
+                          <Shield className="h-3.5 w-3.5 mr-1.5 text-muted-foreground shrink-0" />
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Kundeansvarlig">Kundeansvarlig</SelectItem>
+                          <SelectItem value="Driftspartner">Driftspartner</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <Select
+                        value={m.access}
+                        onValueChange={(v) => updateMember(m.id, { access: v as PartnerAccess })}
+                      >
+                        <SelectTrigger className="h-9 w-[196px] text-sm">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="read">{PARTNER_ACCESS_LABEL.read}</SelectItem>
+                          <SelectItem value="write">{PARTNER_ACCESS_LABEL.write}</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                   ))}
                 </div>
+
+                <p className="text-sm text-muted-foreground mt-3">
+                  <span className="font-medium text-foreground">Kundeansvarlig:</span>{" "}
+                  {PARTNER_ROLE_DESC.Kundeansvarlig}{" "}
+                  <span className="font-medium text-foreground">Driftspartner:</span>{" "}
+                  {PARTNER_ROLE_DESC.Driftspartner}
+                </p>
+
               </Card>
 
               {/* 2. E-postvideresending */}
