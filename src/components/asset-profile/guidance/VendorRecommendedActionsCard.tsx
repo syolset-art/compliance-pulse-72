@@ -10,20 +10,31 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { FileText, ListChecks, Send, Info, ArrowRight } from "lucide-react";
+import { FileText, ListChecks, Send, Info, ArrowRight, Sparkles, ShieldCheck, BellRing, Users } from "lucide-react";
 import { LaraAvatar } from "@/components/asset-profile/LaraAvatar";
 import { cn } from "@/lib/utils";
 import {
   CRITICALITY_STYLE,
   type VendorFrameworkAction,
 } from "@/lib/vendorFrameworkSuggestions";
+import {
+  INTERVAL_LABEL,
+  coversDocumentType,
+  type AgenticTrustCenterState,
+} from "@/lib/agenticTrustCenter";
 
 interface Props {
   actions: VendorFrameworkAction[];
   onRequestDocumentation: (action: VendorFrameworkAction) => void;
   onCreateActivity: (action: VendorFrameworkAction) => void;
   onRequestAllMissing: () => void;
+  /** Agentisk Trust Center — status og handlinger. */
+  trustCenter: AgenticTrustCenterState;
+  onInviteTrustCenter: () => void;
+  onOpenTrustCenter: () => void;
+  onRemindTrustCenter: () => void;
 }
+
 
 /**
  * Anbefalte tiltak — kompakt dashbord-visning.
