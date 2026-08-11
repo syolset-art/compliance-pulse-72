@@ -1271,6 +1271,10 @@ function ClaimDevelopmentChart() {
 
 function PortfolioSegmentation() {
   const navigate = useNavigate();
+  const [grouping, setGrouping] = useState<"industry" | "framework">("industry");
+  const segments = grouping === "industry" ? SEGMENTS_BY_INDUSTRY : SEGMENTS_BY_FRAMEWORK;
+  const groupingLabel = grouping === "industry" ? "bransje" : "regelverk";
+
   return (
     <Card onClick={() => navigate("/msp-partner/widget/segmentation")} className="p-5 cursor-pointer hover:border-primary/40 transition-colors">
       <div className="flex items-center justify-between mb-4">
@@ -1289,14 +1293,36 @@ function PortfolioSegmentation() {
                 </button>
               </TooltipTrigger>
               <TooltipContent side="top" className="max-w-xs text-xs leading-relaxed">
-                Porteføljen din gruppert etter hovedkategori. «Treffer» viser hvor mange kunder
+                Porteføljen din gruppert etter {groupingLabel}. «Treffer» viser hvor mange kunder
                 som tilhører segmentet, «Aktivert» viser andelen av dem som har aktivert
                 tilhørende regelverk. Klikk widgeten for å se detaljer.
               </TooltipContent>
             </UITooltip>
           </TooltipProvider>
         </div>
-        <span className="text-xs text-muted-foreground">Lara · oppdatert i går</span>
+        <div
+          className="inline-flex rounded-lg border border-border p-0.5"
+          role="group"
+          aria-label="Velg segmentering"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {(["industry", "framework"] as const).map((g) => (
+            <button
+              key={g}
+              type="button"
+              onClick={() => setGrouping(g)}
+              aria-pressed={grouping === g}
+              className={
+                "flex-1 sm:flex-none whitespace-nowrap px-3 py-1.5 text-xs font-medium rounded-md transition-colors " +
+                (grouping === g
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:text-foreground")
+              }
+            >
+              {g === "industry" ? "Per bransje" : "Per regelverk"}
+            </button>
+          ))}
+        </div>
       </div>
       <div className="flex items-center gap-3 mb-2 text-[10px] uppercase tracking-wide text-muted-foreground">
         <div className="w-36">Segment</div>
@@ -1305,7 +1331,7 @@ function PortfolioSegmentation() {
         <div className="w-16 text-right">Aktivert</div>
       </div>
       <div className="space-y-3">
-        {SEGMENTS.map((s) => (
+        {segments.map((s) => (
           <div key={s.label} className="flex items-center gap-3">
             <div className="w-36 text-sm text-foreground">{s.label}</div>
             <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden" aria-hidden="true">
