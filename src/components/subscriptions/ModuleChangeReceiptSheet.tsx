@@ -1,6 +1,6 @@
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, ArrowRight, FileText, Undo2 } from "lucide-react";
+import { CheckCircle2, ArrowRight, FileText, Undo2, Archive } from "lucide-react";
 import { formatKr } from "@/lib/planConstants";
 import { formatDateLong } from "@/lib/moduleActivationState";
 
@@ -8,17 +8,22 @@ export interface ModuleChangeReceipt {
   /** "core" | "vendors" | ... */
   moduleId: string;
   moduleTitle: string;
-  kind: "activation" | "upgrade" | "downgrade";
+  kind: "activation" | "upgrade" | "downgrade" | "retire";
   fromLabel?: string;
   toLabel: string;
   monthlyPriceKr: number;
   /** ISO-dato for når endringen trer i kraft (utelates ved umiddelbar effekt). */
   effectiveAt?: string;
+  /** Kun ved avvikling: når dataene slettes hvis de ikke er hentet ut. */
+  retentionUntil?: string;
+  /** Kun ved avvikling: kort beskrivelse av hva som skjer med dataene. */
+  dataNote?: string;
   termsVersion?: string;
   acceptedAt?: string;
   nextSteps: Array<{ label: string; description?: string; onClick: () => void }>;
   onUndo?: () => void;
 }
+
 
 interface Props {
   receipt: ModuleChangeReceipt | null;
