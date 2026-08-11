@@ -73,12 +73,10 @@ export function CustomerFrameworkRecommendationsCard({
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
         <div className="min-w-0">
           <h3 className="text-sm font-semibold text-foreground">
-            Lovpålagte regelverk basert på data om kunden
+            {t("customerFrameworkRecommendations.title")}
           </h3>
           <p className="text-xs text-muted-foreground mt-0.5">
-            {confirmed
-              ? "Forslaget er basert på kundens egne svar i modenhetsvurderingen."
-              : "Foreløpig forslag ut fra bransje, land, størrelse og funn på kundens nettsted."}
+            {t("customerFrameworkRecommendations.subtitle")}
           </p>
         </div>
         <TooltipProvider delayDuration={150}>
