@@ -10,6 +10,16 @@ import { deriveVendorStatus, deriveCriticality, type VendorStatusMeta } from "@/
 import { VendorInlinePillSelect } from "@/components/vendor-dashboard/VendorInlinePillSelect";
 import { InviteVendorDialog } from "@/components/vendor-dashboard/InviteVendorDialog";
 import { useState } from "react";
+import {
+  NOT_REQUESTED_LABEL,
+  SOURCING_METHOD_META,
+  archetypeByKey,
+  readSourcingState,
+  recommendSourcingMethod,
+  writeSourcingState,
+  type SourcingMethod,
+} from "@/lib/vendorSourcingMethod";
+
 
 interface VendorStatusBannerProps {
   asset: {
@@ -123,7 +133,26 @@ export function VendorStatusBanner({ asset }: VendorStatusBannerProps) {
     inboxCount,
   });
 
+  // Innhentingsmetode — Laras anbefaling avhenger av mandat og offentlig fotavtrykk.
+  const [sourcing, setSourcing] = useState(() => readSourcingState(asset.id));
+  const recommendation = recommendSourcingMethod(archetypeByKey(sourcing.archetype).signals);
+  const startSourcing = (method: SourcingMethod) => {
+    if (method === "vendor_agentic") {
+      setInviteOpen(true);
+      return;
+    }
+    const next = { ...sourcing, method, startedAt: new Date().toISOString() };
+    setSourcing(next);
+    writeSourcingState(asset.id, next);
+    toast.success(
+      method === "public_harvest"
+        ? "Lara kartlegger offentlige kilder"
+        : "Forespørsel sendt på e-post",
+    );
+  };
+
   const score = asset.compliance_score || 0;
+
   const md = asset.metadata || {};
   const [inviteOpen, setInviteOpen] = useState(false);
   const criticality = deriveCriticality({ risk_level: asset.risk_level });
@@ -175,16 +204,57 @@ export function VendorStatusBanner({ asset }: VendorStatusBannerProps) {
     }
     if (status.key === "draft") {
       const mapped = md.lara_mapped_at_label || md.lara_mapped_at;
-      const isMapping = !mapped;
+
+      // Ingen innhenting startet — grunnlaget er ikke etterspurt ennå.
+      if (!sourcing.method) {
+        const primary = SOURCING_METHOD_META[recommendation.primary];
+        return (
+          <div className="rounded-lg bg-muted/40 border border-border px-4 py-2.5 space-y-2">
+            <p className="text-[13px] text-foreground/80 flex items-start gap-2">
+              <Sparkles className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" />
+              <span>
+                {NOT_REQUESTED_LABEL.nb}{" "}
+                <span className="text-muted-foreground">{recommendation.rationale.nb}</span>
+              </span>
+            </p>
+            <div className="flex items-center gap-2 flex-wrap">
+              <Button size="sm" className="gap-1.5 h-8" onClick={() => startSourcing(recommendation.primary)}>
+                <Send className="h-3.5 w-3.5" /> {primary.cta.nb}
+              </Button>
+              {recommendation.alternative && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-8"
+                  onClick={() => startSourcing(recommendation.alternative!)}
+                >
+                  {SOURCING_METHOD_META[recommendation.alternative].cta.nb}
+                </Button>
+              )}
+            </div>
+          </div>
+        );
+      }
+
+      const method = SOURCING_METHOD_META[sourcing.method];
+      const isMapping = sourcing.method === "public_harvest" && !mapped;
       return (
         <div className="rounded-lg bg-muted/40 border border-border px-4 py-2.5 flex items-center justify-between gap-3 flex-wrap">
           <p className="text-[13px] text-foreground/80 flex items-center gap-2">
             <Sparkles className={cn("h-3.5 w-3.5 text-primary", isMapping && "animate-pulse")} />
-            {isMapping ? "Lara kartlegger profilen…" : <>Lara kartla profilen {mapped}</>}
+            {isMapping ? (
+              "Lara kartlegger offentlige kilder…"
+            ) : (
+              <>
+                {method.label.nb} · {method.evidenceLabel.nb}
+              </>
+            )}
           </p>
-          <Button size="sm" className="gap-1.5 h-8" onClick={() => setInviteOpen(true)}>
-            <Send className="h-3.5 w-3.5" /> Inviter leverandøren
-          </Button>
+          {sourcing.method !== "vendor_agentic" && (
+            <Button size="sm" variant="outline" className="gap-1.5 h-8" onClick={() => setInviteOpen(true)}>
+              <Send className="h-3.5 w-3.5" /> Inviter leverandøren
+            </Button>
+          )}
         </div>
       );
     }
@@ -193,10 +263,13 @@ export function VendorStatusBanner({ asset }: VendorStatusBannerProps) {
       return (
         <div className="rounded-lg bg-muted/40 border border-border px-4 py-2 flex items-center gap-2">
           <ShieldCheck className="h-3.5 w-3.5 text-success shrink-0" />
-          <p className="text-[13px] text-foreground/80">Overtatt {claimDate}</p>
+          <p className="text-[13px] text-foreground/80">
+            Leverandøren tok eierskap til sin Agentiske Trust Profile {claimDate}
+          </p>
         </div>
       );
     }
+
     return (
       <div className="rounded-lg bg-muted/40 border border-border px-4 py-2.5">
         <p className="text-[13px] text-muted-foreground">Arkivert leverandør – data fryst.</p>

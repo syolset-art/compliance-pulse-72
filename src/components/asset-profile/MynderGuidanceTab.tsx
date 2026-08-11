@@ -236,7 +236,9 @@ export function MynderGuidanceTab({
           }
         />
         <VendorRecommendedActionsCard
+          assetId={assetId}
           actions={actions}
+
           onRequestDocumentation={openDocRequest}
           onCreateActivity={createActivityFromAction}
           onCreateVendorActivity={() => setCreateActivityOpen(true)}
