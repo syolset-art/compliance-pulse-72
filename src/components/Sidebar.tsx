@@ -1,6 +1,7 @@
 import React from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { TopBar } from "@/components/TopBar";
+import { isModuleDeactivated } from "@/lib/moduleActivationState";
 import { 
   LayoutDashboard, 
   FileText, 
