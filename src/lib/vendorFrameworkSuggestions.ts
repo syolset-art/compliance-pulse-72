@@ -268,7 +268,7 @@ export function deriveVendorFrameworks(ctx: VendorContext): VendorFramework[] {
   const isForeign = country !== "" && country !== "no" && country !== "norge";
   if (isForeign || type.includes("saas")) ids.push("soc2");
 
-  if (type.includes("infrastruktur") && (hash(ctx.id) % 2 === 0)) ids.push("sikkerhetsloven");
+  if (isInfra && hash(ctx.id) % 2 === 0) ids.push("sikkerhetsloven");
 
   const seen = new Set<string>();
   return ids
