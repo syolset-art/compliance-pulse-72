@@ -48,6 +48,7 @@ export function FrameworkOrderConfirmDialog({
   const [accept, setAccept] = useState(false);
   const [termsChecked, setTermsChecked] = useState(false);
   const [operatorRole, setOperatorRole] = useState(false);
+  const [operatorScope, setOperatorScope] = useState<"customer" | "global">("customer");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { current: currentTerms, hasAcceptedCurrent, acceptTerms } = useTerms();
   const termsOk = termsChecked || hasAcceptedCurrent;
@@ -79,7 +80,7 @@ export function FrameworkOrderConfirmDialog({
 
   const handleSubmit = async () => {
     if (!canSubmit) return;
-    await acceptTerms("framework_activation", framework.id, { operatorRole });
+    await acceptTerms("framework_activation", framework.id, { operatorRole , operatorScope });
     onConfirm(
       method === "upload"
         ? { method, evidenceName: file!.name, evidenceSize: file!.size }
@@ -206,6 +207,9 @@ export function FrameworkOrderConfirmDialog({
             version={currentTerms?.version}
             showOperatorRole
             operatorRole={operatorRole}
+            operatorScope={operatorScope}
+            onOperatorScopeChange={setOperatorScope}
+            operatorScopeCustomerName={customerName}
             onOperatorRoleChange={setOperatorRole}
           />
 

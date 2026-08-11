@@ -76,6 +76,7 @@ export function ActivateRecommendationsDialog({
   const [saving, setSaving] = useState(false);
   const [termsChecked, setTermsChecked] = useState(false);
   const [operatorRole, setOperatorRole] = useState(false);
+  const [operatorScope, setOperatorScope] = useState<"customer" | "global">("customer");
   const [tierByModule, setTierByModule] = useState<Record<string, string>>({});
   const { current: currentTerms, hasAcceptedCurrent, acceptTerms } = useTerms();
   const termsOk = termsChecked || hasAcceptedCurrent;
@@ -140,7 +141,7 @@ export function ActivateRecommendationsDialog({
       activateCustomerModule(customerId, item.moduleKey, tierByModule[item.moduleKey]);
     }
 
-    await acceptTerms("module_activation", `msp-customer:${customerId}`, { operatorRole });
+    await acceptTerms("module_activation", `msp-customer:${customerId}`, { operatorRole , operatorScope });
     setSaving(false);
     toast.success(
       activatable.length === 1
@@ -293,6 +294,9 @@ export function ActivateRecommendationsDialog({
               version={currentTerms?.version}
               showOperatorRole
               operatorRole={operatorRole}
+            operatorScope={operatorScope}
+            onOperatorScopeChange={setOperatorScope}
+            operatorScopeCustomerName={customerName}
               onOperatorRoleChange={setOperatorRole}
             />
 

@@ -48,6 +48,7 @@ export function BulkActivateFrameworksDialog({
   const { current: currentTerms, hasAcceptedCurrent, acceptances, acceptTerms } = useTerms();
   const [termsChecked, setTermsChecked] = useState(false);
   const [operatorRole, setOperatorRole] = useState(false);
+  const [operatorScope, setOperatorScope] = useState<"customer" | "global">("customer");
   const [saving, setSaving] = useState(false);
 
   const hasOperatorRole = acceptances.some((a) => a.operator_role);

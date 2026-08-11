@@ -62,6 +62,7 @@ export function ActivateTrustCenterDialog({
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [termsChecked, setTermsChecked] = useState(false);
   const [operatorRole, setOperatorRole] = useState(false);
+  const [operatorScope, setOperatorScope] = useState<"customer" | "global">("customer");
   const [sendClaim, setSendClaim] = useState(true);
   const [saving, setSaving] = useState(false);
   const { enabled: promptEnabled } = usePostActivationPrompt();
