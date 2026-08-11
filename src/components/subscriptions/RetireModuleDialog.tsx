@@ -83,7 +83,6 @@ export function RetireModuleDialog({
       setCompetitor("");
       setDataChoice("retain");
       setConfirmed(false);
-      setInventory(null);
       setExportUrl(null);
     }
   }, [open]);
