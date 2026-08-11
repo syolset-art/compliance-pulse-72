@@ -409,42 +409,46 @@ export default function MSPPartnerSettings() {
                                         </SelectContent>
                                       </Select>
                                       {memberScope(m, role) === "selected" && (
-                                        <Popover>
-                                          <PopoverTrigger asChild>
-                                            <Button variant="outline" size="sm" className="h-8 text-sm">
-                                              {memberCustomers(m, role).length > 0
-                                                ? `${memberCustomers(m, role).length} ${memberCustomers(m, role).length === 1 ? "kunde" : "kunder"}`
-                                                : "Velg kunder"}
-                                            </Button>
-                                          </PopoverTrigger>
-                                          <PopoverContent className="w-72 p-2" align="start">
-                                            <p className="px-2 py-1 text-xs uppercase tracking-wider text-muted-foreground">
-                                              Kunder {m.name.split(" ")[0]} har {role.toLowerCase()} for
-                                            </p>
-                                            <div className="max-h-64 overflow-auto space-y-0.5">
-                                              {customers.length === 0 && (
-                                                <p className="px-2 py-2 text-sm text-muted-foreground">Ingen kunder ennå.</p>
-                                              )}
-                                              {customers.map((c) => (
-                                                <label
-                                                  key={c.id}
-                                                  className="flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-muted cursor-pointer"
-                                                >
-                                                  <Checkbox
-                                                    checked={memberCustomers(m, role).includes(c.id)}
-                                                    onCheckedChange={(v) => toggleMemberCustomer(m, role, c.id, v === true)}
-                                                  />
-                                                  <span className="text-sm text-foreground truncate">{c.name}</span>
-                                                </label>
-                                              ))}
-                                            </div>
-                                          </PopoverContent>
-                                        </Popover>
+                                        <div className="w-full flex flex-col gap-1.5 pl-11">
+                                          <div className="flex flex-wrap items-center gap-2">
+                                            <Popover>
+                                              <PopoverTrigger asChild>
+                                                <Button variant="outline" size="sm" className="h-8 text-sm">
+                                                  {memberCustomers(m, role).length > 0
+                                                    ? `${memberCustomers(m, role).length} ${memberCustomers(m, role).length === 1 ? "kunde" : "kunder"}`
+                                                    : "Velg kunder"}
+                                                </Button>
+                                              </PopoverTrigger>
+                                              <PopoverContent className="w-72 p-2" align="start">
+                                                <p className="px-2 py-1 text-xs uppercase tracking-wider text-muted-foreground">
+                                                  Kunder {m.name.split(" ")[0]} har {role.toLowerCase()} for
+                                                </p>
+                                                <div className="max-h-64 overflow-auto space-y-0.5">
+                                                  {customers.length === 0 && (
+                                                    <p className="px-2 py-2 text-sm text-muted-foreground">Ingen kunder ennå.</p>
+                                                  )}
+                                                  {customers.map((c) => (
+                                                    <label
+                                                      key={c.id}
+                                                      className="flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-muted cursor-pointer"
+                                                    >
+                                                      <Checkbox
+                                                        checked={memberCustomers(m, role).includes(c.id)}
+                                                        onCheckedChange={(v) => toggleMemberCustomer(m, role, c.id, v === true)}
+                                                      />
+                                                      <span className="text-sm text-foreground truncate">{c.name}</span>
+                                                    </label>
+                                                  ))}
+                                                </div>
+                                              </PopoverContent>
+                                            </Popover>
+                                            <span className="text-sm text-muted-foreground">
+                                              {formatSelectedCustomers(memberCustomers(m, role), customers)}
+                                            </span>
+                                          </div>
+                                        </div>
                                       )}
-                                      {memberScope(m, role) === "selected" &&
-                                        memberCustomers(m, role).length === 0 && (
-                                          <span className="text-sm text-muted-foreground">Ingen kunder valgt ennå</span>
-                                        )}
+
                                     </div>
                                   )}
                                 </div>
