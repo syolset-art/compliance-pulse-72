@@ -79,8 +79,8 @@ type InviteDraft = {
   email: string;
   roles: PartnerRole[];
   roleAccess: Record<PartnerRole, PartnerAccess>;
-  scope: PartnerScope;
-  customerIds: string[];
+  roleScope: Record<PartnerRole, PartnerScope>;
+  roleCustomerIds: Record<PartnerRole, string[]>;
 };
 
 const emptyInvite: InviteDraft = {
@@ -88,8 +88,8 @@ const emptyInvite: InviteDraft = {
   email: "",
   roles: ["Kundeansvarlig"],
   roleAccess: { ...DEFAULT_ROLE_ACCESS },
-  scope: "all",
-  customerIds: [],
+  roleScope: { ...DEFAULT_ROLE_SCOPE },
+  roleCustomerIds: { Kundeansvarlig: [], Driftspartner: [] },
 };
 
 export default function MSPPartnerSettings() {
