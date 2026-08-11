@@ -354,24 +354,6 @@ export default function MSPPartnerSettings() {
               </Card>
 
 
-              {/* 4. Lenke til fakturering */}
-              <Card className="p-0 overflow-hidden">
-                <Link
-                  to="/msp-billing"
-                  className="flex items-center gap-3 p-4 hover:bg-muted/40 transition-colors"
-                >
-                  <div className="h-9 w-9 rounded-lg bg-muted flex items-center justify-center shrink-0">
-                    <CreditCard className="h-4 w-4 text-foreground/70" />
-                  </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-base font-medium text-foreground">Fakturering og adresse</p>
-                      <p className="text-base text-muted-foreground">
-                        Faktura-e-post, EHF, organisasjonsnummer og betalingsmetode.
-                      </p>
-                    </div>
-                  <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
-                </Link>
-              </Card>
             </TabsContent>
 
             <TabsContent value="kommunikasjon" className="space-y-4">
