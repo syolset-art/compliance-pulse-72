@@ -27,6 +27,7 @@ import {
   Save,
   Info,
   Plug,
+  Trash2,
 } from "lucide-react";
 import { PartnerIntegrationsTab } from "@/components/msp/PartnerIntegrationsTab";
 import { toast } from "sonner";
@@ -103,11 +104,19 @@ export default function MSPPartnerSettings() {
   const [inviteTerms, setInviteTerms] = useState(false);
   const [inviteLoading, setInviteLoading] = useState(false);
   const [customers, setCustomers] = useState<CustomerOption[]>([]);
+  const [memberToRemove, setMemberToRemove] = useState<TeamMember | null>(null);
+
   
 
   const updateMember = (id: string, patch: Partial<TeamMember>) => {
     setTeam((prev) => prev.map((m) => (m.id === id ? { ...m, ...patch } : m)));
     toast.success("Tilgang oppdatert");
+  };
+
+  const removeMember = (member: TeamMember) => {
+    setTeam((prev) => prev.filter((m) => m.id !== member.id));
+    setMemberToRemove(null);
+    toast.success(`${member.name} er fjernet fra teamet`);
   };
 
   const toggleMemberRole = (m: TeamMember, role: PartnerRole, on: boolean) => {
@@ -411,6 +420,18 @@ export default function MSPPartnerSettings() {
                               </div>
                             )}
                           </div>
+
+                          <div className="shrink-0 sm:pt-1">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                              onClick={() => setMemberToRemove(m)}
+                              aria-label={`Fjern ${m.name}`}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
                         </div>
                       </div>
                     );
@@ -688,6 +709,32 @@ export default function MSPPartnerSettings() {
             <Button variant="outline" onClick={() => setInviteOpen(false)}>Avbryt</Button>
             <Button onClick={handleSendInvite} disabled={!inviteValid || inviteLoading}>
               {inviteLoading ? "Sender..." : "Send invitasjon"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!memberToRemove} onOpenChange={() => setMemberToRemove(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Fjern bruker?</DialogTitle>
+            <DialogDescription>
+              {memberToRemove && (
+                <>
+                  Er du sikker på at du vil fjerne <strong>{memberToRemove.name}</strong> fra partner-teamet? 
+                  Brukeren mister umiddelbar tilgang til partnerdelen og kundene dere deler.
+                </>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setMemberToRemove(null)}>Avbryt</Button>
+            <Button
+              variant="destructive"
+              onClick={() => memberToRemove && removeMember(memberToRemove)}
+              disabled={!memberToRemove}
+            >
+              Fjern bruker
             </Button>
           </DialogFooter>
         </DialogContent>
