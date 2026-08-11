@@ -27,6 +27,8 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { POLICY_TYPES as policyTypes, CERT_TYPES as certTypes, EVIDENCE_TYPES as evidenceTypes, docTypeLabel } from "@/lib/trustDocumentTypes";
 import { RequiredArtifactsBlock } from "@/components/trust-center/RequiredArtifactsBlock";
+import { FrameworkDocumentCoverage } from "@/components/trust-center/FrameworkDocumentCoverage";
+import { buildComplianceCoverage } from "@/lib/complianceDocumentCoverage";
 import { DocumentComplianceCard } from "@/components/trust-center/DocumentComplianceCard";
 import { DocumentAccessDialog } from "@/components/trust-center/DocumentAccessDialog";
 import { Network, Users } from "lucide-react";
