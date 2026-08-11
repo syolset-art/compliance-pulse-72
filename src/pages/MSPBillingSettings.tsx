@@ -55,6 +55,76 @@ const defaults: BillingSettings = {
   notes: "",
 };
 
+const fmt = (n: number) => n.toLocaleString("nb-NO");
+
+function fixedPriceForCustomer(customerId: string): number {
+  const offers = getOffersForCustomer(customerId).filter((o) => o.status === "delivered");
+  let total = 0;
+  for (const offer of offers) {
+    const keys = new Set([...(offer.templateIds || []), ...(offer.serviceKeys || [])]);
+    for (const t of SERVICE_LIBRARY) {
+      const match = keys.has(t.id) || keys.has(normalizeServiceKey(t.name));
+      if (!match) continue;
+      if (t.recommendedPrice.model !== "fixed") continue;
+      total += t.recommendedPrice.min;
+    }
+  }
+  return total;
+}
+
+interface CostSummary {
+  monthly: number;
+  fixed: number;
+  setup: number;
+  totalNet: number;
+  gross: number;
+  taxAmount: number;
+  payingCustomers: number;
+  customerCount: number;
+  topLines: { label: string; price: number; count: number }[];
+}
+
+function buildCostSummary(customers: any[], tax: any): CostSummary {
+  const lineMap = new Map<string, { price: number; count: number }>();
+  let monthly = 0;
+  let fixed = 0;
+  let setup = 0;
+
+  for (const c of customers) {
+    const summary = customerLicenseSummary(c);
+    monthly += summary.monthly;
+    for (const l of summary.lines) {
+      const existing = lineMap.get(l.label) || { price: 0, count: 0 };
+      existing.price += l.price;
+      existing.count += 1;
+      lineMap.set(l.label, existing);
+    }
+    fixed += fixedPriceForCustomer(c.id);
+    setup += Number(c.setup_fee) > 0 ? Number(c.setup_fee) : 0;
+  }
+
+  const totalNet = monthly + fixed + setup;
+  const breakdown = computeTaxBreakdown(totalNet, tax);
+  const payingCustomers = customers.filter((c) => customerLicenseSummary(c).monthly > 0 || fixedPriceForCustomer(c.id) > 0).length;
+
+  const topLines = Array.from(lineMap.entries())
+    .map(([label, { price, count }]) => ({ label, price, count }))
+    .sort((a, b) => b.price - a.price)
+    .slice(0, 5);
+
+  return {
+    monthly,
+    fixed,
+    setup,
+    totalNet,
+    gross: breakdown.gross,
+    taxAmount: breakdown.taxAmount,
+    payingCustomers,
+    customerCount: customers.length,
+    topLines,
+  };
+}
+
 export default function MSPBillingSettings() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
