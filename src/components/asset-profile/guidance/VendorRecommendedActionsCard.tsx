@@ -265,17 +265,24 @@ export function VendorRecommendedActionsCard({
                   </div>
 
                   <div className="mt-2 flex flex-wrap items-center gap-2">
-                    {a.documentType && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="h-7 text-xs"
-                        onClick={() => onRequestDocumentation(a)}
-                      >
-                        <FileText className="h-3 w-3 mr-1" />
-                        {isNb ? "Be om dokumentasjon" : "Request documentation"}
-                      </Button>
-                    )}
+                    {a.documentType &&
+                      (coversDocumentType(trustCenter, a.documentType) ? (
+                        <span className="inline-flex items-center gap-1 rounded-full border border-success/40 bg-success/10 px-2 py-0.5 text-[10px] font-medium text-success">
+                          <ShieldCheck className="h-3 w-3" />
+                          {isNb ? "Via Trust Center" : "Via Trust Center"}
+                        </span>
+                      ) : (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-7 text-xs"
+                          onClick={() => onRequestDocumentation(a)}
+                        >
+                          <FileText className="h-3 w-3 mr-1" />
+                          {isNb ? "Be om dokumentasjon" : "Request documentation"}
+                        </Button>
+                      ))}
+
                     <Button
                       size="sm"
                       variant="ghost"
