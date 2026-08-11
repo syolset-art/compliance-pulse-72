@@ -583,6 +583,20 @@ export function CustomerServicesAndProductsTab({
                 usageSuffix={p.usageSuffix}
                 usageLimit={p.limit != null ? String(p.limit) : undefined}
                 cancelAtLabel={p.cancelAt ? formatPeriodEnd(p.cancelAt) : undefined}
+                onDeactivate={
+                  isTrust || p.status !== "active"
+                    ? undefined
+                    : () =>
+                        setRetireTarget({
+                          stateKey: p.stateKey,
+                          moduleId: p.moduleKey ?? p.key,
+                          title: p.title,
+                          price: p.price,
+                          scopeLabel: p.tierLabel ?? "Hele produktet",
+                        })
+                }
+                onResume={() => undoRetire(p.stateKey)}
+
                 scheduledChange={
                   p.scheduled
                     ? {
