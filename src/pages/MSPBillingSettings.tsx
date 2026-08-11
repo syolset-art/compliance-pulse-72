@@ -11,7 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
-import { ArrowLeft, Building2, CreditCard, Mail, FileText, Save, Lock } from "lucide-react";
+import { ArrowLeft, Building2, Mail, FileText, Save, Lock } from "lucide-react";
 import { Link } from "react-router-dom";
 
 interface BillingSettings {
