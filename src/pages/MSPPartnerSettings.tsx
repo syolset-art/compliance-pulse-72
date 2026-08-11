@@ -26,9 +26,10 @@ import {
   Shield,
   Save,
   Info,
+  Plug,
   Trash2,
+} from "lucide-react";
 
-import { PartnerIntegrationsTab } from "@/components/msp/PartnerIntegrationsTab";
 import { toast } from "sonner";
 import { usePostActivationPrompt } from "@/hooks/usePostActivationPrompt";
 
