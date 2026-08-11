@@ -113,6 +113,12 @@ export default function MSPPartnerSettings() {
     toast.success("Tilgang oppdatert");
   };
 
+  const removeMember = (member: TeamMember) => {
+    setTeam((prev) => prev.filter((m) => m.id !== member.id));
+    setMemberToRemove(null);
+    toast.success(`${member.name} er fjernet fra teamet`);
+  };
+
   const toggleMemberRole = (m: TeamMember, role: PartnerRole, on: boolean) => {
     const roles = on ? [...m.roles, role] : m.roles.filter((r) => r !== role);
     updateMember(m.id, { roles });
