@@ -797,6 +797,14 @@ export default function MSPPartnerSettings() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <PartnerMemberProfileSheet
+        member={profileMember}
+        customers={customers}
+        open={!!profileMember}
+        onOpenChange={(v) => !v && setProfileMember(null)}
+      />
     </div>
+
   );
 }
