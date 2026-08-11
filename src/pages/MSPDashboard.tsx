@@ -646,8 +646,16 @@ export default function MSPDashboard() {
         <div className="container max-w-7xl mx-auto py-8 px-4 md:px-8 space-y-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-foreground">
-                Kunder <span className="text-muted-foreground font-normal">({filtered.length}{filtered.length !== customers.length ? ` av ${customers.length}` : ""})</span>
+              <h1 className="text-3xl font-bold text-foreground flex items-center gap-2">
+                Kunder
+                <span className="inline-flex items-center justify-center h-9 w-9 rounded-full border border-border bg-muted text-muted-foreground text-base font-normal">
+                  {filtered.length}
+                </span>
+                {filtered.length !== customers.length && (
+                  <span className="text-muted-foreground font-normal text-base">
+                    av {customers.length}
+                  </span>
+                )}
               </h1>
             </div>
             <div className="flex items-center gap-2">
