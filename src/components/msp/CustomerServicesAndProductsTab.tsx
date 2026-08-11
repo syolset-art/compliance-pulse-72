@@ -7,21 +7,32 @@ import { Shield, Package, ChevronDown, Check, Plus } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
 import { frameworks as ALL_FRAMEWORKS } from "@/lib/frameworkDefinitions";
-import { formatPeriodEnd, formatDateLong } from "@/lib/moduleActivationState";
+import {
+  formatPeriodEnd,
+  formatDateLong,
+  getPeriodEnd,
+  getRetentionUntil,
+  type CancellationMeta,
+} from "@/lib/moduleActivationState";
 import { supabase } from "@/integrations/supabase/client";
 import {
   CUSTOMER_MODULES_EVENT,
   activateCustomerModule,
+  cancelCustomerModule,
   clearCustomerScheduledTier,
   getCustomerModuleState,
   getCustomerModuleTier,
   getCustomerUsage,
   requiredCoreTierId,
   requiredVendorTierId,
+  resumeCustomerModule,
   scheduleCustomerModuleTier,
   setCustomerModuleTier,
   syncCustomerModules,
 } from "@/lib/customerModuleState";
+import { RetireModuleDialog } from "@/components/subscriptions/RetireModuleDialog";
+import { RetireFrameworksDialog } from "./RetireFrameworksDialog";
+
 import {
   DEFAULT_CORE_TIER_ID,
   DEFAULT_VENDOR_TIER_ID,
@@ -154,6 +165,19 @@ export function CustomerServicesAndProductsTab({
   const [vendorTierMode, setVendorTierMode] = useState<"change" | "activate">("change");
   const [pendingVendorTierId, setPendingVendorTierId] = useState<VendorTierId | null>(null);
   const [receipt, setReceipt] = useState<ModuleChangeReceipt | null>(null);
+
+  // Avviklingsflyt (samme som i Innstillinger > Produkter)
+  const [retireTarget, setRetireTarget] = useState<{
+    stateKey: string;
+    moduleId: string;
+    title: string;
+    price: number;
+    scopeLabel?: string;
+    frameworkIds?: string[];
+  } | null>(null);
+  const [retireFrameworksOpen, setRetireFrameworksOpen] = useState(false);
+
+
 
   // Forbruk hører til kunden — ikke partnerens eget register.
   const usage = useMemo(
@@ -310,6 +334,72 @@ export function CustomerServicesAndProductsTab({
     ]);
   };
 
+  // ── Avvikling (samme flyt som Innstillinger > Produkter) ──
+
+  const confirmRetire = async (meta: CancellationMeta) => {
+    if (!retireTarget) return;
+    const { stateKey, moduleId, title, price, scopeLabel } = retireTarget;
+    const cancelAt = cancelCustomerModule(customerId, stateKey, meta);
+    const retentionUntil = meta.retentionUntil ?? getRetentionUntil(cancelAt).toISOString();
+    setRetireTarget(null);
+    setTick((n) => n + 1);
+
+    try {
+      await supabase.from("module_cancellations").insert({
+        module_id: `${moduleId}:${customerId}`,
+        module_title: `${title} — ${customerName}`,
+        reason: meta.reason,
+        reason_note: meta.reasonNote ?? null,
+        competitor: meta.competitor ?? null,
+        data_choice: meta.dataChoice,
+        transfer_email: meta.transferEmail ?? null,
+        effective_at: cancelAt,
+        retention_until: retentionUntil,
+      });
+    } catch (e) {
+      console.error("Kunne ikke logge avviklingen", e);
+    }
+
+    setReceipt({
+      moduleId,
+      moduleTitle: title,
+      kind: "retire",
+      toLabel: scopeLabel ?? "Hele produktet",
+      monthlyPriceKr: price,
+      effectiveAt: cancelAt,
+      retentionUntil,
+      dataNote:
+        meta.dataChoice === "transfer"
+          ? `Overføres til ${meta.transferEmail}`
+          : meta.dataChoice === "download"
+            ? "Eksportlenken er gyldig i 7 dager"
+            : "Beholdes og slettes automatisk",
+      nextSteps: [
+        {
+          label: "Se fakturagrunnlaget",
+          description: "Kontroller hva som faller bort ved neste fakturering.",
+          onClick: () => window.open("/msp-invoices", "_blank"),
+        },
+      ],
+      onUndo: () => {
+        resumeCustomerModule(customerId, stateKey);
+        setTick((n) => n + 1);
+        setReceipt(null);
+        toast.success("Avviklingen er angret.");
+      },
+    });
+    onUpdate?.();
+  };
+
+  const undoRetire = (stateKey: string) => {
+    resumeCustomerModule(customerId, stateKey);
+    setTick((n) => n + 1);
+    toast.success("Avviklingen er angret. Produktet fortsetter som før.");
+    onUpdate?.();
+  };
+
+
+
   const commitCoreTier = () => {
     if (!pendingCoreTierId) return;
     const prevTier = getCoreTier(coreTierId);
@@ -411,6 +501,15 @@ export function CustomerServicesAndProductsTab({
       </div>
     ) : undefined;
 
+  // Regelverkskortet kan også være under avvikling.
+  const frameworksState = useMemo(
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    () => getCustomerModuleState(customerId, "frameworks"),
+    [customerId, tick],
+  );
+  const frameworksRetiring = frameworksState.status === "pending_cancellation";
+
+
   return (
     <div className="space-y-5">
       {/* ── 1. Produkter og regelverk ── */}
@@ -428,7 +527,13 @@ export function CustomerServicesAndProductsTab({
             icon={Shield}
             title="Regelverk"
             description="Regelverkene kunden etterlever, med krav og dokumentasjonskrav."
-            status={activeFrameworks.length > 0 ? "active" : "inactive"}
+            status={
+              frameworksRetiring
+                ? "pending_cancellation"
+                : activeFrameworks.length > 0
+                  ? "active"
+                  : "inactive"
+            }
             price={activeFrameworks.length * FRAMEWORK_PRICE}
             priceLabel={
               activeFrameworks.length > 0 ? `${activeFrameworks.length} aktive regelverk` : undefined
@@ -441,6 +546,13 @@ export function CustomerServicesAndProductsTab({
                 ? activeFrameworks.map((f) => ({ label: f.name, priceKr: FRAMEWORK_PRICE }))
                 : undefined
             }
+            cancelAtLabel={
+              frameworksState.cancelAt ? formatPeriodEnd(frameworksState.cancelAt) : undefined
+            }
+            onDeactivate={
+              activeFrameworks.length > 0 ? () => setRetireFrameworksOpen(true) : undefined
+            }
+            onResume={() => undoRetire("frameworks")}
             action={activeFrameworks.length > 0 ? "manage" : "activate"}
             onClick={() => {
               if (recommendedFrameworks.length > 0 && selectedFrameworks.length === 0) {
@@ -452,6 +564,7 @@ export function CustomerServicesAndProductsTab({
             }}
             footer={frameworkFooter}
           />
+
 
           {products.map((p) => {
             const isTrust = p.key === "trust";
@@ -470,6 +583,20 @@ export function CustomerServicesAndProductsTab({
                 usageSuffix={p.usageSuffix}
                 usageLimit={p.limit != null ? String(p.limit) : undefined}
                 cancelAtLabel={p.cancelAt ? formatPeriodEnd(p.cancelAt) : undefined}
+                onDeactivate={
+                  isTrust || p.status !== "active"
+                    ? undefined
+                    : () =>
+                        setRetireTarget({
+                          stateKey: p.stateKey,
+                          moduleId: p.moduleKey ?? p.key,
+                          title: p.title,
+                          price: p.price,
+                          scopeLabel: p.tierLabel ?? "Hele produktet",
+                        })
+                }
+                onResume={() => undoRetire(p.stateKey)}
+
                 scheduledChange={
                   p.scheduled
                     ? {
@@ -677,6 +804,41 @@ export function CustomerServicesAndProductsTab({
       />
 
       <ModuleChangeReceiptSheet receipt={receipt} onOpenChange={(o) => !o && setReceipt(null)} />
+
+      <RetireFrameworksDialog
+        open={retireFrameworksOpen}
+        onOpenChange={setRetireFrameworksOpen}
+        customerName={customerName}
+        frameworks={activeFrameworks}
+        pricePerFramework={FRAMEWORK_PRICE}
+        onConfirm={(ids) => {
+          setRetireFrameworksOpen(false);
+          const names = activeFrameworks
+            .filter((f) => ids.includes(f.id))
+            .map((f) => f.name);
+          setRetireTarget({
+            stateKey: "frameworks",
+            moduleId: "frameworks",
+            title: ids.length === activeFrameworks.length ? "Regelverk" : names.join(", "),
+            price: ids.length * FRAMEWORK_PRICE,
+            scopeLabel:
+              ids.length === activeFrameworks.length
+                ? "Alle regelverk"
+                : `${ids.length} av ${activeFrameworks.length} regelverk`,
+            frameworkIds: ids,
+          });
+        }}
+      />
+
+      <RetireModuleDialog
+        open={!!retireTarget}
+        onOpenChange={(o) => { if (!o) setRetireTarget(null); }}
+        moduleId={retireTarget?.moduleId ?? null}
+        moduleTitle={retireTarget?.title ?? ""}
+        effectiveAt={getPeriodEnd().toISOString()}
+        onConfirm={confirmRetire}
+      />
     </div>
   );
 }
+

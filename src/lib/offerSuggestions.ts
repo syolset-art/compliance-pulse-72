@@ -376,6 +376,11 @@ const ACTIVATED_LABEL_TO_MODULE: Record<string, string> = {
   behandlingsprotokoll: "core",
 };
 
+/** Modulnøkkel for en aktivert produktetikett (brukes bl.a. i fakturagrunnlaget). */
+export function moduleKeyForActivatedLabel(label: string): string | undefined {
+  return ACTIVATED_LABEL_TO_MODULE[label.trim().toLowerCase()];
+}
+
 /** Regelverk kunden har aktivert, som inngangspunkter. */
 export function deriveActivatedFrameworkTargets(c: any): CustomerEntryTarget[] {
   const seen = new Set<string>();

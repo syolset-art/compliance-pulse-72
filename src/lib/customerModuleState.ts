@@ -232,3 +232,13 @@ export function getCustomerActiveModules(customerId: string): string[] {
     })
     .map(([id]) => id);
 }
+
+/** Moduler som er sagt opp hos kunden, med dato de faller bort. */
+export function getCustomerRetiringModules(customerId: string): Record<string, string> {
+  const map = read(customerId);
+  const out: Record<string, string> = {};
+  for (const [id, s] of Object.entries(map)) {
+    if (s.status === "pending_cancellation" && s.cancelAt) out[id] = s.cancelAt;
+  }
+  return out;
+}
