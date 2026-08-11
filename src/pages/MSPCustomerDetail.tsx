@@ -614,7 +614,8 @@ export default function MSPCustomerDetail() {
             customerId={customerId!}
             customerName={customer.name || customer.customer_name || undefined}
             customerContactName={customer.contact_name || undefined}
-            serviceTitle={`Anbefalte produkter og tjenester for ${customer.name || customer.customer_name || "kunden"}`}
+            /* v1.1: partneren er i gang med å lage tilbudet — ikke lenger en anbefalingsliste */
+              serviceTitle={`Tilbudsutkast til ${customer.name || customer.customer_name || "kunden"}`}
             offeredServiceNames={offerItems.map((s) => s.label)}
             activeFrameworks={(customer.active_frameworks || []).map((f: any) => (typeof f === "string" ? f : (f?.label ?? f?.frameworkId ?? ""))).filter(Boolean)}
             defaultTasks={offerItems.map((s) => ({ label: s.label, hours: s.hours, owner: "Partner" as const }))}

@@ -1148,7 +1148,8 @@ export default function MSPDashboard() {
               customerId={offerFor.id}
               customerName={offerFor.customer_name}
               customerContactName={offerFor.customer_name}
-              serviceTitle={`Anbefalte produkter og tjenester for ${offerFor.customer_name}`}
+              /* v1.1: partneren er i gang med å lage tilbudet — ikke lenger en anbefalingsliste */
+              serviceTitle={`Tilbudsutkast til ${offerFor.customer_name}`}
               offeredServiceNames={items.map((s) => s.label)}
               activeFrameworks={(offerFor.active_frameworks || []).map((f: any) => (typeof f === "string" ? f : (f?.label ?? f?.frameworkId ?? ""))).filter(Boolean)}
               defaultTasks={items.map((s) => ({
