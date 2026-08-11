@@ -604,38 +604,97 @@ export default function MSPPartnerSettings() {
                   onChange={(e) => setInvite({ ...invite, email: e.target.value })}
                 />
               </div>
-              <div className="space-y-1.5 col-span-2">
-                <Label className="text-base">Rolle</Label>
-                <Select
-                  value={invite.role}
-                  onValueChange={(v) => setInvite({ ...invite, role: v as PartnerRole })}
-                >
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Kundeansvarlig">Kundeansvarlig</SelectItem>
-                    <SelectItem value="Driftspartner">Driftspartner</SelectItem>
-                  </SelectContent>
-                </Select>
-                <p className="text-sm text-muted-foreground">{PARTNER_ROLE_DESC[invite.role]}</p>
+              <div className="col-span-2 rounded-lg border border-border bg-muted/30 px-3 py-2.5">
+                <p className="text-sm font-medium text-foreground">Blir medlem</p>
+                <p className="text-sm text-muted-foreground">{PARTNER_MEMBER_DESC}</p>
               </div>
-              <div className="space-y-1.5 col-span-2">
-                <Label className="text-base">Tilgangsnivå</Label>
-                <Select
-                  value={invite.access}
-                  onValueChange={(v) => setInvite({ ...invite, access: v as PartnerAccess })}
-                >
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="read">{PARTNER_ACCESS_LABEL.read}</SelectItem>
-                    <SelectItem value="write">{PARTNER_ACCESS_LABEL.write}</SelectItem>
-                  </SelectContent>
-                </Select>
-                <p className="text-sm text-muted-foreground">
-                  {invite.access === "read"
-                    ? "Kan se kunder og dokumentasjon, men ikke endre noe."
-                    : "Kan aktivere produkter, lage tilbud og endre dokumentasjon."}
-                </p>
+
+              <div className="space-y-2 col-span-2">
+                <Label className="text-base">Roller (valgfritt)</Label>
+                <div className="rounded-lg border border-border divide-y divide-border">
+                  {(["Kundeansvarlig", "Driftspartner"] as PartnerRole[]).map((role) => (
+                    <div key={role} className="flex items-start justify-between gap-3 px-3 py-2.5">
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium text-foreground">{role}</p>
+                        <p className="text-sm text-muted-foreground">{PARTNER_ROLE_DESC[role]}</p>
+                      </div>
+                      <Switch
+                        checked={invite.roles.includes(role)}
+                        onCheckedChange={(v) =>
+                          setInvite({
+                            ...invite,
+                            roles: v ? [...invite.roles, role] : invite.roles.filter((r) => r !== role),
+                          })
+                        }
+                        aria-label={role}
+                      />
+                    </div>
+                  ))}
+                </div>
               </div>
+
+              {invite.roles.includes("Driftspartner") && (
+                <div className="space-y-3 col-span-2 rounded-lg border border-border p-3">
+                  <div className="space-y-1.5">
+                    <Label className="text-base">Tilgangsnivå hos kunden</Label>
+                    <Select
+                      value={invite.access}
+                      onValueChange={(v) => setInvite({ ...invite, access: v as PartnerAccess })}
+                    >
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="read">{PARTNER_ACCESS_LABEL.read}</SelectItem>
+                        <SelectItem value="write">{PARTNER_ACCESS_LABEL.write}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <p className="text-sm text-muted-foreground">
+                      {invite.access === "read"
+                        ? "Kan se kundens compliance-profil og dokumentasjon, men ikke endre noe."
+                        : "Kan jobbe i kundens compliance-profil og endre dokumentasjon."}
+                    </p>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-base">Omfang</Label>
+                    <Select
+                      value={invite.scope}
+                      onValueChange={(v) => setInvite({ ...invite, scope: v as PartnerScope })}
+                    >
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">{PARTNER_SCOPE_LABEL.all}</SelectItem>
+                        <SelectItem value="selected">{PARTNER_SCOPE_LABEL.selected}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  {invite.scope === "selected" && (
+                    <div className="max-h-48 overflow-auto rounded-lg border border-border p-1">
+                      {customers.length === 0 && (
+                        <p className="px-2 py-2 text-sm text-muted-foreground">Ingen kunder ennå.</p>
+                      )}
+                      {customers.map((c) => (
+                        <label
+                          key={c.id}
+                          className="flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-muted cursor-pointer"
+                        >
+                          <Checkbox
+                            checked={invite.customerIds.includes(c.id)}
+                            onCheckedChange={(v) =>
+                              setInvite({
+                                ...invite,
+                                customerIds: v === true
+                                  ? [...invite.customerIds, c.id]
+                                  : invite.customerIds.filter((id) => id !== c.id),
+                              })
+                            }
+                          />
+                          <span className="text-sm text-foreground truncate">{c.name}</span>
+                        </label>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
 
             </div>
           </div>
