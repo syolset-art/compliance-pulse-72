@@ -386,7 +386,7 @@ export function MSPCreateOfferDialog({
     // Title
     doc.setFontSize(20);
     doc.setTextColor(20);
-    doc.text(offerName, margin, y);
+    doc.text(displayOfferName, margin, y);
     y += 22;
     doc.setFontSize(11);
     doc.setTextColor(90);
@@ -660,7 +660,7 @@ export function MSPCreateOfferDialog({
   const handleSaveOffer = () => {
     persistOffer({
       offerNumber,
-      name: offerName,
+      name: displayOfferName,
       customerId,
       customerName,
       templateIds: offeredTemplateIds ?? [],
@@ -689,10 +689,8 @@ export function MSPCreateOfferDialog({
             )}
             <span className="text-xs text-muted-foreground">{effectivePartnerName}</span>
           </div>
-          {/* v1.1: «utkast» gjelder kun redigering — etter generering er tilbudet laget */}
-          <DialogTitle className="text-lg">
-            {view === "edit" ? offerName : offerName.replace(/^Tilbudsutkast til/i, "Tilbud til")}
-          </DialogTitle>
+            {/* v1.1: «utkast» gjelder kun redigering — etter generering er tilbudet laget */}
+            <DialogTitle className="text-lg">{displayOfferName}</DialogTitle>
           <DialogDescription className="text-sm">
             {view === "edit"
               ? "Juster oppgaver og timer. Når tilbudet er generert kan du sende det direkte til kunden, eller laste det ned som PDF og sende fra ditt eget tilbudssystem."
@@ -1339,7 +1337,7 @@ export function MSPCreateOfferDialog({
               <div className="space-y-1">
                 <h3 className="text-base font-semibold text-foreground">Tilbudet er lagret</h3>
                 <p className="text-sm text-muted-foreground max-w-sm">
-                  <span className="font-medium text-foreground">{offerNumber}</span> · {offerName} ·{" "}
+                  <span className="font-medium text-foreground">{offerNumber}</span> · {displayOfferName} ·{" "}
                   <span className="tabular-nums">{totalPrice.toLocaleString("nb-NO")} kr</span>
                   {savedAt && <> · lagret {savedAt}</>}
                 </p>
