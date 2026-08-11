@@ -27,7 +27,6 @@ import {
   Save,
   Info,
   Plug,
-  AlertTriangle,
 } from "lucide-react";
 import { PartnerIntegrationsTab } from "@/components/msp/PartnerIntegrationsTab";
 import { toast } from "sonner";
@@ -57,7 +56,6 @@ import {
   PARTNER_ROLE_DESC,
   PARTNER_MEMBER_DESC,
   PARTNER_ROLE_INDEPENDENCE_NOTE,
-  PARTNER_DUAL_ROLE_WARNING,
   PARTNER_ACCESS_LABEL,
   PARTNER_SCOPE_LABEL,
   describeMemberAccess,
@@ -296,7 +294,6 @@ export default function MSPPartnerSettings() {
                 <div className="rounded-xl border border-border divide-y divide-border">
                   {team.map((m) => {
                     const isOps = m.roles.includes("Driftspartner");
-                    const bothRoles = m.roles.length === 2;
                     return (
                       <div key={m.id} className="px-4 py-3.5">
                         <div className="flex flex-col sm:flex-row sm:items-start gap-3">
@@ -358,12 +355,6 @@ export default function MSPPartnerSettings() {
                               );
                             })}
 
-                            {bothRoles && (
-                              <div className="flex items-start gap-2.5 rounded-lg border border-warning/30 bg-warning/10 px-3 py-2.5">
-                                <AlertTriangle className="h-4 w-4 text-warning shrink-0 mt-0.5" />
-                                <p className="text-sm text-foreground/80">{PARTNER_DUAL_ROLE_WARNING}</p>
-                              </div>
-                            )}
 
                             {isOps && (
                               <div className="flex flex-wrap items-center gap-2">
