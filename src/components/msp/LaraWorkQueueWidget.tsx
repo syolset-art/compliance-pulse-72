@@ -65,10 +65,6 @@ export function LaraWorkQueueWidget() {
   );
   const rows = useMemo(() => openItems.slice(0, 3), [openItems]);
   const hiddenCount = openItems.length - rows.length;
-  const pendingCount = useMemo(
-    () => items.filter((i) => i.state === "pending").length,
-    [items]
-  );
   const autoDoneCount = useMemo(
     () => items.filter((i) => i.state === "auto-done").length,
     [items]
