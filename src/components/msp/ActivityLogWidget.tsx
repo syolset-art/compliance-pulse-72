@@ -128,7 +128,7 @@ export function ActivityLogWidget() {
           variant="ghost"
           size="sm"
           className="w-full justify-between text-xs"
-          onClick={() => navigate("/msp-dashboard")}
+          onClick={() => navigate("/activity-log")}
         >
           Se all aktivitet
           <ChevronRight className="h-3.5 w-3.5" />
