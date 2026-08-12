@@ -69,19 +69,19 @@ export function LaraWorkQueueWidget() {
           <Sparkles className="h-5 w-5" />
         </div>
         <div className="min-w-0 flex-1">
-          <div className="text-xs uppercase tracking-[0.12em] text-muted-foreground font-semibold">
+          <div className="truncate text-xs uppercase tracking-[0.12em] text-muted-foreground font-semibold">
             Laras arbeidskø
           </div>
-          <div className="flex items-baseline gap-1.5">
+          <div className="flex flex-wrap items-baseline gap-1.5">
             <span className="text-2xl font-bold leading-none tabular-nums">{pending.length}</span>
             <span className="text-sm text-muted-foreground">venter på din godkjenning</span>
           </div>
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm" className="shrink-0 gap-1.5 text-xs">
+            <Button variant="ghost" size="sm" className="shrink-0 gap-1.5 px-2 text-xs">
               <Settings2 className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">{LARA_AUTONOMY_LABELS[autonomy].nb}</span>
+              <span className="hidden lg:inline">{LARA_AUTONOMY_LABELS[autonomy].nb}</span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-64">
@@ -164,15 +164,14 @@ export function LaraWorkQueueWidget() {
                 </TooltipProvider>
               </div>
             </div>
-            <div className="mt-2 flex flex-col gap-1.5 sm:flex-row sm:items-center">
-              <Button size="sm" className="w-full sm:w-auto" onClick={() => resolve(item, true)}>
+            <div className="mt-2 flex flex-wrap items-center gap-1.5">
+              <Button size="sm" onClick={() => resolve(item, true)}>
                 <Check className="mr-1 h-3.5 w-3.5" />
                 Godkjenn
               </Button>
               <Button
                 size="sm"
                 variant="outline"
-                className="w-full sm:w-auto"
                 onClick={() => navigate("/msp-partner/widget/needs-follow-up")}
               >
                 <FileText className="mr-1 h-3.5 w-3.5" />
@@ -181,7 +180,7 @@ export function LaraWorkQueueWidget() {
               <Button
                 size="sm"
                 variant="ghost"
-                className="w-full text-muted-foreground sm:w-auto"
+                className="text-muted-foreground"
                 onClick={() => resolve(item, false)}
               >
                 <X className="mr-1 h-3.5 w-3.5" />
@@ -202,7 +201,7 @@ export function LaraWorkQueueWidget() {
       {blocked.map((item) => (
         <div
           key={item.id}
-          className="flex flex-col gap-2 rounded-lg border border-warning/40 bg-warning/5 p-3 sm:flex-row sm:items-center"
+          className="flex flex-wrap items-center gap-2 rounded-lg border border-warning/40 bg-warning/5 p-3"
         >
           <AlertTriangle className="h-4 w-4 shrink-0 text-warning" />
           <div className="min-w-0 flex-1">
@@ -212,7 +211,6 @@ export function LaraWorkQueueWidget() {
           <Button
             size="sm"
             variant="outline"
-            className="w-full sm:w-auto"
             onClick={() => navigate("/settings/integrations")}
           >
             Løs
