@@ -40,6 +40,7 @@ import {
   type LaraQueueItem,
   type LaraQueueKind,
 } from "@/lib/laraWorkQueue";
+import { LaraApproveDialog } from "@/components/msp/LaraApproveDialog";
 
 const KIND_ICON: Record<LaraQueueKind, typeof Zap> = {
   activate: Zap,
@@ -56,6 +57,7 @@ export function LaraWorkQueueWidget() {
   const isNb = i18n.language === "nb" || i18n.language === "no";
   const [items, setItems] = useState<LaraQueueItem[]>(LARA_WORK_QUEUE);
   const [autonomy, setAutonomy] = useState<LaraAutonomy>("assisted");
+  const [confirming, setConfirming] = useState<LaraQueueItem | null>(null);
 
   const rows = useMemo(
     () => items.filter((i) => i.state === "pending" || i.state === "blocked").slice(0, 3),
@@ -160,7 +162,7 @@ export function LaraWorkQueueWidget() {
                 </UITooltip>
 
                 {item.state === "pending" ? (
-                  <Button size="sm" className="h-7 shrink-0 px-2 text-xs" onClick={() => resolve(item, true)}>
+                  <Button size="sm" className="h-7 shrink-0 px-2 text-xs" onClick={() => setConfirming(item)}>
                     {isNb ? "Godkjenn" : "Approve"}
                   </Button>
                 ) : (
@@ -229,6 +231,15 @@ export function LaraWorkQueueWidget() {
           <ChevronRight className="h-3.5 w-3.5" />
         </span>
       </button>
+
+      <LaraApproveDialog
+        item={confirming}
+        onOpenChange={(open) => !open && setConfirming(null)}
+        onConfirm={(it) => {
+          resolve(it, true);
+          setConfirming(null);
+        }}
+      />
     </Card>
   );
 }

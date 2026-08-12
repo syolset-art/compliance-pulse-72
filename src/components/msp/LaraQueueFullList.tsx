@@ -6,6 +6,7 @@ import { Check, X, AlertTriangle, Sparkles } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
 import { LARA_WORK_QUEUE, LARA_KIND_LABELS, type LaraQueueItem } from "@/lib/laraWorkQueue";
+import { LaraApproveDialog } from "@/components/msp/LaraApproveDialog";
 
 type Filter = "pending" | "auto-done" | "rejected";
 
@@ -22,6 +23,7 @@ export function LaraQueueFullList() {
   const [items, setItems] = useState<LaraQueueItem[]>(LARA_WORK_QUEUE);
   const [rejected, setRejected] = useState<LaraQueueItem[]>([]);
   const [filter, setFilter] = useState<Filter>("pending");
+  const [confirming, setConfirming] = useState<LaraQueueItem | null>(null);
 
   const visible = useMemo(() => {
     if (filter === "rejected") return rejected;
@@ -51,6 +53,7 @@ export function LaraQueueFullList() {
   };
 
   return (
+    <>
     <Card className="p-0">
       <div className="flex flex-wrap items-center gap-2 border-b border-border p-4">
         <Sparkles className="h-4 w-4 text-primary" />
@@ -108,7 +111,7 @@ export function LaraQueueFullList() {
 
             {filter === "pending" && item.state === "pending" && (
               <div className="flex flex-col gap-1.5 sm:flex-row">
-                <Button size="sm" onClick={() => resolve(item, true)}>
+                <Button size="sm" onClick={() => setConfirming(item)}>
                   <Check className="mr-1 h-3.5 w-3.5" /> {isNb ? "Godkjenn" : "Approve"}
                 </Button>
                 <Button
@@ -125,5 +128,15 @@ export function LaraQueueFullList() {
         ))}
       </div>
     </Card>
+
+      <LaraApproveDialog
+        item={confirming}
+        onOpenChange={(open) => !open && setConfirming(null)}
+        onConfirm={(it) => {
+          resolve(it, true);
+          setConfirming(null);
+        }}
+      />
+    </>
   );
 }
