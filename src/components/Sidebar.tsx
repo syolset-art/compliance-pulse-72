@@ -802,6 +802,7 @@ const SidebarContent = () => {
                       {isNb ? "Aktivitetslogg" : "Activity log"}
                     </button>
                     <button
+                      onClick={() => navigate("/msp-billing")}
                       className={cn(
                         "flex w-full items-center gap-3 rounded-lg px-3 py-1.5 text-[0.9375rem] font-medium transition-colors",
                         location.pathname === "/msp-billing"
