@@ -226,3 +226,88 @@ export const NOT_REQUESTED_LABEL = {
   nb: "Grunnlag for modenhetsvurdering er ikke etterspurt ennå.",
   en: "Evidence for the maturity assessment has not been requested yet.",
 };
+
+// ── Utledning av signaler fra leverandørdata ──────────────────────────────
+// Lara skal ikke spørre brukeren om leverandørtype — den utledes av dataene
+// vi allerede har (navn/organisasjon, type, bransje, land, kritikalitet).
+
+export interface VendorSignalInput {
+  name?: string | null;
+  vendorType?: string | null;
+  industry?: string | null;
+  country?: string | null;
+  criticality?: string | null;
+  orgNumber?: string | null;
+}
+
+export interface InferredVendorSignals {
+  signals: SourcingSignals;
+  /** Kort segment-etikett, brukes som kategori i Lara-oppgaven. */
+  segment: { nb: string; en: string };
+}
+
+const GLOBAL_CLOUD = [
+  "microsoft", "google", "amazon", "aws", "oracle", "salesforce", "adobe",
+  "sap", "ibm", "cisco", "atlassian", "slack", "zoom", "workday", "servicenow",
+];
+
+const PUBLIC_SECTOR = [
+  "nav", "arbeids- og velferd", "direktorat", "departement", "kommune",
+  "fylkeskommune", "helse ", "statens", "skatteetaten", "politiet", "altinn",
+  "digdir", "folkehelseinstituttet", "universitet", "høgskole", "etaten",
+];
+
+const REGULATED_SHARED = ["bankid", "vipps", "buypass", "commfides", "nets", "bits"];
+
+const matches = (haystack: string, needles: string[]) =>
+  needles.some((n) => haystack.includes(n));
+
+export function inferVendorSignals(input: VendorSignalInput): InferredVendorSignals {
+  const hay = [input.name, input.vendorType, input.industry]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+
+  const crit = (input.criticality || "").toLowerCase();
+  const criticality: SignalLevel =
+    crit === "high" || crit === "critical" || crit === "kritisk" ? "high" :
+    crit === "low" || crit === "lav" ? "low" : "medium";
+
+  if (matches(hay, PUBLIC_SECTOR)) {
+    return {
+      signals: { publicFootprint: "high", mandate: "low", criticality },
+      segment: {
+        nb: "Offentlig virksomhet · stort offentlig fotavtrykk",
+        en: "Public sector body · large public footprint",
+      },
+    };
+  }
+
+  if (matches(hay, GLOBAL_CLOUD)) {
+    return {
+      signals: { publicFootprint: "high", mandate: "low", criticality },
+      segment: {
+        nb: "Global skyleverandør · publiserer selv",
+        en: "Global cloud vendor · self-publishing",
+      },
+    };
+  }
+
+  if (matches(hay, REGULATED_SHARED)) {
+    return {
+      signals: { publicFootprint: "medium", mandate: "medium", criticality },
+      segment: {
+        nb: "Regulert fellestjeneste · delvis offentlig",
+        en: "Regulated shared service · partly public",
+      },
+    };
+  }
+
+  return {
+    signals: { publicFootprint: "low", mandate: "high", criticality },
+    segment: {
+      nb: "Leverandør med direkte kundeforhold · sterkt mandat",
+      en: "Vendor with direct relationship · strong mandate",
+    },
+  };
+}
