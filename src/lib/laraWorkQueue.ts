@@ -106,7 +106,7 @@ export const LARA_WORK_QUEUE: LaraQueueItem[] = [
     riskReason: "Endrer dokumentert etterlevelse",
     riskReasonEn: "Changes documented compliance",
     impact: ["7 krav settes som dekket i ISO 27001", "Bevisnivå heves til «Verifisert»", "Modenhet i styring og tilgang oppdateres"],
-    impactEn: ["7 requirements are marked as covered in ISO 27001", "Evidence level raised to "Verified"", "Maturity in governance and access is updated"],
+    impactEn: ["7 requirements are marked as covered in ISO 27001", "Evidence level raised to «Verified»", "Maturity in governance and access is updated"],
   },
   {
     id: "q-nordvik-activate",
