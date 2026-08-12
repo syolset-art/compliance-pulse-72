@@ -108,7 +108,7 @@ export function LaraQueueFullList() {
 
             {filter === "pending" && item.state === "pending" && (
               <div className="flex flex-col gap-1.5 sm:flex-row">
-                <Button size="sm" onClick={() => resolve(item, true)}>
+                <Button size="sm" onClick={() => setConfirming(item)}>
                   <Check className="mr-1 h-3.5 w-3.5" /> {isNb ? "Godkjenn" : "Approve"}
                 </Button>
                 <Button
