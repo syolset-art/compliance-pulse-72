@@ -20,6 +20,24 @@ import { cn } from "@/lib/utils";
 
 type Grouping = "industry" | "framework";
 
+const INDUSTRY_EN: Record<string, string> = {
+  "Bygg og anlegg": "Construction",
+  Bygg: "Construction",
+  Helse: "Healthcare",
+  Finans: "Finance",
+  Energi: "Energy",
+  Offentlig: "Public sector",
+  Transport: "Transport",
+  Handel: "Retail",
+  Utdanning: "Education",
+  Teknologi: "Technology",
+  Industri: "Manufacturing",
+  Media: "Media",
+};
+
+const localizeSlice = (label: string, isNb: boolean) => (isNb ? label : INDUSTRY_EN[label] ?? label);
+
+
 interface Props {
   customers?: OpportunityCustomer[];
 }
