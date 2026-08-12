@@ -43,11 +43,18 @@ export default function Legal() {
   const [historyOpen, setHistoryOpen] = useState(false);
 
   useEffect(() => {
+    const doc = params.get("doc") as LegalDocType;
+    if (doc && DOCS.some((d) => d.type === doc) && doc !== tab) setTab(doc);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params]);
+
+  useEffect(() => {
     const next = new URLSearchParams(params);
     next.set("doc", tab);
     setParams(next, { replace: true });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tab]);
+
 
   return (
     <div className="flex min-h-screen bg-background">
