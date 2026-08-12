@@ -207,6 +207,7 @@ const CLAIM_TREND = [
   { month: "apr", value: 47 },
 ];
 
+
 // Partner default currency (prototype). Change here to reflect partner setting.
 const PARTNER_CURRENCY = "NOK";
 const PARTNER_LOCALE = "nb-NO";
@@ -236,28 +237,28 @@ function formatPartnerCurrency(amount: number, compact = true) {
 
 
 const SEGMENTS_BY_INDUSTRY = [
-  { label: "Industri & produksjon", count: 98, color: "bg-primary", widthPct: 53, activatedPct: 41 },
-  { label: "Helse & biotek", count: 74, color: "bg-recommend", widthPct: 40, activatedPct: 48 },
-  { label: "Energi & utilities", count: 61, color: "bg-success", widthPct: 33, activatedPct: 55 },
-  { label: "Finans & forsikring", count: 55, color: "bg-warning", widthPct: 30, activatedPct: 39 },
-  { label: "Transport & logistikk", count: 42, color: "bg-destructive", widthPct: 23, activatedPct: 35 },
-  { label: "Offentlig & samfunn", count: 36, color: "bg-muted", widthPct: 20, activatedPct: 62 },
-  { label: "Teknologi & SaaS", count: 34, color: "bg-primary/70", widthPct: 18, activatedPct: 58 },
+  { label: "Industri & produksjon", labelEn: "Industry & manufacturing", count: 98, color: "bg-primary", widthPct: 53, activatedPct: 41 },
+  { label: "Helse & biotek", labelEn: "Health & biotech", count: 74, color: "bg-recommend", widthPct: 40, activatedPct: 48 },
+  { label: "Energi & utilities", labelEn: "Energy & utilities", count: 61, color: "bg-success", widthPct: 33, activatedPct: 55 },
+  { label: "Finans & forsikring", labelEn: "Finance & insurance", count: 55, color: "bg-warning", widthPct: 30, activatedPct: 39 },
+  { label: "Transport & logistikk", labelEn: "Transport & logistics", count: 42, color: "bg-destructive", widthPct: 23, activatedPct: 35 },
+  { label: "Offentlig & samfunn", labelEn: "Public sector & society", count: 36, color: "bg-muted", widthPct: 20, activatedPct: 62 },
+  { label: "Teknologi & SaaS", labelEn: "Technology & SaaS", count: 34, color: "bg-primary/70", widthPct: 18, activatedPct: 58 },
 ];
 
 const SEGMENTS_BY_FRAMEWORK = [
-  { label: "NIS2-eksponert", count: 71, color: "bg-primary", widthPct: 35, activatedPct: 38 },
-  { label: "Sky-avhengig", count: 186, color: "bg-recommend", widthPct: 92, activatedPct: 54 },
-  { label: "Særlige kategorier", count: 128, color: "bg-success", widthPct: 64, activatedPct: 61 },
-  { label: "DORA-finans", count: 42, color: "bg-warning", widthPct: 21, activatedPct: 29 },
-  { label: "ISO 27001", count: 23, color: "bg-destructive", widthPct: 12, activatedPct: 48 },
+  { label: "NIS2-eksponert", labelEn: "NIS2-exposed", count: 71, color: "bg-primary", widthPct: 35, activatedPct: 38 },
+  { label: "Sky-avhengig", labelEn: "Cloud-dependent", count: 186, color: "bg-recommend", widthPct: 92, activatedPct: 54 },
+  { label: "Særlige kategorier", labelEn: "Special categories", count: 128, color: "bg-success", widthPct: 64, activatedPct: 61 },
+  { label: "DORA-finans", labelEn: "DORA finance", count: 42, color: "bg-warning", widthPct: 21, activatedPct: 29 },
+  { label: "ISO 27001", labelEn: "ISO 27001", count: 23, color: "bg-destructive", widthPct: 12, activatedPct: 48 },
 ];
 
 const LIVE_SIGNALS = [
-  { time: "2t", name: "Bergen Maskin AS", note: "ISO 27001 utløpt", accent: "bg-destructive" },
-  { time: "04:15", name: "Sognefjord Helse AS", note: "Datatilsyn-sak åpnet", accent: "bg-status-followup" },
-  { time: "i går", name: "Vestland Logistikk", note: "Ny CEO i Brreg", accent: "bg-primary" },
-  { time: "i går", name: "Nordic Cargo AS", note: "Kunde har aktivert profilen", accent: "bg-emerald-500" },
+  { time: "2t", timeEn: "2h", name: "Bergen Maskin AS", note: "ISO 27001 utløpt", noteEn: "ISO 27001 expired", accent: "bg-destructive" },
+  { time: "04:15", timeEn: "04:15", name: "Sognefjord Helse AS", note: "Datatilsyn-sak åpnet", noteEn: "Data protection authority case opened", accent: "bg-status-followup" },
+  { time: "i går", timeEn: "yesterday", name: "Vestland Logistikk", note: "Ny CEO i Brreg", noteEn: "New CEO in the register", accent: "bg-primary" },
+  { time: "i går", timeEn: "yesterday", name: "Nordic Cargo AS", note: "Kunde har aktivert profilen", noteEn: "Customer has activated the profile", accent: "bg-emerald-500" },
 ];
 
 // ---------- Components ----------
