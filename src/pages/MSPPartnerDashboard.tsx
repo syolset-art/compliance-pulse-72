@@ -43,16 +43,24 @@ type LaraSuggestion = {
   id: number;
   dot: string;
   text: string;
+  textEn: string;
   icon: typeof Target;
   title: string;
+  titleEn: string;
   summary: string;
+  summaryEn: string;
   impact: { reach: string; expectedClaims: string; revenue: string };
+  impactEn: { reach: string; expectedClaims: string; revenue: string };
   steps: string[];
+  stepsEn: string[];
   cta: { primary: string; secondary: string; icon: typeof Mail };
+  ctaEn: { primary: string; secondary: string; icon: typeof Mail };
   regulation: "NIS2" | "GDPR" | "DORA" | "AI Act";
   targetCount: number;
   expectedEffect: string;
+  expectedEffectEn: string;
   priority: "Høy" | "Middels" | "Lav";
+  priorityEn: "High" | "Medium" | "Low";
 };
 
 const LARA_SUGGESTIONS: LaraSuggestion[] = [
@@ -60,81 +68,133 @@ const LARA_SUGGESTIONS: LaraSuggestion[] = [
     id: 1,
     dot: "bg-status-followup",
     text: "Kjør NIS2-aktiveringskampanje mot 28 kunder",
+    textEn: "Run NIS2 activation campaign for 28 customers",
     icon: Target,
     title: "NIS2-aktiveringskampanje",
+    titleEn: "NIS2 activation campaign",
     summary: "28 kunder i porteføljen er NIS2-eksponert, men har ennå ikke aktivert sin Trust Profile. Lara har klargjort en målrettet kampanje.",
+    summaryEn: "28 customers in the portfolio are NIS2-exposed but have not yet activated their Trust Profile. Lara has prepared a targeted campaign.",
     impact: { reach: "28 kunder", expectedClaims: "9–12 nye aktiveringer", revenue: "~210 000 kr ARR" },
+    impactEn: { reach: "28 customers", expectedClaims: "9–12 new activations", revenue: "~NOK 210,000 ARR" },
     steps: [
       "Send personalisert e-post med NIS2-eksponering og frister",
       "Automatisk oppfølging etter 3 dager til de som ikke åpnet",
       "Lara booker intro-møte for de som klikker «Vis min profil»",
       "Du får daglig statusrapport i innboksen",
     ],
+    stepsEn: [
+      "Send personalized email with NIS2 exposure and deadlines",
+      "Automatic follow-up after 3 days to those who did not open",
+      "Lara books an intro meeting for those who click \"View my profile\"",
+      "You get a daily status report in your inbox",
+    ],
     cta: { primary: "Start kampanje nå", secondary: "Tilpass mal", icon: Mail },
+    ctaEn: { primary: "Start campaign now", secondary: "Customize template", icon: Mail },
     regulation: "NIS2",
     targetCount: 28,
     expectedEffect: "9–12 nye aktiveringer",
+    expectedEffectEn: "9–12 new activations",
     priority: "Høy",
+    priorityEn: "High",
   },
   {
     id: 2,
     dot: "bg-primary",
     text: "GDPR årlig oppfriskning mot 46 kunder",
+    textEn: "GDPR annual refresh for 46 customers",
     icon: Mail,
     title: "GDPR årlig oppfriskning",
+    titleEn: "GDPR annual refresh",
     summary: "46 kunder har databehandleravtaler og ROPA-oppføringer som ikke er gjennomgått de siste 12 månedene. Lara har klargjort en fornyelseskampanje.",
+    summaryEn: "46 customers have data processing agreements and ROPA entries that have not been reviewed in the last 12 months. Lara has prepared a renewal campaign.",
     impact: { reach: "46 kunder", expectedClaims: "30+ fornyelser", revenue: "~180 000 kr ARR" },
+    impactEn: { reach: "46 customers", expectedClaims: "30+ renewals", revenue: "~NOK 180,000 ARR" },
     steps: [
       "Send påminnelse om årlig GDPR-gjennomgang",
       "Automatisk sjekk av DPA-status og ROPA-oppdateringer",
       "Lara foreslår oppdaterte tekster per kunde",
       "Fornyelsesrapport til deg ukentlig",
     ],
+    stepsEn: [
+      "Send reminder about annual GDPR review",
+      "Automatic check of DPA status and ROPA updates",
+      "Lara suggests updated text per customer",
+      "Weekly renewal report to you",
+    ],
     cta: { primary: "Start kampanje", secondary: "Tilpass mal", icon: Mail },
+    ctaEn: { primary: "Start campaign", secondary: "Customize template", icon: Mail },
     regulation: "GDPR",
     targetCount: 46,
     expectedEffect: "30+ fornyelser",
+    expectedEffectEn: "30+ renewals",
     priority: "Middels",
+    priorityEn: "Medium",
   },
   {
     id: 3,
     dot: "bg-status-followup",
     text: "DORA-beredskapssjekk mot 12 finanskunder",
+    textEn: "DORA readiness check for 12 finance customers",
     icon: Target,
     title: "DORA-beredskapssjekk",
+    titleEn: "DORA readiness check",
     summary: "12 kunder i finanssektoren omfattes av DORA, men mangler dokumentert IKT-risikovurdering. Lara kan starte en beredskapssjekk.",
+    summaryEn: "12 customers in the financial sector are covered by DORA but lack a documented ICT risk assessment. Lara can start a readiness check.",
     impact: { reach: "12 kunder", expectedClaims: "8 risikovurderinger", revenue: "~140 000 kr ARR" },
+    impactEn: { reach: "12 customers", expectedClaims: "8 risk assessments", revenue: "~NOK 140,000 ARR" },
     steps: [
       "Send DORA-eksponeringsanalyse til hver kunde",
       "Lara henter data fra Trust Profile og kartlegger gap",
       "Foreslå prioriterte tiltak per kunde",
       "Ukentlig statusrapport til deg",
     ],
+    stepsEn: [
+      "Send DORA exposure analysis to each customer",
+      "Lara retrieves data from Trust Profile and maps gaps",
+      "Suggest prioritized actions per customer",
+      "Weekly status report to you",
+    ],
     cta: { primary: "Start kampanje", secondary: "Tilpass mal", icon: Mail },
+    ctaEn: { primary: "Start campaign", secondary: "Customize template", icon: Mail },
     regulation: "DORA",
     targetCount: 12,
     expectedEffect: "8 risikovurderinger",
+    expectedEffectEn: "8 risk assessments",
     priority: "Høy",
+    priorityEn: "High",
   },
   {
     id: 4,
     dot: "bg-primary",
     text: "AI Act-kartlegging mot 19 kunder med AI-systemer",
+    textEn: "AI Act mapping for 19 customers with AI systems",
     icon: Users,
     title: "AI Act-kartlegging",
+    titleEn: "AI Act mapping",
     summary: "19 kunder har registrert AI-systemer, men mangler ROPA-oppføring og risikoklassifisering iht. AI Act. Lara kan kartlegge og opprette utkast.",
+    summaryEn: "19 customers have registered AI systems but lack a ROPA entry and risk classification per the AI Act. Lara can map these and create drafts.",
     impact: { reach: "19 kunder", expectedClaims: "15 nye ROPA-oppføringer", revenue: "~95 000 kr ARR" },
+    impactEn: { reach: "19 customers", expectedClaims: "15 new ROPA entries", revenue: "~NOK 95,000 ARR" },
     steps: [
       "Lara identifiserer AI-systemer i kundens portefølje",
       "Klassifiserer risikonivå iht. AI Act",
       "Genererer ROPA-utkast per system",
       "Rådgiver godkjenner før publisering",
     ],
+    stepsEn: [
+      "Lara identifies AI systems in the customer's portfolio",
+      "Classifies risk level per the AI Act",
+      "Generates a ROPA draft per system",
+      "Advisor approves before publishing",
+    ],
     cta: { primary: "Start kampanje", secondary: "Tilpass mal", icon: Mail },
+    ctaEn: { primary: "Start campaign", secondary: "Customize template", icon: Mail },
     regulation: "AI Act",
     targetCount: 19,
     expectedEffect: "15 nye ROPA-oppføringer",
+    expectedEffectEn: "15 new ROPA entries",
     priority: "Middels",
+    priorityEn: "Medium",
   },
 ];
 
