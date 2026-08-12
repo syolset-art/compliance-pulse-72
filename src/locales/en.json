@@ -53,13 +53,19 @@
     "reportsAdmin": "Reports & Admin",
     "administration": "Administration",
     "adminOrganisation": "Organisation",
-"adminDocuments": "Documents",
-   "adminNotifications": "Notifications",
+    "adminDocuments": "Documents",
+    "adminNotifications": "Notifications",
     "accessManagement": "Access Management",
     "coming": "Coming",
     "moreServices": "Modules",
     "exploreBadge": "",
-    "registries": "Registries"
+    "registries": "Registries",
+    "boardroom": "Boardroom",
+    "agents": "Agents",
+    "products": "Products",
+    "integrations": "Integrations",
+    "activityLog": "Activity log",
+    "legal": "Agreements and terms"
   },
   "customerRequests": {
     "title": "Messages",
@@ -309,7 +315,7 @@
   "tasks": {
     "title": "All tasks",
     "subtitle": "Overview of all tasks and systems requiring follow-up",
-    "aiWorking": "AI agent actively working",
+    "aiWorking": "AI working...",
     "tasksUnderTreatment": "{{count}} task under treatment",
     "tasksUnderTreatment_plural": "{{count}} tasks under treatment",
     "autonomousWork": "Autonomous work in progress",
@@ -336,7 +342,6 @@
     "relevantFor": "Relevant for:",
     "progress": "Progress:",
     "completedByAI": "Completed by AI",
-    "aiWorking": "AI working...",
     "aiCanHelp": "AI can help",
     "viewDetails": "View details",
     "requestAI": "Request AI help",
@@ -913,14 +918,8 @@
     },
     "selectTypeLabel": "Select module type",
     "types": {
-      "fileUpload": "File upload",
-      "fileUploadDesc": "Upload documents and data",
-      "apiIntegration": "API integration",
-      "apiIntegrationDesc": "Connect to external services",
-      "dataSource": "Data source",
-      "dataSourceDesc": "Connect to database or source",
-      "custom": "Custom",
-      "customDesc": "Custom module type"
+      "qualitySystem": "Quality System",
+      "qualitySystemDesc": "HSE, internal control and quality management"
     },
     "moduleName": "Module name *",
     "moduleNamePlaceholder": "E.g. 'GDPR Documents' or 'Salesforce API'",
@@ -950,10 +949,6 @@
     "success": {
       "fileUploaded": "File uploaded: {{name}}",
       "moduleCreated": "Module \"{{name}}\" has been created!"
-    },
-    "types": {
-      "qualitySystem": "Quality System",
-      "qualitySystemDesc": "HSE, internal control and quality management"
     }
   },
   "quality": {
@@ -1455,17 +1450,56 @@
       "other": "Other regulations"
     },
     "frameworks": {
-      "gdpr": { "name": "GDPR / General Data Protection Regulation", "description": "EU privacy legislation – applies to all who process personal data" },
-      "personopplysningsloven": { "name": "Personal Data Act", "description": "Norwegian law supplementing GDPR" },
-      "iso27001": { "name": "ISO 27001", "description": "International standard for information security management", "trigger": "Do your customers require ISO certification?" },
-      "nis2": { "name": "NIS2 Directive", "description": "EU directive on network and information systems security", "trigger": "Is your organization in critical infrastructure or digital service delivery?" },
-      "nsm": { "name": "NSM Basic Principles", "description": "National Security Authority recommendations for ICT security" },
-      "ai-act": { "name": "EU AI Act", "description": "EU regulation on artificial intelligence", "trigger": "Does your organization use AI systems or develop AI solutions?" },
-      "ai-ethics": { "name": "AI Ethics Guidelines", "description": "Internal guidelines for responsible use of AI", "trigger": "Does your organization use AI systems?" },
-      "apenhetsloven": { "name": "Transparency Act", "description": "Requirements for due diligence assessments and transparency in supply chains", "trigger": "Does your organization have over 50 employees or over 70 MNOK in revenue?" },
-      "hms": { "name": "HSE Legislation", "description": "Health, safety and environment in the workplace" },
-      "bokforingsloven": { "name": "Bookkeeping Act", "description": "Requirements for storage and documentation of accounting material" },
-      "hvitvasking": { "name": "Anti-Money Laundering Act", "description": "Measures against money laundering and terrorist financing", "trigger": "Is your organization subject to reporting obligations under the Anti-Money Laundering Act?" }
+      "gdpr": {
+        "name": "GDPR / General Data Protection Regulation",
+        "description": "EU privacy legislation – applies to all who process personal data"
+      },
+      "personopplysningsloven": {
+        "name": "Personal Data Act",
+        "description": "Norwegian law supplementing GDPR"
+      },
+      "iso27001": {
+        "name": "ISO 27001",
+        "description": "International standard for information security management",
+        "trigger": "Do your customers require ISO certification?"
+      },
+      "nis2": {
+        "name": "NIS2 Directive",
+        "description": "EU directive on network and information systems security",
+        "trigger": "Is your organization in critical infrastructure or digital service delivery?"
+      },
+      "nsm": {
+        "name": "NSM Basic Principles",
+        "description": "National Security Authority recommendations for ICT security"
+      },
+      "ai-act": {
+        "name": "EU AI Act",
+        "description": "EU regulation on artificial intelligence",
+        "trigger": "Does your organization use AI systems or develop AI solutions?"
+      },
+      "ai-ethics": {
+        "name": "AI Ethics Guidelines",
+        "description": "Internal guidelines for responsible use of AI",
+        "trigger": "Does your organization use AI systems?"
+      },
+      "apenhetsloven": {
+        "name": "Transparency Act",
+        "description": "Requirements for due diligence assessments and transparency in supply chains",
+        "trigger": "Does your organization have over 50 employees or over 70 MNOK in revenue?"
+      },
+      "hms": {
+        "name": "HSE Legislation",
+        "description": "Health, safety and environment in the workplace"
+      },
+      "bokforingsloven": {
+        "name": "Bookkeeping Act",
+        "description": "Requirements for storage and documentation of accounting material"
+      },
+      "hvitvasking": {
+        "name": "Anti-Money Laundering Act",
+        "description": "Measures against money laundering and terrorist financing",
+        "trigger": "Is your organization subject to reporting obligations under the Anti-Money Laundering Act?"
+      }
     }
   },
   "vendorDashboard": {
@@ -1763,4 +1797,3 @@
     }
   }
 }
-

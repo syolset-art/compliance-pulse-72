@@ -54,13 +54,19 @@
     "reportsAdmin": "Rapporter & Admin",
     "administration": "Administrasjon",
     "adminOrganisation": "Organisasjon",
-"adminDocuments": "Dokumenter",
+    "adminDocuments": "Dokumenter",
     "adminNotifications": "Varslinger",
     "accessManagement": "Tilgangsstyring",
     "coming": "Kommer",
     "moreServices": "Moduler",
     "exploreBadge": "",
-    "registries": "Registre"
+    "registries": "Registre",
+    "boardroom": "Styrerom",
+    "agents": "Agenter",
+    "products": "Produkter",
+    "integrations": "Integrasjoner",
+    "activityLog": "Aktivitetslogg",
+    "legal": "Avtaler og vilkår"
   },
   "customerRequests": {
     "title": "Meldinger",
@@ -310,7 +316,7 @@
   "tasks": {
     "title": "Alle oppgaver",
     "subtitle": "Oversikt over alle oppgaver og systemer som krever oppfølging",
-    "aiWorking": "AI-agent jobber aktivt",
+    "aiWorking": "AI jobber...",
     "tasksUnderTreatment": "{{count}} oppgave under behandling",
     "tasksUnderTreatment_plural": "{{count}} oppgaver under behandling",
     "autonomousWork": "Autonomt arbeid pågår",
@@ -337,7 +343,6 @@
     "relevantFor": "Relevant for:",
     "progress": "Fremgang:",
     "completedByAI": "Fullført av AI",
-    "aiWorking": "AI jobber...",
     "aiCanHelp": "AI kan hjelpe",
     "viewDetails": "Se detaljer",
     "requestAI": "Be AI om hjelp",
@@ -914,14 +919,8 @@
     },
     "selectTypeLabel": "Velg type modul",
     "types": {
-      "fileUpload": "Filopplasting",
-      "fileUploadDesc": "Last opp dokumenter og data",
-      "apiIntegration": "API-integrasjon",
-      "apiIntegrationDesc": "Koble til eksterne tjenester",
-      "dataSource": "Datakilde",
-      "dataSourceDesc": "Koble til database eller kilde",
-      "custom": "Tilpasset",
-      "customDesc": "Egendefinert modultype"
+      "qualitySystem": "Kvalitetssystem",
+      "qualitySystemDesc": "HMS, internkontroll og kvalitetsstyring"
     },
     "moduleName": "Modulnavn *",
     "moduleNamePlaceholder": "F.eks. 'GDPR Dokumenter' eller 'Salesforce API'",
@@ -951,10 +950,6 @@
     "success": {
       "fileUploaded": "Fil lastet opp: {{name}}",
       "moduleCreated": "Modul \"{{name}}\" er opprettet!"
-    },
-    "types": {
-      "qualitySystem": "Kvalitetssystem",
-      "qualitySystemDesc": "HMS, internkontroll og kvalitetsstyring"
     }
   },
   "quality": {
@@ -1045,7 +1040,7 @@
         "companyInfoDesc": "Legg til grunnleggende informasjon om selskapet",
         "frameworks": "Regelverk og krav",
         "frameworksDesc": "Kartlegg hvilke regelverk virksomheten må følge",
-         "assets": "Legg til",
+        "assets": "Legg til",
         "assetsDesc": "Registrer leverandører, systemer og tjenester",
         "workAreas": "Definer arbeidsområder",
         "workAreasDesc": "Opprett arbeidsområder i organisasjonen"
@@ -1456,17 +1451,56 @@
       "other": "Øvrig regelverk"
     },
     "frameworks": {
-      "gdpr": { "name": "GDPR / Personvernforordningen", "description": "EUs personvernlovgivning - gjelder alle som behandler personopplysninger" },
-      "personopplysningsloven": { "name": "Personopplysningsloven", "description": "Norsk lov som utfyller GDPR" },
-      "iso27001": { "name": "ISO 27001", "description": "Internasjonal standard for informasjonssikkerhetsstyring", "trigger": "Har dere kunder som krever ISO-sertifisering?" },
-      "nis2": { "name": "NIS2-direktivet", "description": "EUs direktiv om sikkerhet i nettverks- og informasjonssystemer", "trigger": "Er virksomheten innen kritisk infrastruktur eller digital tjenesteleveranse?" },
-      "nsm": { "name": "NSMs grunnprinsipper", "description": "Nasjonal sikkerhetsmyndighets anbefalinger for IKT-sikkerhet" },
-      "ai-act": { "name": "EU AI Act", "description": "EUs forordning om kunstig intelligens", "trigger": "Bruker virksomheten AI-systemer eller utvikler AI-løsninger?" },
-      "ai-ethics": { "name": "Etiske retningslinjer for AI", "description": "Interne retningslinjer for ansvarlig bruk av AI", "trigger": "Bruker virksomheten AI-systemer?" },
-      "apenhetsloven": { "name": "Åpenhetsloven", "description": "Krav til aktsomhetsvurderinger og transparens i leverandørkjeder", "trigger": "Har virksomheten over 50 ansatte eller over 70 MNOK i omsetning?" },
-      "hms": { "name": "HMS-lovgivningen", "description": "Helse, miljø og sikkerhet på arbeidsplassen" },
-      "bokforingsloven": { "name": "Bokføringsloven", "description": "Krav til oppbevaring og dokumentasjon av regnskapsmateriale" },
-      "hvitvasking": { "name": "Hvitvaskingsloven", "description": "Tiltak mot hvitvasking og terrorfinansiering", "trigger": "Er virksomheten rapporteringspliktig etter hvitvaskingsloven?" }
+      "gdpr": {
+        "name": "GDPR / Personvernforordningen",
+        "description": "EUs personvernlovgivning - gjelder alle som behandler personopplysninger"
+      },
+      "personopplysningsloven": {
+        "name": "Personopplysningsloven",
+        "description": "Norsk lov som utfyller GDPR"
+      },
+      "iso27001": {
+        "name": "ISO 27001",
+        "description": "Internasjonal standard for informasjonssikkerhetsstyring",
+        "trigger": "Har dere kunder som krever ISO-sertifisering?"
+      },
+      "nis2": {
+        "name": "NIS2-direktivet",
+        "description": "EUs direktiv om sikkerhet i nettverks- og informasjonssystemer",
+        "trigger": "Er virksomheten innen kritisk infrastruktur eller digital tjenesteleveranse?"
+      },
+      "nsm": {
+        "name": "NSMs grunnprinsipper",
+        "description": "Nasjonal sikkerhetsmyndighets anbefalinger for IKT-sikkerhet"
+      },
+      "ai-act": {
+        "name": "EU AI Act",
+        "description": "EUs forordning om kunstig intelligens",
+        "trigger": "Bruker virksomheten AI-systemer eller utvikler AI-løsninger?"
+      },
+      "ai-ethics": {
+        "name": "Etiske retningslinjer for AI",
+        "description": "Interne retningslinjer for ansvarlig bruk av AI",
+        "trigger": "Bruker virksomheten AI-systemer?"
+      },
+      "apenhetsloven": {
+        "name": "Åpenhetsloven",
+        "description": "Krav til aktsomhetsvurderinger og transparens i leverandørkjeder",
+        "trigger": "Har virksomheten over 50 ansatte eller over 70 MNOK i omsetning?"
+      },
+      "hms": {
+        "name": "HMS-lovgivningen",
+        "description": "Helse, miljø og sikkerhet på arbeidsplassen"
+      },
+      "bokforingsloven": {
+        "name": "Bokføringsloven",
+        "description": "Krav til oppbevaring og dokumentasjon av regnskapsmateriale"
+      },
+      "hvitvasking": {
+        "name": "Hvitvaskingsloven",
+        "description": "Tiltak mot hvitvasking og terrorfinansiering",
+        "trigger": "Er virksomheten rapporteringspliktig etter hvitvaskingsloven?"
+      }
     }
   },
   "vendorDashboard": {
@@ -1764,4 +1798,3 @@
     }
   }
 }
-
