@@ -1,28 +1,43 @@
 // Laras arbeidskø — prototypedata for det agentiske partner-dashbordet.
-// Enheten for arbeid er et ferdig utkast fra Lara som mennesket godkjenner,
+// Enheten for arbeid er ferdig utført arbeid fra Lara som mennesket godkjenner,
 // ikke en oppgave mennesket må starte selv.
 
 export type LaraQueueState = "pending" | "auto-done" | "blocked";
 
 export type LaraAutonomy = "automatic" | "assisted" | "manual";
 
+export type LaraQueueKind =
+  | "activate"
+  | "evidence"
+  | "report"
+  | "audit"
+  | "vendor_mapping";
+
 export type LaraQueueItem = {
   id: string;
   customer: string;
-  /** Hva Lara har gjort / foreslår — formulert som utført arbeid. */
+  /** Type arbeid Lara har gjort ferdig. */
+  kind: LaraQueueKind;
+  /** Hva Lara har gjort — formulert som utført arbeid. */
   action: string;
-  /** Kort begrunnelse: hvorfor Lara laget dette utkastet. */
+  /** Kort begrunnelse: hvorfor Lara gjorde dette. */
   rationale: string;
   /** Datakilde begrunnelsen bygger på. */
   source: string;
-  /** Verdi i kroner der forslaget er et tilbud. */
-  value?: number;
   state: LaraQueueState;
   autonomy: LaraAutonomy;
   /** Vises for auto-done: når Lara utførte det. */
   doneAt?: string;
   /** Vises for blocked: hva som mangler for at Lara kan fortsette. */
   blocker?: string;
+};
+
+export const LARA_KIND_LABELS: Record<LaraQueueKind, { nb: string; en: string }> = {
+  activate: { nb: "Aktivering", en: "Activation" },
+  evidence: { nb: "Bevis", en: "Evidence" },
+  report: { nb: "Rapport", en: "Report" },
+  audit: { nb: "Revisjon", en: "Audit" },
+  vendor_mapping: { nb: "Leverandørkartlegging", en: "Vendor mapping" },
 };
 
 export const LARA_AUTONOMY_LABELS: Record<LaraAutonomy, { nb: string; en: string; hint: string }> = {
@@ -34,7 +49,7 @@ export const LARA_AUTONOMY_LABELS: Record<LaraAutonomy, { nb: string; en: string
   assisted: {
     nb: "Assistert",
     en: "Assisted",
-    hint: "Lara gjør jobben ferdig, du godkjenner før noe sendes.",
+    hint: "Lara gjør jobben ferdig, du godkjenner før noe iverksettes.",
   },
   manual: {
     nb: "Manuell",
@@ -45,39 +60,62 @@ export const LARA_AUTONOMY_LABELS: Record<LaraAutonomy, { nb: string; en: string
 
 export const LARA_WORK_QUEUE: LaraQueueItem[] = [
   {
-    id: "q-bergen-offer",
+    id: "q-bergen-evidence",
     customer: "Bergen Energi AS",
-    action: "Tilbud på risikovurdering er skrevet ferdig",
+    kind: "evidence",
+    action: "ISO 27001-sertifikat analysert og matchet mot 7 krav",
     rationale:
-      "NIS2 ble aktivert for 3 dager siden, men risikovurderingen mangler. Dette er neste krav som må lukkes.",
-    source: "Aktivitetslogg · NIS2 art. 21",
-    value: 18900,
+      "Dokumentet er utstedt av uavhengig tredjepart og dekker kravene i styring og tilgangskontroll.",
+    source: "Dokumentanalyse · ISO 27001",
     state: "pending",
     autonomy: "assisted",
   },
   {
-    id: "q-nordvik-reminder",
+    id: "q-nordvik-activate",
     customer: "Nordvik Helse",
-    action: "Purring om 4 manglende leverandører er formulert",
+    kind: "activate",
+    action: "Aktivering av Leverandørmodulen (nivå 20) er klargjort",
     rationale:
-      "Leverandørmodulen ble tatt i bruk for 6 dager siden, men ingen leverandører er registrert ennå.",
-    source: "Aktivitetslogg · Leverandørmodul",
+      "14 leverandører er kartlagt — over grensen på 5 i gratisnivået. Vilkår er forhåndsutfylt.",
+    source: "Leverandørmodul · kapasitet",
     state: "pending",
     autonomy: "assisted",
   },
   {
-    id: "q-fjord-meeting",
-    customer: "Fjord Logistikk",
-    action: "Møteinnkalling for oppfølging er klargjort",
+    id: "q-nordvik-vendors",
+    customer: "Nordvik Helse",
+    kind: "vendor_mapping",
+    action: "14 leverandører kartlagt og kategorisert",
     rationale:
-      "ISO 27001 ble aktivert for 2 uker siden uten aktivitet siden. Modenheten står stille på 34 %.",
-    source: "Aktivitetslogg · Modenhetsmåling",
+      "Offentlige kilder og fakturadata er brukt til å utlede GDPR-rolle og kritikalitet per leverandør.",
+    source: "Leverandørkartlegging",
+    state: "pending",
+    autonomy: "assisted",
+  },
+  {
+    id: "q-fjord-report",
+    customer: "Fjord Logistikk",
+    kind: "report",
+    action: "Modenhetsrapport Q3 er skrevet ferdig",
+    rationale: "Rapporten oppsummerer utvikling på fem kontrollområder siden forrige kvartal.",
+    source: "Modenhetsmåling",
+    state: "pending",
+    autonomy: "assisted",
+  },
+  {
+    id: "q-vestland-audit",
+    customer: "Vestland Kraft",
+    kind: "audit",
+    action: "Internrevisjon av tilgangsstyring gjennomført",
+    rationale: "Funn er dokumentert og koblet til kontrollområdet identitet og tilgang.",
+    source: "Internrevisjon",
     state: "pending",
     autonomy: "assisted",
   },
   {
     id: "q-auto-maturity",
     customer: "12 kunder",
+    kind: "report",
     action: "Modenhetsscorer oppdatert",
     rationale: "Nye dokumenter og svar er vurdert mot kontrollområdene.",
     source: "Nattlig kjøring",
@@ -88,6 +126,7 @@ export const LARA_WORK_QUEUE: LaraQueueItem[] = [
   {
     id: "q-auto-privacy",
     customer: "4 kunder",
+    kind: "evidence",
     action: "Personvernerklæringer hentet og analysert",
     rationale: "Offentlige kilder ble kartlagt for nye kunder uten grunnlag.",
     source: "Offentlig kartlegging",
@@ -98,6 +137,7 @@ export const LARA_WORK_QUEUE: LaraQueueItem[] = [
   {
     id: "q-blocked-vestland",
     customer: "Vestland Kraft",
+    kind: "vendor_mapping",
     action: "Kartlegging av systemer er satt på vent",
     rationale: "Lara kommer ikke videre uten tilgang til kundens systemoversikt.",
     source: "Systemkartlegging",
