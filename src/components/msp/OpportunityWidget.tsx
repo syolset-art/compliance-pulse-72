@@ -152,11 +152,11 @@ export function OpportunityWidget({ customers = OPPORTUNITY_CUSTOMERS }: Props) 
         <ul className="space-y-3 sm:space-y-2">
           {slices.map((s) => (
             <li
-              key={s.label}
+              key={localizeSlice(s.label, isNb)}
               className="flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-3"
             >
               <span className="min-w-0 sm:w-40 sm:shrink-0 text-sm text-foreground truncate">
-                {s.label}
+                {localizeSlice(s.label, isNb)}
               </span>
               <span className="order-last sm:order-none flex-1 h-2 rounded-full bg-muted overflow-hidden" aria-hidden="true">
                 <span
@@ -176,8 +176,8 @@ export function OpportunityWidget({ customers = OPPORTUNITY_CUSTOMERS }: Props) 
           {slices
             .map((s) =>
               isNb
-                ? `${s.label}: ${formatPotential(s.potential, currency)} i estimert salgspotensial fra ${s.taskCount} mulige oppgaver hos ${s.customerCount} kunder`
-                : `${s.label}: ${formatPotential(s.potential, currency)} in estimated sales potential from ${s.taskCount} possible tasks across ${s.customerCount} customers`,
+                ? `${localizeSlice(s.label, isNb)}: ${formatPotential(s.potential, currency)} i estimert salgspotensial fra ${s.taskCount} mulige oppgaver hos ${s.customerCount} kunder`
+                : `${localizeSlice(s.label, isNb)}: ${formatPotential(s.potential, currency)} in estimated sales potential from ${s.taskCount} possible tasks across ${s.customerCount} customers`,
             )
             .join(". ")}
           .
