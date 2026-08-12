@@ -5,29 +5,24 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { 
-  Loader2, Search, Globe, Database, CheckCircle2, AlertCircle, 
-  ChevronRight, ChevronLeft, Sparkles, Shield, User, Building,
-  Cloud, Server, Activity, Hash, HelpCircle, Plus, Circle, Check
+import {
+  Loader2, Sparkles, Shield, CheckCircle2, Search, Building2,
+  ChevronDown, ChevronRight, Link2, Wand2,
 } from "lucide-react";
 
 import { LaraAvatar } from "@/components/asset-profile/LaraAvatar";
-import { Progress } from "@/components/ui/progress";
-import { useVendorMatch, type VendorMatchCandidate } from "@/hooks/useVendorMatch";
-import { VendorLinkStep } from "./VendorLinkStep";
+import { LaraDraftCard, type LaraDraftField } from "./LaraDraftCard";
+import { useVendorMatch } from "@/hooks/useVendorMatch";
 import {
   PRIORITY_KEYS,
   PRIORITY_META,
-  priorityLabel,
   suggestPriority,
   suggestionRationale,
   type PriorityKey,
 } from "@/lib/derivedPriority";
-import { cn } from "@/lib/utils";
 
 interface AddSystemDialogProps {
   open: boolean;
@@ -35,7 +30,7 @@ interface AddSystemDialogProps {
   onSystemAdded: (status?: string) => void;
 }
 
-type WizardStep = "search" | "confirm" | "vendor" | "category" | "risk" | "contact";
+type Phase = "input" | "working" | "review";
 
 interface TrustEngineResult {
   name: string;
@@ -65,15 +60,15 @@ interface WebLookupResult {
 
 const getCategoryLabels = (isNb: boolean): Record<string, string> => isNb ? {
   crm: "CRM – Kundehåndtering",
-  erp: "ERP – Økonomistyring og ressursplanlegging",
+  erp: "ERP – Økonomistyring",
   hr: "HR – Personal og lønn",
   productivity: "Produktivitet og kontor",
-  communication: "Kommunikasjon og samhandling",
+  communication: "Kommunikasjon",
   storage: "Fil- og dokumentlagring",
   security: "Sikkerhet og IAM",
   monitoring: "Overvåkning og logging",
   finance: "Finans og regnskap",
-  marketing: "Markedsføring og kampanje",
+  marketing: "Markedsføring",
   "e-commerce": "E-handel og betaling",
   project_management: "Prosjekt- og oppgavestyring",
   development: "Utvikling og DevOps",
@@ -84,12 +79,12 @@ const getCategoryLabels = (isNb: boolean): Record<string, string> => isNb ? {
   erp: "ERP – Resource Planning",
   hr: "HR – Personnel and Payroll",
   productivity: "Productivity and Office",
-  communication: "Communication and Collaboration",
+  communication: "Communication",
   storage: "File and Document Storage",
   security: "Security and IAM",
   monitoring: "Monitoring and Logging",
   finance: "Finance and Accounting",
-  marketing: "Marketing and Campaigns",
+  marketing: "Marketing",
   "e-commerce": "E-commerce and Payments",
   project_management: "Project and Task Management",
   development: "Development and DevOps",
@@ -99,65 +94,56 @@ const getCategoryLabels = (isNb: boolean): Record<string, string> => isNb ? {
 
 type DeliveryModel = "saas" | "on_prem" | "hybrid" | "private_cloud" | "open_source" | "other";
 
-const getDeliveryModels = (isNb: boolean): { key: DeliveryModel; label: string; description: string; icon: typeof Database }[] => [
-  { key: "saas", label: isNb ? "SaaS / Sky" : "SaaS / Cloud", description: isNb ? "Multi-tenant, driftet av leverandør" : "Multi-tenant, hosted by vendor", icon: Cloud },
-  { key: "on_prem", label: "On-prem", description: isNb ? "Installert i egen infrastruktur" : "Installed in own infrastructure", icon: Server },
-  { key: "hybrid", label: isNb ? "Hybrid" : "Hybrid", description: isNb ? "Både sky og lokal komponent" : "Both cloud and local component", icon: Activity },
-  { key: "private_cloud", label: isNb ? "Privat sky" : "Private cloud", description: isNb ? "Single-tenant hos leverandør" : "Single-tenant at vendor", icon: Hash },
-  { key: "open_source", label: "Open source", description: isNb ? "Selv-hostet, ingen leverandøravtale" : "Self-hosted, no vendor contract", icon: Globe },
-  { key: "other", label: isNb ? "Annet" : "Other", description: isNb ? "Spesifiser" : "Specify", icon: HelpCircle },
+const getDeliveryModels = (isNb: boolean): { value: DeliveryModel; label: string }[] => [
+  { value: "saas", label: isNb ? "SaaS / Sky" : "SaaS / Cloud" },
+  { value: "on_prem", label: "On-prem" },
+  { value: "hybrid", label: "Hybrid" },
+  { value: "private_cloud", label: isNb ? "Privat sky" : "Private cloud" },
+  { value: "open_source", label: "Open source" },
+  { value: "other", label: isNb ? "Annet" : "Other" },
 ];
 
-type VendorRole = "software" | "service" | "infrastructure" | "consultant" | "reseller";
+const STATUS_LABELS: Record<string, string> = {
+  in_use: "I bruk",
+  evaluation: "Under evaluering",
+  quarantined: "Karantene",
+  phasing_out: "Fases ut",
+  archived: "Arkivert",
+  rejected: "Avvist",
+};
 
-const getVendorRoles = (isNb: boolean): { key: VendorRole; label: string }[] => [
-  { key: "software", label: isNb ? "Programvareleverandør" : "Software vendor" },
-  { key: "service", label: isNb ? "Tjenesteleverandør" : "Service provider" },
-  { key: "infrastructure", label: isNb ? "Infrastrukturleverandør" : "Infrastructure provider" },
-  { key: "consultant", label: isNb ? "Konsulent / rådgiver" : "Consultant / advisor" },
-  { key: "reseller", label: isNb ? "Reseller / distributør" : "Reseller / distributor" },
-];
-
-
-const getSteps = (isNb: boolean): { key: WizardStep; label: string }[] => [
-  { key: "search", label: isNb ? "Søk" : "Search" },
-  { key: "confirm", label: isNb ? "Bekreft" : "Confirm" },
-  { key: "vendor", label: isNb ? "Leverandør" : "Vendor" },
-  { key: "category", label: isNb ? "Kategori" : "Category" },
-  { key: "risk", label: isNb ? "Risiko" : "Risk" },
-  { key: "contact", label: isNb ? "Kontakt" : "Contact" },
-];
+/** Enkel heuristikk for leveransemodell når Lara ikke har eksplisitt svar. */
+function inferDeliveryModel(web: WebLookupResult | null): DeliveryModel {
+  const text = `${web?.description ?? ""} ${web?.suggested_category ?? ""}`.toLowerCase();
+  if (text.includes("on-prem") || text.includes("lokalt installert")) return "on_prem";
+  if (text.includes("open source")) return "open_source";
+  return "saas";
+}
 
 export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystemDialogProps) {
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
-  const STEPS = useMemo(() => getSteps(isNb), [isNb]);
   const CATEGORY_LABELS = useMemo(() => getCategoryLabels(isNb), [isNb]);
   const DELIVERY_MODELS = useMemo(() => getDeliveryModels(isNb), [isNb]);
-  const VENDOR_ROLES = useMemo(() => getVendorRoles(isNb), [isNb]);
-  const [step, setStep] = useState<WizardStep>("search");
-  const [isLoading, setIsLoading] = useState(false);
-  const [isSearching, setIsSearching] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
-  const [isSuggestingRisk, setIsSuggestingRisk] = useState(false);
-  const [riskSuggestion, setRiskSuggestion] = useState<{ risk_level: string; reasoning: string } | null>(null);
   const { toast } = useToast();
 
+  const [phase, setPhase] = useState<Phase>("input");
+  const [query, setQuery] = useState("");
+  const [workingLine, setWorkingLine] = useState(0);
+  const [isSaving, setIsSaving] = useState(false);
+  const [showDetails, setShowDetails] = useState(false);
 
-  // Search state
-  const [searchQuery, setSearchQuery] = useState("");
   const [trustResults, setTrustResults] = useState<TrustEngineResult[]>([]);
   const [webResult, setWebResult] = useState<WebLookupResult | null>(null);
-  const [searchSource, setSearchSource] = useState<"none" | "trust_engine" | "web_lookup">("none");
-  const [searchPerformed, setSearchPerformed] = useState(false);
+  const [riskRationale, setRiskRationale] = useState<string>("");
+  const [laraTouched, setLaraTouched] = useState<Record<string, boolean>>({});
 
-  // Form data
   const [formData, setFormData] = useState({
     name: "",
     description: "",
     category: "",
     vendor: "",
-    vendor_asset_id: "" as string,
+    vendor_asset_id: "",
     risk_level: "",
     status: "in_use",
     url: "",
@@ -165,134 +151,160 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
     contact_person: "",
     contact_email: "",
     delivery_model: "" as DeliveryModel | "",
-    vendor_roles: [] as VendorRole[],
     priority: "" as PriorityKey | "",
     priority_reason: "",
   });
 
-  // Reset when dialog opens/closes
   useEffect(() => {
-    if (open) {
-      setStep("search");
-      setSearchQuery("");
-      setTrustResults([]);
-      setWebResult(null);
-      setSearchSource("none");
-      setRiskSuggestion(null);
-      setIsSuggestingRisk(false);
-      setFormData({
-        name: "",
-        description: "",
-        category: "",
-        vendor: "",
-        vendor_asset_id: "",
-        risk_level: "",
-        status: "in_use",
-        url: "",
-        system_manager: "",
-        contact_person: "",
-        contact_email: "",
-        delivery_model: "",
-        vendor_roles: [],
-        priority: "",
-        priority_reason: "",
-      });
-    }
-  }, [open]);
-
-  const currentStepIndex = STEPS.findIndex(s => s.key === step);
-  const progressPercent = ((currentStepIndex + 1) / STEPS.length) * 100;
-
-  // Search in Trust Engine first, then web
-  const handleSearch = async () => {
-    if (!searchQuery.trim()) return;
-    setIsSearching(true);
-    setSearchPerformed(true);
+    if (!open) return;
+    setPhase("input");
+    setQuery("");
     setTrustResults([]);
     setWebResult(null);
-    setSearchSource("none");
+    setRiskRationale("");
+    setLaraTouched({});
+    setShowDetails(false);
+    setFormData({
+      name: "", description: "", category: "", vendor: "", vendor_asset_id: "",
+      risk_level: "", status: "in_use", url: "", system_manager: "",
+      contact_person: "", contact_email: "", delivery_model: "", priority: "", priority_reason: "",
+    });
+  }, [open]);
+
+  const workingLines = isNb
+    ? ["Slår opp systemet…", "Finner leverandør…", "Klassifiserer bruksområde…", "Vurderer risiko og persondata…"]
+    : ["Looking up the system…", "Finding the vendor…", "Classifying the use case…", "Assessing risk and personal data…"];
+
+  useEffect(() => {
+    if (phase !== "working") return;
+    setWorkingLine(0);
+    const t = setInterval(() => setWorkingLine((l) => Math.min(l + 1, workingLines.length - 1)), 900);
+    return () => clearInterval(t);
+  }, [phase, workingLines.length]);
+
+  /** Laras utkast: ett kall som slår opp, klassifiserer og vurderer risiko. */
+  const runLara = async (name: string, opts?: { forceWeb?: boolean }) => {
+    const term = name.trim();
+    if (!term) return;
+    setPhase("working");
+    setTrustResults([]);
+
+    let web: WebLookupResult | null = null;
+    let draft = { name: term, description: "", category: "", vendor: "" };
 
     try {
       const { data, error } = await supabase.functions.invoke("lookup-system", {
-        body: { systemName: searchQuery.trim() },
+        body: { systemName: term, searchWeb: opts?.forceWeb || undefined },
       });
-
       if (error) throw error;
 
-      if (data.source === "trust_engine" && data.results?.length > 0) {
+      if (!opts?.forceWeb && data?.source === "trust_engine" && data.results?.length > 1) {
         setTrustResults(data.results);
-        setSearchSource("trust_engine");
-      } else if (data.source === "web_lookup" && data.result) {
-        setWebResult(data.result);
-        setSearchSource("web_lookup");
-        // Pre-fill form data from web lookup
-        setFormData(prev => ({
-          ...prev,
-          name: data.result.official_name || searchQuery,
-          description: data.result.description || "",
-          category: data.result.suggested_category || "",
-          vendor: data.result.vendor || "",
-        }));
+        setPhase("input");
+        return;
       }
-    } catch (error) {
-      console.error("Search error:", error);
-      toast({
-        title: "Søkefeil",
-        description: "Kunne ikke søke. Prøv igjen.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSearching(false);
+      if (data?.source === "trust_engine" && data.results?.length === 1) {
+        const r = data.results[0] as TrustEngineResult;
+        draft = {
+          name: r.name,
+          description: r.description || "",
+          category: r.category?.toLowerCase() || "",
+          vendor: r.vendor || "",
+        };
+      } else if (data?.source === "web_lookup" && data.result) {
+        web = data.result as WebLookupResult;
+        draft = {
+          name: web.official_name || term,
+          description: web.description || "",
+          category: web.suggested_category || "",
+          vendor: web.vendor || "",
+        };
+      }
+    } catch (e) {
+      console.error("Lookup error:", e);
     }
-  };
 
-  // Force web search (when Trust Engine had results but user wants web)
-  const handleWebSearch = async () => {
-    setIsSearching(true);
+    setWebResult(web);
+
+    // Risikovurdering fra Lara
+    let risk = "";
+    let rationale = "";
     try {
-      const { data, error } = await supabase.functions.invoke("lookup-system", {
-        body: { systemName: searchQuery.trim(), searchWeb: true },
+      const { data: riskData } = await supabase.functions.invoke("suggest-system-risk", {
+        body: {
+          systemName: draft.name,
+          vendor: draft.vendor,
+          category: draft.category,
+          description: draft.description,
+          hasAi: web?.has_ai || false,
+        },
       });
-
-      if (error) throw error;
-
-      if (data.source === "web_lookup" && data.result) {
-        setWebResult(data.result);
-        setSearchSource("web_lookup");
-        setTrustResults([]);
-        setFormData(prev => ({
-          ...prev,
-          name: data.result.official_name || searchQuery,
-          description: data.result.description || "",
-          category: data.result.suggested_category || "",
-          vendor: data.result.vendor || "",
-        }));
+      if (riskData?.risk_level) {
+        risk = riskData.risk_level;
+        rationale = riskData.reasoning || "";
       }
-    } catch (error) {
-      console.error("Web search error:", error);
-      toast({
-        title: "Søkefeil",
-        description: "Kunne ikke søke på nett. Prøv igjen.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSearching(false);
+    } catch (e) {
+      console.error("Risk suggestion error:", e);
     }
-  };
 
-  // Select a Trust Engine result
-  const handleSelectTrustResult = (result: TrustEngineResult) => {
-    setFormData(prev => ({
+    const delivery = inferDeliveryModel(web);
+    setRiskRationale(rationale);
+    setFormData((prev) => ({
       ...prev,
-      name: result.name,
-      description: result.description || "",
-      category: result.category?.toLowerCase() || "",
-      vendor: result.vendor || "",
+      ...draft,
+      category: draft.category || "other",
+      risk_level: risk || "medium",
+      delivery_model: delivery,
+      priority: suggestPriority(risk || "medium") as PriorityKey,
     }));
-    setStep("confirm");
+    setLaraTouched({
+      category: Boolean(draft.category),
+      delivery_model: true,
+      risk_level: Boolean(risk),
+      priority: Boolean(risk),
+      vendor: Boolean(draft.vendor),
+    });
+    setPhase("review");
   };
 
-  // Submit system
+  const selectTrustResult = (r: TrustEngineResult) => {
+    setWebResult(null);
+    setFormData((prev) => ({
+      ...prev,
+      name: r.name,
+      description: r.description || "",
+      category: r.category?.toLowerCase() || "other",
+      vendor: r.vendor || "",
+      risk_level: prev.risk_level || "medium",
+      delivery_model: prev.delivery_model || "saas",
+      priority: (prev.priority || suggestPriority("medium")) as PriorityKey,
+    }));
+    setLaraTouched({ category: Boolean(r.category), delivery_model: true, vendor: Boolean(r.vendor) });
+    setTrustResults([]);
+    setPhase("review");
+  };
+
+  // Leverandørkobling skjer i bakgrunnen på bekreftelsesskjermen
+  const vendorMatch = useVendorMatch({
+    enabled: phase === "review" && !!formData.vendor && !formData.vendor_asset_id,
+    vendorName: formData.vendor,
+    parentVendor: webResult?.parent_vendor,
+  });
+
+  useEffect(() => {
+    if (phase !== "review") return;
+    if (formData.vendor_asset_id) return;
+    if (vendorMatch.exact) {
+      setFormData((prev) => ({ ...prev, vendor: vendorMatch.exact!.name, vendor_asset_id: vendorMatch.exact!.id }));
+    }
+  }, [phase, vendorMatch.exact, formData.vendor_asset_id]);
+
+  const linkSuggestedVendor = () => {
+    const cand = vendorMatch.suggested;
+    if (!cand) return;
+    setFormData((prev) => ({ ...prev, vendor: cand.name, vendor_asset_id: cand.id }));
+  };
+
   const handleSubmit = async () => {
     setIsSaving(true);
     try {
@@ -344,32 +356,14 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
         } as never);
       }
 
-      // Update onboarding progress
-      const { data: progressData } = await supabase
-        .from("onboarding_progress")
-        .select("*")
-        .single();
-
+      const { data: progressData } = await supabase.from("onboarding_progress").select("*").single();
       if (progressData) {
-        await supabase
-          .from("onboarding_progress")
-          .update({ systems_added: true })
-          .eq("id", progressData.id);
+        await supabase.from("onboarding_progress").update({ systems_added: true }).eq("id", progressData.id);
       }
-
-      const STATUS_LABELS: Record<string, string> = {
-        in_use: "I bruk",
-        evaluation: "Under evaluering",
-        quarantined: "Karantene",
-        phasing_out: "Fases ut",
-        archived: "Arkivert",
-        rejected: "Avvist",
-      };
-      const statusLabel = STATUS_LABELS[formData.status] || formData.status;
 
       toast({
         title: "Systemet er registrert ✅",
-        description: `Systemet «${formData.name}» er lagt til med status «${statusLabel}».`,
+        description: `Systemet «${formData.name}» er lagt til med status «${STATUS_LABELS[formData.status] || formData.status}».`,
       });
 
       onSystemAdded(formData.status);
@@ -386,738 +380,295 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
     }
   };
 
-  const canProceedFromSearch = searchSource !== "none" || formData.name.trim().length > 0;
-  const canProceedFromRisk = formData.risk_level !== "";
+  const suggestedPrio = suggestPriority(formData.risk_level || null);
 
-  const handleSuggestRisk = async () => {
-    setIsSuggestingRisk(true);
-    setRiskSuggestion(null);
-    try {
-      const { data, error } = await supabase.functions.invoke("suggest-system-risk", {
-        body: {
-          systemName: formData.name,
-          vendor: formData.vendor,
-          category: formData.category,
-          description: formData.description,
-          hasAi: webResult?.has_ai || false,
-        },
-      });
-      if (error) throw error;
-      if (data?.risk_level) {
-        setRiskSuggestion(data);
-      }
-    } catch (e) {
-      console.error("Risk suggestion error:", e);
-      toast({
-        title: "Kunne ikke hente forslag",
-        description: "AI-rådgiveren er ikke tilgjengelig. Velg risikonivå manuelt.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSuggestingRisk(false);
-    }
-  };
+  const draftFields: LaraDraftField[] = [
+    {
+      key: "category",
+      label: isNb ? "Kategori" : "Category",
+      value: formData.category,
+      options: Object.entries(CATEGORY_LABELS).map(([value, label]) => ({ value, label })),
+      onChange: (v) => { setFormData((p) => ({ ...p, category: v })); setLaraTouched((t) => ({ ...t, category: false })); },
+      rationale: webResult?.category_reason,
+      fromLara: laraTouched.category,
+    },
+    {
+      key: "delivery_model",
+      label: isNb ? "Leveransemodell" : "Delivery model",
+      value: formData.delivery_model,
+      options: DELIVERY_MODELS,
+      onChange: (v) => { setFormData((p) => ({ ...p, delivery_model: v as DeliveryModel })); setLaraTouched((t) => ({ ...t, delivery_model: false })); },
+      rationale: isNb
+        ? "Utledet fra hvordan systemet leveres. Påvirker krav til DPA, datalokasjon og oppdateringspraksis."
+        : "Derived from how the system is delivered. Affects DPA, data location and update requirements.",
+      fromLara: laraTouched.delivery_model,
+    },
+    {
+      key: "risk_level",
+      label: isNb ? "Kritikalitet" : "Criticality",
+      value: formData.risk_level,
+      options: [
+        { value: "low", label: isNb ? "Lav" : "Low", dotClass: "bg-status-closed" },
+        { value: "medium", label: isNb ? "Middels" : "Medium", dotClass: "bg-warning" },
+        { value: "high", label: isNb ? "Høy" : "High", dotClass: "bg-warning" },
+        { value: "critical", label: isNb ? "Kritisk" : "Critical", dotClass: "bg-destructive" },
+      ],
+      onChange: (v) => {
+        setFormData((p) => ({ ...p, risk_level: v, priority: suggestPriority(v) as PriorityKey }));
+        setLaraTouched((t) => ({ ...t, risk_level: false }));
+      },
+      rationale: riskRationale,
+      fromLara: laraTouched.risk_level,
+    },
+    {
+      key: "priority",
+      label: isNb ? "Prioritet" : "Priority",
+      value: (formData.priority || suggestedPrio) as string,
+      options: PRIORITY_KEYS.map((p) => ({ value: p, label: PRIORITY_META[p].labelNb, dotClass: PRIORITY_META[p].dotClass })),
+      onChange: (v) => { setFormData((p) => ({ ...p, priority: v as PriorityKey })); setLaraTouched((t) => ({ ...t, priority: false })); },
+      rationale: formData.risk_level ? suggestionRationale(formData.risk_level) : undefined,
+      fromLara: laraTouched.priority && (formData.priority || suggestedPrio) === suggestedPrio,
+    },
+    {
+      key: "status",
+      label: "Status",
+      value: formData.status,
+      options: [
+        { value: "in_use", label: isNb ? "I bruk" : "In use" },
+        { value: "evaluation", label: isNb ? "Under evaluering" : "Under evaluation" },
+        { value: "quarantined", label: isNb ? "Karantene" : "Quarantined" },
+        { value: "phasing_out", label: isNb ? "Fases ut" : "Phasing out" },
+        { value: "rejected", label: isNb ? "Avvist" : "Rejected" },
+      ],
+      onChange: (v) => setFormData((p) => ({ ...p, status: v })),
+    },
+  ];
 
-  // Vendor matching for the "vendor" step
-  const vendorMatch = useVendorMatch({
-    enabled: step === "vendor",
-    vendorName: formData.vendor,
-    parentVendor: webResult?.parent_vendor,
-  });
-
-  // Auto-skip vendor step if no candidate at all
-  useEffect(() => {
-    if (
-      step === "vendor" &&
-      !vendorMatch.isLoading &&
-      !vendorMatch.exact &&
-      !vendorMatch.suggested &&
-      !vendorMatch.parentKnown
-    ) {
-      setStep("category");
-    }
-  }, [step, vendorMatch.isLoading, vendorMatch.exact, vendorMatch.suggested, vendorMatch.parentKnown]);
-
-  const handleLinkExistingVendor = (vendor: VendorMatchCandidate) => {
-    setFormData((prev) => ({ ...prev, vendor: vendor.name, vendor_asset_id: vendor.id }));
-    toast({
-      title: "Koblet til leverandør",
-      description: `${formData.name || "Systemet"} er koblet til ${vendor.name}.`,
-    });
-    setStep("category");
-  };
-
-  const handleCreateAndLinkVendor = async (parentName: string) => {
-    try {
-      const { data, error } = await supabase
-        .from("assets")
-        .insert([{ name: parentName, asset_type: "vendor" }])
-        .select("id, name")
-        .single();
-      if (error) throw error;
-      setFormData((prev) => ({ ...prev, vendor: data.name, vendor_asset_id: data.id }));
-      toast({
-        title: "Leverandør opprettet",
-        description: `${parentName} er lagt til i registeret og koblet til systemet.`,
-      });
-      setStep("category");
-    } catch (e) {
-      console.error("Create vendor error:", e);
-      toast({
-        title: "Kunne ikke opprette leverandør",
-        description: "Prøv igjen, eller hopp over og koble senere.",
-        variant: "destructive",
-      });
-    }
-  };
+  const isOverridePrio = (formData.priority || suggestedPrio) !== suggestedPrio;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Shield className="h-5 w-5 text-primary" />
             {isNb ? "Legg til system" : "Add system"}
           </DialogTitle>
           <DialogDescription>
-            {step === "search" && (isNb ? "Søk etter systemet i vårt bibliotek eller på nett." : "Search for the system in our library or on the web.")}
-            {step === "confirm" && (isNb ? "Bekreft at dette er riktig system." : "Confirm that this is the right system.")}
-            {step === "vendor" && (isNb ? "Vi har funnet leverandøren — vil du koble systemet?" : "We found the vendor — do you want to link the system?")}
-            {step === "category" && (isNb ? "Lara har foreslått klassifisering — juster om nødvendig." : "Lara has suggested a classification — adjust if needed.")}
-            {step === "risk" && (isNb ? "Angi risikonivå og kritikalitet for systemet." : "Set the risk level and criticality for the system.")}
-            {step === "contact" && (isNb ? "Legg til kontaktinformasjon (valgfritt)." : "Add contact information (optional).")}
+            {phase === "review"
+              ? (isNb ? "Lara har fylt ut alt. Se over og lagre — juster kun det som ikke stemmer." : "Lara filled everything in. Review and save — adjust only what's wrong.")
+              : (isNb ? "Skriv navnet på systemet, så gjør Lara resten." : "Type the system name and Lara does the rest.")}
           </DialogDescription>
         </DialogHeader>
 
-
-        {/* Progress bar */}
-        <div className="space-y-2">
-          <div className="flex justify-between text-xs text-muted-foreground">
-            {STEPS.map((s, i) => (
-              <span
-                key={s.key}
-                className={i <= currentStepIndex ? "text-primary font-medium" : ""}
-              >
-                {s.label}
-              </span>
-            ))}
-          </div>
-          <Progress value={progressPercent} className="h-1.5" />
-        </div>
-
-        {/* Step 1: Search */}
-        {step === "search" && (
+        {/* Steg 1: ett felt */}
+        {phase === "input" && (
           <div className="space-y-4">
             <div className="flex gap-2">
-              <Input
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder={isNb ? "Skriv inn systemnavn, f.eks. Salesforce, Visma..." : "Enter system name, e.g. Salesforce, Visma..."}
-                onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                autoFocus
-              />
-              <Button onClick={handleSearch} disabled={isSearching || !searchQuery.trim()}>
-                {isSearching ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder={isNb ? "F.eks. Slack, Visma Lønn eller slack.com" : "E.g. Slack, Visma or slack.com"}
+                  onKeyDown={(e) => e.key === "Enter" && runLara(query)}
+                  className="pl-9"
+                  autoFocus
+                />
+              </div>
+              <Button onClick={() => runLara(query)} disabled={!query.trim()}>
+                <Wand2 className="h-4 w-4 mr-2" />
+                {isNb ? "La Lara fylle ut" : "Let Lara fill in"}
               </Button>
             </div>
 
-            {isSearching && (
-              <div className="flex items-center gap-3 p-4 bg-muted/50 rounded-lg">
-                <Loader2 className="h-5 w-5 animate-spin text-primary" />
-                <div>
-                  <p className="text-sm font-medium">{isNb ? "Søker..." : "Searching..."}</p>
-                  <p className="text-xs text-muted-foreground">{isNb ? "Sjekker Trust Engine og gjør oppslag" : "Checking Trust Engine and looking up"}</p>
-
-                </div>
-              </div>
-            )}
-
-            {/* Trust Engine results */}
-            {searchSource === "trust_engine" && trustResults.length > 0 && (
-              <div className="space-y-3">
-                <div className="flex items-center gap-2">
-                  <Database className="h-4 w-4 text-primary" />
-                  <span className="text-sm font-medium">{isNb ? "Funnet i Trust Engine" : "Found in Trust Engine"}</span>
-                  <Badge variant="secondary" className="text-xs">{isNb ? "Verifisert" : "Verified"}</Badge>
-
-                </div>
-                <div className="space-y-2">
-                  {trustResults.map((result, i) => (
-                    <button
-                      key={i}
-                      onClick={() => handleSelectTrustResult(result)}
-                      className="w-full text-left p-3 rounded-lg border border-border hover:border-primary/50 hover:bg-muted/30 transition-colors"
-                    >
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="font-medium">{result.name}</p>
-                          <p className="text-sm text-muted-foreground">{result.description}</p>
-                          <div className="flex gap-2 mt-1">
-                            {result.category && (
-                              <Badge variant="outline" className="text-xs">{result.category}</Badge>
-                            )}
-                            {result.has_ai && (
-                              <Badge variant="secondary" className="text-xs">
-                                <Sparkles className="h-3 w-3 mr-1" />AI
-                              </Badge>
-                            )}
-                          </div>
-                        </div>
-                        <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                      </div>
-                    </button>
-                  ))}
-                </div>
-                <Button variant="ghost" size="sm" onClick={handleWebSearch} disabled={isSearching} className="w-full text-muted-foreground">
-                  <Globe className="h-4 w-4 mr-2" />
-                  {isNb ? "Søk på nett i stedet" : "Search the web instead"}
-                </Button>
-              </div>
-            )}
-
-            {/* Web lookup result */}
-            {searchSource === "web_lookup" && webResult && (
-              <div className="space-y-3">
-                <div className="flex items-center gap-2">
-                  <Globe className="h-4 w-4 text-primary" />
-                  <span className="text-sm font-medium">{isNb ? "Resultat fra nett-oppslag" : "Web lookup result"}</span>
-                  {webResult.confidence === "high" && <Badge className="text-xs bg-status-closed/20 text-status-closed border-status-closed/30">{isNb ? "Høy sikkerhet" : "High confidence"}</Badge>}
-                  {webResult.confidence === "medium" && <Badge className="text-xs bg-warning/20 text-warning border-warning/30">{isNb ? "Middels sikkerhet" : "Medium confidence"}</Badge>}
-                  {webResult.confidence === "low" && <Badge className="text-xs bg-destructive/20 text-destructive border-destructive/30">{isNb ? "Lav sikkerhet" : "Low confidence"}</Badge>}
-                </div>
-                <div className="p-4 rounded-lg border border-border bg-muted/20 space-y-3">
-                  <div>
-                    <p className="font-medium text-lg">{webResult.official_name}</p>
-                    <p className="text-sm text-muted-foreground">{isNb ? "av" : "by"} {webResult.vendor}</p>
-
-                  </div>
-                  <p className="text-sm">{webResult.description}</p>
-                  <div className="flex flex-wrap gap-2">
-                    <Badge variant="outline">{CATEGORY_LABELS[webResult.suggested_category] || webResult.suggested_category}</Badge>
-                    {webResult.has_ai && (
-                      <Badge variant="secondary">
-                        <Sparkles className="h-3 w-3 mr-1" />{isNb ? "AI-funksjoner" : "AI features"}
-                      </Badge>
-                    )}
-                    {webResult.is_data_processor && (
-                      <Badge variant="outline" className="border-warning/30 text-warning">
-                        {isNb ? "Databehandler" : "Data processor"}
-
-                      </Badge>
-                    )}
-                    {webResult.vendor_country && (
-                      <Badge variant="outline">{webResult.vendor_country}</Badge>
-                    )}
-                  </div>
-                  {webResult.gdpr_note && (
-                    <p className="text-xs text-muted-foreground flex items-start gap-1.5">
-                      <AlertCircle className="h-3.5 w-3.5 mt-0.5 flex-shrink-0" />
-                      {webResult.gdpr_note}
-                    </p>
-                  )}
-                </div>
-                <div className="flex gap-2">
-                  <Button onClick={() => setStep("confirm")} className="flex-1">
-                    <CheckCircle2 className="h-4 w-4 mr-2" />
-                    {isNb ? "Ja, dette er riktig" : "Yes, this is correct"}
-                  </Button>
-                  <Button variant="outline" onClick={() => { setSearchSource("none"); setSearchPerformed(false); }} className="flex-1">
-                    {isNb ? "Nei, søk igjen" : "No, search again"}
-
-                  </Button>
-                </div>
-              </div>
-            )}
-
-            {/* No results */}
-            {searchPerformed && !isSearching && searchSource === "none" && (
-              <div className="p-4 rounded-lg border border-border bg-muted/20 text-center space-y-3">
-                <p className="text-sm text-muted-foreground">{isNb ? "Ingen treff. Du kan registrere systemet manuelt." : "No results. You can register the system manually."}</p>
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setFormData(prev => ({ ...prev, name: searchQuery }));
-                    setStep("category");
-                  }}
-                >
-                  {isNb ? "Registrer manuelt" : "Register manually"}
-
-                </Button>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Step 2: Confirm */}
-        {step === "confirm" && (
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="confirm-name">{isNb ? "Systemnavn" : "System name"}</Label>
-              <Input
-                id="confirm-name"
-                value={formData.name}
-                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="confirm-vendor">{isNb ? "Leverandør" : "Vendor"}</Label>
-              <Input
-                id="confirm-vendor"
-                value={formData.vendor}
-                onChange={(e) => setFormData(prev => ({ ...prev, vendor: e.target.value }))}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="confirm-desc">{isNb ? "Beskrivelse" : "Description"}</Label>
-              <Textarea
-                id="confirm-desc"
-                value={formData.description}
-                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                rows={3}
-              />
-            </div>
-
-            {webResult?.data_types && webResult.data_types.length > 0 && (
-              <div className="space-y-1">
-                <Label className="text-xs text-muted-foreground">{isNb ? "Data systemet behandler" : "Data the system processes"}</Label>
-                <div className="flex flex-wrap gap-1">
-                  {webResult.data_types.map((dt, i) => (
-                    <Badge key={i} variant="outline" className="text-xs">{dt}</Badge>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            <div className="flex gap-2 justify-end pt-2">
-              <Button variant="outline" onClick={() => setStep("search")}>
-                <ChevronLeft className="h-4 w-4 mr-1" />{isNb ? "Tilbake" : "Back"}
-              </Button>
-              <Button onClick={() => setStep("vendor")} disabled={!formData.name.trim()}>
-                {isNb ? "Neste" : "Next"}<ChevronRight className="h-4 w-4 ml-1" />
-
-              </Button>
-            </div>
-          </div>
-        )}
-
-        {/* Step 2b: Vendor link */}
-        {step === "vendor" && (
-          <VendorLinkStep
-            vendorName={formData.vendor}
-            match={vendorMatch}
-            onLinkExisting={handleLinkExistingVendor}
-            onCreateAndLink={handleCreateAndLinkVendor}
-            onSkip={() => setStep("category")}
-            onBack={() => setStep("confirm")}
-          />
-        )}
-
-        {/* Step 3: Category (AI-suggested) */}
-        {step === "category" && (
-          <div className="space-y-5">
-            {/* Lara hero card */}
-            <div className="flex items-start gap-3 p-4 rounded-xl bg-primary/5 border border-primary/15">
-              <LaraAvatar size={32} />
-              <div className="flex-1 space-y-1.5">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-semibold text-foreground">Lara</span>
-                  <Badge variant="secondary" className="h-5 px-1.5 text-[11px] bg-primary/10 text-primary border-primary/20">
-                    {isNb ? "Mynder-agent" : "Mynder agent"}
-                  </Badge>
-                  <span className="text-xs text-muted-foreground">· {isNb ? "analyserte 4 kilder" : "analyzed 4 sources"}</span>
-                </div>
-                <p className="text-sm text-foreground leading-relaxed">
-                  {webResult?.category_reason
-                    ? webResult.category_reason
-                    : (isNb
-                        ? `${formData.name || "Systemet"} tilbyr et bredt spekter av forretningssystemer. Forslagene under er basert på offentlig tilgjengelig informasjon — juster om noe ikke stemmer.`
-                        : `${formData.name || "The system"} offers a wide range of business systems. The suggestions below are based on publicly available information — adjust if anything is incorrect.`)}
+            {trustResults.length > 0 && (
+              <div className="space-y-2">
+                <p className="text-xs text-muted-foreground">
+                  {isNb ? "Lara fant flere treff — hvilket mente du?" : "Lara found several matches — which one?"}
                 </p>
-              </div>
-            </div>
-
-            {/* Functional category */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label className="text-sm font-medium">{isNb ? "Funksjonell kategori" : "Functional category"}</Label>
-                <span className="text-xs text-muted-foreground">{isNb ? "Hva systemet brukes til" : "What the system is used for"}</span>
-              </div>
-              <Select value={formData.category} onValueChange={(v) => setFormData(prev => ({ ...prev, category: v }))}>
-                <SelectTrigger>
-                  <SelectValue placeholder={isNb ? "Velg kategori" : "Select category"} />
-
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.entries(CATEGORY_LABELS).map(([value, label]) => (
-                    <SelectItem key={value} value={value}>{label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Leveransemodell */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label className="text-sm font-medium">{isNb ? "Leveransemodell" : "Delivery model"}</Label>
-                <span className="text-xs text-muted-foreground">{isNb ? "Hvordan systemet driftes" : "How the system is operated"}</span>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                {DELIVERY_MODELS.map(({ key, label, description, icon: Icon }) => {
-                  const selected = formData.delivery_model === key;
-                  return (
-                    <button
-                      key={key}
-                      type="button"
-                      onClick={() => setFormData(prev => ({ ...prev, delivery_model: key }))}
-                      className={`text-left p-3 rounded-lg border transition-all ${
-                        selected
-                          ? "border-primary bg-primary/5 ring-1 ring-primary/30"
-                          : "border-border hover:border-primary/40 hover:bg-muted/30"
-                      }`}
-                      aria-pressed={selected}
-                    >
-                      <div className="flex items-center gap-2">
-                        <Icon className={`h-4 w-4 ${selected ? "text-primary" : "text-muted-foreground"}`} aria-hidden="true" />
-                        <span className="text-sm font-semibold text-foreground">{label}</span>
+                {trustResults.map((r, i) => (
+                  <button
+                    key={i}
+                    onClick={() => selectTrustResult(r)}
+                    className="w-full text-left p-3 rounded-lg border border-border hover:border-primary/50 hover:bg-muted/30 transition-colors"
+                  >
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="font-medium text-sm truncate">{r.name}</p>
+                        <p className="text-xs text-muted-foreground truncate">{r.vendor || r.description}</p>
                       </div>
-                      <p className="text-xs text-muted-foreground mt-1">{description}</p>
-                    </button>
-                  );
-                })}
+                      <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
+                    </div>
+                  </button>
+                ))}
+                <Button variant="ghost" size="sm" className="w-full text-muted-foreground" onClick={() => runLara(query, { forceWeb: true })}>
+                  {isNb ? "Ingen av disse — søk på nett" : "None of these — search the web"}
+                </Button>
               </div>
-              <p className="text-xs text-muted-foreground">
-                {isNb ? "Valget påvirker hvilke kontroller og dokumentasjonskrav som er relevante (DPA, datalokasjon, oppdateringspraksis)." : "The choice affects which controls and documentation requirements are relevant (DPA, data location, update practices)."}
-              </p>
+            )}
+
+            <p className="text-xs text-muted-foreground">
+              {isNb
+                ? "Lara slår opp leverandør, kategori, leveransemodell og kritikalitet. Du bekrefter på neste skjerm."
+                : "Lara looks up vendor, category, delivery model and criticality. You confirm on the next screen."}
+            </p>
+          </div>
+        )}
+
+        {/* Lara jobber */}
+        {phase === "working" && (
+          <div className="flex items-start gap-3 p-4 rounded-xl bg-primary/5 border border-primary/15">
+            <LaraAvatar size={32} />
+            <div className="flex-1 space-y-1.5">
+              <p className="text-sm font-semibold">{isNb ? "Lara jobber…" : "Lara is working…"}</p>
+              <ul className="space-y-1">
+                {workingLines.map((line, i) => (
+                  <li key={line} className="flex items-center gap-2 text-xs">
+                    {i < workingLine ? (
+                      <CheckCircle2 className="h-3.5 w-3.5 text-success" />
+                    ) : i === workingLine ? (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
+                    ) : (
+                      <span className="h-3.5 w-3.5 rounded-full border border-border" />
+                    )}
+                    <span className={i <= workingLine ? "text-foreground" : "text-muted-foreground"}>{line}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
+          </div>
+        )}
 
-            {/* Vendor role */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label className="text-sm font-medium">{isNb ? "Leverandørrolle" : "Vendor role"}</Label>
-                <span className="text-xs text-muted-foreground">{isNb ? "Velg én eller flere" : "Select one or more"}</span>
-
+        {/* Steg 2: Laras utkast */}
+        {phase === "review" && (
+          <div className="space-y-4">
+            <div className="rounded-xl border border-primary/15 bg-primary/[0.04] p-3 space-y-2">
+              <div className="flex items-start gap-3">
+                <LaraAvatar size={28} />
+                <div className="flex-1 min-w-0 space-y-1">
+                  <Input
+                    value={formData.name}
+                    onChange={(e) => setFormData((p) => ({ ...p, name: e.target.value }))}
+                    className="h-8 border-0 bg-transparent px-0 text-base font-semibold shadow-none focus-visible:ring-0"
+                    aria-label={isNb ? "Systemnavn" : "System name"}
+                  />
+                  <div className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
+                    <Building2 className="h-3.5 w-3.5" />
+                    <span>{formData.vendor || (isNb ? "Ukjent leverandør" : "Unknown vendor")}</span>
+                    {formData.vendor_asset_id && (
+                      <Badge variant="secondary" className="h-5 px-1.5 text-[10px] gap-1">
+                        <Link2 className="h-3 w-3" />
+                        {isNb ? "Koblet" : "Linked"}
+                      </Badge>
+                    )}
+                    {webResult?.is_data_processor && (
+                      <Badge variant="outline" className="h-5 px-1.5 text-[10px] border-warning/30 text-warning">
+                        {isNb ? "Databehandler" : "Data processor"}
+                      </Badge>
+                    )}
+                    {webResult?.has_ai && (
+                      <Badge variant="secondary" className="h-5 px-1.5 text-[10px] gap-1">
+                        <Sparkles className="h-3 w-3" />AI
+                      </Badge>
+                    )}
+                  </div>
+                </div>
               </div>
-              <div className="flex flex-wrap gap-2">
-                {VENDOR_ROLES.map(({ key, label }) => {
-                  const selected = formData.vendor_roles.includes(key);
-                  return (
-                    <button
-                      key={key}
-                      type="button"
-                      onClick={() => setFormData(prev => ({
-                        ...prev,
-                        vendor_roles: selected
-                          ? prev.vendor_roles.filter(r => r !== key)
-                          : [...prev.vendor_roles, key],
-                      }))}
-                      className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-sm transition-all ${
-                        selected
-                          ? "border-primary bg-primary/10 text-primary"
-                          : "border-border text-foreground hover:border-primary/40 hover:bg-muted/30"
-                      }`}
-                      aria-pressed={selected}
-                    >
-                      {selected
-                        ? <Check className="h-3.5 w-3.5" aria-hidden="true" />
-                        : <Circle className="h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" />}
-                      {label}
-                    </button>
-                  );
-                })}
+
+              {!formData.vendor_asset_id && vendorMatch.suggested && (
                 <button
                   type="button"
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-dashed border-border text-sm text-muted-foreground hover:border-primary/40 hover:text-foreground transition-all"
-                  onClick={() => { /* future: open custom role input */ }}
+                  onClick={linkSuggestedVendor}
+                  className="w-full text-left text-xs rounded-lg border border-border bg-background px-3 py-2 hover:border-primary/40 transition-colors"
                 >
-                  <Plus className="h-3.5 w-3.5" aria-hidden="true" />
-                  {isNb ? "Legg til egen" : "Add custom"}
+                  {isNb ? "Koble til eksisterende leverandør" : "Link to existing vendor"}{" "}
+                  <span className="font-medium text-foreground">{vendorMatch.suggested.name}</span>
                 </button>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                {isNb ? "Samme leverandør kan ha flere roller (f.eks. Microsoft leverer både programvare og infrastruktur)." : "The same vendor can have multiple roles (e.g. Microsoft provides both software and infrastructure)."}
-              </p>
+              )}
             </div>
 
-            {webResult?.ai_features && (
+            <LaraDraftCard fields={draftFields} />
+
+            {isOverridePrio && (
               <div className="space-y-1">
-                <Label className="text-xs text-muted-foreground">{isNb ? "AI-funksjoner identifisert" : "AI features identified"}</Label>
-                <p className="text-sm bg-muted/30 p-2 rounded">{webResult.ai_features}</p>
+                <Label className="text-xs">
+                  {isNb ? "Begrunnelse for overstyrt prioritet" : "Reason for priority override"}{" "}
+                  <span className="text-muted-foreground font-normal">{isNb ? "(valgfritt)" : "(optional)"}</span>
+                </Label>
+                <Textarea
+                  value={formData.priority_reason}
+                  onChange={(e) => setFormData((p) => ({ ...p, priority_reason: e.target.value }))}
+                  rows={2}
+                  className="text-xs resize-none"
+                  placeholder={isNb ? "F.eks. kompenserende kontroller eller system under utfasing" : "E.g. compensating controls or system being phased out"}
+                />
               </div>
             )}
 
-            <div className="flex items-center justify-between pt-2 border-t border-border">
-              <span className="inline-flex items-center gap-2 text-xs text-muted-foreground">
-                <span className="h-1.5 w-1.5 rounded-full bg-success" aria-hidden="true" />
-                {isNb ? "Endringer lagres automatisk" : "Changes are saved automatically"}
-              </span>
-              <div className="flex gap-2">
-                <Button variant="outline" onClick={() => setStep("vendor")}>
-                  <ChevronLeft className="h-4 w-4 mr-1" />{isNb ? "Tilbake" : "Back"}
-                </Button>
-                <Button onClick={() => setStep("risk")} disabled={!formData.category}>
-                  {isNb ? "Neste" : "Next"}<ChevronRight className="h-4 w-4 ml-1" />
+            {/* Valgfrie detaljer */}
+            <button
+              type="button"
+              onClick={() => setShowDetails((s) => !s)}
+              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <ChevronDown className={`h-3.5 w-3.5 transition-transform ${showDetails ? "" : "-rotate-90"}`} />
+              {isNb ? "Vis detaljer (valgfritt)" : "Show details (optional)"}
+            </button>
 
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Step 4: Risk & Criticality */}
-        {step === "risk" && (
-          <div className="space-y-4">
-            {/* AI Risk Suggestion */}
-            {!riskSuggestion && !isSuggestingRisk && (
-              <Button
-                variant="outline"
-                onClick={handleSuggestRisk}
-                className="w-full gap-2 border-primary/30 text-primary hover:bg-primary/5"
-              >
-                <Sparkles className="h-4 w-4" />
-                {isNb ? `La Lara foreslå risikonivå for ${formData.name}` : `Let Lara suggest a risk level for ${formData.name}`}
-              </Button>
-            )}
-
-            {isSuggestingRisk && (
-              <div className="flex items-center gap-3 p-4 bg-primary/5 rounded-lg border border-primary/20">
-                <Loader2 className="h-5 w-5 animate-spin text-primary" />
-                <div>
-                  <p className="text-sm font-medium">{isNb ? "Lara analyserer systemet..." : "Lara is analyzing the system..."}</p>
-                  <p className="text-xs text-muted-foreground">{isNb ? `Vurderer risiko basert på ${formData.name}` : `Assessing risk based on ${formData.name}`}</p>
+            {showDetails && (
+              <div className="space-y-3 rounded-lg border border-border p-3">
+                <div className="space-y-1.5">
+                  <Label className="text-xs">{isNb ? "Beskrivelse" : "Description"}</Label>
+                  <Textarea
+                    value={formData.description}
+                    onChange={(e) => setFormData((p) => ({ ...p, description: e.target.value }))}
+                    rows={3}
+                    className="text-sm"
+                  />
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">{isNb ? "Kontaktperson hos leverandør" : "Vendor contact"}</Label>
+                    <Input
+                      value={formData.contact_person}
+                      onChange={(e) => setFormData((p) => ({ ...p, contact_person: e.target.value }))}
+                      placeholder={isNb ? "Navn" : "Name"}
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">{isNb ? "Kontakt e-post" : "Contact email"}</Label>
+                    <Input
+                      type="email"
+                      value={formData.contact_email}
+                      onChange={(e) => setFormData((p) => ({ ...p, contact_email: e.target.value }))}
+                      placeholder={isNb ? "kontakt@leverandor.no" : "contact@vendor.com"}
+                    />
+                  </div>
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs">{isNb ? "System-URL" : "System URL"}</Label>
+                  <Input
+                    value={formData.url}
+                    onChange={(e) => setFormData((p) => ({ ...p, url: e.target.value }))}
+                    placeholder="https://..."
+                  />
                 </div>
               </div>
             )}
 
-            {riskSuggestion && (
-              <div className="p-4 rounded-lg bg-primary/5 border border-primary/20 space-y-3">
-                <div className="flex items-start gap-2">
-                  <Sparkles className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium">{isNb ? "Laras anbefaling" : "Lara's recommendation"}</p>
-                    <p className="text-sm text-muted-foreground">{riskSuggestion.reasoning}</p>
-                  </div>
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="gap-2"
-                  onClick={() => {
-                    setFormData(prev => ({ ...prev, risk_level: riskSuggestion.risk_level }));
-                  }}
-                >
-                  <CheckCircle2 className="h-3.5 w-3.5" />
-                  {isNb ? "Bruk foreslått nivå" : "Use suggested level"}: {isNb
-                    ? (riskSuggestion.risk_level === "low" ? "Lav" : riskSuggestion.risk_level === "medium" ? "Middels" : riskSuggestion.risk_level === "high" ? "Høy" : "Kritisk")
-                    : (riskSuggestion.risk_level === "low" ? "Low" : riskSuggestion.risk_level === "medium" ? "Medium" : riskSuggestion.risk_level === "high" ? "High" : "Critical")}
-                </Button>
-              </div>
-            )}
-
-            <div className="space-y-2">
-              <Label>{isNb ? "Risikonivå *" : "Risk level *"}</Label>
-              <Select value={formData.risk_level} onValueChange={(v) => setFormData(prev => ({ ...prev, risk_level: v }))}>
-                <SelectTrigger>
-                  <SelectValue placeholder={isNb ? "Velg risikonivå" : "Select risk level"} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="low">
-                    <span className="flex items-center gap-2">
-                      <span className="h-2.5 w-2.5 rounded-full bg-status-closed" />
-                      {isNb ? "Lav" : "Low"}
-                    </span>
-                  </SelectItem>
-                  <SelectItem value="medium">
-                    <span className="flex items-center gap-2">
-                      <span className="h-2.5 w-2.5 rounded-full bg-warning" />
-                      {isNb ? "Middels" : "Medium"}
-                    </span>
-                  </SelectItem>
-                  <SelectItem value="high">
-                    <span className="flex items-center gap-2">
-                      <span className="h-2.5 w-2.5 rounded-full bg-warning" />
-                      {isNb ? "Høy" : "High"}
-                    </span>
-                  </SelectItem>
-                  <SelectItem value="critical">
-                    <span className="flex items-center gap-2">
-                      <span className="h-2.5 w-2.5 rounded-full bg-destructive" />
-                      {isNb ? "Kritisk" : "Critical"}
-                    </span>
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-
-            {formData.risk_level && (() => {
-              const suggested = suggestPriority(formData.risk_level);
-              const selected = (formData.priority || suggested) as PriorityKey;
-              const isOverride = selected !== suggested;
-              return (
-                <div className="space-y-2 rounded-lg border border-primary/15 bg-primary/[0.03] p-3">
-                  <div className="flex items-start gap-2">
-                    <Sparkles className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                    <div className="space-y-0.5">
-                      <p className="text-sm font-medium">
-                        {isNb ? "Lara foreslår prioritet:" : "Lara suggests priority:"}{" "}
-                        <span className="text-primary">{priorityLabel(suggested)}</span>
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {suggestionRationale(formData.risk_level)}. {isNb ? "Du kan overstyre." : "You can override."}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-1.5">
-                    {PRIORITY_KEYS.map((p) => {
-                      const meta = PRIORITY_META[p];
-                      const isSel = selected === p;
-                      const isSugg = p === suggested;
-                      return (
-                        <button
-                          key={p}
-                          type="button"
-                          onClick={() => setFormData(prev => ({ ...prev, priority: p }))}
-                          className={cn(
-                            "flex items-center gap-2 rounded-md border px-2.5 py-1.5 text-xs text-left transition",
-                            isSel
-                              ? "border-primary bg-background ring-1 ring-primary/30"
-                              : "border-border bg-background/60 hover:bg-background",
-                          )}
-                        >
-                          <span className={cn("h-2 w-2 rounded-full", meta.dotClass)} aria-hidden />
-                          <span className="font-medium">{meta.labelNb}</span>
-                          {isSugg && (
-                            <Sparkles className="ml-auto h-3 w-3 text-primary opacity-70" />
-                          )}
-                        </button>
-                      );
-                    })}
-                  </div>
-                  {isOverride && (
-                    <div className="space-y-1">
-                      <Label className="text-xs">
-                        {isNb ? "Begrunnelse for overstyring" : "Reason for override"}{" "}
-                        <span className="text-muted-foreground font-normal">{isNb ? "(valgfritt, men anbefalt)" : "(optional, but recommended)"}</span>
-                      </Label>
-                      <Textarea
-                        value={formData.priority_reason}
-                        onChange={(e) => setFormData(prev => ({ ...prev, priority_reason: e.target.value }))}
-                        placeholder={isNb ? "F.eks. kompenserende kontroller, system under utfasing, klinisk kontekst" : "E.g. compensating controls, system being phased out, clinical context"}
-                        rows={2}
-                        className="text-xs resize-none bg-background"
-                      />
-                    </div>
-                  )}
-                </div>
-              );
-            })()}
-
-            <div className="space-y-2">
-              <Label>Status</Label>
-              <Select value={formData.status} onValueChange={(v) => setFormData(prev => ({ ...prev, status: v }))}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="in_use">{isNb ? "I bruk" : "In use"}</SelectItem>
-                  <SelectItem value="evaluation">{isNb ? "Under evaluering" : "Under evaluation"}</SelectItem>
-                  <SelectItem value="quarantined">{isNb ? "Karantene" : "Quarantined"}</SelectItem>
-                  <SelectItem value="phasing_out">{isNb ? "Fases ut" : "Phasing out"}</SelectItem>
-                  <SelectItem value="rejected">{isNb ? "Avvist" : "Rejected"}</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="flex gap-2 justify-end pt-2">
-              <Button variant="outline" onClick={() => setStep("category")}>
-                <ChevronLeft className="h-4 w-4 mr-1" />{isNb ? "Tilbake" : "Back"}
+            <div className="flex items-center justify-between gap-2 pt-2 border-t border-border">
+              <Button variant="ghost" size="sm" onClick={() => setPhase("input")}>
+                {isNb ? "Bytt system" : "Change system"}
               </Button>
-              <Button onClick={() => setStep("contact")} disabled={!canProceedFromRisk}>
-                {isNb ? "Neste" : "Next"}<ChevronRight className="h-4 w-4 ml-1" />
-
-              </Button>
-            </div>
-          </div>
-        )}
-
-        {/* Step 5: Contact info (optional) */}
-        {step === "contact" && (
-          <div className="space-y-4">
-            <div className="flex items-center gap-2 p-3 rounded-lg bg-muted/30 border border-border">
-              <User className="h-4 w-4 text-muted-foreground" />
-              <p className="text-xs text-muted-foreground">
-                {isNb ? "Legg til kontaktperson hos leverandøren. Dette er nødvendig for å kunne sende forespørsler." : "Add a contact person at the vendor. This is needed to be able to send requests."}
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="contact-person">{isNb ? "Kontaktperson hos leverandør" : "Contact person at vendor"}</Label>
-              <Input
-                id="contact-person"
-                value={formData.contact_person}
-                onChange={(e) => setFormData(prev => ({ ...prev, contact_person: e.target.value }))}
-                placeholder={isNb ? "Navn på kontaktperson" : "Name of contact person"}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="contact-email">{isNb ? "Kontakt e-post" : "Contact email"}</Label>
-              <Input
-                id="contact-email"
-                type="email"
-                value={formData.contact_email}
-                onChange={(e) => setFormData(prev => ({ ...prev, contact_email: e.target.value }))}
-                placeholder={isNb ? "kontakt@leverandor.no" : "contact@vendor.com"}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="system-url">{isNb ? "System-URL" : "System URL"}</Label>
-              <Input
-                id="system-url"
-                value={formData.url}
-                onChange={(e) => setFormData(prev => ({ ...prev, url: e.target.value }))}
-                placeholder="https://..."
-              />
-            </div>
-
-            {/* Summary */}
-            <div className="p-4 rounded-lg border border-border bg-muted/10 space-y-2">
-              <p className="text-sm font-medium flex items-center gap-2">
-                <Building className="h-4 w-4" />
-                {isNb ? "Oppsummering" : "Summary"}
-              </p>
-              <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
-                <span className="text-muted-foreground">{isNb ? "System:" : "System:"}</span>
-                <span className="font-medium">{formData.name}</span>
-                <span className="text-muted-foreground">{isNb ? "Leverandør:" : "Vendor:"}</span>
-                <span>{formData.vendor || "—"}</span>
-                <span className="text-muted-foreground">{isNb ? "Kategori:" : "Category:"}</span>
-                <span>{CATEGORY_LABELS[formData.category] || formData.category || "—"}</span>
-                <span className="text-muted-foreground">{isNb ? "Risikonivå:" : "Risk level:"}</span>
-                <span className="capitalize">{formData.risk_level || "—"}</span>
-                {formData.contact_person && (
-                  <>
-                    <span className="text-muted-foreground">{isNb ? "Kontaktperson:" : "Contact person:"}</span>
-                    <span>{formData.contact_person}</span>
-                  </>
-                )}
-              </div>
-            </div>
-
-            <div className="flex gap-2 justify-end pt-2">
-              <Button variant="outline" onClick={() => setStep("risk")}>
-                <ChevronLeft className="h-4 w-4 mr-1" />{isNb ? "Tilbake" : "Back"}
-              </Button>
-              <Button onClick={handleSubmit} disabled={isSaving}>
+              <Button onClick={handleSubmit} disabled={isSaving || !formData.name.trim()}>
                 {isSaving ? (
-                  <><Loader2 className="h-4 w-4 mr-2 animate-spin" />{isNb ? "Lagrer..." : "Saving..."}</>
+                  <><Loader2 className="h-4 w-4 mr-2 animate-spin" />{isNb ? "Lagrer…" : "Saving…"}</>
                 ) : (
-                  <><CheckCircle2 className="h-4 w-4 mr-2" />{isNb ? "Registrer system" : "Register system"}</>
+                  <><CheckCircle2 className="h-4 w-4 mr-2" />{isNb ? "Lagre system" : "Save system"}</>
                 )}
               </Button>
             </div>
-
           </div>
         )}
       </DialogContent>
