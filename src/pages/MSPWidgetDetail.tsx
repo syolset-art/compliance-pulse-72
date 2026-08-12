@@ -109,15 +109,6 @@ const STATUS_LABELS: Record<string, { label: string; cls: string }> = {
   low: { label: "Lav", cls: "bg-success/10 text-success border-success/20" },
 };
 
-const FOLLOW_UP_CUSTOMERS = [
-  { name: "Bergen Maskin AS", reason: "ISO 27001 utløpt 14 dager siden", category: "Kritiske avvik", tone: "destructive" as const },
-  { name: "Sognefjord Helse AS", reason: "Datatilsyn-sak åpnet", category: "Kritiske avvik", tone: "destructive" as const },
-  { name: "Nordic Cargo AS", reason: "Trust Profile ikke oppdatert på 8 mnd", category: "Utdaterte Trust Profiler", tone: "warning" as const },
-  { name: "Vestland Logistikk", reason: "Trust Profile mangler 4 av 6 områder", category: "Utdaterte Trust Profiler", tone: "warning" as const },
-  { name: "Fjord IT AS", reason: "Trust Profile sist sett 14 mnd siden", category: "Utdaterte Trust Profiler", tone: "warning" as const },
-  { name: "Helse Vest Klinikk", reason: "DPA ikke på plass med ny leverandør", category: "Manglende DPA", tone: "primary" as const },
-  { name: "Oslo Eiendom AS", reason: "DPA mangler for 2 SaaS-systemer", category: "Manglende DPA", tone: "primary" as const },
-];
 
 const CAMPAIGNS = [
   { id: "nis2", title: "NIS2-vurdering", reach: 42, accepted: 11, daysLeft: 4, status: "Aktiv", responseRate: 26 },
