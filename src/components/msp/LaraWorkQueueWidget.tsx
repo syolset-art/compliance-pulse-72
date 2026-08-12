@@ -64,26 +64,27 @@ export function LaraWorkQueueWidget() {
 
   return (
     <Card className="p-5 flex flex-col gap-3">
-      <div className="flex items-start gap-3">
+      <div className="flex items-center gap-3">
         <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
           <Sparkles className="h-5 w-5" />
         </div>
         <div className="min-w-0 flex-1">
-          <div className="truncate text-xs uppercase tracking-[0.12em] text-muted-foreground font-semibold">
+          <div className="text-xs uppercase tracking-[0.12em] text-muted-foreground font-semibold">
             Laras arbeidskø
           </div>
-          <div className="flex flex-wrap items-baseline gap-1.5">
+          <div className="flex items-baseline gap-1.5">
             <span className="text-2xl font-bold leading-none tabular-nums">{pending.length}</span>
-            <span className="text-sm text-muted-foreground">venter på din godkjenning</span>
+            <span className="text-sm text-muted-foreground">venter på deg</span>
           </div>
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm" className="shrink-0 gap-1.5 px-2 text-xs">
-              <Settings2 className="h-3.5 w-3.5" />
-              <span className="hidden lg:inline">{LARA_AUTONOMY_LABELS[autonomy].nb}</span>
+            <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0 text-muted-foreground">
+              <Settings2 className="h-4 w-4" />
+              <span className="sr-only">Laras autonominivå: {LARA_AUTONOMY_LABELS[autonomy].nb}</span>
             </Button>
           </DropdownMenuTrigger>
+
           <DropdownMenuContent align="end" className="w-64">
             <DropdownMenuLabel className="text-xs">Laras autonominivå</DropdownMenuLabel>
             {(Object.keys(LARA_AUTONOMY_LABELS) as LaraAutonomy[]).map((level) => (
