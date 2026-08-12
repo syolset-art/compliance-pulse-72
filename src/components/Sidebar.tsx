@@ -778,6 +778,30 @@ const SidebarContent = () => {
                       {isNb ? "Kommunikasjon" : "Communication"}
                     </button>
                     <button
+                      onClick={() => navigate("/settings/integrations")}
+                      className={cn(
+                        "flex w-full items-center gap-3 rounded-lg px-3 py-1.5 text-[0.9375rem] font-medium transition-colors",
+                        location.pathname === "/settings/integrations"
+                          ? "bg-sidebar-accent text-sidebar-primary"
+                          : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                      )}
+                    >
+                      <Plug className="h-3.5 w-3.5" />
+                      {isNb ? "Integrasjoner" : "Integrations"}
+                    </button>
+                    <button
+                      onClick={() => navigate("/activity-log")}
+                      className={cn(
+                        "flex w-full items-center gap-3 rounded-lg px-3 py-1.5 text-[0.9375rem] font-medium transition-colors",
+                        location.pathname === "/activity-log"
+                          ? "bg-sidebar-accent text-sidebar-primary"
+                          : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                      )}
+                    >
+                      <ClipboardList className="h-3.5 w-3.5" />
+                      {isNb ? "Aktivitetslogg" : "Activity log"}
+                    </button>
+                    <button
                       onClick={() => navigate("/msp-billing")}
                       className={cn(
                         "flex w-full items-center gap-3 rounded-lg px-3 py-1.5 text-[0.9375rem] font-medium transition-colors",
