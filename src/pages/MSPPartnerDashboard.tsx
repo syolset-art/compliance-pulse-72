@@ -265,17 +265,20 @@ const LIVE_SIGNALS = [
 
 function PartnerHeader() {
   const navigate = useNavigate();
+  const { i18n } = useTranslation();
+  const isNb = i18n.language === "nb" || i18n.language === "no";
+  const periods = isNb ? ["I dag", "Uke", "Måned"] : ["Today", "Week", "Month"];
   return (
     <div className="flex items-start justify-between">
       <div>
-        <h1 className="text-3xl font-bold text-foreground">Hei, Beate</h1>
+        <h1 className="text-3xl font-bold text-foreground">{isNb ? "Hei, Beate" : "Hi, Beate"}</h1>
         <p className="text-muted-foreground mt-1">
-          Her er din daglig oppdatering
+          {isNb ? "Her er din daglig oppdatering" : "Here's your daily update"}
         </p>
       </div>
       <div className="flex items-center gap-2">
         <div className="inline-flex rounded-lg border border-border bg-card p-1 text-sm">
-          {["I dag", "Uke", "Måned"].map((p, i) => (
+          {periods.map((p, i) => (
             <button
               key={p}
               className={
@@ -292,8 +295,8 @@ function PartnerHeader() {
         <Button
           variant="outline"
           size="icon"
-          aria-label="Innstillinger"
-          title="Innstillinger"
+          aria-label={isNb ? "Innstillinger" : "Settings"}
+          title={isNb ? "Innstillinger" : "Settings"}
           onClick={() => navigate("/msp-settings")}
         >
           <Settings className="h-4 w-4" />
@@ -315,6 +318,9 @@ const FRAMEWORK_ACTIVATIONS = [
 
 function ClaimRateWidget() {
   const navigate = useNavigate();
+  const { i18n } = useTranslation();
+  const isNb = i18n.language === "nb" || i18n.language === "no";
+  const ALL_LABEL = isNb ? "Alle" : "All";
   const [period, setPeriod] = useState<"month" | "halfYear">("month");
   const [framework, setFramework] = useState<string>("Alle");
 
@@ -325,7 +331,9 @@ function ClaimRateWidget() {
     (sum, f) => sum + (period === "month" ? f.lastMonth : f.lastHalfYear),
     0,
   );
-  const periodLabel = period === "month" ? "siste måned" : "siste halvår";
+  const periodLabel = isNb
+    ? (period === "month" ? "siste måned" : "siste halvår")
+    : (period === "month" ? "last month" : "last half year");
   const max = Math.max(...FRAMEWORK_ACTIVATIONS.map((f) => f.activeCustomers), 1);
   const pctOf = (n: number) => Math.round((n / PORTFOLIO_CUSTOMERS) * 100);
   const leader = [...FRAMEWORK_ACTIVATIONS].sort(
@@ -343,7 +351,7 @@ function ClaimRateWidget() {
       <div className="relative p-5 text-white">
         <div className="flex items-center gap-1.5">
           <div className="text-[11px] uppercase tracking-[0.15em] text-white/80 font-semibold">
-            Regelverk aktivert
+            {isNb ? "Regelverk aktivert" : "Regulations activated"}
           </div>
           <UITooltip>
             <TooltipTrigger asChild>
@@ -354,9 +362,9 @@ function ClaimRateWidget() {
             </TooltipTrigger>
             <TooltipContent side="top" className="max-w-[280px]">
               <p>
-                Viser hvor mange av de {PORTFOLIO_CUSTOMERS} kundene dine som har aktivert
-                regelverk siste måned og siste halvår. Filtrer på regelverk for å se andelen
-                per regelverk.
+                {isNb
+                  ? `Viser hvor mange av de ${PORTFOLIO_CUSTOMERS} kundene dine som har aktivert regelverk siste måned og siste halvår. Filtrer på regelverk for å se andelen per regelverk.`
+                  : `Shows how many of your ${PORTFOLIO_CUSTOMERS} customers have activated regulations in the last month and last half year. Filter by regulation to see the share per regulation.`}
               </p>
             </TooltipContent>
           </UITooltip>
@@ -365,12 +373,12 @@ function ClaimRateWidget() {
         <div
           className="mt-3 inline-flex rounded-lg bg-white/15 p-0.5 text-xs"
           role="group"
-          aria-label="Velg periode"
+          aria-label={isNb ? "Velg periode" : "Select period"}
           onClick={(e) => e.stopPropagation()}
         >
           {([
-            ["month", "Siste måned"],
-            ["halfYear", "Siste halvår"],
+            ["month", isNb ? "Siste måned" : "Last month"],
+            ["halfYear", isNb ? "Siste halvår" : "Last half year"],
           ] as const).map(([value, label]) => (
             <button
               key={value}
@@ -392,17 +400,19 @@ function ClaimRateWidget() {
             {pctOf(headline.activeCustomers)} %
           </div>
           <p className="mt-1 text-sm text-white/85">
-            av {PORTFOLIO_CUSTOMERS} kunder har aktivert {headline.label}
+            {isNb
+              ? `av ${PORTFOLIO_CUSTOMERS} kunder har aktivert ${headline.label}`
+              : `of ${PORTFOLIO_CUSTOMERS} customers have activated ${headline.label}`}
           </p>
         </div>
 
         <div
           className="mt-3 flex flex-wrap gap-1.5"
           role="group"
-          aria-label="Filtrer på regelverk"
+          aria-label={isNb ? "Filtrer på regelverk" : "Filter by regulation"}
           onClick={(e) => e.stopPropagation()}
         >
-          {["Alle", ...FRAMEWORK_ACTIVATIONS.map((f) => f.label)].map((label) => (
+          {[ALL_LABEL, ...FRAMEWORK_ACTIVATIONS.map((f) => f.label)].map((label) => (
             <button
               key={label}
               type="button"
@@ -431,22 +441,26 @@ function ClaimRateWidget() {
                 />
               </span>
               <span className="w-32 shrink-0 text-right text-white/90 tabular-nums">
-                {pctOf(f.activeCustomers)}% · {f.activeCustomers} kunder
+                {pctOf(f.activeCustomers)}% · {f.activeCustomers} {isNb ? "kunder" : "customers"}
               </span>
             </li>
           ))}
         </ul>
 
         <p className="mt-2 text-xs text-white/75 tabular-nums">
-          +{total} nye aktiveringer {periodLabel}
+          +{total} {isNb ? "nye aktiveringer" : "new activations"} {periodLabel}
         </p>
 
         <p className="sr-only">
-          Andel av {PORTFOLIO_CUSTOMERS} kunder som har aktivert regelverk:{" "}
+          {isNb
+            ? `Andel av ${PORTFOLIO_CUSTOMERS} kunder som har aktivert regelverk: `
+            : `Share of ${PORTFOLIO_CUSTOMERS} customers who have activated regulations: `}
           {rows
-            .map((f) => `${f.label}: ${pctOf(f.activeCustomers)} prosent, ${f.activeCustomers} kunder`)
+            .map((f) => isNb
+              ? `${f.label}: ${pctOf(f.activeCustomers)} prosent, ${f.activeCustomers} kunder`
+              : `${f.label}: ${pctOf(f.activeCustomers)} percent, ${f.activeCustomers} customers`)
             .join(". ")}
-          . {total} nye aktiveringer {periodLabel}.
+          . {total} {isNb ? "nye aktiveringer" : "new activations"} {periodLabel}.
         </p>
 
 
@@ -460,14 +474,16 @@ function ClaimRateWidget() {
 // Behold widgeten i prototype for å vise fremtidig partner-dashboard, men merk den tydelig som V2.
 function AvgTrustScoreWidget() {
   const navigate = useNavigate();
+  const { i18n } = useTranslation();
+  const isNb = i18n.language === "nb" || i18n.language === "no";
   const score = 78;
   const delta = 4;
   const totalCustomers = 300;
 
   const distribution = [
-    { label: "≥ 75 %", count: 186, band: "Høy", color: "bg-success" as const },
-    { label: "50–74 %", count: 84, band: "Middels", color: "bg-warning" as const },
-    { label: "< 50 %", count: 30, band: "Lav", color: "bg-destructive" as const },
+    { label: "≥ 75 %", count: 186, band: isNb ? "Høy" : "High", color: "bg-success" as const },
+    { label: "50–74 %", count: 84, band: isNb ? "Middels" : "Medium", color: "bg-warning" as const },
+    { label: "< 50 %", count: 30, band: isNb ? "Lav" : "Low", color: "bg-destructive" as const },
   ];
 
   const r = 52;
@@ -499,7 +515,9 @@ function AvgTrustScoreWidget() {
               />
             </TooltipTrigger>
             <TooltipContent side="top" className="max-w-xs text-xs">
-              Trust Score er en samlet modenhetsvurdering per kunde (0–100) basert på Governance, Operations, Privacy og Third-Party. Snittet viser hvor solid hele porteføljen står samlet. <span className="font-semibold">V2 — ikke implementer nå.</span>
+              {isNb
+                ? <>Trust Score er en samlet modenhetsvurdering per kunde (0–100) basert på Governance, Operations, Privacy og Third-Party. Snittet viser hvor solid hele porteføljen står samlet. <span className="font-semibold">V2 — ikke implementer nå.</span></>
+                : <>Trust Score is an aggregated maturity assessment per customer (0–100) based on Governance, Operations, Privacy and Third-Party. The average shows how solid the entire portfolio is overall. <span className="font-semibold">V2 — not implemented yet.</span></>}
             </TooltipContent>
           </UITooltip>
         </TooltipProvider>
@@ -534,15 +552,15 @@ function AvgTrustScoreWidget() {
       </div>
 
       <div>
-        <div className="text-sm font-medium text-foreground">Snitt portefølje</div>
+        <div className="text-sm font-medium text-foreground">{isNb ? "Snitt portefølje" : "Portfolio average"}</div>
         <div className="text-xs text-muted-foreground mt-0.5">
-          <span className="text-success font-semibold">+{delta}</span> siste 30 dager
+          <span className="text-success font-semibold">+{delta}</span> {isNb ? "siste 30 dager" : "last 30 days"}
         </div>
       </div>
 
       <div className="w-full space-y-2 pt-1">
         <div className="text-[11px] uppercase tracking-[0.15em] text-muted-foreground font-semibold text-left">
-          Fordeling
+          {isNb ? "Fordeling" : "Distribution"}
         </div>
         {distribution.map((d) => {
           const pct = Math.round((d.count / totalCustomers) * 100);
@@ -581,6 +599,8 @@ const PRIORITY_STYLES: Record<LaraSuggestion["priority"], string> = {
 };
 
 function LaraSuggestionsTable({ onSelect }: { onSelect: (s: LaraSuggestion) => void }) {
+  const { i18n } = useTranslation();
+  const isNb = i18n.language === "nb" || i18n.language === "no";
   const [dismissed, setDismissed] = useState(false);
   const [expanded, setExpanded] = useState(false);
   if (dismissed) return null;
@@ -598,20 +618,20 @@ function LaraSuggestionsTable({ onSelect }: { onSelect: (s: LaraSuggestion) => v
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
-              <div className="text-base font-semibold text-foreground">Lara-forslag</div>
+              <div className="text-base font-semibold text-foreground">{isNb ? "Lara-forslag" : "Lara suggestions"}</div>
               <ChevronRight
                 className={`h-4 w-4 text-muted-foreground transition-transform ${expanded ? "rotate-90" : ""}`}
               />
             </div>
             <div className="text-xs text-muted-foreground">
-              {LARA_SUGGESTIONS.length} anbefalinger klare for gjennomgang
+              {LARA_SUGGESTIONS.length} {isNb ? "anbefalinger klare for gjennomgang" : "recommendations ready for review"}
             </div>
           </div>
         </button>
         <button
           onClick={() => setDismissed(true)}
           className="text-muted-foreground hover:text-foreground p-1 -m-1"
-          aria-label="Skjul"
+          aria-label={isNb ? "Skjul" : "Hide"}
         >
           <X className="h-4 w-4" />
         </button>
@@ -622,12 +642,12 @@ function LaraSuggestionsTable({ onSelect }: { onSelect: (s: LaraSuggestion) => v
           <table className="w-full text-sm">
             <thead>
               <tr className="text-[11px] uppercase tracking-wider text-muted-foreground border-b border-border">
-                <th className="text-left font-semibold py-2 pr-4">Regelverk</th>
-                <th className="text-left font-semibold py-2 pr-4">Anbefaling</th>
-                <th className="text-left font-semibold py-2 pr-4 whitespace-nowrap">Målgruppe</th>
-                <th className="text-left font-semibold py-2 pr-4">Forventet effekt</th>
-                <th className="text-left font-semibold py-2 pr-4">Prioritet</th>
-                <th className="text-right font-semibold py-2">Handling</th>
+                <th className="text-left font-semibold py-2 pr-4">{isNb ? "Regelverk" : "Regulation"}</th>
+                <th className="text-left font-semibold py-2 pr-4">{isNb ? "Anbefaling" : "Recommendation"}</th>
+                <th className="text-left font-semibold py-2 pr-4 whitespace-nowrap">{isNb ? "Målgruppe" : "Target group"}</th>
+                <th className="text-left font-semibold py-2 pr-4">{isNb ? "Forventet effekt" : "Expected effect"}</th>
+                <th className="text-left font-semibold py-2 pr-4">{isNb ? "Prioritet" : "Priority"}</th>
+                <th className="text-right font-semibold py-2">{isNb ? "Handling" : "Action"}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border/60">
@@ -639,25 +659,25 @@ function LaraSuggestionsTable({ onSelect }: { onSelect: (s: LaraSuggestion) => v
                     </Badge>
                   </td>
                   <td className="py-3 pr-4 align-top">
-                    <div className="font-semibold text-foreground">{s.title}</div>
+                    <div className="font-semibold text-foreground">{isNb ? s.title : s.titleEn}</div>
                     <div className="text-xs text-muted-foreground mt-0.5 line-clamp-2 max-w-md">
-                      {s.summary}
+                      {isNb ? s.summary : s.summaryEn}
                     </div>
                   </td>
                   <td className="py-3 pr-4 align-top whitespace-nowrap tabular-nums">
-                    {s.targetCount} kunder
+                    {s.targetCount} {isNb ? "kunder" : "customers"}
                   </td>
                   <td className="py-3 pr-4 align-top text-foreground/90">
-                    {s.expectedEffect}
+                    {isNb ? s.expectedEffect : s.expectedEffectEn}
                   </td>
                   <td className="py-3 pr-4 align-top">
                     <Badge variant="outline" className={`text-[11px] ${PRIORITY_STYLES[s.priority]}`}>
-                      {s.priority}
+                      {isNb ? s.priority : s.priorityEn}
                     </Badge>
                   </td>
                   <td className="py-3 text-right align-top">
                     <Button size="sm" variant="outline" onClick={() => onSelect(s)} className="gap-1">
-                      Sett opp <ChevronRight className="h-3.5 w-3.5" />
+                      {isNb ? "Sett opp" : "Set up"} <ChevronRight className="h-3.5 w-3.5" />
                     </Button>
                   </td>
                 </tr>
@@ -674,12 +694,12 @@ function LaraSuggestionsTable({ onSelect }: { onSelect: (s: LaraSuggestion) => v
 
 // Mock target customers for the NIS2 campaign preview
 const CAMPAIGN_TARGETS = [
-  { name: "Bergen Energi AS", industry: "Energi", risk: "Høy", reason: "NIS2 + ikke aktivert" },
-  { name: "Sognefjord Helse AS", industry: "Helse", risk: "Høy", reason: "Særlige kategorier" },
-  { name: "Vestland Logistikk", industry: "Transport", risk: "Medium", reason: "Ny CEO + DORA" },
-  { name: "Nordic Cargo AS", industry: "Transport", risk: "Medium", reason: "NIS2-eksponert" },
-  { name: "Stavanger Logistikk", industry: "Transport", risk: "Medium", reason: "Sky-avhengig" },
-  { name: "Kystbygg Entreprenør", industry: "Bygg", risk: "Lav", reason: "200+ ansatte" },
+  { name: "Bergen Energi AS", industry: "Energi", industryEn: "Energy", risk: "Høy", riskEn: "High", reason: "NIS2 + ikke aktivert", reasonEn: "NIS2 + not activated" },
+  { name: "Sognefjord Helse AS", industry: "Helse", industryEn: "Health", risk: "Høy", riskEn: "High", reason: "Særlige kategorier", reasonEn: "Special categories" },
+  { name: "Vestland Logistikk", industry: "Transport", industryEn: "Transport", risk: "Medium", riskEn: "Medium", reason: "Ny CEO + DORA", reasonEn: "New CEO + DORA" },
+  { name: "Nordic Cargo AS", industry: "Transport", industryEn: "Transport", risk: "Medium", riskEn: "Medium", reason: "NIS2-eksponert", reasonEn: "NIS2-exposed" },
+  { name: "Stavanger Logistikk", industry: "Transport", industryEn: "Transport", risk: "Medium", riskEn: "Medium", reason: "Sky-avhengig", reasonEn: "Cloud-dependent" },
+  { name: "Kystbygg Entreprenør", industry: "Bygg", industryEn: "Construction", risk: "Lav", riskEn: "Low", reason: "200+ ansatte", reasonEn: "200+ employees" },
 ];
 
 type FlowStep = "review" | "audience" | "preview" | "schedule" | "activated";
@@ -692,6 +712,8 @@ function LaraSuggestionInline({
   onClose: () => void;
 }) {
   const { toast } = useToast();
+  const { i18n } = useTranslation();
+  const isNb = i18n.language === "nb" || i18n.language === "no";
   const [step, setStep] = useState<FlowStep>("review");
   const [excluded, setExcluded] = useState<Set<string>>(new Set());
   const [schedule, setSchedule] = useState<"now" | "tomorrow" | "monday">("now");
@@ -722,17 +744,25 @@ function LaraSuggestionInline({
   const handleActivate = () => {
     setStep("activated");
     toast({
-      title: "Kampanje aktivert",
-      description: `Lara kjører «${suggestion.title}» mot ${includedCount} kunder.`,
+      title: isNb ? "Kampanje aktivert" : "Campaign activated",
+      description: isNb
+        ? `Lara kjører «${suggestion.title}» mot ${includedCount} kunder.`
+        : `Lara is running "${suggestion.titleEn}" for ${includedCount} customers.`,
     });
   };
 
-  const STEPS: { key: FlowStep; label: string }[] = [
+  const STEPS: { key: FlowStep; label: string }[] = isNb ? [
     { key: "review", label: "Gjennomgå" },
     { key: "audience", label: "Målgruppe" },
     { key: "preview", label: "E-post" },
     { key: "schedule", label: "Tidsplan" },
     { key: "activated", label: "Aktiv" },
+  ] : [
+    { key: "review", label: "Review" },
+    { key: "audience", label: "Audience" },
+    { key: "preview", label: "Email" },
+    { key: "schedule", label: "Schedule" },
+    { key: "activated", label: "Active" },
   ];
   const stepIndex = STEPS.findIndex((s) => s.key === step);
 
@@ -745,11 +775,11 @@ function LaraSuggestionInline({
         <div className="flex-1 min-w-0">
           <Badge className="mb-2 bg-primary/10 text-primary border-primary/20 hover:bg-primary/10 text-[11px] tracking-wider">
             <Sparkles className="h-3 w-3 mr-1" />
-            LARA-FORSLAG
+            {isNb ? "LARA-FORSLAG" : "LARA SUGGESTION"}
           </Badge>
-          <h3 className="text-xl font-semibold text-foreground">{suggestion.title}</h3>
+          <h3 className="text-xl font-semibold text-foreground">{isNb ? suggestion.title : suggestion.titleEn}</h3>
           <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-            {suggestion.summary}
+            {isNb ? suggestion.summary : suggestion.summaryEn}
           </p>
         </div>
         <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0" onClick={handleClose}>
@@ -788,12 +818,12 @@ function LaraSuggestionInline({
           <div className="space-y-4">
             <div className="grid grid-cols-3 gap-3">
               <div className="p-3 rounded-lg bg-muted/50 border border-border">
-                <div className="text-[11px] tracking-wider text-muted-foreground font-semibold">REKKEVIDDE</div>
-                <div className="text-sm font-semibold text-foreground mt-1">{suggestion.impact.reach}</div>
+                <div className="text-[11px] tracking-wider text-muted-foreground font-semibold">{isNb ? "REKKEVIDDE" : "REACH"}</div>
+                <div className="text-sm font-semibold text-foreground mt-1">{isNb ? suggestion.impact.reach : suggestion.impactEn.reach}</div>
               </div>
               <div className="p-3 rounded-lg bg-muted/50 border border-border">
-                <div className="text-[11px] tracking-wider text-muted-foreground font-semibold">FORVENTET</div>
-                <div className="text-sm font-semibold text-foreground mt-1">{suggestion.impact.expectedClaims}</div>
+                <div className="text-[11px] tracking-wider text-muted-foreground font-semibold">{isNb ? "FORVENTET" : "EXPECTED"}</div>
+                <div className="text-sm font-semibold text-foreground mt-1">{isNb ? suggestion.impact.expectedClaims : suggestion.impactEn.expectedClaims}</div>
               </div>
             </div>
 
@@ -805,8 +835,8 @@ function LaraSuggestionInline({
               >
                 <div className="flex items-center gap-2">
                   <FileText className="h-4 w-4 text-muted-foreground" />
-                  <h4 className="text-sm font-semibold text-foreground">Slik utfører Lara dette</h4>
-                  <Badge variant="outline" className="text-[11px]">{suggestion.steps.length} steg</Badge>
+                  <h4 className="text-sm font-semibold text-foreground">{isNb ? "Slik utfører Lara dette" : "How Lara does this"}</h4>
+                  <Badge variant="outline" className="text-[11px]">{suggestion.steps.length} {isNb ? "steg" : "steps"}</Badge>
                 </div>
                 <ChevronDown
                   className={`h-4 w-4 text-muted-foreground transition-transform ${showSteps ? "rotate-180" : ""}`}
@@ -814,7 +844,7 @@ function LaraSuggestionInline({
               </button>
               {showSteps && (
                 <ol className="space-y-2 mt-2">
-                  {suggestion.steps.map((s, i) => (
+                  {(isNb ? suggestion.steps : suggestion.stepsEn).map((s, i) => (
                     <li key={i} className="flex items-start gap-3 text-sm">
                       <span className="flex-shrink-0 h-5 w-5 rounded-full bg-primary/10 text-primary text-xs font-semibold inline-flex items-center justify-center mt-0.5">
                         {i + 1}
@@ -833,14 +863,16 @@ function LaraSuggestionInline({
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <h4 className="text-sm font-semibold text-foreground">
-                Lara har valgt {CAMPAIGN_TARGETS.length} kunder
+                {isNb ? `Lara har valgt ${CAMPAIGN_TARGETS.length} kunder` : `Lara has selected ${CAMPAIGN_TARGETS.length} customers`}
               </h4>
               <Badge variant="outline" className="text-xs">
-                {includedCount} inkludert · {excluded.size} ekskludert
+                {isNb ? `${includedCount} inkludert · ${excluded.size} ekskludert` : `${includedCount} included · ${excluded.size} excluded`}
               </Badge>
             </div>
             <p className="text-xs text-muted-foreground">
-              Klikk på en kunde for å ekskludere fra kampanjen. Lara har rangert etter risiko og signalstyrke.
+              {isNb
+                ? "Klikk på en kunde for å ekskludere fra kampanjen. Lara har rangert etter risiko og signalstyrke."
+                : "Click a customer to exclude them from the campaign. Lara has ranked them by risk and signal strength."}
             </p>
             <div className="border border-border rounded-lg divide-y divide-border max-h-[280px] overflow-y-auto">
               {CAMPAIGN_TARGETS.map((c) => {
@@ -869,7 +901,7 @@ function LaraSuggestionInline({
                         {c.name}
                       </div>
                       <div className="text-xs text-muted-foreground">
-                        {c.industry} · {c.reason}
+                        {isNb ? c.industry : c.industryEn} · {isNb ? c.reason : c.reasonEn}
                       </div>
                     </div>
                     <Badge
@@ -883,7 +915,7 @@ function LaraSuggestionInline({
                           : "border-border text-muted-foreground")
                       }
                     >
-                      {c.risk}
+                      {isNb ? c.risk : c.riskEn}
                     </Badge>
                   </button>
                 );
@@ -896,15 +928,16 @@ function LaraSuggestionInline({
         {step === "preview" && (
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <h4 className="text-sm font-semibold text-foreground">Forhåndsvis e-posten</h4>
+              <h4 className="text-sm font-semibold text-foreground">{isNb ? "Forhåndsvis e-posten" : "Preview the email"}</h4>
               <Badge variant="outline" className="text-[11px] gap-1">
                 <Sparkles className="h-3 w-3 text-primary" />
-                Generert av Lara
+                {isNb ? "Generert av Lara" : "Generated by Lara"}
               </Badge>
             </div>
             <p className="text-xs text-muted-foreground">
-              Tydelig pristilbud og verdiforslag — kunden forstår hva som er gratis, hva som koster, og hva de får.
-              Eksempel for Bergen Energi AS:
+              {isNb
+                ? "Tydelig pristilbud og verdiforslag — kunden forstår hva som er gratis, hva som koster, og hva de får. Eksempel for Bergen Energi AS:"
+                : "Clear pricing and value proposition — the customer understands what's free, what costs money, and what they get. Example for Bergen Energi AS:"}
             </p>
             <div className="border border-border rounded-lg overflow-hidden bg-card">
               <div className="bg-muted/40 px-4 py-2.5 border-b border-border space-y-1">
