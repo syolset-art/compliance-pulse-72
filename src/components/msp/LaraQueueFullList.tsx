@@ -2,11 +2,11 @@ import { useMemo, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Check, X, AlertTriangle, Sparkles } from "lucide-react";
+import { Check, AlertTriangle, Sparkles } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
 import { LARA_WORK_QUEUE, LARA_KIND_LABELS, type LaraQueueItem } from "@/lib/laraWorkQueue";
-import { LaraApproveDialog } from "@/components/msp/LaraApproveDialog";
+import { LaraReviewSheet, type ReviewDecision } from "@/components/msp/LaraReviewSheet";
 
 type Filter = "pending" | "auto-done" | "rejected";
 
@@ -23,7 +23,7 @@ export function LaraQueueFullList() {
   const [items, setItems] = useState<LaraQueueItem[]>(LARA_WORK_QUEUE);
   const [rejected, setRejected] = useState<LaraQueueItem[]>([]);
   const [filter, setFilter] = useState<Filter>("pending");
-  const [confirming, setConfirming] = useState<LaraQueueItem | null>(null);
+  const [reviewing, setReviewing] = useState<LaraQueueItem | null>(null);
 
   const visible = useMemo(() => {
     if (filter === "rejected") return rejected;
@@ -111,17 +111,10 @@ export function LaraQueueFullList() {
 
             {filter === "pending" && item.state === "pending" && (
               <div className="flex flex-col gap-1.5 sm:flex-row">
-                <Button size="sm" onClick={() => setConfirming(item)}>
-                  <Check className="mr-1 h-3.5 w-3.5" /> {isNb ? "Godkjenn" : "Approve"}
+                <Button size="sm" onClick={() => setReviewing(item)}>
+                  <Check className="mr-1 h-3.5 w-3.5" /> {isNb ? "Gjennomgå" : "Review"}
                 </Button>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  className="text-muted-foreground"
-                  onClick={() => resolve(item, false)}
-                >
-                  <X className="mr-1 h-3.5 w-3.5" /> {isNb ? "Avvis" : "Reject"}
-                </Button>
+
               </div>
             )}
           </div>
@@ -129,12 +122,12 @@ export function LaraQueueFullList() {
       </div>
     </Card>
 
-      <LaraApproveDialog
-        item={confirming}
-        onOpenChange={(open) => !open && setConfirming(null)}
-        onConfirm={(it) => {
-          resolve(it, true);
-          setConfirming(null);
+      <LaraReviewSheet
+        item={reviewing}
+        onOpenChange={(open) => !open && setReviewing(null)}
+        onDecision={(it, decision: ReviewDecision) => {
+          resolve(it, decision.type === "approve");
+          setReviewing(null);
         }}
       />
     </>

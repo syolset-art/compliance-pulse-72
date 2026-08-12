@@ -36,11 +36,12 @@ import {
   LARA_WORK_QUEUE,
   LARA_AUTONOMY_LABELS,
   LARA_KIND_LABELS,
+  LARA_RISK_LABELS,
   type LaraAutonomy,
   type LaraQueueItem,
   type LaraQueueKind,
 } from "@/lib/laraWorkQueue";
-import { LaraApproveDialog } from "@/components/msp/LaraApproveDialog";
+import { LaraReviewSheet, riskBadgeClass, type ReviewDecision } from "@/components/msp/LaraReviewSheet";
 
 const KIND_ICON: Record<LaraQueueKind, typeof Zap> = {
   activate: Zap,
@@ -57,10 +58,10 @@ export function LaraWorkQueueWidget() {
   const isNb = i18n.language === "nb" || i18n.language === "no";
   const [items, setItems] = useState<LaraQueueItem[]>(LARA_WORK_QUEUE);
   const [autonomy, setAutonomy] = useState<LaraAutonomy>("assisted");
-  const [confirming, setConfirming] = useState<LaraQueueItem | null>(null);
+  const [reviewing, setReviewing] = useState<LaraQueueItem | null>(null);
 
   const openItems = useMemo(
-    () => items.filter((i) => i.state === "pending" || i.state === "blocked"),
+    () => items.filter((i) => i.state !== "auto-done"),
     [items]
   );
   const rows = useMemo(() => openItems.slice(0, 3), [openItems]);
@@ -70,20 +71,28 @@ export function LaraWorkQueueWidget() {
     [items]
   );
 
-  const resolve = (item: LaraQueueItem, approved: boolean) => {
+  const handleDecision = (item: LaraQueueItem, decision: ReviewDecision) => {
     setItems((prev) =>
-      approved
-        ? prev.map((i) => (i.id === item.id ? { ...i, state: "auto-done", doneAt: "nå" } : i))
+      decision.type === "approve"
+        ? prev.map((i) => (i.id === item.id ? { ...i, state: "auto-done" as const, doneAt: "nå" } : i))
+        : decision.type === "revise"
+        ? prev.map((i) => (i.id === item.id ? { ...i, state: "revising" as const } : i))
         : prev.filter((i) => i.id !== item.id)
     );
+    setReviewing(null);
     toast({
-      title: approved
-        ? isNb
-          ? "Godkjent — Lara iverksetter"
-          : "Approved — Lara is proceeding"
-        : isNb
-        ? "Avvist"
-        : "Rejected",
+      title:
+        decision.type === "approve"
+          ? isNb
+            ? "Godkjent — Lara iverksetter"
+            : "Approved — Lara is proceeding"
+          : decision.type === "revise"
+          ? isNb
+            ? "Sendt til Lara for retting"
+            : "Sent to Lara for correction"
+          : isNb
+          ? "Avvist"
+          : "Rejected",
       description: `${isNb ? item.action : item.actionEn} · ${item.customer}`,
     });
   };
@@ -163,9 +172,19 @@ export function LaraWorkQueueWidget() {
                   </TooltipContent>
                 </UITooltip>
 
-                {item.state === "pending" ? (
-                  <Button size="sm" className="h-7 shrink-0 px-2 text-xs" onClick={() => setConfirming(item)}>
-                    {isNb ? "Godkjenn" : "Approve"}
+                {item.risk === "critical" && item.state === "pending" && (
+                  <span className={`hidden shrink-0 rounded-full border px-1.5 py-0.5 text-[10px] font-medium sm:inline ${riskBadgeClass(item.risk)}`}>
+                    {isNb ? LARA_RISK_LABELS.critical.nb : LARA_RISK_LABELS.critical.en}
+                  </span>
+                )}
+
+                {item.state === "revising" ? (
+                  <span className="shrink-0 text-xs text-muted-foreground">
+                    {isNb ? "Lara justerer" : "Lara adjusting"}
+                  </span>
+                ) : item.state === "pending" ? (
+                  <Button size="sm" className="h-7 shrink-0 px-2 text-xs" onClick={() => setReviewing(item)}>
+                    {isNb ? "Gjennomgå" : "Review"}
                   </Button>
                 ) : (
                   <Button
@@ -201,7 +220,7 @@ export function LaraWorkQueueWidget() {
                         {isNb ? "Løs blokkering" : "Resolve blocker"}
                       </DropdownMenuItem>
                     ) : (
-                      <DropdownMenuItem onClick={() => resolve(item, false)}>
+                      <DropdownMenuItem onClick={() => setReviewing(item)}>
                         <X className="mr-2 h-3.5 w-3.5" /> {isNb ? "Avvis" : "Reject"}
                       </DropdownMenuItem>
                     )}
@@ -240,13 +259,10 @@ export function LaraWorkQueueWidget() {
         </span>
       </button>
 
-      <LaraApproveDialog
-        item={confirming}
-        onOpenChange={(open) => !open && setConfirming(null)}
-        onConfirm={(it) => {
-          resolve(it, true);
-          setConfirming(null);
-        }}
+      <LaraReviewSheet
+        item={reviewing}
+        onOpenChange={(open) => !open && setReviewing(null)}
+        onDecision={handleDecision}
       />
     </Card>
   );

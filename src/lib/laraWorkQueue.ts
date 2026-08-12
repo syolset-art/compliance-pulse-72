@@ -2,9 +2,11 @@
 // Enheten for arbeid er ferdig utført arbeid fra Lara som mennesket godkjenner,
 // ikke en oppgave mennesket må starte selv.
 
-export type LaraQueueState = "pending" | "auto-done" | "blocked";
+export type LaraQueueState = "pending" | "auto-done" | "blocked" | "revising";
 
 export type LaraAutonomy = "automatic" | "assisted" | "manual";
+
+export type LaraQueueRisk = "critical" | "medium" | "low";
 
 export type LaraQueueKind =
   | "activate"
@@ -32,6 +34,14 @@ export type LaraQueueItem = {
   sourceEn: string;
   state: LaraQueueState;
   autonomy: LaraAutonomy;
+  /** Hvor inngripende handlingen er for kunden. */
+  risk: LaraQueueRisk;
+  /** Kort grunn til risikonivået. */
+  riskReason: string;
+  riskReasonEn: string;
+  /** Hva som faktisk endres når arbeidet godkjennes. */
+  impact: string[];
+  impactEn: string[];
   /** Vises for auto-done: når Lara utførte det. */
   doneAt?: string;
   /** English variant of `doneAt`. */
@@ -40,6 +50,12 @@ export type LaraQueueItem = {
   blocker?: string;
   /** English variant of `blocker`. */
   blockerEn?: string;
+};
+
+export const LARA_RISK_LABELS: Record<LaraQueueRisk, { nb: string; en: string }> = {
+  critical: { nb: "Kritisk", en: "Critical" },
+  medium: { nb: "Middels", en: "Medium" },
+  low: { nb: "Lav", en: "Low" },
 };
 
 export const LARA_KIND_LABELS: Record<LaraQueueKind, { nb: string; en: string }> = {
@@ -86,6 +102,11 @@ export const LARA_WORK_QUEUE: LaraQueueItem[] = [
     sourceEn: "Document analysis · ISO 27001",
     state: "pending",
     autonomy: "assisted",
+    risk: "medium",
+    riskReason: "Endrer dokumentert etterlevelse",
+    riskReasonEn: "Changes documented compliance",
+    impact: ["7 krav settes som dekket i ISO 27001", "Bevisnivå heves til «Verifisert»", "Modenhet i styring og tilgang oppdateres"],
+    impactEn: ["7 requirements are marked as covered in ISO 27001", "Evidence level raised to «Verified»", "Maturity in governance and access is updated"],
   },
   {
     id: "q-nordvik-activate",
@@ -101,6 +122,11 @@ export const LARA_WORK_QUEUE: LaraQueueItem[] = [
     sourceEn: "Vendor module · capacity",
     state: "pending",
     autonomy: "assisted",
+    risk: "critical",
+    riskReason: "Aktiverer betalt produkt og binder kunden til vilkår",
+    riskReasonEn: "Activates a paid product and binds the customer to terms",
+    impact: ["Leverandørmodulen nivå 20 aktiveres umiddelbart", "Kunden faktureres på neste faktura", "Vilkår registreres på kundens organisasjon"],
+    impactEn: ["Vendor module tier 20 is activated immediately", "The customer is billed on the next invoice", "Terms are recorded on the customer organisation"],
   },
   {
     id: "q-nordvik-vendors",
@@ -116,6 +142,11 @@ export const LARA_WORK_QUEUE: LaraQueueItem[] = [
     sourceEn: "Vendor mapping",
     state: "pending",
     autonomy: "assisted",
+    risk: "medium",
+    riskReason: "Oppretter data på kundens profil",
+    riskReasonEn: "Creates data on the customer profile",
+    impact: ["14 leverandører opprettes i registeret", "GDPR-rolle og kritikalitet settes per leverandør", "Kapasitetsgrensen for modulen påvirkes"],
+    impactEn: ["14 vendors are created in the registry", "GDPR role and criticality are set per vendor", "The module capacity limit is affected"],
   },
   {
     id: "q-fjord-report",
@@ -129,6 +160,11 @@ export const LARA_WORK_QUEUE: LaraQueueItem[] = [
     sourceEn: "Maturity assessment",
     state: "pending",
     autonomy: "assisted",
+    risk: "low",
+    riskReason: "Intern rapport, ingen ekstern effekt",
+    riskReasonEn: "Internal report, no external effect",
+    impact: ["Rapporten publiseres på kundens profil", "Ingen krav eller status endres"],
+    impactEn: ["The report is published on the customer profile", "No requirements or statuses change"],
   },
   {
     id: "q-vestland-audit",
@@ -142,6 +178,11 @@ export const LARA_WORK_QUEUE: LaraQueueItem[] = [
     sourceEn: "Internal audit",
     state: "pending",
     autonomy: "assisted",
+    risk: "critical",
+    riskReason: "Revisjonsfunn påvirker etterlevelsesstatus",
+    riskReasonEn: "Audit findings affect compliance status",
+    impact: ["Funn kobles til kontrollområdet identitet og tilgang", "Tre krav får endret status", "Avvik opprettes som aktivitet hos kunden"],
+    impactEn: ["Findings are linked to the identity and access control area", "Three requirements change status", "Deviations are created as activities for the customer"],
   },
   {
     id: "q-auto-maturity",
@@ -157,6 +198,11 @@ export const LARA_WORK_QUEUE: LaraQueueItem[] = [
     autonomy: "automatic",
     doneAt: "i natt",
     doneAtEn: "last night",
+    risk: "low",
+    riskReason: "Rutinemessig oppdatering",
+    riskReasonEn: "Routine update",
+    impact: ["Modenhetsscorer oppdateres for 12 kunder"],
+    impactEn: ["Maturity scores updated for 12 customers"],
   },
   {
     id: "q-auto-privacy",
@@ -172,6 +218,11 @@ export const LARA_WORK_QUEUE: LaraQueueItem[] = [
     autonomy: "automatic",
     doneAt: "i natt",
     doneAtEn: "last night",
+    risk: "low",
+    riskReason: "Kun innhenting av offentlig informasjon",
+    riskReasonEn: "Public information gathering only",
+    impact: ["Personvernerklæringer lagres som grunnlag"],
+    impactEn: ["Privacy policies stored as baseline"],
   },
   {
     id: "q-blocked-vestland",
@@ -187,6 +238,11 @@ export const LARA_WORK_QUEUE: LaraQueueItem[] = [
     autonomy: "assisted",
     blocker: "Mangler tilgang til Microsoft-integrasjonen",
     blockerEn: "Missing access to the Microsoft integration",
+    risk: "medium",
+    riskReason: "Venter på tilgang",
+    riskReasonEn: "Waiting for access",
+    impact: ["Ingen endringer før blokkeringen er løst"],
+    impactEn: ["No changes until the blocker is resolved"],
   },
 ];
 
