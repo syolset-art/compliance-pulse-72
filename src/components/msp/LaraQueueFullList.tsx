@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Check, X, AlertTriangle, Sparkles } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { LARA_WORK_QUEUE, formatNok, type LaraQueueItem } from "@/lib/laraWorkQueue";
+import { LARA_WORK_QUEUE, LARA_KIND_LABELS, type LaraQueueItem } from "@/lib/laraWorkQueue";
 
 type Filter = "pending" | "auto-done" | "rejected";
 
@@ -68,11 +68,9 @@ export function LaraQueueFullList() {
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-1.5">
                 <span className="font-medium text-foreground">{item.customer}</span>
-                {item.value !== undefined && (
-                  <Badge variant="outline" className="text-[10px] tabular-nums">
-                    {formatNok(item.value)}
-                  </Badge>
-                )}
+                <Badge variant="outline" className="text-[10px]">
+                  {LARA_KIND_LABELS[item.kind].nb}
+                </Badge>
                 {item.state === "blocked" && (
                   <Badge variant="outline" className="gap-1 border-warning/50 text-[10px] text-warning">
                     <AlertTriangle className="h-3 w-3" /> Blokkert
