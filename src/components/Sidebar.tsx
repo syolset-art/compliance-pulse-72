@@ -78,7 +78,7 @@ const ModuleSkeletonRow = ({ label }: { label: string }) => (
 // Top-level dashboards: Trust Center always, Mynder Core only when activated.
 // Rendered inline below — see "Dashboard" section in the nav.
 const boardNav = [
-  { name: "Styrerom", href: "/board", icon: Landmark },
+  { name: "nav.boardroom", href: "/board", icon: Landmark },
 ];
 
 // Global nav (between Trust Center and Mynder Core)
