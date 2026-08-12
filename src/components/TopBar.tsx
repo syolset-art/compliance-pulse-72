@@ -218,10 +218,26 @@ export function TopBar() {
           <DropdownMenuSeparator />
 
           {/* Legal documents */}
-          <DropdownMenuItem onClick={() => navigate("/legal")} className="gap-2">
-            <FileText className="h-4 w-4" />
-            {isNb ? "Avtaler og vilkår" : "Terms & agreements"}
-          </DropdownMenuItem>
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger className="gap-2">
+              <FileText className="h-4 w-4" />
+              {isNb ? "Avtaler og vilkår" : "Terms & agreements"}
+            </DropdownMenuSubTrigger>
+            <DropdownMenuPortal>
+              <DropdownMenuSubContent>
+                <DropdownMenuItem onClick={() => navigate("/legal?doc=terms")}>
+                  {isNb ? "Vilkår" : "Terms of service"}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/legal?doc=privacy")}>
+                  {isNb ? "Personvernerklæring" : "Privacy policy"}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/legal?doc=dpa")}>
+                  {isNb ? "Databehandleravtale" : "Data processing agreement"}
+                </DropdownMenuItem>
+              </DropdownMenuSubContent>
+            </DropdownMenuPortal>
+          </DropdownMenuSub>
+
 
           {/* About Mynder-score */}
           <DropdownMenuItem onClick={() => navigate("/resources/maturity")} className="gap-2">
