@@ -53,6 +53,7 @@ export function LaraQueueFullList() {
   };
 
   return (
+    <>
     <Card className="p-0">
       <div className="flex flex-wrap items-center gap-2 border-b border-border p-4">
         <Sparkles className="h-4 w-4 text-primary" />
@@ -136,5 +137,6 @@ export function LaraQueueFullList() {
           setConfirming(null);
         }}
       />
+    </>
   );
 }
