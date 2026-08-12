@@ -53,7 +53,7 @@ export const CONTROL_AREAS: ControlAreaDefinition[] = [
   {
     key: "operations",
     labelNb: "Drift og sikkerhet",
-    labelEn: "Drift og sikkerhet",
+    labelEn: "Operations & Security",
     descriptionNb:
       "Drift, hendelseshåndtering, sikkerhetskopiering, logging og endringshåndtering.",
     descriptionEn:
