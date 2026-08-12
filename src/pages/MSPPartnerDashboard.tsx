@@ -942,79 +942,112 @@ function LaraSuggestionInline({
             <div className="border border-border rounded-lg overflow-hidden bg-card">
               <div className="bg-muted/40 px-4 py-2.5 border-b border-border space-y-1">
                 <div className="text-xs">
-                  <span className="text-muted-foreground">Fra:</span>{" "}
+                  <span className="text-muted-foreground">{isNb ? "Fra:" : "From:"}</span>{" "}
                   <span className="text-foreground font-medium">Beate Solberg · Mynder Partner</span>
                 </div>
                 <div className="text-xs">
-                  <span className="text-muted-foreground">Til:</span>{" "}
+                  <span className="text-muted-foreground">{isNb ? "Til:" : "To:"}</span>{" "}
                   <span className="text-foreground font-medium">erik@bergenenergi.no</span>
                 </div>
                 <div className="text-xs">
-                  <span className="text-muted-foreground">Emne:</span>{" "}
+                  <span className="text-muted-foreground">{isNb ? "Emne:" : "Subject:"}</span>{" "}
                   <span className="text-foreground font-medium">
-                    Bergen Energi omfattes av NIS2 — slik kommer dere i gang (gratis kartlegging)
+                    {isNb
+                      ? "Bergen Energi omfattes av NIS2 — slik kommer dere i gang (gratis kartlegging)"
+                      : "Bergen Energi is covered by NIS2 — here's how to get started (free mapping)"}
                   </span>
                 </div>
               </div>
               <div className="p-4 text-sm text-foreground/90 leading-relaxed space-y-3">
-                <p>Hei Erik,</p>
+                <p>{isNb ? "Hei Erik," : "Hi Erik,"}</p>
                 <p>
-                  Bergen Energi AS er omfattet av <strong>NIS2-direktivet</strong> (Energi, 51–200 ansatte).
-                  Direktivet ble en del av norsk lov i 2025 og krever bl.a. risikostyring,
-                  hendelseshåndtering og dokumentert sikkerhetsstyring — med personlig ansvar for ledelsen.
+                  {isNb ? (
+                    <>Bergen Energi AS er omfattet av <strong>NIS2-direktivet</strong> (Energi, 51–200 ansatte).
+                    Direktivet ble en del av norsk lov i 2025 og krever bl.a. risikostyring,
+                    hendelseshåndtering og dokumentert sikkerhetsstyring — med personlig ansvar for ledelsen.</>
+                  ) : (
+                    <>Bergen Energi AS is covered by the <strong>NIS2 directive</strong> (Energy, 51–200 employees).
+                    The directive became part of Norwegian law in 2025 and requires, among other things, risk management,
+                    incident handling and documented security governance — with personal liability for management.</>
+                  )}
                 </p>
 
                 <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-3 space-y-1">
                   <div className="text-xs font-semibold text-emerald-700 dark:text-emerald-400 tracking-wider">
-                    GRATIS — INGEN BINDING
+                    {isNb ? "GRATIS — INGEN BINDING" : "FREE — NO COMMITMENT"}
                   </div>
                   <p className="text-sm">
-                    <strong>Trust Profile + NIS2 selv-vurdering.</strong> Dere får oversikt over hvor
-                    dere står i dag og hvilke krav som gjelder for nettopp deres virksomhet.
+                    {isNb ? (
+                      <><strong>Trust Profile + NIS2 selv-vurdering.</strong> Dere får oversikt over hvor
+                      dere står i dag og hvilke krav som gjelder for nettopp deres virksomhet.</>
+                    ) : (
+                      <><strong>Trust Profile + NIS2 self-assessment.</strong> You get an overview of where
+                      you stand today and which requirements apply specifically to your business.</>
+                    )}
                   </p>
                 </div>
 
                 <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 space-y-1">
                   <div className="flex items-center justify-between">
                     <div className="text-xs font-semibold text-primary tracking-wider">
-                      NIS2-MODUL — 2 490 KR / MND
+                      {isNb ? "NIS2-MODUL — 2 490 KR / MND" : "NIS2 MODULE — NOK 2,490 / MONTH"}
                     </div>
                     <Badge className="bg-primary text-primary-foreground text-[11px] hover:bg-primary">
-                      ANBEFALT
+                      {isNb ? "ANBEFALT" : "RECOMMENDED"}
                     </Badge>
                   </div>
-                  <p className="text-sm">Aktivering inkluderer:</p>
+                  <p className="text-sm">{isNb ? "Aktivering inkluderer:" : "Activation includes:"}</p>
                   <ul className="text-sm space-y-1 ml-4 list-disc">
-                    <li><strong>Full gap-analyse</strong> mot alle NIS2-krav (24 kontrollområder)</li>
-                    <li>Konkret tiltaksplan med prioritering og tidslinje</li>
-                    <li>Hendelsesrapportering til myndighetene (24-timers frist)</li>
-                    <li>Løpende overvåking av leverandørkjede og endringer</li>
-                    <li>Dokumentasjon klar for tilsyn og styrebehandling</li>
+                    {isNb ? (
+                      <>
+                        <li><strong>Full gap-analyse</strong> mot alle NIS2-krav (24 kontrollområder)</li>
+                        <li>Konkret tiltaksplan med prioritering og tidslinje</li>
+                        <li>Hendelsesrapportering til myndighetene (24-timers frist)</li>
+                        <li>Løpende overvåking av leverandørkjede og endringer</li>
+                        <li>Dokumentasjon klar for tilsyn og styrebehandling</li>
+                      </>
+                    ) : (
+                      <>
+                        <li><strong>Full gap analysis</strong> against all NIS2 requirements (24 control areas)</li>
+                        <li>Concrete action plan with prioritization and timeline</li>
+                        <li>Incident reporting to authorities (24-hour deadline)</li>
+                        <li>Ongoing monitoring of supply chain and changes</li>
+                        <li>Documentation ready for audits and board review</li>
+                      </>
+                    )}
                   </ul>
                 </div>
 
                 <p>
-                  Vil du se hva som gjelder for Bergen Energi? Det tar 2 minutter og koster ingenting.
+                  {isNb
+                    ? "Vil du se hva som gjelder for Bergen Energi? Det tar 2 minutter og koster ingenting."
+                    : "Want to see what applies to Bergen Energi? It takes 2 minutes and costs nothing."}
                 </p>
                 <p>
                   <span className="inline-block bg-primary text-primary-foreground rounded-md px-3 py-1.5 text-sm font-semibold">
-                    → Start gratis NIS2-kartlegging
+                    {isNb ? "→ Start gratis NIS2-kartlegging" : "→ Start free NIS2 mapping"}
                   </span>
                 </p>
 
                 <p className="text-xs text-muted-foreground border-t border-border pt-3">
-                  Mvh,<br />
+                  {isNb ? "Mvh," : "Best regards,"}<br />
                   Beate Solberg · Mynder Partner<br />
-                  Sertifisert NIS2-rådgiver · 90 12 34 56
+                  {isNb ? "Sertifisert NIS2-rådgiver · 90 12 34 56" : "Certified NIS2 advisor · 90 12 34 56"}
                 </p>
               </div>
             </div>
             <div className="flex items-start gap-2 text-xs text-muted-foreground bg-muted/40 rounded-lg p-3 border border-border">
               <Sparkles className="h-3.5 w-3.5 text-primary flex-shrink-0 mt-0.5" />
               <span>
-                Lara tilpasser bransje, eksempler og kontaktperson per kunde.
-                Konverteringsrate: <strong className="text-foreground">~14 %</strong> velger NIS2-modulen
-                etter gratis kartlegging.
+                {isNb ? (
+                  <>Lara tilpasser bransje, eksempler og kontaktperson per kunde.
+                  Konverteringsrate: <strong className="text-foreground">~14 %</strong> velger NIS2-modulen
+                  etter gratis kartlegging.</>
+                ) : (
+                  <>Lara adapts the industry, examples and contact person per customer.
+                  Conversion rate: <strong className="text-foreground">~14%</strong> choose the NIS2 module
+                  after the free mapping.</>
+                )}
               </span>
             </div>
           </div>
@@ -1023,13 +1056,17 @@ function LaraSuggestionInline({
         {/* STEP 4: Schedule */}
         {step === "schedule" && (
           <div className="space-y-3">
-            <h4 className="text-sm font-semibold text-foreground">Når skal kampanjen starte?</h4>
+            <h4 className="text-sm font-semibold text-foreground">{isNb ? "Når skal kampanjen starte?" : "When should the campaign start?"}</h4>
             <div className="space-y-2">
-              {[
+              {(isNb ? [
                 { key: "now" as const, label: "Send nå", sub: "Første e-post går ut innen 5 min" },
                 { key: "tomorrow" as const, label: "I morgen kl. 09:00", sub: "Best åpningsrate ifølge Lara" },
                 { key: "monday" as const, label: "Mandag kl. 08:30", sub: "Anbefalt for B2B-segmentet" },
-              ].map((opt) => (
+              ] : [
+                { key: "now" as const, label: "Send now", sub: "First email goes out within 5 min" },
+                { key: "tomorrow" as const, label: "Tomorrow at 09:00", sub: "Best open rate according to Lara" },
+                { key: "monday" as const, label: "Monday at 08:30", sub: "Recommended for the B2B segment" },
+              ]).map((opt) => (
                 <button
                   key={opt.key}
                   onClick={() => setSchedule(opt.key)}
@@ -1054,7 +1091,7 @@ function LaraSuggestionInline({
                   </div>
                   {opt.key === "tomorrow" && (
                     <Badge className="bg-primary/10 text-primary border-primary/20 hover:bg-primary/10 text-[11px]">
-                      ANBEFALT
+                      {isNb ? "ANBEFALT" : "RECOMMENDED"}
                     </Badge>
                   )}
                 </button>
@@ -1063,8 +1100,9 @@ function LaraSuggestionInline({
             <div className="flex items-start gap-2 text-xs text-muted-foreground bg-muted/40 rounded-lg p-3 border border-border">
               <CheckCircle2 className="h-4 w-4 text-emerald-600 flex-shrink-0 mt-0.5" />
               <span>
-                Du kan pause eller stoppe kampanjen når som helst fra dashbordet. Lara sender automatisk
-                oppfølging etter 3 dager til de som ikke åpner.
+                {isNb
+                  ? "Du kan pause eller stoppe kampanjen når som helst fra dashbordet. Lara sender automatisk oppfølging etter 3 dager til de som ikke åpner."
+                  : "You can pause or stop the campaign at any time from the dashboard. Lara automatically sends a follow-up after 3 days to those who don't open it."}
               </span>
             </div>
           </div>
@@ -1077,23 +1115,29 @@ function LaraSuggestionInline({
               <div className="h-16 w-16 rounded-full bg-emerald-500/10 text-emerald-600 flex items-center justify-center mb-3">
                 <CheckCircle2 className="h-8 w-8" />
               </div>
-              <h3 className="text-lg font-semibold text-foreground">Kampanje aktivert</h3>
+              <h3 className="text-lg font-semibold text-foreground">{isNb ? "Kampanje aktivert" : "Campaign activated"}</h3>
               <p className="text-sm text-muted-foreground mt-1 max-w-md">
-                Lara kjører «{suggestion.title}» mot {includedCount} kunder.
-                Du får statusrapport i innboksen daglig.
+                {isNb
+                  ? <>Lara kjører «{suggestion.title}» mot {includedCount} kunder. Du får statusrapport i innboksen daglig.</>
+                  : <>Lara is running "{suggestion.titleEn}" for {includedCount} customers. You get a status report in your inbox daily.</>}
               </p>
             </div>
 
             <div className="border border-border rounded-lg p-4 space-y-3 bg-muted/20">
               <div className="text-[11px] tracking-wider text-muted-foreground font-semibold">
-                LARAS NESTE STEG
+                {isNb ? "LARAS NESTE STEG" : "LARA'S NEXT STEPS"}
               </div>
-              {[
+              {(isNb ? [
                 { time: "Nå", text: `${schedule === "now" ? "Sender" : "Planlegger"} ${includedCount} personaliserte e-poster`, done: schedule === "now" },
                 { time: "+3 dager", text: "Automatisk oppfølging til ikke-åpnere" },
                 { time: "Løpende", text: "Booker intro-møte ved klikk på «Vis min profil»" },
                 { time: "Daglig", text: "Statusrapport i din innboks 07:00" },
-              ].map((item, i) => (
+              ] : [
+                { time: "Now", text: `${schedule === "now" ? "Sending" : "Scheduling"} ${includedCount} personalized emails`, done: schedule === "now" },
+                { time: "+3 days", text: "Automatic follow-up to non-openers" },
+                { time: "Ongoing", text: "Books an intro meeting on \"View my profile\" clicks" },
+                { time: "Daily", text: "Status report in your inbox at 07:00" },
+              ]).map((item, i) => (
                 <div key={i} className="flex items-start gap-3">
                   <div
                     className={
@@ -1117,10 +1161,10 @@ function LaraSuggestionInline({
         {step === "review" && (
           <>
             <Button variant="outline" onClick={handleClose}>
-              Avbryt
+              {isNb ? "Avbryt" : "Cancel"}
             </Button>
             <Button onClick={() => setStep("audience")} className="gap-2">
-              Sett opp kampanje
+              {isNb ? "Sett opp kampanje" : "Set up campaign"}
               <ChevronRight className="h-4 w-4" />
             </Button>
           </>
@@ -1128,41 +1172,41 @@ function LaraSuggestionInline({
         {step === "audience" && (
           <>
             <Button variant="outline" onClick={() => setStep("review")}>
-              Tilbake
+              {isNb ? "Tilbake" : "Back"}
             </Button>
             <Button
               onClick={() => setStep("preview")}
               disabled={includedCount === 0}
               className="gap-2"
             >
-              Se e-post ({includedCount}) <ChevronRight className="h-4 w-4" />
+              {isNb ? `Se e-post (${includedCount})` : `View email (${includedCount})`} <ChevronRight className="h-4 w-4" />
             </Button>
           </>
         )}
         {step === "preview" && (
           <>
             <Button variant="outline" onClick={() => setStep("audience")}>
-              Tilbake
+              {isNb ? "Tilbake" : "Back"}
             </Button>
             <Button onClick={() => setStep("schedule")} className="gap-2">
-              Velg tidspunkt <ChevronRight className="h-4 w-4" />
+              {isNb ? "Velg tidspunkt" : "Choose time"} <ChevronRight className="h-4 w-4" />
             </Button>
           </>
         )}
         {step === "schedule" && (
           <>
             <Button variant="outline" onClick={() => setStep("preview")}>
-              Tilbake
+              {isNb ? "Tilbake" : "Back"}
             </Button>
             <Button onClick={handleActivate} className="gap-2">
               <CtaIcon className="h-4 w-4" />
-              Aktiver kampanje
+              {isNb ? "Aktiver kampanje" : "Activate campaign"}
             </Button>
           </>
         )}
         {step === "activated" && (
           <Button onClick={handleClose} className="w-full sm:w-auto">
-            Ferdig
+            {isNb ? "Ferdig" : "Done"}
           </Button>
         )}
       </div>
@@ -1173,6 +1217,8 @@ function LaraSuggestionInline({
 
 function ClaimDevelopmentChart() {
   const navigate = useNavigate();
+  const { i18n } = useTranslation();
+  const isNb = i18n.language === "nb" || i18n.language === "no";
   const data = SERVICE_POTENTIAL_TREND;
   const last = data[data.length - 1];
   const prev = data[data.length - 2];
@@ -1187,21 +1233,24 @@ function ClaimDevelopmentChart() {
       <div className="flex items-start justify-between mb-1">
         <div>
           <div className="flex items-center gap-1.5">
-            <h3 className="text-base font-semibold text-foreground">Salgspotensial fra gap-analyser</h3>
+            <h3 className="text-base font-semibold text-foreground">{isNb ? "Salgspotensial fra gap-analyser" : "Sales potential from gap analyses"}</h3>
             <UITooltip>
               <TooltipTrigger asChild>
                 <HelpCircle className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
               </TooltipTrigger>
               <TooltipContent side="right" className="max-w-[280px]">
                 <p className="text-xs">
-                  Estimert tjenestesalg partner kan levere for å lukke gap i kundenes aktiverte regelverk.
-                  Basert på antall åpne krav × snittpris per tjeneste, i partnerens standardvaluta.
+                  {isNb
+                    ? "Estimert tjenestesalg partner kan levere for å lukke gap i kundenes aktiverte regelverk. Basert på antall åpne krav × snittpris per tjeneste, i partnerens standardvaluta."
+                    : "Estimated service sales the partner can deliver to close gaps in customers' activated regulations. Based on the number of open requirements × average price per service, in the partner's default currency."}
                 </p>
               </TooltipContent>
             </UITooltip>
           </div>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Basert på åpne krav i utvalgte regelverk hos {customerCount} kunder
+            {isNb
+              ? `Basert på åpne krav i utvalgte regelverk hos ${customerCount} kunder`
+              : `Based on open requirements in selected regulations for ${customerCount} customers`}
           </p>
         </div>
         <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20 text-xs gap-1 hover:bg-emerald-500/10">
@@ -1234,7 +1283,7 @@ function ClaimDevelopmentChart() {
                 borderRadius: 8,
                 fontSize: 12,
               }}
-              formatter={(value: number) => [formatPartnerCurrency(value), "Potensial"]}
+              formatter={(value: number) => [formatPartnerCurrency(value), isNb ? "Potensial" : "Potential"]}
             />
             <Area
               type="monotone"
@@ -1267,15 +1316,15 @@ function ClaimDevelopmentChart() {
       <div className="grid grid-cols-3 gap-4 mt-4 pt-4 border-t border-border">
         <div>
           <div className="text-2xl font-bold text-foreground tabular-nums">{customerCount}</div>
-          <div className="text-xs text-muted-foreground">kunder · {frameworkCount} regelverk</div>
+          <div className="text-xs text-muted-foreground">{isNb ? `kunder · ${frameworkCount} regelverk` : `customers · ${frameworkCount} regulations`}</div>
         </div>
         <div className="text-center">
           <div className="text-2xl font-bold text-foreground tabular-nums">{openGaps}</div>
-          <div className="text-xs text-muted-foreground">åpne gap</div>
+          <div className="text-xs text-muted-foreground">{isNb ? "åpne gap" : "open gaps"}</div>
         </div>
         <div className="text-right">
           <div className="text-2xl font-bold text-primary tabular-nums">{formatPartnerCurrency(totalPotential)}</div>
-          <div className="text-xs text-muted-foreground">potensielt salg</div>
+          <div className="text-xs text-muted-foreground">{isNb ? "potensielt salg" : "potential sales"}</div>
         </div>
       </div>
     </Card>
@@ -1285,15 +1334,19 @@ function ClaimDevelopmentChart() {
 
 function PortfolioSegmentation() {
   const navigate = useNavigate();
+  const { i18n } = useTranslation();
+  const isNb = i18n.language === "nb" || i18n.language === "no";
   const [grouping, setGrouping] = useState<"industry" | "framework">("industry");
   const segments = grouping === "industry" ? SEGMENTS_BY_INDUSTRY : SEGMENTS_BY_FRAMEWORK;
-  const groupingLabel = grouping === "industry" ? "bransje" : "regelverk";
+  const groupingLabel = isNb
+    ? (grouping === "industry" ? "bransje" : "regelverk")
+    : (grouping === "industry" ? "industry" : "regulation");
 
   return (
     <Card onClick={() => navigate("/msp-partner/widget/segmentation")} className="p-5 cursor-pointer hover:border-primary/40 transition-colors">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-1.5">
-          <h3 className="text-base font-semibold text-foreground">Portefølje-segmentering</h3>
+          <h3 className="text-base font-semibold text-foreground">{isNb ? "Portefølje-segmentering" : "Portfolio segmentation"}</h3>
           <TooltipProvider delayDuration={150}>
             <UITooltip>
               <TooltipTrigger asChild>
@@ -1301,15 +1354,15 @@ function PortfolioSegmentation() {
                   type="button"
                   onClick={(e) => e.stopPropagation()}
                   className="text-muted-foreground hover:text-foreground transition-colors"
-                  aria-label="Hva viser denne widgeten?"
+                  aria-label={isNb ? "Hva viser denne widgeten?" : "What does this widget show?"}
                 >
                   <HelpCircle className="h-3.5 w-3.5" />
                 </button>
               </TooltipTrigger>
               <TooltipContent side="top" className="max-w-xs text-xs leading-relaxed">
-                Porteføljen din gruppert etter {groupingLabel}. «Treffer» viser hvor mange kunder
-                som tilhører segmentet, «Aktivert» viser andelen av dem som har aktivert
-                tilhørende regelverk. Klikk widgeten for å se detaljer.
+                {isNb
+                  ? `Porteføljen din gruppert etter ${groupingLabel}. «Treffer» viser hvor mange kunder som tilhører segmentet, «Aktivert» viser andelen av dem som har aktivert tilhørende regelverk. Klikk widgeten for å se detaljer.`
+                  : `Your portfolio grouped by ${groupingLabel}. "Matches" shows how many customers belong to the segment, "Activated" shows the share of them who have activated the related regulation. Click the widget for details.`}
               </TooltipContent>
             </UITooltip>
           </TooltipProvider>
@@ -1317,7 +1370,7 @@ function PortfolioSegmentation() {
         <div
           className="inline-flex rounded-lg border border-border p-0.5"
           role="group"
-          aria-label="Velg segmentering"
+          aria-label={isNb ? "Velg segmentering" : "Select grouping"}
           onClick={(e) => e.stopPropagation()}
         >
           {(["industry", "framework"] as const).map((g) => (
@@ -1333,21 +1386,23 @@ function PortfolioSegmentation() {
                   : "text-muted-foreground hover:text-foreground")
               }
             >
-              {g === "industry" ? "Per bransje" : "Per regelverk"}
+              {isNb
+                ? (g === "industry" ? "Per bransje" : "Per regelverk")
+                : (g === "industry" ? "By industry" : "By regulation")}
             </button>
           ))}
         </div>
       </div>
       <div className="flex items-center gap-3 mb-2 text-[10px] uppercase tracking-wide text-muted-foreground">
-        <div className="w-36">Segment</div>
+        <div className="w-36">{isNb ? "Segment" : "Segment"}</div>
         <div className="flex-1" />
-        <div className="w-10 text-right">Treffer</div>
-        <div className="w-16 text-right">Aktivert</div>
+        <div className="w-10 text-right">{isNb ? "Treffer" : "Matches"}</div>
+        <div className="w-16 text-right">{isNb ? "Aktivert" : "Activated"}</div>
       </div>
       <div className="space-y-3">
         {segments.map((s) => (
           <div key={s.label} className="flex items-center gap-3">
-            <div className="w-36 text-sm text-foreground">{s.label}</div>
+            <div className="w-36 text-sm text-foreground">{isNb ? s.label : s.labelEn}</div>
             <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden" aria-hidden="true">
               <div
                 className={"h-full rounded-full " + s.color}
@@ -1369,16 +1424,18 @@ function PortfolioSegmentation() {
 }
 
 const TOP_SERVICES = [
-  { label: "GDPR / Personvern", count: 142, color: "bg-primary" },
-  { label: "ISO 27001-forberedelse", count: 118, color: "bg-purple-500" },
-  { label: "Risikovurdering leverandører", count: 96, color: "bg-fuchsia-500" },
-  { label: "DPA / Databehandleravtaler", count: 81, color: "bg-violet-400" },
-  { label: "Sikkerhetsopplæring", count: 64, color: "bg-indigo-400" },
-  { label: "Incident response-plan", count: 47, color: "bg-pink-400" },
+  { label: "GDPR / Personvern", labelEn: "GDPR / Privacy", count: 142, color: "bg-primary" },
+  { label: "ISO 27001-forberedelse", labelEn: "ISO 27001 preparation", count: 118, color: "bg-purple-500" },
+  { label: "Risikovurdering leverandører", labelEn: "Supplier risk assessment", count: 96, color: "bg-fuchsia-500" },
+  { label: "DPA / Databehandleravtaler", labelEn: "DPA / Data processing agreements", count: 81, color: "bg-violet-400" },
+  { label: "Sikkerhetsopplæring", labelEn: "Security training", count: 64, color: "bg-indigo-400" },
+  { label: "Incident response-plan", labelEn: "Incident response plan", count: 47, color: "bg-pink-400" },
 ];
 
 function TopServicesWidget() {
   const navigate = useNavigate();
+  const { i18n } = useTranslation();
+  const isNb = i18n.language === "nb" || i18n.language === "no";
   const max = Math.max(...TOP_SERVICES.map((s) => s.count));
   return (
     <Card
@@ -1388,7 +1445,7 @@ function TopServicesWidget() {
       <div className="flex items-start justify-between mb-1 gap-3">
         <div className="min-w-0">
           <div className="flex items-center gap-1.5">
-            <h3 className="text-base font-semibold text-foreground">Tjenester kundene trenger mest hjelp med</h3>
+            <h3 className="text-base font-semibold text-foreground">{isNb ? "Tjenester kundene trenger mest hjelp med" : "Services customers need the most help with"}</h3>
             <TooltipProvider delayDuration={150}>
               <UITooltip>
                 <TooltipTrigger asChild>
@@ -1396,33 +1453,33 @@ function TopServicesWidget() {
                     type="button"
                     onClick={(e) => e.stopPropagation()}
                     className="text-muted-foreground hover:text-foreground transition-colors"
-                    aria-label="Hva viser denne widgeten?"
+                    aria-label={isNb ? "Hva viser denne widgeten?" : "What does this widget show?"}
                   >
                     <HelpCircle className="h-3.5 w-3.5" />
                   </button>
                 </TooltipTrigger>
                 <TooltipContent side="top" className="max-w-xs text-xs leading-relaxed">
-                  Antall kunder i porteføljen din som har åpne aktiviteter, forespørsler eller gap
-                  innenfor hvert tjenesteområde. Kilde: kundenes Trust Profile og Lara-signaler.
-                  Bruk listen til å pakketere og selge rådgivning.
+                  {isNb
+                    ? "Antall kunder i porteføljen din som har åpne aktiviteter, forespørsler eller gap innenfor hvert tjenesteområde. Kilde: kundenes Trust Profile og Lara-signaler. Bruk listen til å pakketere og selge rådgivning."
+                    : "Number of customers in your portfolio with open activities, requests or gaps within each service area. Source: customers' Trust Profile and Lara signals. Use the list to package and sell advisory services."}
                 </TooltipContent>
               </UITooltip>
             </TooltipProvider>
           </div>
-          <p className="text-xs text-muted-foreground mt-0.5">Etterspørsel per regelverk — siste 30 dager</p>
+          <p className="text-xs text-muted-foreground mt-0.5">{isNb ? "Etterspørsel per regelverk — siste 30 dager" : "Demand per regulation — last 30 days"}</p>
         </div>
       </div>
 
       <div className="flex items-center gap-3 mt-4 mb-2 text-[10px] uppercase tracking-wide text-muted-foreground">
-        <div className="w-56">Tjeneste</div>
+        <div className="w-56">{isNb ? "Tjeneste" : "Service"}</div>
         <div className="flex-1" />
-        <div className="w-12 text-right">Kunder</div>
+        <div className="w-12 text-right">{isNb ? "Kunder" : "Customers"}</div>
       </div>
 
       <div className="space-y-2.5">
         {TOP_SERVICES.map((s) => (
           <div key={s.label} className="flex items-center gap-3">
-            <div className="w-56 text-sm text-foreground truncate">{s.label}</div>
+            <div className="w-56 text-sm text-foreground truncate">{isNb ? s.label : s.labelEn}</div>
             <div className="flex-1 h-2.5 bg-muted rounded-full overflow-hidden">
               <div className={"h-full rounded-full " + s.color} style={{ width: `${(s.count / max) * 100}%` }} />
             </div>
@@ -1433,7 +1490,7 @@ function TopServicesWidget() {
 
       <div className="mt-4 pt-3 border-t border-border/60 flex items-center justify-end">
         <span className="text-xs font-medium text-primary flex items-center gap-1">
-          Se detaljer og handlinger <ChevronRight className="h-3.5 w-3.5" />
+          {isNb ? "Se detaljer og handlinger" : "View details and actions"} <ChevronRight className="h-3.5 w-3.5" />
         </span>
       </div>
     </Card>
@@ -1441,10 +1498,12 @@ function TopServicesWidget() {
 }
 
 function LiveSignals() {
+  const { i18n } = useTranslation();
+  const isNb = i18n.language === "nb" || i18n.language === "no";
   return (
     <Card className="p-5">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-base font-semibold text-foreground">Live signaler</h3>
+        <h3 className="text-base font-semibold text-foreground">{isNb ? "Live signaler" : "Live signals"}</h3>
         <span className="text-xs text-muted-foreground">06:42</span>
       </div>
       <div className="space-y-2">
@@ -1456,9 +1515,9 @@ function LiveSignals() {
             <span className={"w-1 self-stretch rounded-full " + sig.accent} />
             <div className="flex-1 min-w-0">
               <div className="text-sm font-semibold text-foreground truncate">{sig.name}</div>
-              <div className="text-xs text-muted-foreground">{sig.note}</div>
+              <div className="text-xs text-muted-foreground">{isNb ? sig.note : sig.noteEn}</div>
             </div>
-            <span className="text-xs text-muted-foreground whitespace-nowrap">{sig.time}</span>
+            <span className="text-xs text-muted-foreground whitespace-nowrap">{isNb ? sig.time : sig.timeEn}</span>
           </div>
         ))}
       </div>
@@ -1470,6 +1529,8 @@ function LiveSignals() {
 
 export default function MSPPartnerDashboard() {
   const navigate = useNavigate();
+  const { i18n } = useTranslation();
+  const isNb = i18n.language === "nb" || i18n.language === "no";
   const { mode } = useWorkspaceMode();
   const [activeSuggestion, setActiveSuggestion] = useState<LaraSuggestion | null>(null);
 
@@ -1511,7 +1572,7 @@ export default function MSPPartnerDashboard() {
 
           <div className="flex justify-end">
             <Button variant="outline" onClick={() => navigate("/msp-dashboard")}>
-              Gå til kundeoversikt
+              {isNb ? "Gå til kundeoversikt" : "Go to customer overview"}
             </Button>
           </div>
         </div>
