@@ -249,14 +249,16 @@ export function MynderGuidanceTab({
 
   return (
     <div className="space-y-5">
-      {/* Ingen grunnlag etterspurt ennå — første steg er å be om det */}
+      {/* Ingen grunnlag etterspurt ennå — vises i samme Lara-banner som ellers */}
       {needsBaseline && (
-        <RequestBaselineCard
-          vendorName={assetName ?? (isNb ? "leverandøren" : "the vendor")}
-          archetype={sourcing.archetype}
-          onSelectArchetype={(archetype) => updateSourcing({ ...sourcing, archetype })}
-          onRequestBaseline={() => setRequestBaselineOpen(true)}
-          onRegisterExisting={() => setDocRequestType("general")}
+        <LaraRecommendationBanner
+          totalCount={1}
+          criticalCount={0}
+          tasks={baselineTasks}
+          hideDismiss
+          onPrimaryAction={() => startSourcing(baselineRecommendation.primary)}
+          onSecondaryAction={() => setRequestBaselineOpen(true)}
+          onReadMore={() => setDocRequestType("general")}
         />
       )}
 
