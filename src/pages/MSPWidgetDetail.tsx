@@ -1,5 +1,6 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { Sidebar } from "@/components/Sidebar";
+import { LaraQueueFullList } from "@/components/msp/LaraQueueFullList";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -177,12 +178,12 @@ const WIDGETS: Record<string, WidgetMeta> = {
   },
   "needs-follow-up": {
     id: "needs-follow-up",
-    title: "Krever oppfølging",
-    subtitle: "Kunder med utdaterte profiler, manglende DPA eller kritiske avvik",
+    title: "Laras arbeidskø",
+    subtitle: "Utkast Lara har gjort ferdig — du godkjenner, avviser eller overstyrer",
     icon: Target,
-    hero: { value: "23", sub: "kunder krever konkret oppfølging nå" },
+    hero: { value: "3", sub: "forslag venter på din godkjenning" },
     explainer:
-      "Vi flagger kunder hvor noe må adresseres innen kort tid: en Trust Profile som ikke er oppdatert, en manglende databehandleravtale, eller et registrert kritisk avvik. Listen oppdateres daglig av Lara.",
+      "Lara jobber kontinuerlig i porteføljen: hun oppdaterer modenhet, henter offentlige kilder og skriver ferdig tilbud og purringer. Det som krever et menneskelig ja havner her, sammen med det hun allerede har utført og det hun er blokkert på.",
     ctas: [
       { label: "Åpne kundeoversikt", href: "/msp-licenses?filter=needs_attention", primary: true },
       { label: "Send påminnelse i bulk", href: "/msp-messages" },
@@ -457,30 +458,12 @@ function WidgetBody({ id }: { id: string }) {
     }
 
 
-    case "needs-follow-up": {
-      const toneCls: Record<string, string> = {
-        destructive: "bg-destructive",
-        warning: "bg-warning",
-        primary: "bg-primary",
-      };
+    case "needs-follow-up":
       return (
-        <Section title="Kunder som krever oppfølging">
-          <Card className="divide-y divide-border">
-            {FOLLOW_UP_CUSTOMERS.map((c) => (
-              <div key={c.name} className="flex items-center gap-3 p-4">
-                <div className={`h-2 w-2 rounded-full shrink-0 ${toneCls[c.tone]}`} />
-                <div className="flex-1 min-w-0">
-                  <div className="font-medium text-foreground">{c.name}</div>
-                  <div className="text-xs text-muted-foreground">{c.reason}</div>
-                </div>
-                <Badge variant="outline" className="text-xs">{c.category}</Badge>
-                <Button size="sm" variant="ghost">Åpne <ArrowRight className="h-3 w-3 ml-1" /></Button>
-              </div>
-            ))}
-          </Card>
+        <Section title="Laras arbeidskø">
+          <LaraQueueFullList />
         </Section>
       );
-    }
 
     case "trust-score":
       return (
