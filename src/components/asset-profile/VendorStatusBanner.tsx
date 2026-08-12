@@ -13,7 +13,7 @@ import { useState } from "react";
 import {
   NOT_REQUESTED_LABEL,
   SOURCING_METHOD_META,
-  archetypeByKey,
+  inferVendorSignals,
   readSourcingState,
   recommendSourcingMethod,
   writeSourcingState,
@@ -136,7 +136,13 @@ export function VendorStatusBanner({ asset }: VendorStatusBannerProps) {
 
   // Innhentingsmetode — Laras anbefaling avhenger av mandat og offentlig fotavtrykk.
   const [sourcing, setSourcing] = useState(() => readSourcingState(asset.id));
-  const recommendation = recommendSourcingMethod(archetypeByKey(sourcing.archetype).signals);
+  const recommendation = recommendSourcingMethod(
+    inferVendorSignals({
+      name: asset.name,
+      vendorType: asset.vendor_category ?? asset.category,
+      criticality: asset.criticality ?? asset.risk_level,
+    }).signals,
+  );
   const startSourcing = (method: SourcingMethod) => {
     if (method === "vendor_agentic") {
       setInviteOpen(true);
