@@ -63,10 +63,14 @@ import {
 } from "@/components/ui/tooltip";
 import { SystemPremiumBanner } from "@/components/systems/SystemPremiumBanner";
 import { SystemActivateDialog } from "@/components/systems/SystemActivateDialog";
+import { ChangeCoreTierDialog } from "@/components/dialogs/ChangeCoreTierDialog";
+import { ConfirmCoreTierChangeDialog } from "@/components/dialogs/ConfirmCoreTierChangeDialog";
+import { ModuleChangeReceiptSheet, type ModuleChangeReceipt } from "@/components/subscriptions/ModuleChangeReceiptSheet";
+import { getCoreTier, formatKr, DEFAULT_CORE_TIER_ID, type CoreTierId } from "@/lib/planConstants";
+import { getModuleTier, setModuleTier } from "@/lib/moduleActivationState";
 import { SystemStatusRow } from "@/components/systems/SystemStatusRow";
 import { PriorityChip } from "@/components/PriorityChip";
 
-const MAX_FREE_SYSTEMS = 5;
 
 interface System {
   id: string;
@@ -175,6 +179,12 @@ export default function Systems() {
   const [activeChip, setActiveChip] = useState<string | null>(null);
   const [activateOpen, setActivateOpen] = useState(false);
   const [isPremium, setIsPremium] = useState(() => localStorage.getItem("system_premium_activated") === "true");
+  const [coreTierId, setCoreTierId] = useState<CoreTierId>(
+    () => (getModuleTier("core") as CoreTierId) ?? DEFAULT_CORE_TIER_ID
+  );
+  const [changeCoreTierOpen, setChangeCoreTierOpen] = useState(false);
+  const [pendingCoreTierId, setPendingCoreTierId] = useState<CoreTierId | null>(null);
+  const [receipt, setReceipt] = useState<ModuleChangeReceipt | null>(null);
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   const handleSeedSystems = async () => {
@@ -316,6 +326,39 @@ export default function Systems() {
   };
 
   const filteredSystems = useMemo(() => filterSystems(systems), [systems, nameFilter, typeFilter, ownerFilter, statusFilter]);
+
+  // Gjeldende Mynder Core-nivå styrer hvor mange systemer som kan registreres.
+  const coreTier = getCoreTier(coreTierId);
+
+  const handleCoreTierConfirm = () => {
+    if (!pendingCoreTierId) return;
+    const next = pendingCoreTierId;
+    const prevTier = coreTier;
+    const nextTier = getCoreTier(next);
+    setPendingCoreTierId(null);
+    setCoreTierId(next);
+    setModuleTier("core", next);
+    setReceipt({
+      moduleId: "core",
+      moduleTitle: "Mynder Core",
+      kind: nextTier.monthlyPriceKr >= prevTier.monthlyPriceKr ? "upgrade" : "downgrade",
+      fromLabel: prevTier.label,
+      toLabel: nextTier.label,
+      monthlyPriceKr: nextTier.monthlyPriceKr,
+      nextSteps: [
+        {
+          label: "Legg til systemer",
+          description: `Dere har nå plass til ${nextTier.systemLimit} systemer (${nextTier.monthlyPriceKr === 0 ? "gratis" : `${formatKr(nextTier.monthlyPriceKr)}/mnd`}).`,
+          onClick: () => { setReceipt(null); setIsAddDialogOpen(true); },
+        },
+        {
+          label: "Se produkter og abonnement",
+          onClick: () => navigate("/subscriptions"),
+        },
+      ],
+    });
+  };
+
 
   const categories = useMemo(() => {
     const cats = new Set(systems.map((s) => s.category).filter(Boolean));
@@ -740,8 +783,8 @@ export default function Systems() {
             <div className="flex items-center gap-2">
               <Button
                 onClick={() => {
-                  if (!isPremium && systems.length >= MAX_FREE_SYSTEMS) {
-                    setActivateOpen(true);
+                  if (systems.length >= coreTier.systemLimit) {
+                    setChangeCoreTierOpen(true);
                   } else {
                     setIsAddDialogOpen(true);
                   }
@@ -780,9 +823,9 @@ export default function Systems() {
           {/* Premium banner */}
           <SystemPremiumBanner
             systemCount={systems.length}
-            maxFreeSystems={MAX_FREE_SYSTEMS}
-            isActivated={isPremium}
-            onActivate={() => setActivateOpen(true)}
+            maxFreeSystems={coreTier.systemLimit}
+            isActivated={coreTier.monthlyPriceKr > 0}
+            onActivate={() => setChangeCoreTierOpen(true)}
           />
 
           {/* Filters */}
@@ -874,6 +917,25 @@ export default function Systems() {
             setStatusFilter(status);
           }
         }}
+      />
+
+      <ChangeCoreTierDialog
+        open={changeCoreTierOpen}
+        onOpenChange={setChangeCoreTierOpen}
+        currentTierId={coreTier.id}
+        usedSystems={systems.length}
+        onConfirm={(next) => { setPendingCoreTierId(next); setChangeCoreTierOpen(false); }}
+      />
+      <ConfirmCoreTierChangeDialog
+        open={!!pendingCoreTierId}
+        onOpenChange={(open) => { if (!open) setPendingCoreTierId(null); }}
+        currentTierId={coreTier.id}
+        nextTierId={pendingCoreTierId}
+        onConfirm={handleCoreTierConfirm}
+      />
+      <ModuleChangeReceiptSheet
+        receipt={receipt}
+        onOpenChange={(open) => { if (!open) setReceipt(null); }}
       />
 
       <SystemActivateDialog
