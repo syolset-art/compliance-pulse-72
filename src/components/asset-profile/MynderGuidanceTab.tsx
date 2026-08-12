@@ -11,11 +11,13 @@ import { VendorFrameworkCard } from "@/components/asset-profile/guidance/VendorF
 import { VendorRecommendedActionsCard } from "@/components/asset-profile/guidance/VendorRecommendedActionsCard";
 import { InviteAgenticTrustCenterDialog } from "@/components/asset-profile/guidance/InviteAgenticTrustCenterDialog";
 import { CreateVendorActivityDialog } from "@/components/asset-profile/guidance/CreateVendorActivityDialog";
-import { RequestBaselineCard } from "@/components/asset-profile/guidance/RequestBaselineCard";
 import { RequestBaselineDialog } from "@/components/asset-profile/guidance/RequestBaselineDialog";
 import {
+  inferVendorSignals,
   readSourcingState,
+  recommendSourcingMethod,
   writeSourcingState,
+  SOURCING_METHOD_META,
   type SourcingMethod,
 } from "@/lib/vendorSourcingMethod";
 import {
@@ -160,6 +162,37 @@ export function MynderGuidanceTab({
         : "Lara drafts the assessment once the evidence arrives.",
     });
   };
+
+  // Laras utledning av leverandørtype — ingen manuell velger.
+  const inferred = useMemo(
+    () => inferVendorSignals({ name: assetName, vendorType, industry, country, criticality }),
+    [assetName, vendorType, industry, country, criticality],
+  );
+  const baselineRecommendation = useMemo(
+    () => recommendSourcingMethod(inferred.signals),
+    [inferred],
+  );
+  const baselineTasks: LaraPlanTask[] = useMemo(() => {
+    const method = SOURCING_METHOD_META[baselineRecommendation.primary];
+    const name = assetName ?? (isNb ? "leverandøren" : "the vendor");
+    return [
+      {
+        id: `baseline-${assetId}`,
+        severity: "high",
+        title: isNb ? `Vi mangler grunnlag fra ${name}` : `We are missing evidence from ${name}`,
+        category: isNb ? inferred.segment.nb : inferred.segment.en,
+        insight: isNb
+          ? `${baselineRecommendation.rationale.nb} Lara forbereder utkast til vurdering automatisk når grunnlaget er hentet inn — du beslutter.`
+          : `${baselineRecommendation.rationale.en} Lara drafts the assessment automatically once the evidence is in — you decide.`,
+        primaryCtaLabelNb: method.cta.nb,
+        primaryCtaLabelEn: method.cta.en,
+        secondaryCtaLabelNb: "Se alle innhentingsmetoder",
+        secondaryCtaLabelEn: "See all sourcing methods",
+        readMoreCtaLabelNb: "Last opp dokumentasjon jeg allerede har",
+        readMoreCtaLabelEn: "Upload documentation I already have",
+      },
+    ];
+  }, [assetId, assetName, baselineRecommendation, inferred, isNb]);
 
   const openDocRequest = (action: VendorFrameworkAction) =>
     setDocRequestType(action.documentType ?? "general");
@@ -418,8 +451,10 @@ export function MynderGuidanceTab({
         open={requestBaselineOpen}
         onOpenChange={setRequestBaselineOpen}
         vendorName={assetName ?? (isNb ? "leverandøren" : "the vendor")}
-        archetype={sourcing.archetype}
+        signals={inferred.signals}
+        segmentLabel={isNb ? inferred.segment.nb : inferred.segment.en}
         onConfirm={startSourcing}
+        onUploadExisting={() => setDocRequestType("general")}
       />
 
       <CreateVendorActivityDialog
