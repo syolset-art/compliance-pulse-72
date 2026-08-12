@@ -26,18 +26,20 @@ import { toast } from "sonner";
 import {
   NOT_REQUESTED_LABEL,
   SOURCING_METHOD_META,
-  VENDOR_ARCHETYPES,
-  archetypeByKey,
   readSourcingState,
   recommendSourcingMethod,
   writeSourcingState,
   type SourcingMethod,
-  type VendorArchetype,
+  type SourcingSignals,
 } from "@/lib/vendorSourcingMethod";
 
 interface Props {
   /** Brukes til å lagre valgt innhentingsmetode per leverandør. */
   assetId: string;
+  /** Signaler Lara har utledet fra leverandørdata. */
+  signals: SourcingSignals;
+  /** Kort segment-etikett fra Laras utledning. */
+  segmentLabel?: string;
   actions: VendorFrameworkAction[];
   onRequestDocumentation: (action: VendorFrameworkAction) => void;
   onCreateActivity: (action: VendorFrameworkAction) => void;
@@ -57,6 +59,8 @@ interface Props {
  */
 export function VendorRecommendedActionsCard({
   assetId,
+  signals,
+  segmentLabel,
   actions,
   onRequestDocumentation,
   onCreateActivity,
@@ -72,14 +76,8 @@ export function VendorRecommendedActionsCard({
 
   // Innhentingsmetode — Lara anbefaler ut fra mandat og offentlig fotavtrykk.
   const [sourcing, setSourcing] = useState(() => readSourcingState(assetId));
-  const recommendation = recommendSourcingMethod(archetypeByKey(sourcing.archetype).signals);
+  const recommendation = recommendSourcingMethod(signals);
   const primaryMethod = SOURCING_METHOD_META[recommendation.primary];
-
-  const selectArchetype = (archetype: VendorArchetype) => {
-    const next = { ...sourcing, archetype };
-    setSourcing(next);
-    writeSourcingState(assetId, next);
-  };
 
   const startSourcing = (method: SourcingMethod) => {
     if (method === "vendor_agentic") {
@@ -199,31 +197,9 @@ export function VendorRecommendedActionsCard({
           </p>
 
 
-          {/* Leverandør-arketype — styrer signalene Lara vurderer (prototype) */}
-          <div className="mt-2 flex flex-wrap items-center gap-1.5">
-            <span className="text-[11px] text-muted-foreground mr-0.5">
-              {isNb ? "Leverandørtype:" : "Vendor type:"}
-            </span>
-            {VENDOR_ARCHETYPES.map((a) => (
-              <button
-                key={a.key}
-                type="button"
-                onClick={() => selectArchetype(a.key)}
-                className={cn(
-                  "rounded-full border px-2 py-0.5 text-[11px] transition-colors",
-                  a.key === sourcing.archetype
-                    ? "border-primary bg-primary/10 text-primary"
-                    : "border-border text-muted-foreground hover:bg-muted",
-                )}
-              >
-                {a.name}
-              </button>
-            ))}
-          </div>
-
           <div className="mt-2 rounded-md border border-border bg-background/60 p-2.5">
             <p className="text-[11px] text-muted-foreground">
-              {isNb ? archetypeByKey(sourcing.archetype).hint.nb : archetypeByKey(sourcing.archetype).hint.en}
+              {segmentLabel}
             </p>
             <p className="text-[12px] text-foreground mt-1 leading-relaxed">
               {isNb ? recommendation.rationale.nb : recommendation.rationale.en}

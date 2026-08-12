@@ -324,6 +324,8 @@ export function MynderGuidanceTab({
         {!needsBaseline && (
           <VendorRecommendedActionsCard
             assetId={assetId}
+            signals={inferred.signals}
+            segmentLabel={isNb ? inferred.segment.nb : inferred.segment.en}
             actions={actions}
             onRequestDocumentation={openDocRequest}
             onCreateActivity={createActivityFromAction}
