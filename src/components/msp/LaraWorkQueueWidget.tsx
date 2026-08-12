@@ -59,14 +59,12 @@ export function LaraWorkQueueWidget() {
   const [autonomy, setAutonomy] = useState<LaraAutonomy>("assisted");
   const [confirming, setConfirming] = useState<LaraQueueItem | null>(null);
 
-  const rows = useMemo(
-    () => items.filter((i) => i.state === "pending" || i.state === "blocked").slice(0, 3),
+  const openItems = useMemo(
+    () => items.filter((i) => i.state === "pending" || i.state === "blocked"),
     [items]
   );
-  const pendingCount = useMemo(
-    () => items.filter((i) => i.state === "pending").length,
-    [items]
-  );
+  const rows = useMemo(() => openItems.slice(0, 3), [openItems]);
+  const hiddenCount = openItems.length - rows.length;
   const autoDoneCount = useMemo(
     () => items.filter((i) => i.state === "auto-done").length,
     [items]
@@ -95,7 +93,11 @@ export function LaraWorkQueueWidget() {
       <div className="flex items-center gap-2">
         <Sparkles className="h-4 w-4 shrink-0 text-primary" />
         <span className="text-sm font-semibold">{isNb ? "Laras arbeidskø" : "Lara's work queue"}</span>
-        <span className="text-sm text-muted-foreground">· {pendingCount} {isNb ? "venter" : "pending"}</span>
+        <span className="text-sm text-muted-foreground">
+          · {isNb
+            ? `viser ${rows.length} av ${openItems.length}`
+            : `showing ${rows.length} of ${openItems.length}`}
+        </span>
         <div className="flex-1" />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -227,7 +229,13 @@ export function LaraWorkQueueWidget() {
         <Check className="h-3.5 w-3.5 text-success" />
         <span className="truncate">{isNb ? `Lara utførte ${autoDoneCount} oppgaver i natt` : `Lara completed ${autoDoneCount} tasks last night`}</span>
         <span className="ml-auto flex items-center gap-0.5 font-medium">
-          {isNb ? "Se hele køen" : "See full queue"}
+          {hiddenCount > 0
+            ? isNb
+              ? `Se hele køen (${hiddenCount} til)`
+              : `See full queue (${hiddenCount} more)`
+            : isNb
+            ? "Se hele køen"
+            : "See full queue"}
           <ChevronRight className="h-3.5 w-3.5" />
         </span>
       </button>
