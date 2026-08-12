@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate, Navigate } from "react-router-dom";
 import { Sidebar } from "@/components/Sidebar";
 import { useWorkspaceMode } from "@/contexts/WorkspaceModeContext";
@@ -32,10 +33,10 @@ import {
 
 // ---------- Mock data (aggregated partner view) ----------
 const KPIS = [
-  { key: "portfolio", label: "PORTEFØLJE", value: "400", sub: "kunder", tone: "default" as const },
-  { key: "claim", label: "GODKJENT AV KUNDE", value: "12%", sub: "47 av 400 kunder har godkjent regelverkstilbud", tone: "primary" as const, delta: "+2", progress: 30 },
-  { key: "signals", label: "SALGSSIGNALER", value: "23", sub: "aktive nå", tone: "warning" as const },
-  { key: "won", label: "VUNNET I MND", value: "340k", sub: "12 oppdrag", tone: "success" as const },
+  { key: "portfolio", label: "PORTEFØLJE", labelEn: "PORTFOLIO", value: "400", sub: "kunder", subEn: "customers", tone: "default" as const },
+  { key: "claim", label: "GODKJENT AV KUNDE", labelEn: "APPROVED BY CUSTOMER", value: "12%", sub: "47 av 400 kunder har godkjent regelverkstilbud", subEn: "47 of 400 customers have approved regulation offer", tone: "primary" as const, delta: "+2", progress: 30 },
+  { key: "signals", label: "SALGSSIGNALER", labelEn: "SALES SIGNALS", value: "23", sub: "aktive nå", subEn: "active now", tone: "warning" as const },
+  { key: "won", label: "VUNNET I MND", labelEn: "WON THIS MONTH", value: "340k", sub: "12 oppdrag", subEn: "12 assignments", tone: "success" as const },
 ];
 
 type LaraSuggestion = {

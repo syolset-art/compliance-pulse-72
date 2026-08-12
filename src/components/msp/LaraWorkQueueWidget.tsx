@@ -31,6 +31,7 @@ import {
   Network,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
 import {
   LARA_WORK_QUEUE,
   LARA_AUTONOMY_LABELS,
@@ -51,6 +52,8 @@ const KIND_ICON: Record<LaraQueueKind, typeof Zap> = {
 export function LaraWorkQueueWidget() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { i18n } = useTranslation();
+  const isNb = i18n.language === "nb" || i18n.language === "no";
   const [items, setItems] = useState<LaraQueueItem[]>(LARA_WORK_QUEUE);
   const [autonomy, setAutonomy] = useState<LaraAutonomy>("assisted");
 
@@ -74,8 +77,14 @@ export function LaraWorkQueueWidget() {
         : prev.filter((i) => i.id !== item.id)
     );
     toast({
-      title: approved ? "Godkjent — Lara iverksetter" : "Avvist",
-      description: `${item.action} · ${item.customer}`,
+      title: approved
+        ? isNb
+          ? "Godkjent — Lara iverksetter"
+          : "Approved — Lara is proceeding"
+        : isNb
+        ? "Avvist"
+        : "Rejected",
+      description: `${isNb ? item.action : item.actionEn} · ${item.customer}`,
     });
   };
 
@@ -83,20 +92,20 @@ export function LaraWorkQueueWidget() {
     <Card className="p-4 flex flex-col gap-2">
       <div className="flex items-center gap-2">
         <Sparkles className="h-4 w-4 shrink-0 text-primary" />
-        <span className="text-sm font-semibold">Laras arbeidskø</span>
-        <span className="text-sm text-muted-foreground">· {pendingCount} venter</span>
+        <span className="text-sm font-semibold">{isNb ? "Laras arbeidskø" : "Lara's work queue"}</span>
+        <span className="text-sm text-muted-foreground">· {pendingCount} {isNb ? "venter" : "pending"}</span>
         <div className="flex-1" />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0 text-muted-foreground">
               <Settings2 className="h-4 w-4" />
               <span className="sr-only">
-                Laras autonominivå: {LARA_AUTONOMY_LABELS[autonomy].nb}
+                {isNb ? "Laras autonominivå" : "Lara's autonomy level"}: {isNb ? LARA_AUTONOMY_LABELS[autonomy].nb : LARA_AUTONOMY_LABELS[autonomy].en}
               </span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-64">
-            <DropdownMenuLabel className="text-xs">Laras autonominivå</DropdownMenuLabel>
+            <DropdownMenuLabel className="text-xs">{isNb ? "Laras autonominivå" : "Lara's autonomy level"}</DropdownMenuLabel>
             {(Object.keys(LARA_AUTONOMY_LABELS) as LaraAutonomy[]).map((level) => (
               <DropdownMenuItem
                 key={level}
@@ -104,11 +113,11 @@ export function LaraWorkQueueWidget() {
                 className="flex flex-col items-start gap-0.5"
               >
                 <span className="flex items-center gap-1.5 text-sm font-medium">
-                  {LARA_AUTONOMY_LABELS[level].nb}
+                  {isNb ? LARA_AUTONOMY_LABELS[level].nb : LARA_AUTONOMY_LABELS[level].en}
                   {autonomy === level && <Check className="h-3.5 w-3.5 text-primary" />}
                 </span>
                 <span className="text-xs text-muted-foreground">
-                  {LARA_AUTONOMY_LABELS[level].hint}
+                  {isNb ? LARA_AUTONOMY_LABELS[level].hint : LARA_AUTONOMY_LABELS[level].hintEn}
                 </span>
               </DropdownMenuItem>
             ))}
@@ -133,20 +142,26 @@ export function LaraWorkQueueWidget() {
                       <span className="font-medium">{item.customer}</span>
                       <span className="text-muted-foreground">
                         {" — "}
-                        {item.state === "blocked" ? item.blocker : item.action}
+                        {item.state === "blocked"
+                          ? isNb
+                            ? item.blocker
+                            : item.blockerEn
+                          : isNb
+                          ? item.action
+                          : item.actionEn}
                       </span>
                     </span>
                   </TooltipTrigger>
                   <TooltipContent side="bottom" className="max-w-xs text-xs">
-                    <span className="block font-medium">{LARA_KIND_LABELS[item.kind].nb}</span>
-                    {item.rationale}
-                    <span className="mt-1 block text-muted-foreground">Kilde: {item.source}</span>
+                    <span className="block font-medium">{isNb ? LARA_KIND_LABELS[item.kind].nb : LARA_KIND_LABELS[item.kind].en}</span>
+                    {isNb ? item.rationale : item.rationaleEn}
+                    <span className="mt-1 block text-muted-foreground">{isNb ? "Kilde" : "Source"}: {isNb ? item.source : item.sourceEn}</span>
                   </TooltipContent>
                 </UITooltip>
 
                 {item.state === "pending" ? (
                   <Button size="sm" className="h-7 shrink-0 px-2 text-xs" onClick={() => resolve(item, true)}>
-                    Godkjenn
+                    {isNb ? "Godkjenn" : "Approve"}
                   </Button>
                 ) : (
                   <Button
@@ -155,7 +170,7 @@ export function LaraWorkQueueWidget() {
                     className="h-7 shrink-0 px-2 text-xs"
                     onClick={() => navigate("/settings/integrations")}
                   >
-                    Løs
+                    {isNb ? "Løs" : "Resolve"}
                   </Button>
                 )}
 
@@ -167,23 +182,23 @@ export function LaraWorkQueueWidget() {
                       className="h-7 w-7 shrink-0 text-muted-foreground"
                     >
                       <MoreHorizontal className="h-4 w-4" />
-                      <span className="sr-only">Flere valg</span>
+                      <span className="sr-only">{isNb ? "Flere valg" : "More options"}</span>
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-48">
                     <DropdownMenuItem
                       onClick={() => navigate("/msp-partner/widget/needs-follow-up")}
                     >
-                      Se utkast
+                      {isNb ? "Se utkast" : "View draft"}
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     {item.state === "blocked" ? (
                       <DropdownMenuItem onClick={() => navigate("/settings/integrations")}>
-                        Løs blokkering
+                        {isNb ? "Løs blokkering" : "Resolve blocker"}
                       </DropdownMenuItem>
                     ) : (
                       <DropdownMenuItem onClick={() => resolve(item, false)}>
-                        <X className="mr-2 h-3.5 w-3.5" /> Avvis
+                        <X className="mr-2 h-3.5 w-3.5" /> {isNb ? "Avvis" : "Reject"}
                       </DropdownMenuItem>
                     )}
                   </DropdownMenuContent>
@@ -194,7 +209,9 @@ export function LaraWorkQueueWidget() {
 
           {rows.length === 0 && (
             <li className="py-2 text-xs text-muted-foreground">
-              Køen er tom. Lara varsler deg når det er noe å godkjenne.
+              {isNb
+                ? "Køen er tom. Lara varsler deg når det er noe å godkjenne."
+                : "The queue is empty. Lara will notify you when there is something to approve."}
             </li>
           )}
         </ul>
@@ -206,9 +223,9 @@ export function LaraWorkQueueWidget() {
         className="flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-foreground"
       >
         <Check className="h-3.5 w-3.5 text-success" />
-        <span className="truncate">Lara utførte {autoDoneCount} oppgaver i natt</span>
+        <span className="truncate">{isNb ? `Lara utførte ${autoDoneCount} oppgaver i natt` : `Lara completed ${autoDoneCount} tasks last night`}</span>
         <span className="ml-auto flex items-center gap-0.5 font-medium">
-          Se hele køen
+          {isNb ? "Se hele køen" : "See full queue"}
           <ChevronRight className="h-3.5 w-3.5" />
         </span>
       </button>

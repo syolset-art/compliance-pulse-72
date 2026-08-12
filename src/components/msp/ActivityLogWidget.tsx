@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -23,62 +24,76 @@ type ActivityEntry = {
   actor: string;
 };
 
-const ENTRIES: ActivityEntry[] = [
-  {
-    id: "1",
-    kind: "activation",
-    customer: "Bergen Energi AS",
-    text: "Aktiverte NIS2 og Mynder Core (inntil 20 systemer)",
-    time: "For 2 timer siden",
-    actor: "Kari Nordmann",
-  },
-  {
-    id: "2",
-    kind: "offer",
-    customer: "Nordvest Logistikk",
-    text: "Tilbud sendt – 4 tjenester, 62 400 kr",
-    time: "I går, 15:20",
-    actor: "Jonas Berg",
-  },
-  {
-    id: "3",
-    kind: "lara",
-    customer: "Fjordkraft Digital",
-    text: "Lara fant 12 nye systemer via Microsoft-kobling",
-    time: "I går, 09:05",
-    actor: "Lara",
-  },
-  {
-    id: "4",
-    kind: "document",
-    customer: "Sunnmøre Helse",
-    text: "Databehandleravtale verifisert av uavhengig part",
-    time: "For 2 dager siden",
-    actor: "Kari Nordmann",
-  },
-  {
-    id: "5",
-    kind: "customer",
-    customer: "Trøndelag Bygg AS",
-    text: "Ny kunde lagt til – 3 anbefalte regelverk",
-    time: "For 3 dager siden",
-    actor: "Jonas Berg",
-  },
-];
+function getEntries(isNb: boolean): ActivityEntry[] {
+  return [
+    {
+      id: "1",
+      kind: "activation",
+      customer: "Bergen Energi AS",
+      text: isNb
+        ? "Aktiverte NIS2 og Mynder Core (inntil 20 systemer)"
+        : "Activated NIS2 and Mynder Core (up to 20 systems)",
+      time: isNb ? "For 2 timer siden" : "2 hours ago",
+      actor: "Kari Nordmann",
+    },
+    {
+      id: "2",
+      kind: "offer",
+      customer: "Nordvest Logistikk",
+      text: isNb ? "Tilbud sendt – 4 tjenester, 62 400 kr" : "Offer sent – 4 services, 62,400 kr",
+      time: isNb ? "I går, 15:20" : "Yesterday, 15:20",
+      actor: "Jonas Berg",
+    },
+    {
+      id: "3",
+      kind: "lara",
+      customer: "Fjordkraft Digital",
+      text: isNb
+        ? "Lara fant 12 nye systemer via Microsoft-kobling"
+        : "Lara found 12 new systems via Microsoft integration",
+      time: isNb ? "I går, 09:05" : "Yesterday, 09:05",
+      actor: "Lara",
+    },
+    {
+      id: "4",
+      kind: "document",
+      customer: "Sunnmøre Helse",
+      text: isNb
+        ? "Databehandleravtale verifisert av uavhengig part"
+        : "Data processing agreement verified by an independent party",
+      time: isNb ? "For 2 dager siden" : "2 days ago",
+      actor: "Kari Nordmann",
+    },
+    {
+      id: "5",
+      kind: "customer",
+      customer: "Trøndelag Bygg AS",
+      text: isNb ? "Ny kunde lagt til – 3 anbefalte regelverk" : "New customer added – 3 recommended frameworks",
+      time: isNb ? "For 3 dager siden" : "3 days ago",
+      actor: "Jonas Berg",
+    },
+  ];
+}
 
-const KIND_META: Record<
+function getKindMeta(isNb: boolean): Record<
   ActivityKind,
   { icon: typeof Activity; className: string; label: string }
-> = {
-  activation: { icon: CheckCircle2, className: "bg-success-soft text-success", label: "Aktivering" },
-  offer: { icon: FileText, className: "bg-primary/10 text-primary", label: "Tilbud" },
-  document: { icon: ShieldCheck, className: "bg-primary/10 text-primary", label: "Dokumentasjon" },
-  customer: { icon: UserPlus, className: "bg-muted text-muted-foreground", label: "Kunde" },
-  lara: { icon: Sparkles, className: "bg-recommend/15 text-recommend", label: "Lara" },
-};
+> {
+  return {
+    activation: { icon: CheckCircle2, className: "bg-success-soft text-success", label: isNb ? "Aktivering" : "Activation" },
+    offer: { icon: FileText, className: "bg-primary/10 text-primary", label: isNb ? "Tilbud" : "Offer" },
+    document: { icon: ShieldCheck, className: "bg-primary/10 text-primary", label: isNb ? "Dokumentasjon" : "Documentation" },
+    customer: { icon: UserPlus, className: "bg-muted text-muted-foreground", label: isNb ? "Kunde" : "Customer" },
+    lara: { icon: Sparkles, className: "bg-recommend/15 text-recommend", label: "Lara" },
+  };
+}
 
 export function ActivityLogWidget() {
   const navigate = useNavigate();
+  const { i18n } = useTranslation();
+  const isNb = i18n.language === "nb" || i18n.language === "no";
+  const ENTRIES = getEntries(isNb);
+  const KIND_META = getKindMeta(isNb);
 
   return (
     <Card className="p-5 flex flex-col h-full max-h-[420px] overflow-hidden">
@@ -86,14 +101,16 @@ export function ActivityLogWidget() {
         <div className="min-w-0">
           <div className="flex items-center gap-2">
             <Activity className="h-4 w-4 text-muted-foreground shrink-0" />
-            <h2 className="text-base font-semibold text-foreground">Aktivitetslogg</h2>
+            <h2 className="text-base font-semibold text-foreground">
+              {isNb ? "Aktivitetslogg" : "Activity log"}
+            </h2>
           </div>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Siste aktiviteter på tvers av kundene dine
+            {isNb ? "Siste aktiviteter på tvers av kundene dine" : "Latest activity across your customers"}
           </p>
         </div>
         <Badge variant="secondary" className="text-[11px] shrink-0">
-          {ENTRIES.length} siste
+          {ENTRIES.length} {isNb ? "siste" : "latest"}
         </Badge>
       </div>
 
@@ -130,7 +147,7 @@ export function ActivityLogWidget() {
           className="w-full justify-between text-xs"
           onClick={() => navigate("/activity-log")}
         >
-          Se all aktivitet
+          {isNb ? "Se all aktivitet" : "See all activity"}
           <ChevronRight className="h-3.5 w-3.5" />
         </Button>
       </div>
