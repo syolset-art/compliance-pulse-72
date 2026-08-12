@@ -327,6 +327,39 @@ export default function Systems() {
 
   const filteredSystems = useMemo(() => filterSystems(systems), [systems, nameFilter, typeFilter, ownerFilter, statusFilter]);
 
+  // Gjeldende Mynder Core-nivå styrer hvor mange systemer som kan registreres.
+  const coreTier = getCoreTier(coreTierId);
+
+  const handleCoreTierConfirm = () => {
+    if (!pendingCoreTierId) return;
+    const next = pendingCoreTierId;
+    const prevTier = coreTier;
+    const nextTier = getCoreTier(next);
+    setPendingCoreTierId(null);
+    setCoreTierId(next);
+    setModuleTier("core", next);
+    setReceipt({
+      moduleId: "core",
+      moduleTitle: "Mynder Core",
+      kind: nextTier.monthlyPriceKr >= prevTier.monthlyPriceKr ? "upgrade" : "downgrade",
+      fromLabel: prevTier.label,
+      toLabel: nextTier.label,
+      monthlyPriceKr: nextTier.monthlyPriceKr,
+      nextSteps: [
+        {
+          label: "Legg til systemer",
+          description: `Dere har nå plass til ${nextTier.systemLimit} systemer (${nextTier.monthlyPriceKr === 0 ? "gratis" : `${formatKr(nextTier.monthlyPriceKr)}/mnd`}).`,
+          onClick: () => { setReceipt(null); setIsAddDialogOpen(true); },
+        },
+        {
+          label: "Se produkter og abonnement",
+          onClick: () => navigate("/subscriptions"),
+        },
+      ],
+    });
+  };
+
+
   const categories = useMemo(() => {
     const cats = new Set(systems.map((s) => s.category).filter(Boolean));
     return Array.from(cats);
