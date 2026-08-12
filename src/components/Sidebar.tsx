@@ -580,7 +580,7 @@ const SidebarContent = () => {
                   >
                     {isActive && <span className="h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />}
                     <item.icon className="h-4 w-4" />
-                    {item.name}
+                    {t(item.name)}
                   </Link>
                 );
               })}
