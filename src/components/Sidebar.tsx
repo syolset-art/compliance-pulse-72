@@ -101,17 +101,17 @@ const coreNav = [
 const vendorLink = { name: "nav.vendors", href: "/vendors", icon: Building2 };
 const assetsLink = { name: "nav.assetsDevices", href: "/assets", icon: Package };
 const systemsLink = { name: "nav.systems", href: "/systems", icon: Cloud };
-const agentsLink = { name: "Agenter", href: "/agents", icon: Bot };
+const agentsLink = { name: "nav.agents", href: "/agents", icon: Bot };
 
 // Innstillinger submenu (merged Admin + Company settings)
 const settingsMenu = [
   { name: "nav.adminOrganisation", href: "/admin/organisation", icon: Building2 },
-  { name: "Produkter", href: "/subscriptions", icon: Crown },
+  { name: "nav.products", href: "/subscriptions", icon: Crown },
   { name: "nav.accessManagement", href: "/admin/access", icon: Users },
   { name: "nav.adminNotifications", href: "/admin/notifications", icon: Bell },
-  { name: "Integrasjoner", href: "/settings/integrations", icon: Plug },
-  { name: "Aktivitetslogg", href: "/activity-log", icon: ClipboardList },
-  { name: "Avtaler og vilkår", href: "/legal", icon: FileText },
+  { name: "nav.integrations", href: "/settings/integrations", icon: Plug },
+  { name: "nav.activityLog", href: "/activity-log", icon: ClipboardList },
+  { name: "nav.legal", href: "/legal", icon: FileText },
 ];
 
 const TrustCenterMenu = () => {
