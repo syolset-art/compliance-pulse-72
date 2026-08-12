@@ -78,7 +78,7 @@ const ModuleSkeletonRow = ({ label }: { label: string }) => (
 // Top-level dashboards: Trust Center always, Mynder Core only when activated.
 // Rendered inline below — see "Dashboard" section in the nav.
 const boardNav = [
-  { name: "Styrerom", href: "/board", icon: Landmark },
+  { name: "nav.boardroom", href: "/board", icon: Landmark },
 ];
 
 // Global nav (between Trust Center and Mynder Core)
@@ -101,17 +101,17 @@ const coreNav = [
 const vendorLink = { name: "nav.vendors", href: "/vendors", icon: Building2 };
 const assetsLink = { name: "nav.assetsDevices", href: "/assets", icon: Package };
 const systemsLink = { name: "nav.systems", href: "/systems", icon: Cloud };
-const agentsLink = { name: "Agenter", href: "/agents", icon: Bot };
+const agentsLink = { name: "nav.agents", href: "/agents", icon: Bot };
 
 // Innstillinger submenu (merged Admin + Company settings)
 const settingsMenu = [
   { name: "nav.adminOrganisation", href: "/admin/organisation", icon: Building2 },
-  { name: "Produkter", href: "/subscriptions", icon: Crown },
+  { name: "nav.products", href: "/subscriptions", icon: Crown },
   { name: "nav.accessManagement", href: "/admin/access", icon: Users },
   { name: "nav.adminNotifications", href: "/admin/notifications", icon: Bell },
-  { name: "Integrasjoner", href: "/settings/integrations", icon: Plug },
-  { name: "Aktivitetslogg", href: "/activity-log", icon: ClipboardList },
-  { name: "Avtaler og vilkår", href: "/legal", icon: FileText },
+  { name: "nav.integrations", href: "/settings/integrations", icon: Plug },
+  { name: "nav.activityLog", href: "/activity-log", icon: ClipboardList },
+  { name: "nav.legal", href: "/legal", icon: FileText },
 ];
 
 const TrustCenterMenu = () => {
@@ -580,7 +580,7 @@ const SidebarContent = () => {
                   >
                     {isActive && <span className="h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />}
                     <item.icon className="h-4 w-4" />
-                    {item.name}
+                    {t(item.name)}
                   </Link>
                 );
               })}

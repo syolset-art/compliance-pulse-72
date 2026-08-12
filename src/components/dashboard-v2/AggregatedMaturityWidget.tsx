@@ -21,7 +21,7 @@ import {
 
 const PILLARS = [
   { key: "governance", icon: Shield, label_no: "Styring", label_en: "Governance", color: "hsl(var(--primary))" },
-  { key: "operations", icon: Settings, label_no: "Drift og sikkerhet", label_en: "Drift og sikkerhet", color: "hsl(142, 71%, 45%)" },
+  { key: "operations", icon: Settings, label_no: "Drift og sikkerhet", label_en: "Operations & Security", color: "hsl(142, 71%, 45%)" },
   { key: "identityAccess", icon: KeyRound, label_no: "Identitet og tilgang", label_en: "Identity & Access", color: "hsl(262, 83%, 58%)" },
   { key: "privacy", icon: FileText, label_no: "Personvern og datahåndtering", label_en: "Privacy & Data Handling", color: "hsl(142, 71%, 45%)" },
   { key: "vendor", icon: Users, label_no: "Tredjepart og verdikjede", label_en: "Third-Party & Supply Chain", color: "hsl(340, 82%, 52%)" },
