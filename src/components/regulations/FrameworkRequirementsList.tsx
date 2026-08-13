@@ -789,7 +789,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
           const progressCfg = getProgressConfig(state.progress);
           const ProgressIcon = progressCfg.icon;
           const isMuted = state.progress === "not_applicable" || state.evidence === "out_of_scope";
-          const isVerifiedDue = state.progress === "verified" && state.evidence === "revalidation_due";
+          const isVerifiedDue = normalizeProgress(state.progress) === "fulfilled" && state.evidence === "revalidation_due";
           const fulfillment = inferFulfillment(req);
 
 
@@ -871,10 +871,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                   {/* Subtil dokumentasjonsindikator — kun for besvarte krav */}
                   {(() => {
                     const docCount = state.documents?.length ?? 0;
-                    const isAnswered =
-                      state.progress === "in_progress" ||
-                      state.progress === "implemented" ||
-                      state.progress === "verified";
+                    const isAnswered = normalizeProgress(state.progress) === "fulfilled";
                     if (docCount === 0 && !isAnswered) return null;
                     const missing = docCount === 0 && isAnswered;
                     return (
