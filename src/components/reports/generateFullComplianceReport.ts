@@ -281,7 +281,12 @@ export function generateFullComplianceReport(data: ReportData, options: Options,
           req.category,
           req.priority === "critical" ? "Kritisk" : req.priority === "high" ? "Høy" : req.priority === "medium" ? "Medium" : "Lav",
           REPORT_STATUS_LABEL[getReportStatus(req)],
-          count > 0 ? `${count} vedlegg` : "Mangler",
+          count > 0
+            ? `${count} vedlegg`
+            : getReportStatus(req) === "fulfilled"
+              ? "Uten bevis"
+              : "Mangler",
+
         ];
         if (options.includeEvaluators) row.push(getEvaluatorName(i));
         return row;
