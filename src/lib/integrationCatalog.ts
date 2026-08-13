@@ -60,6 +60,35 @@ export const DISCOVERY_LABEL: Record<DiscoveryType, string> = {
 
 export const INTEGRATION_CATALOG: IntegrationDefinition[] = [
   {
+    id: "acronis",
+    name: "Acronis Cyber Protect",
+    vendor: "Acronis",
+    category: "device",
+    description:
+      "Lara henter enheter, installert programvare og backup-status fra Acronis via 7 Security-agenten.",
+    discovers: ["systems"],
+    authType: "api_key",
+    scopes: ["devices:read", "backups:read"],
+    icon: Server,
+    readOnly: true,
+    availability: "available",
+  },
+  {
+    id: "notion",
+    name: "Notion",
+    vendor: "Notion",
+    category: "productivity",
+    description:
+      "Les policyer, rutiner og prosessbeskrivelser fra Notion slik at Lara kan bruke dem som bevis.",
+    discovers: ["systems"],
+    authType: "oauth",
+    scopes: ["read:content"],
+    icon: FileText,
+    readOnly: true,
+    availability: "planned",
+  },
+
+  {
     id: "entra_id",
     name: "Microsoft Entra ID",
     vendor: "Microsoft",
