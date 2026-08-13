@@ -4,6 +4,8 @@ import { Shield, PenLine, Sparkles, ArrowRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { AddSystemDialog } from "@/components/dialogs/AddSystemDialog";
+import { ConnectSourcesCallout } from "@/components/integrations/ConnectSourcesCallout";
+import { INTEGRATION_CATALOG } from "@/lib/integrationCatalog";
 
 interface Props {
   open: boolean;
@@ -114,6 +116,32 @@ export function DiscoverSystemsDialog({ open, onOpenChange, onSystemAdded }: Pro
                 </button>
               );
             })}
+          </div>
+
+          <div className="mt-5">
+            <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">
+              {isNb ? "Planlagte kilder" : "Planned sources"}
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {INTEGRATION_CATALOG.filter((i) => i.availability === "planned" && i.discovers.includes("systems")).map(
+                (i) => (
+                  <span
+                    key={i.id}
+                    className="inline-flex items-center gap-1 rounded-full border border-dashed border-border px-2.5 py-1 text-xs text-muted-foreground"
+                  >
+                    {i.name}
+                  </span>
+                ),
+              )}
+            </div>
+            <ConnectSourcesCallout
+              alwaysShow
+              variant="inline"
+              className="mt-3"
+              context={isNb
+                ? "Vil du koble til en annen kilde? Se hva som er tilgjengelig og planlagt."
+                : "Want to connect another source? See what is available and planned."}
+            />
           </div>
 
           <div className="mt-4 rounded-lg bg-muted/50 border border-border p-3 flex items-start gap-2">
