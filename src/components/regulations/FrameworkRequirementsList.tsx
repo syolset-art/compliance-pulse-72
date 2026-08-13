@@ -919,6 +919,8 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
           );
         })}
       </div>
+      )}
+
 
 
       {filtered.length === 0 && (
