@@ -55,13 +55,32 @@ export function generateFullComplianceReport(data: ReportData, options: Options,
   doc.setTextColor(30, 30, 30);
   doc.text("Sammendrag", 14, 44);
 
+  const evidenceFilter: EvidenceFilter = options.evidenceFilter ?? "all";
+
+  // Aggregert kravstatus på tvers av alle regelverk i scope
+  const allReqs = data.frameworks.flatMap((fw) =>
+    getReqs(fw.id).map((req) => ({ req, frameworkName: fw.name })),
+  );
+  const relevantReqs = allReqs.filter(({ req }) => getReportStatus(req) !== "not_applicable");
+  const fulfilledCount = relevantReqs.filter(({ req }) => getReportStatus(req) === "fulfilled").length;
+  const notStartedCount = relevantReqs.length - fulfilledCount;
+  const notApplicableCount = allReqs.length - relevantReqs.length;
+  const withEvidence = relevantReqs.filter(({ req }) => getEvidenceCount(req) > 0).length;
+  const relevantPct = relevantReqs.length
+    ? Math.round((fulfilledCount / relevantReqs.length) * 100)
+    : 0;
+
   const fwCount = data.frameworks.length;
   const totalImprovements = data.improvements.length;
   const highSev = data.improvements.filter(i => i.severity === "high").length;
   const levelWord = data.overallScore >= 80 ? "høy" : data.overallScore >= 50 ? "moderat" : "lav";
   const summaryText = `Denne rapporten gir en samlet oversikt over samsvarsstatus for ${company}. `
     + `Virksomheten har en ${levelWord} modenhetsscore på ${data.overallScore}% basert på ${fwCount} aktive regelverk. `
+    + `Av ${allReqs.length} krav er ${notApplicableCount} markert som ikke relevante av virksomheten selv, og disse holdes utenfor beregningen. `
+    + `Av de ${relevantReqs.length} relevante kravene oppfylles ${fulfilledCount} (${relevantPct}%), mens ${notStartedCount} ikke er påbegynt. `
+    + `${withEvidence} av de oppfylte kravene har bevis (dokumentasjon) knyttet til seg. `
     + `Det er identifisert ${totalImprovements} forbedringspunkter, hvorav ${highSev} har høy alvorlighetsgrad.`;
+
 
   doc.setFontSize(10);
   doc.setTextColor(60, 60, 60);
