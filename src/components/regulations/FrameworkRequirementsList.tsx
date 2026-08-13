@@ -224,6 +224,33 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
       .filter((g) => g.items.length > 0);
   }, [filtered, grouping, uiStates, isNb]);
 
+  /** Dokumentvisning: alle opplastede dokumenter samlet per kontrollområde. */
+  const docGroups = useMemo(() => {
+    const byArea = new Map<ControlAreaKey, { req: ComplianceRequirement; doc: EvidenceDocument }[]>();
+    for (const req of filtered) {
+      const docs = uiStates[req.requirement_id]?.documents ?? [];
+      if (docs.length === 0) continue;
+      const area = toCanonicalArea(req.sla_category);
+      const list = byArea.get(area) ?? [];
+      docs.forEach((doc) => list.push({ req, doc }));
+      byArea.set(area, list);
+    }
+    return CONTROL_AREAS.map((a) => ({
+      key: a.key as string,
+      label: isNb ? a.labelNb : a.labelEn,
+      Icon: a.icon,
+      accentClass: a.accentClass,
+      docs: byArea.get(a.key) ?? [],
+    })).filter((g) => g.docs.length > 0);
+  }, [filtered, uiStates, isNb]);
+
+  const totalDocCount = useMemo(
+    () => docGroups.reduce((sum, g) => sum + g.docs.length, 0),
+    [docGroups],
+  );
+
+
+
 
 
   const handleDocSave = (requirementId: string, status: string, _comment: string, doc?: EvidenceDocument) => {
