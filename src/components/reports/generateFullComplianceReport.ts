@@ -215,7 +215,9 @@ export function generateFullComplianceReport(data: ReportData, options: Options,
     const rows = evidenceRows.filter((r) => r.area === area.key);
     if (rows.length === 0) continue;
 
-    const received = rows.filter((r) => r.status !== "Mangler").length;
+    const received = rows.filter(
+      (r) => r.status === "Opplastet" || r.status === "Agent-bekreftet",
+    ).length;
 
     if (areaY > 250) {
       doc.addPage();
@@ -312,7 +314,8 @@ export function generateFullComplianceReport(data: ReportData, options: Options,
           }
           if (d.column.index === 5) {
             const v = d.cell.raw as string;
-            d.cell.styles.textColor = v === "Mangler" ? [239, 68, 68] : [16, 185, 129];
+            d.cell.styles.textColor =
+              v === "Mangler" ? [239, 68, 68] : v === "Uten bevis" ? [140, 140, 140] : [16, 185, 129];
           }
         },
       });
