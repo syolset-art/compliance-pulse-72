@@ -54,13 +54,21 @@ function bucketOf(progress: ProgressStatus): "met" | "partial" | "not_met" | "na
   return "not_met";
 }
 
-function generateUiStates(requirements: ComplianceRequirement[]): Record<string, RequirementUiState> {
+function generateUiStates(
+  requirements: ComplianceRequirement[],
+  agentConfirmed: Set<string>,
+): Record<string, RequirementUiState> {
   const states: Record<string, RequirementUiState> = {};
   requirements.forEach((req) => {
-    states[req.requirement_id] = demoUiStateFor(req.requirement_id);
+    const base = demoUiStateFor(req.requirement_id);
+    // Krav som agenten har fulgt opp og bekreftet skal speiles som oppfylt.
+    states[req.requirement_id] = agentConfirmed.has(req.requirement_id)
+      ? { ...base, progress: "fulfilled", evidence: base.evidence === "required" ? "self_reported" : base.evidence }
+      : base;
   });
   return states;
 }
+
 
 const capabilityLabel: Record<AgentCapability, { label: string; tooltip: string; instruction: string; icon: typeof Bot }> = {
   full: {
