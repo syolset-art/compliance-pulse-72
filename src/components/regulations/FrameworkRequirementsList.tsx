@@ -664,23 +664,6 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
               </Tabs>
             </div>
             <Separator />
-            <div className="flex items-start justify-between gap-3">
-              <Label htmlFor="docs-only" className="text-xs cursor-pointer">
-                <span className="flex items-center gap-1.5 text-foreground">
-                  {isNb ? "Bevis" : "Evidence"}
-                  <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300">
-                    V2
-                  </Badge>
-                </span>
-                <span className="mt-1 block font-normal text-muted-foreground">
-                  {isNb
-                    ? "Vis dokumentasjon per kontrollområde i stedet for kravlisten."
-                    : "Show documentation per control area instead of the requirement list."}
-                </span>
-              </Label>
-              <Switch id="docs-only" checked={docsOnly} onCheckedChange={setDocsOnly} className="mt-0.5" />
-            </div>
-            <Separator />
             <p className="text-[11px] leading-relaxed text-muted-foreground">
               {isNb
                 ? `${counts.auto} krav vurderes automatisk av Lara, ${counts.manual} dokumenteres manuelt av deg eller teamet.`
