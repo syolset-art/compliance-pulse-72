@@ -14,12 +14,39 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
-export type ProgressStatus =
+/** Brukervalgbare statuser (tre-verdimodell). */
+export type CanonicalProgressStatus = "fulfilled" | "not_applicable" | "not_started";
+
+/** Eldre verdier beholdes for demo-data/scoring, men vises aldri som eget valg. */
+export type LegacyProgressStatus =
   | "not_answered"
   | "in_progress"
   | "implemented"
-  | "verified"
-  | "not_applicable";
+  | "verified";
+
+export type ProgressStatus = CanonicalProgressStatus | LegacyProgressStatus;
+
+/** Rekkefølge i statusvelgeren. */
+export const SELECTABLE_PROGRESS: CanonicalProgressStatus[] = [
+  "fulfilled",
+  "not_applicable",
+  "not_started",
+];
+
+/** Map alle (også eldre) verdier til tre-verdimodellen. */
+export function normalizeProgress(p: ProgressStatus | undefined): CanonicalProgressStatus {
+  switch (p) {
+    case "fulfilled":
+    case "implemented":
+    case "verified":
+      return "fulfilled";
+    case "not_applicable":
+      return "not_applicable";
+    default:
+      return "not_started";
+  }
+}
+
 
 export type EvidenceState =
   | "required"
