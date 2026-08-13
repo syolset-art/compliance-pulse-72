@@ -170,6 +170,59 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
     return list;
   }, [filter, requirements, uiStates, search]);
 
+  const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set());
+
+  /** Seksjoner: enten de 5 kontrollområdene, eller statusbøttene. */
+  const groups = useMemo(() => {
+    const metCount = (items: ComplianceRequirement[]) =>
+      items.filter((r) => bucketOf(uiStates[r.requirement_id]?.progress ?? "not_answered") === "met").length;
+
+    if (grouping === "control_area") {
+      const byArea = new Map<ControlAreaKey, ComplianceRequirement[]>();
+      for (const req of filtered) {
+        const area = toCanonicalArea(req.sla_category);
+        const list = byArea.get(area) ?? [];
+        list.push(req);
+        byArea.set(area, list);
+      }
+      return CONTROL_AREAS.map((a) => {
+        const items = byArea.get(a.key) ?? [];
+        return {
+          key: a.key as string,
+          label: isNb ? a.labelNb : a.labelEn,
+          Icon: a.icon,
+          accentClass: a.accentClass,
+          items,
+          met: metCount(items),
+        };
+      }).filter((g) => g.items.length > 0);
+    }
+
+    const statusOrder: Array<{ key: "not_met" | "partial" | "met" | "na"; nb: string; en: string }> = [
+      { key: "not_met", nb: "Ikke oppfylt", en: "Not met" },
+      { key: "partial", nb: "Delvis", en: "Partially met" },
+      { key: "met", nb: "Oppfylt", en: "Met" },
+      { key: "na", nb: "Ikke relevant", en: "Not applicable" },
+    ];
+    return statusOrder
+      .map((s) => {
+        const items = filtered.filter(
+          (r) => bucketOf(uiStates[r.requirement_id]?.progress ?? "not_answered") === s.key,
+        );
+        return {
+          key: s.key as string,
+          label: isNb ? s.nb : s.en,
+          Icon: ListChecks,
+          accentClass: "text-muted-foreground",
+          items,
+          met: metCount(items),
+        };
+      })
+      .filter((g) => g.items.length > 0);
+  }, [filtered, grouping, uiStates, isNb]);
+
+
+
   const handleDocSave = (requirementId: string, status: string, _comment: string, doc?: EvidenceDocument) => {
     setUiStates((prev) => {
       const existingDocs = prev[requirementId]?.documents ?? [];
