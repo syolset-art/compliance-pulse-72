@@ -241,9 +241,21 @@ export default {
         "shimmer": "shimmer 2s linear infinite",
         "scale-bounce": "scale-bounce 0.5s cubic-bezier(0.16, 1, 0.3, 1)",
         "fade-in": "fade-in 0.4s cubic-bezier(0.16, 1, 0.3, 1)",
+        "fade-in-up": "fade-in-up 0.55s cubic-bezier(0.16, 1, 0.3, 1) both",
         "scale-in": "scale-in 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [
+    require("tailwindcss-animate"),
+    ({ addUtilities, theme }) => {
+      const delays = (theme("transitionDelay") || {}) as Record<string, string>;
+      const utilities: Record<string, { animationDelay: string }> = {};
+      Object.entries(delays).forEach(([key, value]) => {
+        utilities[`.animate-delay-${key}`] = { animationDelay: value };
+      });
+      addUtilities(utilities);
+    },
+  ],
+
 } satisfies Config;
