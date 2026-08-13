@@ -206,9 +206,14 @@ export function AttachEvidenceDialog({
 
   useEffect(() => {
     if (phase.kind === "review" && isFrameworkMode) {
-      setSelectedReqIds(new Set(matches.map((m) => m.id)));
+      setSelectedReqIds((prev) => {
+        const n = new Set(matches.map((m) => m.id));
+        prev.forEach((id) => n.add(id));
+        return n;
+      });
     }
   }, [phase.kind, isFrameworkMode, matches]);
+
 
   /** Foreslåtte krav + krav brukeren selv har lagt til. */
   const selectedList = useMemo(() => {
