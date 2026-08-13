@@ -653,7 +653,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
           <TooltipTrigger asChild>
             <Button
               size="sm"
-              variant="outline"
+              variant="default"
               className="h-7 gap-1.5 text-xs shrink-0"
               onClick={() => setFrameworkAttachOpen(true)}
             >
