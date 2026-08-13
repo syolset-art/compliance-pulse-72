@@ -122,6 +122,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
   const [draftNote, setDraftNote] = useState<string>("");
   const [cursorTip, setCursorTip] = useState<{ x: number; y: number } | null>(null);
   const [attachDialog, setAttachDialog] = useState<{ id: string; name: string; description?: string; articles?: string[] } | null>(null);
+  const [frameworkAttachOpen, setFrameworkAttachOpen] = useState(false);
   const [readMoreIds, setReadMoreIds] = useState<Set<string>>(new Set());
   const [showAllDocsIds, setShowAllDocsIds] = useState<Set<string>>(new Set());
   const toggleSet = (setter: Dispatch<SetStateAction<Set<string>>>, id: string) =>
