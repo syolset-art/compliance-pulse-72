@@ -1,7 +1,10 @@
 import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Sidebar } from "@/components/Sidebar";
 import {
   Search,
   Plug,
+  ArrowLeft,
   Shield,
   Lock,
   Sparkles,
@@ -62,6 +65,7 @@ export default function Integrations() {
   const [connections, setConnections] = useState<Record<string, ConnectionState>>({});
   const [dialogIntegration, setDialogIntegration] = useState<IntegrationDefinition | null>(null);
   const { connectSource, disconnectSource } = useConnectedSources();
+  const navigate = useNavigate();
 
 
   const filtered = useMemo(() => {
@@ -123,8 +127,14 @@ export default function Integrations() {
 
   return (
     <TooltipProvider>
+      <div className="flex min-h-screen bg-background">
+        <Sidebar />
+        <main className="flex-1 overflow-auto">
       <div className="container mx-auto pt-16 px-6 pb-12 max-w-7xl">
         <div className="flex items-start gap-3">
+          <Button variant="ghost" size="icon" onClick={() => navigate(-1)} aria-label="Tilbake">
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
           <div className="h-10 w-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
             <Plug className="h-5 w-5" />
           </div>
@@ -373,6 +383,8 @@ export default function Integrations() {
           onOpenChange={(open) => !open && setDialogIntegration(null)}
           onConfirm={handleConnect}
         />
+      </div>
+        </main>
       </div>
     </TooltipProvider>
   );
