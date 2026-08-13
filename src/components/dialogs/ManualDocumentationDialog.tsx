@@ -443,33 +443,6 @@ export function ManualDocumentationDialog({
             );
           })()}
 
-          {/* Verifisert-bekreftelse */}
-          {false && (
-            <div className="space-y-3 rounded-lg border border-success/30 bg-success/5 p-3">
-              <div className="flex items-center gap-2">
-                <ShieldCheck className="h-4 w-4 text-success" />
-                <Label className="font-semibold text-sm">{t("manualDocDialog.verifyConfirm.title")}</Label>
-              </div>
-              <div className="space-y-1.5">
-                <Label className="text-xs">
-                  {t("manualDocDialog.verifyConfirm.orgLabel")} <span className="text-destructive">*</span>
-                </Label>
-                <Input
-                  value={verifierName}
-                  onChange={(e) => setVerifierName(e.target.value)}
-                  placeholder={t("manualDocDialog.verifyConfirm.orgPlaceholder")}
-                />
-              </div>
-              <label className="flex items-start gap-2 text-xs cursor-pointer">
-                <Checkbox
-                  checked={verifiedConfirmed}
-                  onCheckedChange={(v) => setVerifiedConfirmed(v === true)}
-                  className="mt-0.5"
-                />
-                <span>{t("manualDocDialog.verifyConfirm.checkboxText")}</span>
-              </label>
-            </div>
-          )}
         </div>
 
         {/* Footer */}
