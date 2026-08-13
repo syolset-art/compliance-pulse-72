@@ -201,13 +201,16 @@ export function generateFullComplianceReport(data: ReportData, options: Options,
   doc.text("Dokumentasjon per kontrollområde", 14, 20);
   doc.setFontSize(9);
   doc.setTextColor(110, 110, 110);
-  doc.text(
-    "Bevis er dokumentasjon som policy, rutine, logg, avtale, sertifikat eller revisjonsrapport.",
-    14,
-    26,
+  const evidenceNote = doc.splitTextToSize(
+    "Bevis er dokumentasjon som policy, rutine, logg, avtale, sertifikat eller revisjonsrapport. "
+      + "Ikke alle krav krever bevis: et krav satt til «Ja, dette oppfylles» regnes som oppfylt også uten "
+      + "dokumentasjon. Bevis gir økt tillit til vurderingen, men påvirker ikke etterlevelsesgraden.",
+    182,
   );
+  doc.text(evidenceNote, 14, 26);
 
-  let areaY = 32;
+  let areaY = 26 + evidenceNote.length * 4.5 + 6;
+
   for (const area of CONTROL_AREAS) {
     const rows = evidenceRows.filter((r) => r.area === area.key);
     if (rows.length === 0) continue;

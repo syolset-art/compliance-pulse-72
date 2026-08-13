@@ -278,6 +278,12 @@ export const DownloadReportDialog = ({
                 <p className="text-[12px] text-muted-foreground mt-1.5">
                   Bevis er dokumentasjon som policy, rutine, logg, avtale, sertifikat eller revisjonsrapport.
                 </p>
+                <p className="text-[12px] text-muted-foreground mt-1">
+                  Ikke alle krav krever bevis. Et krav satt til «Ja, dette oppfylles» er oppfylt selv uten
+                  dokumentasjon — bevis gir økt tillit, men påvirker ikke scoren. «Uten bevis» viser oppfylte
+                  krav som mangler dokumentasjon.
+                </p>
+
               </div>
             )}
 
