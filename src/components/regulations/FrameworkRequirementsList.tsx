@@ -533,17 +533,26 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
         </TabsList>
       </Tabs>
 
-      {grouping === "control_area" && (
-        <div className="mb-4 flex items-center justify-between gap-3 rounded-lg border border-border/60 bg-muted/20 px-3 py-2">
-          <div className="flex items-center gap-2 min-w-0">
-            <FileIcon className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-            <span className="text-xs text-muted-foreground truncate">
-              {isNb
-                ? `Alle opplastede dokumenter samlet per kontrollområde (${totalDocCount})`
-                : `All uploaded documents collected per control area (${totalDocCount})`}
-            </span>
-          </div>
-          <div className="flex items-center gap-2 shrink-0">
+      <div className="mb-4 flex items-center justify-between gap-3 rounded-lg border border-border/60 bg-muted/20 px-3 py-2">
+        <div className="flex items-center gap-2 min-w-0">
+          <FileIcon className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+          <span className="text-xs text-muted-foreground truncate">
+            {isNb
+              ? `${totalDocCount} bevis registrert · ${missingEvidenceCount} mangler`
+              : `${totalDocCount} evidence items · ${missingEvidenceCount} missing`}
+          </span>
+        </div>
+        <div className="flex items-center gap-3 shrink-0">
+          <Button
+            size="sm"
+            variant="outline"
+            className="h-7 gap-1.5 text-xs"
+            onClick={() => setFrameworkAttachOpen(true)}
+          >
+            <Upload className="h-3.5 w-3.5" />
+            {isNb ? "Last opp bevis" : "Upload evidence"}
+          </Button>
+          <div className="flex items-center gap-2">
             <Tooltip>
               <TooltipTrigger asChild>
                 <Label htmlFor="docs-only" className="text-xs text-muted-foreground cursor-pointer">
@@ -561,7 +570,8 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
             <Switch id="docs-only" checked={docsOnly} onCheckedChange={setDocsOnly} />
           </div>
         </div>
-      )}
+      </div>
+
 
       {filtered.length === 0 && (
         <div className="text-center py-8 text-sm text-muted-foreground">
