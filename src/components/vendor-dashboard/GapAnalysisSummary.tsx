@@ -40,10 +40,11 @@ export function GapAnalysisSummary({
     { key: "thirdParty", labelNb: "Tredjepart", labelEn: "Third-Party", value: domainBreakdown.thirdParty },
   ];
 
+  const weakest = [...domains].sort((a, b) => a.value - b.value)[0];
+
   return (
-    <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-4">
-      {/* KPI row */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+    <div className="rounded-lg border border-border bg-muted/30 p-4">
+      <div className="grid grid-cols-3 gap-3">
         <div>
           <p className="text-sm uppercase tracking-wide text-muted-foreground flex items-center gap-1">
             <ShieldCheck className="h-3 w-3" /> {isNb ? "Snitt-score" : "Avg score"}
@@ -54,63 +55,24 @@ export function GapAnalysisSummary({
         </div>
         <div>
           <p className="text-sm uppercase tracking-wide text-muted-foreground flex items-center gap-1">
-            <AlertTriangle className="h-3 w-3" /> {isNb ? "Åpne gap" : "Open gaps"}
+            <AlertTriangle className="h-3 w-3" /> {isNb ? "Kritiske gap" : "Critical gaps"}
           </p>
-          <p className="text-2xl font-semibold tabular-nums text-foreground">{totalGaps}</p>
-          <p className="text-sm text-destructive">
-            {criticalGaps} {isNb ? "kritiske" : "critical"}
+          <p className="text-2xl font-semibold tabular-nums text-destructive">{criticalGaps}</p>
+          <p className="text-sm text-muted-foreground">
+            {isNb ? `av ${totalGaps} åpne` : `of ${totalGaps} open`}
           </p>
         </div>
         <div>
           <p className="text-sm uppercase tracking-wide text-muted-foreground flex items-center gap-1">
-            <Activity className="h-3 w-3" /> {isNb ? "Største risiko" : "Top risk"}
+            <Activity className="h-3 w-3" /> {isNb ? "Svakest område" : "Weakest area"}
           </p>
           <p className="text-sm font-medium text-foreground truncate">
-            {topRiskVendors[0]?.name ?? "–"}
+            {isNb ? weakest.labelNb : weakest.labelEn}
           </p>
-          {topRiskVendors[0] && (
-            <p className={cn("text-sm tabular-nums", scoreClass(topRiskVendors[0].score))}>
-              {topRiskVendors[0].score}%
-            </p>
-          )}
-        </div>
-        <div>
-          <p className="text-sm uppercase tracking-wide text-muted-foreground flex items-center gap-1">
-            <TrendingUp className="h-3 w-3" /> {isNb ? "Tid til mål" : "Time to target"}
-          </p>
-          <p className="text-2xl font-semibold tabular-nums text-foreground">
-            {estimatedWeeks}
-            <span className="text-sm font-normal text-muted-foreground ml-1">
-              {isNb ? "uker" : "wks"}
-            </span>
-          </p>
-        </div>
-      </div>
-
-      {/* Domain breakdown */}
-      <div>
-        <p className="text-sm uppercase tracking-wide text-muted-foreground mb-1.5">
-          {isNb ? "Modenhet per domene" : "Maturity per domain"}
-        </p>
-        <div className="grid grid-cols-4 gap-2">
-          {domains.map((d) => (
-            <div key={d.key}>
-              <div className="flex items-center justify-between text-sm mb-1">
-                <span className="text-muted-foreground">{isNb ? d.labelNb : d.labelEn}</span>
-                <span className={cn("tabular-nums font-medium", scoreClass(d.value))}>
-                  {d.value}%
-                </span>
-              </div>
-              <div className="h-1.5 rounded-full bg-muted overflow-hidden">
-                <div
-                  className={cn("h-full rounded-full transition-all", barClass(d.value))}
-                  style={{ width: `${d.value}%` }}
-                />
-              </div>
-            </div>
-          ))}
+          <p className={cn("text-sm tabular-nums", scoreClass(weakest.value))}>{weakest.value}%</p>
         </div>
       </div>
     </div>
   );
 }
+
