@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Download, Loader2, CheckCircle2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { generateFullComplianceReport } from "./generateFullComplianceReport";
+import type { EvidenceFilter } from "@/lib/reportRequirementStatus";
 import { supabase } from "@/integrations/supabase/client";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
@@ -113,8 +114,9 @@ export const DownloadReportDialog = ({
   reportData,
 }: DownloadReportDialogProps) => {
   const { toast } = useToast();
-  const [includeRequirements, setIncludeRequirements] = useState(false);
+  const [includeRequirements, setIncludeRequirements] = useState(true);
   const [includeEvaluators, setIncludeEvaluators] = useState(false);
+  const [evidenceFilter, setEvidenceFilter] = useState<EvidenceFilter>("all");
   const [generating, setGenerating] = useState(false);
   const [done, setDone] = useState(false);
   const [companyName, setCompanyName] = useState("");
@@ -165,7 +167,7 @@ export const DownloadReportDialog = ({
           return fw ? selectedFrameworks.has(fw.id) : true;
         }),
       };
-      generateFullComplianceReport(filteredData, { includeRequirements, includeEvaluators }, companyName);
+      generateFullComplianceReport(filteredData, { includeRequirements, includeEvaluators, evidenceFilter }, companyName);
       setDone(true);
       toast({ title: "PDF generert", description: "Rapporten er lastet ned." });
       setTimeout(() => {
@@ -247,8 +249,41 @@ export const DownloadReportDialog = ({
               </p>
             </div>
 
+            {/* Evidence filter */}
+            {includeRequirements && (
+              <div className="pt-1 border-t">
+                <p className="text-sm font-medium text-foreground mt-3 mb-2">Krav som skal inkluderes</p>
+                <div className="grid grid-cols-3 gap-1.5">
+                  {([
+                    { key: "all", label: "Alle krav" },
+                    { key: "with", label: "Med bevis" },
+                    { key: "without", label: "Uten bevis" },
+                  ] as { key: EvidenceFilter; label: string }[]).map((opt) => (
+                    <button
+                      key={opt.key}
+                      type="button"
+                      disabled={generating}
+                      onClick={() => setEvidenceFilter(opt.key)}
+                      className={cn(
+                        "px-3 py-2 rounded-md text-sm border transition-colors",
+                        evidenceFilter === opt.key
+                          ? "bg-primary/8 border-primary/30 text-foreground font-medium"
+                          : "border-border text-muted-foreground hover:bg-muted/50",
+                      )}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+                <p className="text-[12px] text-muted-foreground mt-1.5">
+                  Bevis er dokumentasjon som policy, rutine, logg, avtale, sertifikat eller revisjonsrapport.
+                </p>
+              </div>
+            )}
+
             {/* Extra options */}
             <div className="space-y-3 pt-1 border-t">
+
               <div className="flex items-center gap-3">
                 <Checkbox
                   id="include-requirements"
