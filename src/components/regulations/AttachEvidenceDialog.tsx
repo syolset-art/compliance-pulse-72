@@ -614,9 +614,14 @@ export function AttachEvidenceDialog({
                         <button
                           key={r.id}
                           type="button"
-                          onClick={() =>
-                            setSelectedReqIds((prev) => new Set(prev).add(r.id))
-                          }
+                          onClick={() => {
+                            setManualReqIds((prev) =>
+                              prev.includes(r.id) ? prev : [...prev, r.id],
+                            );
+                            setSelectedReqIds((prev) => new Set(prev).add(r.id));
+                            setAddQuery("");
+                          }}
+
                           className="w-full text-left text-xs px-2 py-1.5 rounded-md hover:bg-muted/50 transition-colors truncate"
                         >
                           {r.name}
