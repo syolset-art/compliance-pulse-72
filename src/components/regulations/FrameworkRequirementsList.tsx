@@ -54,13 +54,21 @@ function bucketOf(progress: ProgressStatus): "met" | "partial" | "not_met" | "na
   return "not_met";
 }
 
-function generateUiStates(requirements: ComplianceRequirement[]): Record<string, RequirementUiState> {
+function generateUiStates(
+  requirements: ComplianceRequirement[],
+  agentConfirmed: Set<string>,
+): Record<string, RequirementUiState> {
   const states: Record<string, RequirementUiState> = {};
   requirements.forEach((req) => {
-    states[req.requirement_id] = demoUiStateFor(req.requirement_id);
+    const base = demoUiStateFor(req.requirement_id);
+    // Krav som agenten har fulgt opp og bekreftet skal speiles som oppfylt.
+    states[req.requirement_id] = agentConfirmed.has(req.requirement_id)
+      ? { ...base, progress: "fulfilled", evidence: base.evidence === "required" ? "self_reported" : base.evidence }
+      : base;
   });
   return states;
 }
+
 
 const capabilityLabel: Record<AgentCapability, { label: string; tooltip: string; instruction: string; icon: typeof Bot }> = {
   full: {
@@ -146,8 +154,14 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
     return ALL_ADDITIONAL_REQUIREMENTS.filter((r) => r.framework_id === frameworkId);
   }, [frameworkId]);
 
+  /** Krav agenten har fulgt opp og bekreftet (stabilt sett). */
+  const agentFollowedUp = useMemo(
+    () => agentConfirmedRequirementIds(requirements, () => false),
+    [requirements],
+  );
+
   const [uiStates, setUiStates] = useState<Record<string, RequirementUiState>>(() =>
-    generateUiStates(requirements)
+    generateUiStates(requirements, agentFollowedUp)
   );
 
 
@@ -163,13 +177,13 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
     const manual = requirements.filter((r) => r.agent_capability !== "full").length;
     let waitingYou = 0, agentFollowUp = 0;
     for (const r of requirements) {
+      if (agentFollowedUp.has(r.requirement_id)) { agentFollowUp++; continue; }
       const b = bucketOf(uiStates[r.requirement_id]?.progress ?? "not_started");
       if (b === "met") continue;
-      if (r.agent_capability === "full") agentFollowUp++;
-      else waitingYou++;
+      waitingYou++;
     }
     return { met, partial, notMet, auto, manual, waitingYou, agentFollowUp, total: requirements.length };
-  }, [uiStates, requirements]);
+  }, [uiStates, requirements, agentFollowedUp]);
 
   useEffect(() => {
     onCountsChange?.(counts);
@@ -180,12 +194,14 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
     let list = requirements;
     if (filter !== "all") {
       list = list.filter((r) => {
+        const isAgent = agentFollowedUp.has(r.requirement_id);
         const b = bucketOf(uiStates[r.requirement_id]?.progress ?? "not_started");
-        if (filter === "ok") return b === "met";
-        if (filter === "agent") return b !== "met" && r.agent_capability === "full";
-        return b !== "met" && r.agent_capability !== "full";
+        if (filter === "ok") return b === "met" && !isAgent;
+        if (filter === "agent") return isAgent;
+        return !isAgent && b !== "met";
       });
     }
+
     if (q) {
       list = list.filter((r) =>
         r.name_no.toLowerCase().includes(q) ||
@@ -194,7 +210,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
       );
     }
     return list;
-  }, [filter, requirements, uiStates, search]);
+  }, [filter, requirements, uiStates, search, agentFollowedUp]);
 
 
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set());
