@@ -376,6 +376,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
     requirementId: string,
     req: ComplianceRequirement,
     result: AttachEvidenceResult,
+    opts?: { silent?: boolean },
   ) => {
     setUiStates((prev) => {
       const cur = prev[requirementId] ?? { progress: "not_answered" as ProgressStatus, evidence: "required" as const };
