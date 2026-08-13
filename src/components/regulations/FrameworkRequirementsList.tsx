@@ -544,9 +544,20 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
             </span>
           </div>
           <div className="flex items-center gap-2 shrink-0">
-            <Label htmlFor="docs-only" className="text-xs text-muted-foreground cursor-pointer">
-              {isNb ? "Vis kun dokumenter" : "Documents only"}
-            </Label>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Label htmlFor="docs-only" className="text-xs text-muted-foreground cursor-pointer">
+                  {isNb ? "Bevis" : "Evidence"}
+                </Label>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="max-w-xs">
+                <p>
+                  {isNb
+                    ? "Bevis er dokumentasjon som viser at kravet er oppfylt — for eksempel policy, risikovurdering, logg, sertifikat, avtale eller revisjonsrapport."
+                    : "Evidence is documentation showing a requirement is met — for example a policy, risk assessment, log, certificate, agreement or audit report."}
+                </p>
+              </TooltipContent>
+            </Tooltip>
             <Switch id="docs-only" checked={docsOnly} onCheckedChange={setDocsOnly} />
           </div>
         </div>
