@@ -6,10 +6,22 @@ import { getRequirementsByFramework } from "@/lib/complianceRequirementsData";
 import { ALL_ADDITIONAL_REQUIREMENTS } from "@/lib/additionalFrameworkRequirements";
 import type { ComplianceRequirement } from "@/lib/complianceRequirementsData";
 import type { ReportData } from "./DownloadReportDialog";
+import { CONTROL_AREAS } from "@/lib/controlAreas";
+import {
+  buildReportEvidenceRow,
+  getEvidenceCount,
+  getReportStatus,
+  matchesEvidenceFilter,
+  REPORT_STATUS_COLOR,
+  REPORT_STATUS_LABEL,
+  type EvidenceFilter,
+  type ReportEvidenceRow,
+} from "@/lib/reportRequirementStatus";
 
 interface Options {
   includeRequirements: boolean;
   includeEvaluators: boolean;
+  evidenceFilter?: EvidenceFilter;
 }
 
 function getReqs(frameworkId: string): ComplianceRequirement[] {
@@ -18,17 +30,11 @@ function getReqs(frameworkId: string): ComplianceRequirement[] {
   return ALL_ADDITIONAL_REQUIREMENTS.filter((r) => r.framework_id === frameworkId);
 }
 
-function getStatusLabel(req: ComplianceRequirement, index: number): string {
-  const hash = (req.requirement_id.charCodeAt(req.requirement_id.length - 1) + index) % 10;
-  if (hash < 3) return "Oppfylt";
-  if (hash === 3) return "Delvis";
-  return "Ikke oppfylt";
-}
-
 function getEvaluatorName(index: number): string {
   const names = ["Lars Hansen", "Kari Johansen", "Erik Olsen", "Marte Berg", "Anders Vik", "Lara (AI)"];
   return names[index % names.length];
 }
+
 
 export function generateFullComplianceReport(data: ReportData, options: Options, companyName?: string) {
   const doc = new jsPDF();
