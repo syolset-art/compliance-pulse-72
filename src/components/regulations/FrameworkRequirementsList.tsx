@@ -10,6 +10,9 @@ import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/comp
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ChevronDown, ChevronUp, Users, Bot, CheckCircle2, UserCheck, Paperclip, FileText as FileIcon, Download, ShieldCheck, Sparkles, Clock, Search, X, ArrowRight, HelpCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+
 
 import { getRequirementsByFramework } from "@/lib/complianceRequirementsData";
 import { ALL_ADDITIONAL_REQUIREMENTS } from "@/lib/additionalFrameworkRequirements";
@@ -104,6 +107,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [filter, setFilter] = useState<FilterKey>("all");
   const [grouping, setGrouping] = useState<"status" | "control_area">("status");
+  const [docsOnly, setDocsOnly] = useState(false);
   const [search, setSearch] = useState("");
   const [docDialog, setDocDialog] = useState<{ id: string; name: string } | null>(null);
   const [reqNotes, setReqNotes] = useState<Record<string, string>>({});
@@ -220,6 +224,33 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
       })
       .filter((g) => g.items.length > 0);
   }, [filtered, grouping, uiStates, isNb]);
+
+  /** Dokumentvisning: alle opplastede dokumenter samlet per kontrollområde. */
+  const docGroups = useMemo(() => {
+    const byArea = new Map<ControlAreaKey, { req: ComplianceRequirement; doc: EvidenceDocument }[]>();
+    for (const req of filtered) {
+      const docs = uiStates[req.requirement_id]?.documents ?? [];
+      if (docs.length === 0) continue;
+      const area = toCanonicalArea(req.sla_category);
+      const list = byArea.get(area) ?? [];
+      docs.forEach((doc) => list.push({ req, doc }));
+      byArea.set(area, list);
+    }
+    return CONTROL_AREAS.map((a) => ({
+      key: a.key as string,
+      label: isNb ? a.labelNb : a.labelEn,
+      Icon: a.icon,
+      accentClass: a.accentClass,
+      docs: byArea.get(a.key) ?? [],
+    })).filter((g) => g.docs.length > 0);
+  }, [filtered, uiStates, isNb]);
+
+  const totalDocCount = useMemo(
+    () => docGroups.reduce((sum, g) => sum + g.docs.length, 0),
+    [docGroups],
+  );
+
+
 
 
 
@@ -438,13 +469,31 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
         </TabsList>
       </Tabs>
 
-      <Tabs value={grouping} onValueChange={(v) => setGrouping(v as "status" | "control_area")} className="mb-4">
+      <Tabs value={grouping} onValueChange={(v) => setGrouping(v as "status" | "control_area")} className="mb-3">
         <TabsList className="w-full grid grid-cols-2">
           <TabsTrigger value="status">{isNb ? "Grupper etter status" : "Group by status"}</TabsTrigger>
           <TabsTrigger value="control_area">{isNb ? "Grupper etter kontrollområde" : "Group by control area"}</TabsTrigger>
         </TabsList>
       </Tabs>
 
+      {grouping === "control_area" && (
+        <div className="mb-4 flex items-center justify-between gap-3 rounded-lg border border-border/60 bg-muted/20 px-3 py-2">
+          <div className="flex items-center gap-2 min-w-0">
+            <FileIcon className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+            <span className="text-xs text-muted-foreground truncate">
+              {isNb
+                ? `Alle opplastede dokumenter samlet per kontrollområde (${totalDocCount})`
+                : `All uploaded documents collected per control area (${totalDocCount})`}
+            </span>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <Label htmlFor="docs-only" className="text-xs text-muted-foreground cursor-pointer">
+              {isNb ? "Vis kun dokumenter" : "Documents only"}
+            </Label>
+            <Switch id="docs-only" checked={docsOnly} onCheckedChange={setDocsOnly} />
+          </div>
+        </div>
+      )}
 
       {filtered.length === 0 && (
         <div className="text-center py-8 text-sm text-muted-foreground">
@@ -452,8 +501,60 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
         </div>
       )}
 
-
+      {grouping === "control_area" && docsOnly ? (
+        <div className="space-y-6">
+          {docGroups.length === 0 && filtered.length > 0 && (
+            <div className="text-center py-8 text-sm text-muted-foreground">
+              {isNb ? "Ingen dokumenter er lastet opp ennå." : "No documents uploaded yet."}
+            </div>
+          )}
+          {docGroups.map((group) => {
+            const GroupIcon = group.Icon;
+            return (
+              <section key={group.key} className="space-y-2">
+                <div className="flex items-center gap-2 px-1">
+                  <GroupIcon className={cn("h-4 w-4 shrink-0", group.accentClass)} />
+                  <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    {group.label}
+                  </span>
+                  <span className="text-xs tabular-nums text-muted-foreground/70">({group.docs.length})</span>
+                  <span className="flex-1 h-px bg-border ml-2" />
+                </div>
+                <div className="rounded-lg border bg-card divide-y">
+                  {group.docs.map((entry, i) => (
+                    <button
+                      key={`${entry.req.requirement_id}-${entry.doc.name}-${i}`}
+                      type="button"
+                      onClick={() => {
+                        setDocsOnly(false);
+                        setExpandedId(entry.req.requirement_id);
+                        setTimeout(() => {
+                          reqRefs.current[entry.req.requirement_id]?.scrollIntoView({ behavior: "smooth", block: "center" });
+                        }, 60);
+                      }}
+                      className="w-full flex items-center gap-3 px-3 py-2 text-left hover:bg-muted/40 transition-colors"
+                    >
+                      <FileIcon className="h-4 w-4 text-muted-foreground shrink-0" />
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm text-foreground truncate">{entry.doc.name}</p>
+                        <p className="text-[11px] text-muted-foreground truncate">
+                          {entry.req.requirement_id} · {isNb ? entry.req.name_no : entry.req.name}
+                        </p>
+                      </div>
+                      <Badge variant="outline" className="h-5 px-1.5 text-[10px] uppercase shrink-0">
+                        {entry.doc.kind}
+                      </Badge>
+                      <ArrowRight className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                    </button>
+                  ))}
+                </div>
+              </section>
+            );
+          })}
+        </div>
+      ) : (
       <div className="space-y-6">
+
         {groups.map((group) => {
           const isCollapsed = collapsedGroups.has(group.key);
           const GroupIcon = group.Icon;
@@ -849,6 +950,8 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
           );
         })}
       </div>
+      )}
+
 
 
       {filtered.length === 0 && (
