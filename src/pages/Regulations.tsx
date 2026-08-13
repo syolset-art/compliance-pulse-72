@@ -83,6 +83,13 @@ const Regulations = () => {
   const [countryDialogOpen, setCountryDialogOpen] = useState(false);
   usePageHelpListener(setHelpOpen);
 
+  // Husk at brukeren står i klassisk visning (brukes av Klassisk/Beta-bryteren).
+  useEffect(() => {
+    rememberRegulationsView("classic");
+  }, []);
+
+
+
   // Fetch frameworks
   useEffect(() => {
     const fetchData = async () => {
