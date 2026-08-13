@@ -117,6 +117,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
   const [search, setSearch] = useState("");
   const [docDialog, setDocDialog] = useState<{ id: string; name: string } | null>(null);
   const [autoDialogOpen, setAutoDialogOpen] = useState(false);
+  const [manualDialogOpen, setManualDialogOpen] = useState(false);
   const [reqNotes, setReqNotes] = useState<Record<string, string>>({});
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
   const [draftNote, setDraftNote] = useState<string>("");
@@ -551,10 +552,65 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
               </div>
             </DialogContent>
           </Dialog>
-          <Badge variant="outline" className="gap-1 text-muted-foreground">
-            <Users className="h-3 w-3" />
-            {counts.manual} MANUELL
-          </Badge>
+          <Dialog open={manualDialogOpen} onOpenChange={setManualDialogOpen}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <DialogTrigger asChild>
+                  <Badge
+                    variant="outline"
+                    className="gap-1 text-muted-foreground border-border cursor-pointer hover:bg-muted/50"
+                  >
+                    <Users className="h-3 w-3" />
+                    {counts.manual} MANUELL
+                  </Badge>
+                </DialogTrigger>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">
+                <p>{isNb ? "Klikk for å se hva som må dokumenteres manuelt" : "Click to see what must be documented manually"}</p>
+              </TooltipContent>
+            </Tooltip>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <Users className="h-5 w-5 text-muted-foreground" />
+                  {isNb ? "Manuelt dokumenterte krav" : "Manually documented requirements"}
+                </DialogTitle>
+                <DialogDescription>
+                  {isNb
+                    ? "Disse kravene er registrert med status, kommentar eller dokumentasjon av deg eller noen i teamet. De baserer seg på selvdeklarasjon og må gjerne suppleres med bevis."
+                    : "These requirements have been registered with status, comment or documentation by you or someone on the team. They are based on self-declaration and can be supplemented with evidence."}
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-3 text-sm">
+                <div className="flex items-center justify-between rounded-lg border border-border/60 px-3 py-2">
+                  <span className="text-muted-foreground">{isNb ? "Krav dokumentert manuelt" : "Requirements documented manually"}</span>
+                  <span className="font-semibold text-foreground">{counts.manual}</span>
+                </div>
+                <ul className="space-y-2 text-muted-foreground">
+                  <li className="flex gap-2">
+                    <UserCheck className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                    {isNb
+                      ? "Du eller teamet ditt angir status, beskriver hvordan kravet oppfylles og legger ved dokumentasjon."
+                      : "You or your team set the status, describe how the requirement is met and attach documentation."}
+                  </li>
+                  <li className="flex gap-2">
+                    <Sparkles className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                    {isNb
+                      ? "Lara kan senere analysere dokumentene og foreslå hvilke krav de dekker — du bestemmer om du vil godkjenne forslagene."
+                      : "Lara can later analyze the documents and suggest which requirements they cover — you decide whether to approve the suggestions."}
+                  </li>
+                </ul>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full"
+                  onClick={() => setManualDialogOpen(false)}
+                >
+                  {isNb ? "Lukk" : "Close"}
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
 
