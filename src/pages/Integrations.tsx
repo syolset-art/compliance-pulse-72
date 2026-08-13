@@ -181,124 +181,186 @@ export default function Integrations() {
           </Tabs>
         </div>
 
-        {/* Grid */}
-        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((integration) => {
-            const conn = connections[integration.id];
-            const status: IntegrationStatus = conn?.status ?? "not_connected";
-            const Icon = integration.icon;
-            return (
-              <Card key={integration.id} className="p-5 flex flex-col gap-4 hover:shadow-md transition-shadow">
-                <div className="flex items-start gap-3">
-                  <div className="h-10 w-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
-                    <Icon className="h-5 w-5" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
-                      <h3 className="font-semibold text-sm truncate">{integration.name}</h3>
-                      {integration.readOnly && (
-                        <Tooltip>
-                          <TooltipTrigger>
-                            <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 border-muted-foreground/30">
-                              Read-only
-                            </Badge>
-                          </TooltipTrigger>
-                          <TooltipContent>Mynder ber kun om lesetilgang.</TooltipContent>
-                        </Tooltip>
+        {/* Groups */}
+        {[
+          {
+            key: "connected",
+            title: "Tilkoblet",
+            desc: "Kilder Lara henter data fra nå.",
+            items: filtered.filter((i) => connections[i.id]?.status === "active"),
+          },
+          {
+            key: "available",
+            title: "Tilgjengelig nå",
+            desc: "Kan kobles på i dag — kun lesetilgang.",
+            items: filtered.filter(
+              (i) => i.availability === "available" && connections[i.id]?.status !== "active",
+            ),
+          },
+          {
+            key: "planned",
+            title: "Planlagt",
+            desc: "Under arbeid. Si fra hvis du vil ha den tidlig.",
+            items: filtered.filter(
+              (i) => i.availability === "planned" && connections[i.id]?.status !== "active",
+            ),
+          },
+        ]
+          .filter((g) => g.items.length > 0)
+          .map((group) => (
+            <section key={group.key} className="mt-8">
+              <div className="flex items-baseline gap-2">
+                <h2 className="text-sm font-semibold uppercase tracking-wide text-foreground">
+                  {group.title}
+                </h2>
+                <span className="text-xs text-muted-foreground">{group.desc}</span>
+              </div>
+
+              <div className="mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {group.items.map((integration) => {
+                  const conn = connections[integration.id];
+                  const status: IntegrationStatus = conn?.status ?? "not_connected";
+                  const isPlanned = group.key === "planned";
+                  const Icon = integration.icon;
+                  return (
+                    <Card
+                      key={integration.id}
+                      className={`p-5 flex flex-col gap-4 transition-shadow ${
+                        isPlanned ? "opacity-80 border-dashed" : "hover:shadow-md"
+                      }`}
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className="h-10 w-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                          <Icon className="h-5 w-5" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2">
+                            <h3 className="font-semibold text-sm truncate">{integration.name}</h3>
+                            {integration.readOnly && (
+                              <Tooltip>
+                                <TooltipTrigger>
+                                  <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 border-muted-foreground/30">
+                                    Read-only
+                                  </Badge>
+                                </TooltipTrigger>
+                                <TooltipContent>Mynder ber kun om lesetilgang.</TooltipContent>
+                              </Tooltip>
+                            )}
+                          </div>
+                          <div className="text-xs text-muted-foreground">{CATEGORY_LABEL[integration.category]}</div>
+                        </div>
+                        {isPlanned ? (
+                          <Badge variant="outline" className="text-[10px] bg-muted text-muted-foreground">
+                            Kommer
+                          </Badge>
+                        ) : (
+                          <Badge variant="outline" className={`text-[10px] ${STATUS_STYLE[status]}`}>
+                            {status === "active" && <CheckCircle2 className="h-3 w-3 mr-1" />}
+                            {status === "error" && <AlertTriangle className="h-3 w-3 mr-1" />}
+                            {STATUS_LABEL[status]}
+                          </Badge>
+                        )}
+                      </div>
+
+                      <p className="text-xs text-muted-foreground leading-relaxed line-clamp-3">
+                        {integration.description}
+                      </p>
+
+                      <div className="flex flex-wrap gap-1">
+                        {integration.discovers.map((d) => (
+                          <Badge key={d} variant="secondary" className="text-[10px] font-normal">
+                            {DISCOVERY_LABEL[d]}
+                          </Badge>
+                        ))}
+                      </div>
+
+                      {conn?.status === "active" && (
+                        <div className="text-xs text-muted-foreground border-t pt-3 space-y-1">
+                          <div className="flex justify-between">
+                            <span>Sist synk</span>
+                            <span className="text-foreground">
+                              {conn.lastSyncAt ? new Date(conn.lastSyncAt).toLocaleString("nb-NO", {
+                                dateStyle: "short",
+                                timeStyle: "short",
+                              }) : "—"}
+                            </span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Oppdaget</span>
+                            <span className="text-foreground">
+                              {(conn.discoveredSystems ?? 0)} systemer, {(conn.discoveredVendors ?? 0)} leverandører
+                            </span>
+                          </div>
+                        </div>
                       )}
-                    </div>
-                    <div className="text-xs text-muted-foreground">{CATEGORY_LABEL[integration.category]}</div>
-                  </div>
-                  <Badge variant="outline" className={`text-[10px] ${STATUS_STYLE[status]}`}>
-                    {status === "active" && <CheckCircle2 className="h-3 w-3 mr-1" />}
-                    {status === "error" && <AlertTriangle className="h-3 w-3 mr-1" />}
-                    {STATUS_LABEL[status]}
-                  </Badge>
-                </div>
 
-                <p className="text-xs text-muted-foreground leading-relaxed line-clamp-3">
-                  {integration.description}
-                </p>
-
-                <div className="flex flex-wrap gap-1">
-                  {integration.discovers.map((d) => (
-                    <Badge key={d} variant="secondary" className="text-[10px] font-normal">
-                      {DISCOVERY_LABEL[d]}
-                    </Badge>
-                  ))}
-                </div>
-
-                {conn?.status === "active" && (
-                  <div className="text-xs text-muted-foreground border-t pt-3 space-y-1">
-                    <div className="flex justify-between">
-                      <span>Sist synk</span>
-                      <span className="text-foreground">
-                        {conn.lastSyncAt ? new Date(conn.lastSyncAt).toLocaleString("nb-NO", {
-                          dateStyle: "short",
-                          timeStyle: "short",
-                        }) : "—"}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Oppdaget</span>
-                      <span className="text-foreground">
-                        {(conn.discoveredSystems ?? 0)} systemer, {(conn.discoveredVendors ?? 0)} leverandører
-                      </span>
-                    </div>
-                  </div>
-                )}
-
-                <div className="mt-auto flex gap-2">
-                  {status === "not_connected" ? (
-                    <Button size="sm" className="w-full" onClick={() => setDialogIntegration(integration)}>
-                      <Plug className="h-3.5 w-3.5 mr-1.5" />
-                      Koble til
-                    </Button>
-                  ) : (
-                    <>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="flex-1"
-                        onClick={() => handleSync(integration.id, integration.name)}
-                      >
-                        <RefreshCw className="h-3.5 w-3.5 mr-1.5" />
-                        Synk nå
-                      </Button>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button size="sm" variant="ghost" className="px-2">
-                            <Settings2 className="h-3.5 w-3.5" />
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>Innstillinger</TooltipContent>
-                      </Tooltip>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
+                      <div className="mt-auto flex gap-2">
+                        {isPlanned ? (
                           <Button
                             size="sm"
-                            variant="ghost"
-                            className="px-2 text-destructive hover:text-destructive"
-                            onClick={() => handleDisconnect(integration.id, integration.name)}
+                            variant="outline"
+                            className="w-full"
+                            onClick={() =>
+                              toast.success(`Vi sier fra når ${integration.name} er klar`, {
+                                description: "Interessen din er registrert hos Mynder.",
+                              })
+                            }
                           >
-                            <Trash2 className="h-3.5 w-3.5" />
+                            Gi meg beskjed
                           </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>Koble fra og revokér tilgang</TooltipContent>
-                      </Tooltip>
-                    </>
-                  )}
-                </div>
-              </Card>
-            );
-          })}
-        </div>
+                        ) : status === "not_connected" ? (
+                          <Button size="sm" className="w-full" onClick={() => setDialogIntegration(integration)}>
+                            <Plug className="h-3.5 w-3.5 mr-1.5" />
+                            Koble til
+                          </Button>
+                        ) : (
+                          <>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="flex-1"
+                              onClick={() => handleSync(integration.id, integration.name)}
+                            >
+                              <RefreshCw className="h-3.5 w-3.5 mr-1.5" />
+                              Synk nå
+                            </Button>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button size="sm" variant="ghost" className="px-2">
+                                  <Settings2 className="h-3.5 w-3.5" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>Innstillinger</TooltipContent>
+                            </Tooltip>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  className="px-2 text-destructive hover:text-destructive"
+                                  onClick={() => handleDisconnect(integration.id, integration.name)}
+                                >
+                                  <Trash2 className="h-3.5 w-3.5" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>Koble fra og revokér tilgang</TooltipContent>
+                            </Tooltip>
+                          </>
+                        )}
+                      </div>
+                    </Card>
+                  );
+                })}
+              </div>
+            </section>
+          ))}
 
         {filtered.length === 0 && (
           <Card className="mt-6 p-12 text-center text-muted-foreground text-sm">
             Ingen kilder matcher søket.
           </Card>
         )}
+
 
         <ConnectIntegrationDialog
           integration={dialogIntegration}
