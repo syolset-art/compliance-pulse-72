@@ -37,6 +37,7 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { DiscoverSystemsDialog } from "@/components/systems/DiscoverSystemsDialog";
+import { ConnectSourcesCallout } from "@/components/integrations/ConnectSourcesCallout";
 import {
   Select,
   SelectContent,
@@ -464,6 +465,12 @@ export default function Systems() {
             <Plus className="h-4 w-4" />
             {isNb ? "Oppdag systemer" : "Discover systems"}
           </Button>
+          <ConnectSourcesCallout
+            className="mt-6 text-left max-w-2xl mx-auto"
+            context={isNb
+              ? "Koble til en kilde, så finner Lara systemene i bruk og foreslår dem for godkjenning."
+              : "Connect a source and Lara finds the systems in use and suggests them for approval."}
+          />
         </div>
 
       );
@@ -510,6 +517,12 @@ export default function Systems() {
             <Plus className="h-4 w-4" />
             {isNb ? "Oppdag systemer" : "Discover systems"}
           </Button>
+          <ConnectSourcesCallout
+            className="mt-6 text-left max-w-2xl mx-auto"
+            context={isNb
+              ? "Koble til en kilde, så finner Lara systemene i bruk og foreslår dem for godkjenning."
+              : "Connect a source and Lara finds the systems in use and suggests them for approval."}
+          />
         </div>
       );
     }
@@ -684,6 +697,12 @@ export default function Systems() {
             <Plus className="h-4 w-4" />
             {isNb ? "Oppdag systemer" : "Discover systems"}
           </Button>
+          <ConnectSourcesCallout
+            className="mt-6 text-left max-w-2xl mx-auto"
+            context={isNb
+              ? "Koble til en kilde, så finner Lara systemene i bruk og foreslår dem for godkjenning."
+              : "Connect a source and Lara finds the systems in use and suggests them for approval."}
+          />
         </div>
       );
     }

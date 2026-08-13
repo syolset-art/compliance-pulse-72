@@ -37,6 +37,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { ConnectSourcesCallout } from "@/components/integrations/ConnectSourcesCallout";
 import { VendorTableView } from "./VendorTableView";
 import { staggerEntranceClass } from "@/lib/animation";
 
@@ -485,8 +486,14 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete, new
 
       {/* Results */}
       {filtered.length === 0 ? (
-        <div className="rounded-lg border border-border p-8 text-center text-muted-foreground motion-safe:animate-fade-in-up">
-          {t("assets.noAssets", isNb ? "Ingen leverandører funnet" : "No vendors found")}
+        <div className="rounded-lg border border-border p-8 text-center text-muted-foreground motion-safe:animate-fade-in-up space-y-4">
+          <div>{t("assets.noAssets", isNb ? "Ingen leverandører funnet" : "No vendors found")}</div>
+          <ConnectSourcesCallout
+            className="text-left max-w-2xl mx-auto"
+            context={isNb
+              ? "Koble til regnskap eller skykilder, så finner Lara leverandørene dere faktisk betaler for."
+              : "Connect accounting or cloud sources and Lara finds the vendors you actually pay for."}
+          />
         </div>
       ) : viewMode === "table" ? (
         <VendorTableView
