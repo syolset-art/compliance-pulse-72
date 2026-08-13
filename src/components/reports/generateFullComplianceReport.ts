@@ -190,55 +190,127 @@ export function generateFullComplianceReport(data: ReportData, options: Options,
     alternateRowStyles: { fillColor: [248, 249, 250] },
   });
 
+  // ── Dokumentasjon per kontrollområde ──
+  const evidenceRows: ReportEvidenceRow[] = allReqs.map(({ req, frameworkName }) =>
+    buildReportEvidenceRow(req, frameworkName),
+  );
+
+  doc.addPage();
+  doc.setFontSize(14);
+  doc.setTextColor(30, 30, 30);
+  doc.text("Dokumentasjon per kontrollområde", 14, 20);
+  doc.setFontSize(9);
+  doc.setTextColor(110, 110, 110);
+  doc.text(
+    "Bevis er dokumentasjon som policy, rutine, logg, avtale, sertifikat eller revisjonsrapport.",
+    14,
+    26,
+  );
+
+  let areaY = 32;
+  for (const area of CONTROL_AREAS) {
+    const rows = evidenceRows.filter((r) => r.area === area.key);
+    if (rows.length === 0) continue;
+
+    const received = rows.filter((r) => r.status !== "Mangler").length;
+
+    if (areaY > 250) {
+      doc.addPage();
+      areaY = 20;
+    }
+
+    doc.setFontSize(11);
+    doc.setTextColor(30, 30, 30);
+    doc.text(`${area.labelNb}  (${received}/${rows.length} dokumentert)`, 14, areaY);
+
+    autoTable(doc, {
+      startY: areaY + 3,
+      head: [["Dokumentasjon", "Regelverk", "Krav", "Status"]],
+      body: rows.map((r) => [r.docLabel, r.frameworkName, `${r.requirementId} ${r.requirementName}`, r.status]),
+      styles: { fontSize: 7, cellPadding: 2 },
+      headStyles: { fillColor: [90, 49, 132], textColor: 255, fontStyle: "bold" },
+      columnStyles: { 0: { cellWidth: 48 }, 1: { cellWidth: 34 }, 2: { cellWidth: 72 }, 3: { cellWidth: 28 } },
+      alternateRowStyles: { fillColor: [248, 249, 250] },
+      didParseCell: (d) => {
+        if (d.column.index === 3 && d.section === "body") {
+          const v = d.cell.raw as string;
+          if (v === "Opplastet") d.cell.styles.textColor = [16, 185, 129];
+          else if (v === "Agent-bekreftet") d.cell.styles.textColor = [59, 130, 246];
+          else d.cell.styles.textColor = [239, 68, 68];
+        }
+      },
+    });
+
+    areaY = ((doc as any).lastAutoTable?.finalY ?? areaY + 20) + 10;
+  }
+
   // ── Per-framework requirements ──
   if (options.includeRequirements) {
+    const filterLabel =
+      evidenceFilter === "with"
+        ? "Kun krav med bevis"
+        : evidenceFilter === "without"
+          ? "Kun krav uten bevis"
+          : "Alle krav";
+
     for (const fw of data.frameworks) {
       const fwDef = frameworks.find((f) => f.id === fw.id);
-      const reqs = getReqs(fw.id);
+      const reqs = getReqs(fw.id).filter((req) => matchesEvidenceFilter(req, evidenceFilter));
       if (reqs.length === 0) continue;
 
       doc.addPage();
       doc.setFontSize(14);
       doc.setTextColor(30, 30, 30);
       doc.text(`Krav: ${fwDef?.name || fw.name}`, 14, 20);
+      doc.setFontSize(8);
+      doc.setTextColor(120, 120, 120);
+      doc.text(`${filterLabel} — ${reqs.length} krav`, 14, 25);
 
       const columns = options.includeEvaluators
-        ? [["ID", "Krav", "Kategori", "Prioritet", "Status", "Evaluator"]]
-        : [["ID", "Krav", "Kategori", "Prioritet", "Status"]];
+        ? [["ID", "Krav", "Kategori", "Prioritet", "Status", "Bevis", "Evaluator"]]
+        : [["ID", "Krav", "Kategori", "Prioritet", "Status", "Bevis"]];
 
       const body = reqs.map((req, i) => {
+        const count = getEvidenceCount(req);
         const row = [
           req.requirement_id,
           req.name_no || req.name,
           req.category,
           req.priority === "critical" ? "Kritisk" : req.priority === "high" ? "Høy" : req.priority === "medium" ? "Medium" : "Lav",
-          getStatusLabel(req, i),
+          REPORT_STATUS_LABEL[getReportStatus(req)],
+          count > 0 ? `${count} vedlegg` : "Mangler",
         ];
         if (options.includeEvaluators) row.push(getEvaluatorName(i));
         return row;
       });
 
       autoTable(doc, {
-        startY: 28,
+        startY: 30,
         head: columns,
         body,
         styles: { fontSize: 7, cellPadding: 2 },
         headStyles: { fillColor: [59, 130, 246], textColor: 255, fontStyle: "bold" },
         columnStyles: options.includeEvaluators
-          ? { 0: { cellWidth: 18 }, 1: { cellWidth: 55 }, 2: { cellWidth: 28 }, 3: { cellWidth: 18 }, 4: { cellWidth: 22 }, 5: { cellWidth: 30 } }
-          : { 0: { cellWidth: 22 }, 1: { cellWidth: 70 }, 2: { cellWidth: 35 }, 3: { cellWidth: 22 }, 4: { cellWidth: 25 } },
+          ? { 0: { cellWidth: 16 }, 1: { cellWidth: 45 }, 2: { cellWidth: 24 }, 3: { cellWidth: 16 }, 4: { cellWidth: 30 }, 5: { cellWidth: 18 }, 6: { cellWidth: 33 } }
+          : { 0: { cellWidth: 20 }, 1: { cellWidth: 60 }, 2: { cellWidth: 30 }, 3: { cellWidth: 18 }, 4: { cellWidth: 34 }, 5: { cellWidth: 20 } },
         alternateRowStyles: { fillColor: [248, 249, 250] },
         didParseCell: (d) => {
-          if (d.column.index === 4 && d.section === "body") {
+          if (d.section !== "body") return;
+          if (d.column.index === 4) {
             const v = d.cell.raw as string;
-            if (v === "Oppfylt") d.cell.styles.textColor = [16, 185, 129];
-            else if (v === "Delvis") d.cell.styles.textColor = [245, 158, 11];
-            else d.cell.styles.textColor = [239, 68, 68];
+            if (v === REPORT_STATUS_LABEL.fulfilled) d.cell.styles.textColor = REPORT_STATUS_COLOR.fulfilled;
+            else if (v === REPORT_STATUS_LABEL.not_started) d.cell.styles.textColor = REPORT_STATUS_COLOR.not_started;
+            else d.cell.styles.textColor = REPORT_STATUS_COLOR.not_applicable;
+          }
+          if (d.column.index === 5) {
+            const v = d.cell.raw as string;
+            d.cell.styles.textColor = v === "Mangler" ? [239, 68, 68] : [16, 185, 129];
           }
         },
       });
     }
   }
+
 
   // ── Footer on all pages ──
   const pageCount = doc.getNumberOfPages();
