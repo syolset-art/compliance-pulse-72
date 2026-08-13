@@ -128,7 +128,7 @@ export default function VendorDashboard() {
       <Sidebar />
       <main className="flex-1 overflow-auto pt-11">
         <div className="container max-w-7xl mx-auto p-4 md:p-6 space-y-6">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 motion-safe:animate-fade-in-up">
             <div className="flex items-center gap-3">
               <h1 className="text-xl md:text-2xl font-bold text-primary">{t("nav.vendors", "Leverandører")}</h1>
               <span
@@ -156,16 +156,20 @@ export default function VendorDashboard() {
           </div>
 
           {/* Kapasitetsbanner */}
-          <VendorPremiumBanner
-            vendorCount={vendors.length}
-            maxFreeVendors={capacity.limit}
-            isActivated={!capacity.isFree}
-            onActivate={() => setTierDialogOpen(true)}
-          />
+          <div className="motion-safe:animate-fade-in-up motion-safe:animate-delay-100">
+            <VendorPremiumBanner
+              vendorCount={vendors.length}
+              maxFreeVendors={capacity.limit}
+              isActivated={!capacity.isFree}
+              onActivate={() => setTierDialogOpen(true)}
+            />
+          </div>
+
 
 
           <Tabs value={tabFromUrl} onValueChange={(v) => { const next = new URLSearchParams(searchParams); next.set("tab", v); setSearchParams(next, { replace: true }); }} className="space-y-4">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between motion-safe:animate-fade-in-up motion-safe:animate-delay-150">
+
               <TabsList className="h-10 p-0.5" aria-label={t("vendorDashboard.tabs.overview", "Oversikt") + " – navigasjon"}>
                 <TabsTrigger value="overview" className="text-sm px-3">{t("vendorDashboard.tabs.overview", "Oversikt")}</TabsTrigger>
                 <TabsTrigger value="all" className="text-sm px-3 gap-1.5">
