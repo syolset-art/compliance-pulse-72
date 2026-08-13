@@ -431,10 +431,65 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
         <h3 className="text-lg font-bold text-foreground">Krav og evaluatorer</h3>
         <div className="flex items-center gap-3 text-xs">
           <span className="text-muted-foreground">{counts.total} krav totalt</span>
-          <Badge variant="outline" className="gap-1 text-status-closed border-status-closed/20 dark:border-status-closed">
-            <Bot className="h-3 w-3" />
-            {counts.auto} AUTOMATISK
-          </Badge>
+          <Dialog open={autoDialogOpen} onOpenChange={setAutoDialogOpen}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <DialogTrigger asChild>
+                  <Badge
+                    variant="outline"
+                    className="gap-1 text-status-closed border-status-closed/20 dark:border-status-closed cursor-pointer hover:bg-status-closed/5"
+                  >
+                    <Bot className="h-3 w-3" />
+                    {counts.auto} AUTOMATISK
+                  </Badge>
+                </DialogTrigger>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">
+                <p>{isNb ? "Klikk for å se hva Lara har vurdert automatisk" : "Click to see what Lara has assessed automatically"}</p>
+              </TooltipContent>
+            </Tooltip>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <Bot className="h-5 w-5 text-status-closed" />
+                  {isNb ? "Automatisk vurderte krav" : "Automatically assessed requirements"}
+                </DialogTitle>
+                <DialogDescription>
+                  {isNb
+                    ? "Lara har vurdert disse kravene automatisk basert på data og hendelser i systemet. Du kan alltid overstyre eller supplere med egen dokumentasjon."
+                    : "Lara has assessed these requirements automatically based on data and events in the system. You can always override or add your own documentation."}
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-3 text-sm">
+                <div className="flex items-center justify-between rounded-lg border border-border/60 px-3 py-2">
+                  <span className="text-muted-foreground">{isNb ? "Krav vurdert automatisk" : "Requirements assessed automatically"}</span>
+                  <span className="font-semibold text-foreground">{counts.auto}</span>
+                </div>
+                <ul className="space-y-2 text-muted-foreground">
+                  <li className="flex gap-2">
+                    <Sparkles className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                    {isNb
+                      ? "Lara leser dokumenter, integrasjoner og aktiviteter for å finne bevis."
+                      : "Lara reads documents, integrations and activities to find evidence."}
+                  </li>
+                  <li className="flex gap-2">
+                    <UserCheck className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                    {isNb
+                      ? "Du beholder kontrollen: hver automatisk vurdering kan du godkjenne, korrigere eller avvise."
+                      : "You stay in control: every automatic assessment can be approved, corrected or rejected."}
+                  </li>
+                </ul>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full"
+                  onClick={() => setAutoDialogOpen(false)}
+                >
+                  {isNb ? "Lukk" : "Close"}
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
           <Badge variant="outline" className="gap-1 text-muted-foreground">
             <Users className="h-3 w-3" />
             {counts.manual} MANUELL
