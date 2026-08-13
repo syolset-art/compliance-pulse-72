@@ -25,6 +25,8 @@ import { MessageSquare, Save, Pencil } from "lucide-react";
 import {
   demoUiStateFor,
   getProgressConfig,
+  normalizeProgress,
+  SELECTABLE_PROGRESS,
   type RequirementUiState,
   type ProgressStatus,
   type EvidenceDocument,
@@ -46,9 +48,9 @@ type FilterKey = "all" | "waiting_you" | "agent" | "ok";
 
 /** Map ny fremdrift → legacy filter-bøtte for tabs. */
 function bucketOf(progress: ProgressStatus): "met" | "partial" | "not_met" | "na" {
-  if (progress === "verified") return "met";
-  if (progress === "implemented" || progress === "in_progress") return "partial";
-  if (progress === "not_applicable") return "na";
+  const p = normalizeProgress(progress);
+  if (p === "fulfilled") return "met";
+  if (p === "not_applicable") return "na";
   return "not_met";
 }
 
@@ -455,10 +457,10 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
           </button>
         </PopoverTrigger>
         <PopoverContent align="end" className="w-56 p-1">
-          {(["not_answered", "in_progress", "implemented", "verified", "not_applicable"] as ProgressStatus[]).map((s) => {
+          {(SELECTABLE_PROGRESS as ProgressStatus[]).map((s) => {
             const cfg = getProgressConfig(s);
             const StatusIcon = cfg.icon;
-            const active = state.progress === s;
+            const active = normalizeProgress(state.progress) === s;
             return (
               <button
                 key={s}
@@ -1071,7 +1073,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                           onClick={(e) => e.stopPropagation()}
                           className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                         >
-                          {(["not_answered", "in_progress", "implemented", "verified", "not_applicable"] as ProgressStatus[]).map((s) => {
+                          {(SELECTABLE_PROGRESS as ProgressStatus[]).map((s) => {
                             const cfg = getProgressConfig(s);
                             return (
                               <option key={s} value={s}>
