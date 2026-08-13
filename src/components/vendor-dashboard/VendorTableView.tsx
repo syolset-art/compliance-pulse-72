@@ -13,6 +13,8 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Filter, X, UserPlus } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { staggerEntranceClass } from "@/lib/animation";
+
 import { getCriticality, CRITICALITY_META, type CriticalityKey } from "@/lib/criticality";
 import { deriveVendorStatus } from "@/lib/vendorStatus";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
