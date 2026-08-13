@@ -485,7 +485,7 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete, new
 
       {/* Results */}
       {filtered.length === 0 ? (
-        <div className="rounded-lg border border-border p-8 text-center text-muted-foreground">
+        <div className="rounded-lg border border-border p-8 text-center text-muted-foreground motion-safe:animate-fade-in-up">
           {t("assets.noAssets", isNb ? "Ingen leverandører funnet" : "No vendors found")}
         </div>
       ) : viewMode === "table" ? (
@@ -509,22 +509,24 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete, new
         />
       ) : (
         <div className="space-y-2">
-          {filtered.map(v => {
+          {filtered.map((v, i) => {
             const md = (v as any).metadata || {};
             const frameworks: string[] = Array.isArray(md.frameworks) ? md.frameworks : [];
             return (
-              <VendorStatusRow
-                key={v.id}
-                vendor={v as any}
-                expiredDocsCount={expiredCounts[v.id] || 0}
-                inboxCount={inboxCounts[v.id] || 0}
-                ownerName={getOwnerName(v)}
-                segments={frameworks}
-              />
+              <div key={v.id} className={staggerEntranceClass(i)}>
+                <VendorStatusRow
+                  vendor={v as any}
+                  expiredDocsCount={expiredCounts[v.id] || 0}
+                  inboxCount={inboxCounts[v.id] || 0}
+                  ownerName={getOwnerName(v)}
+                  segments={frameworks}
+                />
+              </div>
             );
           })}
         </div>
       )}
+
 
     </div>
   );
