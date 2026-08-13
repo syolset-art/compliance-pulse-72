@@ -319,7 +319,7 @@ export function VendorTableView({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {vendors.map(v => {
+            {vendors.map((v, i) => {
               const score = v.compliance_score || 0;
               const owner = getOwnerName(v);
               const crit = getCriticality(v);
@@ -332,9 +332,10 @@ export function VendorTableView({
               return (
                 <TableRow
                   key={v.id}
-                  className="cursor-pointer group"
+                  className={cn("cursor-pointer group", staggerEntranceClass(i))}
                   onClick={() => navigate(`/assets/${v.id}`)}
                 >
+
                   <TableCell className="w-1.5 p-0">
                     <TooltipProvider delayDuration={200}>
                       <Tooltip>
