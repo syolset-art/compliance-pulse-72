@@ -57,10 +57,6 @@ type Connection = {
 
 const PROVIDER_USAGE: Record<string, string> = {
   acronis: "Henter enheter og backup-status til kundekort og hendelser.",
-  "azure-ad": "Importerer applikasjoner og brukerenheter fra Microsoft Entra ID.",
-  sharepoint: "Henter dokumenter og lister fra SharePoint.",
-  intune: "Importerer administrerte enheter fra Microsoft Intune.",
-  servicenow: "Synkroniserer aktiva fra ServiceNow CMDB.",
 };
 
 const FIELD_HINTS: Record<string, { label: string; placeholder: string }[]> = {
