@@ -644,7 +644,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
             <Button variant="outline" size="sm" className="h-9 gap-1.5 text-xs shrink-0 relative">
               <SlidersHorizontal className="h-3.5 w-3.5" />
               {isNb ? "Filtrer" : "Filter"}
-              {(docsOnly || grouping !== "status") && (
+              {grouping !== "status" && (
                 <span className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-primary" />
               )}
             </Button>
