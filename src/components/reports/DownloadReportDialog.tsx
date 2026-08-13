@@ -249,8 +249,41 @@ export const DownloadReportDialog = ({
               </p>
             </div>
 
+            {/* Evidence filter */}
+            {includeRequirements && (
+              <div className="pt-1 border-t">
+                <p className="text-sm font-medium text-foreground mt-3 mb-2">Krav som skal inkluderes</p>
+                <div className="grid grid-cols-3 gap-1.5">
+                  {([
+                    { key: "all", label: "Alle krav" },
+                    { key: "with", label: "Med bevis" },
+                    { key: "without", label: "Uten bevis" },
+                  ] as { key: EvidenceFilter; label: string }[]).map((opt) => (
+                    <button
+                      key={opt.key}
+                      type="button"
+                      disabled={generating}
+                      onClick={() => setEvidenceFilter(opt.key)}
+                      className={cn(
+                        "px-3 py-2 rounded-md text-sm border transition-colors",
+                        evidenceFilter === opt.key
+                          ? "bg-primary/8 border-primary/30 text-foreground font-medium"
+                          : "border-border text-muted-foreground hover:bg-muted/50",
+                      )}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+                <p className="text-[12px] text-muted-foreground mt-1.5">
+                  Bevis er dokumentasjon som policy, rutine, logg, avtale, sertifikat eller revisjonsrapport.
+                </p>
+              </div>
+            )}
+
             {/* Extra options */}
             <div className="space-y-3 pt-1 border-t">
+
               <div className="flex items-center gap-3">
                 <Checkbox
                   id="include-requirements"
