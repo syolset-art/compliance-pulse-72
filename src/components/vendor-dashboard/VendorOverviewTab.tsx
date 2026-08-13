@@ -229,13 +229,16 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
     <div className="space-y-6">
 
       {/* Lara recommendation banner — replaces noisy KPI widgets */}
-      <DashboardLaraRecommendation />
+      <div className="motion-safe:animate-fade-in-up motion-safe:animate-delay-200">
+        <DashboardLaraRecommendation />
+      </div>
 
       {/* Aktiviteter + Leverandører per prioritet */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 motion-safe:animate-fade-in-up motion-safe:animate-delay-250">
         <ComplianceActivityChart />
         <SystemsPriorityChart />
       </div>
+
 
       {/* Visuell oppsummering: Risikofordeling (donut) + Geografi */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
