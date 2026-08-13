@@ -60,6 +60,8 @@ export default function Integrations() {
   const [category, setCategory] = useState<IntegrationCategory | "all">("all");
   const [connections, setConnections] = useState<Record<string, ConnectionState>>({});
   const [dialogIntegration, setDialogIntegration] = useState<IntegrationDefinition | null>(null);
+  const { connectSource, disconnectSource } = useConnectedSources();
+
 
   const filtered = useMemo(() => {
     return INTEGRATION_CATALOG.filter((i) => {
