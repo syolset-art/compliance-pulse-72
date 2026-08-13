@@ -640,37 +640,36 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
         </div>
       )}
 
-      {grouping === "control_area" && docsOnly ? (
+      {docsOnly ? (
         <div className="space-y-6">
-          {docGroups.length === 0 && filtered.length > 0 && (
-            <div className="text-center py-8 text-sm text-muted-foreground">
-              {isNb ? "Ingen dokumenter er lastet opp ennå." : "No documents uploaded yet."}
-            </div>
-          )}
-          {docGroups.map((group) => {
-            const GroupIcon = group.Icon;
+          {CONTROL_AREAS.map((area) => {
+            const GroupIcon = area.icon;
+            const docs = docGroups.find((g) => g.key === area.key)?.docs ?? [];
+            const expected = expectedByArea.get(area.key) ?? [];
+            if (docs.length === 0 && expected.length === 0) return null;
+            const openRequirement = (id: string) => {
+              setDocsOnly(false);
+              setExpandedId(id);
+              setTimeout(() => {
+                reqRefs.current[id]?.scrollIntoView({ behavior: "smooth", block: "center" });
+              }, 60);
+            };
             return (
-              <section key={group.key} className="space-y-2">
+              <section key={area.key} className="space-y-2">
                 <div className="flex items-center gap-2 px-1">
-                  <GroupIcon className={cn("h-4 w-4 shrink-0", group.accentClass)} />
+                  <GroupIcon className={cn("h-4 w-4 shrink-0", area.accentClass)} />
                   <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                    {group.label}
+                    {isNb ? area.labelNb : area.labelEn}
                   </span>
-                  <span className="text-xs tabular-nums text-muted-foreground/70">({group.docs.length})</span>
+                  <span className="text-xs tabular-nums text-muted-foreground/70">({docs.length})</span>
                   <span className="flex-1 h-px bg-border ml-2" />
                 </div>
                 <div className="rounded-lg border bg-card divide-y">
-                  {group.docs.map((entry, i) => (
+                  {docs.map((entry, i) => (
                     <button
                       key={`${entry.req.requirement_id}-${entry.doc.name}-${i}`}
                       type="button"
-                      onClick={() => {
-                        setDocsOnly(false);
-                        setExpandedId(entry.req.requirement_id);
-                        setTimeout(() => {
-                          reqRefs.current[entry.req.requirement_id]?.scrollIntoView({ behavior: "smooth", block: "center" });
-                        }, 60);
-                      }}
+                      onClick={() => openRequirement(entry.req.requirement_id)}
                       className="w-full flex items-center gap-3 px-3 py-2 text-left hover:bg-muted/40 transition-colors"
                     >
                       <FileIcon className="h-4 w-4 text-muted-foreground shrink-0" />
@@ -686,6 +685,56 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                       <ArrowRight className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                     </button>
                   ))}
+
+                  {/* Forventet dokumentasjon som ennå ikke er lastet opp */}
+                  {expected
+                    .filter((row) => row.status !== "received")
+                    .map((row) => {
+                      const isAgent = row.status === "agent_confirmed";
+                      return (
+                        <button
+                          key={`exp-${row.requirementId}`}
+                          type="button"
+                          onClick={() => openRequirement(row.requirementId)}
+                          className="w-full flex items-center gap-3 px-3 py-2 text-left hover:bg-muted/40 transition-colors"
+                        >
+                          {isAgent ? (
+                            <BotMessageSquare className="h-4 w-4 text-primary shrink-0" />
+                          ) : (
+                            <CircleDashed className="h-4 w-4 text-muted-foreground/60 shrink-0" />
+                          )}
+                          <div className="min-w-0 flex-1">
+                            <p className="text-sm text-muted-foreground truncate">{row.docLabel}</p>
+                            <p className="text-[11px] text-muted-foreground/80 truncate">
+                              {row.requirementId} · {row.requirementName}
+                            </p>
+                          </div>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Badge
+                                variant="outline"
+                                className={cn(
+                                  "h-5 px-1.5 text-[10px] shrink-0",
+                                  isAgent ? "border-primary/40 text-primary" : "text-muted-foreground",
+                                )}
+                              >
+                                {expectedStatusLabel(row.status, isNb)}
+                              </Badge>
+                            </TooltipTrigger>
+                            <TooltipContent side="left" className="max-w-xs text-xs">
+                              {isAgent
+                                ? isNb
+                                  ? "Kundens agent har bekreftet at dokumentet finnes. Regnes som egenrapportert bevis — last opp filen for å bli verifisert."
+                                  : "The customer's agent confirmed the document exists. Counts as self-reported evidence — upload the file to become verified."
+                                : isNb
+                                  ? "Ingen bevis registrert. Klikk for å åpne kravet og laste opp dokumentasjon."
+                                  : "No evidence registered. Click to open the requirement and upload documentation."}
+                            </TooltipContent>
+                          </Tooltip>
+                          <ArrowRight className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                        </button>
+                      );
+                    })}
                 </div>
               </section>
             );
