@@ -479,217 +479,109 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
 
   return (
     <div>
-      {/* Rad 1: tittel + metadata + primærhandling */}
-      <div className="flex flex-wrap items-start justify-between gap-3 mb-3">
-        <div className="min-w-0">
-          <h3 className="text-lg font-bold text-foreground">Krav og evaluatorer</h3>
-          <p className="mt-0.5 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs text-muted-foreground">
-            <span>{counts.total} {isNb ? "krav" : "requirements"}</span>
-            <span aria-hidden>·</span>
-            <Dialog open={autoDialogOpen} onOpenChange={setAutoDialogOpen}>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <DialogTrigger asChild>
-                    <button
-                      type="button"
-                      className="inline-flex items-center gap-1 rounded underline-offset-2 hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                    >
-                      <Bot className="h-3 w-3" />
-                      {counts.auto} {isNb ? "automatisk" : "automatic"}
-                    </button>
-                  </DialogTrigger>
-                </TooltipTrigger>
-                <TooltipContent side="bottom">
-                  <p>{isNb ? "Klikk for å se hva Lara har vurdert automatisk" : "Click to see what Lara has assessed automatically"}</p>
-                </TooltipContent>
-              </Tooltip>
-              <DialogContent className="sm:max-w-md">
-                <DialogHeader>
-                  <DialogTitle className="flex items-center gap-2">
-                    <Bot className="h-5 w-5 text-status-closed" />
-                    {isNb ? "Automatisk vurderte krav" : "Automatically assessed requirements"}
-                  </DialogTitle>
-                  <DialogDescription>
-                    {isNb
-                      ? "Lara har vurdert disse kravene automatisk basert på data og hendelser i systemet. Du kan alltid overstyre eller supplere med egen dokumentasjon."
-                      : "Lara has assessed these requirements automatically based on data and events in the system. You can always override or add your own documentation."}
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="space-y-3 text-sm">
-                  <div className="flex items-center justify-between rounded-lg border border-border/60 px-3 py-2">
-                    <span className="text-muted-foreground">{isNb ? "Krav vurdert automatisk" : "Requirements assessed automatically"}</span>
-                    <span className="font-semibold text-foreground">{counts.auto}</span>
-                  </div>
-                  <ul className="space-y-2 text-muted-foreground">
-                    <li className="flex gap-2">
-                      <Sparkles className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-                      {isNb
-                        ? "Lara leser dokumenter, integrasjoner og aktiviteter for å finne bevis."
-                        : "Lara reads documents, integrations and activities to find evidence."}
-                    </li>
-                    <li className="flex gap-2">
-                      <UserCheck className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-                      {isNb
-                        ? "Du beholder kontrollen: hver automatisk vurdering kan du godkjenne, korrigere eller avvise."
-                        : "You stay in control: every automatic assessment can be approved, corrected or rejected."}
-                    </li>
-                  </ul>
-                  <Button variant="outline" size="sm" className="w-full" onClick={() => setAutoDialogOpen(false)}>
-                    {isNb ? "Lukk" : "Close"}
-                  </Button>
-                </div>
-              </DialogContent>
-            </Dialog>
-            <span aria-hidden>·</span>
-            <Dialog open={manualDialogOpen} onOpenChange={setManualDialogOpen}>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <DialogTrigger asChild>
-                    <button
-                      type="button"
-                      className="inline-flex items-center gap-1 rounded underline-offset-2 hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                    >
-                      <Users className="h-3 w-3" />
-                      {counts.manual} {isNb ? "manuell" : "manual"}
-                    </button>
-                  </DialogTrigger>
-                </TooltipTrigger>
-                <TooltipContent side="bottom">
-                  <p>{isNb ? "Klikk for å se hva som må dokumenteres manuelt" : "Click to see what must be documented manually"}</p>
-                </TooltipContent>
-              </Tooltip>
-              <DialogContent className="sm:max-w-md">
-                <DialogHeader>
-                  <DialogTitle className="flex items-center gap-2">
-                    <Users className="h-5 w-5 text-muted-foreground" />
-                    {isNb ? "Manuelt dokumenterte krav" : "Manually documented requirements"}
-                  </DialogTitle>
-                  <DialogDescription>
-                    {isNb
-                      ? "Disse kravene er registrert med status, kommentar eller dokumentasjon av deg eller noen i teamet. De baserer seg på selvdeklarasjon og må gjerne suppleres med bevis."
-                      : "These requirements have been registered with status, comment or documentation by you or someone on the team. They are based on self-declaration and can be supplemented with evidence."}
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="space-y-3 text-sm">
-                  <div className="flex items-center justify-between rounded-lg border border-border/60 px-3 py-2">
-                    <span className="text-muted-foreground">{isNb ? "Krav dokumentert manuelt" : "Requirements documented manually"}</span>
-                    <span className="font-semibold text-foreground">{counts.manual}</span>
-                  </div>
-                  <ul className="space-y-2 text-muted-foreground">
-                    <li className="flex gap-2">
-                      <UserCheck className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-                      {isNb
-                        ? "Du eller teamet ditt angir status, beskriver hvordan kravet oppfylles og legger ved dokumentasjon."
-                        : "You or your team set the status, describe how the requirement is met and attach documentation."}
-                    </li>
-                    <li className="flex gap-2">
-                      <Sparkles className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-                      {isNb
-                        ? "Lara kan senere analysere dokumentene og foreslå hvilke krav de dekker — du bestemmer om du vil godkjenne forslagene."
-                        : "Lara can later analyze the documents and suggest which requirements they cover — you decide whether to approve the suggestions."}
-                    </li>
-                  </ul>
-                  <Button variant="outline" size="sm" className="w-full" onClick={() => setManualDialogOpen(false)}>
-                    {isNb ? "Lukk" : "Close"}
-                  </Button>
-                </div>
-              </DialogContent>
-            </Dialog>
+      {/* Rad 1: tittel + primærhandling */}
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
+        <div className="min-w-0 flex items-baseline gap-2">
+          <h3 className="text-lg font-bold text-foreground">{isNb ? "Krav" : "Requirements"}</h3>
+          <p className="text-xs text-muted-foreground">
+            {counts.total} {isNb ? "krav" : "requirements"} · {counts.met} {isNb ? "oppfylt" : "met"}
           </p>
         </div>
 
-        <div className="flex items-center gap-2 shrink-0">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button size="sm" className="h-8 gap-1.5 text-xs" onClick={() => setFrameworkAttachOpen(true)}>
-                <Upload className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">{isNb ? "Last opp bevis" : "Upload evidence"}</span>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="bottom" className="max-w-xs">
-              <p>
-                {isNb
-                  ? "Last opp dokumentasjon. Lara analyserer dokumentet og foreslår hvilke krav det dekker. Bekreft forslaget, så oppdateres kravene og scoren automatisk."
-                  : "Upload documentation. Lara analyzes the document and suggests which requirements it covers. Confirm the suggestion, and the requirements and score are updated automatically."}
-              </p>
-            </TooltipContent>
-          </Tooltip>
-
-          <Popover>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="h-8 w-8 p-0 relative"
-                    aria-label={isNb ? "Visningsvalg" : "View options"}
-                  >
-                    <SlidersHorizontal className="h-4 w-4" />
-                    {(docsOnly || grouping !== "status") && (
-                      <span className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-primary" />
-                    )}
-                  </Button>
-                </PopoverTrigger>
-              </TooltipTrigger>
-              <TooltipContent side="bottom">
-                <p>{isNb ? "Visning: gruppering og bevis" : "View: grouping and evidence"}</p>
-              </TooltipContent>
-            </Tooltip>
-            <PopoverContent align="end" className="w-64 p-3 space-y-3">
-              <div className="space-y-1.5">
-                <p className="text-xs font-medium text-muted-foreground">{isNb ? "Gruppér etter" : "Group by"}</p>
-                <Tabs value={grouping} onValueChange={(v) => setGrouping(v as "status" | "control_area")}>
-                  <TabsList className="h-8 p-1 bg-muted w-full grid grid-cols-2">
-                    <TabsTrigger value="status" className="text-xs h-6">
-                      {isNb ? "Status" : "Status"}
-                    </TabsTrigger>
-                    <TabsTrigger value="control_area" className="text-xs h-6">
-                      {isNb ? "Kontrollområde" : "Control area"}
-                    </TabsTrigger>
-                  </TabsList>
-                </Tabs>
-              </div>
-              <Separator />
-              <div className="flex items-start justify-between gap-3">
-                <Label htmlFor="docs-only" className="text-xs cursor-pointer">
-                  <span className="flex items-center gap-1.5 text-foreground">
-                    {isNb ? "Bevis" : "Evidence"}
-                    <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300">
-                      V2
-                    </Badge>
-                  </span>
-                  <span className="mt-1 block font-normal text-muted-foreground">
-                    {isNb
-                      ? "Vis dokumentasjon per kontrollområde i stedet for kravlisten."
-                      : "Show documentation per control area instead of the requirement list."}
-                  </span>
-                </Label>
-                <Switch id="docs-only" checked={docsOnly} onCheckedChange={setDocsOnly} className="mt-0.5" />
-              </div>
-            </PopoverContent>
-          </Popover>
-        </div>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button size="sm" className="h-8 gap-1.5 text-xs shrink-0" onClick={() => setFrameworkAttachOpen(true)}>
+              <Upload className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">{isNb ? "Last opp bevis" : "Upload evidence"}</span>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="bottom" className="max-w-xs">
+            <p>
+              {isNb
+                ? "Last opp dokumentasjon. Lara analyserer dokumentet og foreslår hvilke krav det dekker. Bekreft forslaget, så oppdateres kravene og scoren automatisk."
+                : "Upload documentation. Lara analyzes the document and suggests which requirements it covers. Confirm the suggestion, and the requirements and score are updated automatically."}
+            </p>
+          </TooltipContent>
+        </Tooltip>
       </div>
 
-      {/* Rad 2: statusfilter + søk */}
-      <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
-        <Tabs value={filter} onValueChange={(v) => setFilter(v as FilterKey)}>
-          <TabsList className="h-8 p-1">
-            <TabsTrigger value="all" className="text-xs h-6 px-2.5">{isNb ? "Alle" : "All"}</TabsTrigger>
-            <TabsTrigger value="not_met" className="text-xs h-6 px-2.5">{isNb ? "Ikke oppfylt" : "Not met"} ({counts.notMet})</TabsTrigger>
-            <TabsTrigger value="partial" className="text-xs h-6 px-2.5">{isNb ? "Delvis" : "Partial"} ({counts.partial})</TabsTrigger>
-            <TabsTrigger value="met" className="text-xs h-6 px-2.5">{isNb ? "Oppfylt" : "Met"} ({counts.met})</TabsTrigger>
-          </TabsList>
-        </Tabs>
+      {/* Rad 2: agentiske filtre */}
+      <div className="flex flex-wrap items-center gap-2 mb-2">
+        {([
+          {
+            key: "waiting_you" as FilterKey,
+            labelNb: "Venter på deg",
+            labelEn: "Waiting on you",
+            count: counts.waitingYou,
+            icon: UserCheck,
+            hintNb: "Krav du må ta stilling til, dokumentere eller bekrefte selv.",
+            hintEn: "Requirements you need to decide on, document or confirm yourself.",
+          },
+          {
+            key: "agent" as FilterKey,
+            labelNb: "Agenten følger opp",
+            labelEn: "Agent following up",
+            count: counts.agentFollowUp,
+            icon: Bot,
+            hintNb: "Lara henter data, leser dokumenter og oppdaterer disse kravene automatisk.",
+            hintEn: "Lara collects data, reads documents and updates these requirements automatically.",
+          },
+          {
+            key: "ok" as FilterKey,
+            labelNb: "I orden",
+            labelEn: "In order",
+            count: counts.met,
+            icon: CheckCircle2,
+            hintNb: "Krav som er oppfylt eller verifisert.",
+            hintEn: "Requirements that are met or verified.",
+          },
+          {
+            key: "all" as FilterKey,
+            labelNb: "Alle",
+            labelEn: "All",
+            count: counts.total,
+            icon: null,
+            hintNb: "Vis alle krav i regelverket.",
+            hintEn: "Show all requirements in the framework.",
+          },
+        ]).map((chip) => {
+          const ChipIcon = chip.icon;
+          const active = filter === chip.key;
+          return (
+            <Tooltip key={chip.key}>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  onClick={() => setFilter(chip.key)}
+                  className={cn(
+                    "inline-flex items-center gap-1.5 rounded-full border px-3 h-8 text-xs transition-colors",
+                    active
+                      ? "border-foreground/80 bg-foreground text-background font-medium"
+                      : "border-border bg-background text-foreground hover:bg-muted",
+                  )}
+                >
+                  {ChipIcon && <ChipIcon className="h-3.5 w-3.5" />}
+                  <span>{isNb ? chip.labelNb : chip.labelEn}</span>
+                  <span className={cn("tabular-nums", active ? "opacity-90" : "text-muted-foreground")}>{chip.count}</span>
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="max-w-[16rem]">
+                <p>{isNb ? chip.hintNb : chip.hintEn}</p>
+              </TooltipContent>
+            </Tooltip>
+          );
+        })}
+      </div>
 
-        <div className="relative flex-1 min-w-[12rem] sm:flex-none sm:w-72">
+      {/* Rad 3: søk + filtrering */}
+      <div className="flex items-center gap-2 mb-3">
+        <div className="relative flex-1 min-w-0">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={isNb ? "Søk i krav…" : "Search requirements…"}
-            className="pl-9 pr-9 h-8 text-xs"
+            className="pl-9 pr-9 h-9 text-xs"
           />
           {search && (
             <button
@@ -702,7 +594,58 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
             </button>
           )}
         </div>
+
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="outline" size="sm" className="h-9 gap-1.5 text-xs shrink-0 relative">
+              <SlidersHorizontal className="h-3.5 w-3.5" />
+              {isNb ? "Filtrer" : "Filter"}
+              {(docsOnly || grouping !== "status") && (
+                <span className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-primary" />
+              )}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent align="end" className="w-72 p-3 space-y-3">
+            <div className="space-y-1.5">
+              <p className="text-xs font-medium text-muted-foreground">{isNb ? "Gruppér etter" : "Group by"}</p>
+              <Tabs value={grouping} onValueChange={(v) => setGrouping(v as "status" | "control_area")}>
+                <TabsList className="h-8 p-1 bg-muted w-full grid grid-cols-2">
+                  <TabsTrigger value="status" className="text-xs h-6">
+                    {isNb ? "Status" : "Status"}
+                  </TabsTrigger>
+                  <TabsTrigger value="control_area" className="text-xs h-6">
+                    {isNb ? "Kontrollområde" : "Control area"}
+                  </TabsTrigger>
+                </TabsList>
+              </Tabs>
+            </div>
+            <Separator />
+            <div className="flex items-start justify-between gap-3">
+              <Label htmlFor="docs-only" className="text-xs cursor-pointer">
+                <span className="flex items-center gap-1.5 text-foreground">
+                  {isNb ? "Bevis" : "Evidence"}
+                  <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300">
+                    V2
+                  </Badge>
+                </span>
+                <span className="mt-1 block font-normal text-muted-foreground">
+                  {isNb
+                    ? "Vis dokumentasjon per kontrollområde i stedet for kravlisten."
+                    : "Show documentation per control area instead of the requirement list."}
+                </span>
+              </Label>
+              <Switch id="docs-only" checked={docsOnly} onCheckedChange={setDocsOnly} className="mt-0.5" />
+            </div>
+            <Separator />
+            <p className="text-[11px] leading-relaxed text-muted-foreground">
+              {isNb
+                ? `${counts.auto} krav vurderes automatisk av Lara, ${counts.manual} dokumenteres manuelt av deg eller teamet.`
+                : `${counts.auto} requirements are assessed automatically by Lara, ${counts.manual} are documented manually by you or your team.`}
+            </p>
+          </PopoverContent>
+        </Popover>
       </div>
+
 
 
 
