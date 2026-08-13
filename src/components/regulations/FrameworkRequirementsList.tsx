@@ -30,6 +30,8 @@ import { getArticlesForRequirement } from "@/lib/requirementArticles";
 import { getRequirementGuidance, getEvaluationCriteriaText, getExtendedDescription } from "@/lib/requirementGuidance";
 import { Info, Target, ListChecks, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { CONTROL_AREAS, toCanonicalArea, type ControlAreaKey } from "@/lib/controlAreas";
+
 
 type FilterKey = "all" | "not_met" | "partial" | "met";
 
