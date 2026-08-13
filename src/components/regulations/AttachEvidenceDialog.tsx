@@ -210,6 +210,25 @@ export function AttachEvidenceDialog({
     }
   }, [phase.kind, isFrameworkMode, matches]);
 
+  /** Foreslåtte krav + krav brukeren selv har lagt til. */
+  const selectedList = useMemo(() => {
+    const ids = [...matches.map((m) => m.id), ...manualReqIds];
+    const seen = new Set<string>();
+    return ids
+      .filter((id) => (seen.has(id) ? false : (seen.add(id), true)))
+      .map((id) => (frameworkRequirements ?? []).find((r) => r.id === id))
+      .filter(Boolean) as FrameworkMatchCandidate[];
+  }, [matches, manualReqIds, frameworkRequirements]);
+
+  const addCandidates = useMemo(() => {
+    const existing = new Set(selectedList.map((r) => r.id));
+    const q = addQuery.trim().toLowerCase();
+    return (frameworkRequirements ?? [])
+      .filter((r) => !existing.has(r.id))
+      .filter((r) => (q ? r.name.toLowerCase().includes(q) : true))
+      .slice(0, 20);
+  }, [frameworkRequirements, selectedList, addQuery]);
+
 
   const handleFile = useCallback(
     async (file: File) => {
