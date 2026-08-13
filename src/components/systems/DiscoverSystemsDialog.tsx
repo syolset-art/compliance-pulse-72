@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Cloud, Chrome, FileSpreadsheet, PenLine, Sparkles, ArrowRight } from "lucide-react";
+import { Shield, PenLine, Sparkles, ArrowRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { AddSystemDialog } from "@/components/dialogs/AddSystemDialog";
@@ -11,11 +11,11 @@ interface Props {
   onSystemAdded?: (status?: string) => void;
 }
 
-type Source = "microsoft" | "google" | "excel" | "manual";
+type Source = "acronis" | "manual";
 
 const sources: Array<{
   id: Source;
-  icon: typeof Cloud;
+  icon: typeof Shield;
   color: string;
   bg: string;
   title: { nb: string; en: string };
@@ -23,44 +23,22 @@ const sources: Array<{
   badge?: { nb: string; en: string };
 }> = [
   {
-    id: "microsoft",
-    icon: Cloud,
-    color: "text-[#0078D4]",
-    bg: "bg-[#0078D4]/10",
-    title: { nb: "Koble til Microsoft", en: "Connect Microsoft" },
+    id: "acronis",
+    icon: Shield,
+    color: "text-primary",
+    bg: "bg-primary/10",
+    title: { nb: "Koble til Acronis", en: "Connect Acronis" },
     desc: {
-      nb: "Lara oppdager apper via Entra ID og skygge-IT via Defender for Cloud Apps.",
-      en: "Lara discovers apps via Entra ID and shadow IT via Defender for Cloud Apps.",
+      nb: "Lara henter enheter og backup-status fra Acronis Cyber Protect via 7 Security-agenten.",
+      en: "Lara pulls devices and backup status from Acronis Cyber Protect via the 7 Security agent.",
     },
-    badge: { nb: "Anbefalt", en: "Recommended" },
-  },
-  {
-    id: "google",
-    icon: Chrome,
-    color: "text-[#0F9D58]",
-    bg: "bg-[#0F9D58]/10",
-    title: { nb: "Koble til Google Workspace", en: "Connect Google Workspace" },
-    desc: {
-      nb: "Lara henter tilkoblede apper fra Google Admin.",
-      en: "Lara pulls connected apps from Google Admin.",
-    },
-  },
-  {
-    id: "excel",
-    icon: FileSpreadsheet,
-    color: "text-[#7B3FA0]",
-    bg: "bg-[#7B3FA0]/10",
-    title: { nb: "Last opp Excel", en: "Upload Excel" },
-    desc: {
-      nb: "Har du allerede en systemliste? Last opp .xlsx så tar Lara resten.",
-      en: "Already have a system list? Upload .xlsx and Lara handles the rest.",
-    },
+    badge: { nb: "Tilgjengelig", en: "Available" },
   },
   {
     id: "manual",
     icon: PenLine,
-    color: "text-[#E58A2B]",
-    bg: "bg-[#E58A2B]/10",
+    color: "text-muted-foreground",
+    bg: "bg-muted",
     title: { nb: "Registrer manuelt", en: "Add manually" },
     desc: {
       nb: "Fyll ut skjema selv når du vet nøyaktig hva du vil legge inn.",
@@ -80,22 +58,13 @@ export function DiscoverSystemsDialog({ open, onOpenChange, onSystemAdded }: Pro
       setTimeout(() => setManualOpen(true), 150);
       return;
     }
-    if (id === "excel") {
-      toast.info(
-        isNb ? "Excel-import kommer snart" : "Excel import coming soon",
-        { description: isNb ? "Lara vil parse en fast mal (Systemnavn, Leverandør, Formål, Antall brukere)." : "Lara will parse a fixed template (System, Vendor, Purpose, Users)." }
-      );
-      return;
-    }
-    // microsoft / google
+    // Acronis
     toast.info(
-      isNb
-        ? `Kobling til ${id === "microsoft" ? "Microsoft" : "Google Workspace"} settes opp`
-        : `Connecting to ${id === "microsoft" ? "Microsoft" : "Google Workspace"}`,
+      isNb ? "Kobling til Acronis settes opp" : "Connecting to Acronis",
       {
         description: isNb
-          ? "Lara vil be om lesetilgang og starte automatisk oppdagelse. Integrasjonen aktiveres av Mynder-teamet i første versjon."
-          : "Lara will request read access and start automatic discovery. Integration is enabled by the Mynder team in this early version.",
+          ? "Lara vil hente enheter og backup-status fra Acronis Cyber Protect via 7 Security-agenten."
+          : "Lara will pull devices and backup status from Acronis Cyber Protect via the 7 Security agent.",
       }
     );
   };
