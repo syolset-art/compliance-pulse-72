@@ -1124,6 +1124,20 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
         />
       )}
 
+      {frameworkAttachOpen && (
+        <AttachEvidenceDialog
+          open={frameworkAttachOpen}
+          onOpenChange={setFrameworkAttachOpen}
+          requirementId={frameworkId}
+          requirementName={isNb ? "Bevis for hele regelverket" : "Evidence for the whole framework"}
+          coveredArticles={allFrameworkArticles}
+          frameworkRequirements={frameworkCandidates}
+          onConfirm={() => {}}
+          onConfirmMulti={applyFrameworkEvidence}
+        />
+      )}
+
+
       {cursorTip && (
         <div
           className="pointer-events-none fixed z-50 rounded-md bg-popover text-popover-foreground border shadow-md px-2.5 py-1.5 text-xs max-w-xs"
