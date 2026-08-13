@@ -111,6 +111,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
   const [docsOnly, setDocsOnly] = useState(false);
   const [search, setSearch] = useState("");
   const [docDialog, setDocDialog] = useState<{ id: string; name: string } | null>(null);
+  const [autoDialogOpen, setAutoDialogOpen] = useState(false);
   const [reqNotes, setReqNotes] = useState<Record<string, string>>({});
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
   const [draftNote, setDraftNote] = useState<string>("");
