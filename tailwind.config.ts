@@ -172,6 +172,19 @@ export default {
         sm: "calc(var(--radius) - 4px)",
         pill: "999px",
       },
+      transitionDelay: {
+        "0": "0ms",
+        "50": "50ms",
+        "100": "100ms",
+        "150": "150ms",
+        "200": "200ms",
+        "250": "250ms",
+        "300": "300ms",
+        "350": "350ms",
+        "400": "400ms",
+        "500": "500ms",
+      },
+
       keyframes: {
         "accordion-down": {
           from: {
@@ -210,10 +223,15 @@ export default {
           "0%": { opacity: "0", transform: "translateY(10px)" },
           "100%": { opacity: "1", transform: "translateY(0)" },
         },
+        "fade-in-up": {
+          "0%": { opacity: "0", transform: "translateY(12px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
         "scale-in": {
           "0%": { transform: "scale(0.95)", opacity: "0" },
           "100%": { transform: "scale(1)", opacity: "1" },
         },
+
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -223,9 +241,21 @@ export default {
         "shimmer": "shimmer 2s linear infinite",
         "scale-bounce": "scale-bounce 0.5s cubic-bezier(0.16, 1, 0.3, 1)",
         "fade-in": "fade-in 0.4s cubic-bezier(0.16, 1, 0.3, 1)",
+        "fade-in-up": "fade-in-up 0.55s cubic-bezier(0.16, 1, 0.3, 1) both",
         "scale-in": "scale-in 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [
+    require("tailwindcss-animate"),
+    ({ addUtilities, theme }) => {
+      const delays = (theme("transitionDelay") || {}) as Record<string, string>;
+      const utilities: Record<string, { animationDelay: string }> = {};
+      Object.entries(delays).forEach(([key, value]) => {
+        utilities[`.animate-delay-${key}`] = { animationDelay: value };
+      });
+      addUtilities(utilities);
+    },
+  ],
+
 } satisfies Config;

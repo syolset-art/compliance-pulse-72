@@ -216,7 +216,7 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
 
   if (vendors.length === 0) {
     return (
-      <div className="text-center py-16 text-muted-foreground">
+      <div className="text-center py-16 text-muted-foreground motion-safe:animate-fade-in-up">
         <Building2 className="h-12 w-12 mx-auto mb-4 text-muted-foreground/60" aria-hidden="true" />
         <p className="text-lg mb-2 text-foreground">{t("vendorDashboard.noVendors", "Ingen leverandører ennå")}</p>
         <p className="text-sm">{t("vendorDashboard.noVendorsDesc", "Legg til din første leverandør for å komme i gang")}</p>
@@ -224,20 +224,25 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
     );
   }
 
+
   return (
     <div className="space-y-6">
 
       {/* Lara recommendation banner — replaces noisy KPI widgets */}
-      <DashboardLaraRecommendation />
+      <div className="motion-safe:animate-fade-in-up motion-safe:animate-delay-200">
+        <DashboardLaraRecommendation />
+      </div>
 
       {/* Aktiviteter + Leverandører per prioritet */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 motion-safe:animate-fade-in-up motion-safe:animate-delay-250">
         <ComplianceActivityChart />
         <SystemsPriorityChart />
       </div>
 
+
       {/* Visuell oppsummering: Risikofordeling (donut) + Geografi */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 motion-safe:animate-fade-in-up motion-safe:animate-delay-300">
+
         {/* Risk donut med stort sentertall */}
         <Card variant="flat" className="p-5">
           <div className="flex items-center justify-between mb-2">

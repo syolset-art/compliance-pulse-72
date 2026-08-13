@@ -38,6 +38,8 @@ import {
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { VendorTableView } from "./VendorTableView";
+import { staggerEntranceClass } from "@/lib/animation";
+
 
 export type ScoreDisplayMode = "percent" | "label";
 
@@ -285,7 +287,8 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete, new
   return (
     <div className="space-y-4">
       {/* Toolbar */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 motion-safe:animate-fade-in-up motion-safe:animate-delay-200">
+
         <Input
           placeholder={t("assets.filterByName")}
           value={nameFilter}
@@ -482,7 +485,7 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete, new
 
       {/* Results */}
       {filtered.length === 0 ? (
-        <div className="rounded-lg border border-border p-8 text-center text-muted-foreground">
+        <div className="rounded-lg border border-border p-8 text-center text-muted-foreground motion-safe:animate-fade-in-up">
           {t("assets.noAssets", isNb ? "Ingen leverandører funnet" : "No vendors found")}
         </div>
       ) : viewMode === "table" ? (
@@ -506,22 +509,24 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete, new
         />
       ) : (
         <div className="space-y-2">
-          {filtered.map(v => {
+          {filtered.map((v, i) => {
             const md = (v as any).metadata || {};
             const frameworks: string[] = Array.isArray(md.frameworks) ? md.frameworks : [];
             return (
-              <VendorStatusRow
-                key={v.id}
-                vendor={v as any}
-                expiredDocsCount={expiredCounts[v.id] || 0}
-                inboxCount={inboxCounts[v.id] || 0}
-                ownerName={getOwnerName(v)}
-                segments={frameworks}
-              />
+              <div key={v.id} className={staggerEntranceClass(i)}>
+                <VendorStatusRow
+                  vendor={v as any}
+                  expiredDocsCount={expiredCounts[v.id] || 0}
+                  inboxCount={inboxCounts[v.id] || 0}
+                  ownerName={getOwnerName(v)}
+                  segments={frameworks}
+                />
+              </div>
             );
           })}
         </div>
       )}
+
 
     </div>
   );
