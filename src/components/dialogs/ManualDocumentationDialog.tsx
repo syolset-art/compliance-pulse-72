@@ -250,10 +250,11 @@ export function ManualDocumentationDialog({
               <FieldHelp>
                 <p className="font-medium mb-1">Statusskala</p>
                 <ul className="space-y-1 text-muted-foreground">
-                  <li><span className="text-foreground">Ikke påbegynt</span> — kravet er ikke adressert.</li>
+                  <li><span className="text-foreground">Ikke besvart</span> — kravet er ikke adressert.</li>
                   <li><span className="text-foreground">Pågår</span> — arbeid pågår, ikke ferdig.</li>
                   <li><span className="text-foreground">Implementert</span> — innført; bevis er egenrapportert dokumentasjon dere har lastet opp.</li>
                   <li><span className="text-foreground">Verifisert</span> — bevis er signert eller attestert av uavhengig organ (revisor, sertifiseringsorgan).</li>
+                  <li><span className="text-foreground">Ikke relevant</span> — kravet gjelder ikke for din organisasjon.</li>
                 </ul>
               </FieldHelp>
             </div>
@@ -263,7 +264,8 @@ export function ManualDocumentationDialog({
                 <SelectValue placeholder="Velg status..." />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="not_started">Ikke påbegynt</SelectItem>
+                <SelectItem value="not_answered">Ikke besvart</SelectItem>
+
                 <SelectItem value="in_progress">Pågår</SelectItem>
                 <SelectItem value="implemented">Implementert</SelectItem>
                 <SelectPrimitive.Item
