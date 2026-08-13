@@ -231,7 +231,7 @@ const PartnerNav = () => {
   const items = [
     { name: isNb ? "Dashbord" : "Dashboard", href: "/msp-partner", icon: LayoutDashboard },
     { name: isNb ? "Kunder" : "Customers", href: "/msp-dashboard", icon: Users },
-    { name: isNb ? "Tjenester" : "Services", href: "/msp-services", icon: Package },
+    { name: isNb ? "Produkter og tjenester" : "Products and services", href: "/msp-services", icon: Package },
     { name: isNb ? "Kundevisning" : "Customer view", href: "/msp-customer-view", icon: Eye },
     { name: isNb ? "Meldinger" : "Messages", href: "/msp-messages", icon: Inbox },
     { name: isNb ? "Fakturagrunnlag" : "Billing basis", href: "/msp-invoices", icon: FileText },
