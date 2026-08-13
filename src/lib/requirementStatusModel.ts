@@ -203,43 +203,41 @@ export interface StatusConfig {
  * Kun små fargeaksenter på ikonet + kant. Ingen fylte fargefelt utenom
  * subtile advarsler.
  */
-export const PROGRESS_CONFIG: Record<ProgressStatus, StatusConfig> = {
-  not_answered: {
-    labelNb: "Ikke besvart",
-    labelEn: "Not answered",
-    icon: Circle,
-    badgeClass: "bg-transparent text-muted-foreground border-border",
-    iconClass: "text-muted-foreground",
-  },
-  in_progress: {
-    labelNb: "Pågår",
-    labelEn: "In progress",
-    icon: CircleDashed,
-    badgeClass: "bg-transparent text-foreground border-warning/40",
-    iconClass: "text-warning",
-  },
-  implemented: {
-    labelNb: "Implementert",
-    labelEn: "Implemented",
-    icon: CheckCircle2,
-    badgeClass: "bg-transparent text-foreground border-border",
-    iconClass: "text-primary",
-  },
-  verified: {
-    labelNb: "Verifisert",
-    labelEn: "Verified",
-    icon: ShieldCheck,
-    badgeClass: "bg-transparent text-foreground border-success/40",
-    iconClass: "text-success",
-  },
-  not_applicable: {
-    labelNb: "Ikke relevant",
-    labelEn: "Not applicable",
-    icon: CircleSlash,
-    badgeClass: "bg-transparent text-muted-foreground border-border",
-    iconClass: "text-muted-foreground",
-  },
+const FULFILLED_CONFIG: StatusConfig = {
+  labelNb: "Ja, dette oppfylles",
+  labelEn: "Yes, this is met",
+  icon: Check,
+  badgeClass: "bg-transparent text-foreground border-success/40",
+  iconClass: "text-success",
 };
+
+const NOT_APPLICABLE_CONFIG: StatusConfig = {
+  labelNb: "Ikke relevant for oss",
+  labelEn: "Not relevant for us",
+  icon: CircleSlash,
+  badgeClass: "bg-transparent text-muted-foreground border-border",
+  iconClass: "text-muted-foreground",
+};
+
+const NOT_STARTED_CONFIG: StatusConfig = {
+  labelNb: "Ikke påbegynt",
+  labelEn: "Not started",
+  icon: Circle,
+  badgeClass: "bg-transparent text-muted-foreground border-border",
+  iconClass: "text-muted-foreground",
+};
+
+export const PROGRESS_CONFIG: Record<ProgressStatus, StatusConfig> = {
+  fulfilled: FULFILLED_CONFIG,
+  not_applicable: NOT_APPLICABLE_CONFIG,
+  not_started: NOT_STARTED_CONFIG,
+  // Eldre verdier peker på samme tre-verdimodell.
+  implemented: FULFILLED_CONFIG,
+  verified: FULFILLED_CONFIG,
+  in_progress: NOT_STARTED_CONFIG,
+  not_answered: NOT_STARTED_CONFIG,
+};
+
 
 export const EVIDENCE_CONFIG: Record<EvidenceState, StatusConfig> = {
   required: {
