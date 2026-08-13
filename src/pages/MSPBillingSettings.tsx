@@ -199,7 +199,7 @@ export default function MSPBillingSettings() {
 
   // Refresh customer list when modules change elsewhere.
   useEffect(() => {
-    const refresh = () => queryClient.invalidateQueries({ queryKey: ["msp-customers-billing-settings"] });
+    const refresh = () => queryClient.invalidateQueries({ queryKey: ["msp-customers-invoices"] });
     window.addEventListener(CUSTOMER_MODULES_EVENT, refresh);
     window.addEventListener("modules:changed", refresh);
     return () => {
