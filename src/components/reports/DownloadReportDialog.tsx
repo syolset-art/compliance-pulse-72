@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Download, Loader2, CheckCircle2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { generateFullComplianceReport } from "./generateFullComplianceReport";
+import type { EvidenceFilter } from "@/lib/reportRequirementStatus";
 import { supabase } from "@/integrations/supabase/client";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
@@ -166,7 +167,7 @@ export const DownloadReportDialog = ({
           return fw ? selectedFrameworks.has(fw.id) : true;
         }),
       };
-      generateFullComplianceReport(filteredData, { includeRequirements, includeEvaluators }, companyName);
+      generateFullComplianceReport(filteredData, { includeRequirements, includeEvaluators, evidenceFilter }, companyName);
       setDone(true);
       toast({ title: "PDF generert", description: "Rapporten er lastet ned." });
       setTimeout(() => {
