@@ -30,6 +30,8 @@ import { getArticlesForRequirement } from "@/lib/requirementArticles";
 import { getRequirementGuidance, getEvaluationCriteriaText, getExtendedDescription } from "@/lib/requirementGuidance";
 import { Info, Target, ListChecks, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { CONTROL_AREAS, toCanonicalArea, type ControlAreaKey } from "@/lib/controlAreas";
+
 
 type FilterKey = "all" | "not_met" | "partial" | "met";
 
@@ -167,6 +169,59 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
     }
     return list;
   }, [filter, requirements, uiStates, search]);
+
+  const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set());
+
+  /** Seksjoner: enten de 5 kontrollområdene, eller statusbøttene. */
+  const groups = useMemo(() => {
+    const metCount = (items: ComplianceRequirement[]) =>
+      items.filter((r) => bucketOf(uiStates[r.requirement_id]?.progress ?? "not_answered") === "met").length;
+
+    if (grouping === "control_area") {
+      const byArea = new Map<ControlAreaKey, ComplianceRequirement[]>();
+      for (const req of filtered) {
+        const area = toCanonicalArea(req.sla_category);
+        const list = byArea.get(area) ?? [];
+        list.push(req);
+        byArea.set(area, list);
+      }
+      return CONTROL_AREAS.map((a) => {
+        const items = byArea.get(a.key) ?? [];
+        return {
+          key: a.key as string,
+          label: isNb ? a.labelNb : a.labelEn,
+          Icon: a.icon,
+          accentClass: a.accentClass,
+          items,
+          met: metCount(items),
+        };
+      }).filter((g) => g.items.length > 0);
+    }
+
+    const statusOrder: Array<{ key: "not_met" | "partial" | "met" | "na"; nb: string; en: string }> = [
+      { key: "not_met", nb: "Ikke oppfylt", en: "Not met" },
+      { key: "partial", nb: "Delvis", en: "Partially met" },
+      { key: "met", nb: "Oppfylt", en: "Met" },
+      { key: "na", nb: "Ikke relevant", en: "Not applicable" },
+    ];
+    return statusOrder
+      .map((s) => {
+        const items = filtered.filter(
+          (r) => bucketOf(uiStates[r.requirement_id]?.progress ?? "not_answered") === s.key,
+        );
+        return {
+          key: s.key as string,
+          label: isNb ? s.nb : s.en,
+          Icon: ListChecks,
+          accentClass: "text-muted-foreground",
+          items,
+          met: metCount(items),
+        };
+      })
+      .filter((g) => g.items.length > 0);
+  }, [filtered, grouping, uiStates, isNb]);
+
+
 
   const handleDocSave = (requirementId: string, status: string, _comment: string, doc?: EvidenceDocument) => {
     setUiStates((prev) => {
@@ -398,8 +453,37 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
       )}
 
 
-      <div className="space-y-3">
-        {filtered.map((req) => {
+      <div className="space-y-6">
+        {groups.map((group) => {
+          const isCollapsed = collapsedGroups.has(group.key);
+          const GroupIcon = group.Icon;
+          return (
+        <section key={group.key} className="space-y-3">
+          <button
+            type="button"
+            onClick={() => toggleSet(setCollapsedGroups, group.key)}
+            className="w-full flex items-center gap-2 px-1 py-1 text-left group/section"
+            aria-expanded={!isCollapsed}
+          >
+            <GroupIcon className={cn("h-4 w-4 shrink-0", group.accentClass)} />
+            <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground group-hover/section:text-foreground transition-colors">
+              {group.label}
+            </span>
+            <span className="text-xs tabular-nums text-muted-foreground/70">
+              ({group.met}/{group.items.length})
+            </span>
+            <span className="flex-1 h-px bg-border ml-2" />
+            {isCollapsed ? (
+              <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+            ) : (
+              <ChevronUp className="h-3.5 w-3.5 text-muted-foreground" />
+            )}
+          </button>
+
+          {!isCollapsed && (
+          <div className="space-y-3">
+        {group.items.map((req) => {
+
           const state = uiStates[req.requirement_id] ?? { progress: "not_answered", evidence: "required" };
           const isExpanded = expandedId === req.requirement_id;
           const progressCfg = getProgressConfig(state.progress);
@@ -759,7 +843,13 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
             </div>
           );
         })}
+          </div>
+          )}
+        </section>
+          );
+        })}
       </div>
+
 
       {filtered.length === 0 && (
         <div className="text-center py-12 text-muted-foreground">
