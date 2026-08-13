@@ -175,13 +175,20 @@ export function AttachEvidenceDialog({
   const [showArticles, setShowArticles] = useState(false);
   const [showReviewArticles, setShowReviewArticles] = useState(false);
   const [selectedReqIds, setSelectedReqIds] = useState<Set<string>>(new Set());
+  const [showAddReq, setShowAddReq] = useState(false);
+  const [addQuery, setAddQuery] = useState("");
+  const [manualReqIds, setManualReqIds] = useState<string[]>([]);
 
   const reset = useCallback(() => {
     setPhase({ kind: "select" });
     setShowArticles(false);
     setShowReviewArticles(false);
     setSelectedReqIds(new Set());
+    setShowAddReq(false);
+    setAddQuery("");
+    setManualReqIds([]);
   }, []);
+
 
   /** Krav i regelverket som dokumentet treffer (artikkeloverlapp). */
   const matches = useMemo(() => {
