@@ -415,7 +415,7 @@ export function AttachEvidenceDialog({
               </TooltipProvider>
             </div>
 
-            {(() => {
+            {!isFrameworkMode && (() => {
               const coveredSet = new Set(phase.result.coveredArticles);
               const required =
                 coveredArticles && coveredArticles.length > 0
@@ -509,25 +509,33 @@ export function AttachEvidenceDialog({
             })()}
 
             {isFrameworkMode && (
-              <div className="space-y-1.5 pt-1">
-                <p className="text-[11px] text-muted-foreground">
-                  {matches.length > 0
-                    ? isNb
-                      ? `Lara foreslår ${matches.length} krav dette dokumentet dekker`
-                      : `Lara suggests ${matches.length} requirements this document covers`
-                    : isNb
-                      ? "Lara fant ingen tydelige treff i dette regelverket."
-                      : "Lara found no clear matches in this framework."}
-                </p>
-                {matches.map((m) => {
-                  const checked = selectedReqIds.has(m.id);
+              <div className="space-y-2 pt-1">
+                <div className="rounded-md border border-border/60 bg-muted/30 px-2.5 py-2">
+                  <p className="text-xs text-foreground">
+                    {matches.length > 0
+                      ? isNb
+                        ? `Lara foreslår ${matches.length} krav dokumentet ser ut til å dekke`
+                        : `Lara suggests ${matches.length} requirements this document appears to cover`
+                      : isNb
+                        ? "Lara fant ingen tydelige treff. Du kan legge til krav selv."
+                        : "Lara found no clear matches. You can add requirements yourself."}
+                  </p>
+                  <p className="text-[11px] text-muted-foreground mt-0.5">
+                    {isNb
+                      ? "Dette er kun et forslag — Lara kan ta feil. Du bestemmer hva som tilknyttes."
+                      : "This is only a suggestion — Lara can be wrong. You decide what to attach."}
+                  </p>
+                </div>
+
+                {selectedList.map((m) => {
+                  const hit = matches.find((x) => x.id === m.id);
                   return (
                     <label
                       key={m.id}
                       className="flex items-center gap-2 rounded-md border border-border/60 px-2 py-1.5 cursor-pointer hover:bg-muted/40 transition-colors"
                     >
                       <Checkbox
-                        checked={checked}
+                        checked={selectedReqIds.has(m.id)}
                         onCheckedChange={() =>
                           setSelectedReqIds((prev) => {
                             const n = new Set(prev);
@@ -537,14 +545,60 @@ export function AttachEvidenceDialog({
                         }
                       />
                       <span className="text-xs text-foreground truncate flex-1">{m.name}</span>
-                      <span className="text-[11px] text-muted-foreground tabular-nums shrink-0">
-                        {m.hits.length} {isNb ? "art." : "art."}
-                      </span>
+                      {hit ? (
+                        <span className="text-[11px] text-muted-foreground tabular-nums shrink-0">
+                          {hit.hits.length} art.
+                        </span>
+                      ) : (
+                        <span className="text-[11px] text-muted-foreground shrink-0">
+                          {isNb ? "lagt til av deg" : "added by you"}
+                        </span>
+                      )}
                     </label>
                   );
                 })}
+
+                <button
+                  type="button"
+                  onClick={() => setShowAddReq((v) => !v)}
+                  className="flex items-center gap-1 text-[11px] text-primary hover:underline"
+                >
+                  <Plus className="h-3 w-3" />
+                  {isNb ? "Legg til krav Lara ikke fant" : "Add a requirement Lara missed"}
+                </button>
+
+                {showAddReq && (
+                  <div className="space-y-1.5">
+                    <Input
+                      value={addQuery}
+                      onChange={(e) => setAddQuery(e.target.value)}
+                      placeholder={isNb ? "Søk etter krav…" : "Search requirements…"}
+                      className="h-8 text-xs"
+                    />
+                    <div className="max-h-40 overflow-y-auto space-y-1">
+                      {addCandidates.length === 0 && (
+                        <p className="text-[11px] text-muted-foreground px-1">
+                          {isNb ? "Ingen treff" : "No results"}
+                        </p>
+                      )}
+                      {addCandidates.map((r) => (
+                        <button
+                          key={r.id}
+                          type="button"
+                          onClick={() =>
+                            setSelectedReqIds((prev) => new Set(prev).add(r.id))
+                          }
+                          className="w-full text-left text-xs px-2 py-1.5 rounded-md hover:bg-muted/50 transition-colors truncate"
+                        >
+                          {r.name}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
+
           </div>
         )}
 
