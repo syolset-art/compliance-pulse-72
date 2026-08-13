@@ -18,6 +18,8 @@ import { FrameworkDetailCard } from "@/components/regulations/FrameworkDetailCar
 import { ComplianceHistoryChart } from "@/components/regulations/ComplianceHistoryChart";
 import { FrameworkRequirementsList } from "@/components/regulations/FrameworkRequirementsList";
 import { EditActiveFrameworksDialog } from "@/components/regulations/EditActiveFrameworksDialog";
+import { RegulationsViewSwitch, rememberRegulationsView } from "@/components/regulations/RegulationsViewSwitch";
+
 
 import { CountryScopeDialog } from "@/components/regulations/CountryScopeDialog";
 import { loadCountryScope, saveCountryScope, SUPPORTED_COUNTRIES, getCountry, type CountryScope } from "@/components/regulations/countryScopeData";
