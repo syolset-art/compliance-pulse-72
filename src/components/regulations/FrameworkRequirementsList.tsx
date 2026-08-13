@@ -35,6 +35,11 @@ import { getRequirementGuidance, getEvaluationCriteriaText, getExtendedDescripti
 import { Info, Target, ListChecks, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CONTROL_AREAS, toCanonicalArea, type ControlAreaKey } from "@/lib/controlAreas";
+import {
+  agentConfirmedRequirementIds,
+  buildExpectedEvidenceRows,
+  expectedStatusLabel,
+} from "@/lib/frameworkEvidenceExpectations";
 
 
 type FilterKey = "all" | "not_met" | "partial" | "met";
