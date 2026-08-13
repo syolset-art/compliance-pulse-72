@@ -71,6 +71,7 @@ export const INTEGRATION_CATALOG: IntegrationDefinition[] = [
     scopes: ["Application.Read.All", "Directory.Read.All", "User.Read.All"],
     icon: Fingerprint,
     readOnly: true,
+    availability: "planned",
   },
   {
     id: "google_workspace",
@@ -84,6 +85,7 @@ export const INTEGRATION_CATALOG: IntegrationDefinition[] = [
     scopes: ["admin.directory.user.readonly", "admin.directory.domain.readonly"],
     icon: Users,
     readOnly: true,
+    availability: "planned",
   },
   {
     id: "okta",
@@ -97,6 +99,7 @@ export const INTEGRATION_CATALOG: IntegrationDefinition[] = [
     scopes: ["okta.apps.read", "okta.users.read"],
     icon: Shield,
     readOnly: true,
+    availability: "planned",
   },
   {
     id: "microsoft_365",
@@ -110,6 +113,7 @@ export const INTEGRATION_CATALOG: IntegrationDefinition[] = [
     scopes: ["Sites.Read.All", "Team.ReadBasic.All"],
     icon: Layers,
     readOnly: true,
+    availability: "planned",
   },
   {
     id: "slack",
@@ -123,6 +127,7 @@ export const INTEGRATION_CATALOG: IntegrationDefinition[] = [
     scopes: ["apps:read", "team:read"],
     icon: Cloud,
     readOnly: true,
+    availability: "planned",
   },
   {
     id: "defender_cloud_apps",
@@ -136,6 +141,7 @@ export const INTEGRATION_CATALOG: IntegrationDefinition[] = [
     scopes: ["CloudApp-Discovery.Read.All"],
     icon: Shield,
     readOnly: true,
+    availability: "planned",
   },
   {
     id: "netskope",
@@ -149,6 +155,7 @@ export const INTEGRATION_CATALOG: IntegrationDefinition[] = [
     scopes: ["events:read", "apps:read"],
     icon: Cloud,
     readOnly: true,
+    availability: "planned",
   },
   {
     id: "intune",
@@ -162,6 +169,7 @@ export const INTEGRATION_CATALOG: IntegrationDefinition[] = [
     scopes: ["DeviceManagementManagedDevices.Read.All"],
     icon: Server,
     readOnly: true,
+    availability: "planned",
   },
   {
     id: "jamf",
@@ -175,6 +183,7 @@ export const INTEGRATION_CATALOG: IntegrationDefinition[] = [
     scopes: ["read:computers", "read:applications"],
     icon: Server,
     readOnly: true,
+    availability: "planned",
   },
   {
     id: "tripletex",
@@ -188,6 +197,7 @@ export const INTEGRATION_CATALOG: IntegrationDefinition[] = [
     scopes: ["supplier:read", "ledger:read"],
     icon: Landmark,
     readOnly: true,
+    availability: "planned",
   },
   {
     id: "fiken",
@@ -201,6 +211,7 @@ export const INTEGRATION_CATALOG: IntegrationDefinition[] = [
     scopes: ["read:contacts", "read:invoices"],
     icon: Landmark,
     readOnly: true,
+    availability: "planned",
   },
   {
     id: "xero",
@@ -214,6 +225,7 @@ export const INTEGRATION_CATALOG: IntegrationDefinition[] = [
     scopes: ["accounting.contacts.read"],
     icon: Landmark,
     readOnly: true,
+    availability: "planned",
   },
   {
     id: "csv_upload",
@@ -227,6 +239,7 @@ export const INTEGRATION_CATALOG: IntegrationDefinition[] = [
     scopes: [],
     icon: FileText,
     readOnly: true,
+    availability: "planned",
   },
   {
     id: "custom_rest",
@@ -240,6 +253,7 @@ export const INTEGRATION_CATALOG: IntegrationDefinition[] = [
     scopes: [],
     icon: Building2,
     readOnly: true,
+    availability: "planned",
   },
 ];
 
