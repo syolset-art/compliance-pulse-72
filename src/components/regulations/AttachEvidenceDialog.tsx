@@ -564,14 +564,26 @@ export function AttachEvidenceDialog({
               </Button>
               <Button
                 size="sm"
+                disabled={isFrameworkMode && selectedReqIds.size === 0}
                 onClick={() => {
-                  onConfirm(phase.result);
+                  if (isFrameworkMode && onConfirmMulti) {
+                    onConfirmMulti(Array.from(selectedReqIds), phase.result);
+                  } else {
+                    onConfirm(phase.result);
+                  }
                   reset();
                   onOpenChange(false);
                 }}
               >
-                {isNb ? "Bekreft" : "Confirm"}
+                {isFrameworkMode
+                  ? isNb
+                    ? `Tilknytt ${selectedReqIds.size} krav`
+                    : `Attach to ${selectedReqIds.size}`
+                  : isNb
+                    ? "Bekreft"
+                    : "Confirm"}
               </Button>
+
             </>
           ) : phase.kind === "error" ? (
             <>
