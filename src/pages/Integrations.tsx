@@ -90,8 +90,9 @@ export default function Integrations() {
         discoveredSystems: integration.discovers.includes("systems") ? Math.floor(Math.random() * 24) + 3 : 0,
         discoveredVendors: integration.discovers.includes("vendors") ? Math.floor(Math.random() * 12) + 1 : 0,
       },
-    connectSource(integration.id);
     }));
+    connectSource(integration.id);
+
     toast.success(`${integration.name} koblet til`, {
       description: "Lara starter automatisk kartlegging. Oppdagede elementer krever din godkjenning.",
     });
