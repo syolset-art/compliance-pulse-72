@@ -201,18 +201,23 @@ export function generateFullComplianceReport(data: ReportData, options: Options,
   doc.text("Dokumentasjon per kontrollområde", 14, 20);
   doc.setFontSize(9);
   doc.setTextColor(110, 110, 110);
-  doc.text(
-    "Bevis er dokumentasjon som policy, rutine, logg, avtale, sertifikat eller revisjonsrapport.",
-    14,
-    26,
+  const evidenceNote = doc.splitTextToSize(
+    "Bevis er dokumentasjon som policy, rutine, logg, avtale, sertifikat eller revisjonsrapport. "
+      + "Ikke alle krav krever bevis: et krav satt til «Ja, dette oppfylles» regnes som oppfylt også uten "
+      + "dokumentasjon. Bevis gir økt tillit til vurderingen, men påvirker ikke etterlevelsesgraden.",
+    182,
   );
+  doc.text(evidenceNote, 14, 26);
 
-  let areaY = 32;
+  let areaY = 26 + evidenceNote.length * 4.5 + 6;
+
   for (const area of CONTROL_AREAS) {
     const rows = evidenceRows.filter((r) => r.area === area.key);
     if (rows.length === 0) continue;
 
-    const received = rows.filter((r) => r.status !== "Mangler").length;
+    const received = rows.filter(
+      (r) => r.status === "Opplastet" || r.status === "Agent-bekreftet",
+    ).length;
 
     if (areaY > 250) {
       doc.addPage();
@@ -278,7 +283,12 @@ export function generateFullComplianceReport(data: ReportData, options: Options,
           req.category,
           req.priority === "critical" ? "Kritisk" : req.priority === "high" ? "Høy" : req.priority === "medium" ? "Medium" : "Lav",
           REPORT_STATUS_LABEL[getReportStatus(req)],
-          count > 0 ? `${count} vedlegg` : "Mangler",
+          count > 0
+            ? `${count} vedlegg`
+            : getReportStatus(req) === "fulfilled"
+              ? "Uten bevis"
+              : "Mangler",
+
         ];
         if (options.includeEvaluators) row.push(getEvaluatorName(i));
         return row;
@@ -304,7 +314,8 @@ export function generateFullComplianceReport(data: ReportData, options: Options,
           }
           if (d.column.index === 5) {
             const v = d.cell.raw as string;
-            d.cell.styles.textColor = v === "Mangler" ? [239, 68, 68] : [16, 185, 129];
+            d.cell.styles.textColor =
+              v === "Mangler" ? [239, 68, 68] : v === "Uten bevis" ? [140, 140, 140] : [16, 185, 129];
           }
         },
       });
