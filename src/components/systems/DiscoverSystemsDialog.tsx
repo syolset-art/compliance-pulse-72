@@ -58,22 +58,13 @@ export function DiscoverSystemsDialog({ open, onOpenChange, onSystemAdded }: Pro
       setTimeout(() => setManualOpen(true), 150);
       return;
     }
-    if (id === "excel") {
-      toast.info(
-        isNb ? "Excel-import kommer snart" : "Excel import coming soon",
-        { description: isNb ? "Lara vil parse en fast mal (Systemnavn, Leverandør, Formål, Antall brukere)." : "Lara will parse a fixed template (System, Vendor, Purpose, Users)." }
-      );
-      return;
-    }
-    // microsoft / google
+    // Acronis
     toast.info(
-      isNb
-        ? `Kobling til ${id === "microsoft" ? "Microsoft" : "Google Workspace"} settes opp`
-        : `Connecting to ${id === "microsoft" ? "Microsoft" : "Google Workspace"}`,
+      isNb ? "Kobling til Acronis settes opp" : "Connecting to Acronis",
       {
         description: isNb
-          ? "Lara vil be om lesetilgang og starte automatisk oppdagelse. Integrasjonen aktiveres av Mynder-teamet i første versjon."
-          : "Lara will request read access and start automatic discovery. Integration is enabled by the Mynder team in this early version.",
+          ? "Lara vil hente enheter og backup-status fra Acronis Cyber Protect via 7 Security-agenten."
+          : "Lara will pull devices and backup status from Acronis Cyber Protect via the 7 Security agent.",
       }
     );
   };
