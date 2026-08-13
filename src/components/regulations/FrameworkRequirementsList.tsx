@@ -252,6 +252,59 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
     [docGroups],
   );
 
+  /** Forventet dokumentasjon for regelverket, gruppert per kontrollområde. */
+  const expectedRows = useMemo(() => {
+    const hasDocs = (id: string) => (uiStates[id]?.documents?.length ?? 0) > 0;
+    const agentConfirmed = agentConfirmedRequirementIds(requirements, hasDocs);
+    return buildExpectedEvidenceRows(requirements, hasDocs, agentConfirmed, isNb);
+  }, [requirements, uiStates, isNb]);
+
+  const missingEvidenceCount = useMemo(
+    () => expectedRows.filter((r) => r.status === "missing").length,
+    [expectedRows],
+  );
+
+  const expectedByArea = useMemo(() => {
+    const map = new Map<string, typeof expectedRows>();
+    expectedRows.forEach((r) => {
+      const list = map.get(r.area) ?? [];
+      list.push(r);
+      map.set(r.area, list);
+    });
+    return map;
+  }, [expectedRows]);
+
+  /** Kandidater for regelverk-nivå analyse (alle krav + artiklene de dekker). */
+  const frameworkCandidates = useMemo(
+    () =>
+      requirements.map((r) => ({
+        id: r.requirement_id,
+        name: isNb ? r.name_no : r.name,
+        articles: getArticlesForRequirement(r) ?? r.covered_articles ?? [],
+      })),
+    [requirements, isNb],
+  );
+
+  const allFrameworkArticles = useMemo(
+    () => Array.from(new Set(frameworkCandidates.flatMap((c) => c.articles))),
+    [frameworkCandidates],
+  );
+
+  const applyFrameworkEvidence = (requirementIds: string[], result: AttachEvidenceResult) => {
+    requirementIds.forEach((id) => {
+      const req = requirements.find((r) => r.requirement_id === id);
+      if (req) applyEvidenceAttachment(id, req, result, { silent: true });
+    });
+    setFrameworkAttachOpen(false);
+    toast.success(
+      isNb
+        ? `Bevis tilknyttet ${requirementIds.length} krav`
+        : `Evidence attached to ${requirementIds.length} requirements`,
+    );
+  };
+
+
+
 
 
 
