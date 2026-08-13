@@ -615,6 +615,34 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
 
           );
         })}
+
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              type="button"
+              onClick={() => setDocsOnly((v) => !v)}
+              className={cn(
+                "inline-flex items-center gap-1.5 rounded-full border px-3 h-8 text-xs transition-colors",
+                docsOnly
+                  ? "border-foreground/80 bg-foreground text-background font-medium"
+                  : "border-border bg-background text-foreground hover:bg-muted",
+              )}
+            >
+              <FileIcon className="h-3.5 w-3.5" />
+              <span>{isNb ? "Bevis" : "Evidence"}</span>
+              <span className={cn("tabular-nums", docsOnly ? "opacity-90" : "text-muted-foreground")}>
+                {docGroups.reduce((sum, g) => sum + g.docs.length, 0)}
+              </span>
+            </button>
+          </TooltipTrigger>
+          <TooltipContent side="bottom" className="max-w-[16rem]">
+            <p>
+              {isNb
+                ? "Vis dokumentasjon per kontrollområde i stedet for kravlisten."
+                : "Show documentation per control area instead of the requirement list."}
+            </p>
+          </TooltipContent>
+        </Tooltip>
       </div>
 
       {/* Rad 3: søk + filtrering */}
@@ -644,7 +672,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
             <Button variant="outline" size="sm" className="h-9 gap-1.5 text-xs shrink-0 relative">
               <SlidersHorizontal className="h-3.5 w-3.5" />
               {isNb ? "Filtrer" : "Filter"}
-              {(docsOnly || grouping !== "status") && (
+              {grouping !== "status" && (
                 <span className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-primary" />
               )}
             </Button>
@@ -662,23 +690,6 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                   </TabsTrigger>
                 </TabsList>
               </Tabs>
-            </div>
-            <Separator />
-            <div className="flex items-start justify-between gap-3">
-              <Label htmlFor="docs-only" className="text-xs cursor-pointer">
-                <span className="flex items-center gap-1.5 text-foreground">
-                  {isNb ? "Bevis" : "Evidence"}
-                  <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300">
-                    V2
-                  </Badge>
-                </span>
-                <span className="mt-1 block font-normal text-muted-foreground">
-                  {isNb
-                    ? "Vis dokumentasjon per kontrollområde i stedet for kravlisten."
-                    : "Show documentation per control area instead of the requirement list."}
-                </span>
-              </Label>
-              <Switch id="docs-only" checked={docsOnly} onCheckedChange={setDocsOnly} className="mt-0.5" />
             </div>
             <Separator />
             <p className="text-[11px] leading-relaxed text-muted-foreground">
