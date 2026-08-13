@@ -254,22 +254,12 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
     })).filter((g) => g.docs.length > 0);
   }, [filtered, uiStates, isNb]);
 
-  const totalDocCount = useMemo(
-    () => docGroups.reduce((sum, g) => sum + g.docs.length, 0),
-    [docGroups],
-  );
-
   /** Forventet dokumentasjon for regelverket, gruppert per kontrollområde. */
   const expectedRows = useMemo(() => {
     const hasDocs = (id: string) => (uiStates[id]?.documents?.length ?? 0) > 0;
     const agentConfirmed = agentConfirmedRequirementIds(requirements, hasDocs);
     return buildExpectedEvidenceRows(requirements, hasDocs, agentConfirmed, isNb);
   }, [requirements, uiStates, isNb]);
-
-  const missingEvidenceCount = useMemo(
-    () => expectedRows.filter((r) => r.status === "missing").length,
-    [expectedRows],
-  );
 
   const expectedByArea = useMemo(() => {
     const map = new Map<string, typeof expectedRows>();
@@ -630,76 +620,65 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
         </TabsList>
       </Tabs>
 
-      <div className="relative mb-3">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-        <Input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder={isNb ? "Søk i krav eller beskrivelse…" : "Search requirements or description…"}
-          className="pl-9 pr-9 h-9"
-        />
-        {search && (
-          <button
-            type="button"
-            onClick={() => setSearch("")}
-            className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded hover:bg-muted text-muted-foreground"
-            aria-label={isNb ? "Tøm søk" : "Clear search"}
-          >
-            <X className="h-3.5 w-3.5" />
-          </button>
-        )}
-      </div>
-
-      <div className="mb-4 flex items-center justify-between gap-3 rounded-lg border border-border/60 bg-muted/20 px-3 py-2">
-        <div className="flex items-center gap-2 min-w-0">
-          <FileIcon className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-          <span className="text-xs text-muted-foreground truncate">
-            {isNb
-              ? `${totalDocCount} bevis registrert · ${missingEvidenceCount} mangler`
-              : `${totalDocCount} evidence items · ${missingEvidenceCount} missing`}
-          </span>
+      <div className="flex items-center gap-3 mb-3">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+          <Input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder={isNb ? "Søk i krav eller beskrivelse…" : "Search requirements or description…"}
+            className="pl-9 pr-9 h-9"
+          />
+          {search && (
+            <button
+              type="button"
+              onClick={() => setSearch("")}
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded hover:bg-muted text-muted-foreground"
+              aria-label={isNb ? "Tøm søk" : "Clear search"}
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          )}
         </div>
-        <div className="flex items-center gap-3 shrink-0">
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              size="sm"
+              variant="outline"
+              className="h-7 gap-1.5 text-xs shrink-0"
+              onClick={() => setFrameworkAttachOpen(true)}
+            >
+              <Upload className="h-3.5 w-3.5" />
+              {isNb ? "Last opp bevis" : "Upload evidence"}
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="bottom" className="max-w-xs">
+            <p>
+              {isNb
+                ? "Last opp dokumentasjon. Lara analyserer dokumentet og foreslår hvilke krav det dekker. Bekreft forslaget, så oppdateres kravene og scoren automatisk."
+                : "Upload documentation. Lara analyzes the document and suggests which requirements it covers. Confirm the suggestion, and the requirements and score are updated automatically."}
+            </p>
+          </TooltipContent>
+        </Tooltip>
+        <div className="flex items-center gap-2 shrink-0">
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button
-                size="sm"
-                variant="outline"
-                className="h-7 gap-1.5 text-xs"
-                onClick={() => setFrameworkAttachOpen(true)}
-              >
-                <Upload className="h-3.5 w-3.5" />
-                {isNb ? "Last opp bevis" : "Upload evidence"}
-              </Button>
+              <Label htmlFor="docs-only" className="text-xs text-muted-foreground cursor-pointer flex items-center gap-1.5">
+                {isNb ? "Bevis" : "Evidence"}
+                <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300">
+                  V2
+                </Badge>
+              </Label>
             </TooltipTrigger>
             <TooltipContent side="bottom" className="max-w-xs">
               <p>
                 {isNb
-                  ? "Last opp dokumentasjon. Lara analyserer dokumentet og foreslår hvilke krav det dekker. Bekreft forslaget, så oppdateres kravene og scoren automatisk."
-                  : "Upload documentation. Lara analyzes the document and suggests which requirements it covers. Confirm the suggestion, and the requirements and score are updated automatically."}
+                  ? "Bevis er dokumentasjon som viser at kravet er oppfylt — for eksempel policy, risikovurdering, logg, sertifikat, avtale eller revisjonsrapport."
+                  : "Evidence is documentation showing a requirement is met — for example a policy, risk assessment, log, certificate, agreement or audit report."}
               </p>
             </TooltipContent>
           </Tooltip>
-          <div className="flex items-center gap-2">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Label htmlFor="docs-only" className="text-xs text-muted-foreground cursor-pointer flex items-center gap-1.5">
-                  {isNb ? "Bevis" : "Evidence"}
-                  <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300">
-                    V2
-                  </Badge>
-                </Label>
-              </TooltipTrigger>
-              <TooltipContent side="bottom" className="max-w-xs">
-                <p>
-                  {isNb
-                    ? "Bevis er dokumentasjon som viser at kravet er oppfylt — for eksempel policy, risikovurdering, logg, sertifikat, avtale eller revisjonsrapport."
-                    : "Evidence is documentation showing a requirement is met — for example a policy, risk assessment, log, certificate, agreement or audit report."}
-                </p>
-              </TooltipContent>
-            </Tooltip>
-            <Switch id="docs-only" checked={docsOnly} onCheckedChange={setDocsOnly} />
-          </div>
+          <Switch id="docs-only" checked={docsOnly} onCheckedChange={setDocsOnly} />
         </div>
       </div>
 
