@@ -105,7 +105,8 @@ function buildCostSummary(customers: any[], tax: any): CostSummary {
 
   const totalNet = monthly + fixed + setup;
   const breakdown = computeTaxBreakdown(totalNet, tax);
-  const payingCustomers = customers.filter((c) => customerLicenseSummary(c).monthly > 0 || fixedPriceForCustomer(c.id) > 0).length;
+  // Samme definisjon som på Fakturagrunnlag: kunder med løpende abonnement.
+  const payingCustomers = customers.filter((c) => customerLicenseSummary(c).monthly > 0).length;
 
   const topLines = Array.from(lineMap.entries())
     .map(([label, { price, count }]) => ({ label, price, count }))
@@ -180,8 +181,9 @@ export default function MSPBillingSettings() {
   const tax = branding.tax;
 
   // Fetch all customers to show what Mynder will invoice the partner for.
+  // Samme datakilde og query-nøkkel som Fakturagrunnlag, slik at tallene alltid er identiske.
   const { data: customers = [] } = useQuery({
-    queryKey: ["msp-customers-billing-settings"],
+    queryKey: ["msp-customers-invoices"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("msp_customers" as any)
@@ -190,14 +192,14 @@ export default function MSPBillingSettings() {
       if (error) throw error;
       return data as any[];
     },
-    enabled: !!user?.id,
   });
+
 
   const summary = useMemo(() => buildCostSummary(customers, tax), [customers, tax]);
 
   // Refresh customer list when modules change elsewhere.
   useEffect(() => {
-    const refresh = () => queryClient.invalidateQueries({ queryKey: ["msp-customers-billing-settings"] });
+    const refresh = () => queryClient.invalidateQueries({ queryKey: ["msp-customers-invoices"] });
     window.addEventListener(CUSTOMER_MODULES_EVENT, refresh);
     window.addEventListener("modules:changed", refresh);
     return () => {
