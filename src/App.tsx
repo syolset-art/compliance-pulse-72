@@ -33,6 +33,8 @@ import ProcessingRecords from "./pages/ProcessingRecords";
 import CompanySettings from "./pages/CompanySettings";
 import PersonalSettings from "./pages/PersonalSettings";
 import Regulations from "./pages/Regulations";
+import RegulationsBeta from "./pages/RegulationsBeta";
+
 
 import Subscriptions from "./pages/Subscriptions";
 import ActivityLog from "./pages/ActivityLog";
