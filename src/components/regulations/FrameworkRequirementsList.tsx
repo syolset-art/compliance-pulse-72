@@ -163,7 +163,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
     const manual = requirements.filter((r) => r.agent_capability !== "full").length;
     let waitingYou = 0, agentFollowUp = 0;
     for (const r of requirements) {
-      const b = bucketOf(uiStates[r.requirement_id]?.progress ?? "not_answered");
+      const b = bucketOf(uiStates[r.requirement_id]?.progress ?? "not_started");
       if (b === "met") continue;
       if (r.agent_capability === "full") agentFollowUp++;
       else waitingYou++;
@@ -180,7 +180,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
     let list = requirements;
     if (filter !== "all") {
       list = list.filter((r) => {
-        const b = bucketOf(uiStates[r.requirement_id]?.progress ?? "not_answered");
+        const b = bucketOf(uiStates[r.requirement_id]?.progress ?? "not_started");
         if (filter === "ok") return b === "met";
         if (filter === "agent") return b !== "met" && r.agent_capability === "full";
         return b !== "met" && r.agent_capability !== "full";
@@ -202,7 +202,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
   /** Seksjoner: enten de 5 kontrollområdene, eller statusbøttene. */
   const groups = useMemo(() => {
     const metCount = (items: ComplianceRequirement[]) =>
-      items.filter((r) => bucketOf(uiStates[r.requirement_id]?.progress ?? "not_answered") === "met").length;
+      items.filter((r) => bucketOf(uiStates[r.requirement_id]?.progress ?? "not_started") === "met").length;
 
     if (grouping === "control_area") {
       const byArea = new Map<ControlAreaKey, ComplianceRequirement[]>();
@@ -234,7 +234,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
     return statusOrder
       .map((s) => {
         const items = filtered.filter(
-          (r) => bucketOf(uiStates[r.requirement_id]?.progress ?? "not_answered") === s.key,
+          (r) => bucketOf(uiStates[r.requirement_id]?.progress ?? "not_started") === s.key,
         );
         return {
           key: s.key as string,
@@ -324,55 +324,40 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
     setUiStates((prev) => {
       const existingDocs = prev[requirementId]?.documents ?? [];
       const documents = doc ? [doc, ...existingDocs] : existingDocs;
+      const normalized = normalizeProgress(status as ProgressStatus);
       const next: RequirementUiState =
-        status === "implemented"
+        normalized === "fulfilled"
           ? {
-              progress: "implemented",
-              evidence: "self_reported",
+              progress: "fulfilled",
+              evidence: documents.length > 0 ? "self_reported" : "required",
               documents,
               evidenceCount: { collected: documents.length, required: Math.max(1, documents.length) },
             }
-          : status === "verified"
-            ? { progress: "verified", evidence: "verified", documents, evidenceCount: { collected: 1, required: 1 } }
-            : status === "in_progress"
-              ? { progress: "in_progress", evidence: "self_reported", documents }
-              : status === "not_applicable"
-                ? { progress: "not_applicable", evidence: "out_of_scope", documents }
-                : { progress: "not_answered", evidence: "required", documents };
+          : normalized === "not_applicable"
+            ? { progress: "not_applicable", evidence: "out_of_scope", documents }
+            : { progress: "not_started", evidence: "required", documents };
       return { ...prev, [requirementId]: next };
     });
   };
 
   const handleStatusChange = (requirementId: string, next: ProgressStatus) => {
     setUiStates((prev) => {
-      const cur = prev[requirementId] ?? { progress: "not_answered", evidence: "required" };
+      const cur = prev[requirementId] ?? { progress: "not_started" as ProgressStatus, evidence: "required" as const };
       const documents = cur.documents ?? [];
+      const { verification, ...rest } = cur;
+      const target = normalizeProgress(next);
       let updated: RequirementUiState;
-      if (next === "verified") {
-        updated = {
-          ...cur,
-          progress: "verified",
-          evidence: "verified",
-          documents,
-          evidenceCount: { collected: Math.max(1, documents.length), required: Math.max(1, documents.length) },
-        };
-      } else if (next === "implemented") {
-        const { verification, ...rest } = cur;
+      if (target === "fulfilled") {
         updated = {
           ...rest,
-          progress: "implemented",
-          evidence: "self_reported",
+          progress: "fulfilled",
+          evidence: documents.length > 0 ? "self_reported" : "required",
           documents,
         };
-      } else if (next === "in_progress") {
-        const { verification, ...rest } = cur;
-        updated = { ...rest, progress: "in_progress", evidence: "self_reported", documents };
-      } else if (next === "not_applicable") {
-        const { verification, ...rest } = cur;
+      } else if (target === "not_applicable") {
         updated = { ...rest, progress: "not_applicable", evidence: "out_of_scope", documents };
       } else {
-        const { verification, ...rest } = cur;
-        updated = { ...rest, progress: "not_answered", evidence: "required", documents };
+        updated = { ...rest, progress: "not_started", evidence: "required", documents };
       }
       return { ...prev, [requirementId]: updated };
     });
@@ -385,7 +370,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
     opts?: { silent?: boolean },
   ) => {
     setUiStates((prev) => {
-      const cur = prev[requirementId] ?? { progress: "not_answered" as ProgressStatus, evidence: "required" as const };
+      const cur = prev[requirementId] ?? { progress: "not_started" as ProgressStatus, evidence: "required" as const };
       const existingDocs = cur.documents ?? [];
       const documents = [result.document, ...existingDocs];
 
@@ -398,16 +383,13 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
       //   - Full coverage + signed  → verified
       //   - Full coverage           → implemented (attested)
       //   - Partial coverage        → implemented (self_reported) — score reflects the gap
-      let progress: ProgressStatus = "implemented";
+      let progress: ProgressStatus = "fulfilled";
       let evidence: RequirementUiState["evidence"] = "self_reported";
       if (fullCoverage && hasSignedDoc) {
-        progress = "verified";
         evidence = "verified";
       } else if (fullCoverage) {
-        progress = "implemented";
         evidence = "attested";
       } else if (coverage.ratio > 0) {
-        progress = "implemented";
         evidence = "self_reported";
       }
 
@@ -802,7 +784,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
           <div className="space-y-3">
         {group.items.map((req) => {
 
-          const state = uiStates[req.requirement_id] ?? { progress: "not_answered", evidence: "required" };
+          const state = uiStates[req.requirement_id] ?? { progress: "not_started", evidence: "required" };
           const isExpanded = expandedId === req.requirement_id;
           const progressCfg = getProgressConfig(state.progress);
           const ProgressIcon = progressCfg.icon;
@@ -1056,20 +1038,8 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                           {isNb ? "Status" : "Status"} <span className="text-destructive">*</span>
                         </label>
                         <select
-                          value={state.progress}
-                          onChange={(e) => {
-                            const next = e.target.value as ProgressStatus;
-                            if (next === "verified" && state.progress !== "verified") {
-                              setAttachDialog({
-                                id: req.requirement_id,
-                                name: isNb ? (req.name_no || req.name) : req.name,
-                                description: `${isNb ? req.description_no : req.description}\n\n${getEvaluationCriteriaText(req)}`,
-                                articles: getArticlesForRequirement(req),
-                              });
-                              return;
-                            }
-                            handleStatusChange(req.requirement_id, next);
-                          }}
+                          value={normalizeProgress(state.progress)}
+                          onChange={(e) => handleStatusChange(req.requirement_id, e.target.value as ProgressStatus)}
                           onClick={(e) => e.stopPropagation()}
                           className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                         >
