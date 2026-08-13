@@ -561,10 +561,58 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                   <span className={cn("tabular-nums", active ? "opacity-90" : "text-muted-foreground")}>{chip.count}</span>
                 </button>
               </TooltipTrigger>
-              <TooltipContent side="bottom" className="max-w-[16rem]">
-                <p>{isNb ? chip.hintNb : chip.hintEn}</p>
+              <TooltipContent side="bottom" className={cn("max-w-[16rem]", chip.key === "agent" && "max-w-[22rem] p-0 overflow-hidden")}>
+                {chip.key === "agent" ? (
+                  <div className="text-left">
+                    <div className="flex items-center gap-2 border-b border-border/50 px-3 py-2">
+                      <Bot className="h-4 w-4 text-primary shrink-0" />
+                      <span className="text-xs font-medium">
+                        {isNb ? "Slik jobber Lara med disse kravene" : "How Lara works on these requirements"}
+                      </span>
+                    </div>
+                    <div className="px-3 py-2 space-y-2">
+                      <div>
+                        <p className="text-[10px] uppercase tracking-wide text-muted-foreground mb-1">
+                          {isNb ? "Kilder" : "Sources"}
+                        </p>
+                        <ul className="space-y-1 text-xs leading-snug">
+                          <li className="flex gap-1.5">
+                            <FileIcon className="h-3 w-3 mt-0.5 shrink-0 text-muted-foreground" />
+                            <span>{isNb ? "Dokumenter lastet opp i organisasjonens profil i Mynder" : "Documents uploaded to your organisation profile in Mynder"}</span>
+                          </li>
+                          <li className="flex gap-1.5">
+                            <ShieldCheck className="h-3 w-3 mt-0.5 shrink-0 text-muted-foreground" />
+                            <span>{isNb ? "Data fra alle produkter dere har aktivert — også på tvers av regelverk" : "Data from every product you have activated — across all frameworks"}</span>
+                          </li>
+                          <li className="flex gap-1.5">
+                            <Sparkles className="h-3 w-3 mt-0.5 shrink-0 text-muted-foreground" />
+                            <span>{isNb ? "Bevis og svar dere allerede har registrert på andre krav" : "Evidence and answers already registered on other requirements"}</span>
+                          </li>
+                        </ul>
+                      </div>
+                      <div>
+                        <p className="text-[10px] uppercase tracking-wide text-muted-foreground mb-1">
+                          {isNb ? "Slik analyseres det" : "How it is analysed"}
+                        </p>
+                        <ol className="space-y-0.5 text-xs leading-snug list-decimal pl-4">
+                          <li>{isNb ? "Leser og tolker innholdet i dokumentene" : "Reads and interprets the document content"}</li>
+                          <li>{isNb ? "Mapper innholdet mot krav og artikler i aktiverte regelverk" : "Maps content to requirements and articles in activated frameworks"}</li>
+                          <li>{isNb ? "Foreslår status og bevis — du godkjenner" : "Suggests status and evidence — you approve"}</li>
+                        </ol>
+                      </div>
+                      <p className="text-[11px] text-muted-foreground border-t border-border/50 pt-2">
+                        {isNb
+                          ? "Gjenbruk gjør at ett dokument kan dekke krav i flere regelverk samtidig."
+                          : "Reuse means one document can cover requirements in several frameworks at once."}
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <p>{isNb ? chip.hintNb : chip.hintEn}</p>
+                )}
               </TooltipContent>
             </Tooltip>
+
           );
         })}
       </div>
