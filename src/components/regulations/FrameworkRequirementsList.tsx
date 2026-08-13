@@ -683,8 +683,11 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
           <div className="flex items-center gap-2">
             <Tooltip>
               <TooltipTrigger asChild>
-                <Label htmlFor="docs-only" className="text-xs text-muted-foreground cursor-pointer">
+                <Label htmlFor="docs-only" className="text-xs text-muted-foreground cursor-pointer flex items-center gap-1.5">
                   {isNb ? "Bevis" : "Evidence"}
+                  <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300">
+                    V2
+                  </Badge>
                 </Label>
               </TooltipTrigger>
               <TooltipContent side="bottom" className="max-w-xs">
