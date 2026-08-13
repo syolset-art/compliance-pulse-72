@@ -38,6 +38,8 @@ import {
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { VendorTableView } from "./VendorTableView";
+import { staggerEntranceClass } from "@/lib/animation";
+
 
 export type ScoreDisplayMode = "percent" | "label";
 
