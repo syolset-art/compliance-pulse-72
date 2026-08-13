@@ -558,6 +558,22 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
         </div>
       </div>
 
+      <Tabs value={filter} onValueChange={(v) => setFilter(v as FilterKey)} className="mb-2">
+        <TabsList className="w-full grid grid-cols-4">
+          <TabsTrigger value="all">Alle</TabsTrigger>
+          <TabsTrigger value="not_met">Ikke oppfylt ({counts.notMet})</TabsTrigger>
+          <TabsTrigger value="partial">Delvis ({counts.partial})</TabsTrigger>
+          <TabsTrigger value="met">Oppfylt ({counts.met})</TabsTrigger>
+        </TabsList>
+      </Tabs>
+
+      <Tabs value={grouping} onValueChange={(v) => setGrouping(v as "status" | "control_area")} className="mb-3">
+        <TabsList className="w-full grid grid-cols-2">
+          <TabsTrigger value="status">{isNb ? "Grupper etter status" : "Group by status"}</TabsTrigger>
+          <TabsTrigger value="control_area">{isNb ? "Grupper etter kontrollområde" : "Group by control area"}</TabsTrigger>
+        </TabsList>
+      </Tabs>
+
       <div className="relative mb-3">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
         <Input
@@ -577,22 +593,6 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
           </button>
         )}
       </div>
-
-      <Tabs value={filter} onValueChange={(v) => setFilter(v as FilterKey)} className="mb-2">
-        <TabsList className="w-full grid grid-cols-4">
-          <TabsTrigger value="all">Alle</TabsTrigger>
-          <TabsTrigger value="not_met">Ikke oppfylt ({counts.notMet})</TabsTrigger>
-          <TabsTrigger value="partial">Delvis ({counts.partial})</TabsTrigger>
-          <TabsTrigger value="met">Oppfylt ({counts.met})</TabsTrigger>
-        </TabsList>
-      </Tabs>
-
-      <Tabs value={grouping} onValueChange={(v) => setGrouping(v as "status" | "control_area")} className="mb-3">
-        <TabsList className="w-full grid grid-cols-2">
-          <TabsTrigger value="status">{isNb ? "Grupper etter status" : "Group by status"}</TabsTrigger>
-          <TabsTrigger value="control_area">{isNb ? "Grupper etter kontrollområde" : "Group by control area"}</TabsTrigger>
-        </TabsList>
-      </Tabs>
 
       <div className="mb-4 flex items-center justify-between gap-3 rounded-lg border border-border/60 bg-muted/20 px-3 py-2">
         <div className="flex items-center gap-2 min-w-0">
