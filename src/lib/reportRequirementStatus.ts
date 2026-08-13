@@ -63,7 +63,7 @@ export interface ReportEvidenceRow {
   frameworkName: string;
   requirementId: string;
   requirementName: string;
-  status: "Opplastet" | "Agent-bekreftet" | "Mangler";
+  status: "Opplastet" | "Agent-bekreftet" | "Oppfylt uten bevis" | "Mangler";
 }
 
 export function buildReportEvidenceRow(
@@ -71,12 +71,22 @@ export function buildReportEvidenceRow(
   frameworkName: string,
 ): ReportEvidenceRow {
   const count = getEvidenceCount(req);
+  const reqStatus = getReportStatus(req);
+  const status: ReportEvidenceRow["status"] =
+    count > 0
+      ? "Opplastet"
+      : isAgentConfirmed(req)
+        ? "Agent-bekreftet"
+        : reqStatus === "fulfilled"
+          ? "Oppfylt uten bevis"
+          : "Mangler";
   return {
     area: toCanonicalArea(req.sla_category),
     docLabel: expectedDocLabel(req, true),
     frameworkName,
     requirementId: req.requirement_id,
     requirementName: req.name_no || req.name,
-    status: count > 0 ? "Opplastet" : isAgentConfirmed(req) ? "Agent-bekreftet" : "Mangler",
+    status,
   };
 }
+
