@@ -228,10 +228,13 @@ const PartnerNav = () => {
   const { t, i18n } = useTranslation();
   const isNb = i18n.language?.startsWith("nb") || i18n.language === "no";
 
-  const topItems = [
+  const primaryItems = [
     { name: isNb ? "Dashbord" : "Dashboard", href: "/msp-partner", icon: LayoutDashboard },
     { name: isNb ? "Kunder" : "Customers", href: "/msp-dashboard", icon: Users },
     { name: isNb ? "Produkter og tjenester" : "Products and services", href: "/msp-services", icon: Package },
+  ];
+
+  const secondaryItems = [
     { name: isNb ? "Meldinger" : "Messages", href: "/msp-messages", icon: Inbox },
     { name: isNb ? "Fakturagrunnlag" : "Billing basis", href: "/msp-invoices", icon: FileText },
   ];
@@ -244,27 +247,29 @@ const PartnerNav = () => {
     if (isOffersActive) setOffersOpen(true);
   }, [isOffersActive]);
 
+  const renderLink = (item: typeof primaryItems[0]) => {
+    const isActive = location.pathname === item.href || location.pathname.startsWith(item.href + "/");
+    return (
+      <Link
+        key={item.href}
+        to={item.href}
+        className={cn(
+          "flex items-center gap-2.5 rounded-lg px-3 py-2 text-[0.9375rem] font-medium transition-all duration-200",
+          isActive
+            ? "bg-gradient-to-r from-primary/10 to-transparent text-sidebar-primary border-l-2 border-primary"
+            : "text-sidebar-foreground/80 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
+        )}
+      >
+        {isActive && <span className="h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />}
+        <item.icon className="h-4 w-4" />
+        {item.name}
+      </Link>
+    );
+  };
+
   return (
     <nav className="flex-1 space-y-0.5 px-3 py-4 overflow-y-auto">
-      {topItems.map((item) => {
-        const isActive = location.pathname === item.href || location.pathname.startsWith(item.href + "/");
-        return (
-          <Link
-            key={item.href}
-            to={item.href}
-            className={cn(
-              "flex items-center gap-2.5 rounded-lg px-3 py-2 text-[0.9375rem] font-medium transition-all duration-200",
-              isActive
-                ? "bg-gradient-to-r from-primary/10 to-transparent text-sidebar-primary border-l-2 border-primary"
-                : "text-sidebar-foreground/80 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
-            )}
-          >
-            {isActive && <span className="h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />}
-            <item.icon className="h-4 w-4" />
-            {item.name}
-          </Link>
-        );
-      })}
+      {primaryItems.map(renderLink)}
 
       {/* Tilbud — intern forhåndsvisning av kundesidens utforming */}
       <div className="mt-0.5">
@@ -306,6 +311,8 @@ const PartnerNav = () => {
           </div>
         </div>
       </div>
+
+      {secondaryItems.map(renderLink)}
     </nav>
   );
 };
