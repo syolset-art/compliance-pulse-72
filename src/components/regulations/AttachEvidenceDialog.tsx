@@ -506,8 +506,47 @@ export function AttachEvidenceDialog({
                 </>
               );
             })()}
+
+            {isFrameworkMode && (
+              <div className="space-y-1.5 pt-1">
+                <p className="text-[11px] text-muted-foreground">
+                  {matches.length > 0
+                    ? isNb
+                      ? `Lara foreslår ${matches.length} krav dette dokumentet dekker`
+                      : `Lara suggests ${matches.length} requirements this document covers`
+                    : isNb
+                      ? "Lara fant ingen tydelige treff i dette regelverket."
+                      : "Lara found no clear matches in this framework."}
+                </p>
+                {matches.map((m) => {
+                  const checked = selectedReqIds.has(m.id);
+                  return (
+                    <label
+                      key={m.id}
+                      className="flex items-center gap-2 rounded-md border border-border/60 px-2 py-1.5 cursor-pointer hover:bg-muted/40 transition-colors"
+                    >
+                      <Checkbox
+                        checked={checked}
+                        onCheckedChange={() =>
+                          setSelectedReqIds((prev) => {
+                            const n = new Set(prev);
+                            n.has(m.id) ? n.delete(m.id) : n.add(m.id);
+                            return n;
+                          })
+                        }
+                      />
+                      <span className="text-xs text-foreground truncate flex-1">{m.name}</span>
+                      <span className="text-[11px] text-muted-foreground tabular-nums shrink-0">
+                        {m.hits.length} {isNb ? "art." : "art."}
+                      </span>
+                    </label>
+                  );
+                })}
+              </div>
+            )}
           </div>
         )}
+
 
         {phase.kind === "error" && (
           <div className="flex flex-col items-center gap-2 py-6 text-center">
