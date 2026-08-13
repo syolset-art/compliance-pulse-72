@@ -39,6 +39,12 @@ export interface AttachEvidenceResult {
   hasSignedDocument: boolean;
 }
 
+export interface FrameworkMatchCandidate {
+  id: string;
+  name: string;
+  articles: string[];
+}
+
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -47,7 +53,11 @@ interface Props {
   requirementDescription?: string;
   coveredArticles?: string[];
   onConfirm: (result: AttachEvidenceResult) => void;
+  /** Regelverk-modus: analyser dokumentet mot alle krav og la brukeren velge treff. */
+  frameworkRequirements?: FrameworkMatchCandidate[];
+  onConfirmMulti?: (requirementIds: string[], result: AttachEvidenceResult) => void;
 }
+
 
 type PhaseKind = "select" | "analyzing" | "review" | "error";
 type Phase =
