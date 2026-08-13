@@ -254,22 +254,12 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
     })).filter((g) => g.docs.length > 0);
   }, [filtered, uiStates, isNb]);
 
-  const totalDocCount = useMemo(
-    () => docGroups.reduce((sum, g) => sum + g.docs.length, 0),
-    [docGroups],
-  );
-
   /** Forventet dokumentasjon for regelverket, gruppert per kontrollområde. */
   const expectedRows = useMemo(() => {
     const hasDocs = (id: string) => (uiStates[id]?.documents?.length ?? 0) > 0;
     const agentConfirmed = agentConfirmedRequirementIds(requirements, hasDocs);
     return buildExpectedEvidenceRows(requirements, hasDocs, agentConfirmed, isNb);
   }, [requirements, uiStates, isNb]);
-
-  const missingEvidenceCount = useMemo(
-    () => expectedRows.filter((r) => r.status === "missing").length,
-    [expectedRows],
-  );
 
   const expectedByArea = useMemo(() => {
     const map = new Map<string, typeof expectedRows>();
