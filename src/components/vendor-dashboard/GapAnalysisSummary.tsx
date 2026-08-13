@@ -1,4 +1,4 @@
-import { Activity, AlertTriangle, ShieldCheck, TrendingUp } from "lucide-react";
+import { Activity, AlertTriangle, ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export interface DomainBreakdown {
