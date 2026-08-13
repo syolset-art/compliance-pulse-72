@@ -210,7 +210,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
       );
     }
     return list;
-  }, [filter, requirements, uiStates, search]);
+  }, [filter, requirements, uiStates, search, agentFollowedUp]);
 
 
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set());
