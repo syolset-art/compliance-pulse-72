@@ -113,8 +113,9 @@ export const DownloadReportDialog = ({
   reportData,
 }: DownloadReportDialogProps) => {
   const { toast } = useToast();
-  const [includeRequirements, setIncludeRequirements] = useState(false);
+  const [includeRequirements, setIncludeRequirements] = useState(true);
   const [includeEvaluators, setIncludeEvaluators] = useState(false);
+  const [evidenceFilter, setEvidenceFilter] = useState<EvidenceFilter>("all");
   const [generating, setGenerating] = useState(false);
   const [done, setDone] = useState(false);
   const [companyName, setCompanyName] = useState("");
