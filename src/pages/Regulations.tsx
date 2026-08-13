@@ -18,6 +18,8 @@ import { FrameworkDetailCard } from "@/components/regulations/FrameworkDetailCar
 import { ComplianceHistoryChart } from "@/components/regulations/ComplianceHistoryChart";
 import { FrameworkRequirementsList } from "@/components/regulations/FrameworkRequirementsList";
 import { EditActiveFrameworksDialog } from "@/components/regulations/EditActiveFrameworksDialog";
+import { RegulationsViewSwitch, rememberRegulationsView } from "@/components/regulations/RegulationsViewSwitch";
+
 
 import { CountryScopeDialog } from "@/components/regulations/CountryScopeDialog";
 import { loadCountryScope, saveCountryScope, SUPPORTED_COUNTRIES, getCountry, type CountryScope } from "@/components/regulations/countryScopeData";
@@ -80,6 +82,13 @@ const Regulations = () => {
   const [countryScope, setCountryScope] = useState<CountryScope>(() => loadCountryScope());
   const [countryDialogOpen, setCountryDialogOpen] = useState(false);
   usePageHelpListener(setHelpOpen);
+
+  // Husk at brukeren står i klassisk visning (brukes av Klassisk/Beta-bryteren).
+  useEffect(() => {
+    rememberRegulationsView("classic");
+  }, []);
+
+
 
   // Fetch frameworks
   useEffect(() => {
@@ -303,10 +312,14 @@ const Regulations = () => {
                 Velg et regelverk eller en standard for å se status
               </p>
             </div>
-            <Button variant="outline" size="sm" className="gap-2 w-full sm:w-auto" onClick={() => setShowEditDialog(true)}>
-              <Settings2 className="h-4 w-4" />
-              Endre regelverk
-            </Button>
+            <div className="flex items-center gap-2">
+              <RegulationsViewSwitch current="classic" />
+              <Button variant="outline" size="sm" className="gap-2" onClick={() => setShowEditDialog(true)}>
+                <Settings2 className="h-4 w-4" />
+                Endre regelverk
+              </Button>
+            </div>
+
 
           </div>
 

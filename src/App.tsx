@@ -33,6 +33,8 @@ import ProcessingRecords from "./pages/ProcessingRecords";
 import CompanySettings from "./pages/CompanySettings";
 import PersonalSettings from "./pages/PersonalSettings";
 import Regulations from "./pages/Regulations";
+import RegulationsBeta from "./pages/RegulationsBeta";
+
 
 import Subscriptions from "./pages/Subscriptions";
 import ActivityLog from "./pages/ActivityLog";
@@ -152,6 +154,8 @@ const App = () => (
                   <Route path="/company-settings" element={<CompanySettings />} />
                   <Route path="/settings" element={<PersonalSettings />} />
                   <Route path="/regulations" element={<Regulations />} />
+                  <Route path="/regulations-beta" element={<RegulationsBeta />} />
+
                   <Route path="/regulations/:frameworkId" element={<FrameworkDetail />} />
                   <Route path="/subscriptions" element={<Subscriptions />} />
                   <Route path="/activity-log" element={<ActivityLog />} />
