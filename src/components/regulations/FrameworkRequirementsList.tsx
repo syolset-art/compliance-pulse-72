@@ -613,15 +613,8 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
         </TabsList>
       </Tabs>
 
-      <Tabs value={grouping} onValueChange={(v) => setGrouping(v as "status" | "control_area")} className="mb-3">
-        <TabsList className="w-full grid grid-cols-2">
-          <TabsTrigger value="status">{isNb ? "Grupper etter status" : "Group by status"}</TabsTrigger>
-          <TabsTrigger value="control_area">{isNb ? "Grupper etter kontrollområde" : "Group by control area"}</TabsTrigger>
-        </TabsList>
-      </Tabs>
-
-      <div className="flex items-center gap-3 mb-3">
-        <div className="relative flex-1">
+      <div className="flex flex-wrap items-center gap-3 mb-3">
+        <div className="relative flex-1 min-w-[12rem]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
           <Input
             value={search}
@@ -640,6 +633,22 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
             </button>
           )}
         </div>
+
+        <Tabs
+          value={grouping}
+          onValueChange={(v) => setGrouping(v as "status" | "control_area")}
+          className="shrink-0"
+        >
+          <TabsList className="h-8 p-1 bg-muted">
+            <TabsTrigger value="status" className="text-xs px-2.5 py-0.5 h-6">
+              {isNb ? "Status" : "Status"}
+            </TabsTrigger>
+            <TabsTrigger value="control_area" className="text-xs px-2.5 py-0.5 h-6">
+              {isNb ? "Kontrollområde" : "Control area"}
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
+
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
