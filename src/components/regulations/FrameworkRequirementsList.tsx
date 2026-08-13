@@ -453,8 +453,37 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
       )}
 
 
-      <div className="space-y-3">
-        {filtered.map((req) => {
+      <div className="space-y-6">
+        {groups.map((group) => {
+          const isCollapsed = collapsedGroups.has(group.key);
+          const GroupIcon = group.Icon;
+          return (
+        <section key={group.key} className="space-y-3">
+          <button
+            type="button"
+            onClick={() => toggleSet(setCollapsedGroups, group.key)}
+            className="w-full flex items-center gap-2 px-1 py-1 text-left group/section"
+            aria-expanded={!isCollapsed}
+          >
+            <GroupIcon className={cn("h-4 w-4 shrink-0", group.accentClass)} />
+            <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground group-hover/section:text-foreground transition-colors">
+              {group.label}
+            </span>
+            <span className="text-xs tabular-nums text-muted-foreground/70">
+              ({group.met}/{group.items.length})
+            </span>
+            <span className="flex-1 h-px bg-border ml-2" />
+            {isCollapsed ? (
+              <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+            ) : (
+              <ChevronUp className="h-3.5 w-3.5 text-muted-foreground" />
+            )}
+          </button>
+
+          {!isCollapsed && (
+          <div className="space-y-3">
+        {group.items.map((req) => {
+
           const state = uiStates[req.requirement_id] ?? { progress: "not_answered", evidence: "required" };
           const isExpanded = expandedId === req.requirement_id;
           const progressCfg = getProgressConfig(state.progress);
