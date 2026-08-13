@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Cloud, Chrome, FileSpreadsheet, PenLine, Sparkles, ArrowRight } from "lucide-react";
+import { Shield, PenLine, Sparkles, ArrowRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { AddSystemDialog } from "@/components/dialogs/AddSystemDialog";
