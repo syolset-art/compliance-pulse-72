@@ -303,10 +303,14 @@ const Regulations = () => {
                 Velg et regelverk eller en standard for å se status
               </p>
             </div>
-            <Button variant="outline" size="sm" className="gap-2 w-full sm:w-auto" onClick={() => setShowEditDialog(true)}>
-              <Settings2 className="h-4 w-4" />
-              Endre regelverk
-            </Button>
+            <div className="flex items-center gap-2">
+              <RegulationsViewSwitch current="classic" />
+              <Button variant="outline" size="sm" className="gap-2" onClick={() => setShowEditDialog(true)}>
+                <Settings2 className="h-4 w-4" />
+                Endre regelverk
+              </Button>
+            </div>
+
 
           </div>
 
