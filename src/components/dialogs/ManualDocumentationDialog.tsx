@@ -162,25 +162,6 @@ export function ManualDocumentationDialog({
       });
       return;
     }
-    if ((status === "implemented" || status === "verified") && !file) {
-      toast({
-        title: "Last opp dokumentasjon",
-        description:
-          status === "verified"
-            ? "Last opp det signerte dokumentet fra uavhengig organ"
-            : "Legg ved et dokument som viser at kravet er implementert",
-        variant: "destructive",
-      });
-      return;
-    }
-    if (status === "verified" && (!verifiedConfirmed || !verifierName.trim())) {
-      toast({
-        title: "Bekreft verifisering",
-        description: "Oppgi uavhengig organ og bekreft at dokumentet er signert av dem",
-        variant: "destructive",
-      });
-      return;
-    }
 
     let doc: EvidenceDocument | undefined;
     if (file) {
@@ -200,8 +181,7 @@ export function ManualDocumentationDialog({
                 summary: summary || undefined,
               }
             : undefined,
-        verificationStatus: status === "verified" ? "verified" : "self_reported",
-        verifiedBy: status === "verified" ? verifierName.trim() : undefined,
+        verificationStatus: "self_reported",
       };
     }
 
@@ -250,11 +230,9 @@ export function ManualDocumentationDialog({
               <FieldHelp>
                 <p className="font-medium mb-1">Statusskala</p>
                 <ul className="space-y-1 text-muted-foreground">
-                  <li><span className="text-foreground">Ikke besvart</span> — kravet er ikke adressert.</li>
-                  <li><span className="text-foreground">Pågår</span> — arbeid pågår, ikke ferdig.</li>
-                  <li><span className="text-foreground">Implementert</span> — innført; bevis er egenrapportert dokumentasjon dere har lastet opp.</li>
-                  <li><span className="text-foreground">Verifisert</span> — bevis er signert eller attestert av uavhengig organ (revisor, sertifiseringsorgan).</li>
-                  <li><span className="text-foreground">Ikke relevant</span> — kravet gjelder ikke for din organisasjon.</li>
+                  <li><span className="text-foreground">Ja, dette oppfylles</span> — kravet er innført. Last gjerne opp dokumentasjon som bevis.</li>
+                  <li><span className="text-foreground">Ikke relevant for oss</span> — kravet gjelder ikke for din organisasjon.</li>
+                  <li><span className="text-foreground">Ikke påbegynt</span> — kravet er ikke adressert enda.</li>
                 </ul>
               </FieldHelp>
             </div>
@@ -264,26 +242,7 @@ export function ManualDocumentationDialog({
                 <SelectValue placeholder="Velg status..." />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="not_answered">Ikke besvart</SelectItem>
-
-                <SelectItem value="in_progress">Pågår</SelectItem>
-                <SelectItem value="implemented">Implementert</SelectItem>
-                <SelectPrimitive.Item
-                  value="verified"
-                  className="relative flex w-full cursor-default select-none items-start rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 focus:bg-accent focus:text-accent-foreground"
-                >
-                  <span className="absolute left-2 top-2 flex h-3.5 w-3.5 items-center justify-center">
-                    <SelectPrimitive.ItemIndicator>
-                      <Check className="h-4 w-4" />
-                    </SelectPrimitive.ItemIndicator>
-                  </span>
-                  <div className="flex flex-col">
-                    <SelectPrimitive.ItemText>Verifisert</SelectPrimitive.ItemText>
-                    <span className="text-[11px] text-foreground/70">
-                      Krever signert dokument fra uavhengig organ
-                    </span>
-                  </div>
-                </SelectPrimitive.Item>
+                <SelectItem value="fulfilled">Ja, dette oppfylles</SelectItem>
                 <SelectPrimitive.Item
                   value="not_applicable"
                   className="relative flex w-full cursor-default select-none items-start rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 focus:bg-accent focus:text-accent-foreground"
@@ -294,12 +253,13 @@ export function ManualDocumentationDialog({
                     </SelectPrimitive.ItemIndicator>
                   </span>
                   <div className="flex flex-col">
-                    <SelectPrimitive.ItemText>Ikke relevant</SelectPrimitive.ItemText>
+                    <SelectPrimitive.ItemText>Ikke relevant for oss</SelectPrimitive.ItemText>
                     <span className="text-[11px] text-foreground/70">
                       Kravet gjelder ikke for din organisasjon
                     </span>
                   </div>
                 </SelectPrimitive.Item>
+                <SelectItem value="not_started">Ikke påbegynt</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -323,34 +283,30 @@ export function ManualDocumentationDialog({
               placeholder={
                 status === "not_started"
                   ? "F.eks. 'Vi har ikke startet, men planlegger å adressere dette i Q3.'"
-                  : status === "in_progress"
-                    ? "F.eks. 'Utkast til rutine er skrevet, avventer godkjenning fra ledelsen.'"
-                    : status === "implemented"
-                      ? "F.eks. 'Vi har databehandleravtale med alle underleverandører, gjennomgått årlig av DPO.'"
-                      : status === "verified"
-                        ? "F.eks. 'Rutinen er revidert av BDO i juni 2026, med signert attestasjon vedlagt.'"
-                        : status === "not_applicable"
-                          ? "F.eks. 'Vi behandler ikke personopplysninger om barn, derfor gjelder ikke dette kravet.'"
-                          : "Velg status for å se et eksempel…"
+                  : status === "fulfilled"
+                    ? "F.eks. 'Vi har databehandleravtale med alle underleverandører, gjennomgått årlig av DPO.'"
+                    : status === "not_applicable"
+                      ? "F.eks. 'Vi behandler ikke personopplysninger om barn, derfor gjelder ikke dette kravet.'"
+                      : "Velg status for å se et eksempel…"
               }
               className="min-h-[80px]"
             />
           </div>
 
           {/* Uploader — for Implementert og Verifisert */}
-          {(status === "implemented" || status === "verified") && (() => {
+          {status === "fulfilled" && (() => {
             const hint = getTypicalDocumentation(requirementId);
             return (
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1.5">
                   <Label className="font-semibold">
-                    {status === "verified" ? "Last opp signert dokument" : "Last opp dokumentasjon"} <span className="text-destructive">*</span>
+                    Last opp dokumentasjon
                   </Label>
                   <FieldHelp>
                     <p className="font-medium mb-1">Hvorfor kreves dokumentasjon som bevis?</p>
                     <p className="text-muted-foreground mb-2">
-                      Status <span className="text-foreground">{status === "verified" ? "Verifisert" : "Implementert"}</span> krever at kravet kan dokumenteres.
+                      Status <span className="text-foreground">Ja, dette oppfylles</span> blir sterkere når kravet kan dokumenteres.
                       Uten dokumentasjon har kravet ingen bevisverdi — det står bare som en påstand mot revisor og kunder.
                     </p>
                     <p className="font-medium mb-1">Typisk dokumentasjon for {hint.articleLabel}:</p>
@@ -487,33 +443,6 @@ export function ManualDocumentationDialog({
             );
           })()}
 
-          {/* Verifisert-bekreftelse */}
-          {status === "verified" && (
-            <div className="space-y-3 rounded-lg border border-success/30 bg-success/5 p-3">
-              <div className="flex items-center gap-2">
-                <ShieldCheck className="h-4 w-4 text-success" />
-                <Label className="font-semibold text-sm">{t("manualDocDialog.verifyConfirm.title")}</Label>
-              </div>
-              <div className="space-y-1.5">
-                <Label className="text-xs">
-                  {t("manualDocDialog.verifyConfirm.orgLabel")} <span className="text-destructive">*</span>
-                </Label>
-                <Input
-                  value={verifierName}
-                  onChange={(e) => setVerifierName(e.target.value)}
-                  placeholder={t("manualDocDialog.verifyConfirm.orgPlaceholder")}
-                />
-              </div>
-              <label className="flex items-start gap-2 text-xs cursor-pointer">
-                <Checkbox
-                  checked={verifiedConfirmed}
-                  onCheckedChange={(v) => setVerifiedConfirmed(v === true)}
-                  className="mt-0.5"
-                />
-                <span>{t("manualDocDialog.verifyConfirm.checkboxText")}</span>
-              </label>
-            </div>
-          )}
         </div>
 
         {/* Footer */}
