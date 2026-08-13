@@ -11,11 +11,11 @@ interface Props {
   onSystemAdded?: (status?: string) => void;
 }
 
-type Source = "microsoft" | "google" | "excel" | "manual";
+type Source = "acronis" | "manual";
 
 const sources: Array<{
   id: Source;
-  icon: typeof Cloud;
+  icon: typeof Shield;
   color: string;
   bg: string;
   title: { nb: string; en: string };
@@ -23,44 +23,22 @@ const sources: Array<{
   badge?: { nb: string; en: string };
 }> = [
   {
-    id: "microsoft",
-    icon: Cloud,
-    color: "text-[#0078D4]",
-    bg: "bg-[#0078D4]/10",
-    title: { nb: "Koble til Microsoft", en: "Connect Microsoft" },
+    id: "acronis",
+    icon: Shield,
+    color: "text-primary",
+    bg: "bg-primary/10",
+    title: { nb: "Koble til Acronis", en: "Connect Acronis" },
     desc: {
-      nb: "Lara oppdager apper via Entra ID og skygge-IT via Defender for Cloud Apps.",
-      en: "Lara discovers apps via Entra ID and shadow IT via Defender for Cloud Apps.",
+      nb: "Lara henter enheter og backup-status fra Acronis Cyber Protect via 7 Security-agenten.",
+      en: "Lara pulls devices and backup status from Acronis Cyber Protect via the 7 Security agent.",
     },
-    badge: { nb: "Anbefalt", en: "Recommended" },
-  },
-  {
-    id: "google",
-    icon: Chrome,
-    color: "text-[#0F9D58]",
-    bg: "bg-[#0F9D58]/10",
-    title: { nb: "Koble til Google Workspace", en: "Connect Google Workspace" },
-    desc: {
-      nb: "Lara henter tilkoblede apper fra Google Admin.",
-      en: "Lara pulls connected apps from Google Admin.",
-    },
-  },
-  {
-    id: "excel",
-    icon: FileSpreadsheet,
-    color: "text-[#7B3FA0]",
-    bg: "bg-[#7B3FA0]/10",
-    title: { nb: "Last opp Excel", en: "Upload Excel" },
-    desc: {
-      nb: "Har du allerede en systemliste? Last opp .xlsx så tar Lara resten.",
-      en: "Already have a system list? Upload .xlsx and Lara handles the rest.",
-    },
+    badge: { nb: "Tilgjengelig", en: "Available" },
   },
   {
     id: "manual",
     icon: PenLine,
-    color: "text-[#E58A2B]",
-    bg: "bg-[#E58A2B]/10",
+    color: "text-muted-foreground",
+    bg: "bg-muted",
     title: { nb: "Registrer manuelt", en: "Add manually" },
     desc: {
       nb: "Fyll ut skjema selv når du vet nøyaktig hva du vil legge inn.",
