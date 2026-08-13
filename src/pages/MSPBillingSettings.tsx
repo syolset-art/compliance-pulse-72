@@ -181,8 +181,9 @@ export default function MSPBillingSettings() {
   const tax = branding.tax;
 
   // Fetch all customers to show what Mynder will invoice the partner for.
+  // Samme datakilde og query-nøkkel som Fakturagrunnlag, slik at tallene alltid er identiske.
   const { data: customers = [] } = useQuery({
-    queryKey: ["msp-customers-billing-settings"],
+    queryKey: ["msp-customers-invoices"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("msp_customers" as any)
@@ -191,8 +192,8 @@ export default function MSPBillingSettings() {
       if (error) throw error;
       return data as any[];
     },
-    enabled: !!user?.id,
   });
+
 
   const summary = useMemo(() => buildCostSummary(customers, tax), [customers, tax]);
 
