@@ -105,7 +105,8 @@ function buildCostSummary(customers: any[], tax: any): CostSummary {
 
   const totalNet = monthly + fixed + setup;
   const breakdown = computeTaxBreakdown(totalNet, tax);
-  const payingCustomers = customers.filter((c) => customerLicenseSummary(c).monthly > 0 || fixedPriceForCustomer(c.id) > 0).length;
+  // Samme definisjon som på Fakturagrunnlag: kunder med løpende abonnement.
+  const payingCustomers = customers.filter((c) => customerLicenseSummary(c).monthly > 0).length;
 
   const topLines = Array.from(lineMap.entries())
     .map(([label, { price, count }]) => ({ label, price, count }))
