@@ -3,6 +3,7 @@
  * Brukes i regelverk-listen, RequirementCard og VendorControlsTab.
  */
 import {
+  Check,
   CheckCircle2,
   Circle,
   CircleDashed,
