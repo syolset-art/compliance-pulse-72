@@ -144,10 +144,11 @@ export function PartnerIntegrationsTab() {
             <Shield className="h-4 w-4 text-primary" />
           </div>
           <div className="text-sm text-muted-foreground">
-            <p className="text-foreground font-medium mb-0.5">Partner-integrasjoner gjenbrukes på alle dine kunder</p>
-            Legg inn nøkler eller tilganger til portaler her én gang. Når du senere kobler en kunde
-            til samme leverandør, brukes denne nøkkelen automatisk – uten å lime inn på nytt.
-            Nøkler lagres kryptert og vises maskert.
+            <p className="text-foreground font-medium mb-0.5">
+              Acronis er den eneste integrasjonen som er tilgjengelig i Mynder i dag
+            </p>
+            Legg inn nøkkel til Acronis én gang. Når du senere kobler en kunde til Acronis,
+            brukes denne nøkkelen automatisk – uten å lime inn på nytt. Nøkler lagres kryptert og vises maskert.
           </div>
         </div>
       </Card>
