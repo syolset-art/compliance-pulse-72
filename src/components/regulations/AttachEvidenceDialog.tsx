@@ -161,18 +161,44 @@ export function AttachEvidenceDialog({
   requirementDescription,
   coveredArticles,
   onConfirm,
+  frameworkRequirements,
+  onConfirmMulti,
 }: Props) {
   const { i18n } = useTranslation();
   const isNb = i18n.language !== "en";
+  const isFrameworkMode = !!frameworkRequirements && frameworkRequirements.length > 0;
   const [phase, setPhase] = useState<Phase>({ kind: "select" });
   const [showArticles, setShowArticles] = useState(false);
   const [showReviewArticles, setShowReviewArticles] = useState(false);
+  const [selectedReqIds, setSelectedReqIds] = useState<Set<string>>(new Set());
 
   const reset = useCallback(() => {
     setPhase({ kind: "select" });
     setShowArticles(false);
     setShowReviewArticles(false);
+    setSelectedReqIds(new Set());
   }, []);
+
+  /** Krav i regelverket som dokumentet treffer (artikkeloverlapp). */
+  const matches = useMemo(() => {
+    if (!isFrameworkMode || phase.kind !== "review") return [];
+    const covered = new Set(phase.result.coveredArticles);
+    return frameworkRequirements!
+      .map((r) => {
+        const hits = r.articles.filter((a) => covered.has(a));
+        return { ...r, hits };
+      })
+      .filter((r) => r.hits.length > 0)
+      .sort((a, b) => b.hits.length - a.hits.length)
+      .slice(0, 8);
+  }, [isFrameworkMode, phase, frameworkRequirements]);
+
+  useEffect(() => {
+    if (phase.kind === "review" && isFrameworkMode) {
+      setSelectedReqIds(new Set(matches.map((m) => m.id)));
+    }
+  }, [phase.kind, isFrameworkMode, matches]);
+
 
   const handleFile = useCallback(
     async (file: File) => {
