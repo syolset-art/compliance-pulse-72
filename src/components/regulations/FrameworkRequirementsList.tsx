@@ -150,6 +150,8 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
     generateUiStates(requirements)
   );
 
+  const isAgentReq = (r: ComplianceRequirement) => r.agent_capability === "full";
+
   const counts = useMemo(() => {
     let met = 0, partial = 0, notMet = 0;
     for (const s of Object.values(uiStates)) {
@@ -160,7 +162,14 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
     }
     const auto = requirements.filter((r) => r.agent_capability === "full").length;
     const manual = requirements.filter((r) => r.agent_capability !== "full").length;
-    return { met, partial, notMet, auto, manual, total: requirements.length };
+    let waitingYou = 0, agentFollowUp = 0;
+    for (const r of requirements) {
+      const b = bucketOf(uiStates[r.requirement_id]?.progress ?? "not_answered");
+      if (b === "met") continue;
+      if (r.agent_capability === "full") agentFollowUp++;
+      else waitingYou++;
+    }
+    return { met, partial, notMet, auto, manual, waitingYou, agentFollowUp, total: requirements.length };
   }, [uiStates, requirements]);
 
   useEffect(() => {
@@ -171,7 +180,12 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
     const q = search.trim().toLowerCase();
     let list = requirements;
     if (filter !== "all") {
-      list = list.filter((r) => bucketOf(uiStates[r.requirement_id]?.progress ?? "not_answered") === filter);
+      list = list.filter((r) => {
+        const b = bucketOf(uiStates[r.requirement_id]?.progress ?? "not_answered");
+        if (filter === "ok") return b === "met";
+        if (filter === "agent") return b !== "met" && r.agent_capability === "full";
+        return b !== "met" && r.agent_capability !== "full";
+      });
     }
     if (q) {
       list = list.filter((r) =>
@@ -182,6 +196,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
     }
     return list;
   }, [filter, requirements, uiStates, search]);
+
 
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set());
 
