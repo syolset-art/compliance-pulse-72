@@ -24,6 +24,9 @@ export type IntegrationAuthType = "oauth" | "api_key" | "upload";
 
 export type DiscoveryType = "systems" | "vendors" | "users";
 
+/** available = kan kobles på i dag. planned = vises, men kan ikke kobles på ennå. */
+export type IntegrationAvailability = "available" | "planned";
+
 export interface IntegrationDefinition {
   id: string;
   name: string;
@@ -36,7 +39,9 @@ export interface IntegrationDefinition {
   icon: LucideIcon;
   docsUrl?: string;
   readOnly: boolean;
+  availability: IntegrationAvailability;
 }
+
 
 export const CATEGORY_LABEL: Record<IntegrationCategory, string> = {
   identity: "Identitet & SSO",
