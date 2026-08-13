@@ -615,6 +615,34 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
 
           );
         })}
+
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              type="button"
+              onClick={() => setDocsOnly((v) => !v)}
+              className={cn(
+                "inline-flex items-center gap-1.5 rounded-full border px-3 h-8 text-xs transition-colors",
+                docsOnly
+                  ? "border-foreground/80 bg-foreground text-background font-medium"
+                  : "border-border bg-background text-foreground hover:bg-muted",
+              )}
+            >
+              <FileIcon className="h-3.5 w-3.5" />
+              <span>{isNb ? "Bevis" : "Evidence"}</span>
+              <span className={cn("tabular-nums", docsOnly ? "opacity-90" : "text-muted-foreground")}>
+                {docGroups.reduce((sum, g) => sum + g.docs.length, 0)}
+              </span>
+            </button>
+          </TooltipTrigger>
+          <TooltipContent side="bottom" className="max-w-[16rem]">
+            <p>
+              {isNb
+                ? "Vis dokumentasjon per kontrollområde i stedet for kravlisten."
+                : "Show documentation per control area instead of the requirement list."}
+            </p>
+          </TooltipContent>
+        </Tooltip>
       </div>
 
       {/* Rad 3: søk + filtrering */}
