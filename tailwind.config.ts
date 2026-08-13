@@ -172,6 +172,19 @@ export default {
         sm: "calc(var(--radius) - 4px)",
         pill: "999px",
       },
+      transitionDelay: {
+        "0": "0ms",
+        "50": "50ms",
+        "100": "100ms",
+        "150": "150ms",
+        "200": "200ms",
+        "250": "250ms",
+        "300": "300ms",
+        "350": "350ms",
+        "400": "400ms",
+        "500": "500ms",
+      },
+
       keyframes: {
         "accordion-down": {
           from: {
