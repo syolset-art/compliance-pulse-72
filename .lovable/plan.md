@@ -1,15 +1,23 @@
-# Regelverk-siden: fra SaaS-dashbord til agentisk arbeidsflate
+# Regelverk (Beta): agentisk versjon som egen side
 
-Siden er i dag bygget som et klassisk SaaS-dashbord: tittel + "Endre regelverk"-knapp, en sammendragsboks med prosentbar, filterknapper (Alle / Kategori / Land), chip-velger, detaljkort, historikkgraf og til slutt kravlisten. Brukeren må selv finne ut hva som er neste steg.
+Dagens regelverk-side beholdes uendret. Den agentiske versjonen bygges som en **egen beta-side** på `/regulations-beta`, slik at du i demo kan vise den tradisjonelle siden først og deretter bytte til beta og vise hvordan en agentisk versjon introduseres.
 
-Målet er at siden åpner med Laras vurdering og forslag til handling, og at alt konfigurasjonspreget (filtre, chips, statistikk) trekkes ned eller skjules bak progressive avsløringer.
+Dagens side er et klassisk SaaS-dashbord: tittel + "Endre regelverk", sammendragsboks med prosentbar, filterknapper (Alle / Kategori / Land), chip-velger, detaljkort, historikkgraf og kravliste. Brukeren må selv finne ut hva neste steg er. Beta-siden åpner i stedet med Laras vurdering og forslag til handling.
 
-## Slik skal siden se ut
+## Bytte mellom versjonene
+
+- Diskret bryter øverst til høyre på begge sidene: **Klassisk | Beta**. Klikk bytter rute og husker valget (localStorage), så demoen starter der du sluttet.
+- Beta-siden har en liten "Beta"-merking ved tittelen med hover-tekst om at dette er en ny agentisk visning under utprøving.
+- Ingenting fjernes fra den klassiske siden — den er fortsatt standard.
+
+## Slik ser beta-siden ut
 
 ```text
 ┌──────────────────────────────────────────────┐
+│ Regelverk  [Beta]            [Klassisk|Beta] │
+├──────────────────────────────────────────────┤
 │ Lara-linje: "Jeg har gått gjennom 7 regelverk│
-│ i natt. 12 krav er bekreftet automatisk,     │
+│ 12 krav er bekreftet automatisk,             │
 │ 3 venter på din godkjenning."   [Se gjennom] │
 ├──────────────────────────────────────────────┤
 │ Laras arbeidskø (maks 3 kort)                │
@@ -21,29 +29,30 @@ Målet er at siden åpner med Laras vurdering og forslag til handling, og at alt
 │ GDPR      68 %  ▓▓▓▓▓░░  Lara følger 4 krav  │
 │ NIS2      41 %  ▓▓░░░░░  Venter på deg: 6    │
 ├──────────────────────────────────────────────┤
-│ Detalj for valgt regelverk (som i dag)       │
+│ Detalj for valgt regelverk (kravlisten)      │
 └──────────────────────────────────────────────┘
 ```
 
-## Endringer
+## Innhold på beta-siden
 
-1. **Agentisk topplinje (ny komponent)** — erstatter dagens tittelrad + prosent-sammendrag. Viser hva Lara har gjort siden sist (antall krav analysert, bekreftet, hva som venter), skrevet i første person og kort. Statusprosenten vises som en diskret tall-linje, ikke som stor progress-boks. "Endre regelverk" flyttes til en diskret meny til høyre.
+1. **Agentisk topplinje** — erstatter tittelrad + prosent-sammendrag. Viser hva Lara har gjort siden sist (krav analysert, bekreftet, hva som venter), i første person og kort. Statusprosent som diskret talllinje, ikke stor progress-boks. "Endre regelverk" ligger i en diskret meny.
 
-2. **Laras arbeidskø på regelverk-nivå (ny komponent)** — maks tre kort: godkjenn bevis, bekreft foreslått status, manglende grunnlag. Hvert kort har én primærhandling som åpner eksisterende dialog/arbeidsvindu (samme mønster som arbeidskøen på dashbordet). Ingen kø = en rolig "alt er i orden"-linje.
+2. **Laras arbeidskø** — maks tre kort: godkjenn bevis, bekreft foreslått status, manglende grunnlag. Ett primærvalg per kort som åpner eksisterende dialoger. Tom kø = rolig "alt er i orden"-linje.
 
-3. **Regelverkslisten i stedet for chips + filterknapper** — rolige rader med navn, modenhet og en kort agent-status ("Lara følger opp 4 krav" / "6 venter på deg"). Kategori- og land-filtre samles i én diskret filterknapp som bare vises når man har mer enn et par regelverk. Chip-velgeren og "Alle/Kategori/Land"-knappene fjernes fra hovedflaten.
+3. **Rolig regelverksliste i stedet for chips + filterknapper** — rader med navn, modenhet og kort agent-status ("Lara følger opp 4 krav" / "6 venter på deg"). Kategori- og landfiltre samles i én diskret filterknapp som først vises ved mange regelverk.
 
-4. **Historikkgrafen dempes** — flyttes inn i detaljvisningen som en sammenleggbar seksjon ("Hva har skjedd"), slik at grafen ikke tar plass før man har valgt et regelverk.
+4. **Historikkgrafen dempes** — sammenleggbar seksjon ("Hva har skjedd") inne i detaljvisningen.
 
-5. **Språk og mikrotekst** — erstatt dashbord-språk ("Velg et regelverk eller en standard for å se status") med agent-språk ("Lara holder oversikt over regelverkene dine. Her er det hun trenger deg til."). Hover-forklaringer beholdes der de finnes i dag.
+5. **Språk** — agent-språk i stedet for dashbord-språk: "Lara holder oversikt over regelverkene dine. Her er det hun trenger deg til."
 
-6. **Bevegelse** — samme diskrete stagger-inn-animasjon som brukes på leverandørdashbordet, slik at Lara-linje, arbeidskø og liste ruller inn i rekkefølge.
+6. **Bevegelse** — samme diskrete stagger-inn-animasjon som på leverandørdashbordet.
+
+Kravlisten (`FrameworkRequirementsList`) gjenbrukes uendret, så begge sidene viser samme krav og samme status.
 
 ## Teknisk
 
-- Ny `src/components/regulations/LaraRegulationsHeader.tsx` (agentisk topplinje) og `src/components/regulations/RegulationsWorkQueue.tsx` (arbeidskø), begge presentasjonskomponenter som får data via props fra `Regulations.tsx`.
-- Køelementene utledes deterministisk fra eksisterende data: `getRequirementsByFramework` / `ALL_ADDITIONAL_REQUIREMENTS`, `agentConfirmedRequirementIds` og `demoUiStateFor` — samme kilder som `FrameworkRequirementsList` bruker, så tallene stemmer overens.
-- Gjenbruker mønsteret fra `src/lib/laraWorkQueue.ts` for korttyper og begrunnelser.
-- `ActiveFrameworksSummary` og `FrameworkChipSelector` erstattes på denne siden av en ny rolig `FrameworkOverviewList`; komponentene beholdes for andre bruksteder.
-- `ComplianceHistoryChart` pakkes i en collapsible i detaljvisningen.
-- Kun frontend/presentasjon. Ingen endringer i datamodell, status-logikk eller backend. Alle farger via eksisterende semantiske tokens.
+- Ny side `src/pages/RegulationsBeta.tsx` og rute `/regulations-beta` i `src/App.tsx`. `src/pages/Regulations.tsx` endres kun med bryteren.
+- Nye presentasjonskomponenter under `src/components/regulations/`: `LaraRegulationsHeader.tsx` (topplinje), `RegulationsWorkQueue.tsx` (arbeidskø), `FrameworkOverviewList.tsx` (rolig liste) og `RegulationsViewSwitch.tsx` (Klassisk/Beta-bryter med localStorage).
+- Køelementer utledes deterministisk fra eksisterende data: `getRequirementsByFramework` / `ALL_ADDITIONAL_REQUIREMENTS`, `agentConfirmedRequirementIds` og `demoUiStateFor` — samme kilder som kravlisten, så tallene stemmer overens. Mønster for korttyper hentes fra `src/lib/laraWorkQueue.ts`.
+- Rammeverksdata hentes fra samme `selected_frameworks`-spørring som i dag; ingen nye tabeller eller backend-endringer.
+- Animasjon via `staggerEntranceClass` i `src/lib/animation.ts`. Alle farger via eksisterende semantiske tokens.
