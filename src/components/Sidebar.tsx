@@ -228,36 +228,91 @@ const PartnerNav = () => {
   const { t, i18n } = useTranslation();
   const isNb = i18n.language?.startsWith("nb") || i18n.language === "no";
 
-  const items = [
+  const primaryItems = [
     { name: isNb ? "Dashbord" : "Dashboard", href: "/msp-partner", icon: LayoutDashboard },
     { name: isNb ? "Kunder" : "Customers", href: "/msp-dashboard", icon: Users },
     { name: isNb ? "Produkter og tjenester" : "Products and services", href: "/msp-services", icon: Package },
-    { name: isNb ? "Kundevisning" : "Customer view", href: "/msp-customer-view", icon: Eye },
+  ];
+
+  const secondaryItems = [
     { name: isNb ? "Meldinger" : "Messages", href: "/msp-messages", icon: Inbox },
     { name: isNb ? "Fakturagrunnlag" : "Billing basis", href: "/msp-invoices", icon: FileText },
   ];
 
+  const customerView = { name: isNb ? "Kundevisning" : "Customer view", href: "/msp-customer-view", icon: Eye };
+  const isOffersActive = location.pathname === customerView.href || location.pathname.startsWith(customerView.href + "/");
+  const [offersOpen, setOffersOpen] = useState(() => isOffersActive);
+
+  useEffect(() => {
+    if (isOffersActive) setOffersOpen(true);
+  }, [isOffersActive]);
+
+  const renderLink = (item: typeof primaryItems[0]) => {
+    const isActive = location.pathname === item.href || location.pathname.startsWith(item.href + "/");
+    return (
+      <Link
+        key={item.href}
+        to={item.href}
+        className={cn(
+          "flex items-center gap-2.5 rounded-lg px-3 py-2 text-[0.9375rem] font-medium transition-all duration-200",
+          isActive
+            ? "bg-gradient-to-r from-primary/10 to-transparent text-sidebar-primary border-l-2 border-primary"
+            : "text-sidebar-foreground/80 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
+        )}
+      >
+        {isActive && <span className="h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />}
+        <item.icon className="h-4 w-4" />
+        {item.name}
+      </Link>
+    );
+  };
+
   return (
     <nav className="flex-1 space-y-0.5 px-3 py-4 overflow-y-auto">
-      {items.map((item) => {
-        const isActive = location.pathname === item.href || location.pathname.startsWith(item.href + "/");
-        return (
-          <Link
-            key={item.href}
-            to={item.href}
-            className={cn(
-              "flex items-center gap-2.5 rounded-lg px-3 py-2 text-[0.9375rem] font-medium transition-all duration-200",
-              isActive
-                ? "bg-gradient-to-r from-primary/10 to-transparent text-sidebar-primary border-l-2 border-primary"
-                : "text-sidebar-foreground/80 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
-            )}
-          >
-            {isActive && <span className="h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />}
-            <item.icon className="h-4 w-4" />
-            {item.name}
-          </Link>
-        );
-      })}
+      {primaryItems.map(renderLink)}
+
+      {/* Tilbud — intern forhåndsvisning av kundesidens utforming */}
+      <div className="mt-0.5">
+        <button
+          onClick={() => setOffersOpen(!offersOpen)}
+          className={cn(
+            "flex w-full items-center justify-between rounded-lg px-3 py-2 text-[0.9375rem] font-medium transition-all duration-200",
+            isOffersActive
+              ? "text-sidebar-primary border-l-2 border-primary/30"
+              : "text-sidebar-foreground/80 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
+          )}
+        >
+          <div className="flex items-center gap-2.5">
+            <ScrollText className="h-4 w-4" />
+            <span>{isNb ? "Tilbud" : "Offers"}</span>
+          </div>
+          <ChevronDown className={cn("h-3.5 w-3.5 transition-transform duration-200", offersOpen && "rotate-180")} />
+        </button>
+        <div
+          className={cn(
+            "overflow-hidden transition-all duration-200",
+            offersOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+          )}
+        >
+          <div className="ml-3 mt-0.5 space-y-0.5 border-l border-sidebar-border/50 pl-3">
+            <Link
+              to={customerView.href}
+              className={cn(
+                "flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-sm font-medium transition-all duration-150",
+                isOffersActive
+                  ? "bg-sidebar-accent text-sidebar-primary"
+                  : "text-sidebar-foreground/60 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
+              )}
+            >
+              {isOffersActive && <span className="h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />}
+              <customerView.icon className="h-3.5 w-3.5" />
+              {customerView.name}
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      {secondaryItems.map(renderLink)}
     </nav>
   );
 };
