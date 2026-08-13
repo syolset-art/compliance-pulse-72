@@ -42,7 +42,7 @@ import {
 } from "@/lib/frameworkEvidenceExpectations";
 
 
-type FilterKey = "all" | "not_met" | "partial" | "met";
+type FilterKey = "all" | "waiting_you" | "agent" | "ok";
 
 /** Map ny fremdrift → legacy filter-bøtte for tabs. */
 function bucketOf(progress: ProgressStatus): "met" | "partial" | "not_met" | "na" {
