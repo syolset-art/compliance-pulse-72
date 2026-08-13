@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Dialog,
@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { Checkbox } from "@/components/ui/checkbox";
 
 import {
   Tooltip,
@@ -39,6 +40,12 @@ export interface AttachEvidenceResult {
   hasSignedDocument: boolean;
 }
 
+export interface FrameworkMatchCandidate {
+  id: string;
+  name: string;
+  articles: string[];
+}
+
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -47,7 +54,11 @@ interface Props {
   requirementDescription?: string;
   coveredArticles?: string[];
   onConfirm: (result: AttachEvidenceResult) => void;
+  /** Regelverk-modus: analyser dokumentet mot alle krav og la brukeren velge treff. */
+  frameworkRequirements?: FrameworkMatchCandidate[];
+  onConfirmMulti?: (requirementIds: string[], result: AttachEvidenceResult) => void;
 }
+
 
 type PhaseKind = "select" | "analyzing" | "review" | "error";
 type Phase =
@@ -151,18 +162,44 @@ export function AttachEvidenceDialog({
   requirementDescription,
   coveredArticles,
   onConfirm,
+  frameworkRequirements,
+  onConfirmMulti,
 }: Props) {
   const { i18n } = useTranslation();
   const isNb = i18n.language !== "en";
+  const isFrameworkMode = !!frameworkRequirements && frameworkRequirements.length > 0;
   const [phase, setPhase] = useState<Phase>({ kind: "select" });
   const [showArticles, setShowArticles] = useState(false);
   const [showReviewArticles, setShowReviewArticles] = useState(false);
+  const [selectedReqIds, setSelectedReqIds] = useState<Set<string>>(new Set());
 
   const reset = useCallback(() => {
     setPhase({ kind: "select" });
     setShowArticles(false);
     setShowReviewArticles(false);
+    setSelectedReqIds(new Set());
   }, []);
+
+  /** Krav i regelverket som dokumentet treffer (artikkeloverlapp). */
+  const matches = useMemo(() => {
+    if (!isFrameworkMode || phase.kind !== "review") return [];
+    const covered = new Set(phase.result.coveredArticles);
+    return frameworkRequirements!
+      .map((r) => {
+        const hits = r.articles.filter((a) => covered.has(a));
+        return { ...r, hits };
+      })
+      .filter((r) => r.hits.length > 0)
+      .sort((a, b) => b.hits.length - a.hits.length)
+      .slice(0, 8);
+  }, [isFrameworkMode, phase, frameworkRequirements]);
+
+  useEffect(() => {
+    if (phase.kind === "review" && isFrameworkMode) {
+      setSelectedReqIds(new Set(matches.map((m) => m.id)));
+    }
+  }, [phase.kind, isFrameworkMode, matches]);
+
 
   const handleFile = useCallback(
     async (file: File) => {
@@ -470,8 +507,47 @@ export function AttachEvidenceDialog({
                 </>
               );
             })()}
+
+            {isFrameworkMode && (
+              <div className="space-y-1.5 pt-1">
+                <p className="text-[11px] text-muted-foreground">
+                  {matches.length > 0
+                    ? isNb
+                      ? `Lara foreslår ${matches.length} krav dette dokumentet dekker`
+                      : `Lara suggests ${matches.length} requirements this document covers`
+                    : isNb
+                      ? "Lara fant ingen tydelige treff i dette regelverket."
+                      : "Lara found no clear matches in this framework."}
+                </p>
+                {matches.map((m) => {
+                  const checked = selectedReqIds.has(m.id);
+                  return (
+                    <label
+                      key={m.id}
+                      className="flex items-center gap-2 rounded-md border border-border/60 px-2 py-1.5 cursor-pointer hover:bg-muted/40 transition-colors"
+                    >
+                      <Checkbox
+                        checked={checked}
+                        onCheckedChange={() =>
+                          setSelectedReqIds((prev) => {
+                            const n = new Set(prev);
+                            n.has(m.id) ? n.delete(m.id) : n.add(m.id);
+                            return n;
+                          })
+                        }
+                      />
+                      <span className="text-xs text-foreground truncate flex-1">{m.name}</span>
+                      <span className="text-[11px] text-muted-foreground tabular-nums shrink-0">
+                        {m.hits.length} {isNb ? "art." : "art."}
+                      </span>
+                    </label>
+                  );
+                })}
+              </div>
+            )}
           </div>
         )}
+
 
         {phase.kind === "error" && (
           <div className="flex flex-col items-center gap-2 py-6 text-center">
@@ -488,14 +564,26 @@ export function AttachEvidenceDialog({
               </Button>
               <Button
                 size="sm"
+                disabled={isFrameworkMode && selectedReqIds.size === 0}
                 onClick={() => {
-                  onConfirm(phase.result);
+                  if (isFrameworkMode && onConfirmMulti) {
+                    onConfirmMulti(Array.from(selectedReqIds), phase.result);
+                  } else {
+                    onConfirm(phase.result);
+                  }
                   reset();
                   onOpenChange(false);
                 }}
               >
-                {isNb ? "Bekreft" : "Confirm"}
+                {isFrameworkMode
+                  ? isNb
+                    ? `Tilknytt ${selectedReqIds.size} krav`
+                    : `Attach to ${selectedReqIds.size}`
+                  : isNb
+                    ? "Bekreft"
+                    : "Confirm"}
               </Button>
+
             </>
           ) : phase.kind === "error" ? (
             <>

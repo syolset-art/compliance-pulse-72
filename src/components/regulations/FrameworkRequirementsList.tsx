@@ -9,7 +9,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { ChevronDown, ChevronUp, Users, Bot, CheckCircle2, UserCheck, Paperclip, FileText as FileIcon, Download, ShieldCheck, Sparkles, Clock, Search, X, ArrowRight, HelpCircle } from "lucide-react";
+import { ChevronDown, ChevronUp, Users, Bot, CheckCircle2, UserCheck, Paperclip, FileText as FileIcon, Download, ShieldCheck, Sparkles, Clock, Search, X, ArrowRight, HelpCircle, Upload, BotMessageSquare, CircleDashed } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -35,6 +35,11 @@ import { getRequirementGuidance, getEvaluationCriteriaText, getExtendedDescripti
 import { Info, Target, ListChecks, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CONTROL_AREAS, toCanonicalArea, type ControlAreaKey } from "@/lib/controlAreas";
+import {
+  agentConfirmedRequirementIds,
+  buildExpectedEvidenceRows,
+  expectedStatusLabel,
+} from "@/lib/frameworkEvidenceExpectations";
 
 
 type FilterKey = "all" | "not_met" | "partial" | "met";
@@ -117,6 +122,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
   const [draftNote, setDraftNote] = useState<string>("");
   const [cursorTip, setCursorTip] = useState<{ x: number; y: number } | null>(null);
   const [attachDialog, setAttachDialog] = useState<{ id: string; name: string; description?: string; articles?: string[] } | null>(null);
+  const [frameworkAttachOpen, setFrameworkAttachOpen] = useState(false);
   const [readMoreIds, setReadMoreIds] = useState<Set<string>>(new Set());
   const [showAllDocsIds, setShowAllDocsIds] = useState<Set<string>>(new Set());
   const toggleSet = (setter: Dispatch<SetStateAction<Set<string>>>, id: string) =>
@@ -252,6 +258,59 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
     [docGroups],
   );
 
+  /** Forventet dokumentasjon for regelverket, gruppert per kontrollområde. */
+  const expectedRows = useMemo(() => {
+    const hasDocs = (id: string) => (uiStates[id]?.documents?.length ?? 0) > 0;
+    const agentConfirmed = agentConfirmedRequirementIds(requirements, hasDocs);
+    return buildExpectedEvidenceRows(requirements, hasDocs, agentConfirmed, isNb);
+  }, [requirements, uiStates, isNb]);
+
+  const missingEvidenceCount = useMemo(
+    () => expectedRows.filter((r) => r.status === "missing").length,
+    [expectedRows],
+  );
+
+  const expectedByArea = useMemo(() => {
+    const map = new Map<string, typeof expectedRows>();
+    expectedRows.forEach((r) => {
+      const list = map.get(r.area) ?? [];
+      list.push(r);
+      map.set(r.area, list);
+    });
+    return map;
+  }, [expectedRows]);
+
+  /** Kandidater for regelverk-nivå analyse (alle krav + artiklene de dekker). */
+  const frameworkCandidates = useMemo(
+    () =>
+      requirements.map((r) => ({
+        id: r.requirement_id,
+        name: isNb ? r.name_no : r.name,
+        articles: getArticlesForRequirement(r) ?? r.covered_articles ?? [],
+      })),
+    [requirements, isNb],
+  );
+
+  const allFrameworkArticles = useMemo(
+    () => Array.from(new Set(frameworkCandidates.flatMap((c) => c.articles))),
+    [frameworkCandidates],
+  );
+
+  const applyFrameworkEvidence = (requirementIds: string[], result: AttachEvidenceResult) => {
+    requirementIds.forEach((id) => {
+      const req = requirements.find((r) => r.requirement_id === id);
+      if (req) applyEvidenceAttachment(id, req, result, { silent: true });
+    });
+    setFrameworkAttachOpen(false);
+    toast.success(
+      isNb
+        ? `Bevis tilknyttet ${requirementIds.length} krav`
+        : `Evidence attached to ${requirementIds.length} requirements`,
+    );
+  };
+
+
+
 
 
 
@@ -318,6 +377,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
     requirementId: string,
     req: ComplianceRequirement,
     result: AttachEvidenceResult,
+    opts?: { silent?: boolean },
   ) => {
     setUiStates((prev) => {
       const cur = prev[requirementId] ?? { progress: "not_answered" as ProgressStatus, evidence: "required" as const };
@@ -360,6 +420,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
       };
       return { ...prev, [requirementId]: updated };
     });
+    if (opts?.silent) return;
     setAttachDialog(null);
     const covered = result.coveredArticles.length;
     const total = covered + result.missingArticles.length;
@@ -533,17 +594,26 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
         </TabsList>
       </Tabs>
 
-      {grouping === "control_area" && (
-        <div className="mb-4 flex items-center justify-between gap-3 rounded-lg border border-border/60 bg-muted/20 px-3 py-2">
-          <div className="flex items-center gap-2 min-w-0">
-            <FileIcon className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-            <span className="text-xs text-muted-foreground truncate">
-              {isNb
-                ? `Alle opplastede dokumenter samlet per kontrollområde (${totalDocCount})`
-                : `All uploaded documents collected per control area (${totalDocCount})`}
-            </span>
-          </div>
-          <div className="flex items-center gap-2 shrink-0">
+      <div className="mb-4 flex items-center justify-between gap-3 rounded-lg border border-border/60 bg-muted/20 px-3 py-2">
+        <div className="flex items-center gap-2 min-w-0">
+          <FileIcon className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+          <span className="text-xs text-muted-foreground truncate">
+            {isNb
+              ? `${totalDocCount} bevis registrert · ${missingEvidenceCount} mangler`
+              : `${totalDocCount} evidence items · ${missingEvidenceCount} missing`}
+          </span>
+        </div>
+        <div className="flex items-center gap-3 shrink-0">
+          <Button
+            size="sm"
+            variant="outline"
+            className="h-7 gap-1.5 text-xs"
+            onClick={() => setFrameworkAttachOpen(true)}
+          >
+            <Upload className="h-3.5 w-3.5" />
+            {isNb ? "Last opp bevis" : "Upload evidence"}
+          </Button>
+          <div className="flex items-center gap-2">
             <Tooltip>
               <TooltipTrigger asChild>
                 <Label htmlFor="docs-only" className="text-xs text-muted-foreground cursor-pointer">
@@ -561,7 +631,8 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
             <Switch id="docs-only" checked={docsOnly} onCheckedChange={setDocsOnly} />
           </div>
         </div>
-      )}
+      </div>
+
 
       {filtered.length === 0 && (
         <div className="text-center py-8 text-sm text-muted-foreground">
@@ -569,37 +640,36 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
         </div>
       )}
 
-      {grouping === "control_area" && docsOnly ? (
+      {docsOnly ? (
         <div className="space-y-6">
-          {docGroups.length === 0 && filtered.length > 0 && (
-            <div className="text-center py-8 text-sm text-muted-foreground">
-              {isNb ? "Ingen dokumenter er lastet opp ennå." : "No documents uploaded yet."}
-            </div>
-          )}
-          {docGroups.map((group) => {
-            const GroupIcon = group.Icon;
+          {CONTROL_AREAS.map((area) => {
+            const GroupIcon = area.icon;
+            const docs = docGroups.find((g) => g.key === area.key)?.docs ?? [];
+            const expected = expectedByArea.get(area.key) ?? [];
+            if (docs.length === 0 && expected.length === 0) return null;
+            const openRequirement = (id: string) => {
+              setDocsOnly(false);
+              setExpandedId(id);
+              setTimeout(() => {
+                reqRefs.current[id]?.scrollIntoView({ behavior: "smooth", block: "center" });
+              }, 60);
+            };
             return (
-              <section key={group.key} className="space-y-2">
+              <section key={area.key} className="space-y-2">
                 <div className="flex items-center gap-2 px-1">
-                  <GroupIcon className={cn("h-4 w-4 shrink-0", group.accentClass)} />
+                  <GroupIcon className={cn("h-4 w-4 shrink-0", area.accentClass)} />
                   <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                    {group.label}
+                    {isNb ? area.labelNb : area.labelEn}
                   </span>
-                  <span className="text-xs tabular-nums text-muted-foreground/70">({group.docs.length})</span>
+                  <span className="text-xs tabular-nums text-muted-foreground/70">({docs.length})</span>
                   <span className="flex-1 h-px bg-border ml-2" />
                 </div>
                 <div className="rounded-lg border bg-card divide-y">
-                  {group.docs.map((entry, i) => (
+                  {docs.map((entry, i) => (
                     <button
                       key={`${entry.req.requirement_id}-${entry.doc.name}-${i}`}
                       type="button"
-                      onClick={() => {
-                        setDocsOnly(false);
-                        setExpandedId(entry.req.requirement_id);
-                        setTimeout(() => {
-                          reqRefs.current[entry.req.requirement_id]?.scrollIntoView({ behavior: "smooth", block: "center" });
-                        }, 60);
-                      }}
+                      onClick={() => openRequirement(entry.req.requirement_id)}
                       className="w-full flex items-center gap-3 px-3 py-2 text-left hover:bg-muted/40 transition-colors"
                     >
                       <FileIcon className="h-4 w-4 text-muted-foreground shrink-0" />
@@ -615,6 +685,56 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                       <ArrowRight className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                     </button>
                   ))}
+
+                  {/* Forventet dokumentasjon som ennå ikke er lastet opp */}
+                  {expected
+                    .filter((row) => row.status !== "received")
+                    .map((row) => {
+                      const isAgent = row.status === "agent_confirmed";
+                      return (
+                        <button
+                          key={`exp-${row.requirementId}`}
+                          type="button"
+                          onClick={() => openRequirement(row.requirementId)}
+                          className="w-full flex items-center gap-3 px-3 py-2 text-left hover:bg-muted/40 transition-colors"
+                        >
+                          {isAgent ? (
+                            <BotMessageSquare className="h-4 w-4 text-primary shrink-0" />
+                          ) : (
+                            <CircleDashed className="h-4 w-4 text-muted-foreground/60 shrink-0" />
+                          )}
+                          <div className="min-w-0 flex-1">
+                            <p className="text-sm text-muted-foreground truncate">{row.docLabel}</p>
+                            <p className="text-[11px] text-muted-foreground/80 truncate">
+                              {row.requirementId} · {row.requirementName}
+                            </p>
+                          </div>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Badge
+                                variant="outline"
+                                className={cn(
+                                  "h-5 px-1.5 text-[10px] shrink-0",
+                                  isAgent ? "border-primary/40 text-primary" : "text-muted-foreground",
+                                )}
+                              >
+                                {expectedStatusLabel(row.status, isNb)}
+                              </Badge>
+                            </TooltipTrigger>
+                            <TooltipContent side="left" className="max-w-xs text-xs">
+                              {isAgent
+                                ? isNb
+                                  ? "Kundens agent har bekreftet at dokumentet finnes. Regnes som egenrapportert bevis — last opp filen for å bli verifisert."
+                                  : "The customer's agent confirmed the document exists. Counts as self-reported evidence — upload the file to become verified."
+                                : isNb
+                                  ? "Ingen bevis registrert. Klikk for å åpne kravet og laste opp dokumentasjon."
+                                  : "No evidence registered. Click to open the requirement and upload documentation."}
+                            </TooltipContent>
+                          </Tooltip>
+                          <ArrowRight className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                        </button>
+                      );
+                    })}
                 </div>
               </section>
             );
@@ -1052,6 +1172,20 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
           }}
         />
       )}
+
+      {frameworkAttachOpen && (
+        <AttachEvidenceDialog
+          open={frameworkAttachOpen}
+          onOpenChange={setFrameworkAttachOpen}
+          requirementId={frameworkId}
+          requirementName={isNb ? "Bevis for hele regelverket" : "Evidence for the whole framework"}
+          coveredArticles={allFrameworkArticles}
+          frameworkRequirements={frameworkCandidates}
+          onConfirm={() => {}}
+          onConfirmMulti={applyFrameworkEvidence}
+        />
+      )}
+
 
       {cursorTip && (
         <div
