@@ -107,6 +107,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [filter, setFilter] = useState<FilterKey>("all");
   const [grouping, setGrouping] = useState<"status" | "control_area">("status");
+  const [docsOnly, setDocsOnly] = useState(false);
   const [search, setSearch] = useState("");
   const [docDialog, setDocDialog] = useState<{ id: string; name: string } | null>(null);
   const [reqNotes, setReqNotes] = useState<Record<string, string>>({});
@@ -537,7 +538,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                       <div className="min-w-0 flex-1">
                         <p className="text-sm text-foreground truncate">{entry.doc.name}</p>
                         <p className="text-[11px] text-muted-foreground truncate">
-                          {entry.req.requirement_id} · {isNb ? entry.req.title_no : entry.req.title}
+                          {entry.req.requirement_id} · {isNb ? entry.req.name_no : entry.req.name}
                         </p>
                       </div>
                       <Badge variant="outline" className="h-5 px-1.5 text-[10px] uppercase shrink-0">
