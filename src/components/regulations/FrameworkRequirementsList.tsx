@@ -604,15 +604,26 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
           </span>
         </div>
         <div className="flex items-center gap-3 shrink-0">
-          <Button
-            size="sm"
-            variant="outline"
-            className="h-7 gap-1.5 text-xs"
-            onClick={() => setFrameworkAttachOpen(true)}
-          >
-            <Upload className="h-3.5 w-3.5" />
-            {isNb ? "Last opp bevis" : "Upload evidence"}
-          </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-7 gap-1.5 text-xs"
+                onClick={() => setFrameworkAttachOpen(true)}
+              >
+                <Upload className="h-3.5 w-3.5" />
+                {isNb ? "Last opp bevis" : "Upload evidence"}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom" className="max-w-xs">
+              <p>
+                {isNb
+                  ? "Last opp dokumentasjon. Lara analyserer dokumentet og foreslår hvilke krav det dekker. Bekreft forslaget, så oppdateres kravene og scoren automatisk."
+                  : "Upload documentation. Lara analyzes the document and suggests which requirements it covers. Confirm the suggestion, and the requirements and score are updated automatically."}
+              </p>
+            </TooltipContent>
+          </Tooltip>
           <div className="flex items-center gap-2">
             <Tooltip>
               <TooltipTrigger asChild>
