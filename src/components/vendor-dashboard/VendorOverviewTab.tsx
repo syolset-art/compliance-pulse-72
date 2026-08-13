@@ -241,7 +241,8 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
 
 
       {/* Visuell oppsummering: Risikofordeling (donut) + Geografi */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 motion-safe:animate-fade-in-up motion-safe:animate-delay-300">
+
         {/* Risk donut med stort sentertall */}
         <Card variant="flat" className="p-5">
           <div className="flex items-center justify-between mb-2">
