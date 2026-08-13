@@ -246,6 +246,44 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
           </CardContent>
         </Card>
 
+        {/* Priority */}
+        <Card className="relative group">
+          <CardContent className="p-4 space-y-2">
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <Flag className="h-3.5 w-3.5" />
+              {isNb ? "Prioritet" : "Priority"}
+              <Pencil className="h-3 w-3 ml-auto opacity-0 group-hover:opacity-50 transition-opacity" />
+            </div>
+            <Select
+              value={asset?.priority || "not_set"}
+              onValueChange={(v) => handleFieldChange("priority", v === "not_set" ? null as any : v)}
+            >
+              <SelectTrigger className={`h-9 text-sm font-semibold border ${priorityColor(asset?.priority)}`}>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {priorityOptions.map(o => (
+                  <SelectItem key={o.value} value={o.value}>
+                    {isNb ? o.labelNb : o.labelEn}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-[13px] text-muted-foreground leading-tight">
+              {isNb
+                ? "Din prioritering av leverandøren for filtrering og oppfølging. Kan kobles til risikoscenarier."
+                : "Your prioritization of this vendor for filtering and follow-up. Can be linked to risk scenarios."}
+            </p>
+            <button
+              onClick={() => onNavigateToTab?.("overview")}
+              className="flex items-center gap-1 text-[13px] text-primary hover:underline"
+            >
+              <ArrowRight className="h-2.5 w-2.5" />
+              {isNb ? "Påvirker: Filtrering og oppfølging" : "Affects: Filtering & follow-up"}
+            </button>
+          </CardContent>
+        </Card>
+
         {/* GDPR Role */}
         <Card className="relative group">
           <CardContent className="p-4 space-y-2">
@@ -337,45 +375,6 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
             >
               <ArrowRight className="h-2.5 w-2.5" />
               {isNb ? "Påvirker: Personvern og datahåndtering" : "Affects: Privacy & data handling"}
-            </button>
-          </CardContent>
-        </Card>
-
-
-        {/* Priority */}
-        <Card className="relative group">
-          <CardContent className="p-4 space-y-2">
-            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <Flag className="h-3.5 w-3.5" />
-              {isNb ? "Prioritet" : "Priority"}
-              <Pencil className="h-3 w-3 ml-auto opacity-0 group-hover:opacity-50 transition-opacity" />
-            </div>
-            <Select
-              value={asset?.priority || "not_set"}
-              onValueChange={(v) => handleFieldChange("priority", v === "not_set" ? null as any : v)}
-            >
-              <SelectTrigger className={`h-9 text-sm font-semibold border ${priorityColor(asset?.priority)}`}>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {priorityOptions.map(o => (
-                  <SelectItem key={o.value} value={o.value}>
-                    {isNb ? o.labelNb : o.labelEn}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <p className="text-[13px] text-muted-foreground leading-tight">
-              {isNb
-                ? "Din prioritering av leverandøren for filtrering og oppfølging. Kan kobles til risikoscenarier."
-                : "Your prioritization of this vendor for filtering and follow-up. Can be linked to risk scenarios."}
-            </p>
-            <button
-              onClick={() => onNavigateToTab?.("overview")}
-              className="flex items-center gap-1 text-[13px] text-primary hover:underline"
-            >
-              <ArrowRight className="h-2.5 w-2.5" />
-              {isNb ? "Påvirker: Filtrering og oppfølging" : "Affects: Filtering & follow-up"}
             </button>
           </CardContent>
         </Card>
