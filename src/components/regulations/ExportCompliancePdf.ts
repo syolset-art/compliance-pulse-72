@@ -99,37 +99,45 @@ export function exportCompliancePdf(framework: Framework, counts: ExportCounts, 
 
   // Requirements table
   const reqs = getReqs(framework.id);
-  const tableData = reqs.map((req, i) => [
+  const tableData = reqs.map((req) => [
     req.requirement_id,
     req.name_no || req.name,
     req.category,
     req.priority === "critical" ? "Kritisk" : req.priority === "high" ? "Høy" : req.priority === "medium" ? "Medium" : "Lav",
-    getStatusLabel(req, i),
+    REPORT_STATUS_LABEL[getReportStatus(req)],
+    getEvidenceCount(req) > 0 ? `${getEvidenceCount(req)} vedlegg` : "Mangler",
   ]);
 
   autoTable(doc, {
     startY: boxY + 36,
-    head: [["ID", "Krav", "Kategori", "Prioritet", "Status"]],
+    head: [["ID", "Krav", "Kategori", "Prioritet", "Status", "Bevis"]],
     body: tableData,
     styles: { fontSize: 8, cellPadding: 3 },
     headStyles: { fillColor: [59, 130, 246], textColor: 255, fontStyle: "bold" },
     columnStyles: {
-      0: { cellWidth: 22 },
-      1: { cellWidth: 70 },
-      2: { cellWidth: 35 },
-      3: { cellWidth: 22 },
-      4: { cellWidth: 25 },
+      0: { cellWidth: 20 },
+      1: { cellWidth: 58 },
+      2: { cellWidth: 30 },
+      3: { cellWidth: 20 },
+      4: { cellWidth: 34 },
+      5: { cellWidth: 20 },
     },
     alternateRowStyles: { fillColor: [248, 249, 250] },
     didParseCell: (data) => {
-      if (data.column.index === 4 && data.section === "body") {
+      if (data.section !== "body") return;
+      if (data.column.index === 4) {
         const val = data.cell.raw as string;
-        if (val === "Oppfylt") data.cell.styles.textColor = [16, 185, 129];
-        else if (val === "Delvis") data.cell.styles.textColor = [245, 158, 11];
-        else data.cell.styles.textColor = [239, 68, 68];
+        if (val === REPORT_STATUS_LABEL.fulfilled) data.cell.styles.textColor = REPORT_STATUS_COLOR.fulfilled;
+        else if (val === REPORT_STATUS_LABEL.not_started) data.cell.styles.textColor = REPORT_STATUS_COLOR.not_started;
+        else data.cell.styles.textColor = REPORT_STATUS_COLOR.not_applicable;
+      }
+      if (data.column.index === 5) {
+        const val = data.cell.raw as string;
+        data.cell.styles.textColor = val === "Mangler" ? [239, 68, 68] : [16, 185, 129];
       }
     },
   });
+
 
   // Footer
   const pageCount = doc.getNumberOfPages();
