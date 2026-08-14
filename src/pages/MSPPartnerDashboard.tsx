@@ -307,14 +307,16 @@ function PartnerHeader() {
 }
 
 
-// Regelverksaktivering på tvers av kundeporteføljen (mockdata).
+// Regelverksaktivering på tvers av kundeporteføljen (mockdata) — topp 5 regelverk.
 const PORTFOLIO_CUSTOMERS = 300;
 const FRAMEWORK_ACTIVATIONS = [
   { label: "GDPR", lastMonth: 18, lastHalfYear: 90, activeCustomers: 186 },
   { label: "NIS2", lastMonth: 11, lastHalfYear: 54, activeCustomers: 71 },
   { label: "ISO 27001", lastMonth: 6, lastHalfYear: 33, activeCustomers: 54 },
   { label: "DORA", lastMonth: 4, lastHalfYear: 21, activeCustomers: 42 },
+  { label: "AI Act", lastMonth: 5, lastHalfYear: 18, activeCustomers: 38 },
 ];
+
 
 function ClaimRateWidget() {
   const navigate = useNavigate();
@@ -351,7 +353,7 @@ function ClaimRateWidget() {
       <div className="relative p-5 text-white">
         <div className="flex items-center gap-1.5">
           <div className="text-[11px] uppercase tracking-[0.15em] text-white/80 font-semibold">
-            {isNb ? "Regelverk aktivert" : "Regulations activated"}
+            {isNb ? "Topp 5 regelverk" : "Top 5 regulations"}
           </div>
           <UITooltip>
             <TooltipTrigger asChild>
@@ -363,8 +365,8 @@ function ClaimRateWidget() {
             <TooltipContent side="top" className="max-w-[280px]">
               <p>
                 {isNb
-                  ? `Viser hvor mange av de ${PORTFOLIO_CUSTOMERS} kundene dine som har aktivert regelverk siste måned og siste halvår. Filtrer på regelverk for å se andelen per regelverk.`
-                  : `Shows how many of your ${PORTFOLIO_CUSTOMERS} customers have activated regulations in the last month and last half year. Filter by regulation to see the share per regulation.`}
+                  ? `Viser de 5 mest aktiverte regelverkene blant de ${PORTFOLIO_CUSTOMERS} kundene dine. Filtrer på regelverk for å se andelen som har aktivert akkurat det regelverket. Perioden styrer antallet nye aktiveringer.`
+                  : `Shows the 5 most activated regulations among your ${PORTFOLIO_CUSTOMERS} customers. Filter by regulation to see the share that has activated that specific regulation. The period controls the number of new activations.`}
               </p>
             </TooltipContent>
           </UITooltip>
