@@ -23,14 +23,6 @@ interface Props {
 
 const STEPS = ["Regelverk", "Match", "Analyse", "Kampanje"] as const;
 
-const CURRENCY = "NOK";
-const LOCALE = "nb-NO";
-      notation: compact ? "compact" : "standard",
-    }).format(n);
-  } catch {
-    return `${n} ${CURRENCY}`;
-  }
-}
 
 const fwName = (id: string) => ALL_FRAMEWORKS.find((f) => f.id === id)?.name ?? id;
 
