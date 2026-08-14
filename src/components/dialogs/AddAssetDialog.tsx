@@ -219,6 +219,7 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
   const [isLoading, setIsLoading] = useState(false);
   const [step, setStep] = useState<Step>("select-type");
   const [selectedType, setSelectedType] = useState<string>("");
+  const [quickName, setQuickName] = useState("");
   const [suggestions, setSuggestions] = useState<AssetSuggestion[]>([]);
   const [selectedSuggestions, setSelectedSuggestions] = useState<Set<number>>(new Set());
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
