@@ -25,12 +25,6 @@ const STEPS = ["Regelverk", "Match", "Analyse", "Kampanje"] as const;
 
 const CURRENCY = "NOK";
 const LOCALE = "nb-NO";
-function formatCurrency(n: number, compact = true) {
-  try {
-    return new Intl.NumberFormat(LOCALE, {
-      style: "currency",
-      currency: CURRENCY,
-      maximumFractionDigits: 0,
       notation: compact ? "compact" : "standard",
     }).format(n);
   } catch {
