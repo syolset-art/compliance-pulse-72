@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useDemoSyncOptional } from "@/contexts/DemoSyncContext";
 import {
-  Moon, Sun, Check, Globe, Settings, Shield, LogOut, ChevronRight, HelpCircle, Bell, Compass, FileText,
+  Moon, Sun, Check, Globe, Settings, Shield, LogOut, ChevronRight, HelpCircle, Bell, Compass, FileText, BookOpen,
 } from "lucide-react";
 
 import avatarProfile from "../../public/avatar-profile.png";
@@ -165,27 +165,8 @@ export function TopBar() {
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
 
-          {/* Role selector */}
-          <DropdownMenuSub>
-            <DropdownMenuSubTrigger className="gap-2">
-              <Shield className="h-4 w-4" />
-              {isNb ? "Rolle" : "Role"}
-            </DropdownMenuSubTrigger>
-            <DropdownMenuPortal>
-              <DropdownMenuSubContent>
-                {AVAILABLE_ROLES.map((role) => (
-                  <DropdownMenuItem
-                    key={role.key}
-                    onClick={() => setActiveRole(role.key)}
-                    className="flex items-center justify-between"
-                  >
-                    {isNb ? role.labelNb : role.labelEn}
-                    {activeRole === role.key && <Check className="h-3.5 w-3.5 text-primary" />}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuSubContent>
-            </DropdownMenuPortal>
-          </DropdownMenuSub>
+
+
 
           {/* Language */}
           <DropdownMenuSub>
@@ -239,11 +220,12 @@ export function TopBar() {
           </DropdownMenuSub>
 
 
-          {/* About Mynder-score */}
-          <DropdownMenuItem onClick={() => navigate("/resources/maturity")} className="gap-2">
-            <Compass className="h-4 w-4" />
-            {isNb ? "Om Mynder-scoren" : "About the Mynder score"}
+          {/* Mynder Wiki */}
+          <DropdownMenuItem onClick={() => navigate("/wiki")} className="gap-2">
+            <BookOpen className="h-4 w-4" />
+            Mynder Wiki
           </DropdownMenuItem>
+
 
 
         </DropdownMenuContent>
