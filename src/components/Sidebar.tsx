@@ -438,9 +438,9 @@ const SidebarContent = () => {
   const showCoreNormal = selectedCoreAtOnboarding || hasCoreAccess || activatingModules.has("core");
   // Vendors and Assets are independent — check registries access for both
   // v1.1 — leverandørmodulen følger nå kun hasRegistriesAccess (modulstatus i Produkter),
-  // slik at avvikling alltid skjuler menypunktet.
+  // slik at avslutning alltid skjuler menypunktet.
   const showVendorsNormal = hasRegistriesAccess || activatingModules.has("vendors");
-  // v1.1 — Eiendeler hører til Mynder Core og skal ikke skjules når leverandørmodulen avvikles.
+  // v1.1 — Eiendeler hører til Mynder Core og skal ikke skjules når leverandørmodulen avsluttes.
   const showAssetsNormal =
     (selectedRegistriesAtOnboarding || hasCoreAccess || hasRegistriesAccess || activatingModules.has("assets")) &&
     !isModuleDeactivated("assets");

@@ -26,7 +26,7 @@ interface Props {
   onConfirm: (selectedIds: string[]) => void;
 }
 
-/** Velger hvilke regelverk som skal avvikles før den vanlige avviklingsdialogen. */
+/** Velger hvilke regelverk som skal avsluttes før den vanlige avslutningsdialogen. */
 export function RetireFrameworksDialog({
   open,
   onOpenChange,
@@ -51,9 +51,9 @@ export function RetireFrameworksDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-base">Avvikle regelverk</DialogTitle>
+          <DialogTitle className="text-base">Avslutt regelverk</DialogTitle>
           <DialogDescription>
-            Velg hvilke regelverk hos {customerName} som skal avvikles. Krav og
+            Velg hvilke regelverk hos {customerName} som skal avsluttes. Krav og
             dokumentasjonsstatus beholdes i 90 dager.
           </DialogDescription>
         </DialogHeader>

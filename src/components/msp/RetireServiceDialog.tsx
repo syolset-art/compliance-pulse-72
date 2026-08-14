@@ -61,7 +61,7 @@ export function RetireServiceDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Archive className="h-4 w-4 text-muted-foreground" />
-            Avvikle tjeneste
+            Avslutt tjeneste
           </DialogTitle>
           <DialogDescription>
             «{serviceName}» skjules fra kundens portal og fra nye tilbud, men
@@ -123,7 +123,7 @@ export function RetireServiceDialog({
           </Button>
           <Button onClick={handleConfirm} className="gap-1.5">
             <Archive className="h-3.5 w-3.5" />
-            Avvikle tjeneste
+            Avslutt tjeneste
           </Button>
         </DialogFooter>
       </DialogContent>

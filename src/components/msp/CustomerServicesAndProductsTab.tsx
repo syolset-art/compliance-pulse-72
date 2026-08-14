@@ -166,7 +166,7 @@ export function CustomerServicesAndProductsTab({
   const [pendingVendorTierId, setPendingVendorTierId] = useState<VendorTierId | null>(null);
   const [receipt, setReceipt] = useState<ModuleChangeReceipt | null>(null);
 
-  // Avviklingsflyt (samme som i Innstillinger > Produkter)
+  // Avslutningsflyt (samme som i Innstillinger > Produkter)
   const [retireTarget, setRetireTarget] = useState<{
     stateKey: string;
     moduleId: string;
@@ -334,7 +334,7 @@ export function CustomerServicesAndProductsTab({
     ]);
   };
 
-  // ── Avvikling (samme flyt som Innstillinger > Produkter) ──
+  // ── Avslutning (samme flyt som Innstillinger > Produkter) ──
 
   const confirmRetire = async (meta: CancellationMeta) => {
     if (!retireTarget) return;
@@ -357,7 +357,7 @@ export function CustomerServicesAndProductsTab({
         retention_until: retentionUntil,
       });
     } catch (e) {
-      console.error("Kunne ikke logge avviklingen", e);
+      console.error("Kunne ikke logge avslutningen", e);
     }
 
     setReceipt({
@@ -385,7 +385,7 @@ export function CustomerServicesAndProductsTab({
         resumeCustomerModule(customerId, stateKey);
         setTick((n) => n + 1);
         setReceipt(null);
-        toast.success("Avviklingen er angret.");
+        toast.success("Avslutningen er angret.");
       },
     });
     onUpdate?.();
@@ -394,7 +394,7 @@ export function CustomerServicesAndProductsTab({
   const undoRetire = (stateKey: string) => {
     resumeCustomerModule(customerId, stateKey);
     setTick((n) => n + 1);
-    toast.success("Avviklingen er angret. Produktet fortsetter som før.");
+    toast.success("Avslutningen er angret. Produktet fortsetter som før.");
     onUpdate?.();
   };
 
@@ -501,7 +501,7 @@ export function CustomerServicesAndProductsTab({
       </div>
     ) : undefined;
 
-  // Regelverkskortet kan også være under avvikling.
+  // Regelverkskortet kan også være under avslutning.
   const frameworksState = useMemo(
     // eslint-disable-next-line react-hooks/exhaustive-deps
     () => getCustomerModuleState(customerId, "frameworks"),

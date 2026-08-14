@@ -156,7 +156,7 @@ export function LaraScopeChangeDialog({ open, onOpenChange, diff, recs, onApply 
                       ))}
                     </div>
                     <p className="text-[11px] text-muted-foreground">
-                      Lara flagger tjenesten — du bestemmer selv om du vil beholde eller avvikle den.
+                      Lara flagger tjenesten — du bestemmer selv om du vil beholde eller avslutte den.
                     </p>
                   </section>
                 )}

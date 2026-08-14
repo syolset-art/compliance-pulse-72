@@ -561,7 +561,7 @@ export function MSPServiceCatalogTab({ onOpenSecondary, onRegisterActions }: { o
       const lock = getLockInfo({ templateId: target.templateId, name: target.name });
       if (lock) {
         toast.error("Kan ikke slettes", {
-          description: `«${target.name}» inngår i tilbud ${lock.offerNumber}. Bruk «Avvikle» for kontrollert utfasing.`,
+          description: `«${target.name}» inngår i tilbud ${lock.offerNumber}. Bruk «Avslutt» for kontrollert utfasing.`,
         });
         return;
       }
@@ -589,7 +589,7 @@ export function MSPServiceCatalogTab({ onOpenSecondary, onRegisterActions }: { o
       ),
     );
     setRetireId(null);
-    toast.success(`«${prev.name}» er avviklet`, {
+    toast.success(`«${prev.name}» er avsluttet`, {
       action: {
         label: "Angre",
         onClick: () =>
@@ -1034,7 +1034,7 @@ export function MSPServiceCatalogTab({ onOpenSecondary, onRegisterActions }: { o
                         </TooltipTrigger>
                         <TooltipContent side="top" className="max-w-xs text-xs">
                           Inngår i {lock.count > 1 ? `${lock.count} tilbud` : `tilbud ${lock.offerNumber}`}
-                          {lock.customerName ? ` · ${lock.customerName}` : ""}. Kan ikke slettes — bruk «Avvikle».
+                          {lock.customerName ? ` · ${lock.customerName}` : ""}. Kan ikke slettes — bruk «Avslutt».
                         </TooltipContent>
                       </Tooltip>
                     )}
@@ -1133,7 +1133,7 @@ export function MSPServiceCatalogTab({ onOpenSecondary, onRegisterActions }: { o
                     <DropdownMenuContent align="end" className="w-56">
                       <DropdownMenuItem onClick={() => setRetireId(e.id)}>
                         <Archive className="mr-2 h-4 w-4" />
-                        Avvikle tjeneste
+                        Avslutt tjeneste
                       </DropdownMenuItem>
                       {lock ? (
                         <TooltipProvider delayDuration={200}>
@@ -1151,7 +1151,7 @@ export function MSPServiceCatalogTab({ onOpenSecondary, onRegisterActions }: { o
                               </div>
                             </TooltipTrigger>
                             <TooltipContent side="left">
-                              Kan ikke slettes — inngår i tilbud {lock.offerNumber}. Bruk «Avvikle».
+                              Kan ikke slettes — inngår i tilbud {lock.offerNumber}. Bruk «Avslutt».
                             </TooltipContent>
                           </Tooltip>
                         </TooltipProvider>
@@ -1176,13 +1176,13 @@ export function MSPServiceCatalogTab({ onOpenSecondary, onRegisterActions }: { o
         );
       })()}
 
-      {/* Avviklede tjenester */}
+      {/* Avsluttede tjenester */}
       {extras.some((e) => e.status === "retired") && (
         <section className="space-y-2">
           <div className="flex items-baseline justify-between">
             <h3 className="text-sm font-medium text-muted-foreground inline-flex items-center gap-1.5">
               <Archive className="h-3.5 w-3.5" />
-              Avviklet ({extras.filter((e) => e.status === "retired").length})
+              Avsluttet ({extras.filter((e) => e.status === "retired").length})
             </h3>
           </div>
           <div className="divide-y divide-border rounded-md border border-dashed border-border bg-muted/20">
@@ -1197,7 +1197,7 @@ export function MSPServiceCatalogTab({ onOpenSecondary, onRegisterActions }: { o
                       {e.name}
                     </div>
                     <div className="text-xs text-muted-foreground truncate">
-                      Avviklet{" "}
+                      Avsluttet{" "}
                       {e.retiredAt
                         ? new Date(e.retiredAt).toLocaleDateString("nb-NO")
                         : ""}

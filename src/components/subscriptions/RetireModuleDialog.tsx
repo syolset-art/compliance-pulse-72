@@ -126,7 +126,7 @@ export function RetireModuleDialog({
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="text-base">
-            {step === 1 ? `Avvikle ${moduleTitle}` : "Bekreft avviklingen"}
+            {step === 1 ? `Avslutt ${moduleTitle}` : "Bekreft avslutningen"}
           </DialogTitle>
           <DialogDescription className="text-xs">
             {step === 1
@@ -138,7 +138,7 @@ export function RetireModuleDialog({
         {step === 1 ? (
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label className="text-xs">Hvorfor avvikler dere modulen?</Label>
+              <Label className="text-xs">Hvorfor avslutter dere modulen?</Label>
               <RadioGroup value={reason} onValueChange={setReason} className="space-y-1.5">
                 {REASONS.map((r) => (
                   <label
@@ -334,7 +334,7 @@ export function RetireModuleDialog({
               disabled={!canConfirm}
               onClick={handleConfirm}
             >
-              Bekreft avvikling
+              Bekreft avslutning
             </Button>
           )}
         </DialogFooter>
