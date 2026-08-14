@@ -333,6 +333,36 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
     setStep("select-manual-method");
   };
 
+  /** Infer a likely asset type from a free-text name. */
+  const inferAssetType = (name: string): string => {
+    const q = name.toLowerCase();
+    const keywordMap: { type: string; words: string[] }[] = [
+      { type: "hardware", words: ["dell", "lenovo", "hp ", "macbook", "laptop", "pc", "server ", "poweredge", "switch", "ruter", "router", "printer", "mobil", "iphone"] },
+      { type: "network", words: ["nettverk", "network", "lan", "wifi", "vpn", "brannmur", "firewall", "fortigate", "vlan"] },
+      { type: "location", words: ["kontor", "office", "lokasjon", "hovedkontor", "datasenter", "data center", "avdeling"] },
+      { type: "integration", words: ["integrasjon", "integration", "api", "webhook", "connector"] },
+      { type: "contract", words: ["kontrakt", "contract", "avtale", "dpa", "sla"] },
+      { type: "data", words: ["database", "datasett", "dataset", "register", "arkiv"] },
+      { type: "vendor", words: ["leverandør", "vendor", " as", " asa", " inc", " ltd"] },
+    ];
+    const available = new Set(assetTypeTemplates.map(t => t.asset_type));
+    for (const entry of keywordMap) {
+      if (available.has(entry.type) && entry.words.some(w => q.includes(w))) return entry.type;
+    }
+    if (available.has("system")) return "system";
+    return assetTypeTemplates[0]?.asset_type ?? "system";
+  };
+
+  const handleQuickNameSubmit = () => {
+    const name = quickName.trim();
+    if (!name) return;
+    const assetType = inferAssetType(name);
+    setSelectedType(assetType);
+    setFormData(prev => ({ ...prev, asset_type: assetType, name }));
+    setStep("manual-form");
+  };
+
+
   // Industry-specific suggestions for prototype
   const getSyntheticSuggestionsByIndustry = (assetType: string, industry: string): AssetSuggestion[] => {
     // Energy-specific systems
