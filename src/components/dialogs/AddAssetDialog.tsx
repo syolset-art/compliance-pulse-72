@@ -293,6 +293,7 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
     if (open) {
       setStep("select-approach");
       setSelectedType("");
+      setQuickName("");
       setSuggestions([]);
       setSelectedSuggestions(new Set());
       setSelectedIntegration("");
