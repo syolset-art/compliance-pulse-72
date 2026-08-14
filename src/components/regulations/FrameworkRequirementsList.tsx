@@ -531,8 +531,8 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
           },
           {
             key: "agent" as FilterKey,
-            labelNb: "Agenten følger opp",
-            labelEn: "Agent following up",
+            labelNb: "Lara følger opp",
+            labelEn: "Lara following up",
             count: counts.agentFollowUp,
             icon: Bot,
             hintNb: "Lara henter data, leser dokumenter og oppdaterer disse kravene automatisk.",
