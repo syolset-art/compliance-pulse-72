@@ -353,7 +353,7 @@ function ClaimRateWidget() {
       <div className="relative p-5 text-white">
         <div className="flex items-center gap-1.5">
           <div className="text-[11px] uppercase tracking-[0.15em] text-white/80 font-semibold">
-            {isNb ? "Regelverk aktivert" : "Regulations activated"}
+            {isNb ? "Topp 5 regelverk" : "Top 5 regulations"}
           </div>
           <UITooltip>
             <TooltipTrigger asChild>
