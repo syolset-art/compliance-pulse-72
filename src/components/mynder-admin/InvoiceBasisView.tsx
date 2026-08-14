@@ -81,7 +81,7 @@ function RecipientCard({ r, period }: { r: RecipientBasis; period: Period }) {
                           )}
                           {isEndedInPeriod(l, period) && (
                             <Badge variant="outline" className="text-[10px] text-muted-foreground">
-                              Avviklet
+                              Avsluttet
                             </Badge>
                           )}
                         </td>

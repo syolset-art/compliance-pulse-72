@@ -676,7 +676,7 @@ export default function Subscriptions() {
                   cancelAtLabel={cancelAtLabelOf("core")}
                   onResume={() => undoCancellation("core")}
                   onDeactivate={() => requestDeactivate("core", "Mynder Core")}
-                  deactivateLabel="Avvikle"
+                  deactivateLabel="Avslutt"
                   price={corePrice}
                   priceLabel={coreTier.label}
                   usage={String(used)}

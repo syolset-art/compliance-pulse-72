@@ -150,23 +150,23 @@ export const WIKI_ARTICLES: WikiArticle[] = [
     link: { path: "/subscriptions", labelNb: "Se produkter", labelEn: "See products" },
   },
   {
-    slug: "endre-niva-og-avvikle",
+    slug: "endre-niva-og-avslutte",
     category: "products",
-    titleNb: "Endre nivå og avvikle produkt",
+    titleNb: "Endre nivå og avslutte produkt",
     titleEn: "Change tier and retire a product",
-    summaryNb: "Nivå følger antall enheter. Avvikling stopper fakturering, profilen beholdes.",
+    summaryNb: "Nivå følger antall enheter. Avslutning stopper fakturering, profilen beholdes.",
     summaryEn: "Tiers follow unit counts. Retiring stops billing while the profile is kept.",
     bodyNb: [
       "Nivået på et produkt følger hvor mange enheter du bruker. Leverandørmodulen har fem gratis leverandører; forsøk på nummer seks krever nivåendring. Grensen er hard, slik at du aldri ender på gratisnivå med flere enheter enn det gir rom for.",
       "Nivåendring følger samme flyt som aktivering, med vilkårssteg og kvittering.",
-      "Ved avvikling stopper fakturering fra neste periode. Profilen og dataene beholdes, og du kan legge inn en e-postadresse for å få tilsendt dataene dine når nedlasting er tilgjengelig.",
+      "Ved avslutning stopper fakturering fra neste periode. Profilen og dataene beholdes, og du kan legge inn en e-postadresse for å få tilsendt dataene dine når nedlasting er tilgjengelig.",
     ],
     bodyEn: [
       "The tier follows how many units you use. The Vendor module includes five free vendors; adding a sixth requires a tier change. The limit is hard, so you never end up on the free tier with more units than it allows.",
       "Tier changes follow the same flow as activation, with a terms step and a receipt.",
       "When you retire a product, billing stops from the next period. The profile and data are kept, and you can leave an email address to receive your data once download is available.",
     ],
-    keywords: ["nivå", "oppgradere", "avvikle", "grense", "fakturering"],
+    keywords: ["nivå", "oppgradere", "avslutte", "grense", "fakturering"],
   },
   {
     slug: "arbeidsomrader",

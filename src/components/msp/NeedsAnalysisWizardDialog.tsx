@@ -23,20 +23,6 @@ interface Props {
 
 const STEPS = ["Regelverk", "Match", "Analyse", "Kampanje"] as const;
 
-const CURRENCY = "NOK";
-const LOCALE = "nb-NO";
-function formatCurrency(n: number, compact = true) {
-  try {
-    return new Intl.NumberFormat(LOCALE, {
-      style: "currency",
-      currency: CURRENCY,
-      maximumFractionDigits: 0,
-      notation: compact ? "compact" : "standard",
-    }).format(n);
-  } catch {
-    return `${n} ${CURRENCY}`;
-  }
-}
 
 const fwName = (id: string) => ALL_FRAMEWORKS.find((f) => f.id === id)?.name ?? id;
 
@@ -72,7 +58,7 @@ const PHASES = [
   "Leser krav i valgte regelverk",
   "Matcher kundenes dokumentasjon mot krav",
   "Finner tjenester i din portefølje som kan lukke gap",
-  "Beregner salgspotensial per kunde",
+  "Grupperer kundene etter hva de mangler",
 ];
 
 function AnalyzingIndicator() {
@@ -166,10 +152,9 @@ export function NeedsAnalysisWizardDialog({ open, onOpenChange, customers }: Pro
 
   const totals = useMemo(() => {
     const gaps = results.reduce((s, r) => s + r.gapCount, 0);
-    const potential = results.reduce((s, r) => s + r.totalPotential, 0);
     const serviceIds = new Set<string>();
     results.forEach((r) => r.services.forEach((s) => serviceIds.add(s.service.id)));
-    return { gaps, potential, services: serviceIds.size };
+    return { gaps, services: serviceIds.size };
   }, [results]);
 
   const canNext =
@@ -197,7 +182,7 @@ export function NeedsAnalysisWizardDialog({ open, onOpenChange, customers }: Pro
       });
     });
     toast.success(`${results.length} tilbud opprettet`, {
-      description: `Kampanje «${effectiveCampaignName}» – samlet potensial ${formatCurrency(totals.potential, false)}.`,
+      description: `Kampanje «${effectiveCampaignName}» – ${totals.gaps} identifiserte behov.`,
     });
     onOpenChange(false);
   };
@@ -385,8 +370,8 @@ export function NeedsAnalysisWizardDialog({ open, onOpenChange, customers }: Pro
                   <div className="text-xl font-semibold tabular-nums">{totals.gaps}</div>
                 </div>
                 <div className="rounded-lg border bg-muted/30 p-3">
-                  <div className="text-xs text-muted-foreground">Samlet potensial</div>
-                  <div className="text-xl font-semibold tabular-nums">{formatCurrency(totals.potential)}</div>
+                  <div className="text-xs text-muted-foreground">Tjenester som dekker</div>
+                  <div className="text-xl font-semibold tabular-nums">{totals.services}</div>
                 </div>
               </div>
 
@@ -411,10 +396,8 @@ export function NeedsAnalysisWizardDialog({ open, onOpenChange, customers }: Pro
                           {r.gapCount} behov · {r.industry || "—"}
                         </div>
                       </div>
-                      <div className="text-sm font-semibold tabular-nums shrink-0">
-                        {formatCurrency(r.totalPotential)}
-                      </div>
                     </div>
+
                     <div className="flex flex-wrap gap-1.5">
                       {r.services.map((s) => (
                         <Badge

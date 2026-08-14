@@ -1235,7 +1235,7 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i K
                         )}
                       </div>
                       <p className="text-sm text-muted-foreground">
-                        {riskCategory === 'unacceptable' && 'Forbudt under KI-forordningen — må avvikles umiddelbart.'}
+                        {riskCategory === 'unacceptable' && 'Forbudt under KI-forordningen — må avsluttes umiddelbart.'}
                         {riskCategory === 'high' && 'Strenge krav: samsvarsvurdering, risikovurdering og løpende overvåking.'}
                         {riskCategory === 'limited' && 'Brukere må informeres om at de samhandler med KI.'}
                         {riskCategory === 'minimal' && 'Frivillige retningslinjer — ingen obligatoriske krav.'}

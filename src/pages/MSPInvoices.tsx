@@ -56,7 +56,7 @@ interface Row {
   fixedCount: number;
   /** Engangs etableringsgebyr — ikke alle kunder har dette. */
   setup: number;
-  /** Avviklede linjer: etikett → dato de faller bort. */
+  /** Avsluttede linjer: etikett → dato de faller bort. */
   retiring: Record<string, string>;
 }
 

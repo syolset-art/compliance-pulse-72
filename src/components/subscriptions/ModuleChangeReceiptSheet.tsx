@@ -14,9 +14,9 @@ export interface ModuleChangeReceipt {
   monthlyPriceKr: number;
   /** ISO-dato for når endringen trer i kraft (utelates ved umiddelbar effekt). */
   effectiveAt?: string;
-  /** Kun ved avvikling: når dataene slettes hvis de ikke er hentet ut. */
+  /** Kun ved avslutning: når dataene slettes hvis de ikke er hentet ut. */
   retentionUntil?: string;
-  /** Kun ved avvikling: kort beskrivelse av hva som skjer med dataene. */
+  /** Kun ved avslutning: kort beskrivelse av hva som skjer med dataene. */
   dataNote?: string;
   termsVersion?: string;
   acceptedAt?: string;
@@ -45,7 +45,7 @@ export function ModuleChangeReceiptSheet({ receipt, onOpenChange }: Props) {
     kind === "activation"
       ? `${moduleTitle} er aktivert`
       : isRetire
-        ? `${moduleTitle} er avviklet`
+        ? `${moduleTitle} er avsluttet`
         : isDowngrade
           ? `Nedgradering av ${moduleTitle} er planlagt`
           : `${moduleTitle} er oppgradert`;

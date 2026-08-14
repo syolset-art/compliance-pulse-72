@@ -64,7 +64,7 @@ export const MODULE_INFO: Record<ModuleKey, ModuleInfo> = {
       "Automatisk oppdagelse via Microsoft og Google Workspace",
       "Import fra Excel eller manuell registrering",
       "Kobling mellom systemer, leverandører og data",
-      "Livssyklus fra onboarding til avvikling",
+      "Livssyklus fra onboarding til avslutning",
     ],
   },
   // V2 — IKKE IMPLEMENTER NÅ: Trust Center er planlagt som eget produkt i v2.

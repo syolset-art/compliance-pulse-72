@@ -13,7 +13,7 @@ export interface BillingLine {
   kind: BillingLineKind;
   /** ISO-dato for aktivering. */
   activatedAt: string;
-  /** ISO-dato for avvikling — faktureres ut perioden. */
+  /** ISO-dato for avslutning — faktureres ut perioden. */
   endedAt?: string;
   monthlyNok: number;
 }
@@ -135,7 +135,7 @@ export function isEndedInPeriod(line: BillingLine, p: Period): boolean {
   return d >= periodStart(p) && d <= periodEnd(p);
 }
 
-/** Linjer som faktureres i perioden — aktivert senest ved periodeslutt og ikke avviklet før periodestart. */
+/** Linjer som faktureres i perioden — aktivert senest ved periodeslutt og ikke avsluttet før periodestart. */
 export function linesForPeriod(c: CustomerRow, p: Period): BillingLine[] {
   return linesForCustomer(c).filter((l) => {
     if (new Date(l.activatedAt) > periodEnd(p)) return false;
@@ -269,7 +269,7 @@ export function buildCsv(recipients: RecipientBasis[], p: Period): string {
       "Type",
       "Linje",
       "Aktivert",
-      "Avviklet",
+      "Avsluttet",
       "Beløp per mnd (NOK)",
       "Partnersats (%)",
       "Provisjon mottaker (NOK)",
