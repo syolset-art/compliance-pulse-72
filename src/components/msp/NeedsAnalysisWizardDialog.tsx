@@ -72,7 +72,7 @@ const PHASES = [
   "Leser krav i valgte regelverk",
   "Matcher kundenes dokumentasjon mot krav",
   "Finner tjenester i din portefølje som kan lukke gap",
-  "Beregner salgspotensial per kunde",
+  "Grupperer kundene etter hva de mangler",
 ];
 
 function AnalyzingIndicator() {
@@ -166,10 +166,9 @@ export function NeedsAnalysisWizardDialog({ open, onOpenChange, customers }: Pro
 
   const totals = useMemo(() => {
     const gaps = results.reduce((s, r) => s + r.gapCount, 0);
-    const potential = results.reduce((s, r) => s + r.totalPotential, 0);
     const serviceIds = new Set<string>();
     results.forEach((r) => r.services.forEach((s) => serviceIds.add(s.service.id)));
-    return { gaps, potential, services: serviceIds.size };
+    return { gaps, services: serviceIds.size };
   }, [results]);
 
   const canNext =
@@ -197,7 +196,7 @@ export function NeedsAnalysisWizardDialog({ open, onOpenChange, customers }: Pro
       });
     });
     toast.success(`${results.length} tilbud opprettet`, {
-      description: `Kampanje «${effectiveCampaignName}» – samlet potensial ${formatCurrency(totals.potential, false)}.`,
+      description: `Kampanje «${effectiveCampaignName}» – ${totals.gaps} identifiserte behov.`,
     });
     onOpenChange(false);
   };
