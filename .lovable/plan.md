@@ -30,9 +30,21 @@ Målet er ett dokument du kan laste ned og lime rett inn i Notion, som beskriver
    - Arkfane Forespørsler: mottatte meldinger, lesing og oppfølging
    - Kapasitet: 5 gratis leverandører, deretter nivåendring
 5. **Trust Center** — aktivering, profil, dokumenter, deling, offentlig visning
-6. **Tverrgående flyter** — aktivering av produkt (Aktiver → vilkår → kvittering), avvikling, Laras arbeidskø og godkjenning, integrasjoner/MCP («koble på deg selv»), aktivitetslogg
-7. **Partner (MSP)** — kort seksjon: kundeoversikt, behovsanalyse, tilbud, tjenestekatalog, fakturagrunnlag
-8. **Gap-liste** — hvor dagens prototype avviker fra beskrevet målbilde (f.eks. oppgaver ↔ modenhet-kobling som ikke finnes ennå)
+6. **Innstillinger (virksomhet)**
+   - Organisasjon: organisasjonsinformasjon, bransje, org.nr., nøkkelpersoner (DPO, CISO, compliance-ansvarlig)
+   - Produkter: aktivere produkt, endre nivå (opp/ned), avvikle — med vilkårssteg og kvittering
+   - Tilgangsstyring: invitere brukere, tildele nøkkelroller, lese/skrive-tilgang, fjerne bruker
+   - Aktivitetslogg: hva som er gjort, av hvem og når
+   - Avtaler og vilkår: vilkår, personvernerklæring, databehandleravtale, akseptlogg
+7. **Min profil (innlogget bruker)**
+   - Administrere egen profil og kontaktinfo
+   - Språk (NO/EN) og modus (mørk/lys)
+   - Se aksepterte avtaler og vilkår
+   - Wiki-/kunnskapssenter: forklaring av logikk (modenhet, kontrollområder, kritikalitet vs. risiko, Laras autonominivåer)
+8. **Tverrgående flyter** — aktivering av produkt (Aktiver → vilkår → kvittering), avvikling, Laras arbeidskø og godkjenning, integrasjoner/MCP («koble på deg selv»), aktivitetslogg
+9. **Partner (MSP)** — kort seksjon: kundeoversikt, behovsanalyse, tilbud, tjenestekatalog, fakturagrunnlag
+10. **Gap-liste** — hvor dagens prototype avviker fra beskrevet målbilde (f.eks. oppgaver ↔ modenhet-kobling, wiki-senter)
+
 
 Hver arbeidsflyt beskrives med: formål, hvem som utfører, steg-for-steg, hvor i appen (rute), og status (implementert / delvis / planlagt).
 
