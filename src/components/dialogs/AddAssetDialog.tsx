@@ -934,9 +934,37 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
   // Step 1: Select type
   const renderSelectType = () => (
     <div className="space-y-4">
+      <div className="rounded-xl border border-primary/30 bg-primary/5 p-4 space-y-3">
+        <div className="flex items-center gap-2">
+          <Sparkles className="h-4 w-4 text-primary" />
+          <p className="text-sm font-medium text-foreground">
+            {isNb ? "Skriv navnet på eiendelen, så gjør Lara resten" : "Type the asset name and Lara does the rest"}
+          </p>
+        </div>
+        <div className="flex flex-col sm:flex-row gap-2">
+          <Input
+            autoFocus
+            value={quickName}
+            onChange={(e) => setQuickName(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                handleQuickNameSubmit();
+              }
+            }}
+            placeholder={isNb ? "F.eks. Slack, Dell Latitude eller brannmur" : "E.g. Slack, Dell Latitude or firewall"}
+            className="flex-1"
+          />
+          <Button onClick={handleQuickNameSubmit} disabled={!quickName.trim()}>
+            {isNb ? "La Lara fylle ut" : "Let Lara fill in"}
+          </Button>
+        </div>
+      </div>
+
       <p className="text-sm text-muted-foreground">
-        What type of asset do you want to add?
+        {isNb ? "— eller velg type selv —" : "— or pick the type yourself —"}
       </p>
+
       <div className="grid grid-cols-2 gap-3">
         {assetTypeTemplates.map((template) => {
           const Icon = iconMap[template.icon] || Server;
