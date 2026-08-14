@@ -365,8 +365,8 @@ function ClaimRateWidget() {
             <TooltipContent side="top" className="max-w-[280px]">
               <p>
                 {isNb
-                  ? `Viser hvor mange av de ${PORTFOLIO_CUSTOMERS} kundene dine som har aktivert regelverk siste måned og siste halvår. Filtrer på regelverk for å se andelen per regelverk.`
-                  : `Shows how many of your ${PORTFOLIO_CUSTOMERS} customers have activated regulations in the last month and last half year. Filter by regulation to see the share per regulation.`}
+                  ? `Viser de 5 mest aktiverte regelverkene blant de ${PORTFOLIO_CUSTOMERS} kundene dine. Filtrer på regelverk for å se andelen som har aktivert akkurat det regelverket. Perioden styrer antallet nye aktiveringer.`
+                  : `Shows the 5 most activated regulations among your ${PORTFOLIO_CUSTOMERS} customers. Filter by regulation to see the share that has activated that specific regulation. The period controls the number of new activations.`}
               </p>
             </TooltipContent>
           </UITooltip>
