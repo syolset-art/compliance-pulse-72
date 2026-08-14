@@ -213,7 +213,8 @@ type Step =
   | "connect-complete";
 
 export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemplates }: AddAssetDialogProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isNb = i18n.language === "nb";
   const { createPerformer, logAuditEvent } = useIntegrationPerformers();
   const { fetchAcronisAssets } = use7SecurityIntegration();
   const [isLoading, setIsLoading] = useState(false);
