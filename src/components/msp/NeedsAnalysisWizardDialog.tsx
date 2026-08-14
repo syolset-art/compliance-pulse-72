@@ -385,8 +385,8 @@ export function NeedsAnalysisWizardDialog({ open, onOpenChange, customers }: Pro
                   <div className="text-xl font-semibold tabular-nums">{totals.gaps}</div>
                 </div>
                 <div className="rounded-lg border bg-muted/30 p-3">
-                  <div className="text-xs text-muted-foreground">Samlet potensial</div>
-                  <div className="text-xl font-semibold tabular-nums">{formatCurrency(totals.potential)}</div>
+                  <div className="text-xs text-muted-foreground">Tjenester som dekker</div>
+                  <div className="text-xl font-semibold tabular-nums">{totals.services}</div>
                 </div>
               </div>
 
@@ -411,10 +411,8 @@ export function NeedsAnalysisWizardDialog({ open, onOpenChange, customers }: Pro
                           {r.gapCount} behov · {r.industry || "—"}
                         </div>
                       </div>
-                      <div className="text-sm font-semibold tabular-nums shrink-0">
-                        {formatCurrency(r.totalPotential)}
-                      </div>
                     </div>
+
                     <div className="flex flex-wrap gap-1.5">
                       {r.services.map((s) => (
                         <Badge
