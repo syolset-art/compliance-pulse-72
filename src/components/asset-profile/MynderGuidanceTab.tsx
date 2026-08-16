@@ -9,6 +9,8 @@ import { RequestUpdateDialog } from "@/components/asset-profile/RequestUpdateDia
 import { DocumentRequestsSection } from "@/components/asset-profile/tabs/DocumentRequestsSection";
 import { VendorFrameworkCard } from "@/components/asset-profile/guidance/VendorFrameworkCard";
 import { VendorRecommendedActionsCard } from "@/components/asset-profile/guidance/VendorRecommendedActionsCard";
+import { VendorNextStepsCard } from "@/components/asset-profile/guidance/VendorNextStepsCard";
+import { buildVendorNextSteps, type NextStep } from "@/lib/vendorNextSteps";
 import { InviteAgenticTrustCenterDialog } from "@/components/asset-profile/guidance/InviteAgenticTrustCenterDialog";
 import { CreateVendorActivityDialog } from "@/components/asset-profile/guidance/CreateVendorActivityDialog";
 import { RequestBaselineDialog } from "@/components/asset-profile/guidance/RequestBaselineDialog";
