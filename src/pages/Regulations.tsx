@@ -25,6 +25,7 @@ import { CountryScopeDialog } from "@/components/regulations/CountryScopeDialog"
 import { loadCountryScope, saveCountryScope, SUPPORTED_COUNTRIES, getCountry, type CountryScope } from "@/components/regulations/countryScopeData";
 import { FrameworkActivationDialog } from "@/components/dialogs/FrameworkActivationDialog";
 import { FrameworkPurchaseDialog } from "@/components/dialogs/FrameworkPurchaseDialog";
+import { BulkFrameworkActivationDialog } from "@/components/regulations/BulkFrameworkActivationDialog";
 import { getRequirementsByFramework } from "@/lib/complianceRequirementsData";
 import { ALL_ADDITIONAL_REQUIREMENTS } from "@/lib/additionalFrameworkRequirements";
 import type { ComplianceRequirement } from "@/lib/complianceRequirementsData";
@@ -71,6 +72,7 @@ const Regulations = () => {
   const [activatedFramework, setActivatedFramework] = useState<Framework | null>(null);
   const [showActivationDialog, setShowActivationDialog] = useState(false);
   const [purchaseFramework, setPurchaseFramework] = useState<Framework | null>(null);
+  const [bulkFrameworks, setBulkFrameworks] = useState<Framework[]>([]);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [highlightReqId, setHighlightReqId] = useState<string | null>(null);
@@ -267,6 +269,28 @@ const Regulations = () => {
     } finally {
       setUpdating(null);
     }
+  };
+
+  const handleActivateMany = (ids: string[]) => {
+    const list = ids
+      .map((id) => frameworks.find((f) => f.id === id))
+      .filter((f): f is Framework => !!f);
+    if (list.length) setBulkFrameworks(list);
+  };
+
+  const handleBulkConfirm = async () => {
+    const list = bulkFrameworks;
+    setBulkFrameworks([]);
+    for (const fw of list) {
+      await executeToggleFramework(fw.id, false);
+    }
+    // Ikke vis aktiveringsdialog per regelverk ved samlet aktivering.
+    setShowActivationDialog(false);
+    setActivatedFramework(null);
+    toast({
+      title: `${list.length} regelverk aktivert`,
+      description: list.map((f) => f.name).join(", "),
+    });
   };
 
   const handlePurchaseConfirm = async () => {
@@ -485,6 +509,16 @@ const Regulations = () => {
         updatingId={updating}
         countryScope={countryScope}
         onEditCountries={() => setCountryDialogOpen(true)}
+        onActivateMany={handleActivateMany}
+      />
+
+      {/* Samlet aktivering av flere regelverk */}
+      <BulkFrameworkActivationDialog
+        open={bulkFrameworks.length > 0}
+        onOpenChange={(open) => { if (!open) setBulkFrameworks([]); }}
+        frameworks={bulkFrameworks}
+        onConfirm={handleBulkConfirm}
+        isLoading={!!updating}
       />
 
       {/* Framework purchase dialog */}

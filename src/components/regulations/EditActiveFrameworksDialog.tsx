@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { Search, X, ChevronDown, SlidersHorizontal, Sparkles, Eye } from "lucide-react";
@@ -33,6 +34,8 @@ interface EditActiveFrameworksDialogProps {
   title?: string;
   /** Override the sheet description */
   description?: string;
+  /** Aktiver flere regelverk samtidig. Når satt, vises avkryssingsbokser. */
+  onActivateMany?: (frameworkIds: string[]) => void;
 }
 
 export const EditActiveFrameworksDialog = ({
@@ -47,7 +50,9 @@ export const EditActiveFrameworksDialog = ({
   onPreview,
   title,
   description,
+  onActivateMany,
 }: EditActiveFrameworksDialogProps) => {
+  const [multiSelected, setMultiSelected] = useState<Set<string>>(new Set());
   const [search, setSearch] = useState("");
   const [requestOpen, setRequestOpen] = useState(false);
   const [jurExpanded, setJurExpanded] = useState(false);
@@ -65,6 +70,15 @@ export const EditActiveFrameworksDialog = ({
       return next;
     });
     onToggle(frameworkId, currentlyActive);
+  };
+
+  const toggleMulti = (frameworkId: string) => {
+    setMultiSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(frameworkId)) next.delete(frameworkId);
+      else next.add(frameworkId);
+      return next;
+    });
   };
 
   const q = search.trim().toLowerCase();
@@ -353,7 +367,15 @@ export const EditActiveFrameworksDialog = ({
                             : "bg-muted/30 border-border"
                         }`}
                       >
-                        <div className="min-w-0">
+                        {onActivateMany && !isActive && (
+                          <Checkbox
+                            checked={multiSelected.has(fw.id)}
+                            onCheckedChange={() => toggleMulti(fw.id)}
+                            aria-label={`Velg ${fw.name} for aktivering`}
+                            className="mt-0.5 shrink-0"
+                          />
+                        )}
+                        <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-2 flex-wrap">
                             {(() => {
                               const scopeCodes = (countryScope?.countries ?? []).filter((cc) =>
@@ -407,6 +429,29 @@ export const EditActiveFrameworksDialog = ({
             );
           })}
         </div>
+        {onActivateMany && multiSelected.size > 0 && (
+          <div className="sticky bottom-0 -mx-6 mt-4 border-t border-border bg-background px-6 py-3">
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-sm text-foreground">
+                {multiSelected.size} valgt{multiSelected.size === 1 ? "" : "e"} regelverk
+              </p>
+              <div className="flex items-center gap-2">
+                <Button variant="ghost" size="sm" onClick={() => setMultiSelected(new Set())}>
+                  Nullstill
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={() => {
+                    onActivateMany(Array.from(multiSelected));
+                    setMultiSelected(new Set());
+                  }}
+                >
+                  Aktiver valgte
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
       </SheetContent>
       <RequestCountrySupportDialog open={requestOpen} onOpenChange={setRequestOpen} />
     </Sheet>
