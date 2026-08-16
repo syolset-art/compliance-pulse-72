@@ -96,7 +96,6 @@ const coreNav = [
   { name: "nav.myWorkAreas", href: "/work-areas", icon: Users },
   { name: "nav.tasks", href: "/tasks", icon: ClipboardList },
   { name: "nav.protocols", href: "/protocols", icon: ScrollText },
-  { name: "nav.reports", href: "/reports", icon: FileText },
 ];
 
 // Standalone module links (each activatable independently)
