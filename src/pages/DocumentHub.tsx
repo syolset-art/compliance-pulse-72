@@ -395,48 +395,8 @@ export default function DocumentHub() {
   );
 }
 
-function StatCard({
-  label,
-  value,
-  icon: Icon,
-  tone,
-  hint,
-}: {
-  label: string;
-  value: number;
-  icon: any;
-  tone?: "success" | "warning";
-  hint?: string;
-}) {
-  const content = (
-    <Card>
-      <CardContent className="p-3.5">
-        <div className="flex items-center gap-2 text-muted-foreground">
-          <Icon
-            className={cn(
-              "h-3.5 w-3.5",
-              tone === "success" && "text-success",
-              tone === "warning" && "text-warning",
-            )}
-          />
-          <span className="text-[12px]">{label}</span>
-        </div>
-        <p className="mt-1 text-2xl font-semibold text-foreground">{value}</p>
-      </CardContent>
-    </Card>
-  );
-  if (!hint) return content;
-  return (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <div>{content}</div>
-        </TooltipTrigger>
-        <TooltipContent className="max-w-xs text-[13px]">{hint}</TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
-  );
-}
+
+
 
 function FilterGroup({ title, children }: { title: string; children: React.ReactNode }) {
   return (
