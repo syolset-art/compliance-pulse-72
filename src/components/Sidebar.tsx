@@ -544,9 +544,14 @@ const SidebarContent = () => {
   // in demo/preview when company_profile is empty.
   const companyName = activeOrg?.name || "Mynder AS";
 
-  // Mynder Core-seksjonen: Systemer + arbeidsområder, oppgaver, avvik, rapporter.
+  // Mynder Core-seksjonen: Behandlingsprotokoll øverst, deretter Systemer + arbeidsområder, oppgaver, rapporter.
   // Leverandørmodulen er et eget produkt og ligger som eget toppnivå-punkt.
-  const coreSectionItems = [systemsLink, ...coreNav];
+  const coreSectionItems = [
+    protocolsLink,
+    systemsLink,
+    ...coreNav.filter((item) => item.name !== "nav.protocols"),
+  ];
+
   const isVendorsActive = location.pathname === vendorLink.href || location.pathname.startsWith(vendorLink.href + "/");
 
 
