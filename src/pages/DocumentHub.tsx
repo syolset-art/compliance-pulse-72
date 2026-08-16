@@ -39,7 +39,6 @@ import {
   typeGroup,
   type HubDocument,
   type HubModule,
-  type HubStatus,
   type HubTypeGroup,
 } from "@/lib/documentHub";
 
