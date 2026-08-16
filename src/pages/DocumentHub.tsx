@@ -44,14 +44,6 @@ import {
 } from "@/lib/documentHub";
 
 
-const STATUS_STYLES: Record<HubStatus, string> = {
-  current: "bg-success/10 text-success border-success/20",
-  pending: "bg-muted text-muted-foreground border-border",
-  expiring: "bg-warning/10 text-warning border-warning/20",
-  expired: "bg-destructive/10 text-destructive border-destructive/20",
-  superseded: "bg-muted text-muted-foreground border-border",
-  other: "bg-muted text-muted-foreground border-border",
-};
 
 export default function DocumentHub() {
   const { i18n } = useTranslation();
