@@ -386,6 +386,18 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
       toneClass: "text-foreground",
       panel: (
         <>
+          {!gdprPlanDismissed && (!gdprPlanApprovedBy || !gdprPlan.matchesCurrent) && (
+            <GdprRolePlanCard
+              isNb={isNb}
+              plan={gdprPlan}
+              loading={laraLoading}
+              approvedBy={gdprPlan.matchesCurrent ? gdprPlanApprovedBy : null}
+              approvedAt={gdprPlan.matchesCurrent ? gdprPlanApprovedAt : null}
+              onApprove={handleApproveGdprPlan}
+              onDismiss={() => setGdprPlanDismissed(true)}
+            />
+          )}
+
           <Select value={asset?.gdpr_role || "not_set"} onValueChange={handleGdprRoleChange}>
             <SelectTrigger className="h-9 max-w-xs text-sm font-semibold border">
               <SelectValue />
@@ -396,6 +408,7 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
               ))}
             </SelectContent>
           </Select>
+
 
           {showSensitive && (
             <div className="space-y-2 pt-0.5">
