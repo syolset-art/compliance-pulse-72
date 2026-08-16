@@ -8,18 +8,24 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import {
   FolderOpen,
   Search,
   CheckCircle2,
-  AlertTriangle,
   ShieldCheck,
   SlidersHorizontal,
   ExternalLink,
   FileText,
-  HelpCircle,
   Loader2,
 } from "lucide-react";
 import { useDocumentHub } from "@/hooks/useDocumentHub";
@@ -35,6 +41,7 @@ import {
   type HubStatus,
   type HubTypeGroup,
 } from "@/lib/documentHub";
+
 
 type GroupBy = "module" | "type" | "uploader";
 
