@@ -5,7 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Building2, Database, Workflow, Shield, AlertTriangle, Pencil, Info, Sparkles, ArrowRight, Flag, ChevronDown } from "lucide-react";
+import { Building2, Database, Workflow, Shield, AlertTriangle, Pencil, Info, Sparkles, ArrowRight, Flag, ChevronDown, UserRound } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { useAuth } from "@/hooks/useAuth";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -31,6 +33,7 @@ const riskOptions = [
   { value: "low", labelNb: "Lav", labelEn: "Low" },
   { value: "medium", labelNb: "Middels", labelEn: "Medium" },
   { value: "high", labelNb: "Høy", labelEn: "High" },
+  { value: "critical", labelNb: "Kritisk", labelEn: "Critical" },
 ];
 
 const gdprOptions = [
@@ -72,6 +75,7 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
   const queryClient = useQueryClient();
+  const { user } = useAuth();
   const [laraLoading, setLaraLoading] = useState(false);
 
   const { data: asset } = useQuery({
@@ -184,13 +188,54 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
     sensitive: sensitiveOn,
   });
 
+  const riskMeta = ((asset?.metadata as any) || {}) as Record<string, any>;
+  const riskSetBy: string | null = riskMeta.risk_set_by || null;
+  const riskSetAt: string | null = riskMeta.risk_set_at
+    ? new Date(riskMeta.risk_set_at).toLocaleDateString(isNb ? "nb-NO" : "en-GB")
+    : null;
+
+  const [rationaleDraft, setRationaleDraft] = useState<string>("");
+  const [rationaleLoaded, setRationaleLoaded] = useState(false);
+  if (!rationaleLoaded && asset) {
+    setRationaleLoaded(true);
+    setRationaleDraft(riskMeta.risk_rationale || "");
+  }
+
+  const saveMeta = (patch: Record<string, any>) => {
+    updateMutation.mutate({ metadata: { ...riskMeta, ...patch } } as any);
+  };
+
+  const currentUserName =
+    (user?.user_metadata as any)?.full_name || user?.email || (isNb ? "deg" : "you");
+
+  const handleManualRiskChange = (value: string) => {
+    updateMutation.mutate({
+      risk_level: value,
+      metadata: {
+        ...riskMeta,
+        risk_set_by: currentUserName,
+        risk_set_at: new Date().toISOString(),
+      },
+    } as any);
+  };
+
+  const saveRationale = () => {
+    if ((riskMeta.risk_rationale || "") === rationaleDraft) return;
+    saveMeta({ risk_rationale: rationaleDraft });
+  };
+
   const handleLaraSuggest = async () => {
     setLaraLoading(true);
     setTimeout(() => {
-      handleFieldChange("risk_level", riskSuggestion.level);
+      updateMutation.mutate({
+        risk_level: riskSuggestion.level,
+        metadata: { ...riskMeta, risk_set_by: null, risk_set_at: null, risk_rationale: null },
+      } as any);
+      setRationaleDraft("");
       setLaraLoading(false);
     }, 600);
   };
+
 
 
   const getLabel = (options: typeof criticalityOptions, value: string | null | undefined) => {
@@ -389,12 +434,21 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
           <CardContent className="p-4 space-y-2">
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
               <Shield className="h-3.5 w-3.5" />
-              {isNb ? "Risiko" : "Risk"}
-              <Pencil className="h-3 w-3 ml-auto opacity-0 group-hover:opacity-50 transition-opacity" />
+              {isNb ? "Risikonivå" : "Risk level"}
+              <Button
+                size="sm"
+                variant="outline"
+                className="ml-auto h-7 gap-1 text-[12px]"
+                disabled={laraLoading}
+                onClick={handleLaraSuggest}
+              >
+                <Sparkles className="h-3 w-3" />
+                {isNb ? "Foreslå" : "Suggest"}
+              </Button>
             </div>
             <Select
               value={asset?.risk_level || "medium"}
-              onValueChange={(v) => handleFieldChange("risk_level", v)}
+              onValueChange={handleManualRiskChange}
             >
               <SelectTrigger className={`h-9 text-sm font-semibold border ${severityColor(asset?.risk_level)}`}>
                 <SelectValue />
@@ -408,29 +462,55 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
               </SelectContent>
             </Select>
 
-            <div className="flex items-start gap-1.5 text-[13px] text-muted-foreground leading-tight">
-              <Sparkles className="h-3.5 w-3.5 text-primary mt-0.5 shrink-0" />
-              <span>
-                {isNb ? "Foreslått av Lara: " : "Suggested by Lara: "}
-                <span className="font-medium text-foreground">
-                  {getLabel(riskOptions, riskSuggestion.level)}
+            {riskSetBy ? (
+              <div className="flex items-start gap-1.5 rounded-md bg-warning/15 px-2 py-1.5 text-[13px] text-warning-foreground/90 leading-tight">
+                <UserRound className="h-3.5 w-3.5 mt-0.5 shrink-0" />
+                <span>
+                  {isNb ? "Satt manuelt av " : "Set manually by "}
+                  {riskSetBy}
+                  {riskSetAt ? `, ${riskSetAt}` : ""}
                 </span>
-                {" — "}
-                {(isNb ? riskSuggestion.reasons : riskSuggestion.reasonsEn).join(" · ")}
-              </span>
-            </div>
-
-            {(asset?.risk_level || "medium") !== riskSuggestion.level && (
-              <Button
-                size="sm"
-                variant="outline"
-                className="h-8 w-full text-[13px]"
-                disabled={laraLoading}
-                onClick={handleLaraSuggest}
-              >
-                {isNb ? "Bruk forslaget" : "Apply suggestion"}
-              </Button>
+              </div>
+            ) : (
+              <div className="flex items-start gap-1.5 text-[13px] text-muted-foreground leading-tight">
+                <Sparkles className="h-3.5 w-3.5 text-primary mt-0.5 shrink-0" />
+                <span>
+                  {isNb ? "Foreslått av Lara: " : "Suggested by Lara: "}
+                  <span className="font-medium text-foreground">
+                    {getLabel(riskOptions, riskSuggestion.level)}
+                  </span>
+                  {" — "}
+                  {(isNb ? riskSuggestion.reasons : riskSuggestion.reasonsEn).join(" · ")}
+                </span>
+              </div>
             )}
+
+            {riskSetBy && (
+              <div className="space-y-1">
+                <p className="text-[12px] text-muted-foreground">
+                  {isNb ? "Begrunnelse " : "Rationale "}
+                  <span className="text-muted-foreground/70">
+                    {isNb ? "(påkrevd ved manuell overstyring)" : "(required for manual override)"}
+                  </span>
+                </p>
+                <Textarea
+                  value={rationaleDraft}
+                  onChange={(e) => setRationaleDraft(e.target.value)}
+                  onBlur={saveRationale}
+                  rows={3}
+                  className="text-[13px]"
+                  placeholder={isNb
+                    ? "F.eks. ROS-analyse gjennomført 12.06.2026 viser forhøyet risiko ved bortfall."
+                    : "E.g. risk assessment from 12 June 2026 shows elevated risk on outage."}
+                />
+                {!rationaleDraft.trim() && (
+                  <p className="text-[12px] text-destructive">
+                    {isNb ? "Begrunnelse mangler." : "Rationale is missing."}
+                  </p>
+                )}
+              </div>
+            )}
+
 
             {riskSuggestion.needsRosDpia && (
               <div className="flex items-start gap-1.5 rounded-md border border-warning/20 bg-warning/10 p-2 text-[13px] text-warning leading-tight">

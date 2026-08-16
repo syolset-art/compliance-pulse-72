@@ -1,7 +1,7 @@
 // Regelbasert risikoforslag (v1) for leverandører/systemer.
 // Brukeren setter risiko selv — dette er kun et forslag fra Lara.
 
-export type SuggestedRiskLevel = "low" | "medium" | "high";
+export type SuggestedRiskLevel = "low" | "medium" | "high" | "critical";
 
 export interface VendorRiskSuggestionInput {
   criticality?: string | null;
@@ -45,7 +45,8 @@ export function suggestVendorRisk(input: VendorRiskSuggestionInput): VendorRiskS
     reasonsEn.push("Processes sensitive personal data");
   }
 
-  const level: SuggestedRiskLevel = score >= 5 ? "high" : score >= 3 ? "medium" : "low";
+  const level: SuggestedRiskLevel =
+    score >= 7 ? "critical" : score >= 5 ? "high" : score >= 3 ? "medium" : "low";
 
   if (reasons.length === 0) {
     reasons.push("Ingen tydelige risikodrivere registrert");
@@ -57,6 +58,6 @@ export function suggestVendorRisk(input: VendorRiskSuggestionInput): VendorRiskS
     score,
     reasons,
     reasonsEn,
-    needsRosDpia: level === "high" || !!input.sensitive,
+    needsRosDpia: level === "high" || level === "critical" || !!input.sensitive,
   };
 }
