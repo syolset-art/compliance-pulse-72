@@ -69,8 +69,6 @@ export default function DashboardDynamic() {
   const active = useMemo(() => resolveActiveModules(overrides), [overrides]);
   const blocks = useMemo(() => getVisibleBlocks(active, OPEN_WORK), [active]);
 
-  const inactive = DASHBOARD_MODULES.filter((m) => !active.has(m.key)).map((m) => m.key);
-
   const fullWidth = blocks.filter((b) => b.fullWidth);
   const gridBlocks = blocks.filter((b) => !b.fullWidth);
 
