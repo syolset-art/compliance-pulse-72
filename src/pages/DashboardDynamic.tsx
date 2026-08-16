@@ -3,7 +3,6 @@ import { useTranslation } from "react-i18next";
 import { Sidebar } from "@/components/Sidebar";
 import { DemoModuleSwitcher } from "@/components/dashboard-dynamic/DemoModuleSwitcher";
 import {
-  ActivationCard,
   AssetsBlock,
   CoreBlock,
   EmptyStateBlock,
