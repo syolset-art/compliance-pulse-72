@@ -75,6 +75,7 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
   const queryClient = useQueryClient();
+  const { user } = useAuth();
   const [laraLoading, setLaraLoading] = useState(false);
 
   const { data: asset } = useQuery({
