@@ -9,7 +9,7 @@ import {
   hasDocumentationCatalog,
 } from "@/lib/requirementDocumentationHints";
 import { getRequirementsByFramework } from "@/lib/complianceRequirementsData";
-import { toCanonicalArea } from "@/lib/controlAreas";
+import { toCanonicalArea, getControlAreaLabel } from "@/lib/controlAreas";
 import { expectedDocLabel } from "@/lib/frameworkEvidenceExpectations";
 import { McpDocumentDiscoveryPanel } from "./McpDocumentDiscoveryPanel";
 import type { HubDocument } from "@/lib/documentHub";
@@ -67,7 +67,7 @@ export function GuidingDocumentsTab({ frameworks, documents, onUpload }: Props) 
             }
             entries = Object.entries(byArea).map(([area, docs]) => ({
               key: area,
-              label: area,
+              label: getControlAreaLabel(area, isNb ? "nb" : "en"),
               docs,
             }));
           }
