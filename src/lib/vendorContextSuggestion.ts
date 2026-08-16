@@ -13,11 +13,11 @@ export interface UsageTagDef {
 
 export const USAGE_TAGS: UsageTagDef[] = [
   { value: "hr_payroll", labelNb: "Lønn og HR", labelEn: "Payroll & HR", keywords: ["lønn", "payroll", "hr", "personal", "ansatt", "recruit", "rekrutter"], gdprRole: "databehandler", criticality: "high" },
-  { value: "it_operations", labelNb: "IT-drift", labelEn: "IT operations", keywords: ["it-drift", "drift", "managed", "msp", "infrastruktur", "hosting", "server", "network"], gdprRole: "databehandler", criticality: "critical" },
+  { value: "it_operations", labelNb: "IT-drift", labelEn: "IT operations", keywords: ["it-drift", "drift", "managed", "msp", "infrastruktur", "hosting", "server", "network", "it operations", "operations", "utvikling", "development", "it-tjenester"], gdprRole: "databehandler", criticality: "critical" },
   { value: "accounting", labelNb: "Regnskap", labelEn: "Accounting", keywords: ["regnskap", "accounting", "faktura", "invoice", "økonomi", "finance"], gdprRole: "databehandler", criticality: "high" },
   { value: "marketing", labelNb: "Markedsføring", labelEn: "Marketing", keywords: ["markedsfør", "marketing", "kampanje", "newsletter", "nyhetsbrev", "annonse", "ads"], gdprRole: "databehandler", criticality: "medium" },
   { value: "crm", labelNb: "Kundedata / CRM", labelEn: "Customer data / CRM", keywords: ["crm", "kunde", "customer", "salg", "sales", "pipeline"], gdprRole: "databehandler", criticality: "high" },
-  { value: "cloud_storage", labelNb: "Skylagring", labelEn: "Cloud storage", keywords: ["lagring", "storage", "backup", "sky", "cloud", "arkiv"], gdprRole: "databehandler", criticality: "high" },
+  { value: "cloud_storage", labelNb: "Skylagring", labelEn: "Cloud storage", keywords: ["lagring", "storage", "backup", "sky", "cloud", "arkiv", "saas"], gdprRole: "databehandler", criticality: "high" },
   { value: "support", labelNb: "Support", labelEn: "Support", keywords: ["support", "helpdesk", "service desk", "kundeservice", "ticket"], gdprRole: "databehandler", criticality: "medium" },
   { value: "security", labelNb: "Sikkerhet", labelEn: "Security", keywords: ["sikkerhet", "security", "soc", "edr", "antivirus", "overvåk", "pentest"], gdprRole: "databehandler", criticality: "critical" },
   { value: "consulting", labelNb: "Rådgivning", labelEn: "Consulting", keywords: ["rådgiv", "consult", "advokat", "legal", "revisjon", "audit"], gdprRole: "ingen_persondata", criticality: "medium" },
