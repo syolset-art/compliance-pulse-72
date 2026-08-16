@@ -16,7 +16,6 @@ import {
 } from "@/components/dashboard-dynamic/DashboardBlocks";
 import {
   DASHBOARD_DEMO_EVENT,
-  DASHBOARD_MODULES,
   clearDemoOverrides,
   getDemoOverrides,
   resolveActiveModules,
