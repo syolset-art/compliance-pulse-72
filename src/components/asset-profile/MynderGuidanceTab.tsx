@@ -63,6 +63,14 @@ interface Props {
   criticality?: string | null;
   contactPerson?: string | null;
   contactEmail?: string | null;
+  /** Bruk og kontekst — brukes til å utlede anbefalte tiltak. */
+  usagePurpose?: string | null;
+  usageTags?: string[] | null;
+  gdprRole?: string | null;
+  riskLevel?: string | null;
+  riskSetBy?: string | null;
+  /** Åpner «Bruk og kontekst»-fanen når et tiltak krever registrering der. */
+  onOpenUsageTab?: () => void;
 }
 
 export function MynderGuidanceTab({
@@ -79,6 +87,12 @@ export function MynderGuidanceTab({
   criticality,
   contactPerson,
   contactEmail,
+  usagePurpose,
+  usageTags,
+  gdprRole,
+  riskLevel,
+  riskSetBy,
+  onOpenUsageTab,
 }: Props) {
   const { i18n } = useTranslation();
   const { toast } = useToast();
