@@ -113,3 +113,26 @@ export function hasSpecificDocumentation(
 ): boolean {
   return getTypicalDocumentation(requirementId, frameworkId).specific === true;
 }
+
+/** Én forventet dokumentasjonslinje for et krav i et regelverk. */
+export interface FrameworkDocCatalogEntry {
+  /** Kravreferanse, f.eks. «GDPR Art. 30 (Protokoll)». Brukes som requirement_id. */
+  requirementId: string;
+  label: string;
+  docs: string[];
+}
+
+/**
+ * Veiledende dokumentasjon for ett regelverk — utledet fra hint-katalogen over,
+ * slik at Dokument hub og Regelverk bruker samme kilde.
+ */
+export function frameworkDocumentationCatalog(frameworkId: string): FrameworkDocCatalogEntry[] {
+  const rules = FRAMEWORK_HINTS[(frameworkId ?? "").toLowerCase()];
+  if (!rules) return [];
+  return rules.map((r) => ({ requirementId: r.label, label: r.label, docs: r.docs }));
+}
+
+/** Regelverk vi har veiledende dokumentasjon for. */
+export function hasDocumentationCatalog(frameworkId: string): boolean {
+  return !!FRAMEWORK_HINTS[(frameworkId ?? "").toLowerCase()];
+}
