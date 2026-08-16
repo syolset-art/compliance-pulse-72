@@ -117,6 +117,14 @@ const Reports = () => {
   const navigate = useNavigate();
   const [generatingPdf, setGeneratingPdf] = useState(false);
 
+  // Rapporter er en generell funksjon: innholdet tilpasses aktiverte produkter.
+  const { hasRegistriesAccess } = useSubscription();
+  const { isServiceActive } = useActivatedServices();
+  const showPortfolio =
+    hasRegistriesAccess || isServiceActive("module-assets") || isServiceActive("module-systems");
+
+
+
   const { data: portfolioAssets = [] } = useQuery({
     queryKey: ["portfolio-assets-report"],
     queryFn: async () => {
