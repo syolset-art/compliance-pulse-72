@@ -242,6 +242,70 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
 
 
 
+  // --- Bruk og kontekst: bruksformål + Laras forslag ---
+  const usagePurpose: string = riskMeta.usage_purpose || "";
+  const usageTags: string[] = riskMeta.usage_tags || [];
+  const [openPill, setOpenPill] = useState<string | null>(null);
+
+  const contextSuggestion = suggestVendorContext({
+    vendorName: asset?.name,
+    vendorCategory: asset?.vendor_category,
+    description: asset?.description,
+    usagePurpose,
+    usageTags,
+    hasPrivacyPolicy: !!asset?.privacy_policy_url,
+    sensitive: sensitiveOn,
+  });
+
+  const handleToggleUsageTag = (value: string) => {
+    const next = usageTags.includes(value)
+      ? usageTags.filter((v) => v !== value)
+      : [...usageTags, value];
+    saveMeta({ usage_tags: next });
+  };
+
+  const handleSuggestPurpose = () => {
+    setLaraLoading(true);
+    setTimeout(() => {
+      saveMeta({
+        usage_tags: contextSuggestion.usageTags.length ? contextSuggestion.usageTags : usageTags,
+        usage_purpose: usagePurpose || (isNb ? contextSuggestion.usageTextNb : contextSuggestion.usageTextEn),
+      });
+      setLaraLoading(false);
+    }, 500);
+  };
+
+  const handleAcceptAll = () => {
+    setLaraLoading(true);
+    setTimeout(() => {
+      updateMutation.mutate({
+        criticality: contextSuggestion.criticality,
+        ...(contextSuggestion.gdprRole ? { gdpr_role: contextSuggestion.gdprRole } : {}),
+        risk_level: riskSuggestion.level,
+        metadata: {
+          ...riskMeta,
+          usage_tags: contextSuggestion.usageTags.length ? contextSuggestion.usageTags : usageTags,
+          usage_purpose: usagePurpose || (isNb ? contextSuggestion.usageTextNb : contextSuggestion.usageTextEn),
+          risk_set_by: null,
+          risk_set_at: null,
+          risk_rationale: null,
+        },
+      } as any);
+      setRationaleDraft("");
+      setLaraLoading(false);
+    }, 600);
+  };
+
+  const toneText = (value: string | null | undefined) => {
+    switch (value) {
+      case "low": return "text-success";
+      case "medium": return "text-warning";
+      case "high":
+      case "critical": return "text-destructive";
+      default: return "text-foreground";
+    }
+  };
+
   const getLabel = (options: typeof criticalityOptions, value: string | null | undefined) => {
     const opt = options.find(o => o.value === (value || "not_set"));
     return opt ? (isNb ? opt.labelNb : opt.labelEn) : (isNb ? "Ikke satt" : "Not set");
