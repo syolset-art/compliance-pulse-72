@@ -190,7 +190,12 @@ export function getDeactivatedModules(): Set<string> {
   const map = getModuleStates();
   const now = Date.now();
   const ids = new Set<string>();
+  // Opt-in-moduler er inaktive til de er eksplisitt aktivert.
+  OPT_IN_MODULES.forEach((id) => {
+    if (!map[id]) ids.add(id);
+  });
   Object.entries(map).forEach(([id, state]) => {
+
     if (state.status === "inactive") ids.add(id);
     if (
       state.status === "pending_cancellation" &&
