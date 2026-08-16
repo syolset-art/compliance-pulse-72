@@ -212,6 +212,7 @@ export function AggregatedMaturityWidget() {
   const navigate = useNavigate();
   const { stats, requirements } = useComplianceRequirements({});
   const [viewMode, setViewMode] = useState<ViewMode>("status");
+  const [openArea, setOpenArea] = useState<ControlAreaKey | null>(null);
   const { openChatWithMessage } = useGlobalChat();
 
   const overall = stats.overallScore || { assessed: 0, total: 0, score: 0 };
