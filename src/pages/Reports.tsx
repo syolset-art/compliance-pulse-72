@@ -37,6 +37,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { generateExecutivePortfolioReport } from "@/components/reports/generateExecutivePortfolioReport";
 import { PortfolioReportView } from "@/components/reports/PortfolioReportView";
 import { useState } from "react";
+import { useSubscription } from "@/hooks/useSubscription";
+import { useActivatedServices } from "@/hooks/useActivatedServices";
 
 interface ReportCardProps {
   title: string;
