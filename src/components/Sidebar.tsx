@@ -694,9 +694,9 @@ const SidebarContent = () => {
 
         {/* Mynder Core — only if selected at onboarding or paid */}
         {showCoreNormal && !partnerHides("core") && (isCoreActivating ? (
-          <ModuleSkeletonRow label={t("nav.mynderCore", "Mynder Core")} />
+          <ModuleSkeletonRow label={t("nav.mynderCore", "Core")} />
         ) : renderCollapsibleSection(
-          t("nav.mynderCore", "Mynder Core"),
+          t("nav.mynderCore", "Core"),
           Briefcase,
           coreSectionItems,
           managementOpen,
