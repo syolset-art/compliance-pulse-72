@@ -204,13 +204,6 @@ export default function DocumentHub() {
                       </button>
                     ))}
                   </FilterGroup>
-                  <FilterGroup title={L("Status", "Status")}>
-                    {(Object.keys(STATUS_LABELS) as HubStatus[]).map((s) => (
-                      <button key={s} className={pill(statuses.includes(s))} onClick={() => toggle(statuses, setStatuses, s)}>
-                        {STATUS_LABELS[s][isNb ? "nb" : "en"]}
-                      </button>
-                    ))}
-                  </FilterGroup>
                   {uploaders.length > 0 && (
                     <FilterGroup title={L("Lastet opp av", "Uploaded by")}>
                       {uploaders.map((u) => (
