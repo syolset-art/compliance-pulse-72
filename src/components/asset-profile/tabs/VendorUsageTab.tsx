@@ -296,6 +296,48 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
     }, 600);
   };
 
+  // --- Laras plan for GDPR-rolle (må godkjennes av brukeren) ---
+  const [gdprPlanDismissed, setGdprPlanDismissed] = useState(false);
+
+  const gdprPlan = buildGdprRolePlan({
+    vendorName: asset?.name,
+    vendorCategory: asset?.vendor_category,
+    description: asset?.description,
+    usagePurpose,
+    usageTags,
+    hasPrivacyPolicy: !!asset?.privacy_policy_url,
+    hasDpa: !!(asset as any)?.has_dpa,
+    sensitive: sensitiveOn,
+    currentRole: asset?.gdpr_role,
+  });
+
+  const gdprPlanApprovedBy: string | null = riskMeta.gdpr_role_approved_by || null;
+  const gdprPlanApprovedAt: string | null = riskMeta.gdpr_role_approved_at
+    ? new Date(riskMeta.gdpr_role_approved_at).toLocaleDateString(isNb ? "nb-NO" : "en-GB")
+    : null;
+
+  const handleApproveGdprPlan = () => {
+    setLaraLoading(true);
+    setTimeout(() => {
+      const keepSensitive = gdprRoleHandlesPersonalData(gdprPlan.role);
+      updateMutation.mutate({
+        gdpr_role: gdprPlan.role,
+        ...(keepSensitive ? {} : { processes_sensitive_data: false, sensitive_data_categories: [] }),
+        metadata: {
+          ...riskMeta,
+          gdpr_role_approved_by: currentUserName,
+          gdpr_role_approved_at: new Date().toISOString(),
+          gdpr_role_plan_steps: isNb ? gdprPlan.stepsNb : gdprPlan.stepsEn,
+        },
+      } as any);
+      setLaraLoading(false);
+      toast.success(
+        isNb ? "Planen er godkjent — Lara følger opp stegene" : "Plan approved — Lara follows up on the steps"
+      );
+    }, 500);
+  };
+
+
   const toneText = (value: string | null | undefined) => {
     switch (value) {
       case "low": return "text-success";
