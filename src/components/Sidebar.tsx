@@ -95,8 +95,9 @@ const globalNav = [
 const coreNav = [
   { name: "nav.myWorkAreas", href: "/work-areas", icon: Users },
   { name: "nav.tasks", href: "/tasks", icon: ClipboardList },
-  { name: "nav.protocols", href: "/protocols", icon: ScrollText },
 ];
+const protocolsLink = { name: "nav.protocols", href: "/protocols", icon: ScrollText };
+
 
 // Standalone module links (each activatable independently)
 const vendorLink = { name: "nav.vendors", href: "/vendors", icon: Building2 };
@@ -544,9 +545,14 @@ const SidebarContent = () => {
   // in demo/preview when company_profile is empty.
   const companyName = activeOrg?.name || "Mynder AS";
 
-  // Mynder Core-seksjonen: Systemer + arbeidsområder, oppgaver, avvik, rapporter.
+  // Mynder Core-seksjonen: Behandlingsprotokoll øverst, deretter Systemer + arbeidsområder, oppgaver, rapporter.
   // Leverandørmodulen er et eget produkt og ligger som eget toppnivå-punkt.
-  const coreSectionItems = [systemsLink, ...coreNav];
+  const coreSectionItems = [
+    protocolsLink,
+    systemsLink,
+    ...coreNav.filter((item) => item.name !== "nav.protocols"),
+  ];
+
   const isVendorsActive = location.pathname === vendorLink.href || location.pathname.startsWith(vendorLink.href + "/");
 
 
@@ -570,7 +576,7 @@ const SidebarContent = () => {
     location.pathname === deviationsLink.href || location.pathname.startsWith(deviationsLink.href + "/");
 
   // "Moduler" combines items from sections not shown normally, split by category
-  const exploreCoreItems = !showCoreNormal ? [...coreNav, systemsLink] : [];
+  const exploreCoreItems = !showCoreNormal ? [protocolsLink, ...coreNav, systemsLink] : [];
   const exploreRegistryItems = [
     ...(!showAssetsNormal ? [assetsLink] : []),
     ...(!hasAgentsAccess ? [agentsLink] : []),
