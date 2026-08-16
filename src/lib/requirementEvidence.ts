@@ -10,6 +10,11 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { EvidenceDocument } from "@/lib/requirementStatusModel";
 import { coverageRatioColumn, toCoverageValue } from "@/lib/coverageScale";
+import {
+  isPrototypeDocumentId,
+  savePrototypeDocument,
+  savePrototypeEvidence,
+} from "@/lib/prototypeDocumentStore";
 
 export interface StoredRequirementEvidence {
   id: string;
@@ -155,12 +160,21 @@ export async function persistDocument(input: {
   documentType: string;
 }): Promise<{ documentId: string } | { error: string }> {
   const assetId = await getSelfAssetId();
-  if (!assetId) {
-    return { error: "Fant ingen egen organisasjon å knytte dokumentet til." };
-  }
   const { data: userData } = await supabase.auth.getUser();
   const userId = userData?.user?.id ?? null;
-  if (!userId) return { error: "Du må være innlogget for å laste opp dokumenter." };
+
+  // Prototype: uten innlogging eller egen organisasjon lagrer vi dokumentet
+  // lokalt i nettleseren, slik at demoflyten fortsatt fungerer.
+  if (!assetId || !userId) {
+    return {
+      documentId: savePrototypeDocument({
+        displayName: input.displayName || input.file.name,
+        fileName: input.file.name,
+        documentType: input.documentType,
+        fileSize: input.file.size ?? null,
+      }),
+    };
+  }
 
   const safeName = input.file.name.replace(/[^\w.\-]+/g, "_");
   const path = `hub-uploads/${Date.now()}_${safeName}`;
@@ -198,6 +212,17 @@ export async function linkRequirementEvidence(input: {
   matches: { requirementId: string; coveredArticles: string[]; missingArticles: string[]; coverageRatio: number }[];
 }): Promise<{ error?: string }> {
   if (!input.matches.length) return {};
+  if (isPrototypeDocumentId(input.documentId)) {
+    savePrototypeEvidence(
+      input.matches.map((m) => ({
+        document_id: input.documentId,
+        framework_id: input.frameworkId,
+        requirement_id: m.requirementId,
+        coverage_ratio: coverageRatioColumn(m.coverageRatio) as number,
+      })),
+    );
+    return {};
+  }
   const { data: userData } = await supabase.auth.getUser();
   const userId = userData?.user?.id ?? null;
 

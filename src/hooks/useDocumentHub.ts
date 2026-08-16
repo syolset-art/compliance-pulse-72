@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { buildHubDocuments, type HubDocument } from "@/lib/documentHub";
 import { buildComplianceCoverage } from "@/lib/complianceDocumentCoverage";
+import { prototypeDocuments, prototypeEvidence } from "@/lib/prototypeDocumentStore";
 
 /**
  * Henter alle dokumentkilder parallelt og normaliserer dem til hub-modellen.
@@ -57,17 +58,17 @@ export function useDocumentHub() {
           assetsById,
           workAreasById,
           frameworkNames,
-          requirementEvidence: (reqEvidence.data || []) as any[],
+          requirementEvidence: [...(reqEvidence.data || []), ...prototypeEvidence()] as any[],
         },
         frameworks: (frameworks.data || []) as any[],
-        reqEvidence: (reqEvidence.data || []) as any[],
+        reqEvidence: [...(reqEvidence.data || []), ...prototypeEvidence()] as any[],
       };
     },
     staleTime: 1000 * 60,
   });
 
   const documents: HubDocument[] = useMemo(
-    () => (data ? buildHubDocuments(data.raw) : []),
+    () => (data ? [...prototypeDocuments(), ...buildHubDocuments(data.raw)] : prototypeDocuments()),
     [data],
   );
 
