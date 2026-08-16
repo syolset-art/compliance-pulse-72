@@ -475,17 +475,13 @@ const SidebarContent = () => {
     if (isManagementActive) setManagementOpen(true);
   }, [isManagementActive]);
 
-  // Registre: øvrige registre (Aktiva = Assets, Agenter = eget tillegg)
-  const registriesItems = [
-    ...(showAssetsNormal ? [assetsLink] : []),
-    ...(hasAgentsAccess ? [agentsLink] : []),
-  ];
-  const showRegistries = registriesItems.length > 0;
-  const isRegistriesActive = registriesItems.some(item => location.pathname === item.href || location.pathname.startsWith(item.href + "/"));
-  const [registriesOpen, setRegistriesOpen] = useState(() => isRegistriesActive);
-  useEffect(() => {
-    if (isRegistriesActive) setRegistriesOpen(true);
-  }, [isRegistriesActive]);
+  // «Registre»-seksjonen er fjernet. Eiendeler er nå eget toppnivå-punkt,
+  // og Agenter ligger som eget punkt når modulen er tilgjengelig.
+  const showRegistries = showAssetsNormal || hasAgentsAccess;
+  const isAssetsActive =
+    location.pathname === assetsLink.href || location.pathname.startsWith(assetsLink.href + "/");
+  const isAgentsActive =
+    location.pathname === agentsLink.href || location.pathname.startsWith(agentsLink.href + "/");
 
   // "Moduler" combines items from sections not shown normally, split by category
   const exploreCoreItems = !showCoreNormal ? [...coreNav, systemsLink] : [];
