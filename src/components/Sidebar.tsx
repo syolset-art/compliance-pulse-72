@@ -475,17 +475,13 @@ const SidebarContent = () => {
     if (isManagementActive) setManagementOpen(true);
   }, [isManagementActive]);
 
-  // Registre: øvrige registre (Aktiva = Assets, Agenter = eget tillegg)
-  const registriesItems = [
-    ...(showAssetsNormal ? [assetsLink] : []),
-    ...(hasAgentsAccess ? [agentsLink] : []),
-  ];
-  const showRegistries = registriesItems.length > 0;
-  const isRegistriesActive = registriesItems.some(item => location.pathname === item.href || location.pathname.startsWith(item.href + "/"));
-  const [registriesOpen, setRegistriesOpen] = useState(() => isRegistriesActive);
-  useEffect(() => {
-    if (isRegistriesActive) setRegistriesOpen(true);
-  }, [isRegistriesActive]);
+  // «Registre»-seksjonen er fjernet. Eiendeler er nå eget toppnivå-punkt,
+  // og Agenter ligger som eget punkt når modulen er tilgjengelig.
+  const showRegistries = showAssetsNormal || hasAgentsAccess;
+  const isAssetsActive =
+    location.pathname === assetsLink.href || location.pathname.startsWith(assetsLink.href + "/");
+  const isAgentsActive =
+    location.pathname === agentsLink.href || location.pathname.startsWith(agentsLink.href + "/");
 
   // "Moduler" combines items from sections not shown normally, split by category
   const exploreCoreItems = !showCoreNormal ? [...coreNav, systemsLink] : [];
@@ -618,6 +614,26 @@ const SidebarContent = () => {
                 <Shield className="h-4 w-4" />
                 {isNb ? "Trust Center" : "Trust Center"}
               </Link>
+
+              {/* Dynamisk dashbord (prototype) — bygges av aktiverte produkter */}
+              {(() => {
+                const dynActive = location.pathname === "/dashboard-dynamic";
+                return (
+                  <Link
+                    to="/dashboard-dynamic"
+                    className={cn(
+                      "flex items-center gap-2.5 rounded-lg px-3 py-2 text-[0.9375rem] font-medium transition-all duration-200 relative",
+                      dynActive
+                        ? "bg-gradient-to-r from-primary/10 to-transparent text-sidebar-primary border-l-2 border-primary"
+                        : "text-sidebar-foreground/80 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
+                    )}
+                  >
+                    {dynActive && <span className="h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />}
+                    <LayoutDashboard className="h-4 w-4" />
+                    {isNb ? "Dashbord (dynamisk)" : "Dashboard (dynamic)"}
+                  </Link>
+                );
+              })()}
               {/* Mynder Core-lenken ligger nå kun i Core-seksjonen lenger ned. */}
 
               {boardNav.map((item) => {
@@ -705,17 +721,41 @@ const SidebarContent = () => {
         ))}
 
 
-        {/* Registre — Systemer (Core) + Aktiva (Assets) */}
-        {showRegistries && registriesItems.length > 0 && !partnerHides("registries") && ((isCoreActivating || isAssetsActivating) ? (
-          <ModuleSkeletonRow label={t("nav.registries", "Registre")} />
-        ) : renderCollapsibleSection(
-          t("nav.registries", "Registre"),
-          Layers,
-          registriesItems,
-          registriesOpen,
-          setRegistriesOpen,
-          isRegistriesActive,
+        {/* Eiendeler — eget produkt på samme nivå som Core og Leverandører */}
+        {showAssetsNormal && !partnerHides("registries") && (isAssetsActivating ? (
+          <ModuleSkeletonRow label={t(assetsLink.name, "Eiendeler")} />
+        ) : (
+          <Link
+            to={assetsLink.href}
+            className={cn(
+              "flex items-center gap-2.5 rounded-lg px-3 py-2 text-[0.9375rem] font-medium transition-all duration-200 relative",
+              isAssetsActive
+                ? "bg-gradient-to-r from-primary/10 to-transparent text-sidebar-primary border-l-2 border-primary"
+                : "text-sidebar-foreground/80 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
+            )}
+          >
+            {isAssetsActive && <span className="h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />}
+            <assetsLink.icon className="h-4 w-4" />
+            <span className="text-sm font-semibold">{t(assetsLink.name)}</span>
+          </Link>
         ))}
+
+        {/* Agenter — eget punkt når agentmodulen er tilgjengelig */}
+        {hasAgentsAccess && !partnerHides("registries") && (
+          <Link
+            to={agentsLink.href}
+            className={cn(
+              "flex items-center gap-2.5 rounded-lg px-3 py-2 text-[0.9375rem] font-medium transition-all duration-200 relative",
+              isAgentsActive
+                ? "bg-gradient-to-r from-primary/10 to-transparent text-sidebar-primary border-l-2 border-primary"
+                : "text-sidebar-foreground/80 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
+            )}
+          >
+            {isAgentsActive && <span className="h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />}
+            <agentsLink.icon className="h-4 w-4" />
+            <span className="text-sm font-semibold">{t(agentsLink.name)}</span>
+          </Link>
+        )}
 
         {/* "Moduler" fjernet fra hovedmenyen — produkter administreres nå under Innstillinger → Produkter. */}
 
