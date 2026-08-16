@@ -64,7 +64,7 @@ export function DashboardFrameworkStatus() {
                   </span>
                 </div>
               </div>
-              <Progress value={fw.score} className="h-2 [&>div]:bg-primary" />
+              <Progress value={fw.score} className={cn("h-2", maturityProgressClass(fw.score))} />
             </div>
           );
         })}

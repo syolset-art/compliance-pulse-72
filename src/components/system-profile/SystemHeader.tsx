@@ -22,6 +22,7 @@ import { HeaderMaturityIndicators } from "@/components/trust-controls/HeaderMatu
 import { useState } from "react";
 import { toast } from "sonner";
 import { getSystemIcon } from "@/lib/systemIcons";
+import { getMaturityLevel, maturityTextClass, maturityLabelNb } from "@/lib/maturityLevel";
 import { RequestUpdateDialog } from "@/components/asset-profile/RequestUpdateDialog";
 
 interface TrustMetrics {
