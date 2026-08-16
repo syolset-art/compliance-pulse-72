@@ -237,6 +237,78 @@ export function MynderGuidanceTab({
     });
   };
 
+  // ── Neste steg: hull i leverandørdata + regelverkstiltak ──
+  const [showAllActions, setShowAllActions] = useState(false);
+
+  const nextSteps: NextStep[] = useMemo(
+    () =>
+      buildVendorNextSteps({
+        usagePurpose,
+        usageTags,
+        gdprRole,
+        riskLevel,
+        criticality,
+        riskSetBy,
+        baselineRequested: !!sourcing.method || trustCenter.status !== "none",
+        hasContextSuggestion: !!(vendorType || industry),
+        frameworkActions: actions,
+      }),
+    [
+      usagePurpose,
+      usageTags,
+      gdprRole,
+      riskLevel,
+      criticality,
+      riskSetBy,
+      sourcing.method,
+      trustCenter.status,
+      vendorType,
+      industry,
+      actions,
+    ],
+  );
+
+  const runNextStep = (step: NextStep) => {
+    switch (step.actionKey) {
+      case "usage_purpose":
+      case "gdpr_role":
+      case "risk_level":
+      case "criticality":
+        onOpenUsageTab?.();
+        toast({
+          title: isNb ? "Lara har forberedt forslag" : "Lara prepared a suggestion",
+          description: isNb
+            ? "Åpnet «Bruk og kontekst» — godkjenn eller juster Laras forslag."
+            : "Opened “Usage & context” — approve or adjust Lara's suggestion.",
+        });
+        break;
+      case "baseline":
+        setRequestBaselineOpen(true);
+        break;
+      case "framework_action":
+        if (step.action) {
+          if (step.action.documentType) openDocRequest(step.action);
+          else createActivityFromAction(step.action);
+        }
+        break;
+    }
+  };
+
+  const runAllLaraSteps = () => {
+    const laraSteps = nextSteps.filter((s) => s.owner === "lara");
+    if (laraSteps.length === 0) return;
+    const first = laraSteps[0];
+    toast({
+      title: isNb ? "Lara jobber med tiltakene" : "Lara is working on the actions",
+      description: isNb
+        ? `Lara forbereder utkast for ${laraSteps.length} tiltak. Du godkjenner hvert forslag.`
+        : `Lara drafts ${laraSteps.length} actions. You approve each suggestion.`,
+    });
+    runNextStep(first);
+  };
+
+
+
 
   const [showActivityLog, setShowActivityLog] = useState(() => {
     try {
