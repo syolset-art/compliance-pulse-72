@@ -14,6 +14,7 @@ import {
   Menu,
   Building2,
   Scale,
+  FolderOpen,
   CreditCard,
   HelpCircle,
   LogOut,
@@ -85,6 +86,8 @@ const boardNav = [
 const globalNav = [
   { name: "nav.regulations", href: "/regulations", icon: Scale },
   { name: "nav.messages", href: "/customer-requests", icon: MessageSquare },
+  // Dokument hub er alltid tilgjengelig, uavhengig av aktiverte produkter.
+  { name: "nav.documentHub", href: "/documents", icon: FolderOpen },
 ];
 
 
