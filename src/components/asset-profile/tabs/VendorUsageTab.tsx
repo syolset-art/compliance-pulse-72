@@ -33,6 +33,7 @@ const riskOptions = [
   { value: "low", labelNb: "Lav", labelEn: "Low" },
   { value: "medium", labelNb: "Middels", labelEn: "Medium" },
   { value: "high", labelNb: "Høy", labelEn: "High" },
+  { value: "critical", labelNb: "Kritisk", labelEn: "Critical" },
 ];
 
 const gdprOptions = [
