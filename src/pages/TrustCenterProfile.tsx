@@ -2190,9 +2190,10 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                                         </TooltipTrigger>
                                         <TooltipContent side="top" align="start" className="max-w-xs text-xs leading-relaxed">
                                           {isNb
-                                            ? "For at en kontroll skal vises som verifisert må du laste opp dokumentasjon (f.eks. policy, sertifikat eller revisjonsrapport) under tilhørende kontrollområde, og markere den som verifisert. Lara kan også foreslå dokumenter automatisk."
-                                            : "For a control to appear here as verified, upload supporting documentation (e.g. policy, certificate, or audit report) under the related control area and mark it as verified. Lara can also suggest documents automatically."}
+                                            ? "Du trenger ikke markere noe som verifisert selv. Når du laster opp et dokument under Regelverk, analyserer Lara hvilke artikler i kontrollpunktet dokumentet dekker, og gir uttelling deretter — 0 (ingen dekning), 0,5 (delvis dekning) eller 1 (full dekning)."
+                                            : "You don't mark anything as verified yourself. When you upload a document under Regulations, Lara analyses which articles of the control it covers and scores it accordingly — 0 (no coverage), 0.5 (partial coverage) or 1 (full coverage)."}
                                         </TooltipContent>
+
                                       </Tooltip>
                                     </div>
                                   </div>
