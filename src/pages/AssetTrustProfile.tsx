@@ -42,7 +42,6 @@ import { VendorUsageTab } from "@/components/asset-profile/tabs/VendorUsageTab";
 import { VendorEvidenceTab } from "@/components/asset-profile/tabs/VendorEvidenceTab";
 import { VendorHistoryTab } from "@/components/asset-profile/tabs/VendorHistoryTab";
 import { DeliveriesTab } from "@/components/asset-profile/tabs/DeliveriesTab";
-import { VendorAuditTab } from "@/components/asset-profile/tabs/VendorAuditTab";
 
 import { RegisterActivityDialog } from "@/components/asset-profile/RegisterActivityDialog";
 import { MynderGuidanceTab } from "@/components/asset-profile/MynderGuidanceTab";
