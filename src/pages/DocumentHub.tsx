@@ -252,7 +252,7 @@ export default function DocumentHub() {
                       </div>
                     </TableHead>
                     <TableHead className="hidden lg:table-cell">{L("Lastet opp av", "Uploaded by")}</TableHead>
-                    <TableHead className="hidden lg:table-cell">{L("Dato", "Date")}</TableHead>
+                    <TableHead>{L("Dato", "Date")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
