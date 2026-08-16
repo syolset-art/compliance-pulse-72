@@ -99,7 +99,7 @@ export default function DocumentHub() {
 
 
   const activeFilters =
-    modules.length + types.length + statuses.length + (uploader ? 1 : 0) + (onlyScore ? 1 : 0);
+    modules.length + types.length + (uploader ? 1 : 0) + (onlyScore ? 1 : 0);
 
   const pill = (active: boolean) =>
     cn(
