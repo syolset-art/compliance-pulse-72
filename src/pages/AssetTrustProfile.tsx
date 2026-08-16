@@ -550,6 +550,12 @@ const AssetTrustProfile = () => {
                     criticality={(asset as any).criticality ?? asset.risk_level}
                     contactPerson={(asset as any).contact_person}
                     contactEmail={(asset as any).contact_email}
+                    usagePurpose={((asset as any).metadata as any)?.usage_purpose}
+                    usageTags={((asset as any).metadata as any)?.usage_tags}
+                    gdprRole={(asset as any).gdpr_role}
+                    riskLevel={(asset as any).risk_level}
+                    riskSetBy={((asset as any).metadata as any)?.risk_set_by}
+                    onOpenUsageTab={() => setActiveTab("usage")}
                   />
                 </TabsContent>
                 <TabsContent value="vendor-tasks" className="mt-6">
