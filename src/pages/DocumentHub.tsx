@@ -305,11 +305,6 @@ export default function DocumentHub() {
                           {MODULE_LABELS[doc.module][isNb ? "nb" : "en"]}
                         </Badge>
                       </TableCell>
-                      <TableCell className="py-2">
-                        <Badge className={cn("text-[12px] font-normal border", STATUS_STYLES[doc.status])}>
-                          {STATUS_LABELS[doc.status][isNb ? "nb" : "en"]}
-                        </Badge>
-                      </TableCell>
                       <TableCell className="hidden lg:table-cell py-2 text-[13px] text-muted-foreground">
                         {doc.uploadedBy || L("Ukjent", "Unknown")}
                       </TableCell>
