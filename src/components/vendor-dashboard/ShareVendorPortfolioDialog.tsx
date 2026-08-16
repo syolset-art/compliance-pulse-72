@@ -9,6 +9,8 @@ import { Card } from "@/components/ui/card";
 import { Send, Link2, Eye, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { getMaturityLevel } from "@/lib/maturityLevel";
+import { MaturityIndicator } from "@/components/shared/MaturityIndicator";
 
 interface ShareVendorPortfolioDialogProps {
   open: boolean;
@@ -16,16 +18,9 @@ interface ShareVendorPortfolioDialogProps {
   vendors: any[];
 }
 
-function scoreColor(score: number) {
-  if (score >= 75) return "text-success";
-  if (score >= 50) return "text-warning";
-  return "text-destructive";
-}
-
 function riskBucket(score: number): "low" | "medium" | "high" {
-  if (score >= 75) return "low";
-  if (score >= 50) return "medium";
-  return "high";
+  const level = getMaturityLevel(score);
+  return level === "high" ? "low" : level === "medium" ? "medium" : "high";
 }
 
 export function ShareVendorPortfolioDialog({ open, onOpenChange, vendors }: ShareVendorPortfolioDialogProps) {
@@ -165,8 +160,8 @@ export function ShareVendorPortfolioDialog({ open, onOpenChange, vendors }: Shar
                 <p className="text-lg font-bold text-foreground tabular-nums">{stats.total}</p>
               </Card>
               <Card variant="flat" className="p-2.5">
-                <p className="text-[12px] text-muted-foreground">Snitt trust score</p>
-                <p className={cn("text-lg font-bold tabular-nums", scoreColor(stats.avg))}>{stats.avg}%</p>
+                <p className="text-[12px] text-muted-foreground">Modenhet</p>
+                <div className="mt-1"><MaturityIndicator score={stats.avg} showInfo /></div>
               </Card>
               <Card variant="flat" className="p-2.5">
                 <p className="text-[12px] text-muted-foreground">Prioritet</p>
@@ -202,7 +197,7 @@ export function ShareVendorPortfolioDialog({ open, onOpenChange, vendors }: Shar
                     <tr>
                       <th className="text-left font-medium px-3 py-2">Navn</th>
                       <th className="text-left font-medium px-3 py-2">Bransje</th>
-                      <th className="text-right font-medium px-3 py-2">Trust score</th>
+                      <th className="text-right font-medium px-3 py-2">Modenhet</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -212,7 +207,7 @@ export function ShareVendorPortfolioDialog({ open, onOpenChange, vendors }: Shar
                         <tr key={v.id} className="border-t">
                           <td className="px-3 py-2 font-medium text-foreground">{v.name}</td>
                           <td className="px-3 py-2 text-muted-foreground">{v.category || v.vendor_category || "—"}</td>
-                          <td className={cn("px-3 py-2 text-right font-semibold tabular-nums", scoreColor(score))}>{score}%</td>
+                          <td className="px-3 py-2 text-right"><MaturityIndicator score={score} className="justify-end" /></td>
                         </tr>
                       );
                     })}

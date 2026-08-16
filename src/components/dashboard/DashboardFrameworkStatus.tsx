@@ -4,28 +4,16 @@ import { Progress } from "@/components/ui/progress";
 import { useComplianceRequirements } from "@/hooks/useComplianceRequirements";
 import { getFrameworkById } from "@/lib/frameworkDefinitions";
 import { cn } from "@/lib/utils";
+import { getMaturityLevel, maturitySoftClass, maturityProgressClass } from "@/lib/maturityLevel";
 
 function statusChip(score: number, isNb: boolean) {
-  if (score >= 75)
-    return {
-      label: isNb ? "Grønn" : "Green",
-      className: "bg-success/15 text-success",
-    };
-  if (score >= 50)
-    return {
-      label: isNb ? "Gul" : "Yellow",
-      className: "bg-warning/15 text-warning",
-    };
-  return {
-    label: isNb ? "Rød" : "Red",
-    className: "bg-destructive/15 text-destructive",
-  };
-}
-
-function scoreColor(score: number) {
-  if (score >= 75) return "text-success";
-  if (score >= 50) return "text-warning";
-  return "text-destructive";
+  const level = getMaturityLevel(score);
+  const labels = {
+    high: isNb ? "Høy" : "High",
+    medium: isNb ? "Middels" : "Medium",
+    low: isNb ? "Lav" : "Low",
+  } as const;
+  return { label: labels[level], className: maturitySoftClass(score) };
 }
 
 export function DashboardFrameworkStatus() {
@@ -52,7 +40,7 @@ export function DashboardFrameworkStatus() {
       </h3>
       <p className="text-sm text-muted-foreground mt-0.5 mb-4">
         {isNb
-          ? "Modenhetsscore per regelverk basert på dokumenterte kontroller"
+          ? "Modenhet per regelverk basert på dokumenterte kontroller"
           : "Maturity score per framework based on documented controls"}
       </p>
 
@@ -71,15 +59,12 @@ export function DashboardFrameworkStatus() {
                   {fw.name}
                 </span>
                 <div className="flex items-center gap-2 shrink-0">
-                  <span className={cn("text-sm font-bold tabular-nums", scoreColor(fw.score))}>
-                    {fw.score}%
-                  </span>
-                  <span className={cn("text-sm font-medium px-2 py-0.5 rounded-full", chip.className)}>
+                  <span className={cn("text-sm font-medium px-2 py-0.5 rounded-full border", chip.className)}>
                     {chip.label}
                   </span>
                 </div>
               </div>
-              <Progress value={fw.score} className="h-2 [&>div]:bg-primary" />
+              <Progress value={fw.score} className={cn("h-2", maturityProgressClass(fw.score))} />
             </div>
           );
         })}

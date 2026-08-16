@@ -1,3 +1,4 @@
+import { getMaturityLevel, maturityTextClass, maturityLabelNb } from "@/lib/maturityLevel";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, Navigate } from "react-router-dom";
@@ -492,9 +493,9 @@ function AvgTrustScoreWidget() {
   const c = 2 * Math.PI * r;
   const dash = (score / 100) * c;
   const tone =
-    score >= 75 ? "text-success" : score >= 50 ? "text-warning" : "text-destructive";
+    maturityTextClass(score);
   const ring =
-    score >= 75 ? "stroke-success" : score >= 50 ? "stroke-warning" : "stroke-destructive";
+    getMaturityLevel(score) === "high" ? "stroke-success" : getMaturityLevel(score) === "medium" ? "stroke-warning" : "stroke-destructive";
 
   return (
     <Card
@@ -503,7 +504,7 @@ function AvgTrustScoreWidget() {
     >
       <div className="flex items-center gap-1.5">
         <div className="text-[11px] uppercase tracking-[0.15em] text-muted-foreground font-semibold">
-          Trust score
+          Modenhet
         </div>
         <span className="inline-flex items-center rounded border border-muted-foreground/20 bg-muted/40 px-1.5 py-0 text-[10px] font-medium text-muted-foreground">
           V2
@@ -518,8 +519,8 @@ function AvgTrustScoreWidget() {
             </TooltipTrigger>
             <TooltipContent side="top" className="max-w-xs text-xs">
               {isNb
-                ? <>Trust Score er en samlet modenhetsvurdering per kunde (0–100) basert på Governance, Operations, Privacy og Third-Party. Snittet viser hvor solid hele porteføljen står samlet. <span className="font-semibold">V2 — ikke implementer nå.</span></>
-                : <>Trust Score is an aggregated maturity assessment per customer (0–100) based on Governance, Operations, Privacy and Third-Party. The average shows how solid the entire portfolio is overall. <span className="font-semibold">V2 — not implemented yet.</span></>}
+                ? <>Modenhet er en samlet vurdering per kunde (Lav under 50, Middels 50–74, Høy fra 75) basert på Governance, Operations, Privacy og Third-Party. Snittet viser hvor solid hele porteføljen står samlet. <span className="font-semibold">V2 — ikke implementer nå.</span></>
+                : <>Maturity is an aggregated assessment per customer (Low below 50, Medium 50–74, High from 75) based on Governance, Operations, Privacy and Third-Party. The average shows how solid the entire portfolio is overall. <span className="font-semibold">V2 — not implemented yet.</span></>}
             </TooltipContent>
           </UITooltip>
         </TooltipProvider>
@@ -548,8 +549,8 @@ function AvgTrustScoreWidget() {
           />
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <div className={`text-3xl font-bold leading-none ${tone}`}>{score}</div>
-          <div className="text-[10px] uppercase tracking-wider text-muted-foreground mt-1">score</div>
+          <div className={`text-2xl font-bold leading-none ${tone}`}>{maturityLabelNb(getMaturityLevel(score))}</div>
+          <div className="text-[10px] uppercase tracking-wider text-muted-foreground mt-1">{isNb ? "modenhet" : "maturity"}</div>
         </div>
       </div>
 

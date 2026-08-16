@@ -13,6 +13,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Filter, X, UserPlus } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { maturityTextClass, maturityLabelNb, getMaturityLevel } from "@/lib/maturityLevel";
 import { staggerEntranceClass } from "@/lib/animation";
 
 import { getCriticality, CRITICALITY_META, type CriticalityKey } from "@/lib/criticality";
@@ -139,10 +140,7 @@ function ScoreRing({ score }: { score: number }) {
   const c = 2 * Math.PI * r;
   const pct = Math.min(Math.max(score, 0), 100);
   const dash = `${(pct / 100) * c} ${c}`;
-  const tone =
-    pct >= 75 ? "text-success"
-    : pct >= 50 ? "text-warning"
-    : "text-destructive";
+  const tone = maturityTextClass(pct);
 
   if (score <= 0) {
     return <span className="text-xs text-muted-foreground">—</span>;
@@ -163,8 +161,8 @@ function ScoreRing({ score }: { score: number }) {
           className={tone} fill="none"
         />
       </svg>
-      <span className={cn("absolute inset-0 flex items-center justify-center text-[11px] font-semibold tabular-nums", tone)}>
-        {pct}
+      <span className={cn("absolute inset-0 flex items-center justify-center text-[9px] font-semibold", tone)}>
+        {maturityLabelNb(getMaturityLevel(pct)).slice(0, 1)}
       </span>
     </div>
   );

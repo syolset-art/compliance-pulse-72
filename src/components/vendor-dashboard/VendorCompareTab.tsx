@@ -10,6 +10,7 @@ import { Progress } from "@/components/ui/progress";
 import { Search, FileDown, FileSpreadsheet, Scale, X, ChevronDown, Shield, Settings, Key, Users, CheckCircle2, AlertCircle, MinusCircle } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import { maturityBgClass, maturityTextClass, maturityLabelNb, getMaturityLevel } from "@/lib/maturityLevel";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -106,14 +107,14 @@ function StatusIcon({ status }: { status: TrustControlStatus }) {
 
 function ScoreBar({ score, compact }: { score: number | null; compact?: boolean }) {
   if (score === null) return <span className="text-xs text-muted-foreground">–</span>;
-  const color = score >= 75 ? "bg-status-closed" : score >= 50 ? "bg-warning" : "bg-destructive";
+  const color = maturityBgClass(score);
   return (
     <div className={cn("flex items-center gap-2", compact ? "w-full" : "w-full")}>
       <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
         <div className={cn("h-full rounded-full transition-all", color)} style={{ width: `${score}%` }} />
       </div>
-      <span className={cn("text-xs font-semibold tabular-nums", score >= 75 ? "text-status-closed dark:text-status-closed" : score >= 50 ? "text-warning" : "text-destructive")}>
-        {score}%
+      <span className={cn("text-xs font-semibold", maturityTextClass(score))}>
+        {maturityLabelNb(getMaturityLevel(score))}
       </span>
     </div>
   );
@@ -319,12 +320,12 @@ export function VendorCompareTab({ vendors }: VendorCompareTabProps) {
                           strokeDasharray={`${v.trustScore * 0.975} 100`}
                           strokeLinecap="round"
                           className={cn(
-                            v.trustScore >= 75 ? "stroke-green-500" : v.trustScore >= 50 ? "stroke-orange-500" : "stroke-destructive"
+                            getMaturityLevel(v.trustScore) === "high" ? "stroke-success" : getMaturityLevel(v.trustScore) === "medium" ? "stroke-warning" : "stroke-destructive"
                           )}
                         />
                       </svg>
-                      <span className="absolute inset-0 flex items-center justify-center text-sm font-bold">
-                        {v.trustScore}
+                      <span className={cn("absolute inset-0 flex items-center justify-center text-[11px] font-bold", maturityTextClass(v.trustScore))}>
+                        {maturityLabelNb(getMaturityLevel(v.trustScore))}
                       </span>
                     </div>
                     <Badge variant={v.risk_level === "high" ? "destructive" : v.risk_level === "medium" ? "secondary" : "outline"} className="text-[13px]">

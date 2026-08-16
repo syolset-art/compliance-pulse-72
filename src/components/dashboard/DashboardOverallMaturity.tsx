@@ -6,6 +6,8 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useComplianceRequirements } from "@/hooks/useComplianceRequirements";
 import { cn } from "@/lib/utils";
+import { maturityTextClass, maturityProgressClass, maturityLabelNb, getMaturityLevel } from "@/lib/maturityLevel";
+import { MaturityIndicator } from "@/components/shared/MaturityIndicator";
 
 const FOCUS_AREAS = [
   { key: "governance", label_no: "Styring", label_en: "Governance" },
@@ -29,17 +31,8 @@ function applyFloor(key: string, raw: number) {
   return Math.max(raw, PILLAR_DEMO_FLOOR[key] ?? 0);
 }
 
-function scoreColor(score: number) {
-  if (score >= 75) return "text-success";
-  if (score >= 50) return "text-warning";
-  return "text-destructive";
-}
-
-function scoreProgressClass(score: number) {
-  if (score >= 75) return "[&>div]:bg-success";
-  if (score >= 50) return "[&>div]:bg-warning";
-  return "[&>div]:bg-destructive";
-}
+const scoreColor = maturityTextClass;
+const scoreProgressClass = maturityProgressClass;
 
 
 export function DashboardOverallMaturity() {
@@ -77,7 +70,7 @@ export function DashboardOverallMaturity() {
         <div className="flex items-center gap-2">
           <TrendingUp className="h-4 w-4 text-primary" />
           <h3 className="text-sm font-semibold text-foreground">
-            {isNb ? "Samlet modenhetsscore" : "Overall maturity score"}
+            {isNb ? "Samlet modenhet" : "Overall maturity"}
           </h3>
         </div>
         <button
@@ -94,8 +87,11 @@ export function DashboardOverallMaturity() {
         </button>
       </div>
 
-      <div className={cn("text-4xl sm:text-5xl font-bold mb-5 tracking-tight tabular-nums", scoreColor(displayOverall))}>
-        {displayOverall}%
+      <div className="mb-5 flex items-center gap-2">
+        <span className={cn("text-4xl sm:text-5xl font-bold tracking-tight", scoreColor(displayOverall))}>
+          {maturityLabelNb(getMaturityLevel(displayOverall))}
+        </span>
+        <MaturityIndicator score={displayOverall} variant="badge" showInfo className="mt-2" />
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-5">
@@ -107,8 +103,8 @@ export function DashboardOverallMaturity() {
               <p className="text-sm text-muted-foreground">
                 {isNb ? area.label_no : area.label_en}
               </p>
-              <p className={cn("text-lg font-bold tabular-nums", scoreColor(score))}>
-                {score}%
+              <p className={cn("text-lg font-bold", scoreColor(score))}>
+                {maturityLabelNb(getMaturityLevel(score))}
               </p>
               <Progress value={score} className={cn("h-2", scoreProgressClass(score))} />
             </div>

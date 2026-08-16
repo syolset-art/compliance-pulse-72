@@ -22,6 +22,7 @@ import { HeaderMaturityIndicators } from "@/components/trust-controls/HeaderMatu
 import { useState } from "react";
 import { toast } from "sonner";
 import { getSystemIcon } from "@/lib/systemIcons";
+import { getMaturityLevel, maturityTextClass, maturityLabelNb } from "@/lib/maturityLevel";
 import { RequestUpdateDialog } from "@/components/asset-profile/RequestUpdateDialog";
 
 interface TrustMetrics {
@@ -198,8 +199,9 @@ export const SystemHeader = ({ system, trustMetrics }: SystemHeaderProps) => {
         {/* Trust Score gauge — top right */}
         {trustMetrics && (() => {
           const score = trustMetrics.trustScore;
-          const isHigh = score >= 75;
-          const isMid = score >= 50;
+          const level = getMaturityLevel(score);
+          const isHigh = level === "high";
+          const isMid = level === "medium";
           const radius = 32;
           const circ = 2 * Math.PI * radius;
           const dash = (score / 100) * circ;
@@ -212,11 +214,10 @@ export const SystemHeader = ({ system, trustMetrics }: SystemHeaderProps) => {
                   <circle cx="40" cy="40" r={radius} fill="none" stroke={strokeColor} strokeWidth="6" strokeLinecap="round" strokeDasharray={`${dash} ${circ}`} style={{ transition: "stroke-dasharray 0.6s ease" }} />
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className={`text-xl font-extrabold tabular-nums leading-none ${isHigh ? "text-success" : isMid ? "text-warning" : "text-destructive"}`}>{score}</span>
-                  <span className="text-[11px] font-bold text-muted-foreground tracking-wide leading-none mt-0.5">/100</span>
+                  <span className={`text-base font-extrabold leading-none ${maturityTextClass(score)}`}>{maturityLabelNb(level)}</span>
                 </div>
               </div>
-              <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Trust Score</span>
+              <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Modenhet</span>
             </div>
           );
         })()}

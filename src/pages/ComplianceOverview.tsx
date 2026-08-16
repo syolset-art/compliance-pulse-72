@@ -13,6 +13,8 @@ import { ReportActionButtons } from "@/components/reports/ReportActionButtons";
 import type { ReportData } from "@/components/reports/DownloadReportDialog";
 import { getRequirementsByFramework } from "@/lib/complianceRequirementsData";
 import { ALL_ADDITIONAL_REQUIREMENTS } from "@/lib/additionalFrameworkRequirements";
+import { getMaturityLevel, maturityBgClass, maturitySoftClass, maturityLabelNb, maturityTextClass } from "@/lib/maturityLevel";
+import { MaturityIndicator } from "@/components/shared/MaturityIndicator";
 
 // Demo: which frameworks are "active" in scope
 const ACTIVE_FRAMEWORK_IDS = [
@@ -31,14 +33,9 @@ const PILLAR_SCORES: Record<ControlAreaKey, { score: number; measures: number }>
 
 const PILLARS = CONTROL_AREAS.map((area) => {
   const { score, measures } = PILLAR_SCORES[area.key];
-  const level = score >= 80 ? "HØY" : score >= 40 ? "MIDDELS" : "LAV";
-  const color = score >= 80 ? "bg-status-closed" : score >= 40 ? "bg-warning" : "bg-destructive";
-  const badgeColor =
-    score >= 80
-      ? "text-status-closed bg-status-closed/10"
-      : score >= 40
-        ? "text-warning bg-warning/10"
-        : "text-destructive bg-destructive/10";
+  const level = maturityLabelNb(getMaturityLevel(score)).toUpperCase();
+  const color = maturityBgClass(score);
+  const badgeColor = maturitySoftClass(score);
   return { id: area.key, name: area.labelNb, icon: area.icon, score, color, badgeColor, level, measures };
 });
 
@@ -62,9 +59,10 @@ function getRequirementsCount(frameworkId: string): number {
 }
 
 function getLevelInfo(score: number): { level: string; color: string } {
-  if (score >= 80) return { level: 'HØY', color: 'text-status-closed bg-status-closed/10 dark:text-status-closed dark:bg-status-closed/40' };
-  if (score >= 40) return { level: 'MIDDELS', color: 'text-warning bg-warning/10 dark:text-warning dark:bg-warning/40' };
-  return { level: 'LAV', color: 'text-destructive bg-destructive/10 dark:text-destructive dark:bg-destructive/40' };
+  return {
+    level: maturityLabelNb(getMaturityLevel(score)).toUpperCase(),
+    color: maturitySoftClass(score),
+  };
 }
 
 // Improvement point demo data
@@ -169,9 +167,7 @@ const ComplianceOverview = () => {
             <CardContent className="p-4 sm:p-5 space-y-4">
               <div className="flex items-center justify-between gap-3">
                 <h2 className="text-sm font-semibold text-foreground">Modenhet per kontrollområde</h2>
-                <Badge variant="secondary" className="text-xs font-medium">
-                  Trust Score {overallScore}/100
-                </Badge>
+                <MaturityIndicator score={overallScore} variant="badge" showInfo />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
@@ -193,7 +189,6 @@ const ComplianceOverview = () => {
                         <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
                           <div className={`h-full rounded-full ${pillar.color}`} style={{ width: `${pillar.score}%` }} />
                         </div>
-                        <span className="text-xs tabular-nums text-muted-foreground">{pillar.score}%</span>
                       </div>
                     </div>
                     <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
@@ -287,11 +282,11 @@ const ComplianceOverview = () => {
                                 strokeWidth="4"
                                 strokeDasharray={`${(fw.score / 100) * 175.93} 175.93`}
                                 strokeLinecap="round"
-                                className={fw.iconColor}
+                                className={maturityTextClass(fw.score)}
                               />
                             </svg>
-                            <span className="absolute inset-0 flex items-center justify-center text-sm font-bold text-foreground">
-                              {fw.score}%
+                            <span className={`absolute inset-0 flex items-center justify-center text-[11px] font-bold ${maturityTextClass(fw.score)}`}>
+                              {maturityLabelNb(getMaturityLevel(fw.score))}
                             </span>
                           </div>
 
