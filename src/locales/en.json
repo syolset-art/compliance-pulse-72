@@ -1797,5 +1797,14 @@
       "description": "Lara automatically assesses which regulations are most likely to apply based on industry, size, country and website. You can add your own standards and guidelines.",
       "confirmedDescription": "The customer has confirmed the regulation assessment. You can still add your own standards and guidelines."
     }
+  },
+  "maturityScale": {
+    "title": "Maturity",
+    "levels": {
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High"
+    },
+    "explainer": "Maturity is the average maturity level (0–4) across all in-scope requirements. Low 0–49, Medium 50–74, High 75–100."
   }
 }
