@@ -11,6 +11,11 @@ interface Props {
   /** Navn på den som godkjente forslaget, hvis godkjent */
   approvedBy?: string | null;
   approvedAt?: string | null;
+  /** Planen er godkjent og utført */
+  approved?: boolean;
+  /** ID-er på steg som er ferdigstilt */
+  completedStepIds?: string[];
+  onToggleStep?: (id: string) => void;
   onApprove: () => void;
   onDismiss: () => void;
 }
@@ -22,8 +27,79 @@ const confidenceLabel = (c: GdprRolePlan["confidence"], isNb: boolean) => {
 };
 
 export const GdprRolePlanCard = ({
-  isNb, plan, loading, approvedBy, approvedAt, onApprove, onDismiss,
+  isNb, plan, loading, approvedBy, approvedAt, approved, completedStepIds = [],
+  onToggleStep, onApprove, onDismiss,
 }: Props) => {
+  if (approved) {
+    const openSteps = plan.steps.filter((s) => !s.byLara && !completedStepIds.includes(s.id));
+    const doneSteps = plan.steps.filter((s) => s.byLara || completedStepIds.includes(s.id));
+    return (
+      <div className="rounded-lg border border-success/30 bg-success/5 p-3 space-y-2.5">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="flex h-6 w-6 items-center justify-center rounded-md bg-success/15">
+            <CheckCircle2 className="h-3.5 w-3.5 text-success" aria-hidden="true" />
+          </span>
+          <p className="text-[13px] font-medium text-foreground">
+            {openSteps.length === 0
+              ? (isNb ? "Planen er godkjent og fullført" : "Plan approved and completed")
+              : (isNb ? "Planen er godkjent — Lara har utført sine steg" : "Plan approved — Lara completed her steps")}
+          </p>
+          <Badge variant="outline" className="text-[11px] font-normal">
+            {gdprRoleLabel(plan.role, isNb)}
+          </Badge>
+        </div>
+
+        <div className="space-y-1">
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+            {isNb ? "Utført" : "Completed"}
+          </p>
+          <ul className="space-y-1">
+            {doneSteps.map((s) => (
+              <li key={s.id} className="flex items-start gap-1.5 text-[13px] text-muted-foreground leading-snug">
+                <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-success" aria-hidden="true" />
+                <span className="line-through decoration-muted-foreground/40">{isNb ? s.labelNb : s.labelEn}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {openSteps.length > 0 && (
+          <div className="space-y-1">
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+              {isNb ? "Gjenstår hos deg" : "Remaining for you"}
+            </p>
+            <ul className="space-y-1">
+              {openSteps.map((s) => (
+                <li key={s.id} className="flex items-start justify-between gap-2 text-[13px] text-foreground leading-snug">
+                  <span>{isNb ? s.labelNb : s.labelEn}</span>
+                  {onToggleStep && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-7 shrink-0 text-[12px]"
+                      onClick={() => onToggleStep(s.id)}
+                    >
+                      {isNb ? "Marker som gjort" : "Mark as done"}
+                    </Button>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {approvedBy && (
+          <p className="flex items-start gap-1.5 text-[13px] text-muted-foreground leading-snug">
+            <UserRound className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+            <span>
+              {isNb ? "Godkjent av " : "Approved by "}{approvedBy}{approvedAt ? `, ${approvedAt}` : ""}
+            </span>
+          </p>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 space-y-2.5">
       <div className="flex flex-wrap items-center gap-2">
