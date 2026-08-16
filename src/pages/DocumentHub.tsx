@@ -127,6 +127,9 @@ export default function DocumentHub() {
             <div className="flex items-center gap-2">
               <FolderOpen className="h-5 w-5 text-primary" />
               <h1 className="text-2xl font-bold text-foreground">{L("Dokument hub", "Document hub")}</h1>
+              <span className="text-sm font-medium text-muted-foreground">
+                {stats.total} {L("dokumenter", "documents")}
+              </span>
             </div>
             <p className="text-sm text-muted-foreground">
               {L(
@@ -136,31 +139,6 @@ export default function DocumentHub() {
             </p>
           </header>
 
-          {/* Nøkkeltall */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-            <StatCard label={L("Dokumenter", "Documents")} value={stats.total} icon={FileText} />
-            <StatCard
-              label={L("Påvirker score", "Affects score")}
-              value={stats.affectsScore}
-              icon={ShieldCheck}
-              tone="success"
-              hint={L(
-                `Dokumenter som dekker et krav i ${activeFrameworkCount} aktiverte regelverk.`,
-                `Documents covering a requirement in ${activeFrameworkCount} activated regulations.`,
-              )}
-            />
-            <StatCard
-              label={L("Utløpt / utløper", "Expired / expiring")}
-              value={stats.attention}
-              icon={AlertTriangle}
-              tone={stats.attention > 0 ? "warning" : undefined}
-            />
-            <StatCard
-              label={L("Mangler eier eller type", "Missing owner or type")}
-              value={stats.incomplete}
-              icon={HelpCircle}
-            />
-          </div>
 
           {/* Filterlinje */}
           <div className="space-y-2">
