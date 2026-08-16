@@ -76,12 +76,11 @@ export default function DocumentHub() {
       if (q && !`${d.name} ${d.fileName ?? ""} ${d.contextLabel ?? ""}`.toLowerCase().includes(q)) return false;
       if (modules.length && !modules.includes(d.module)) return false;
       if (types.length && !types.includes(typeGroup(d.documentType))) return false;
-      if (statuses.length && !statuses.includes(d.status)) return false;
       if (uploader && d.uploadedBy !== uploader) return false;
       if (onlyScore && !scoreDocIds.has(d.id)) return false;
       return true;
     });
-  }, [documents, search, modules, types, statuses, uploader, onlyScore, scoreDocIds]);
+  }, [documents, search, modules, types, uploader, onlyScore, scoreDocIds]);
 
   const stats = useMemo(() => {
     const affectsScore = documents.filter((d) => scoreDocIds.has(d.id)).length;
