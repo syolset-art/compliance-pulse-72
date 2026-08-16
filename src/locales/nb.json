@@ -1761,7 +1761,7 @@
     "answered": "besvart",
     "optional": "Valgfritt",
     "description": "Still spørsmålene sammen med kunden for å få laget en modenhetsvurdering. Svarene kobles direkte til modenhet per kontrollområde.",
-    "trustScore": "Trust Score",
+    "trustScore": "Modenhet",
     "helper": "Jo flere spørsmål som besvares, jo mer presis blir modenhetsvurderingen og gap-analysen.",
     "startPartner": "Start kartlegging",
     "continuePartner": "Fortsett kartlegging",

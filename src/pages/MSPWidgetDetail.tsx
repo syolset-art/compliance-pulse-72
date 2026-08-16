@@ -182,14 +182,14 @@ const WIDGETS: Record<string, WidgetMeta> = {
   },
   "trust-score": {
     id: "trust-score",
-    title: "Gjennomsnittlig Trust Score",
+    title: "Gjennomsnittlig modenhet",
     subtitle: "Snitt på tvers av hele kundeporteføljen",
     icon: ShieldCheck,
-    hero: { value: "78", sub: "+4 poeng siste 30 dager" },
+    hero: { value: "Høy", sub: "+4 poeng siste 30 dager" },
     explainer:
-      "Trust Score er en sammensatt score per kunde (0–100) basert på modenhet i de fire kjernedomenene Governance, Operations, Privacy og Third-Party. Porteføljesnittet viser hvor solid kundebasen din står samlet.",
+      "Modenhet vises som Lav (under 50), Middels (50–74) eller Høy (fra 75) per kunde, basert på de fire kjernedomenene Governance, Operations, Privacy og Third-Party. Porteføljesnittet viser hvor solid kundebasen din står samlet.",
     ctas: [
-      { label: "Se kunder med lavest score", href: "/msp-licenses?sort=score_asc", primary: true },
+      { label: "Se kunder med lavest modenhet", href: "/msp-licenses?sort=score_asc", primary: true },
     ],
   },
   "claim-development": {
@@ -458,7 +458,7 @@ function WidgetBody({ id }: { id: string }) {
 
     case "trust-score":
       return (
-        <Section title="Fordeling av Trust Score i porteføljen">
+        <Section title="Fordeling av modenhet i porteføljen">
           <Card className="p-5">
             <div className="h-[280px]">
               <ResponsiveContainer width="100%" height="100%">

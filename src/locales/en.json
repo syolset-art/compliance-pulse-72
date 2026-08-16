@@ -1760,7 +1760,7 @@
     "answered": "answered",
     "optional": "Optional",
     "description": "Ask the questions together with the customer to create a maturity assessment. The answers are linked directly to maturity per control area.",
-    "trustScore": "Trust Score",
+    "trustScore": "Maturity",
     "helper": "The more questions answered, the more accurate the maturity assessment and gap analysis will be.",
     "startPartner": "Start mapping",
     "continuePartner": "Continue mapping",
