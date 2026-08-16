@@ -245,6 +245,10 @@ export function AggregatedMaturityWidget() {
     flooredPillarScores.reduce((s, v) => s + v, 0) / Math.max(1, flooredPillarScores.length)
   );
   const overallLevel = maturityLevel(aggregatedScore, isNb);
+  const openAreaLevel = maturityLevel(
+    openArea ? applyFloor(openArea, Math.round(byDomain[openArea]?.score || 0)) : 0,
+    isNb
+  );
 
   return (
     <div className="rounded-2xl border border-border bg-card">
