@@ -9,6 +9,7 @@
  * Rene funksjoner — ingen UI, ingen persistens.
  */
 
+import { coverageScaleLabel, toCoverageValue, type CoverageValue } from "@/lib/coverageScale";
 import {
   frameworkDocumentationCatalog,
   type FrameworkDocCatalogEntry,
@@ -19,7 +20,8 @@ export interface CoverageMatch {
   label: string;
   coveredArticles: string[];
   missingArticles: string[];
-  coverageRatio: number;
+  /** Kanonisk skala: 0 / 0,5 / 1. */
+  coverageRatio: CoverageValue;
 }
 
 const STOPWORDS = new Set([
@@ -57,7 +59,7 @@ function analyseEntry(entry: FrameworkDocCatalogEntry, haystack: string[]): Cove
   const covered = entry.docs.filter((d) => docMatches(d, haystack));
   if (!covered.length) return null;
   const missing = entry.docs.filter((d) => !covered.includes(d));
-  const ratio = missing.length === 0 ? 1 : 0.5;
+  const ratio: CoverageValue = missing.length === 0 ? 1 : 0.5;
   return {
     requirementId: entry.requirementId,
     label: entry.label,
@@ -87,8 +89,7 @@ export function analyseDocumentCoverage(input: {
     .slice(0, 5);
 }
 
+/** Brukervendt tekst + tall, f.eks. «Delvis dekket (0,5)». */
 export function coverageLabel(ratio: number, isNb: boolean): string {
-  if (ratio >= 1) return isNb ? "Full dekning" : "Full coverage";
-  if (ratio > 0) return isNb ? "Delvis dekning" : "Partial coverage";
-  return isNb ? "Ingen dekning" : "No coverage";
+  return coverageScaleLabel(toCoverageValue(ratio), isNb);
 }
