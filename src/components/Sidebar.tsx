@@ -486,6 +486,8 @@ const SidebarContent = () => {
     location.pathname === assetsLink.href || location.pathname.startsWith(assetsLink.href + "/");
   const isAgentsActive =
     location.pathname === agentsLink.href || location.pathname.startsWith(agentsLink.href + "/");
+  const isDeviationsActive =
+    location.pathname === deviationsLink.href || location.pathname.startsWith(deviationsLink.href + "/");
 
   // "Moduler" combines items from sections not shown normally, split by category
   const exploreCoreItems = !showCoreNormal ? [...coreNav, systemsLink] : [];
