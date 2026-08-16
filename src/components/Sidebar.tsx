@@ -91,11 +91,10 @@ const globalNav = [
 ];
 
 
-// Mynder Core (contextual management tools — Systems lives in Registre below)
+// Core (contextual management tools — Systems lives in Registre below)
 const coreNav = [
   { name: "nav.myWorkAreas", href: "/work-areas", icon: Users },
   { name: "nav.tasks", href: "/tasks", icon: ClipboardList },
-  { name: "nav.deviations", href: "/deviations", icon: AlertTriangle },
   { name: "nav.protocols", href: "/protocols", icon: ScrollText },
   { name: "nav.reports", href: "/reports", icon: FileText },
 ];
@@ -105,6 +104,8 @@ const vendorLink = { name: "nav.vendors", href: "/vendors", icon: Building2 };
 const assetsLink = { name: "nav.assetsDevices", href: "/assets", icon: Package };
 const systemsLink = { name: "nav.systems", href: "/systems", icon: Cloud };
 const agentsLink = { name: "nav.agents", href: "/agents", icon: Bot };
+// Avviksregister er nå et eget produkt/modul på toppnivå.
+const deviationsLink = { name: "nav.deviationsModule", href: "/deviations", icon: AlertTriangle };
 
 // Innstillinger submenu (merged Admin + Company settings)
 const settingsMenu = [
@@ -485,6 +486,8 @@ const SidebarContent = () => {
     location.pathname === assetsLink.href || location.pathname.startsWith(assetsLink.href + "/");
   const isAgentsActive =
     location.pathname === agentsLink.href || location.pathname.startsWith(agentsLink.href + "/");
+  const isDeviationsActive =
+    location.pathname === deviationsLink.href || location.pathname.startsWith(deviationsLink.href + "/");
 
   // "Moduler" combines items from sections not shown normally, split by category
   const exploreCoreItems = !showCoreNormal ? [...coreNav, systemsLink] : [];
@@ -742,6 +745,23 @@ const SidebarContent = () => {
             <span className="text-sm font-semibold">{t(assetsLink.name)}</span>
           </Link>
         ))}
+
+        {/* Avviksregister v2 — eget produkt/modul på toppnivå */}
+        <Link
+          to={deviationsLink.href}
+          className={cn(
+            "flex items-center gap-2.5 rounded-lg px-3 py-2 text-[0.9375rem] font-medium transition-all duration-200 relative",
+            isDeviationsActive
+              ? "bg-gradient-to-r from-primary/10 to-transparent text-sidebar-primary border-l-2 border-primary"
+              : "text-sidebar-foreground/80 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
+          )}
+        >
+          {isDeviationsActive && <span className="h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />}
+          <deviationsLink.icon className="h-4 w-4" />
+          <span className="text-sm font-semibold">{t(deviationsLink.name, "Avviksregister v2")}</span>
+        </Link>
+
+
 
         {/* Agenter — eget punkt når agentmodulen er tilgjengelig */}
         {hasAgentsAccess && !partnerHides("registries") && (
