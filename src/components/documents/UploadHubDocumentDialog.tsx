@@ -322,8 +322,8 @@ export function UploadHubDocumentDialog({
                       variant="outline"
                       className={
                         m.coverageRatio >= 1
-                          ? "border-success bg-success/10 text-success-foreground"
-                          : "border-warning bg-warning/10 text-warning-foreground"
+                          ? "border-success bg-success/10 text-foreground"
+                          : "border-warning bg-warning/10 text-foreground"
                       }
                     >
                       {coverageLabel(m.coverageRatio, isNb)}
