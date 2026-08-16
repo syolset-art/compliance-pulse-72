@@ -684,20 +684,23 @@ const SidebarContent = () => {
         {globalNav.map((item) => {
           const isActive = location.pathname === item.href;
           return (
-            <Link
-              key={item.name}
-              to={item.href}
-              className={cn(
-                "flex items-center gap-2.5 rounded-lg px-3 py-2 text-[0.9375rem] font-medium transition-all duration-200 relative",
-                isActive
-                  ? "bg-gradient-to-r from-primary/10 to-transparent text-sidebar-primary border-l-2 border-primary"
-                  : "text-sidebar-foreground/80 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
-              )}
-            >
-              {isActive && <span className="h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />}
-              <item.icon className="h-4 w-4" />
-              {t(item.name)}
-            </Link>
+            <React.Fragment key={item.name}>
+              <Link
+                to={item.href}
+                className={cn(
+                  "flex items-center gap-2.5 rounded-lg px-3 py-2 text-[0.9375rem] font-medium transition-all duration-200 relative",
+                  isActive
+                    ? "bg-gradient-to-r from-primary/10 to-transparent text-sidebar-primary border-l-2 border-primary"
+                    : "text-sidebar-foreground/80 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
+                )}
+              >
+                {isActive && <span className="h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />}
+                <item.icon className="h-4 w-4" />
+                {t(item.name)}
+              </Link>
+              {/* Rapporter er en generell funksjon — plassert mellom Regelverk og Meldinger */}
+              {item.href === "/regulations" && <ReportsMenu />}
+            </React.Fragment>
           );
         })}
 
