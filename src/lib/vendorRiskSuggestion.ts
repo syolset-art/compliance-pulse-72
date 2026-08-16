@@ -45,7 +45,8 @@ export function suggestVendorRisk(input: VendorRiskSuggestionInput): VendorRiskS
     reasonsEn.push("Processes sensitive personal data");
   }
 
-  const level: SuggestedRiskLevel = score >= 5 ? "high" : score >= 3 ? "medium" : "low";
+  const level: SuggestedRiskLevel =
+    score >= 7 ? "critical" : score >= 5 ? "high" : score >= 3 ? "medium" : "low";
 
   if (reasons.length === 0) {
     reasons.push("Ingen tydelige risikodrivere registrert");
