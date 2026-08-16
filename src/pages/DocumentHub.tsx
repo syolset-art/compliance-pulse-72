@@ -222,39 +222,7 @@ export default function DocumentHub() {
                 </PopoverContent>
               </Popover>
 
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="ghost" size="sm" className="h-9 text-muted-foreground">
-                    {groupBy === "module"
-                      ? L("Etter modul", "By module")
-                      : groupBy === "type"
-                        ? L("Etter type", "By type")
-                        : L("Etter opplaster", "By uploader")}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent align="end" className="w-52 p-1">
-                  {([
-                    ["module", L("Etter modul", "By module")],
-                    ["type", L("Etter dokumenttype", "By document type")],
-                    ["uploader", L("Etter opplaster", "By uploader")],
-                  ] as [GroupBy, string][]).map(([key, label]) => (
-                    <button
-                      key={key}
-                      onClick={() => setGroupBy(key)}
-                      className={cn(
-                        "w-full rounded-md px-2 py-1.5 text-left text-sm hover:bg-muted",
-                        groupBy === key && "text-primary font-medium",
-                      )}
-                    >
-                      {label}
-                    </button>
-                  ))}
-                </PopoverContent>
-              </Popover>
-            </div>
-          </div>
-
-          {/* Liste */}
+          {/* Tabell */}
           {isLoading ? (
             <div className="flex items-center gap-2 py-16 justify-center text-muted-foreground text-sm">
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -272,45 +240,68 @@ export default function DocumentHub() {
               </CardContent>
             </Card>
           ) : (
-            <div className="space-y-5">
-              {groups.map(([group, docs]) => (
-                <section key={group} className="space-y-1.5">
-                  <div className="flex items-center gap-2 px-1">
-                    <h2 className="text-[13px] font-semibold uppercase tracking-wide text-muted-foreground">{group}</h2>
-                    <span className="text-[12px] text-muted-foreground/70">{docs.length}</span>
-                  </div>
-                  <div className="rounded-lg border border-border divide-y divide-border overflow-hidden">
-                    {docs.map((doc) => (
-                      <button
-                        key={doc.id}
-                        onClick={() => setSelected(doc)}
-                        className="w-full flex items-center gap-3 px-3 py-2.5 text-left hover:bg-muted/40 transition-colors"
-                      >
+            <div className="rounded-lg border border-border overflow-hidden">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[40px]"></TableHead>
+                    <TableHead>{L("Dokument", "Document")}</TableHead>
+                    <TableHead className="hidden sm:table-cell">{L("Type", "Type")}</TableHead>
+                    <TableHead className="hidden md:table-cell">{L("Modul", "Module")}</TableHead>
+                    <TableHead>{L("Status", "Status")}</TableHead>
+                    <TableHead className="hidden lg:table-cell">{L("Lastet opp av", "Uploaded by")}</TableHead>
+                    <TableHead className="hidden lg:table-cell">{L("Dato", "Date")}</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {sorted.map((doc) => (
+                    <TableRow
+                      key={doc.id}
+                      onClick={() => setSelected(doc)}
+                      className="cursor-pointer"
+                    >
+                      <TableCell className="py-2">
                         {scoreDocIds.has(doc.id) ? (
-                          <CheckCircle2 className="h-4 w-4 text-success flex-shrink-0" />
+                          <CheckCircle2 className="h-4 w-4 text-success" />
                         ) : (
-                          <FileText className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                          <FileText className="h-4 w-4 text-muted-foreground" />
                         )}
-                        <span className="flex-1 min-w-0">
-                          <span className="block truncate text-sm font-medium text-foreground">{doc.name}</span>
-                          <span className="block truncate text-[12px] text-muted-foreground">
-                            {documentTypeLabel(doc.documentType, isNb)}
-                            {doc.contextLabel ? ` · ${doc.contextLabel}` : ""}
-                            {doc.uploadedBy ? ` · ${doc.uploadedBy}` : ""}
-                            {doc.createdAt ? ` · ${new Date(doc.createdAt).toLocaleDateString(isNb ? "nb-NO" : "en-GB")}` : ""}
-                          </span>
-                        </span>
-                        <Badge variant="outline" className="hidden sm:inline-flex text-[12px] font-normal">
+                      </TableCell>
+                      <TableCell className="py-2">
+                        <div className="font-medium text-sm text-foreground max-w-[200px] sm:max-w-xs truncate">
+                          {doc.name}
+                        </div>
+                        {doc.contextLabel && (
+                          <div className="text-[12px] text-muted-foreground truncate max-w-[200px] sm:max-w-xs">
+                            {doc.contextLabel}
+                          </div>
+                        )}
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell py-2 text-[13px] text-muted-foreground">
+                        {documentTypeLabel(doc.documentType, isNb)}
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell py-2">
+                        <Badge variant="outline" className="text-[12px] font-normal">
                           {MODULE_LABELS[doc.module][isNb ? "nb" : "en"]}
                         </Badge>
+                      </TableCell>
+                      <TableCell className="py-2">
                         <Badge className={cn("text-[12px] font-normal border", STATUS_STYLES[doc.status])}>
                           {STATUS_LABELS[doc.status][isNb ? "nb" : "en"]}
                         </Badge>
-                      </button>
-                    ))}
-                  </div>
-                </section>
-              ))}
+                      </TableCell>
+                      <TableCell className="hidden lg:table-cell py-2 text-[13px] text-muted-foreground">
+                        {doc.uploadedBy || L("Ukjent", "Unknown")}
+                      </TableCell>
+                      <TableCell className="hidden lg:table-cell py-2 text-[13px] text-muted-foreground">
+                        {doc.createdAt
+                          ? new Date(doc.createdAt).toLocaleDateString(isNb ? "nb-NO" : "en-GB")
+                          : "—"}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </div>
           )}
         </div>
