@@ -17,6 +17,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import {
   FolderOpen,
@@ -28,8 +29,11 @@ import {
   FileText,
   Loader2,
   Info,
+  Upload,
 } from "lucide-react";
 import { useDocumentHub } from "@/hooks/useDocumentHub";
+import { UploadHubDocumentDialog } from "@/components/documents/UploadHubDocumentDialog";
+import { GuidingDocumentsTab } from "@/components/documents/GuidingDocumentsTab";
 import {
   MODULE_LABELS,
   STATUS_LABELS,
@@ -49,8 +53,14 @@ export default function DocumentHub() {
   const isNb = i18n.language === "nb" || i18n.language === "no";
   const L = (nb: string, en: string) => (isNb ? nb : en);
 
-  const { documents, scoreDocIds, activeFrameworkCount, frameworksForDoc, requirementsForDoc, isLoading } =
-    useDocumentHub();
+  const {
+    documents,
+    scoreDocIds,
+    activeFrameworks,
+    frameworksForDoc,
+    requirementsForDoc,
+    isLoading,
+  } = useDocumentHub();
 
   const [search, setSearch] = useState("");
   const [modules, setModules] = useState<HubModule[]>([]);
@@ -58,6 +68,10 @@ export default function DocumentHub() {
   const [uploader, setUploader] = useState<string | null>(null);
   const [onlyScore, setOnlyScore] = useState(false);
   const [selected, setSelected] = useState<HubDocument | null>(null);
+  const [uploadOpen, setUploadOpen] = useState(false);
+  const [preset, setPreset] = useState<{ name?: string; frameworkId?: string }>({});
+
+
 
 
   const toggle = <T,>(list: T[], set: (v: T[]) => void, value: T) =>
