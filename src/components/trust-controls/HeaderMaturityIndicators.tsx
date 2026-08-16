@@ -1,9 +1,9 @@
+import { getMaturityLevel, maturityTextClass, maturityBgClass, maturityLabelNb } from "@/lib/maturityLevel";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { AlertTriangle, TrendingUp, ClipboardCheck, ListTodo, ArrowRight, ExternalLink } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { getMaturityLevel, maturityTextClass, maturityBgClass, maturityLabelNb } from "@/lib/maturityLevel";
 
 interface HeaderMaturityIndicatorsProps {
   riskLevel?: string | null;

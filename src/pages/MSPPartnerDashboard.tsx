@@ -1,3 +1,4 @@
+import { getMaturityLevel, maturityTextClass, maturityLabelNb } from "@/lib/maturityLevel";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, Navigate } from "react-router-dom";
@@ -21,7 +22,6 @@ import { OpportunityWidget } from "@/components/msp/OpportunityWidget";
 import { ActivityLogWidget } from "@/components/msp/ActivityLogWidget";
 import { LaraWorkQueueWidget } from "@/components/msp/LaraWorkQueueWidget";
 import {
-import { getMaturityLevel, maturityTextClass, maturityLabelNb } from "@/lib/maturityLevel";
   ResponsiveContainer,
   AreaChart,
   Area,
