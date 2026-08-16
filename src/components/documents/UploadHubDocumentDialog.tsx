@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -71,6 +71,14 @@ export function UploadHubDocumentDialog({
   const [step, setStep] = useState<Step>("form");
   const [documentId, setDocumentId] = useState<string | null>(null);
   const [matches, setMatches] = useState<CoverageMatch[]>([]);
+  const [fileError, setFileError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const fileId = useId();
+  const nameId = useId();
+  const typeId = useId();
+  const frameworkId_ = useId();
+  const fileErrorId = `${fileId}-error`;
 
   useEffect(() => {
     if (!open) return;
@@ -81,6 +89,9 @@ export function UploadHubDocumentDialog({
     setStep("form");
     setDocumentId(null);
     setMatches([]);
+    setFileError(null);
+    // Fokus på første felt når dialogen åpnes.
+    window.setTimeout(() => fileInputRef.current?.focus(), 60);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
@@ -90,7 +101,12 @@ export function UploadHubDocumentDialog({
   };
 
   const handleUpload = async () => {
-    if (!file) return;
+    if (!file) {
+      setFileError(L("Du må velge en fil før du kan laste opp.", "You must choose a file before uploading."));
+      fileInputRef.current?.focus();
+      return;
+    }
+    setFileError(null);
     setStep("saving");
     const result = await persistHubDocument({
       file,
@@ -104,6 +120,8 @@ export function UploadHubDocumentDialog({
         variant: "destructive",
       });
       setStep("form");
+      setFileError(result.error);
+      fileInputRef.current?.focus();
       return;
     }
     setDocumentId(result.documentId);
@@ -173,24 +191,40 @@ export function UploadHubDocumentDialog({
         {(step === "form" || step === "saving") && (
           <div className="space-y-4">
             <div className="space-y-1.5">
-              <Label className="text-[13px]">{L("Fil", "File")}</Label>
+              <Label htmlFor={fileId} className="text-[13px]">
+                {L("Fil", "File")}
+              </Label>
               <Input
+                id={fileId}
+                ref={fileInputRef}
                 type="file"
+                aria-invalid={!!fileError}
+                aria-describedby={fileError ? fileErrorId : undefined}
                 onChange={(e) => {
                   const f = e.target.files?.[0] ?? null;
                   setFile(f);
+                  setFileError(null);
                   if (f && !name) setName(f.name.replace(/\.[a-z0-9]+$/i, ""));
                 }}
               />
+              {fileError && (
+                <p id={fileErrorId} className="text-[13px] text-destructive">
+                  {fileError}
+                </p>
+              )}
             </div>
             <div className="space-y-1.5">
-              <Label className="text-[13px]">{L("Visningsnavn", "Display name")}</Label>
-              <Input value={name} onChange={(e) => setName(e.target.value)} />
+              <Label htmlFor={nameId} className="text-[13px]">
+                {L("Visningsnavn", "Display name")}
+              </Label>
+              <Input id={nameId} value={name} onChange={(e) => setName(e.target.value)} />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-[13px]">{L("Dokumenttype", "Document type")}</Label>
+              <Label htmlFor={typeId} className="text-[13px]">
+                {L("Dokumenttype", "Document type")}
+              </Label>
               <Select value={type} onValueChange={setType}>
-                <SelectTrigger>
+                <SelectTrigger id={typeId}>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -209,7 +243,7 @@ export function UploadHubDocumentDialog({
           <div className="space-y-4">
             <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 space-y-2">
               <div className="flex items-center gap-2 text-sm font-medium text-foreground">
-                <Sparkles className="h-4 w-4 text-primary" />
+                <Sparkles className="h-4 w-4 text-primary" aria-hidden="true" />
                 {L("Vil du at Lara skal analysere dokumentet?", "Would you like Lara to analyse the document?")}
               </div>
               <p className="text-[13px] text-muted-foreground">
@@ -221,9 +255,11 @@ export function UploadHubDocumentDialog({
             </div>
             {analysable.length > 0 ? (
               <div className="space-y-1.5">
-                <Label className="text-[13px]">{L("Analyser mot regelverk", "Analyse against regulation")}</Label>
+                <Label htmlFor={frameworkId_} className="text-[13px]">
+                  {L("Analyser mot regelverk", "Analyse against regulation")}
+                </Label>
                 <Select value={frameworkId} onValueChange={setFrameworkId}>
-                  <SelectTrigger>
+                  <SelectTrigger id={frameworkId_}>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -247,14 +283,18 @@ export function UploadHubDocumentDialog({
         )}
 
         {step === "analysing" && (
-          <div className="flex items-center gap-2 py-8 justify-center text-sm text-muted-foreground">
-            <Loader2 className="h-4 w-4 animate-spin" />
+          <div
+            role="status"
+            aria-live="polite"
+            className="flex items-center gap-2 py-8 justify-center text-sm text-muted-foreground"
+          >
+            <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
             {L("Lara analyserer dokumentet…", "Lara is analysing the document…")}
           </div>
         )}
 
         {step === "done" && (
-          <div className="space-y-3">
+          <div className="space-y-3" role="status" aria-live="polite">
             {matches.length === 0 ? (
               <p className="text-[13px] text-muted-foreground">
                 {L(
@@ -282,8 +322,8 @@ export function UploadHubDocumentDialog({
                       variant="outline"
                       className={
                         m.coverageRatio >= 1
-                          ? "border-success/40 text-success"
-                          : "border-warning/40 text-warning"
+                          ? "border-success bg-success/10 text-success-foreground"
+                          : "border-warning bg-warning/10 text-warning-foreground"
                       }
                     >
                       {coverageLabel(m.coverageRatio, isNb)}
@@ -299,9 +339,9 @@ export function UploadHubDocumentDialog({
           {(step === "form" || step === "saving") && (
             <Button onClick={handleUpload} disabled={!file || step === "saving"} className="gap-2">
               {step === "saving" ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
               ) : (
-                <Upload className="h-4 w-4" />
+                <Upload className="h-4 w-4" aria-hidden="true" />
               )}
               {L("Last opp", "Upload")}
             </Button>
@@ -312,14 +352,14 @@ export function UploadHubDocumentDialog({
                 {L("Gjør det senere", "Do it later")}
               </Button>
               <Button onClick={handleAnalyse} disabled={!frameworkId} className="gap-2">
-                <Sparkles className="h-4 w-4" />
+                <Sparkles className="h-4 w-4" aria-hidden="true" />
                 {L("Analyser nå", "Analyse now")}
               </Button>
             </>
           )}
           {step === "done" && (
             <Button onClick={() => onOpenChange(false)} className="gap-2">
-              <CheckCircle2 className="h-4 w-4" />
+              <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
               {L("Ferdig", "Done")}
             </Button>
           )}
