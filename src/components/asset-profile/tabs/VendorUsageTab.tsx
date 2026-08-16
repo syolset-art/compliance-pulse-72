@@ -14,7 +14,10 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { SENSITIVE_DATA_CATEGORIES, sensitiveCategoryLabel, gdprRoleHandlesPersonalData } from "@/lib/sensitiveData";
 import { suggestVendorRisk } from "@/lib/vendorRiskSuggestion";
 import { suggestVendorContext } from "@/lib/vendorContextSuggestion";
+import { buildGdprRolePlan } from "@/lib/vendorGdprRolePlan";
+import { GdprRolePlanCard } from "@/components/asset-profile/usage/GdprRolePlanCard";
 import { LaraContextBanner } from "@/components/asset-profile/usage/LaraContextBanner";
+
 import { VendorPurposeCard } from "@/components/asset-profile/usage/VendorPurposeCard";
 import { ContextPillRow, type ContextPillItem } from "@/components/asset-profile/usage/ContextPillRow";
 import { toast } from "sonner";
