@@ -2904,6 +2904,53 @@ export type Database = {
         }
         Relationships: []
       }
+      requirement_evidence: {
+        Row: {
+          coverage_ratio: number
+          covered_articles: Json
+          created_at: string
+          created_by: string
+          document_id: string
+          framework_id: string
+          id: string
+          missing_articles: Json
+          requirement_id: string
+          updated_at: string
+        }
+        Insert: {
+          coverage_ratio?: number
+          covered_articles?: Json
+          created_at?: string
+          created_by?: string
+          document_id: string
+          framework_id: string
+          id?: string
+          missing_articles?: Json
+          requirement_id: string
+          updated_at?: string
+        }
+        Update: {
+          coverage_ratio?: number
+          covered_articles?: Json
+          created_at?: string
+          created_by?: string
+          document_id?: string
+          framework_id?: string
+          id?: string
+          missing_articles?: Json
+          requirement_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "requirement_evidence_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "vendor_documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       requirement_status: {
         Row: {
           completed_at: string | null
