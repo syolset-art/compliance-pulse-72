@@ -331,6 +331,7 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
           gdpr_role_approved_by: currentUserName,
           gdpr_role_approved_at: new Date().toISOString(),
           gdpr_role_plan_steps: isNb ? gdprPlan.stepsNb : gdprPlan.stepsEn,
+          gdpr_role_plan_done: gdprPlan.steps.filter((s) => s.byLara).map((s) => s.id),
         },
       } as any);
       setLaraLoading(false);
@@ -340,6 +341,24 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
     }, 500);
   };
 
+
+  const gdprPlanDoneSteps: string[] = Array.isArray(riskMeta.gdpr_role_plan_done)
+    ? riskMeta.gdpr_role_plan_done
+    : [];
+
+  const gdprPlanApproved = !!gdprPlanApprovedBy && gdprPlan.matchesCurrent;
+
+  const handleToggleGdprStep = (id: string) => {
+    updateMutation.mutate({
+      metadata: {
+        ...riskMeta,
+        gdpr_role_plan_done: gdprPlanDoneSteps.includes(id)
+          ? gdprPlanDoneSteps.filter((s) => s !== id)
+          : [...gdprPlanDoneSteps, id],
+      },
+    } as any);
+    toast.success(isNb ? "Steget er markert som gjort" : "Step marked as done");
+  };
 
   const toneText = (value: string | null | undefined) => {
     switch (value) {
@@ -431,11 +450,14 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
       toneClass: "text-foreground",
       panel: (
         <>
-          {!gdprPlanDismissed && (!gdprPlanApprovedBy || !gdprPlan.matchesCurrent) && (
+          {(gdprPlanApproved || !gdprPlanDismissed) && (
             <GdprRolePlanCard
               isNb={isNb}
               plan={gdprPlan}
               loading={laraLoading}
+              approved={gdprPlanApproved}
+              completedStepIds={gdprPlanDoneSteps}
+              onToggleStep={handleToggleGdprStep}
               approvedBy={gdprPlan.matchesCurrent ? gdprPlanApprovedBy : null}
               approvedAt={gdprPlan.matchesCurrent ? gdprPlanApprovedAt : null}
               onApprove={handleApproveGdprPlan}
