@@ -345,8 +345,18 @@ export default function DocumentHub() {
               </Table>
             </div>
           )}
+            </TabsContent>
+          </Tabs>
         </div>
       </main>
+
+      <UploadHubDocumentDialog
+        open={uploadOpen}
+        onOpenChange={setUploadOpen}
+        frameworks={activeFrameworks}
+        presetName={preset.name}
+        presetFrameworkId={preset.frameworkId}
+      />
 
       <Sheet open={!!selected} onOpenChange={(o) => !o && setSelected(null)}>
         <SheetContent className="w-full sm:max-w-md overflow-y-auto">
