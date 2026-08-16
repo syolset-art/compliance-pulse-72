@@ -42,7 +42,6 @@ import { VendorUsageTab } from "@/components/asset-profile/tabs/VendorUsageTab";
 import { VendorEvidenceTab } from "@/components/asset-profile/tabs/VendorEvidenceTab";
 import { VendorHistoryTab } from "@/components/asset-profile/tabs/VendorHistoryTab";
 import { DeliveriesTab } from "@/components/asset-profile/tabs/DeliveriesTab";
-import { VendorAuditTab } from "@/components/asset-profile/tabs/VendorAuditTab";
 
 import { RegisterActivityDialog } from "@/components/asset-profile/RegisterActivityDialog";
 import { MynderGuidanceTab } from "@/components/asset-profile/MynderGuidanceTab";
@@ -217,7 +216,6 @@ const AssetTrustProfile = () => {
     { value: 'requests', label: isNb ? 'Forespørsler' : 'Requests', labelFull: isNb ? 'Forespørsler' : 'Requests' },
     
     { value: 'deliveries', label: isNb ? 'Leveranser' : 'Deliveries', labelFull: isNb ? 'Leveranser' : 'Deliveries' },
-    { value: 'vendor-audit', label: isNb ? 'Revisjon' : 'Audit', labelFull: isNb ? 'Revisjon og risiko' : 'Audit & Risk' },
     { value: 'vendor-access', label: isNb ? 'Tilgang' : 'Access', labelFull: isNb ? 'Tilgang og roller' : 'Access & Roles' },
   ], [isNb]);
 
@@ -272,7 +270,7 @@ const AssetTrustProfile = () => {
     { value: 'validation', label: isNb ? 'Veiledning fra Mynder' : 'Guidance from Mynder', show: isSelf },
     { value: 'controls', label: isNb ? 'Kontroller' : 'Controls', show: isSelf },
     { value: 'dataHandling', label: isNb ? 'Datahåndtering' : 'Data Handling', show: isSelf },
-    { value: 'riskManagement', label: isNb ? 'Revisjon og risiko' : 'Audit & Risk Management', show: true },
+    { value: 'riskManagement', label: isNb ? 'Revisjon og risiko' : 'Audit & Risk Management', show: isSelf },
     { value: 'incidents', label: isNb ? 'Avvik og hendelser' : 'Deviations & Incidents', show: true },
     { value: 'relations', label: isNb ? 'Relasjoner' : 'Relations', show: isSelf },
     { value: 'documents', label: isNb ? 'Dokumenter' : 'Documents', show: true },
@@ -565,9 +563,6 @@ const AssetTrustProfile = () => {
                 </TabsContent>
                 <TabsContent value="deliveries" className="mt-6">
                   <DeliveriesTab assetId={asset.id} />
-                </TabsContent>
-                <TabsContent value="vendor-audit" className="mt-6">
-                  <VendorAuditTab assetId={asset.id} />
                 </TabsContent>
                 <TabsContent value="vendor-incidents" className="mt-6">
                   <div className="text-sm text-muted-foreground italic p-8 text-center">
