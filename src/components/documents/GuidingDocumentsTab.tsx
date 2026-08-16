@@ -43,33 +43,44 @@ export function GuidingDocumentsTab({ frameworks, documents, onUpload }: Props) 
 
   const groups = useMemo(
     () =>
-      frameworks.map((f) => {
-        // Foretrekk det kuraterte katalogen; ellers utled forventet dokumentasjon
-        // fra kravene i regelverket (frameworkEvidenceExpectations).
-        const entries = hasDocumentationCatalog(f.framework_id)
-          ? frameworkDocumentationCatalog(f.framework_id)
-          : Object.values(
-              getRequirementsByFramework(f.framework_id).reduce<
-                Record<string, { area: string; docs: string[] }>
-              >((acc, req) => {
-                const area = toCanonicalArea(req.sla_category);
-                const label = expectedDocLabel(req, isNb);
-                acc[area] ??= { area, docs: [] };
-                if (!acc[area].docs.includes(label)) acc[area].docs.push(label);
-                return acc;
-              }, {}),
-            ).map((g) => ({ area: g.area, docs: g.docs }));
+      frameworks
+        .map((f) => {
+          // Foretrekk den kuraterte katalogen; ellers utled forventet dokumentasjon
+          // fra kravene i regelverket (frameworkEvidenceExpectations).
+          let entries: { key: string; label: string; docs: string[] }[];
+          if (hasDocumentationCatalog(f.framework_id)) {
+            entries = frameworkDocumentationCatalog(f.framework_id).map((e) => ({
+              key: e.requirementId,
+              label: e.label,
+              docs: e.docs,
+            }));
+          } else {
+            const byArea: Record<string, string[]> = {};
+            for (const req of getRequirementsByFramework(f.framework_id)) {
+              const area = toCanonicalArea(req.sla_category);
+              const label = expectedDocLabel(req, isNb);
+              byArea[area] ??= [];
+              if (!byArea[area].includes(label)) byArea[area].push(label);
+            }
+            entries = Object.entries(byArea).map(([area, docs]) => ({
+              key: area,
+              label: area,
+              docs,
+            }));
+          }
 
-        return {
-          framework: f,
-          entries: (entries as { area: string; docs: string[] }[]).map((entry) => ({
-            ...entry,
-            docs: entry.docs.map((d) => ({ name: d, existing: findExisting(d, documents) })),
-          })),
-        };
-      }).filter((g) => g.entries.length > 0),
+          return {
+            framework: f,
+            entries: entries.map((entry) => ({
+              ...entry,
+              docs: entry.docs.map((d) => ({ name: d, existing: findExisting(d, documents) })),
+            })),
+          };
+        })
+        .filter((g) => g.entries.length > 0),
     [frameworks, documents, isNb],
   );
+
 
 
   return (
