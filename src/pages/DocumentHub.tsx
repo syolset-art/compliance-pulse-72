@@ -27,6 +27,7 @@ import {
   ExternalLink,
   FileText,
   Loader2,
+  Info,
 } from "lucide-react";
 import { useDocumentHub } from "@/hooks/useDocumentHub";
 import {
@@ -38,19 +39,10 @@ import {
   typeGroup,
   type HubDocument,
   type HubModule,
-  type HubStatus,
   type HubTypeGroup,
 } from "@/lib/documentHub";
 
 
-const STATUS_STYLES: Record<HubStatus, string> = {
-  current: "bg-success/10 text-success border-success/20",
-  pending: "bg-muted text-muted-foreground border-border",
-  expiring: "bg-warning/10 text-warning border-warning/20",
-  expired: "bg-destructive/10 text-destructive border-destructive/20",
-  superseded: "bg-muted text-muted-foreground border-border",
-  other: "bg-muted text-muted-foreground border-border",
-};
 
 export default function DocumentHub() {
   const { i18n } = useTranslation();
@@ -63,7 +55,6 @@ export default function DocumentHub() {
   const [search, setSearch] = useState("");
   const [modules, setModules] = useState<HubModule[]>([]);
   const [types, setTypes] = useState<HubTypeGroup[]>([]);
-  const [statuses, setStatuses] = useState<HubStatus[]>([]);
   const [uploader, setUploader] = useState<string | null>(null);
   const [onlyScore, setOnlyScore] = useState(false);
   const [selected, setSelected] = useState<HubDocument | null>(null);
@@ -84,12 +75,11 @@ export default function DocumentHub() {
       if (q && !`${d.name} ${d.fileName ?? ""} ${d.contextLabel ?? ""}`.toLowerCase().includes(q)) return false;
       if (modules.length && !modules.includes(d.module)) return false;
       if (types.length && !types.includes(typeGroup(d.documentType))) return false;
-      if (statuses.length && !statuses.includes(d.status)) return false;
       if (uploader && d.uploadedBy !== uploader) return false;
       if (onlyScore && !scoreDocIds.has(d.id)) return false;
       return true;
     });
-  }, [documents, search, modules, types, statuses, uploader, onlyScore, scoreDocIds]);
+  }, [documents, search, modules, types, uploader, onlyScore, scoreDocIds]);
 
   const stats = useMemo(() => {
     const affectsScore = documents.filter((d) => scoreDocIds.has(d.id)).length;
@@ -108,7 +98,7 @@ export default function DocumentHub() {
 
 
   const activeFilters =
-    modules.length + types.length + statuses.length + (uploader ? 1 : 0) + (onlyScore ? 1 : 0);
+    modules.length + types.length + (uploader ? 1 : 0) + (onlyScore ? 1 : 0);
 
   const pill = (active: boolean) =>
     cn(
@@ -154,7 +144,7 @@ export default function DocumentHub() {
               </div>
 
               <button className={pill(!onlyScore && activeFilters === 0)} onClick={() => {
-                setModules([]); setTypes([]); setStatuses([]); setUploader(null); setOnlyScore(false);
+                setModules([]); setTypes([]); setUploader(null); setOnlyScore(false);
               }}>
                 {L("Alle", "All")}
               </button>
@@ -203,13 +193,6 @@ export default function DocumentHub() {
                       </button>
                     ))}
                   </FilterGroup>
-                  <FilterGroup title={L("Status", "Status")}>
-                    {(Object.keys(STATUS_LABELS) as HubStatus[]).map((s) => (
-                      <button key={s} className={pill(statuses.includes(s))} onClick={() => toggle(statuses, setStatuses, s)}>
-                        {STATUS_LABELS[s][isNb ? "nb" : "en"]}
-                      </button>
-                    ))}
-                  </FilterGroup>
                   {uploaders.length > 0 && (
                     <FilterGroup title={L("Lastet opp av", "Uploaded by")}>
                       {uploaders.map((u) => (
@@ -250,10 +233,26 @@ export default function DocumentHub() {
                     <TableHead className="w-[40px]"></TableHead>
                     <TableHead>{L("Dokument", "Document")}</TableHead>
                     <TableHead className="hidden sm:table-cell">{L("Type", "Type")}</TableHead>
-                    <TableHead className="hidden md:table-cell">{L("Modul", "Module")}</TableHead>
-                    <TableHead>{L("Status", "Status")}</TableHead>
+                    <TableHead className="hidden md:table-cell">
+                      <div className="flex items-center gap-1.5">
+                        {L("Modul", "Module")}
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                            </TooltipTrigger>
+                            <TooltipContent className="max-w-xs text-[13px]">
+                              {L(
+                                "Viser hvilket Mynder-produkt eller -modul dokumentet tilhører.",
+                                "Shows which Mynder product or module the document belongs to.",
+                              )}
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
+                    </TableHead>
                     <TableHead className="hidden lg:table-cell">{L("Lastet opp av", "Uploaded by")}</TableHead>
-                    <TableHead className="hidden lg:table-cell">{L("Dato", "Date")}</TableHead>
+                    <TableHead>{L("Dato", "Date")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -288,15 +287,10 @@ export default function DocumentHub() {
                           {MODULE_LABELS[doc.module][isNb ? "nb" : "en"]}
                         </Badge>
                       </TableCell>
-                      <TableCell className="py-2">
-                        <Badge className={cn("text-[12px] font-normal border", STATUS_STYLES[doc.status])}>
-                          {STATUS_LABELS[doc.status][isNb ? "nb" : "en"]}
-                        </Badge>
-                      </TableCell>
                       <TableCell className="hidden lg:table-cell py-2 text-[13px] text-muted-foreground">
                         {doc.uploadedBy || L("Ukjent", "Unknown")}
                       </TableCell>
-                      <TableCell className="hidden lg:table-cell py-2 text-[13px] text-muted-foreground">
+                      <TableCell className="py-2 text-[13px] text-muted-foreground">
                         {doc.createdAt
                           ? new Date(doc.createdAt).toLocaleDateString(isNb ? "nb-NO" : "en-GB")
                           : "—"}
