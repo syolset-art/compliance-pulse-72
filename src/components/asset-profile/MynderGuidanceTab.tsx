@@ -9,6 +9,8 @@ import { RequestUpdateDialog } from "@/components/asset-profile/RequestUpdateDia
 import { DocumentRequestsSection } from "@/components/asset-profile/tabs/DocumentRequestsSection";
 import { VendorFrameworkCard } from "@/components/asset-profile/guidance/VendorFrameworkCard";
 import { VendorRecommendedActionsCard } from "@/components/asset-profile/guidance/VendorRecommendedActionsCard";
+import { VendorNextStepsCard } from "@/components/asset-profile/guidance/VendorNextStepsCard";
+import { buildVendorNextSteps, type NextStep } from "@/lib/vendorNextSteps";
 import { InviteAgenticTrustCenterDialog } from "@/components/asset-profile/guidance/InviteAgenticTrustCenterDialog";
 import { CreateVendorActivityDialog } from "@/components/asset-profile/guidance/CreateVendorActivityDialog";
 import { RequestBaselineDialog } from "@/components/asset-profile/guidance/RequestBaselineDialog";
@@ -61,6 +63,14 @@ interface Props {
   criticality?: string | null;
   contactPerson?: string | null;
   contactEmail?: string | null;
+  /** Bruk og kontekst — brukes til å utlede anbefalte tiltak. */
+  usagePurpose?: string | null;
+  usageTags?: string[] | null;
+  gdprRole?: string | null;
+  riskLevel?: string | null;
+  riskSetBy?: string | null;
+  /** Åpner «Bruk og kontekst»-fanen når et tiltak krever registrering der. */
+  onOpenUsageTab?: () => void;
 }
 
 export function MynderGuidanceTab({
@@ -77,6 +87,12 @@ export function MynderGuidanceTab({
   criticality,
   contactPerson,
   contactEmail,
+  usagePurpose,
+  usageTags,
+  gdprRole,
+  riskLevel,
+  riskSetBy,
+  onOpenUsageTab,
 }: Props) {
   const { i18n } = useTranslation();
   const { toast } = useToast();
@@ -221,6 +237,78 @@ export function MynderGuidanceTab({
     });
   };
 
+  // ── Neste steg: hull i leverandørdata + regelverkstiltak ──
+  const [showAllActions, setShowAllActions] = useState(false);
+
+  const nextSteps: NextStep[] = useMemo(
+    () =>
+      buildVendorNextSteps({
+        usagePurpose,
+        usageTags,
+        gdprRole,
+        riskLevel,
+        criticality,
+        riskSetBy,
+        baselineRequested: !!sourcing.method || trustCenter.status !== "none",
+        hasContextSuggestion: !!(vendorType || industry),
+        frameworkActions: actions,
+      }),
+    [
+      usagePurpose,
+      usageTags,
+      gdprRole,
+      riskLevel,
+      criticality,
+      riskSetBy,
+      sourcing.method,
+      trustCenter.status,
+      vendorType,
+      industry,
+      actions,
+    ],
+  );
+
+  const runNextStep = (step: NextStep) => {
+    switch (step.actionKey) {
+      case "usage_purpose":
+      case "gdpr_role":
+      case "risk_level":
+      case "criticality":
+        onOpenUsageTab?.();
+        toast({
+          title: isNb ? "Lara har forberedt forslag" : "Lara prepared a suggestion",
+          description: isNb
+            ? "Åpnet «Bruk og kontekst» — godkjenn eller juster Laras forslag."
+            : "Opened “Usage & context” — approve or adjust Lara's suggestion.",
+        });
+        break;
+      case "baseline":
+        setRequestBaselineOpen(true);
+        break;
+      case "framework_action":
+        if (step.action) {
+          if (step.action.documentType) openDocRequest(step.action);
+          else createActivityFromAction(step.action);
+        }
+        break;
+    }
+  };
+
+  const runAllLaraSteps = () => {
+    const laraSteps = nextSteps.filter((s) => s.owner === "lara");
+    if (laraSteps.length === 0) return;
+    const first = laraSteps[0];
+    toast({
+      title: isNb ? "Lara jobber med tiltakene" : "Lara is working on the actions",
+      description: isNb
+        ? `Lara forbereder utkast for ${laraSteps.length} tiltak. Du godkjenner hvert forslag.`
+        : `Lara drafts ${laraSteps.length} actions. You approve each suggestion.`,
+    });
+    runNextStep(first);
+  };
+
+
+
 
   const [showActivityLog, setShowActivityLog] = useState(() => {
     try {
@@ -309,48 +397,65 @@ export function MynderGuidanceTab({
         />
       )}
 
-      {/* Regelverk + tiltak — Laras kobling mellom krav og handling */}
-      <div className={needsBaseline ? "grid grid-cols-1 gap-4" : "grid grid-cols-1 lg:grid-cols-2 gap-4"}>
-        <VendorFrameworkCard
-          frameworks={frameworks}
-          onAdd={() => setAddFrameworkOpen(true)}
-          onRemove={(id) =>
-            updateFwState({
-              added: fwState.added.filter((f) => f.id !== id),
-              removed: fwState.removed.includes(id) ? fwState.removed : [...fwState.removed, id],
-            })
-          }
-        />
-        {!needsBaseline && (
-          <VendorRecommendedActionsCard
-            assetId={assetId}
-            signals={inferred.signals}
-            segmentLabel={isNb ? inferred.segment.nb : inferred.segment.en}
-            actions={actions}
-            onRequestDocumentation={openDocRequest}
-            onCreateActivity={createActivityFromAction}
-            onCreateVendorActivity={() => setCreateActivityOpen(true)}
-            trustCenter={trustCenter}
-            onInviteTrustCenter={() => setInviteTrustCenterOpen(true)}
-            onOpenTrustCenter={() => {
-              const link = trustCenter.link ?? trustCenterLink(assetId);
-              window.open(link, "_blank", "noopener");
-            }}
-            onRemindTrustCenter={() => {
-              const next = { ...trustCenter, remindedAt: new Date().toISOString() };
-              setTrustCenter(next);
-              writeTrustCenterState(assetId, next);
-              toast({
-                title: isNb ? "Påminnelse sendt" : "Reminder sent",
-                description: isNb
-                  ? "Lara har purret kontaktpersonene hos leverandøren."
-                  : "Lara reminded the vendor contacts.",
-              });
-            }}
+      {/* Hva gjelder + hva må gjøres videre */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground px-0.5">
+            {isNb ? "Hva gjelder" : "What applies"}
+          </p>
+          <VendorFrameworkCard
+            frameworks={frameworks}
+            onAdd={() => setAddFrameworkOpen(true)}
+            onRemove={(id) =>
+              updateFwState({
+                added: fwState.added.filter((f) => f.id !== id),
+                removed: fwState.removed.includes(id) ? fwState.removed : [...fwState.removed, id],
+              })
+            }
           />
-        )}
+        </div>
 
+        <div className="space-y-2">
+          <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground px-0.5">
+            {isNb ? "Hva må gjøres videre" : "What to do next"}
+          </p>
+          <VendorNextStepsCard
+            steps={nextSteps}
+            onRunStep={runNextStep}
+            onRunAllLara={runAllLaraSteps}
+            onShowAll={() => setShowAllActions((v) => !v)}
+          />
+        </div>
       </div>
+
+      {showAllActions && (
+        <VendorRecommendedActionsCard
+          assetId={assetId}
+          signals={inferred.signals}
+          segmentLabel={isNb ? inferred.segment.nb : inferred.segment.en}
+          actions={actions}
+          onRequestDocumentation={openDocRequest}
+          onCreateActivity={createActivityFromAction}
+          onCreateVendorActivity={() => setCreateActivityOpen(true)}
+          trustCenter={trustCenter}
+          onInviteTrustCenter={() => setInviteTrustCenterOpen(true)}
+          onOpenTrustCenter={() => {
+            const link = trustCenter.link ?? trustCenterLink(assetId);
+            window.open(link, "_blank", "noopener");
+          }}
+          onRemindTrustCenter={() => {
+            const next = { ...trustCenter, remindedAt: new Date().toISOString() };
+            setTrustCenter(next);
+            writeTrustCenterState(assetId, next);
+            toast({
+              title: isNb ? "Påminnelse sendt" : "Reminder sent",
+              description: isNb
+                ? "Lara har purret kontaktpersonene hos leverandøren."
+                : "Lara reminded the vendor contacts.",
+            });
+          }}
+        />
+      )}
 
       {/* Aktive dokumentasjonsforespørsler */}
       <DocumentRequestsSection assetId={assetId} />
