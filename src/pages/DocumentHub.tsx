@@ -251,8 +251,24 @@ export default function DocumentHub() {
                     <TableHead className="w-[40px]"></TableHead>
                     <TableHead>{L("Dokument", "Document")}</TableHead>
                     <TableHead className="hidden sm:table-cell">{L("Type", "Type")}</TableHead>
-                    <TableHead className="hidden md:table-cell">{L("Modul", "Module")}</TableHead>
-                    <TableHead>{L("Status", "Status")}</TableHead>
+                    <TableHead className="hidden md:table-cell">
+                      <div className="flex items-center gap-1.5">
+                        {L("Modul", "Module")}
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                            </TooltipTrigger>
+                            <TooltipContent className="max-w-xs text-[13px]">
+                              {L(
+                                "Viser hvilket Mynder-produkt eller -modul dokumentet tilhører.",
+                                "Shows which Mynder product or module the document belongs to.",
+                              )}
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
+                    </TableHead>
                     <TableHead className="hidden lg:table-cell">{L("Lastet opp av", "Uploaded by")}</TableHead>
                     <TableHead className="hidden lg:table-cell">{L("Dato", "Date")}</TableHead>
                   </TableRow>
