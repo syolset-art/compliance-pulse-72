@@ -4,7 +4,7 @@ import {
   Sparkles, Check, CreditCard, FileText,
   CheckCircle2, Shield, Crown, Zap, Star,
   Settings2, Building2,
-  LayoutGrid, Server, BookOpen, Briefcase, Users, ShieldCheck, Globe,
+  LayoutGrid, Server, BookOpen, Briefcase, Users, ShieldCheck, Globe, AlertTriangle,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { resolveVendorCapacity, persistVendorTier } from "@/lib/vendorCapacity";
@@ -787,6 +787,26 @@ export default function Subscriptions() {
               onDeactivate={() => requestDeactivate("assets", "Eiendeler")}
               accentColor="emerald"
               onReadMore={() => setReadMoreKey("assets")}
+            />
+
+            <ModuleCard
+              icon={AlertTriangle}
+              title="Avviksregister"
+              description="Meld, følg opp og lukk avvik — inkludert uten kostnad"
+              status={deactivatedModules.has("deviations") ? "inactive" : moduleStatusOf("deviations")}
+              cancelAtLabel={cancelAtLabelOf("deviations")}
+              onResume={() => undoCancellation("deviations")}
+              price={0}
+              priceLabel={deactivatedModules.has("deviations") ? "Ikke aktivert" : "Inkludert"}
+              action={deactivatedModules.has("deviations") ? "activate" : "open"}
+              onClick={() =>
+                deactivatedModules.has("deviations")
+                  ? requestActivate("deviations", { monthlyPriceKr: 0 })
+                  : navigate("/deviations")
+              }
+              onDeactivate={() => requestDeactivate("deviations", "Avviksregister")}
+              accentColor="amber"
+              onReadMore={() => setReadMoreKey("deviations")}
             />
 
             <ModuleCard

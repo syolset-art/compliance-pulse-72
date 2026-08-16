@@ -115,6 +115,12 @@ const PRODUCTS: ProductDef[] = [
     description: "System- og eiendelsregister.",
   },
   {
+    key: "deviations",
+    moduleKey: "deviations",
+    title: "Avviksregister",
+    description: "Meld, følg opp og lukk avvik. Inkludert uten kostnad.",
+  },
+  {
     key: "trust",
     moduleKey: "trust",
     title: "Trust Center",
@@ -122,7 +128,7 @@ const PRODUCTS: ProductDef[] = [
   },
 ];
 
-const FLAT_PRICE: Record<string, number> = { assets: 690, trust: 490 };
+const FLAT_PRICE: Record<string, number> = { assets: 690, trust: 490, deviations: 0 };
 
 
 /** Månedspris per aktivert regelverk. */

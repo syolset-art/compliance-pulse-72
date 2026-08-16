@@ -103,9 +103,21 @@ function save(map: ModuleStateMap) {
   emit();
 }
 
-export function getModuleState(id: string): ModuleState {
-  return getModuleStates()[id] ?? { status: "active" };
+/**
+ * Moduler som må aktiveres eksplisitt (opt-in). Disse er inaktive til
+ * organisasjonen — eller partneren på vegne av den — har aktivert dem og
+ * godkjent vilkårene.
+ */
+export const OPT_IN_MODULES = new Set<string>(["deviations"]);
+
+export function isOptInModule(id: string): boolean {
+  return OPT_IN_MODULES.has(id);
 }
+
+export function getModuleState(id: string): ModuleState {
+  return getModuleStates()[id] ?? { status: OPT_IN_MODULES.has(id) ? "inactive" : "active" };
+}
+
 
 export function getModuleStatus(id: string): ModuleLifecycle {
   return getModuleState(id).status;
@@ -178,7 +190,12 @@ export function getDeactivatedModules(): Set<string> {
   const map = getModuleStates();
   const now = Date.now();
   const ids = new Set<string>();
+  // Opt-in-moduler er inaktive til de er eksplisitt aktivert.
+  OPT_IN_MODULES.forEach((id) => {
+    if (!map[id]) ids.add(id);
+  });
   Object.entries(map).forEach(([id, state]) => {
+
     if (state.status === "inactive") ids.add(id);
     if (
       state.status === "pending_cancellation" &&

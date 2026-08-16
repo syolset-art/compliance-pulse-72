@@ -449,6 +449,16 @@ const SidebarContent = () => {
     (selectedRegistriesAtOnboarding || hasCoreAccess || hasRegistriesAccess || activatingModules.has("assets")) &&
     !isModuleDeactivated("assets");
 
+  // Avviksregister er et eget produkt (opt-in) — vises kun når det er aktivert.
+  const [deviationsActive, setDeviationsActive] = useState(() => !isModuleDeactivated("deviations"));
+  useEffect(() => {
+    const sync = () => setDeviationsActive(!isModuleDeactivated("deviations"));
+    sync();
+    window.addEventListener("modules:changed", sync);
+    return () => window.removeEventListener("modules:changed", sync);
+  }, []);
+
+
   const isVendorsActivating = activatingModules.has("vendors") && !hasRegistriesAccess;
   const isCoreActivating = activatingModules.has("core") && !(selectedCoreAtOnboarding || hasCoreAccess);
   const isAssetsActivating = activatingModules.has("assets") && !(selectedRegistriesAtOnboarding || hasRegistriesAccess);
@@ -746,20 +756,23 @@ const SidebarContent = () => {
           </Link>
         ))}
 
-        {/* Avviksregister v2 — eget produkt/modul på toppnivå */}
-        <Link
-          to={deviationsLink.href}
-          className={cn(
-            "flex items-center gap-2.5 rounded-lg px-3 py-2 text-[0.9375rem] font-medium transition-all duration-200 relative",
-            isDeviationsActive
-              ? "bg-gradient-to-r from-primary/10 to-transparent text-sidebar-primary border-l-2 border-primary"
-              : "text-sidebar-foreground/80 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
-          )}
-        >
-          {isDeviationsActive && <span className="h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />}
-          <deviationsLink.icon className="h-4 w-4" />
-          <span className="text-sm font-semibold">{t(deviationsLink.name, "Avviksregister v2")}</span>
-        </Link>
+        {/* Avviksregister — eget produkt, vises kun når det er aktivert */}
+        {deviationsActive && (
+          <Link
+            to={deviationsLink.href}
+            className={cn(
+              "flex items-center gap-2.5 rounded-lg px-3 py-2 text-[0.9375rem] font-medium transition-all duration-200 relative",
+              isDeviationsActive
+                ? "bg-gradient-to-r from-primary/10 to-transparent text-sidebar-primary border-l-2 border-primary"
+                : "text-sidebar-foreground/80 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
+            )}
+          >
+            {isDeviationsActive && <span className="h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />}
+            <deviationsLink.icon className="h-4 w-4" />
+            <span className="text-sm font-semibold">{t(deviationsLink.name, "Avviksregister")}</span>
+          </Link>
+        )}
+
 
 
 

@@ -4,6 +4,7 @@ export type ModuleKey =
   | "vendors"
   | "assets"
   | "trust"
+  | "deviations"
   | "partner";
 
 export interface ModuleInfo {
@@ -39,6 +40,19 @@ export const MODULE_INFO: Record<ModuleKey, ModuleInfo> = {
       "Modenhetsscore på 0–4-skala",
       "Kontroller koblet mot bevis og dokumentasjon",
       "Kontinuerlig oppdatering ved regelendringer",
+    ],
+  },
+  deviations: {
+    title: "Avviksregister",
+    tagline: "Meld, følg opp og lukk avvik",
+    description:
+      "Avviksregisteret er et eget produkt uten kostnad. Registrer avvik, koble dem til systemer og leverandører, og følg tiltakene til de er lukket. Avvik påvirker ikke modenhetsscoren.",
+    features: [
+      "Registrering med kategori, alvorlighet og frist",
+      "Tiltak og ansvarlig per avvik",
+      "Avvik koblet til leverandører og systemer",
+      "Lara foreslår rotårsak og tiltak",
+      "Aktivitetslogg og revisjonsspor",
     ],
   },
   vendors: {

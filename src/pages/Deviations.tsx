@@ -5,6 +5,7 @@ import { ContextualHelpPanel } from "@/components/shared/ContextualHelpPanel";
 import { HelpCircle, AlertTriangle as AlertTriangleHelp, ClipboardList as ClipboardListHelp, Users as UsersHelp } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { Sidebar } from "@/components/Sidebar";
+import { ModuleActivationGate } from "@/components/subscriptions/ModuleActivationGate";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -368,6 +369,7 @@ export default function Deviations() {
     <div className="flex min-h-screen bg-background">
       <Sidebar />
       <main className={cn("flex-1 overflow-auto pt-11", isMobile ? "pb-24" : "")}>
+        <ModuleActivationGate moduleKey="deviations">
         <div className="container max-w-5xl mx-auto px-4 pt-8 pb-4 md:p-6 space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between">
@@ -824,8 +826,9 @@ export default function Deviations() {
         </>
         )}
         </div>
-
+        </ModuleActivationGate>
       </main>
+
       <ContextualHelpPanel
         open={helpOpen}
         onOpenChange={setHelpOpen}
