@@ -125,18 +125,6 @@ export default function DashboardDynamic() {
             </div>
           )}
 
-          {inactive.length > 0 && (
-            <div className="space-y-2 pt-2">
-              <h2 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                {isNb ? "Kan aktiveres" : "Can be activated"}
-              </h2>
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {inactive.map((key) => (
-                  <ActivationCard key={key} isNb={isNb} moduleKey={key} />
-                ))}
-              </div>
-            </div>
-          )}
         </div>
       </main>
     </div>
