@@ -10,6 +10,7 @@ import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { SENSITIVE_DATA_CATEGORIES, sensitiveCategoryLabel, gdprRoleHandlesPersonalData } from "@/lib/sensitiveData";
+import { suggestVendorRisk } from "@/lib/vendorRiskSuggestion";
 import { toast } from "sonner";
 import { useState } from "react";
 import { AISuggestTextarea } from "@/components/asset-profile/AISuggestTextarea";
