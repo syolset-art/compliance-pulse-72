@@ -108,10 +108,10 @@ export function VendorInsightsWidget() {
       </div>
       <div className="flex items-center gap-2 shrink-0">
         {badge}
-        <div className="flex items-center gap-1.5 w-20">
+        <div className="flex items-center gap-1.5 w-24">
           <Progress value={v.compliance_score || 0} className="h-1.5 flex-1" />
-          <span className={cn("text-xs font-semibold tabular-nums", scoreColor(v.compliance_score || 0))}>
-            {v.compliance_score || 0}%
+          <span className={cn("text-xs font-semibold", scoreColor(v.compliance_score || 0))}>
+            {maturityLabelNb(getMaturityLevel(v.compliance_score || 0))}
           </span>
         </div>
       </div>
