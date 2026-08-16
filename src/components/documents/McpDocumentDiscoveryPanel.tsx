@@ -39,7 +39,7 @@ export function McpDocumentDiscoveryPanel() {
       <CardContent className="p-4 space-y-4">
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-start gap-2">
-            <Plug className="h-4 w-4 text-primary mt-0.5" />
+            <Plug className="h-4 w-4 text-primary mt-0.5" aria-hidden="true" />
             <div>
               <h3 className="text-sm font-semibold text-foreground">
                 {L(
@@ -70,7 +70,7 @@ export function McpDocumentDiscoveryPanel() {
         <div className="rounded-md border border-border bg-background px-3 py-2 flex items-center gap-2">
           <code className="text-[12px] text-muted-foreground truncate flex-1">{url}</code>
           <Button variant="ghost" size="sm" className="h-7 gap-1.5" onClick={copy}>
-            {copied ? <Check className="h-3.5 w-3.5 text-success" /> : <Copy className="h-3.5 w-3.5" />}
+            {copied ? <Check className="h-3.5 w-3.5 text-success" aria-hidden="true" /> : <Copy className="h-3.5 w-3.5" aria-hidden="true" />}
             {copied ? L("Kopiert", "Copied") : L("Kopier", "Copy")}
           </Button>
         </div>
@@ -89,9 +89,9 @@ export function McpDocumentDiscoveryPanel() {
         </div>
 
         {ran ? (
-          <div className="rounded-md border border-success/30 bg-success/5 px-3 py-2 space-y-1">
+          <div role="status" aria-live="polite" className="rounded-md border border-success/30 bg-success/5 px-3 py-2 space-y-1">
             <div className="flex items-center gap-2 text-[13px] font-medium text-foreground">
-              <ShieldCheck className="h-4 w-4 text-success" />
+              <ShieldCheck className="h-4 w-4 text-success" aria-hidden="true" />
               {L("Agentkjøring fullført (demo)", "Agent run completed (demo)")}
             </div>
             <p className="text-[13px] text-muted-foreground">
@@ -104,12 +104,12 @@ export function McpDocumentDiscoveryPanel() {
         ) : (
           <div className="flex flex-wrap gap-2">
             <Button size="sm" variant="outline" className="gap-1.5" onClick={() => setRan(true)}>
-              <Play className="h-3.5 w-3.5" />
+              <Play className="h-3.5 w-3.5" aria-hidden="true" />
               {L("Kjør demo-agent", "Run demo agent")}
             </Button>
             <Button asChild size="sm" variant="ghost" className="gap-1.5">
               <Link to="/settings/mcp">
-                <ExternalLink className="h-3.5 w-3.5" />
+                <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
                 {L("Administrer MCP-koblinger", "Manage MCP connections")}
               </Link>
             </Button>

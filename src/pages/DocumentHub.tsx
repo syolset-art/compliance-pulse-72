@@ -129,7 +129,7 @@ export default function DocumentHub() {
         <div className="container max-w-5xl mx-auto space-y-5">
           <header className="space-y-1">
             <div className="flex items-center gap-2">
-              <FolderOpen className="h-5 w-5 text-primary" />
+              <FolderOpen className="h-5 w-5 text-primary" aria-hidden="true" />
               <h1 className="text-2xl font-bold text-foreground">{L("Dokument hub", "Document hub")}</h1>
               <span className="text-sm font-medium text-muted-foreground">
                 {stats.total} {L("dokumenter", "documents")}
@@ -142,7 +142,7 @@ export default function DocumentHub() {
                   setUploadOpen(true);
                 }}
               >
-                <Upload className="h-3.5 w-3.5" />
+                <Upload className="h-3.5 w-3.5" aria-hidden="true" />
                 {L("Last opp dokument", "Upload document")}
               </Button>
             </div>
@@ -274,9 +274,9 @@ export default function DocumentHub() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-[40px]"></TableHead>
                     <TableHead>{L("Dokument", "Document")}</TableHead>
-                    <TableHead className="hidden sm:table-cell">{L("Type", "Type")}</TableHead>
+                    <TableHead className="hidden sm:table-cell">{L("Analyse", "Analysis")}</TableHead>
+                    <TableHead className="hidden md:table-cell">{L("Type", "Type")}</TableHead>
                     <TableHead className="hidden md:table-cell">
                       <div className="flex items-center gap-1.5">
                         {L("Modul", "Module")}
@@ -307,13 +307,6 @@ export default function DocumentHub() {
                       className="cursor-pointer"
                     >
                       <TableCell className="py-2">
-                        {scoreDocIds.has(doc.id) ? (
-                          <CheckCircle2 className="h-4 w-4 text-success" />
-                        ) : (
-                          <FileText className="h-4 w-4 text-muted-foreground" />
-                        )}
-                      </TableCell>
-                      <TableCell className="py-2">
                         <div className="font-medium text-sm text-foreground max-w-[200px] sm:max-w-xs truncate">
                           {doc.name}
                         </div>
@@ -323,7 +316,26 @@ export default function DocumentHub() {
                           </div>
                         )}
                       </TableCell>
-                      <TableCell className="hidden sm:table-cell py-2 text-[13px] text-muted-foreground">
+                      <TableCell className="hidden sm:table-cell py-2">
+                        {scoreDocIds.has(doc.id) ? (
+                          <Badge
+                            variant="outline"
+                            className="border-success bg-success/10 text-foreground text-[12px] font-normal gap-1"
+                          >
+                            <CheckCircle2 className="h-3 w-3 text-success" aria-hidden="true" />
+                            {L("Påvirker modenhet", "Affects maturity")}
+                          </Badge>
+                        ) : (
+                          <Badge
+                            variant="outline"
+                            className="border-border bg-muted text-foreground text-[12px] font-normal gap-1"
+                          >
+                            <FileText className="h-3 w-3" aria-hidden="true" />
+                            {L("Ikke analysert", "Not analysed")}
+                          </Badge>
+                        )}
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell py-2 text-[13px] text-muted-foreground">
                         {documentTypeLabel(doc.documentType, isNb)}
                       </TableCell>
                       <TableCell className="hidden md:table-cell py-2">

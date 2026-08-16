@@ -98,19 +98,29 @@ export function GuidingDocumentsTab({ frameworks, documents, onUpload }: Props) 
                     className="flex items-center gap-3 px-3 py-2"
                   >
                     {doc.existing ? (
-                      <CheckCircle2 className="h-4 w-4 text-success shrink-0" />
+                      <CheckCircle2 className="h-4 w-4 text-success shrink-0" aria-hidden="true" />
                     ) : (
-                      <Circle className="h-4 w-4 text-muted-foreground shrink-0" />
+                      <Circle className="h-4 w-4 text-muted-foreground shrink-0" aria-hidden="true" />
                     )}
                     <div className="min-w-0 flex-1">
                       <p className="text-[13px] font-medium text-foreground truncate">{doc.name}</p>
                       <p className="text-[12px] text-muted-foreground truncate">{entry.label}</p>
                     </div>
                     {doc.existing ? (
-                      <span className="text-[12px] text-success shrink-0">
+                      <Badge
+                        variant="outline"
+                        className="shrink-0 border-success bg-success/10 text-foreground text-[12px] font-normal"
+                      >
                         {L("Finnes", "Present")}
-                      </span>
+                      </Badge>
                     ) : (
+                      <div className="flex items-center gap-2 shrink-0">
+                        <Badge
+                          variant="outline"
+                          className="border-border bg-muted text-foreground text-[12px] font-normal"
+                        >
+                          {L("Mangler", "Missing")}
+                        </Badge>
                       <Button
                         size="sm"
                         variant="ghost"
@@ -119,9 +129,10 @@ export function GuidingDocumentsTab({ frameworks, documents, onUpload }: Props) 
                           onUpload({ name: doc.name, frameworkId: group.framework.framework_id })
                         }
                       >
-                        <Upload className="h-3.5 w-3.5" />
+                        <Upload className="h-3.5 w-3.5" aria-hidden="true" />
                         {L("Last opp", "Upload")}
                       </Button>
+                      </div>
                     )}
                   </div>
                 )),
