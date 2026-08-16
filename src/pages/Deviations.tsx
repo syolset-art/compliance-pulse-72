@@ -826,8 +826,9 @@ export default function Deviations() {
         </>
         )}
         </div>
-
+        </ModuleActivationGate>
       </main>
+
       <ContextualHelpPanel
         open={helpOpen}
         onOpenChange={setHelpOpen}
