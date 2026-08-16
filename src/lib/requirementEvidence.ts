@@ -9,6 +9,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import type { EvidenceDocument } from "@/lib/requirementStatusModel";
+import { coverageRatioColumn, toCoverageValue } from "@/lib/coverageScale";
 
 export interface StoredRequirementEvidence {
   id: string;
@@ -91,7 +92,7 @@ export async function persistRequirementEvidence(
     document_id: (doc as any).id,
     covered_articles: input.coveredArticles,
     missing_articles: input.missingArticles,
-    coverage_ratio: input.coverageRatio,
+    coverage_ratio: coverageRatioColumn(input.coverageRatio),
     created_by: userId,
   }));
 
@@ -137,7 +138,7 @@ export async function fetchRequirementEvidence(
       documentId: row.document_id,
       coveredArticles: covered,
       missingArticles: Array.isArray(row.missing_articles) ? row.missing_articles : [],
-      coverageRatio: Number(row.coverage_ratio) || 0,
+      coverageRatio: toCoverageValue(row.coverage_ratio),
       document,
     };
   });
