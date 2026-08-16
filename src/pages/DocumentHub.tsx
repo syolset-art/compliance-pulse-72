@@ -27,6 +27,7 @@ import {
   ExternalLink,
   FileText,
   Loader2,
+  Info,
 } from "lucide-react";
 import { useDocumentHub } from "@/hooks/useDocumentHub";
 import {
