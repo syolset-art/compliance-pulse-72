@@ -33,7 +33,7 @@ export const LaraContextBanner = ({
     suggestion.usageTags.length
       ? `${isNb ? "Bruk" : "Usage"}: ${suggestion.usageTags.map((t) => usageTagLabel(t, isNb)).join(", ")}`
       : null,
-    gdprLabel,
+    suggestion.gdprRole ? gdprLabel : null,
     `${isNb ? "Kritikalitet" : "Criticality"} ${criticalityLabel}`,
     `${isNb ? "Risiko" : "Risk"} ${riskLabel}`,
   ].filter(Boolean) as string[];
