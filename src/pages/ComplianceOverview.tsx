@@ -282,7 +282,7 @@ const ComplianceOverview = () => {
                                 strokeWidth="4"
                                 strokeDasharray={`${(fw.score / 100) * 175.93} 175.93`}
                                 strokeLinecap="round"
-                                className={fw.iconColor}
+                                className={maturityTextClass(fw.score)}
                               />
                             </svg>
                             <span className={`absolute inset-0 flex items-center justify-center text-[11px] font-bold ${maturityTextClass(fw.score)}`}>
