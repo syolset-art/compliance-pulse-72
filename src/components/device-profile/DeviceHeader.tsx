@@ -7,6 +7,7 @@ import {
   AlertTriangle, TrendingDown, Clock, Link2,
 } from "lucide-react";
 import { type DeviceControl } from "./DeviceTrustProfile";
+import { getMaturityLevel, maturityTextClass, maturityLabelNb } from "@/lib/maturityLevel";
 import { HeaderMaturityIndicators } from "@/components/trust-controls/HeaderMaturityIndicators";
 
 const DEVICE_ICONS: Record<string, typeof HardDrive> = {
@@ -28,8 +29,9 @@ export function DeviceHeader({ asset, meta, trustScore, controls }: DeviceHeader
   const isNb = i18n.language === "nb";
 
   const DeviceIcon = DEVICE_ICONS[meta.device_type] || HardDrive;
-  const isHigh = trustScore >= 75;
-  const isMid = trustScore >= 50;
+  const level = getMaturityLevel(trustScore);
+  const isHigh = level === "high";
+  const isMid = level === "medium";
 
   const criticalityLabel = asset.criticality === "critical"
     ? (isNb ? "Kritisk" : "Critical")
@@ -39,9 +41,9 @@ export function DeviceHeader({ asset, meta, trustScore, controls }: DeviceHeader
         ? (isNb ? "Middels" : "Medium")
         : (isNb ? "Lav" : "Low");
 
-  const riskLabel = trustScore < 50
+  const riskLabel = level === "low"
     ? (isNb ? "Høy risiko" : "High risk")
-    : trustScore < 75
+    : level === "medium"
       ? (isNb ? "Middels risiko" : "Medium risk")
       : (isNb ? "Lav risiko" : "Low risk");
 
@@ -142,7 +144,7 @@ export function DeviceHeader({ asset, meta, trustScore, controls }: DeviceHeader
               <div key={a.label} className="space-y-0.5">
                 <div className="flex items-center justify-between">
                   <span className="text-[13px] font-medium text-foreground">{a.label}</span>
-                  <span className="text-[13px] font-semibold tabular-nums">{a.score}%</span>
+                  <span className={`text-[13px] font-semibold ${maturityTextClass(a.score)}`}>{maturityLabelNb(getMaturityLevel(a.score))}</span>
                 </div>
                 <Progress value={a.score} className="h-1" />
               </div>

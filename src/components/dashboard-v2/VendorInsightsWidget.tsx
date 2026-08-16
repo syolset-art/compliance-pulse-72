@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
+import { maturityTextClass, maturityLabelNb, getMaturityLevel } from "@/lib/maturityLevel";
 
 type ViewMode = "priority" | "risk" | "roles";
 
@@ -85,7 +86,7 @@ export function VendorInsightsWidget() {
     return Object.entries(groups).sort((a, b) => b[1].length - a[1].length);
   }, [vendors]);
 
-  const scoreColor = (s: number) => (s >= 80 ? "text-success" : s >= 50 ? "text-warning" : "text-destructive");
+  const scoreColor = maturityTextClass;
 
   const views: { key: ViewMode; label_no: string; label_en: string; icon: React.ReactNode }[] = [
     { key: "priority", label_no: "Prioritet", label_en: "Priority", icon: <AlertTriangle className="h-3 w-3" /> },
