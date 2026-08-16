@@ -13,6 +13,10 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { SENSITIVE_DATA_CATEGORIES, sensitiveCategoryLabel, gdprRoleHandlesPersonalData } from "@/lib/sensitiveData";
 import { suggestVendorRisk } from "@/lib/vendorRiskSuggestion";
+import { suggestVendorContext } from "@/lib/vendorContextSuggestion";
+import { LaraContextBanner } from "@/components/asset-profile/usage/LaraContextBanner";
+import { VendorPurposeCard } from "@/components/asset-profile/usage/VendorPurposeCard";
+import { ContextPillRow, type ContextPillItem } from "@/components/asset-profile/usage/ContextPillRow";
 import { toast } from "sonner";
 import { useState } from "react";
 import { AISuggestTextarea } from "@/components/asset-profile/AISuggestTextarea";
@@ -238,302 +242,346 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
 
 
 
+  // --- Bruk og kontekst: bruksformål + Laras forslag ---
+  const usagePurpose: string = riskMeta.usage_purpose || "";
+  const usageTags: string[] = riskMeta.usage_tags || [];
+  const [openPill, setOpenPill] = useState<string | null>(null);
+
+  const contextSuggestion = suggestVendorContext({
+    vendorName: asset?.name,
+    vendorCategory: asset?.vendor_category,
+    description: asset?.description,
+    usagePurpose,
+    usageTags,
+    hasPrivacyPolicy: !!asset?.privacy_policy_url,
+    sensitive: sensitiveOn,
+  });
+
+  const handleToggleUsageTag = (value: string) => {
+    const next = usageTags.includes(value)
+      ? usageTags.filter((v) => v !== value)
+      : [...usageTags, value];
+    saveMeta({ usage_tags: next });
+  };
+
+  const handleSuggestPurpose = () => {
+    setLaraLoading(true);
+    setTimeout(() => {
+      saveMeta({
+        usage_tags: contextSuggestion.usageTags.length ? contextSuggestion.usageTags : usageTags,
+        usage_purpose: usagePurpose || (isNb ? contextSuggestion.usageTextNb : contextSuggestion.usageTextEn),
+      });
+      setLaraLoading(false);
+    }, 500);
+  };
+
+  const handleAcceptAll = () => {
+    setLaraLoading(true);
+    setTimeout(() => {
+      updateMutation.mutate({
+        criticality: contextSuggestion.criticality,
+        ...(contextSuggestion.gdprRole ? { gdpr_role: contextSuggestion.gdprRole } : {}),
+        risk_level: riskSuggestion.level,
+        metadata: {
+          ...riskMeta,
+          usage_tags: contextSuggestion.usageTags.length ? contextSuggestion.usageTags : usageTags,
+          usage_purpose: usagePurpose || (isNb ? contextSuggestion.usageTextNb : contextSuggestion.usageTextEn),
+          risk_set_by: null,
+          risk_set_at: null,
+          risk_rationale: null,
+        },
+      } as any);
+      setRationaleDraft("");
+      setLaraLoading(false);
+    }, 600);
+  };
+
+  const toneText = (value: string | null | undefined) => {
+    switch (value) {
+      case "low": return "text-success";
+      case "medium": return "text-warning";
+      case "high":
+      case "critical": return "text-destructive";
+      default: return "text-foreground";
+    }
+  };
+
   const getLabel = (options: typeof criticalityOptions, value: string | null | undefined) => {
     const opt = options.find(o => o.value === (value || "not_set"));
     return opt ? (isNb ? opt.labelNb : opt.labelEn) : (isNb ? "Ikke satt" : "Not set");
   };
 
-  return (
-    <div className="space-y-5">
+  const pillItems: ContextPillItem[] = [
+    {
+      key: "criticality",
+      icon: <AlertTriangle className="h-3.5 w-3.5" />,
+      label: isNb ? "Kritikalitet" : "Criticality",
+      value: getLabel(criticalityOptions, asset?.criticality || "medium"),
+      toneClass: toneText(asset?.criticality),
+      panel: (
+        <>
+          <Select
+            value={asset?.criticality || "medium"}
+            onValueChange={(v) => handleFieldChange("criticality", v)}
+          >
+            <SelectTrigger className={`h-9 max-w-xs text-sm font-semibold border ${severityColor(asset?.criticality)}`}>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {criticalityOptions.map(o => (
+                <SelectItem key={o.value} value={o.value}>{isNb ? o.labelNb : o.labelEn}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <p className="text-[13px] text-muted-foreground leading-snug">
+            {isNb
+              ? "Hvor viktig denne leverandøren er for virksomheten. Høy kritikalitet krever strengere oppfølging."
+              : "How important this vendor is to the business. High criticality requires stricter follow-up."}
+          </p>
+          <button onClick={() => onNavigateToTab?.("overview")} className="flex items-center gap-1 text-[13px] text-primary hover:underline">
+            <ArrowRight className="h-2.5 w-2.5" />
+            {isNb ? "Påvirker: Tredjepart og verdikjede" : "Affects: Third-party management"}
+          </button>
+        </>
+      ),
+    },
+    {
+      key: "priority",
+      icon: <Flag className="h-3.5 w-3.5" />,
+      label: isNb ? "Prioritet" : "Priority",
+      value: getLabel(priorityOptions, asset?.priority),
+      toneClass: "text-foreground",
+      panel: (
+        <>
+          <Select
+            value={asset?.priority || "not_set"}
+            onValueChange={(v) => handleFieldChange("priority", v === "not_set" ? null as any : v)}
+          >
+            <SelectTrigger className={`h-9 max-w-xs text-sm font-semibold border ${priorityColor(asset?.priority)}`}>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {priorityOptions.map(o => (
+                <SelectItem key={o.value} value={o.value}>{isNb ? o.labelNb : o.labelEn}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <p className="text-[13px] text-muted-foreground leading-snug">
+            {isNb
+              ? "Din prioritering av leverandøren for filtrering og oppfølging."
+              : "Your prioritization of this vendor for filtering and follow-up."}
+          </p>
+          <button onClick={() => onNavigateToTab?.("overview")} className="flex items-center gap-1 text-[13px] text-primary hover:underline">
+            <ArrowRight className="h-2.5 w-2.5" />
+            {isNb ? "Påvirker: Filtrering og oppfølging" : "Affects: Filtering & follow-up"}
+          </button>
+        </>
+      ),
+    },
+    {
+      key: "gdpr",
+      icon: <Database className="h-3.5 w-3.5" />,
+      label: isNb ? "GDPR-rolle" : "GDPR role",
+      value: getLabel(gdprOptions, asset?.gdpr_role),
+      toneClass: "text-foreground",
+      panel: (
+        <>
+          <Select value={asset?.gdpr_role || "not_set"} onValueChange={handleGdprRoleChange}>
+            <SelectTrigger className="h-9 max-w-xs text-sm font-semibold border">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {gdprOptions.map(o => (
+                <SelectItem key={o.value} value={o.value}>{isNb ? o.labelNb : o.labelEn}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
-      {/* Info banner */}
-      <div className="flex items-start gap-2 p-3 rounded-lg bg-primary/5 border border-primary/10">
-        <Info className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-        <p className="text-xs text-muted-foreground">
-          {isNb
-            ? "Disse innstillingene bestemmer hvilke kontroller og risikovurderinger som kreves for denne leverandøren."
-            : "These settings determine which controls and risk assessments are required for this vendor."}
-        </p>
-      </div>
+          {showSensitive && (
+            <div className="space-y-2 pt-0.5">
+              <div className="flex items-center justify-between gap-2 max-w-xs">
+                <span className="text-[13px] text-foreground leading-tight">
+                  {isNb ? "Behandler sensitive personopplysninger" : "Processes sensitive personal data"}
+                </span>
+                <Switch checked={sensitiveOn} onCheckedChange={handleSensitiveToggle} />
+              </div>
 
-      {/* Editable fields */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Criticality */}
-        <Card className="relative group">
-          <CardContent className="p-4 space-y-2">
-            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <AlertTriangle className="h-3.5 w-3.5" />
-              {isNb ? "Kritikalitet" : "Criticality"}
-              <Pencil className="h-3 w-3 ml-auto opacity-0 group-hover:opacity-50 transition-opacity" />
-            </div>
-            <Select
-              value={asset?.criticality || "medium"}
-              onValueChange={(v) => handleFieldChange("criticality", v)}
-            >
-              <SelectTrigger className={`h-9 text-sm font-semibold border ${severityColor(asset?.criticality)}`}>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {criticalityOptions.map(o => (
-                  <SelectItem key={o.value} value={o.value}>
-                    {isNb ? o.labelNb : o.labelEn}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <p className="text-[13px] text-muted-foreground leading-tight">
-              {isNb
-                ? "Hvor viktig denne leverandøren er for virksomheten. Høy kritikalitet krever strengere oppfølging."
-                : "How important this vendor is to the business. High criticality requires stricter follow-up."}
-            </p>
-            <button
-              onClick={() => onNavigateToTab?.("overview")}
-              className="flex items-center gap-1 text-[13px] text-primary hover:underline"
-            >
-              <ArrowRight className="h-2.5 w-2.5" />
-              {isNb ? "Påvirker: Tredjepart og verdikjede" : "Affects: Third-party management"}
-            </button>
-          </CardContent>
-        </Card>
-
-        {/* Priority */}
-        <Card className="relative group">
-          <CardContent className="p-4 space-y-2">
-            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <Flag className="h-3.5 w-3.5" />
-              {isNb ? "Prioritet" : "Priority"}
-              <Pencil className="h-3 w-3 ml-auto opacity-0 group-hover:opacity-50 transition-opacity" />
-            </div>
-            <Select
-              value={asset?.priority || "not_set"}
-              onValueChange={(v) => handleFieldChange("priority", v === "not_set" ? null as any : v)}
-            >
-              <SelectTrigger className={`h-9 text-sm font-semibold border ${priorityColor(asset?.priority)}`}>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {priorityOptions.map(o => (
-                  <SelectItem key={o.value} value={o.value}>
-                    {isNb ? o.labelNb : o.labelEn}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <p className="text-[13px] text-muted-foreground leading-tight">
-              {isNb
-                ? "Din prioritering av leverandøren for filtrering og oppfølging. Kan kobles til risikoscenarier."
-                : "Your prioritization of this vendor for filtering and follow-up. Can be linked to risk scenarios."}
-            </p>
-            <button
-              onClick={() => onNavigateToTab?.("overview")}
-              className="flex items-center gap-1 text-[13px] text-primary hover:underline"
-            >
-              <ArrowRight className="h-2.5 w-2.5" />
-              {isNb ? "Påvirker: Filtrering og oppfølging" : "Affects: Filtering & follow-up"}
-            </button>
-          </CardContent>
-        </Card>
-
-        {/* GDPR Role */}
-        <Card className="relative group">
-          <CardContent className="p-4 space-y-2">
-            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <Database className="h-3.5 w-3.5" />
-              {isNb ? "GDPR-rolle" : "GDPR role"}
-              <Pencil className="h-3 w-3 ml-auto opacity-0 group-hover:opacity-50 transition-opacity" />
-            </div>
-            <Select
-              value={asset?.gdpr_role || "not_set"}
-              onValueChange={(v) => handleGdprRoleChange(v)}
-            >
-              <SelectTrigger className="h-9 text-sm font-semibold border">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {gdprOptions.map(o => (
-                  <SelectItem key={o.value} value={o.value}>
-                    {isNb ? o.labelNb : o.labelEn}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            {showSensitive && (
-              <div className="space-y-2 pt-0.5">
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-[13px] text-foreground leading-tight">
-                    {isNb ? "Behandler sensitive personopplysninger" : "Processes sensitive personal data"}
-                  </span>
-                  <Switch
-                    checked={sensitiveOn}
-                    onCheckedChange={handleSensitiveToggle}
-                  />
-                </div>
-
-                {sensitiveOn && (
-                  <div className="space-y-1.5">
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button variant="outline" size="sm" className="h-8 w-full justify-between text-[13px] font-normal">
-                          {selectedSensitive.length > 0
-                            ? `${selectedSensitive.length} ${isNb ? "kategorier" : "categories"}`
-                            : (isNb ? "Velg kategorier" : "Select categories")}
-                          <ChevronDown className="h-3.5 w-3.5 opacity-60" />
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent align="start" className="w-64 p-2">
-                        <div className="space-y-1 max-h-64 overflow-y-auto">
-                          {SENSITIVE_DATA_CATEGORIES.map((c) => (
-                            <label key={c.value} className="flex items-center gap-2 text-sm px-1 py-1 rounded hover:bg-accent cursor-pointer">
-                              <Checkbox
-                                checked={selectedSensitive.includes(c.value)}
-                                onCheckedChange={() => toggleSensitiveCategory(c.value)}
-                              />
-                              <span>{isNb ? c.labelNb : c.labelEn}</span>
-                            </label>
-                          ))}
-                        </div>
-                      </PopoverContent>
-                    </Popover>
-
-                    {selectedSensitive.length > 0 && (
-                      <div className="flex flex-wrap gap-1">
-                        {selectedSensitive.map((v) => (
-                          <Badge key={v} variant="outline" className="text-[11px] text-warning bg-warning/10 border-warning/20">
-                            {sensitiveCategoryLabel(v, isNb)}
-                          </Badge>
+              {sensitiveOn && (
+                <div className="space-y-1.5 max-w-xs">
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button variant="outline" size="sm" className="h-8 w-full justify-between text-[13px] font-normal">
+                        {selectedSensitive.length > 0
+                          ? `${selectedSensitive.length} ${isNb ? "kategorier" : "categories"}`
+                          : (isNb ? "Velg kategorier" : "Select categories")}
+                        <ChevronDown className="h-3.5 w-3.5 opacity-60" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent align="start" className="w-64 p-2">
+                      <div className="space-y-1 max-h-64 overflow-y-auto">
+                        {SENSITIVE_DATA_CATEGORIES.map((c) => (
+                          <label key={c.value} className="flex items-center gap-2 text-sm px-1 py-1 rounded hover:bg-accent cursor-pointer">
+                            <Checkbox
+                              checked={selectedSensitive.includes(c.value)}
+                              onCheckedChange={() => toggleSensitiveCategory(c.value)}
+                            />
+                            <span>{isNb ? c.labelNb : c.labelEn}</span>
+                          </label>
                         ))}
                       </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            )}
+                    </PopoverContent>
+                  </Popover>
 
-            <p className="text-[13px] text-muted-foreground leading-tight">
-              {sensitiveOn
-                ? (isNb
-                    ? "Særlige kategorier stiller strengere krav: databehandleravtale, risikovurdering og som regel DPIA."
-                    : "Special categories require stricter controls: a DPA, a risk assessment and usually a DPIA.")
-                : (isNb
-                    ? "GDPR-rollen bestemmer hvilke kontroller og dokumentasjonskrav som gjelder (f.eks. DPA-krav)."
-                    : "The GDPR role determines which controls and documentation requirements apply (e.g. DPA requirements).")}
-            </p>
-            <button
-              onClick={() => onNavigateToTab?.("overview")}
-              className="flex items-center gap-1 text-[13px] text-primary hover:underline"
-            >
-              <ArrowRight className="h-2.5 w-2.5" />
-              {isNb ? "Påvirker: Personvern og datahåndtering" : "Affects: Privacy & data handling"}
-            </button>
-          </CardContent>
-        </Card>
-
-        {/* Risk */}
-        <Card className="relative group">
-          <CardContent className="p-4 space-y-2">
-            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <Shield className="h-3.5 w-3.5" />
-              {isNb ? "Risikonivå" : "Risk level"}
-              <Button
-                size="sm"
-                variant="outline"
-                className="ml-auto h-7 gap-1 text-[12px]"
-                disabled={laraLoading}
-                onClick={handleLaraSuggest}
-              >
-                <Sparkles className="h-3 w-3" />
-                {isNb ? "Foreslå" : "Suggest"}
-              </Button>
+                  {selectedSensitive.length > 0 && (
+                    <div className="flex flex-wrap gap-1">
+                      {selectedSensitive.map((v) => (
+                        <Badge key={v} variant="outline" className="text-[11px] text-warning bg-warning/10 border-warning/20">
+                          {sensitiveCategoryLabel(v, isNb)}
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
-            <Select
-              value={asset?.risk_level || "medium"}
-              onValueChange={handleManualRiskChange}
-            >
-              <SelectTrigger className={`h-9 text-sm font-semibold border ${severityColor(asset?.risk_level)}`}>
+          )}
+
+          <p className="text-[13px] text-muted-foreground leading-snug">
+            {sensitiveOn
+              ? (isNb
+                  ? "Særlige kategorier stiller strengere krav: databehandleravtale, risikovurdering og som regel DPIA."
+                  : "Special categories require stricter controls: a DPA, a risk assessment and usually a DPIA.")
+              : (isNb
+                  ? "GDPR-rollen bestemmer hvilke kontroller og dokumentasjonskrav som gjelder (f.eks. DPA-krav)."
+                  : "The GDPR role determines which controls and documentation requirements apply (e.g. DPA requirements).")}
+          </p>
+          <button onClick={() => onNavigateToTab?.("overview")} className="flex items-center gap-1 text-[13px] text-primary hover:underline">
+            <ArrowRight className="h-2.5 w-2.5" />
+            {isNb ? "Påvirker: Personvern og datahåndtering" : "Affects: Privacy & data handling"}
+          </button>
+        </>
+      ),
+    },
+    {
+      key: "risk",
+      icon: <Shield className="h-3.5 w-3.5" />,
+      label: isNb ? "Risikonivå" : "Risk level",
+      value: getLabel(riskOptions, asset?.risk_level || "medium"),
+      toneClass: toneText(asset?.risk_level),
+      panel: (
+        <>
+          <div className="flex items-center gap-2">
+            <Select value={asset?.risk_level || "medium"} onValueChange={handleManualRiskChange}>
+              <SelectTrigger className={`h-9 max-w-xs text-sm font-semibold border ${severityColor(asset?.risk_level)}`}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 {riskOptions.map(o => (
-                  <SelectItem key={o.value} value={o.value}>
-                    {isNb ? o.labelNb : o.labelEn}
-                  </SelectItem>
+                  <SelectItem key={o.value} value={o.value}>{isNb ? o.labelNb : o.labelEn}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
+            <Button size="sm" variant="outline" className="h-8 gap-1 text-[12px]" disabled={laraLoading} onClick={handleLaraSuggest}>
+              <Sparkles className="h-3 w-3" />
+              {isNb ? "Foreslå" : "Suggest"}
+            </Button>
+          </div>
 
-            {riskSetBy ? (
-              <div className="flex items-start gap-1.5 rounded-md bg-warning/15 px-2 py-1.5 text-[13px] text-warning-foreground/90 leading-tight">
-                <UserRound className="h-3.5 w-3.5 mt-0.5 shrink-0" />
-                <span>
-                  {isNb ? "Satt manuelt av " : "Set manually by "}
-                  {riskSetBy}
-                  {riskSetAt ? `, ${riskSetAt}` : ""}
-                </span>
-              </div>
-            ) : (
-              <div className="flex items-start gap-1.5 text-[13px] text-muted-foreground leading-tight">
-                <Sparkles className="h-3.5 w-3.5 text-primary mt-0.5 shrink-0" />
-                <span>
-                  {isNb ? "Foreslått av Lara: " : "Suggested by Lara: "}
-                  <span className="font-medium text-foreground">
-                    {getLabel(riskOptions, riskSuggestion.level)}
-                  </span>
-                  {" — "}
-                  {(isNb ? riskSuggestion.reasons : riskSuggestion.reasonsEn).join(" · ")}
-                </span>
-              </div>
-            )}
+          {riskSetBy ? (
+            <div className="flex items-start gap-1.5 rounded-md bg-warning/15 px-2 py-1.5 text-[13px] text-warning-foreground/90 leading-tight">
+              <UserRound className="h-3.5 w-3.5 mt-0.5 shrink-0" />
+              <span>
+                {isNb ? "Satt manuelt av " : "Set manually by "}{riskSetBy}{riskSetAt ? `, ${riskSetAt}` : ""}
+              </span>
+            </div>
+          ) : (
+            <div className="flex items-start gap-1.5 text-[13px] text-muted-foreground leading-tight">
+              <Sparkles className="h-3.5 w-3.5 text-primary mt-0.5 shrink-0" />
+              <span>
+                {isNb ? "Foreslått av Lara: " : "Suggested by Lara: "}
+                <span className="font-medium text-foreground">{getLabel(riskOptions, riskSuggestion.level)}</span>
+                {" — "}
+                {(isNb ? riskSuggestion.reasons : riskSuggestion.reasonsEn).join(" · ")}
+              </span>
+            </div>
+          )}
 
-            {riskSetBy && (
-              <div className="space-y-1">
-                <p className="text-[12px] text-muted-foreground">
-                  {isNb ? "Begrunnelse " : "Rationale "}
-                  <span className="text-muted-foreground/70">
-                    {isNb ? "(påkrevd ved manuell overstyring)" : "(required for manual override)"}
-                  </span>
+          {riskSetBy && (
+            <div className="space-y-1">
+              <p className="text-[12px] text-muted-foreground">
+                {isNb ? "Begrunnelse " : "Rationale "}
+                <span className="text-muted-foreground/70">
+                  {isNb ? "(påkrevd ved manuell overstyring)" : "(required for manual override)"}
+                </span>
+              </p>
+              <Textarea
+                value={rationaleDraft}
+                onChange={(e) => setRationaleDraft(e.target.value)}
+                onBlur={saveRationale}
+                rows={3}
+                className="text-[13px]"
+                placeholder={isNb
+                  ? "F.eks. ROS-analyse gjennomført 12.06.2026 viser forhøyet risiko ved bortfall."
+                  : "E.g. risk assessment from 12 June 2026 shows elevated risk on outage."}
+              />
+              {!rationaleDraft.trim() && (
+                <p className="text-[12px] text-destructive">
+                  {isNb ? "Begrunnelse mangler." : "Rationale is missing."}
                 </p>
-                <Textarea
-                  value={rationaleDraft}
-                  onChange={(e) => setRationaleDraft(e.target.value)}
-                  onBlur={saveRationale}
-                  rows={3}
-                  className="text-[13px]"
-                  placeholder={isNb
-                    ? "F.eks. ROS-analyse gjennomført 12.06.2026 viser forhøyet risiko ved bortfall."
-                    : "E.g. risk assessment from 12 June 2026 shows elevated risk on outage."}
-                />
-                {!rationaleDraft.trim() && (
-                  <p className="text-[12px] text-destructive">
-                    {isNb ? "Begrunnelse mangler." : "Rationale is missing."}
-                  </p>
-                )}
-              </div>
-            )}
+              )}
+            </div>
+          )}
 
+          {riskSuggestion.needsRosDpia && (
+            <div className="flex items-start gap-1.5 rounded-md border border-warning/20 bg-warning/10 p-2 text-[13px] text-warning leading-tight">
+              <AlertTriangle className="h-3.5 w-3.5 mt-0.5 shrink-0" />
+              <span>
+                {isNb
+                  ? "Anbefalt: gjennomfør ROS-analyse (og DPIA ved sensitive personopplysninger)."
+                  : "Recommended: run a risk assessment (and a DPIA for sensitive personal data)."}
+              </span>
+            </div>
+          )}
 
-            {riskSuggestion.needsRosDpia && (
-              <div className="flex items-start gap-1.5 rounded-md border border-warning/20 bg-warning/10 p-2 text-[13px] text-warning leading-tight">
-                <AlertTriangle className="h-3.5 w-3.5 mt-0.5 shrink-0" />
-                <span>
-                  {isNb
-                    ? "Anbefalt: gjennomfør ROS-analyse (og DPIA ved sensitive personopplysninger)."
-                    : "Recommended: run a risk assessment (and a DPIA for sensitive personal data)."}
-                </span>
-              </div>
-            )}
+          <button onClick={() => onNavigateToTab?.("overview")} className="flex items-center gap-1 text-[13px] text-primary hover:underline">
+            <ArrowRight className="h-2.5 w-2.5" />
+            {isNb ? "Påvirker: Risikostyring og oppfølging" : "Affects: Risk management & follow-up"}
+          </button>
+        </>
+      ),
+    },
+  ];
 
-            <button
-              onClick={() => onNavigateToTab?.("overview")}
-              className="flex items-center gap-1 text-[13px] text-primary hover:underline"
-            >
-              <ArrowRight className="h-2.5 w-2.5" />
-              {isNb ? "Påvirker: Risikostyring og oppfølging" : "Affects: Risk management & follow-up"}
-            </button>
-          </CardContent>
-        </Card>
+  return (
+    <div className="space-y-4">
 
-      </div>
+      <LaraContextBanner
+        isNb={isNb}
+        suggestion={contextSuggestion}
+        riskLabel={getLabel(riskOptions, riskSuggestion.level)}
+        criticalityLabel={getLabel(criticalityOptions, contextSuggestion.criticality)}
+        gdprLabel={getLabel(gdprOptions, contextSuggestion.gdprRole)}
+        loading={laraLoading}
+        onAcceptAll={handleAcceptAll}
+      />
+
+      <VendorPurposeCard
+        isNb={isNb}
+        purpose={usagePurpose}
+        tags={usageTags}
+        suggestedText={isNb ? contextSuggestion.usageTextNb : contextSuggestion.usageTextEn}
+        suggesting={laraLoading}
+        onSavePurpose={(v) => saveMeta({ usage_purpose: v })}
+        onToggleTag={handleToggleUsageTag}
+        onSuggest={handleSuggestPurpose}
+      />
+
+      <ContextPillRow
+        items={pillItems}
+        openKey={openPill}
+        onToggle={(k) => setOpenPill(openPill === k ? null : k)}
+      />
+
 
       {/* Processes (free-text + AI suggestions) */}
       <AISuggestTextarea
