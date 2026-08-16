@@ -40,6 +40,16 @@ export const MCP_EXPOSED_TOOLS: { name: string; nb: string; en: string }[] = [
     nb: "Opprett aktivitet på en leverandør",
     en: "Create an activity on a vendor",
   },
+  {
+    name: "list_requirements",
+    nb: "Les krav og artikler i aktiverte regelverk",
+    en: "Read requirements and articles in activated regulations",
+  },
+  {
+    name: "report_document_coverage",
+    nb: "Rapporter dekningsgrad for dokumentasjon i egen infrastruktur",
+    en: "Report documentation coverage from your own infrastructure",
+  },
 ];
 
 const KEY = "mynder_mcp_agent_connections";

@@ -142,3 +142,76 @@ export async function fetchRequirementEvidence(
     };
   });
 }
+
+/**
+ * Lagrer kun dokumentet (uten kravkobling). Brukes av Dokument hub når
+ * brukeren velger «Analyser senere». Speiles inn i `vendor_documents` på egen
+ * organisasjon, slik at hub-en og modenhetsberegningen ser det med én gang.
+ */
+export async function persistHubDocument(input: {
+  file: File;
+  displayName: string;
+  documentType: string;
+}): Promise<{ documentId: string } | { error: string }> {
+  const assetId = await getSelfAssetId();
+  if (!assetId) {
+    return { error: "Fant ingen egen organisasjon å knytte dokumentet til." };
+  }
+  const { data: userData } = await supabase.auth.getUser();
+  const userId = userData?.user?.id ?? null;
+  if (!userId) return { error: "Du må være innlogget for å laste opp dokumenter." };
+
+  const safeName = input.file.name.replace(/[^\w.\-]+/g, "_");
+  const path = `hub-uploads/${Date.now()}_${safeName}`;
+  const { error: uploadError } = await supabase.storage
+    .from("vendor-documents")
+    .upload(path, input.file);
+  if (uploadError) return { error: uploadError.message };
+
+  const { data: doc, error: docError } = await supabase
+    .from("vendor_documents")
+    .insert({
+      asset_id: assetId,
+      display_name: input.displayName || input.file.name,
+      file_name: input.file.name,
+      file_path: path,
+      document_type: input.documentType || "other",
+      status: "current",
+      uploaded_by: userId,
+    } as any)
+    .select("id")
+    .single();
+
+  if (docError || !doc) return { error: docError?.message || "Kunne ikke lagre dokumentet." };
+  return { documentId: (doc as any).id as string };
+}
+
+/**
+ * Kobler et allerede lagret dokument til ett eller flere krav med Laras
+ * dekningsgrad. Upsert, slik at ny analyse av samme dokument ikke feiler mot
+ * `UNIQUE (requirement_id, document_id)`.
+ */
+export async function linkRequirementEvidence(input: {
+  documentId: string;
+  frameworkId: string;
+  matches: { requirementId: string; coveredArticles: string[]; missingArticles: string[]; coverageRatio: number }[];
+}): Promise<{ error?: string }> {
+  if (!input.matches.length) return {};
+  const { data: userData } = await supabase.auth.getUser();
+  const userId = userData?.user?.id ?? null;
+
+  const rows = input.matches.map((m) => ({
+    framework_id: input.frameworkId,
+    requirement_id: m.requirementId,
+    document_id: input.documentId,
+    covered_articles: m.coveredArticles,
+    missing_articles: m.missingArticles,
+    coverage_ratio: m.coverageRatio,
+    created_by: userId,
+  }));
+
+  const { error } = await supabase
+    .from("requirement_evidence")
+    .upsert(rows as any, { onConflict: "requirement_id,document_id" });
+  return { error: error?.message };
+}

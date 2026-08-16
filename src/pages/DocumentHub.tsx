@@ -17,6 +17,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import {
   FolderOpen,
@@ -28,8 +29,11 @@ import {
   FileText,
   Loader2,
   Info,
+  Upload,
 } from "lucide-react";
 import { useDocumentHub } from "@/hooks/useDocumentHub";
+import { UploadHubDocumentDialog } from "@/components/documents/UploadHubDocumentDialog";
+import { GuidingDocumentsTab } from "@/components/documents/GuidingDocumentsTab";
 import {
   MODULE_LABELS,
   STATUS_LABELS,
@@ -49,8 +53,14 @@ export default function DocumentHub() {
   const isNb = i18n.language === "nb" || i18n.language === "no";
   const L = (nb: string, en: string) => (isNb ? nb : en);
 
-  const { documents, scoreDocIds, activeFrameworkCount, frameworksForDoc, requirementsForDoc, isLoading } =
-    useDocumentHub();
+  const {
+    documents,
+    scoreDocIds,
+    activeFrameworks,
+    frameworksForDoc,
+    requirementsForDoc,
+    isLoading,
+  } = useDocumentHub();
 
   const [search, setSearch] = useState("");
   const [modules, setModules] = useState<HubModule[]>([]);
@@ -58,6 +68,10 @@ export default function DocumentHub() {
   const [uploader, setUploader] = useState<string | null>(null);
   const [onlyScore, setOnlyScore] = useState(false);
   const [selected, setSelected] = useState<HubDocument | null>(null);
+  const [uploadOpen, setUploadOpen] = useState(false);
+  const [preset, setPreset] = useState<{ name?: string; frameworkId?: string }>({});
+
+
 
 
   const toggle = <T,>(list: T[], set: (v: T[]) => void, value: T) =>
@@ -120,6 +134,17 @@ export default function DocumentHub() {
               <span className="text-sm font-medium text-muted-foreground">
                 {stats.total} {L("dokumenter", "documents")}
               </span>
+              <Button
+                size="sm"
+                className="ml-auto gap-1.5"
+                onClick={() => {
+                  setPreset({});
+                  setUploadOpen(true);
+                }}
+              >
+                <Upload className="h-3.5 w-3.5" />
+                {L("Last opp dokument", "Upload document")}
+              </Button>
             </div>
             <p className="text-sm text-muted-foreground">
               {L(
@@ -129,7 +154,26 @@ export default function DocumentHub() {
             </p>
           </header>
 
+          <Tabs defaultValue="mine" className="space-y-5">
+            <TabsList>
+              <TabsTrigger value="mine">{L("Mine dokumenter", "My documents")}</TabsTrigger>
+              <TabsTrigger value="guiding">
+                {L("Veiledende dokumentasjon", "Guiding documentation")}
+              </TabsTrigger>
+            </TabsList>
 
+            <TabsContent value="guiding" className="space-y-5">
+              <GuidingDocumentsTab
+                frameworks={activeFrameworks}
+                documents={documents}
+                onUpload={({ name, frameworkId }) => {
+                  setPreset({ name, frameworkId });
+                  setUploadOpen(true);
+                }}
+              />
+            </TabsContent>
+
+            <TabsContent value="mine" className="space-y-5">
           {/* Filterlinje */}
           <div className="space-y-2">
             <div className="flex flex-wrap items-center gap-2">
@@ -301,8 +345,18 @@ export default function DocumentHub() {
               </Table>
             </div>
           )}
+            </TabsContent>
+          </Tabs>
         </div>
       </main>
+
+      <UploadHubDocumentDialog
+        open={uploadOpen}
+        onOpenChange={setUploadOpen}
+        frameworks={activeFrameworks}
+        presetName={preset.name}
+        presetFrameworkId={preset.frameworkId}
+      />
 
       <Sheet open={!!selected} onOpenChange={(o) => !o && setSelected(null)}>
         <SheetContent className="w-full sm:max-w-md overflow-y-auto">
