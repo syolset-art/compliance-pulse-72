@@ -10,6 +10,7 @@ import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { SENSITIVE_DATA_CATEGORIES, sensitiveCategoryLabel, gdprRoleHandlesPersonalData } from "@/lib/sensitiveData";
+import { suggestVendorRisk } from "@/lib/vendorRiskSuggestion";
 import { toast } from "sonner";
 import { useState } from "react";
 import { AISuggestTextarea } from "@/components/asset-profile/AISuggestTextarea";
@@ -176,17 +177,21 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
     updateMutation.mutate({ sensitive_data_categories: next } as any);
   };
 
+  const riskSuggestion = suggestVendorRisk({
+    criticality: asset?.criticality,
+    priority: (asset as any)?.priority,
+    gdprRole: asset?.gdpr_role,
+    sensitive: sensitiveOn,
+  });
+
   const handleLaraSuggest = async () => {
     setLaraLoading(true);
-    // Simulate AI suggestion based on context
     setTimeout(() => {
-      const suggested = asset?.vendor_category === "cloud" || dataCategories.some(dc => dc.category === "sensitive")
-        ? "high" : "medium";
-      handleFieldChange("risk_level", suggested);
-      toast.success(isNb ? `Lara foreslår: ${suggested === "high" ? "Høy" : "Middels"} risiko` : `Lara suggests: ${suggested === "high" ? "High" : "Medium"} risk`);
+      handleFieldChange("risk_level", riskSuggestion.level);
       setLaraLoading(false);
-    }, 1200);
+    }, 600);
   };
+
 
   const getLabel = (options: typeof criticalityOptions, value: string | null | undefined) => {
     const opt = options.find(o => o.value === (value || "not_set"));
@@ -378,6 +383,76 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
             </button>
           </CardContent>
         </Card>
+
+        {/* Risk */}
+        <Card className="relative group">
+          <CardContent className="p-4 space-y-2">
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <Shield className="h-3.5 w-3.5" />
+              {isNb ? "Risiko" : "Risk"}
+              <Pencil className="h-3 w-3 ml-auto opacity-0 group-hover:opacity-50 transition-opacity" />
+            </div>
+            <Select
+              value={asset?.risk_level || "medium"}
+              onValueChange={(v) => handleFieldChange("risk_level", v)}
+            >
+              <SelectTrigger className={`h-9 text-sm font-semibold border ${severityColor(asset?.risk_level)}`}>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {riskOptions.map(o => (
+                  <SelectItem key={o.value} value={o.value}>
+                    {isNb ? o.labelNb : o.labelEn}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <div className="flex items-start gap-1.5 text-[13px] text-muted-foreground leading-tight">
+              <Sparkles className="h-3.5 w-3.5 text-primary mt-0.5 shrink-0" />
+              <span>
+                {isNb ? "Foreslått av Lara: " : "Suggested by Lara: "}
+                <span className="font-medium text-foreground">
+                  {getLabel(riskOptions, riskSuggestion.level)}
+                </span>
+                {" — "}
+                {(isNb ? riskSuggestion.reasons : riskSuggestion.reasonsEn).join(" · ")}
+              </span>
+            </div>
+
+            {(asset?.risk_level || "medium") !== riskSuggestion.level && (
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-8 w-full text-[13px]"
+                disabled={laraLoading}
+                onClick={handleLaraSuggest}
+              >
+                {isNb ? "Bruk forslaget" : "Apply suggestion"}
+              </Button>
+            )}
+
+            {riskSuggestion.needsRosDpia && (
+              <div className="flex items-start gap-1.5 rounded-md border border-warning/20 bg-warning/10 p-2 text-[13px] text-warning leading-tight">
+                <AlertTriangle className="h-3.5 w-3.5 mt-0.5 shrink-0" />
+                <span>
+                  {isNb
+                    ? "Anbefalt: gjennomfør ROS-analyse (og DPIA ved sensitive personopplysninger)."
+                    : "Recommended: run a risk assessment (and a DPIA for sensitive personal data)."}
+                </span>
+              </div>
+            )}
+
+            <button
+              onClick={() => onNavigateToTab?.("overview")}
+              className="flex items-center gap-1 text-[13px] text-primary hover:underline"
+            >
+              <ArrowRight className="h-2.5 w-2.5" />
+              {isNb ? "Påvirker: Risikostyring og oppfølging" : "Affects: Risk management & follow-up"}
+            </button>
+          </CardContent>
+        </Card>
+
       </div>
 
       {/* Processes (free-text + AI suggestions) */}
