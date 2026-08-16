@@ -127,23 +127,40 @@ export interface RawSources {
   assetsById: Record<string, { name: string; asset_type: string }>;
   workAreasById: Record<string, string>;
   frameworkNames: Record<string, string>;
+  /** Koblinger dokument → krav i regelverk (fra `requirement_evidence`). */
+  requirementEvidence?: { document_id: string; framework_id: string }[];
 }
 
 export function buildHubDocuments(sources: RawSources, now: Date = new Date()): HubDocument[] {
   const docs: HubDocument[] = [];
 
+  /** Dokumenter som er lastet opp som bevis inne i Regelverk. */
+  const evidenceFramework = new Map<string, string>();
+  (sources.requirementEvidence ?? []).forEach((r) => {
+    if (!evidenceFramework.has(r.document_id)) evidenceFramework.set(r.document_id, r.framework_id);
+  });
+
   for (const row of sources.vendorDocs) {
     const asset = sources.assetsById[row.asset_id];
     const isSelf = asset?.asset_type === "self";
+    const evidenceFrameworkId = evidenceFramework.get(row.id);
     docs.push({
       id: row.id,
       source: "vendor_documents",
       name: row.display_name || fileBaseName(row.file_name) || row.file_name || "Dokument",
       fileName: row.file_name ?? null,
       documentType: row.document_type || "other",
-      module: isSelf ? "trust" : "vendor",
-      contextLabel: asset?.name ?? null,
-      sourceRoute: isSelf ? "/trust-center/evidence" : row.asset_id ? `/assets/${row.asset_id}` : null,
+      module: evidenceFrameworkId ? "framework" : isSelf ? "trust" : "vendor",
+      contextLabel: evidenceFrameworkId
+        ? sources.frameworkNames[evidenceFrameworkId] || evidenceFrameworkId
+        : asset?.name ?? null,
+      sourceRoute: evidenceFrameworkId
+        ? `/regulations/${evidenceFrameworkId}`
+        : isSelf
+          ? "/trust-center/evidence"
+          : row.asset_id
+            ? `/assets/${row.asset_id}`
+            : null,
       uploadedBy: row.uploaded_by || row.approved_by || null,
       createdAt: row.created_at ?? null,
       validTo: row.valid_to ?? null,
