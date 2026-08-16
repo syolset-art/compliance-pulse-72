@@ -359,13 +359,15 @@ const Reports = () => {
                   <Building2 className="h-4 w-4 mr-2" />
                   Organisasjon
                 </TabsTrigger>
-                <TabsTrigger
-                  value="portefoljer"
-                  className="relative rounded-none border-b-2 border-transparent bg-transparent px-4 py-2.5 text-sm font-medium text-muted-foreground shadow-none transition-none data-[state=active]:border-primary data-[state=active]:text-foreground data-[state=active]:shadow-none hover:text-foreground"
-                >
-                  <Briefcase className="h-4 w-4 mr-2" />
-                  Porteføljer
-                </TabsTrigger>
+                {showPortfolio && (
+                  <TabsTrigger
+                    value="portefoljer"
+                    className="relative rounded-none border-b-2 border-transparent bg-transparent px-4 py-2.5 text-sm font-medium text-muted-foreground shadow-none transition-none data-[state=active]:border-primary data-[state=active]:text-foreground data-[state=active]:shadow-none hover:text-foreground"
+                  >
+                    <Briefcase className="h-4 w-4 mr-2" />
+                    Porteføljer
+                  </TabsTrigger>
+                )}
                 <TabsTrigger
                   value="gdpr"
                   className="relative rounded-none border-b-2 border-transparent bg-transparent px-4 py-2.5 text-sm font-medium text-muted-foreground shadow-none transition-none data-[state=active]:border-primary data-[state=active]:text-foreground data-[state=active]:shadow-none hover:text-foreground"
