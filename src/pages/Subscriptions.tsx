@@ -790,6 +790,26 @@ export default function Subscriptions() {
             />
 
             <ModuleCard
+              icon={AlertTriangle}
+              title="Avviksregister"
+              description="Meld, følg opp og lukk avvik — inkludert uten kostnad"
+              status={deactivatedModules.has("deviations") ? "inactive" : moduleStatusOf("deviations")}
+              cancelAtLabel={cancelAtLabelOf("deviations")}
+              onResume={() => undoCancellation("deviations")}
+              price={0}
+              priceLabel={deactivatedModules.has("deviations") ? "Ikke aktivert" : "Inkludert"}
+              action={deactivatedModules.has("deviations") ? "activate" : "open"}
+              onClick={() =>
+                deactivatedModules.has("deviations")
+                  ? requestActivate("deviations", { monthlyPriceKr: 0 })
+                  : navigate("/deviations")
+              }
+              onDeactivate={() => requestDeactivate("deviations", "Avviksregister")}
+              accentColor="amber"
+              onReadMore={() => setReadMoreKey("deviations")}
+            />
+
+            <ModuleCard
               icon={Globe}
               title="Trust Center"
               description="Del dokumentasjonen én gang — gjenbruk mot kunder og leverandører"
