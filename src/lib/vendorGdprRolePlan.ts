@@ -100,12 +100,11 @@ export function buildGdprRolePlan(input: GdprRolePlanInput): GdprRolePlan {
     evidenceEn.push("Little information registered – Lara suggests cautiously");
   }
 
-  let role: GdprRoleValue = "ingen_persondata";
-  if (matchedTags.some((t) => t.gdprRole === "databehandler")) role = "databehandler";
-  else if (input.hasPrivacyPolicy || input.sensitive) role = "databehandler";
-  else if (matchedTags.length > 0 && matchedTags.every((t) => t.gdprRole === "ingen_persondata")) {
-    role = "ingen_persondata";
-  }
+  const role: GdprRoleValue =
+    matchedTags.some((t) => t.gdprRole === "databehandler") || input.hasPrivacyPolicy || input.sensitive
+      ? "databehandler"
+      : "ingen_persondata";
+
 
   const confidence: GdprRolePlan["confidence"] = signals >= 3 ? "high" : signals >= 2 ? "medium" : "low";
 
