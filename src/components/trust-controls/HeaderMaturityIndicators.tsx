@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { AlertTriangle, TrendingUp, ClipboardCheck, ListTodo, ArrowRight, ExternalLink } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { getMaturityLevel, maturityTextClass, maturityBgClass, maturityLabelNb } from "@/lib/maturityLevel";
 
 interface HeaderMaturityIndicatorsProps {
   riskLevel?: string | null;
@@ -30,7 +31,7 @@ export function HeaderMaturityIndicators({ riskLevel, criticality, maturityPerce
   };
 
   const risk = getRiskDisplay(riskLevel);
-  const matColor = maturityPercent >= 70 ? "text-success" : maturityPercent >= 40 ? "text-warning" : "text-destructive";
+  const matColor = maturityTextClass(maturityPercent);
 
   const lastAssessmentDate = "23.03.2026";
   const openTasks = 3;
@@ -90,8 +91,7 @@ export function HeaderMaturityIndicators({ riskLevel, criticality, maturityPerce
                 <TrendingUp className={`h-4 w-4 ${matColor} group-hover:scale-110 transition-transform`} />
               </div>
               <div className="flex items-end gap-1.5">
-                <span className={`text-2xl font-extrabold tabular-nums leading-none ${matColor}`}>{maturityPercent}</span>
-                <span className="text-xs text-muted-foreground font-medium mb-0.5">%</span>
+                <span className={`text-xl font-extrabold leading-none ${matColor}`}>{maturityLabelNb(getMaturityLevel(maturityPercent))}</span>
               </div>
               <span className="absolute bottom-1.5 right-2 text-[13px] text-primary opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-0.5">
                 {isNb ? "Se kontroller" : "Controls"} <ExternalLink className="h-2.5 w-2.5" />
@@ -201,9 +201,9 @@ export function HeaderMaturityIndicators({ riskLevel, criticality, maturityPerce
                   <div key={i} className="flex items-center gap-3 p-2 rounded-lg border border-border bg-background">
                     <span className="text-xs font-medium text-foreground flex-1">{area.label}</span>
                     <div className="w-24 h-1.5 rounded-full bg-muted overflow-hidden">
-                      <div className={`h-full rounded-full ${area.score >= 70 ? "bg-success" : area.score >= 40 ? "bg-warning" : "bg-destructive"}`} style={{ width: `${area.score}%` }} />
+                      <div className={`h-full rounded-full ${maturityBgClass(area.score)}`} style={{ width: `${area.score}%` }} />
                     </div>
-                    <span className={`text-xs font-bold tabular-nums w-8 text-right ${area.score >= 70 ? "text-success" : area.score >= 40 ? "text-warning" : "text-destructive"}`}>{area.score}%</span>
+                    <span className={`text-xs font-bold w-14 text-right ${maturityTextClass(area.score)}`}>{maturityLabelNb(getMaturityLevel(area.score))}</span>
                   </div>
                 ))}
               </div>
