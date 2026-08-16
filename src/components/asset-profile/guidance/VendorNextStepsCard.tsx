@@ -87,7 +87,7 @@ export function VendorNextStepsCard({ steps, onRunStep, onRunAllLara, onShowAll 
                 <div className="mt-1.5 flex items-center gap-2">
                   {step.owner === "lara" ? (
                     <span className="inline-flex items-center gap-1 rounded-full border border-recommend/30 bg-recommend/10 px-1.5 py-0.5 text-[10px] font-medium text-recommend">
-                      <LaraAvatar size="xs" />
+                      <LaraAvatar size={12} />
                       {isNb ? "Lara kan gjøre dette" : "Lara can do this"}
                     </span>
                   ) : (
