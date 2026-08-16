@@ -43,8 +43,6 @@ import {
 } from "@/lib/documentHub";
 
 
-type GroupBy = "module" | "type" | "uploader";
-
 const STATUS_STYLES: Record<HubStatus, string> = {
   current: "bg-success/10 text-success border-success/20",
   pending: "bg-muted text-muted-foreground border-border",
@@ -68,8 +66,8 @@ export default function DocumentHub() {
   const [statuses, setStatuses] = useState<HubStatus[]>([]);
   const [uploader, setUploader] = useState<string | null>(null);
   const [onlyScore, setOnlyScore] = useState(false);
-  const [groupBy, setGroupBy] = useState<GroupBy>("module");
   const [selected, setSelected] = useState<HubDocument | null>(null);
+
 
   const toggle = <T,>(list: T[], set: (v: T[]) => void, value: T) =>
     set(list.includes(value) ? list.filter((v) => v !== value) : [...list, value]);
