@@ -12,7 +12,7 @@ export function useDocumentHub() {
   const { data, isLoading } = useQuery({
     queryKey: ["document-hub"],
     queryFn: async () => {
-      const [vendorDocs, frameworkDocs, workAreaDocs, uploadedDocs, assets, workAreas, frameworks] =
+      const [vendorDocs, frameworkDocs, workAreaDocs, uploadedDocs, assets, workAreas, frameworks, reqEvidence] =
         await Promise.all([
           supabase
             .from("vendor_documents")
@@ -28,6 +28,9 @@ export function useDocumentHub() {
             .from("selected_frameworks")
             .select("framework_id, framework_name, is_selected")
             .eq("is_selected", true),
+          supabase
+            .from("requirement_evidence")
+            .select("document_id, framework_id, requirement_id, coverage_ratio"),
         ]);
 
       const assetsById: Record<string, { name: string; asset_type: string }> = {};
@@ -54,8 +57,10 @@ export function useDocumentHub() {
           assetsById,
           workAreasById,
           frameworkNames,
+          requirementEvidence: (reqEvidence.data || []) as any[],
         },
         frameworks: (frameworks.data || []) as any[],
+        reqEvidence: (reqEvidence.data || []) as any[],
       };
     },
     staleTime: 1000 * 60,
@@ -72,13 +77,22 @@ export function useDocumentHub() {
       data.frameworks.map((f) => ({ framework_id: f.framework_id, framework_name: f.framework_name })),
       data.raw.vendorDocs as any,
     );
-    return { scoreDocIds: new Set(summary.linkedDocIds), coverage: summary };
+    const ids = new Set(summary.linkedDocIds);
+    // Dokumenter som er koblet direkte til et krav i Regelverk teller også.
+    data.reqEvidence.forEach((r) => ids.add(r.document_id));
+    return { scoreDocIds: ids, coverage: summary };
   }, [data]);
 
   /** Regelverk som et gitt dokument bidrar til. */
   const frameworksForDoc = (docId: string): string[] => {
-    if (!coverage) return [];
     const names: string[] = [];
+    (data?.reqEvidence ?? [])
+      .filter((r) => r.document_id === docId)
+      .forEach((r) => {
+        const name = data?.raw.frameworkNames[r.framework_id] || r.framework_id;
+        if (!names.includes(name)) names.push(name);
+      });
+    if (!coverage) return names;
     coverage.frameworks.forEach((fw) => {
       if (fw.requirements.some((r) => r.doc?.id === docId)) names.push(fw.frameworkName);
     });
@@ -87,8 +101,11 @@ export function useDocumentHub() {
 
   /** Krav dokumentet dekker, på tvers av regelverk. */
   const requirementsForDoc = (docId: string): string[] => {
-    if (!coverage) return [];
     const names = new Set<string>();
+    (data?.reqEvidence ?? [])
+      .filter((r) => r.document_id === docId)
+      .forEach((r) => names.add(r.requirement_id));
+    if (!coverage) return [...names];
     coverage.frameworks.forEach((fw) => {
       fw.requirements.forEach((r) => {
         if (r.doc?.id === docId) names.add(r.name);
