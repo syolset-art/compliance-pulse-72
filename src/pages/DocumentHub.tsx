@@ -98,19 +98,14 @@ export default function DocumentHub() {
     return { total: documents.length, affectsScore, attention, incomplete };
   }, [documents, scoreDocIds]);
 
-  const groups = useMemo(() => {
-    const map = new Map<string, HubDocument[]>();
-    filtered.forEach((d) => {
-      const key =
-        groupBy === "module"
-          ? MODULE_LABELS[d.module][isNb ? "nb" : "en"]
-          : groupBy === "type"
-            ? documentTypeLabel(d.documentType, isNb)
-            : d.uploadedBy || L("Ukjent opplaster", "Unknown uploader");
-      map.set(key, [...(map.get(key) || []), d]);
+  const sorted = useMemo(() => {
+    return [...filtered].sort((a, b) => {
+      const aDate = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const bDate = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return bDate - aDate;
     });
-    return [...map.entries()].sort((a, b) => b[1].length - a[1].length);
-  }, [filtered, groupBy, isNb]);
+  }, [filtered]);
+
 
   const activeFilters =
     modules.length + types.length + statuses.length + (uploader ? 1 : 0) + (onlyScore ? 1 : 0);
