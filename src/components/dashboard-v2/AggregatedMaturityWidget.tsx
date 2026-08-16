@@ -580,6 +580,16 @@ export function AggregatedMaturityWidget() {
         )}
 
       </div>
+
+      <ControlAreaDetailSheet
+        areaKey={openArea}
+        onOpenChange={(open) => !open && setOpenArea(null)}
+        requirements={requirements}
+        score={openArea ? applyFloor(openArea, Math.round(byDomain[openArea]?.score || 0)) : 0}
+        levelLabel={openAreaLevel.label}
+        levelTextClass={openAreaLevel.textClass}
+        levelProgressClass={openAreaLevel.progressClass}
+      />
     </div>
   );
 }
