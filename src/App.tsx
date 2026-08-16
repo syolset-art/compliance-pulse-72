@@ -75,6 +75,7 @@ import MynderMe from "./pages/MynderMe";
 import EmailTemplates from "./pages/EmailTemplates";
 import TrustProfileArchitecture from "./pages/developer/TrustProfileArchitecture";
 import DashboardV2 from "./pages/DashboardV2";
+import DashboardDynamic from "./pages/DashboardDynamic";
 import CoreDashboard from "./pages/CoreDashboard";
 import FeatureGuide from "./pages/FeatureGuide";
 import MaturityMethodology from "./pages/MaturityMethodology";
