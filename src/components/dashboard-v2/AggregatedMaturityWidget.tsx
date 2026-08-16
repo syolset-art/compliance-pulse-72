@@ -18,6 +18,8 @@ import {
   LineChart, Line, XAxis, YAxis,
   Tooltip as RechartsTooltip, ResponsiveContainer, CartesianGrid, Legend,
 } from "recharts";
+import type { ControlAreaKey } from "@/lib/controlAreas";
+import { ControlAreaDetailSheet } from "@/components/dashboard-v2/ControlAreaDetailSheet";
 
 const PILLARS = [
   { key: "governance", icon: Shield, label_no: "Styring", label_en: "Governance", color: "hsl(var(--primary))" },
@@ -212,6 +214,7 @@ export function AggregatedMaturityWidget() {
   const navigate = useNavigate();
   const { stats, requirements } = useComplianceRequirements({});
   const [viewMode, setViewMode] = useState<ViewMode>("status");
+  const [openArea, setOpenArea] = useState<ControlAreaKey | null>(null);
   const { openChatWithMessage } = useGlobalChat();
 
   const overall = stats.overallScore || { assessed: 0, total: 0, score: 0 };
@@ -242,6 +245,10 @@ export function AggregatedMaturityWidget() {
     flooredPillarScores.reduce((s, v) => s + v, 0) / Math.max(1, flooredPillarScores.length)
   );
   const overallLevel = maturityLevel(aggregatedScore, isNb);
+  const openAreaLevel = maturityLevel(
+    openArea ? applyFloor(openArea, Math.round(byDomain[openArea]?.score || 0)) : 0,
+    isNb
+  );
 
   return (
     <div className="rounded-2xl border border-border bg-card">
@@ -497,7 +504,7 @@ export function AggregatedMaturityWidget() {
                   <button
                     key={pillar.key}
                     title={`${lvl.label} (${percent} %) – ${lvl.hint}`}
-                    onClick={() => navigate("/reports/compliance")}
+                    onClick={() => setOpenArea(pillar.key as ControlAreaKey)}
 
                     className="flex items-center gap-2 w-full p-1.5 rounded-md hover:bg-muted/50 transition-colors"
                   >
@@ -527,7 +534,7 @@ export function AggregatedMaturityWidget() {
                   <button
                     key={pillar.key}
                     title={`${lvl.label} (${percent} %) – ${lvl.hint}`}
-                    onClick={() => navigate("/reports/compliance")}
+                    onClick={() => setOpenArea(pillar.key as ControlAreaKey)}
 
                     className={cn(
                       "rounded-lg border border-border bg-muted/20 overflow-hidden transition-all text-left hover:border-primary/50 hover:bg-muted/40 cursor-pointer",
@@ -577,6 +584,16 @@ export function AggregatedMaturityWidget() {
         )}
 
       </div>
+
+      <ControlAreaDetailSheet
+        areaKey={openArea}
+        onOpenChange={(open) => !open && setOpenArea(null)}
+        requirements={requirements}
+        score={openArea ? applyFloor(openArea, Math.round(byDomain[openArea]?.score || 0)) : 0}
+        levelLabel={openAreaLevel.label}
+        levelTextClass={openAreaLevel.textClass}
+        levelProgressClass={openAreaLevel.progressClass}
+      />
     </div>
   );
 }
