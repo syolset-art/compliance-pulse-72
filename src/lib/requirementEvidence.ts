@@ -206,7 +206,7 @@ export async function linkRequirementEvidence(input: {
     document_id: input.documentId,
     covered_articles: m.coveredArticles,
     missing_articles: m.missingArticles,
-    coverage_ratio: m.coverageRatio,
+    coverage_ratio: coverageRatioColumn(m.coverageRatio),
     created_by: userId,
   }));
 
