@@ -389,12 +389,21 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
           <CardContent className="p-4 space-y-2">
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
               <Shield className="h-3.5 w-3.5" />
-              {isNb ? "Risiko" : "Risk"}
-              <Pencil className="h-3 w-3 ml-auto opacity-0 group-hover:opacity-50 transition-opacity" />
+              {isNb ? "Risikonivå" : "Risk level"}
+              <Button
+                size="sm"
+                variant="outline"
+                className="ml-auto h-7 gap-1 text-[12px]"
+                disabled={laraLoading}
+                onClick={handleLaraSuggest}
+              >
+                <Sparkles className="h-3 w-3" />
+                {isNb ? "Foreslå" : "Suggest"}
+              </Button>
             </div>
             <Select
               value={asset?.risk_level || "medium"}
-              onValueChange={(v) => handleFieldChange("risk_level", v)}
+              onValueChange={handleManualRiskChange}
             >
               <SelectTrigger className={`h-9 text-sm font-semibold border ${severityColor(asset?.risk_level)}`}>
                 <SelectValue />
@@ -408,29 +417,55 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
               </SelectContent>
             </Select>
 
-            <div className="flex items-start gap-1.5 text-[13px] text-muted-foreground leading-tight">
-              <Sparkles className="h-3.5 w-3.5 text-primary mt-0.5 shrink-0" />
-              <span>
-                {isNb ? "Foreslått av Lara: " : "Suggested by Lara: "}
-                <span className="font-medium text-foreground">
-                  {getLabel(riskOptions, riskSuggestion.level)}
+            {riskSetBy ? (
+              <div className="flex items-start gap-1.5 rounded-md bg-warning/15 px-2 py-1.5 text-[13px] text-warning-foreground/90 leading-tight">
+                <UserRound className="h-3.5 w-3.5 mt-0.5 shrink-0" />
+                <span>
+                  {isNb ? "Satt manuelt av " : "Set manually by "}
+                  {riskSetBy}
+                  {riskSetAt ? `, ${riskSetAt}` : ""}
                 </span>
-                {" — "}
-                {(isNb ? riskSuggestion.reasons : riskSuggestion.reasonsEn).join(" · ")}
-              </span>
-            </div>
-
-            {(asset?.risk_level || "medium") !== riskSuggestion.level && (
-              <Button
-                size="sm"
-                variant="outline"
-                className="h-8 w-full text-[13px]"
-                disabled={laraLoading}
-                onClick={handleLaraSuggest}
-              >
-                {isNb ? "Bruk forslaget" : "Apply suggestion"}
-              </Button>
+              </div>
+            ) : (
+              <div className="flex items-start gap-1.5 text-[13px] text-muted-foreground leading-tight">
+                <Sparkles className="h-3.5 w-3.5 text-primary mt-0.5 shrink-0" />
+                <span>
+                  {isNb ? "Foreslått av Lara: " : "Suggested by Lara: "}
+                  <span className="font-medium text-foreground">
+                    {getLabel(riskOptions, riskSuggestion.level)}
+                  </span>
+                  {" — "}
+                  {(isNb ? riskSuggestion.reasons : riskSuggestion.reasonsEn).join(" · ")}
+                </span>
+              </div>
             )}
+
+            {riskSetBy && (
+              <div className="space-y-1">
+                <p className="text-[12px] text-muted-foreground">
+                  {isNb ? "Begrunnelse " : "Rationale "}
+                  <span className="text-muted-foreground/70">
+                    {isNb ? "(påkrevd ved manuell overstyring)" : "(required for manual override)"}
+                  </span>
+                </p>
+                <Textarea
+                  value={rationaleDraft}
+                  onChange={(e) => setRationaleDraft(e.target.value)}
+                  onBlur={saveRationale}
+                  rows={3}
+                  className="text-[13px]"
+                  placeholder={isNb
+                    ? "F.eks. ROS-analyse gjennomført 12.06.2026 viser forhøyet risiko ved bortfall."
+                    : "E.g. risk assessment from 12 June 2026 shows elevated risk on outage."}
+                />
+                {!rationaleDraft.trim() && (
+                  <p className="text-[12px] text-destructive">
+                    {isNb ? "Begrunnelse mangler." : "Rationale is missing."}
+                  </p>
+                )}
+              </div>
+            )}
+
 
             {riskSuggestion.needsRosDpia && (
               <div className="flex items-start gap-1.5 rounded-md border border-warning/20 bg-warning/10 p-2 text-[13px] text-warning leading-tight">
