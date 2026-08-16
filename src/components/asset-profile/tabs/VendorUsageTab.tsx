@@ -176,17 +176,21 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
     updateMutation.mutate({ sensitive_data_categories: next } as any);
   };
 
+  const riskSuggestion = suggestVendorRisk({
+    criticality: asset?.criticality,
+    priority: (asset as any)?.priority,
+    gdprRole: asset?.gdpr_role,
+    sensitive: sensitiveOn,
+  });
+
   const handleLaraSuggest = async () => {
     setLaraLoading(true);
-    // Simulate AI suggestion based on context
     setTimeout(() => {
-      const suggested = asset?.vendor_category === "cloud" || dataCategories.some(dc => dc.category === "sensitive")
-        ? "high" : "medium";
-      handleFieldChange("risk_level", suggested);
-      toast.success(isNb ? `Lara foreslår: ${suggested === "high" ? "Høy" : "Middels"} risiko` : `Lara suggests: ${suggested === "high" ? "High" : "Medium"} risk`);
+      handleFieldChange("risk_level", riskSuggestion.level);
       setLaraLoading(false);
-    }, 1200);
+    }, 600);
   };
+
 
   const getLabel = (options: typeof criticalityOptions, value: string | null | undefined) => {
     const opt = options.find(o => o.value === (value || "not_set"));
