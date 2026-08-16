@@ -22,7 +22,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { CheckCircle2, Loader2, Sparkles, Upload } from "lucide-react";
-import { persistHubDocument, linkRequirementEvidence } from "@/lib/requirementEvidence";
+import { persistDocument, linkRequirementEvidence } from "@/lib/requirementEvidence";
 import { analyseDocumentCoverage, coverageLabel, type CoverageMatch } from "@/lib/laraDocumentCoverage";
 import { hasDocumentationCatalog } from "@/lib/requirementDocumentationHints";
 
@@ -108,7 +108,7 @@ export function UploadHubDocumentDialog({
     }
     setFileError(null);
     setStep("saving");
-    const result = await persistHubDocument({
+    const result = await persistDocument({
       file,
       displayName: name || file.name,
       documentType: type,

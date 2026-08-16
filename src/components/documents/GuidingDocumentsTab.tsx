@@ -8,6 +8,9 @@ import {
   frameworkDocumentationCatalog,
   hasDocumentationCatalog,
 } from "@/lib/requirementDocumentationHints";
+import { getRequirementsByFramework } from "@/lib/complianceRequirementsData";
+import { toCanonicalArea, getControlAreaLabel } from "@/lib/controlAreas";
+import { expectedDocLabel } from "@/lib/frameworkEvidenceExpectations";
 import { McpDocumentDiscoveryPanel } from "./McpDocumentDiscoveryPanel";
 import type { HubDocument } from "@/lib/documentHub";
 
@@ -44,16 +47,44 @@ export function GuidingDocumentsTab({ frameworks, documents, onUpload }: Props) 
   const groups = useMemo(
     () =>
       frameworks
-        .filter((f) => hasDocumentationCatalog(f.framework_id))
-        .map((f) => ({
-          framework: f,
-          entries: frameworkDocumentationCatalog(f.framework_id).map((entry) => ({
-            ...entry,
-            docs: entry.docs.map((d) => ({ name: d, existing: findExisting(d, documents) })),
-          })),
-        })),
-    [frameworks, documents],
+        .map((f) => {
+          // Foretrekk den kuraterte katalogen; ellers utled forventet dokumentasjon
+          // fra kravene i regelverket (frameworkEvidenceExpectations).
+          let entries: { key: string; label: string; docs: string[] }[];
+          if (hasDocumentationCatalog(f.framework_id)) {
+            entries = frameworkDocumentationCatalog(f.framework_id).map((e) => ({
+              key: e.requirementId,
+              label: e.label,
+              docs: e.docs,
+            }));
+          } else {
+            const byArea: Record<string, string[]> = {};
+            for (const req of getRequirementsByFramework(f.framework_id)) {
+              const area = toCanonicalArea(req.sla_category);
+              const label = expectedDocLabel(req, isNb);
+              byArea[area] ??= [];
+              if (!byArea[area].includes(label)) byArea[area].push(label);
+            }
+            entries = Object.entries(byArea).map(([area, docs]) => ({
+              key: area,
+              label: getControlAreaLabel(area, isNb ? "nb" : "en"),
+              docs,
+            }));
+          }
+
+          return {
+            framework: f,
+            entries: entries.map((entry) => ({
+              ...entry,
+              docs: entry.docs.map((d) => ({ name: d, existing: findExisting(d, documents) })),
+            })),
+          };
+        })
+        .filter((g) => g.entries.length > 0),
+    [frameworks, documents, isNb],
   );
+
+
 
   return (
     <div className="space-y-5">
@@ -94,7 +125,7 @@ export function GuidingDocumentsTab({ frameworks, documents, onUpload }: Props) 
               {group.entries.map((entry) =>
                 entry.docs.map((doc) => (
                   <div
-                    key={`${entry.requirementId}-${doc.name}`}
+                    key={`${entry.key}-${doc.name}`}
                     className="flex items-center gap-3 px-3 py-2"
                   >
                     {doc.existing ? (

@@ -149,7 +149,7 @@ export async function fetchRequirementEvidence(
  * brukeren velger «Analyser senere». Speiles inn i `vendor_documents` på egen
  * organisasjon, slik at hub-en og modenhetsberegningen ser det med én gang.
  */
-export async function persistHubDocument(input: {
+export async function persistDocument(input: {
   file: File;
   displayName: string;
   documentType: string;
