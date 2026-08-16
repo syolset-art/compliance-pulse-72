@@ -432,13 +432,15 @@ const Reports = () => {
               </Card>
             </TabsContent>
 
-            <TabsContent value="portefoljer" className="space-y-4">
-              <PortfolioReportView
-                vendors={vendors}
-                systems={systems}
-                allAssets={portfolioAssets}
-              />
-            </TabsContent>
+            {showPortfolio && (
+              <TabsContent value="portefoljer" className="space-y-4">
+                <PortfolioReportView
+                  vendors={vendors}
+                  systems={systems}
+                  allAssets={portfolioAssets}
+                />
+              </TabsContent>
+            )}
 
             <TabsContent value="gdpr" className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
