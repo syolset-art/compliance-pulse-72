@@ -1,10 +1,10 @@
-import { Shield, Lock, Brain, Scale, HardHat, Globe2 } from "lucide-react";
+import { Shield, Lock, Brain, Scale, HardHat, Globe2, BookOpen } from "lucide-react";
 
 export interface Framework {
   id: string;
   name: string;
   description: string;
-  category: 'privacy' | 'security' | 'ai' | 'other';
+  category: 'privacy' | 'security' | 'ai' | 'guideline' | 'other';
   isMandatory?: boolean;
   isRecommended?: boolean;
   triggerQuestion?: string;
@@ -226,6 +226,49 @@ export const frameworks: Framework[] = [
     category: 'other',
     triggerQuestion: 'Er virksomheten omfattet av krav til bærekraftsrapportering?',
     estimatedCredits: 10
+  },
+
+  // Retningslinjer og rammeverk (ikke lovpålagt, men styrende praksis)
+  {
+    id: 'nsm-grunnprinsipper',
+    name: 'NSM grunnprinsipper for IKT-sikkerhet',
+    description: 'Nasjonal sikkerhetsmyndighets anbefalte grunnprinsipper for IKT-sikkerhet',
+    category: 'guideline',
+    isRecommended: true,
+    triggerQuestion: 'Ønsker dere å følge NSMs anbefalte praksis?',
+    estimatedCredits: 6
+  },
+  {
+    id: 'cis-controls',
+    name: 'CIS Controls',
+    description: 'Prioriterte sikkerhetstiltak fra Center for Internet Security',
+    category: 'guideline',
+    triggerQuestion: 'Ønsker dere et prioritert rammeverk for sikkerhetstiltak?',
+    estimatedCredits: 6
+  },
+  {
+    id: 'nist-csf',
+    name: 'NIST Cybersecurity Framework',
+    description: 'Rammeverk for å identifisere, beskytte, oppdage, respondere og gjenopprette',
+    category: 'guideline',
+    triggerQuestion: 'Ønsker dere å styre sikkerhetsarbeidet etter NIST CSF?',
+    estimatedCredits: 8
+  },
+  {
+    id: 'normen',
+    name: 'Normen (helse og omsorg)',
+    description: 'Norm for informasjonssikkerhet og personvern i helse- og omsorgssektoren',
+    category: 'guideline',
+    triggerQuestion: 'Leverer dere tjenester i helse- og omsorgssektoren?',
+    estimatedCredits: 8
+  },
+  {
+    id: 'iso27002',
+    name: 'ISO/IEC 27002',
+    description: 'Veiledning for utforming og bruk av sikkerhetstiltak',
+    category: 'guideline',
+    triggerQuestion: 'Ønsker dere veiledning til tiltakene i ISO 27001?',
+    estimatedCredits: 6
   }
 ];
 
@@ -233,6 +276,7 @@ export const categories: FrameworkCategory[] = [
   { id: 'privacy', name: 'Personvern', nameEn: 'Privacy', icon: Shield, color: 'text-mynder-blue', bgColor: 'bg-mynder-blue/10' },
   { id: 'security', name: 'Informasjonssikkerhet', nameEn: 'Information Security', icon: Lock, color: 'text-mynder-blue', bgColor: 'bg-mynder-blue/10' },
   { id: 'ai', name: 'AI Governance', nameEn: 'AI Governance', icon: Brain, color: 'text-purple-accent', bgColor: 'bg-purple-accent/10' },
+  { id: 'guideline', name: 'Retningslinjer og rammeverk', nameEn: 'Guidelines and frameworks', icon: BookOpen, color: 'text-mynder-blue', bgColor: 'bg-mynder-blue/10' },
   { id: 'other', name: 'Øvrige regelverk', nameEn: 'Other Regulations', icon: Scale, color: 'text-mynder-blue', bgColor: 'bg-mynder-blue/10' }
 ];
 
