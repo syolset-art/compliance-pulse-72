@@ -16,16 +16,9 @@ interface ShareVendorPortfolioDialogProps {
   vendors: any[];
 }
 
-function scoreColor(score: number) {
-  if (score >= 75) return "text-success";
-  if (score >= 50) return "text-warning";
-  return "text-destructive";
-}
-
 function riskBucket(score: number): "low" | "medium" | "high" {
-  if (score >= 75) return "low";
-  if (score >= 50) return "medium";
-  return "high";
+  const level = getMaturityLevel(score);
+  return level === "high" ? "low" : level === "medium" ? "medium" : "high";
 }
 
 export function ShareVendorPortfolioDialog({ open, onOpenChange, vendors }: ShareVendorPortfolioDialogProps) {
