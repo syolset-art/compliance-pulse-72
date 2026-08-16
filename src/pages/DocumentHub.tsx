@@ -145,7 +145,7 @@ export default function DocumentHub() {
               </div>
 
               <button className={pill(!onlyScore && activeFilters === 0)} onClick={() => {
-                setModules([]); setTypes([]); setStatuses([]); setUploader(null); setOnlyScore(false);
+                setModules([]); setTypes([]); setUploader(null); setOnlyScore(false);
               }}>
                 {L("Alle", "All")}
               </button>
