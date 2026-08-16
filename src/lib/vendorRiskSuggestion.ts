@@ -1,7 +1,7 @@
 // Regelbasert risikoforslag (v1) for leverandører/systemer.
 // Brukeren setter risiko selv — dette er kun et forslag fra Lara.
 
-export type SuggestedRiskLevel = "low" | "medium" | "high";
+export type SuggestedRiskLevel = "low" | "medium" | "high" | "critical";
 
 export interface VendorRiskSuggestionInput {
   criticality?: string | null;
