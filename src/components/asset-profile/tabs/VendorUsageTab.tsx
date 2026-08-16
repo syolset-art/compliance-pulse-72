@@ -187,13 +187,54 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
     sensitive: sensitiveOn,
   });
 
+  const riskMeta = ((asset?.metadata as any) || {}) as Record<string, any>;
+  const riskSetBy: string | null = riskMeta.risk_set_by || null;
+  const riskSetAt: string | null = riskMeta.risk_set_at
+    ? new Date(riskMeta.risk_set_at).toLocaleDateString(isNb ? "nb-NO" : "en-GB")
+    : null;
+
+  const [rationaleDraft, setRationaleDraft] = useState<string>("");
+  const [rationaleLoaded, setRationaleLoaded] = useState(false);
+  if (!rationaleLoaded && asset) {
+    setRationaleLoaded(true);
+    setRationaleDraft(riskMeta.risk_rationale || "");
+  }
+
+  const saveMeta = (patch: Record<string, any>) => {
+    updateMutation.mutate({ metadata: { ...riskMeta, ...patch } } as any);
+  };
+
+  const currentUserName =
+    (user?.user_metadata as any)?.full_name || user?.email || (isNb ? "deg" : "you");
+
+  const handleManualRiskChange = (value: string) => {
+    updateMutation.mutate({
+      risk_level: value,
+      metadata: {
+        ...riskMeta,
+        risk_set_by: currentUserName,
+        risk_set_at: new Date().toISOString(),
+      },
+    } as any);
+  };
+
+  const saveRationale = () => {
+    if ((riskMeta.risk_rationale || "") === rationaleDraft) return;
+    saveMeta({ risk_rationale: rationaleDraft });
+  };
+
   const handleLaraSuggest = async () => {
     setLaraLoading(true);
     setTimeout(() => {
-      handleFieldChange("risk_level", riskSuggestion.level);
+      updateMutation.mutate({
+        risk_level: riskSuggestion.level,
+        metadata: { ...riskMeta, risk_set_by: null, risk_set_at: null, risk_rationale: null },
+      } as any);
+      setRationaleDraft("");
       setLaraLoading(false);
     }, 600);
   };
+
 
 
   const getLabel = (options: typeof criticalityOptions, value: string | null | undefined) => {
