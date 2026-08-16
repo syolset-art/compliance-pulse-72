@@ -3,7 +3,6 @@ import { useTranslation } from "react-i18next";
 import { Sidebar } from "@/components/Sidebar";
 import { DemoModuleSwitcher } from "@/components/dashboard-dynamic/DemoModuleSwitcher";
 import {
-  ActivationCard,
   AssetsBlock,
   CoreBlock,
   EmptyStateBlock,
@@ -17,7 +16,6 @@ import {
 } from "@/components/dashboard-dynamic/DashboardBlocks";
 import {
   DASHBOARD_DEMO_EVENT,
-  DASHBOARD_MODULES,
   clearDemoOverrides,
   getDemoOverrides,
   resolveActiveModules,
@@ -69,8 +67,6 @@ export default function DashboardDynamic() {
 
   const active = useMemo(() => resolveActiveModules(overrides), [overrides]);
   const blocks = useMemo(() => getVisibleBlocks(active, OPEN_WORK), [active]);
-
-  const inactive = DASHBOARD_MODULES.filter((m) => !active.has(m.key)).map((m) => m.key);
 
   const fullWidth = blocks.filter((b) => b.fullWidth);
   const gridBlocks = blocks.filter((b) => !b.fullWidth);
@@ -125,18 +121,6 @@ export default function DashboardDynamic() {
             </div>
           )}
 
-          {inactive.length > 0 && (
-            <div className="space-y-2 pt-2">
-              <h2 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                {isNb ? "Kan aktiveres" : "Can be activated"}
-              </h2>
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {inactive.map((key) => (
-                  <ActivationCard key={key} isNb={isNb} moduleKey={key} />
-                ))}
-              </div>
-            </div>
-          )}
         </div>
       </main>
     </div>
