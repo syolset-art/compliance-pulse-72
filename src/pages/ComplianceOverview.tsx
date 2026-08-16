@@ -19,14 +19,27 @@ const ACTIVE_FRAMEWORK_IDS = [
   'ai-act', 'iso42001', 'apenhetsloven', 'arbeidsmiljoloven',
 ];
 
-// Pillar definitions
-const PILLARS = [
-  { id: 'governance', name: 'Styring', score: 94, color: 'bg-status-closed', badgeColor: 'text-status-closed bg-status-closed/10 dark:text-status-closed dark:bg-status-closed/40', level: 'HØY', measures: 4 },
-  { id: 'operations', name: 'Drift og sikkerhet', score: 77, color: 'bg-warning', badgeColor: 'text-warning bg-warning/10 dark:text-warning dark:bg-warning/40', level: 'MIDDELS', measures: 5 },
-  { id: 'identityAccess', name: 'Personvern og datahåndtering', score: 92, color: 'bg-status-closed', badgeColor: 'text-status-closed bg-status-closed/10 dark:text-status-closed dark:bg-status-closed/40', level: 'HØY', measures: 5 },
-  { id: 'privacy', name: 'Personvern og datahåndtering', score: 68, color: 'bg-warning', badgeColor: 'text-warning bg-warning/10 dark:text-warning dark:bg-warning/40', level: 'MIDDELS', measures: 4 },
-  { id: 'supplier', name: 'Tredjepart og verdikjede', score: 61, color: 'bg-warning', badgeColor: 'text-warning bg-warning/10 dark:text-warning dark:bg-warning/40', level: 'MIDDELS', measures: 3 },
-];
+// Pillar definitions — bruker de fem kanoniske kontrollområdene (src/lib/controlAreas.ts)
+const PILLAR_SCORES: Record<ControlAreaKey, { score: number; measures: number }> = {
+  governance: { score: 94, measures: 4 },
+  operations: { score: 77, measures: 5 },
+  identityAccess: { score: 92, measures: 5 },
+  privacy: { score: 68, measures: 4 },
+  vendor: { score: 61, measures: 3 },
+};
+
+const PILLARS = CONTROL_AREAS.map((area) => {
+  const { score, measures } = PILLAR_SCORES[area.key];
+  const level = score >= 80 ? "HØY" : score >= 40 ? "MIDDELS" : "LAV";
+  const color = score >= 80 ? "bg-status-closed" : score >= 40 ? "bg-warning" : "bg-destructive";
+  const badgeColor =
+    score >= 80
+      ? "text-status-closed bg-status-closed/10"
+      : score >= 40
+        ? "text-warning bg-warning/10"
+        : "text-destructive bg-destructive/10";
+  return { id: area.key, name: area.labelNb, icon: area.icon, score, color, badgeColor, level, measures };
+});
 
 interface FrameworkScore {
   id: string;
