@@ -290,7 +290,7 @@ export default function DocumentHub() {
                       <TableCell className="hidden lg:table-cell py-2 text-[13px] text-muted-foreground">
                         {doc.uploadedBy || L("Ukjent", "Unknown")}
                       </TableCell>
-                      <TableCell className="hidden lg:table-cell py-2 text-[13px] text-muted-foreground">
+                      <TableCell className="py-2 text-[13px] text-muted-foreground">
                         {doc.createdAt
                           ? new Date(doc.createdAt).toLocaleDateString(isNb ? "nb-NO" : "en-GB")
                           : "—"}
