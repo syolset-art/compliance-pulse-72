@@ -56,7 +56,6 @@ export default function DocumentHub() {
   const [search, setSearch] = useState("");
   const [modules, setModules] = useState<HubModule[]>([]);
   const [types, setTypes] = useState<HubTypeGroup[]>([]);
-  const [statuses, setStatuses] = useState<HubStatus[]>([]);
   const [uploader, setUploader] = useState<string | null>(null);
   const [onlyScore, setOnlyScore] = useState(false);
   const [selected, setSelected] = useState<HubDocument | null>(null);
