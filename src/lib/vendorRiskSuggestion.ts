@@ -58,6 +58,6 @@ export function suggestVendorRisk(input: VendorRiskSuggestionInput): VendorRiskS
     score,
     reasons,
     reasonsEn,
-    needsRosDpia: level === "high" || !!input.sensitive,
+    needsRosDpia: level === "high" || level === "critical" || !!input.sensitive,
   };
 }
