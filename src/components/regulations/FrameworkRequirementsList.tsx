@@ -117,6 +117,9 @@ interface FrameworkRequirementsListProps {
   highlightRequirementId?: string | null;
 }
 
+import { useRequirementEvidence } from "@/hooks/useRequirementEvidence";
+import { persistRequirementEvidence } from "@/lib/requirementEvidence";
+
 export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlightRequirementId }: FrameworkRequirementsListProps) => {
   const { i18n } = useTranslation();
   const isNb = i18n.language !== "en";
@@ -163,6 +166,43 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
   const [uiStates, setUiStates] = useState<Record<string, RequirementUiState>>(() =>
     generateUiStates(requirements, agentFollowedUp)
   );
+
+  /** Lagrede bevis fra databasen legges oppå de genererte statusene. */
+  const { byRequirement: storedEvidence, refetch: refetchEvidence } = useRequirementEvidence(frameworkId);
+
+  useEffect(() => {
+    const ids = Object.keys(storedEvidence);
+    if (ids.length === 0) return;
+    setUiStates((prev) => {
+      const next = { ...prev };
+      for (const reqId of ids) {
+        const rows = storedEvidence[reqId];
+        const cur = next[reqId] ?? { progress: "not_started" as ProgressStatus, evidence: "required" as const };
+        const existing = cur.documents ?? [];
+        const knownNames = new Set(existing.map((d) => d.name));
+        const documents = [
+          ...rows.filter((r) => !knownNames.has(r.document.name)).map((r) => r.document),
+          ...existing,
+        ];
+        if (documents.length === existing.length) continue;
+        const covered = Array.from(new Set(rows.flatMap((r) => r.coveredArticles)));
+        const missing = Array.from(
+          new Set(rows.flatMap((r) => r.missingArticles).filter((a) => !covered.includes(a))),
+        );
+        const fullCoverage = missing.length === 0;
+        next[reqId] = {
+          ...cur,
+          progress: "fulfilled",
+          evidence: fullCoverage ? "attested" : "self_reported",
+          documents,
+          coveredArticles: covered,
+          missingArticles: missing,
+          evidenceCount: { collected: covered.length, required: covered.length + missing.length || documents.length },
+        };
+      }
+      return next;
+    });
+  }, [storedEvidence]);
 
 
   const counts = useMemo(() => {
@@ -317,11 +357,30 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
     [frameworkCandidates],
   );
 
+  /** Lagrer dokumentet og krav-koblingene, slik at de vises i Dokument hub. */
+  const saveEvidence = async (requirementIds: string[], result: AttachEvidenceResult) => {
+    try {
+      const docId = await persistRequirementEvidence({
+        file: result.file,
+        frameworkId,
+        requirementIds,
+        document: result.document,
+        coveredArticles: result.coveredArticles,
+        missingArticles: result.missingArticles,
+        coverageRatio: result.coverageRatio,
+      });
+      if (docId) refetchEvidence();
+    } catch (err) {
+      console.error("Kunne ikke lagre bevis", err);
+    }
+  };
+
   const applyFrameworkEvidence = (requirementIds: string[], result: AttachEvidenceResult) => {
     requirementIds.forEach((id) => {
       const req = requirements.find((r) => r.requirement_id === id);
       if (req) applyEvidenceAttachment(id, req, result, { silent: true });
     });
+    void saveEvidence(requirementIds, result);
     setFrameworkAttachOpen(false);
     toast.success(
       isNb
@@ -1239,7 +1298,10 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
           coveredArticles={attachDialog.articles}
           onConfirm={(result) => {
             const req = requirements.find((r) => r.requirement_id === attachDialog.id);
-            if (req) applyEvidenceAttachment(attachDialog.id, req, result);
+            if (req) {
+              applyEvidenceAttachment(attachDialog.id, req, result);
+              void saveEvidence([attachDialog.id], result);
+            }
           }}
         />
       )}
