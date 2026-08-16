@@ -95,8 +95,9 @@ const globalNav = [
 const coreNav = [
   { name: "nav.myWorkAreas", href: "/work-areas", icon: Users },
   { name: "nav.tasks", href: "/tasks", icon: ClipboardList },
-  { name: "nav.protocols", href: "/protocols", icon: ScrollText },
 ];
+const protocolsLink = { name: "nav.protocols", href: "/protocols", icon: ScrollText };
+
 
 // Standalone module links (each activatable independently)
 const vendorLink = { name: "nav.vendors", href: "/vendors", icon: Building2 };
