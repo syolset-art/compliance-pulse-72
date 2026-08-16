@@ -18,6 +18,8 @@ import {
   LineChart, Line, XAxis, YAxis,
   Tooltip as RechartsTooltip, ResponsiveContainer, CartesianGrid, Legend,
 } from "recharts";
+import type { ControlAreaKey } from "@/lib/controlAreas";
+import { ControlAreaDetailSheet } from "@/components/dashboard-v2/ControlAreaDetailSheet";
 
 const PILLARS = [
   { key: "governance", icon: Shield, label_no: "Styring", label_en: "Governance", color: "hsl(var(--primary))" },
