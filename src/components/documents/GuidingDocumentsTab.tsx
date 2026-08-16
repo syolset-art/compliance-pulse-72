@@ -8,6 +8,9 @@ import {
   frameworkDocumentationCatalog,
   hasDocumentationCatalog,
 } from "@/lib/requirementDocumentationHints";
+import { getRequirementsByFramework } from "@/lib/complianceRequirementsData";
+import { toCanonicalArea } from "@/lib/controlAreas";
+import { expectedDocLabel } from "@/lib/frameworkEvidenceExpectations";
 import { McpDocumentDiscoveryPanel } from "./McpDocumentDiscoveryPanel";
 import type { HubDocument } from "@/lib/documentHub";
 
@@ -122,7 +125,7 @@ export function GuidingDocumentsTab({ frameworks, documents, onUpload }: Props) 
               {group.entries.map((entry) =>
                 entry.docs.map((doc) => (
                   <div
-                    key={`${entry.requirementId}-${doc.name}`}
+                    key={`${entry.key}-${doc.name}`}
                     className="flex items-center gap-3 px-3 py-2"
                   >
                     {doc.existing ? (
