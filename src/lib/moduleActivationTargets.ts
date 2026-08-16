@@ -72,6 +72,17 @@ export const MODULE_ACTIVATION_TARGETS: Record<string, ModuleActivationTarget> =
     ],
   },
 
+  deviations: {
+    key: "deviations",
+    title: "Avviksregister",
+    route: "/deviations",
+    monthlyPriceKr: 0,
+    nextSteps: [
+      { label: "Åpne Avviksregisteret", description: "Se avvik, tiltak og oppfølging.", route: "/deviations" },
+      { label: "Registrer første avvik", description: "Meld inn et avvik og la Lara foreslå tiltak.", route: "/deviations" },
+    ],
+  },
+
   partner: {
     key: "partner",
     title: "Partnerarbeidsflate",
