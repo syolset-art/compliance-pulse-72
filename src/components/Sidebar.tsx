@@ -614,6 +614,26 @@ const SidebarContent = () => {
                 <Shield className="h-4 w-4" />
                 {isNb ? "Trust Center" : "Trust Center"}
               </Link>
+
+              {/* Dynamisk dashbord (prototype) — bygges av aktiverte produkter */}
+              {(() => {
+                const dynActive = location.pathname === "/dashboard-dynamic";
+                return (
+                  <Link
+                    to="/dashboard-dynamic"
+                    className={cn(
+                      "flex items-center gap-2.5 rounded-lg px-3 py-2 text-[0.9375rem] font-medium transition-all duration-200 relative",
+                      dynActive
+                        ? "bg-gradient-to-r from-primary/10 to-transparent text-sidebar-primary border-l-2 border-primary"
+                        : "text-sidebar-foreground/80 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
+                    )}
+                  >
+                    {dynActive && <span className="h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />}
+                    <LayoutDashboard className="h-4 w-4" />
+                    {isNb ? "Dashbord (dynamisk)" : "Dashboard (dynamic)"}
+                  </Link>
+                );
+              })()}
               {/* Mynder Core-lenken ligger nå kun i Core-seksjonen lenger ned. */}
 
               {boardNav.map((item) => {
