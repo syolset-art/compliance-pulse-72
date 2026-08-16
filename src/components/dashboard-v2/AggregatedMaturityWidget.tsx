@@ -530,7 +530,7 @@ export function AggregatedMaturityWidget() {
                   <button
                     key={pillar.key}
                     title={`${lvl.label} (${percent} %) – ${lvl.hint}`}
-                    onClick={() => navigate("/reports/compliance")}
+                    onClick={() => setOpenArea(pillar.key as ControlAreaKey)}
 
                     className={cn(
                       "rounded-lg border border-border bg-muted/20 overflow-hidden transition-all text-left hover:border-primary/50 hover:bg-muted/40 cursor-pointer",
