@@ -38,6 +38,7 @@ import RegulationsBeta from "./pages/RegulationsBeta";
 
 import Subscriptions from "./pages/Subscriptions";
 import ActivityLog from "./pages/ActivityLog";
+import DocumentHub from "./pages/DocumentHub";
 import Wiki from "./pages/Wiki";
 import Integrations from "./pages/Integrations";
 import McpAgentConnections from "./pages/McpAgentConnections";
@@ -161,6 +162,7 @@ const App = () => (
                   <Route path="/regulations/:frameworkId" element={<FrameworkDetail />} />
                   <Route path="/subscriptions" element={<Subscriptions />} />
                   <Route path="/activity-log" element={<ActivityLog />} />
+                  <Route path="/documents" element={<DocumentHub />} />
                   <Route path="/wiki" element={<Wiki />} />
 
                   <Route path="/settings/integrations" element={<Integrations />} />
