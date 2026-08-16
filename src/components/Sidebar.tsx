@@ -96,7 +96,6 @@ const coreNav = [
   { name: "nav.myWorkAreas", href: "/work-areas", icon: Users },
   { name: "nav.tasks", href: "/tasks", icon: ClipboardList },
   { name: "nav.protocols", href: "/protocols", icon: ScrollText },
-  { name: "nav.reports", href: "/reports", icon: FileText },
 ];
 
 // Standalone module links (each activatable independently)
@@ -225,6 +224,77 @@ const TrustCenterMenu = () => {
     </div>
   );
 };
+
+// Rapporter — generell funksjon på tvers av moduler, med fast undermeny.
+const ReportsMenu = () => {
+  const { t, i18n } = useTranslation();
+  const isNb = i18n.language?.startsWith("nb") || i18n.language === "no";
+  const location = useLocation();
+  const items = [
+    {
+      name: isNb ? "Samlet modenhet" : "Overall maturity",
+      href: "/reports/compliance",
+      icon: Shield,
+    },
+    {
+      name: isNb ? "Alle rapporter" : "All reports",
+      href: "/reports/all",
+      icon: FileText,
+    },
+  ];
+  const isActive = location.pathname.startsWith("/reports");
+  const [open, setOpen] = useState(isActive);
+
+  useEffect(() => {
+    if (isActive) setOpen(true);
+  }, [isActive]);
+
+  return (
+    <div className="mt-1">
+      <button
+        onClick={() => setOpen(!open)}
+        className={cn(
+          "flex w-full items-center justify-between rounded-lg px-3 py-2 text-[0.9375rem] font-medium transition-all duration-200",
+          isActive
+            ? "bg-gradient-to-r from-primary/10 to-transparent text-sidebar-primary border-l-2 border-primary"
+            : "text-sidebar-foreground/80 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
+        )}
+      >
+        <div className="flex items-center gap-2.5">
+          <FileText className="h-4 w-4" />
+          <span>{t("nav.reports", isNb ? "Rapporter" : "Reports")}</span>
+        </div>
+        <ChevronDown className={cn("h-3.5 w-3.5 transition-transform duration-200", open && "rotate-180")} />
+      </button>
+
+      <div className={cn("overflow-hidden transition-all duration-200", open ? "max-h-64 opacity-100" : "max-h-0 opacity-0")}>
+        <div className="ml-3 mt-0.5 space-y-0.5 border-l border-sidebar-border/50 pl-3">
+          {items.map((item) => {
+            const active = location.pathname === item.href;
+            return (
+              <Link
+                key={item.href}
+                to={item.href}
+                className={cn(
+                  "flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-sm font-medium transition-all duration-150",
+                  active
+                    ? "bg-sidebar-accent text-sidebar-primary"
+                    : "text-sidebar-foreground/60 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
+                )}
+              >
+                {active && <span className="h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />}
+                <item.icon className="h-3.5 w-3.5" />
+                {item.name}
+              </Link>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+
 
 // Partner-modus: egen sidebar-meny som erstatter compliance-navigasjonen
 const PartnerNav = () => {
@@ -684,20 +754,23 @@ const SidebarContent = () => {
         {globalNav.map((item) => {
           const isActive = location.pathname === item.href;
           return (
-            <Link
-              key={item.name}
-              to={item.href}
-              className={cn(
-                "flex items-center gap-2.5 rounded-lg px-3 py-2 text-[0.9375rem] font-medium transition-all duration-200 relative",
-                isActive
-                  ? "bg-gradient-to-r from-primary/10 to-transparent text-sidebar-primary border-l-2 border-primary"
-                  : "text-sidebar-foreground/80 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
-              )}
-            >
-              {isActive && <span className="h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />}
-              <item.icon className="h-4 w-4" />
-              {t(item.name)}
-            </Link>
+            <React.Fragment key={item.name}>
+              <Link
+                to={item.href}
+                className={cn(
+                  "flex items-center gap-2.5 rounded-lg px-3 py-2 text-[0.9375rem] font-medium transition-all duration-200 relative",
+                  isActive
+                    ? "bg-gradient-to-r from-primary/10 to-transparent text-sidebar-primary border-l-2 border-primary"
+                    : "text-sidebar-foreground/80 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
+                )}
+              >
+                {isActive && <span className="h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />}
+                <item.icon className="h-4 w-4" />
+                {t(item.name)}
+              </Link>
+              {/* Rapporter er en generell funksjon — plassert mellom Regelverk og Meldinger */}
+              {item.href === "/regulations" && <ReportsMenu />}
+            </React.Fragment>
           );
         })}
 

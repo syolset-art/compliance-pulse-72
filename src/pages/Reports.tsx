@@ -37,6 +37,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { generateExecutivePortfolioReport } from "@/components/reports/generateExecutivePortfolioReport";
 import { PortfolioReportView } from "@/components/reports/PortfolioReportView";
 import { useState } from "react";
+import { useSubscription } from "@/hooks/useSubscription";
+import { useActivatedServices } from "@/hooks/useActivatedServices";
 
 interface ReportCardProps {
   title: string;
@@ -114,6 +116,14 @@ const Reports = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [generatingPdf, setGeneratingPdf] = useState(false);
+
+  // Rapporter er en generell funksjon: innholdet tilpasses aktiverte produkter.
+  const { hasRegistriesAccess } = useSubscription();
+  const { isServiceActive } = useActivatedServices();
+  const showPortfolio =
+    hasRegistriesAccess || isServiceActive("module-assets") || isServiceActive("module-systems");
+
+
 
   const { data: portfolioAssets = [] } = useQuery({
     queryKey: ["portfolio-assets-report"],
@@ -349,13 +359,15 @@ const Reports = () => {
                   <Building2 className="h-4 w-4 mr-2" />
                   Organisasjon
                 </TabsTrigger>
-                <TabsTrigger
-                  value="portefoljer"
-                  className="relative rounded-none border-b-2 border-transparent bg-transparent px-4 py-2.5 text-sm font-medium text-muted-foreground shadow-none transition-none data-[state=active]:border-primary data-[state=active]:text-foreground data-[state=active]:shadow-none hover:text-foreground"
-                >
-                  <Briefcase className="h-4 w-4 mr-2" />
-                  Porteføljer
-                </TabsTrigger>
+                {showPortfolio && (
+                  <TabsTrigger
+                    value="portefoljer"
+                    className="relative rounded-none border-b-2 border-transparent bg-transparent px-4 py-2.5 text-sm font-medium text-muted-foreground shadow-none transition-none data-[state=active]:border-primary data-[state=active]:text-foreground data-[state=active]:shadow-none hover:text-foreground"
+                  >
+                    <Briefcase className="h-4 w-4 mr-2" />
+                    Porteføljer
+                  </TabsTrigger>
+                )}
                 <TabsTrigger
                   value="gdpr"
                   className="relative rounded-none border-b-2 border-transparent bg-transparent px-4 py-2.5 text-sm font-medium text-muted-foreground shadow-none transition-none data-[state=active]:border-primary data-[state=active]:text-foreground data-[state=active]:shadow-none hover:text-foreground"
@@ -420,13 +432,15 @@ const Reports = () => {
               </Card>
             </TabsContent>
 
-            <TabsContent value="portefoljer" className="space-y-4">
-              <PortfolioReportView
-                vendors={vendors}
-                systems={systems}
-                allAssets={portfolioAssets}
-              />
-            </TabsContent>
+            {showPortfolio && (
+              <TabsContent value="portefoljer" className="space-y-4">
+                <PortfolioReportView
+                  vendors={vendors}
+                  systems={systems}
+                  allAssets={portfolioAssets}
+                />
+              </TabsContent>
+            )}
 
             <TabsContent value="gdpr" className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

@@ -6,7 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Shield, Lock, Brain, Scale, CheckCircle2, AlertTriangle, ArrowRight } from "lucide-react";
+import { ArrowLeft, Shield, Lock, Brain, Scale, CheckCircle2, AlertTriangle, ArrowRight, ChevronRight } from "lucide-react";
+import { CONTROL_AREAS, type ControlAreaKey } from "@/lib/controlAreas";
 import { frameworks, categories, getCategoryById } from "@/lib/frameworkDefinitions";
 import { ReportActionButtons } from "@/components/reports/ReportActionButtons";
 import type { ReportData } from "@/components/reports/DownloadReportDialog";
@@ -19,14 +20,27 @@ const ACTIVE_FRAMEWORK_IDS = [
   'ai-act', 'iso42001', 'apenhetsloven', 'arbeidsmiljoloven',
 ];
 
-// Pillar definitions
-const PILLARS = [
-  { id: 'governance', name: 'Styring', score: 94, color: 'bg-status-closed', badgeColor: 'text-status-closed bg-status-closed/10 dark:text-status-closed dark:bg-status-closed/40', level: 'HØY', measures: 4 },
-  { id: 'operations', name: 'Drift og sikkerhet', score: 77, color: 'bg-warning', badgeColor: 'text-warning bg-warning/10 dark:text-warning dark:bg-warning/40', level: 'MIDDELS', measures: 5 },
-  { id: 'identityAccess', name: 'Personvern og datahåndtering', score: 92, color: 'bg-status-closed', badgeColor: 'text-status-closed bg-status-closed/10 dark:text-status-closed dark:bg-status-closed/40', level: 'HØY', measures: 5 },
-  { id: 'privacy', name: 'Personvern og datahåndtering', score: 68, color: 'bg-warning', badgeColor: 'text-warning bg-warning/10 dark:text-warning dark:bg-warning/40', level: 'MIDDELS', measures: 4 },
-  { id: 'supplier', name: 'Tredjepart og verdikjede', score: 61, color: 'bg-warning', badgeColor: 'text-warning bg-warning/10 dark:text-warning dark:bg-warning/40', level: 'MIDDELS', measures: 3 },
-];
+// Pillar definitions — bruker de fem kanoniske kontrollområdene (src/lib/controlAreas.ts)
+const PILLAR_SCORES: Record<ControlAreaKey, { score: number; measures: number }> = {
+  governance: { score: 94, measures: 4 },
+  operations: { score: 77, measures: 5 },
+  identityAccess: { score: 92, measures: 5 },
+  privacy: { score: 68, measures: 4 },
+  vendor: { score: 61, measures: 3 },
+};
+
+const PILLARS = CONTROL_AREAS.map((area) => {
+  const { score, measures } = PILLAR_SCORES[area.key];
+  const level = score >= 80 ? "HØY" : score >= 40 ? "MIDDELS" : "LAV";
+  const color = score >= 80 ? "bg-status-closed" : score >= 40 ? "bg-warning" : "bg-destructive";
+  const badgeColor =
+    score >= 80
+      ? "text-status-closed bg-status-closed/10"
+      : score >= 40
+        ? "text-warning bg-warning/10"
+        : "text-destructive bg-destructive/10";
+  return { id: area.key, name: area.labelNb, icon: area.icon, score, color, badgeColor, level, measures };
+});
 
 interface FrameworkScore {
   id: string;
@@ -150,40 +164,45 @@ const ComplianceOverview = () => {
             />
           </div>
 
-          {/* Maturity hero */}
-          <Card className="border-primary/20 bg-gradient-to-r from-primary/5 to-transparent">
-            <CardContent className="p-6 space-y-5">
-              {/* Overall score row */}
-              <div className="flex items-center gap-4">
-                <div className="flex items-baseline gap-3">
-                  <p className="text-5xl font-bold text-foreground">{overallScore}%</p>
-                  <p className="text-sm font-medium text-primary">Samlet modenhet</p>
-                </div>
-                <p className="text-xs text-muted-foreground ml-auto max-w-xs text-right leading-relaxed hidden lg:block">
-                  Scoren bygger på eksplisitte org-kontrollpunkter på tvers av fem domener.
-                </p>
+          {/* Modenhet per kontrollområde */}
+          <Card>
+            <CardContent className="p-4 sm:p-5 space-y-4">
+              <div className="flex items-center justify-between gap-3">
+                <h2 className="text-sm font-semibold text-foreground">Modenhet per kontrollområde</h2>
+                <Badge variant="secondary" className="text-xs font-medium">
+                  Trust Score {overallScore}/100
+                </Badge>
               </div>
 
-              {/* Pillars grid - 5 columns */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                 {PILLARS.map((pillar) => (
-                  <Card key={pillar.id} className="border">
-                    <CardContent className="p-3 space-y-1.5">
-                      <div className="flex items-center justify-between gap-1">
-                        <p className="text-xs font-semibold text-foreground leading-tight">{pillar.name}</p>
-                        <div className={`h-2.5 w-2.5 rounded-full ${pillar.color} shrink-0`} />
+                  <button
+                    key={pillar.id}
+                    onClick={() => navigate(`/regulations?area=${pillar.id}`)}
+                    className="group flex items-center gap-3 rounded-lg border border-border bg-card px-3 py-2.5 text-left transition-colors hover:border-primary/40 hover:bg-muted/40"
+                  >
+                    <div className="min-w-0 flex-1 space-y-1.5">
+                      <div className="flex items-center gap-2">
+                        <pillar.icon className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                        <p className="truncate text-sm font-medium text-foreground">{pillar.name}</p>
                       </div>
-                      <p className="text-2xl font-bold text-foreground">{pillar.score}%</p>
-                      <Progress value={pillar.score} className="h-1" />
-                      <p className="text-[13px] text-muted-foreground">
-                        {pillar.measures} kontrollpunkter
-                      </p>
-                    </CardContent>
-                  </Card>
+                      <div className="flex items-center gap-2">
+                        <span className={`rounded px-1.5 py-0.5 text-[10px] font-semibold tracking-wide ${pillar.badgeColor}`}>
+                          {pillar.level}
+                        </span>
+                        <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
+                          <div className={`h-full rounded-full ${pillar.color}`} style={{ width: `${pillar.score}%` }} />
+                        </div>
+                        <span className="text-xs tabular-nums text-muted-foreground">{pillar.score}%</span>
+                      </div>
+                    </div>
+                    <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+                  </button>
                 ))}
               </div>
             </CardContent>
           </Card>
+
 
           {/* Tabs */}
           <Tabs defaultValue="regelverk" className="space-y-4">
