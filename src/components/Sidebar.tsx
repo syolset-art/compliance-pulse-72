@@ -449,6 +449,16 @@ const SidebarContent = () => {
     (selectedRegistriesAtOnboarding || hasCoreAccess || hasRegistriesAccess || activatingModules.has("assets")) &&
     !isModuleDeactivated("assets");
 
+  // Avviksregister er et eget produkt (opt-in) — vises kun når det er aktivert.
+  const [deviationsActive, setDeviationsActive] = useState(() => !isModuleDeactivated("deviations"));
+  useEffect(() => {
+    const sync = () => setDeviationsActive(!isModuleDeactivated("deviations"));
+    sync();
+    window.addEventListener("modules:changed", sync);
+    return () => window.removeEventListener("modules:changed", sync);
+  }, []);
+
+
   const isVendorsActivating = activatingModules.has("vendors") && !hasRegistriesAccess;
   const isCoreActivating = activatingModules.has("core") && !(selectedCoreAtOnboarding || hasCoreAccess);
   const isAssetsActivating = activatingModules.has("assets") && !(selectedRegistriesAtOnboarding || hasRegistriesAccess);
