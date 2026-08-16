@@ -37,6 +37,8 @@ import { cn } from "@/lib/utils";
 
 export interface AttachEvidenceResult {
   document: EvidenceDocument;
+  /** Selve filen, slik at kalleren kan lagre den. */
+  file?: File;
   coveredArticles: string[];
   missingArticles: string[];
   coverageRatio: number;
@@ -311,6 +313,7 @@ export function AttachEvidenceDialog({
           fileName: file.name,
           result: {
             document,
+            file,
             coveredArticles: covered,
             missingArticles: missing,
             coverageRatio: ratio,
