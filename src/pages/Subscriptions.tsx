@@ -4,7 +4,7 @@ import {
   Sparkles, Check, CreditCard, FileText,
   CheckCircle2, Shield, Crown, Zap, Star,
   Settings2, Building2,
-  LayoutGrid, Server, BookOpen, Briefcase, Users, ShieldCheck, Globe,
+  LayoutGrid, Server, BookOpen, Briefcase, Users, ShieldCheck, Globe, AlertTriangle,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { resolveVendorCapacity, persistVendorTier } from "@/lib/vendorCapacity";
