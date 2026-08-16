@@ -14,7 +14,10 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { SENSITIVE_DATA_CATEGORIES, sensitiveCategoryLabel, gdprRoleHandlesPersonalData } from "@/lib/sensitiveData";
 import { suggestVendorRisk } from "@/lib/vendorRiskSuggestion";
 import { suggestVendorContext } from "@/lib/vendorContextSuggestion";
+import { buildGdprRolePlan } from "@/lib/vendorGdprRolePlan";
+import { GdprRolePlanCard } from "@/components/asset-profile/usage/GdprRolePlanCard";
 import { LaraContextBanner } from "@/components/asset-profile/usage/LaraContextBanner";
+
 import { VendorPurposeCard } from "@/components/asset-profile/usage/VendorPurposeCard";
 import { ContextPillRow, type ContextPillItem } from "@/components/asset-profile/usage/ContextPillRow";
 import { toast } from "sonner";
@@ -296,6 +299,48 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
     }, 600);
   };
 
+  // --- Laras plan for GDPR-rolle (må godkjennes av brukeren) ---
+  const [gdprPlanDismissed, setGdprPlanDismissed] = useState(false);
+
+  const gdprPlan = buildGdprRolePlan({
+    vendorName: asset?.name,
+    vendorCategory: asset?.vendor_category,
+    description: asset?.description,
+    usagePurpose,
+    usageTags,
+    hasPrivacyPolicy: !!asset?.privacy_policy_url,
+    hasDpa: !!(asset as any)?.has_dpa,
+    sensitive: sensitiveOn,
+    currentRole: asset?.gdpr_role,
+  });
+
+  const gdprPlanApprovedBy: string | null = riskMeta.gdpr_role_approved_by || null;
+  const gdprPlanApprovedAt: string | null = riskMeta.gdpr_role_approved_at
+    ? new Date(riskMeta.gdpr_role_approved_at).toLocaleDateString(isNb ? "nb-NO" : "en-GB")
+    : null;
+
+  const handleApproveGdprPlan = () => {
+    setLaraLoading(true);
+    setTimeout(() => {
+      const keepSensitive = gdprRoleHandlesPersonalData(gdprPlan.role);
+      updateMutation.mutate({
+        gdpr_role: gdprPlan.role,
+        ...(keepSensitive ? {} : { processes_sensitive_data: false, sensitive_data_categories: [] }),
+        metadata: {
+          ...riskMeta,
+          gdpr_role_approved_by: currentUserName,
+          gdpr_role_approved_at: new Date().toISOString(),
+          gdpr_role_plan_steps: isNb ? gdprPlan.stepsNb : gdprPlan.stepsEn,
+        },
+      } as any);
+      setLaraLoading(false);
+      toast.success(
+        isNb ? "Planen er godkjent — Lara følger opp stegene" : "Plan approved — Lara follows up on the steps"
+      );
+    }, 500);
+  };
+
+
   const toneText = (value: string | null | undefined) => {
     switch (value) {
       case "low": return "text-success";
@@ -386,6 +431,18 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
       toneClass: "text-foreground",
       panel: (
         <>
+          {!gdprPlanDismissed && (!gdprPlanApprovedBy || !gdprPlan.matchesCurrent) && (
+            <GdprRolePlanCard
+              isNb={isNb}
+              plan={gdprPlan}
+              loading={laraLoading}
+              approvedBy={gdprPlan.matchesCurrent ? gdprPlanApprovedBy : null}
+              approvedAt={gdprPlan.matchesCurrent ? gdprPlanApprovedAt : null}
+              onApprove={handleApproveGdprPlan}
+              onDismiss={() => setGdprPlanDismissed(true)}
+            />
+          )}
+
           <Select value={asset?.gdpr_role || "not_set"} onValueChange={handleGdprRoleChange}>
             <SelectTrigger className="h-9 max-w-xs text-sm font-semibold border">
               <SelectValue />
@@ -396,6 +453,7 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
               ))}
             </SelectContent>
           </Select>
+
 
           {showSensitive && (
             <div className="space-y-2 pt-0.5">
