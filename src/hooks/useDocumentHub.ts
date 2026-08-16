@@ -117,6 +117,7 @@ export function useDocumentHub() {
   return {
     documents,
     scoreDocIds,
+    activeFrameworks: (data?.frameworks ?? []) as { framework_id: string; framework_name: string }[],
     activeFrameworkCount: data?.frameworks.length ?? 0,
     frameworksForDoc,
     requirementsForDoc,
