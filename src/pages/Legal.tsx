@@ -109,7 +109,7 @@ export default function Legal() {
                 const doc = currentByType[d];
                 const accepted = acceptedAtFor(doc?.id);
                 return (
-                  <TabsContent key={d} value={d} className="mt-6 space-y-4">
+                  <TabsContent key={d} value={d} className="mt-8 space-y-6">
                     {!doc ? (
                       <p className="text-sm text-muted-foreground">
                         {DOC_LABELS[d]} er ikke publisert ennå. Dokumentet kommer her så snart
