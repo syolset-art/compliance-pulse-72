@@ -314,13 +314,8 @@ const PartnerNav = () => {
     { name: isNb ? "Fakturagrunnlag" : "Billing basis", href: "/msp-invoices", icon: FileText },
   ];
 
-  const customerView = { name: isNb ? "Kundevisning" : "Customer view", href: "/msp-customer-view", icon: Eye };
-  const isOffersActive = location.pathname === customerView.href || location.pathname.startsWith(customerView.href + "/");
-  const [offersOpen, setOffersOpen] = useState(() => isOffersActive);
 
-  useEffect(() => {
-    if (isOffersActive) setOffersOpen(true);
-  }, [isOffersActive]);
+
 
   const renderLink = (item: typeof primaryItems[0]) => {
     const isActive = location.pathname === item.href || location.pathname.startsWith(item.href + "/");
