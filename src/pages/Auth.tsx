@@ -17,6 +17,8 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 export default function Auth() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const next = searchParams.get("next");
   const { user, signIn, signUp, loading: authLoading } = useAuth();
   
   const [email, setEmail] = useState("");
@@ -28,28 +30,37 @@ export default function Auth() {
   // Redirect if already logged in
   useEffect(() => {
     if (user) {
-      navigate("/", { replace: true });
+      const target = next && next.startsWith("/") && !next.includes("://") ? next : "/";
+      navigate(target, { replace: true });
     }
-  }, [user, navigate]);
+  }, [user, navigate, next]);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setTimeout(() => {
-      toast.success("Velkommen tilbake!");
-      navigate("/");
+    try {
+      await signIn(email, password);
+      const target = next && next.startsWith("/") && !next.includes("://") ? next : "/";
+      navigate(target, { replace: true });
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Innlogging feilet");
+    } finally {
       setLoading(false);
-    }, 800);
+    }
   };
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setTimeout(() => {
+    try {
+      await signUp(email, password);
       toast.success("Registrering vellykket! Sjekk e-posten din for å bekrefte kontoen.");
       setActiveTab("login");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Registrering feilet");
+    } finally {
       setLoading(false);
-    }, 800);
+    }
   };
 
   if (authLoading) {
