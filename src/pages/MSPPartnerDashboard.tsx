@@ -323,12 +323,11 @@ function ClaimRateWidget() {
   const navigate = useNavigate();
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb" || i18n.language === "no";
-  const ALL_LABEL = isNb ? "Alle" : "All";
   const [period, setPeriod] = useState<"month" | "halfYear">("month");
-  const [framework, setFramework] = useState<string>("Alle");
+  const [framework, setFramework] = useState<string | null>(null);
 
   const rows = FRAMEWORK_ACTIVATIONS.filter(
-    (f) => framework === "Alle" || f.label === framework,
+    (f) => framework === null || f.label === framework,
   );
   const total = rows.reduce(
     (sum, f) => sum + (period === "month" ? f.lastMonth : f.lastHalfYear),
@@ -342,7 +341,7 @@ function ClaimRateWidget() {
   const leader = [...FRAMEWORK_ACTIVATIONS].sort(
     (a, b) => b.activeCustomers - a.activeCustomers,
   )[0];
-  const headline = framework === "Alle" ? leader : rows[0] ?? leader;
+  const headline = framework === null ? leader : rows[0] ?? leader;
 
   return (
     <Card
@@ -366,8 +365,8 @@ function ClaimRateWidget() {
             <TooltipContent side="top" className="max-w-[280px]">
               <p>
                 {isNb
-                  ? `Viser de 5 mest aktiverte regelverkene blant de ${PORTFOLIO_CUSTOMERS} kundene dine. Filtrer på regelverk for å se andelen som har aktivert akkurat det regelverket. Perioden styrer antallet nye aktiveringer.`
-                  : `Shows the 5 most activated regulations among your ${PORTFOLIO_CUSTOMERS} customers. Filter by regulation to see the share that has activated that specific regulation. The period controls the number of new activations.`}
+                  ? `Viser de 5 mest aktiverte regelverkene blant de ${PORTFOLIO_CUSTOMERS} kundene dine. Velg et regelverk for å se andelen som har aktivert akkurat det regelverket. Perioden styrer antallet nye aktiveringer.`
+                  : `Shows the 5 most activated regulations among your ${PORTFOLIO_CUSTOMERS} customers. Select a regulation to see the share that has activated that specific regulation. The period controls the number of new activations.`}
               </p>
             </TooltipContent>
           </UITooltip>
@@ -415,20 +414,22 @@ function ClaimRateWidget() {
           aria-label={isNb ? "Filtrer på regelverk" : "Filter by regulation"}
           onClick={(e) => e.stopPropagation()}
         >
-          {[ALL_LABEL, ...FRAMEWORK_ACTIVATIONS.map((f) => f.label)].map((label) => (
+          {FRAMEWORK_ACTIVATIONS.map((f) => (
             <button
-              key={label}
+              key={f.label}
               type="button"
-              onClick={() => setFramework(label)}
-              aria-pressed={framework === label}
+              onClick={() =>
+                setFramework(framework === f.label ? null : f.label)
+              }
+              aria-pressed={framework === f.label}
               className={
                 "px-2.5 py-1 rounded-full text-xs font-medium transition-colors " +
-                (framework === label
+                (framework === f.label
                   ? "bg-white text-primary"
                   : "bg-white/15 text-white/85 hover:bg-white/25")
               }
             >
-              {label}
+              {f.label}
             </button>
           ))}
         </div>
