@@ -15,8 +15,33 @@ import {
 const DOCS: { type: LegalDocType; label: string }[] = [
   { type: "terms", label: "Vilkår" },
   { type: "privacy", label: "Personvernerklæring" },
+  { type: "security", label: "Sikkerhet" },
   { type: "dpa", label: "Databehandleravtale" },
 ];
+
+// Statisk innhold for dokumenter som ikke ligger som versjonert avtale i basen.
+const STATIC_DOCS: Partial<Record<LegalDocType, string>> = {
+  security: `# Sikkerhet i Mynder
+
+## Slik beskytter vi dataene dine
+- All data lagres i EU/EØS og krypteres i transit (TLS 1.2+) og i ro (AES-256).
+- Tilgang styres med rollebasert tilgangskontroll og radsikkerhet per organisasjon.
+- Vi logger tilgang til kundedata og gjennomgår loggene jevnlig.
+
+## Drift og tilgjengelighet
+- Automatiske sikkerhetskopier med punkt-i-tid-gjenoppretting.
+- Overvåking av tilgjengelighet og feil, med varsling til driftsteamet.
+
+## AI og dine dokumenter
+- Dokumenter analyseres kun for å vurdere dekning mot krav du selv har aktivert.
+- Innhold brukes ikke til å trene modeller.
+- Du kan velge å la agenten analysere dokumenter lokalt via MCP, uten å laste dem opp.
+
+## Avvik og varsling
+- Sikkerhetsavvik håndteres etter fast prosedyre, og berørte kunder varsles uten ugrunnet opphold.
+- Mistenker du et sikkerhetsproblem? Kontakt oss på security@mynder.no.`,
+};
+
 
 const CONTEXT_LABELS: Record<string, string> = {
   module_activation: "Aktivering av modul",
