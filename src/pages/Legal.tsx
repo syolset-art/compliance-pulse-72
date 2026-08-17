@@ -46,21 +46,11 @@ export default function Legal() {
   const isNb = i18n.language === "nb" || i18n.language === "no";
   const lang = isNb ? "no" : "en";
 
-  // Personvern, databehandleravtale og sikkerhet har én kilde: mynder.no.
+  // Personvernerklæring, databehandleravtale og sikkerhet ligger samlet i Trust Center.
   const EXTERNAL_DOCS = [
     {
-      label: "Personvernerklæring",
-      description: "Hvordan Mynder behandler personopplysninger.",
-      href: `https://mynder.no/${lang}/personvern`,
-    },
-    {
-      label: "Databehandleravtale",
-      description: "Mynders behandling av personopplysninger på vegne av kunden.",
-      href: `https://mynder.no/${lang}/databehandleravtale`,
-    },
-    {
-      label: "Sikkerhet og Trust Center",
-      description: "Sikkerhetstiltak, sertifiseringer og underleverandører.",
+      label: "Trust Center",
+      description: "Personvernerklæring, databehandleravtale og sikkerhet på mynder.no.",
       href: `https://mynder.no/${lang}/trust-center`,
     },
   ];
@@ -96,8 +86,8 @@ export default function Legal() {
           <div>
             <h1 className="text-2xl font-semibold text-foreground">Dokumenter</h1>
             <p className="text-sm text-muted-foreground mt-1">
-              Vilkår for bruk av Mynder, og lenker til personvern, databehandleravtale og
-              sikkerhet på mynder.no.
+              Vilkår for bruk av Mynder, og lenke til Trust Center på mynder.no
+              hvor personvernerklæring, databehandleravtale og sikkerhet ligger.
             </p>
           </div>
 
@@ -160,9 +150,9 @@ export default function Legal() {
           )}
 
           <section className="space-y-2 pt-2">
-            <h2 className="text-sm font-semibold text-foreground">Personvern og sikkerhet</h2>
+            <h2 className="text-sm font-semibold text-foreground">Trust Center</h2>
             <p className="text-xs text-muted-foreground">
-              Disse dokumentene vedlikeholdes ett sted — i Mynders Trust Center på mynder.no.
+              Personvernerklæring, databehandleravtale og sikkerhet er samlet i Trust Center på mynder.no.
             </p>
             <div className="rounded-lg border border-border divide-y divide-border">
               {EXTERNAL_DOCS.map((item) => (
