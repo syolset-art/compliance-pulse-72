@@ -42,6 +42,7 @@ import DocumentHub from "./pages/DocumentHub";
 import Wiki from "./pages/Wiki";
 import Integrations from "./pages/Integrations";
 import McpAgentConnections from "./pages/McpAgentConnections";
+import OAuthConsent from "./pages/OAuthConsent";
 import TermsAndConsent from "./pages/TermsAndConsent";
 import Terms from "./pages/Terms";
 import Legal from "./pages/Legal";
@@ -166,6 +167,7 @@ const App = () => (
                   <Route path="/wiki" element={<Wiki />} />
 
                   <Route path="/settings/integrations" element={<Integrations />} />
+                  <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
                   <Route path="/settings/mcp" element={<McpAgentConnections />} />
                   <Route path="/terms-and-consent" element={<TermsAndConsent />} />
                   <Route path="/terms" element={<Terms />} />

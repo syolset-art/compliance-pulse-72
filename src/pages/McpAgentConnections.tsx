@@ -139,8 +139,8 @@ export default function McpAgentConnections() {
           <Info className="h-3.5 w-3.5 text-muted-foreground mt-0.5 shrink-0" />
           <p className="text-[11px] text-muted-foreground leading-relaxed">
             {isNb
-              ? "Koblingen er på prototypenivå. Faktisk kjøring mot dine agenter kommer — inntil videre lagres oppsettet lokalt."
-              : "This connection is at prototype level. Live execution against your agents is coming — for now the setup is stored locally."}
+              ? "Koblingen bruker OAuth 2.1. Når en agent kobler til, blir du bedt om å godkjenne tilgangen. Du kan når som helst fjerne koblingen."
+              : "This connection uses OAuth 2.1. When an agent connects, you will be asked to approve access. You can remove the connection at any time."}
           </p>
         </div>
       </Card>

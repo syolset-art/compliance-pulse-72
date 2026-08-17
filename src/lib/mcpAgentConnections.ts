@@ -74,6 +74,10 @@ export function writeMcpConnections(items: McpAgentConnection[]) {
 }
 
 export function mcpServerUrl() {
+  const projectRef = import.meta.env.VITE_SUPABASE_PROJECT_ID;
+  if (projectRef) {
+    return `https://${projectRef}.supabase.co/functions/v1/mcp`;
+  }
   return `${window.location.origin}/api/mcp`;
 }
 

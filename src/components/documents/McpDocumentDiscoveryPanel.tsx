@@ -56,7 +56,7 @@ export function McpDocumentDiscoveryPanel() {
             </div>
           </div>
           <Badge variant="outline" className="shrink-0 border-primary/30 text-primary">
-            {L("Kommer", "Coming")}
+            {L("Beta", "Beta")}
           </Badge>
         </div>
 
