@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Sidebar } from "@/components/Sidebar";
 import { Card, CardContent } from "@/components/ui/card";
@@ -36,6 +36,7 @@ import { UploadHubDocumentDialog } from "@/components/documents/UploadHubDocumen
 import { GuidingDocumentsTab } from "@/components/documents/GuidingDocumentsTab";
 import {
   MODULE_LABELS,
+  MODULE_ROUTES,
   STATUS_LABELS,
   TYPE_GROUP_LABELS,
   documentTypeLabel,
@@ -52,6 +53,7 @@ export default function DocumentHub() {
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb" || i18n.language === "no";
   const L = (nb: string, en: string) => (isNb ? nb : en);
+  const navigate = useNavigate();
 
   const {
     documents,
