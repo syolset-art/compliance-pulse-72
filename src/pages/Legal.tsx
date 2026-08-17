@@ -50,7 +50,7 @@ export default function Legal() {
   const EXTERNAL_DOCS = [
     {
       label: "Trust Center",
-      description: "Personvernerklæring, databehandleravtale og sikkerhet på mynder.no.",
+      description: "mynder.no",
       href: `https://mynder.no/${lang}/trust-center`,
     },
   ];
