@@ -620,7 +620,25 @@ export default function MSPPartnerSettings() {
             <TabsContent value="integrasjoner">
               <PartnerIntegrationsTab />
             </TabsContent>
+
+            <TabsContent value="intern">
+              <Card className="p-5 space-y-3">
+                <div>
+                  <h2 className="text-sm font-semibold">Intern forhåndsvisning</h2>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Kundevisning er en intern demo av hvordan tilbudet ser ut for kunden. Den brukes av
+                    utviklingsteamet og vises ikke i partnermenyen.
+                  </p>
+                </div>
+                <Button variant="outline" size="sm" asChild>
+                  <Link to="/msp-customer-view" className="gap-1.5">
+                    <Eye className="h-3.5 w-3.5" /> Åpne kundevisning
+                  </Link>
+                </Button>
+              </Card>
+            </TabsContent>
           </Tabs>
+
         </div>
       </main>
 
