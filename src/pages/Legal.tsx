@@ -150,9 +150,9 @@ export default function Legal() {
           )}
 
           <section className="space-y-2 pt-2">
-            <h2 className="text-sm font-semibold text-foreground">Personvern og sikkerhet</h2>
+            <h2 className="text-sm font-semibold text-foreground">Trust Center</h2>
             <p className="text-xs text-muted-foreground">
-              Disse dokumentene vedlikeholdes ett sted — i Mynders Trust Center på mynder.no.
+              Personvernerklæring, databehandleravtale og sikkerhet er samlet i Trust Center på mynder.no.
             </p>
             <div className="rounded-lg border border-border divide-y divide-border">
               {EXTERNAL_DOCS.map((item) => (
