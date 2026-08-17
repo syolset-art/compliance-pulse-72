@@ -7,12 +7,7 @@ import { LegalDocumentView } from "@/components/legal/LegalDocumentView";
 import { Sidebar } from "@/components/Sidebar";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Check, Download, ExternalLink, History, Loader2 } from "lucide-react";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+import { Check, Download, ExternalLink, Loader2 } from "lucide-react";
 
 const DOC_LABELS: Record<LegalDocType, string> = {
   terms: "Vilkår",
