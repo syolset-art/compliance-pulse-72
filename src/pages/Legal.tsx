@@ -7,12 +7,7 @@ import { LegalDocumentView } from "@/components/legal/LegalDocumentView";
 import { Sidebar } from "@/components/Sidebar";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Check, Download, ExternalLink, History, Loader2 } from "lucide-react";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+import { Check, Download, ExternalLink, Loader2 } from "lucide-react";
 
 const DOC_LABELS: Record<LegalDocType, string> = {
   terms: "Vilkår",
@@ -21,13 +16,6 @@ const DOC_LABELS: Record<LegalDocType, string> = {
   dpa: "Databehandleravtale",
 };
 
-const CONTEXT_LABELS: Record<string, string> = {
-  module_activation: "Aktivering av modul",
-  license_purchase: "Kjøp av lisens",
-  framework_activation: "Aktivering av regelverk",
-  signup: "Registrering",
-  settings: "Innstillinger",
-};
 
 const formatDate = (value: string) =>
   new Date(value).toLocaleDateString("nb-NO", {
@@ -40,8 +28,7 @@ export default function Legal() {
   const [params, setParams] = useSearchParams();
   const { i18n } = useTranslation();
   const { mode } = useWorkspaceMode();
-  const { currentByType, acceptances, versionById, acceptedAtFor, loading } = useTerms();
-  const [historyOpen, setHistoryOpen] = useState(false);
+  const { currentByType, acceptedAtFor, loading } = useTerms();
 
   const isNb = i18n.language === "nb" || i18n.language === "no";
   const lang = isNb ? "no" : "en";
@@ -178,49 +165,6 @@ export default function Legal() {
             </div>
           </section>
 
-          {!loading && (
-            <Collapsible open={historyOpen} onOpenChange={setHistoryOpen}>
-              <CollapsibleTrigger asChild>
-                <Button variant="ghost" size="sm" className="gap-2 px-0 text-muted-foreground">
-                  <History className="h-3.5 w-3.5" />
-                  {historyOpen ? "Skjul historikk" : "Se historikk"}
-                </Button>
-              </CollapsibleTrigger>
-              <CollapsibleContent className="pt-2">
-                {acceptances.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">Ingen registrerte godkjenninger.</p>
-                ) : (
-                  <div className="rounded-lg border border-border divide-y divide-border">
-                    {acceptances.map((a) => {
-                      const doc = versionById[a.terms_version_id];
-                      const label = doc ? DOC_LABELS[doc.doc_type] ?? "Vilkår" : "Vilkår";
-                      return (
-                        <div
-                          key={a.id}
-                          className="flex items-center justify-between gap-4 px-3 py-2 text-sm"
-                        >
-                          <span className="text-foreground flex items-center gap-2">
-                            {label}
-                            {doc ? ` · v${doc.version}` : ""}
-                            {a.operator_role && (
-                              <span className="rounded-full border border-border px-2 py-0.5 text-[11px] text-muted-foreground">
-                                Driftpartner
-                              </span>
-                            )}
-                          </span>
-
-                          <span className="text-xs text-muted-foreground text-right">
-                            {CONTEXT_LABELS[a.context] ?? a.context} ·{" "}
-                            {formatDate(a.accepted_at)}
-                          </span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </CollapsibleContent>
-            </Collapsible>
-          )}
         </div>
       </main>
     </div>
