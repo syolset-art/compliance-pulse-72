@@ -113,12 +113,15 @@ export default function Legal() {
               const accepted = acceptedAtFor(doc?.id);
               return (
                 <TabsContent key={d.type} value={d.type} className="mt-6 space-y-4">
-                  {!doc ? (
+                  {!doc && STATIC_DOCS[d.type] ? (
+                    <LegalDocumentView markdown={STATIC_DOCS[d.type] as string} />
+                  ) : !doc ? (
                     <p className="text-sm text-muted-foreground">
                       {d.label} er ikke publisert ennå. Dokumentet kommer her så snart det er
                       klart.
                     </p>
                   ) : (
+
                     <>
                       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-3">
                         <div className="space-y-1">
