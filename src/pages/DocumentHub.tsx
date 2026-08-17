@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Sidebar } from "@/components/Sidebar";
 import { Card, CardContent } from "@/components/ui/card";
@@ -36,6 +36,7 @@ import { UploadHubDocumentDialog } from "@/components/documents/UploadHubDocumen
 import { GuidingDocumentsTab } from "@/components/documents/GuidingDocumentsTab";
 import {
   MODULE_LABELS,
+  MODULE_ROUTES,
   STATUS_LABELS,
   TYPE_GROUP_LABELS,
   documentTypeLabel,
@@ -52,6 +53,7 @@ export default function DocumentHub() {
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb" || i18n.language === "no";
   const L = (nb: string, en: string) => (isNb ? nb : en);
+  const navigate = useNavigate();
 
   const {
     documents,
@@ -339,9 +341,36 @@ export default function DocumentHub() {
                         {documentTypeLabel(doc.documentType, isNb)}
                       </TableCell>
                       <TableCell className="hidden md:table-cell py-2">
-                        <Badge variant="outline" className="text-[12px] font-normal">
-                          {MODULE_LABELS[doc.module][isNb ? "nb" : "en"]}
-                        </Badge>
+                        {(() => {
+                          const href = doc.sourceRoute || MODULE_ROUTES[doc.module];
+                          const label = MODULE_LABELS[doc.module][isNb ? "nb" : "en"];
+                          if (!href) {
+                            return (
+                              <Badge variant="outline" className="text-[12px] font-normal">
+                                {label}
+                              </Badge>
+                            );
+                          }
+                          return (
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigate(href);
+                              }}
+                              className="inline-flex"
+                              title={L(`Åpne ${label}`, `Open ${label}`)}
+                            >
+                              <Badge
+                                variant="outline"
+                                className="text-[12px] font-normal gap-1 hover:bg-muted hover:border-primary/40 transition-colors"
+                              >
+                                {label}
+                                <ExternalLink className="h-3 w-3 text-muted-foreground" aria-hidden="true" />
+                              </Badge>
+                            </button>
+                          );
+                        })()}
                       </TableCell>
                       <TableCell className="hidden lg:table-cell py-2 text-[13px] text-muted-foreground">
                         {doc.uploadedBy || L("Ukjent", "Unknown")}

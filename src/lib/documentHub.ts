@@ -44,6 +44,16 @@ export const MODULE_LABELS: Record<HubModule, { nb: string; en: string }> = {
   other: { nb: "Annet", en: "Other" },
 };
 
+/** Produkt/modul dokumentet hører til — brukt for å lenke fra Dokument hub til modulen. */
+export const MODULE_ROUTES: Record<HubModule, string | null> = {
+  trust: "/trust-center/profile",
+  vendor: "/vendors",
+  framework: "/regulations",
+  workarea: "/work-areas",
+  asset: "/assets",
+  other: null,
+};
+
 export const STATUS_LABELS: Record<HubStatus, { nb: string; en: string }> = {
   current: { nb: "Gjeldende", en: "Current" },
   pending: { nb: "Venter", en: "Pending" },
