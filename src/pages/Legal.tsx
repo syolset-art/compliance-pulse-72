@@ -16,13 +16,6 @@ const DOC_LABELS: Record<LegalDocType, string> = {
   dpa: "Databehandleravtale",
 };
 
-const CONTEXT_LABELS: Record<string, string> = {
-  module_activation: "Aktivering av modul",
-  license_purchase: "Kjøp av lisens",
-  framework_activation: "Aktivering av regelverk",
-  signup: "Registrering",
-  settings: "Innstillinger",
-};
 
 const formatDate = (value: string) =>
   new Date(value).toLocaleDateString("nb-NO", {
@@ -35,8 +28,7 @@ export default function Legal() {
   const [params, setParams] = useSearchParams();
   const { i18n } = useTranslation();
   const { mode } = useWorkspaceMode();
-  const { currentByType, acceptances, versionById, acceptedAtFor, loading } = useTerms();
-  const [historyOpen, setHistoryOpen] = useState(false);
+  const { currentByType, acceptedAtFor, loading } = useTerms();
 
   const isNb = i18n.language === "nb" || i18n.language === "no";
   const lang = isNb ? "no" : "en";
