@@ -1,0 +1,1 @@
+update public.terms_versions set is_current = false where doc_type = 'terms' and version = '1.0';
