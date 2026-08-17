@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 
-export type LegalDocType = "terms" | "privacy" | "dpa";
+export type LegalDocType = "terms" | "privacy" | "dpa" | "security";
 
 export interface TermsVersion {
   id: string;
