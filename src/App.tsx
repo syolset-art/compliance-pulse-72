@@ -42,6 +42,7 @@ import DocumentHub from "./pages/DocumentHub";
 import Wiki from "./pages/Wiki";
 import Integrations from "./pages/Integrations";
 import McpAgentConnections from "./pages/McpAgentConnections";
+import OAuthConsent from "./pages/OAuthConsent";
 import TermsAndConsent from "./pages/TermsAndConsent";
 import Terms from "./pages/Terms";
 import Legal from "./pages/Legal";
