@@ -46,21 +46,11 @@ export default function Legal() {
   const isNb = i18n.language === "nb" || i18n.language === "no";
   const lang = isNb ? "no" : "en";
 
-  // Personvern, databehandleravtale og sikkerhet har én kilde: mynder.no.
+  // Personvernerklæring, databehandleravtale og sikkerhet ligger samlet i Trust Center.
   const EXTERNAL_DOCS = [
     {
-      label: "Personvernerklæring",
-      description: "Hvordan Mynder behandler personopplysninger.",
-      href: `https://mynder.no/${lang}/personvern`,
-    },
-    {
-      label: "Databehandleravtale",
-      description: "Mynders behandling av personopplysninger på vegne av kunden.",
-      href: `https://mynder.no/${lang}/databehandleravtale`,
-    },
-    {
-      label: "Sikkerhet og Trust Center",
-      description: "Sikkerhetstiltak, sertifiseringer og underleverandører.",
+      label: "Trust Center",
+      description: "Personvernerklæring, databehandleravtale og sikkerhet på mynder.no.",
       href: `https://mynder.no/${lang}/trust-center`,
     },
   ];
