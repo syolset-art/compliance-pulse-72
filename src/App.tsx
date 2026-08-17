@@ -167,6 +167,7 @@ const App = () => (
                   <Route path="/wiki" element={<Wiki />} />
 
                   <Route path="/settings/integrations" element={<Integrations />} />
+                  <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
                   <Route path="/settings/mcp" element={<McpAgentConnections />} />
                   <Route path="/terms-and-consent" element={<TermsAndConsent />} />
                   <Route path="/terms" element={<Terms />} />
