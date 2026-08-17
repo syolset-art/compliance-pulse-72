@@ -120,7 +120,7 @@ export default function Legal() {
                         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-3">
                           <div className="space-y-1">
                             <p className="text-xs text-muted-foreground">
-                              Versjon {doc.version} · gjelder fra {formatDate(doc.effective_date)}
+                              Sist oppdatert {formatDate(doc.effective_date)}
                             </p>
                             {accepted && (
                               <p className="text-xs text-muted-foreground flex items-center gap-1.5">
