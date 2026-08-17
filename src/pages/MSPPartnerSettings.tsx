@@ -301,7 +301,11 @@ export default function MSPPartnerSettings() {
               <TabsTrigger value="integrasjoner" className="gap-1.5">
                 <Plug className="h-3.5 w-3.5" /> Integrasjoner
               </TabsTrigger>
+              <TabsTrigger value="intern" className="gap-1.5">
+                <Eye className="h-3.5 w-3.5" /> Intern
+              </TabsTrigger>
             </TabsList>
+
 
 
             <TabsContent value="tilgangsstyring" className="space-y-4">
