@@ -10,8 +10,8 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Check, Download, ExternalLink, Loader2 } from "lucide-react";
 
 const DOC_LABELS: Record<LegalDocType, string> = {
-  terms: "Vilkår",
-  partner: "Partnervilkår",
+  terms: "Sluttkundevilkår",
+  partner: "Vilkår for partnere",
   privacy: "Personvernerklæring",
   dpa: "Databehandleravtale",
 };
@@ -42,7 +42,7 @@ export default function Legal() {
     },
   ];
 
-  const docs: LegalDocType[] = mode === "partner" ? ["terms", "partner"] : ["terms"];
+  const docs: LegalDocType[] = ["terms", "partner"];
 
   const initial = (params.get("doc") as LegalDocType) || "terms";
   const [tab, setTab] = useState<LegalDocType>(docs.includes(initial) ? initial : "terms");
