@@ -339,9 +339,36 @@ export default function DocumentHub() {
                         {documentTypeLabel(doc.documentType, isNb)}
                       </TableCell>
                       <TableCell className="hidden md:table-cell py-2">
-                        <Badge variant="outline" className="text-[12px] font-normal">
-                          {MODULE_LABELS[doc.module][isNb ? "nb" : "en"]}
-                        </Badge>
+                        {(() => {
+                          const href = doc.sourceRoute || MODULE_ROUTES[doc.module];
+                          const label = MODULE_LABELS[doc.module][isNb ? "nb" : "en"];
+                          if (!href) {
+                            return (
+                              <Badge variant="outline" className="text-[12px] font-normal">
+                                {label}
+                              </Badge>
+                            );
+                          }
+                          return (
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigate(href);
+                              }}
+                              className="inline-flex"
+                              title={L(`Åpne ${label}`, `Open ${label}`)}
+                            >
+                              <Badge
+                                variant="outline"
+                                className="text-[12px] font-normal gap-1 hover:bg-muted hover:border-primary/40 transition-colors"
+                              >
+                                {label}
+                                <ExternalLink className="h-3 w-3 text-muted-foreground" aria-hidden="true" />
+                              </Badge>
+                            </button>
+                          );
+                        })()}
                       </TableCell>
                       <TableCell className="hidden lg:table-cell py-2 text-[13px] text-muted-foreground">
                         {doc.uploadedBy || L("Ukjent", "Unknown")}
