@@ -505,7 +505,7 @@ function AvgTrustScoreWidget() {
     >
       <div className="flex items-center gap-1.5">
         <div className="text-[11px] uppercase tracking-[0.15em] text-muted-foreground font-semibold">
-          Modenhet
+          {isNb ? "Modenhet" : "Maturity"}
         </div>
         <span className="inline-flex items-center rounded border border-muted-foreground/20 bg-muted/40 px-1.5 py-0 text-[10px] font-medium text-muted-foreground">
           V2
@@ -550,7 +550,7 @@ function AvgTrustScoreWidget() {
           />
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <div className={`text-2xl font-bold leading-none ${tone}`}>{maturityLabelNb(getMaturityLevel(score))}</div>
+          <div className={`text-2xl font-bold leading-none ${tone}`}>{isNb ? maturityLabelNb(getMaturityLevel(score)) : ({ low: "Low", medium: "Medium", high: "High" } as const)[getMaturityLevel(score)]}</div>
           <div className="text-[10px] uppercase tracking-wider text-muted-foreground mt-1">{isNb ? "modenhet" : "maturity"}</div>
         </div>
       </div>
