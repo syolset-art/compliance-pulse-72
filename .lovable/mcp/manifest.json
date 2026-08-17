@@ -1,0 +1,197 @@
+{
+  "version": 1,
+  "sdk_version": "0.26.2",
+  "path": "/functions/v1/mcp",
+  "auth": {
+    "type": "oauth",
+    "issuer": "https://yyvadlijsovebszximjv.supabase.co/auth/v1",
+    "accepted_audiences": [
+      "authenticated"
+    ]
+  },
+  "mcp": {
+    "server": {
+      "name": "mynder-core",
+      "version": "0.1.0",
+      "title": "Mynder Core"
+    },
+    "tools": [
+      {
+        "name": "list_vendors",
+        "title": "List vendors",
+        "description": "List the registered vendors/assets in Mynder with their criticality, risk level, and category. Returns a compact JSON array.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "limit": {
+              "type": "number",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "description": "Maximum number of vendors to return."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_requirements",
+        "title": "List requirements",
+        "description": "List compliance requirements and their articles from the frameworks that are currently activated in Mynder.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "framework_id": {
+              "type": "string",
+              "description": "Optional framework ID to filter requirements to a specific framework."
+            },
+            "limit": {
+              "type": "number",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50,
+              "description": "Maximum number of requirements to return."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_documentation_status",
+        "title": "Get documentation status",
+        "description": "Return the documentation/maturity status for each activated framework, including how many requirements are covered and the overall maturity level.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "framework_id": {
+              "type": "string",
+              "description": "Optional framework ID to get status for a single framework."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "create_activity",
+        "title": "Create activity",
+        "description": "Create a user task/activity in Mynder, typically tied to a vendor or follow-up item.",
+        "annotations": {
+          "readOnlyHint": false,
+          "idempotentHint": false,
+          "openWorldHint": false,
+          "destructiveHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200,
+              "description": "Title of the activity."
+            },
+            "description": {
+              "type": "string",
+              "maxLength": 2000,
+              "description": "Optional description of the activity."
+            },
+            "asset_id": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Optional asset/vendor ID to link the activity to."
+            },
+            "due_date": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Optional due date in ISO 8601 format."
+            }
+          },
+          "required": [
+            "title"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "report_document_coverage",
+        "title": "Report document coverage",
+        "description": "Report how many articles in a requirement are covered by a document found in the caller's own infrastructure. This updates the requirement maturity/progress in Mynder without uploading the actual document.",
+        "annotations": {
+          "readOnlyHint": false,
+          "idempotentHint": false,
+          "openWorldHint": false,
+          "destructiveHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "requirement_id": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Mynder requirement ID to update."
+            },
+            "coverage": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "article_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Identifier of the article/requirement article covered by the document."
+                  },
+                  "covered": {
+                    "type": "boolean",
+                    "description": "Whether the article is covered by the document."
+                  }
+                },
+                "required": [
+                  "article_id",
+                  "covered"
+                ],
+                "additionalProperties": false
+              },
+              "minItems": 1,
+              "description": "Array of article coverage results."
+            },
+            "notes": {
+              "type": "string",
+              "maxLength": 2000,
+              "description": "Optional notes about the document or coverage assessment."
+            }
+          },
+          "required": [
+            "requirement_id",
+            "coverage"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
