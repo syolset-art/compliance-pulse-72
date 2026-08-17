@@ -348,7 +348,7 @@ const PartnerNav = () => {
 
       {/* Tilbud/Kundevisning flyttet til Innstillinger → Intern (kun for utviklere) */}
 
-      </div>
+
 
       {secondaryItems.map(renderLink)}
     </nav>
