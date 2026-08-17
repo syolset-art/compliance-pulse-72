@@ -28,6 +28,8 @@ import {
   Info,
   Plug,
   Trash2,
+  Eye,
+
 } from "lucide-react";
 import { PartnerIntegrationsTab } from "@/components/msp/PartnerIntegrationsTab";
 import { PartnerMemberProfileSheet } from "@/components/msp/PartnerMemberProfileSheet";
