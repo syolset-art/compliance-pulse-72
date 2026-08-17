@@ -86,8 +86,8 @@ export default function Legal() {
           <div>
             <h1 className="text-2xl font-semibold text-foreground">Dokumenter</h1>
             <p className="text-sm text-muted-foreground mt-1">
-              Vilkår for bruk av Mynder, og lenker til personvern, databehandleravtale og
-              sikkerhet på mynder.no.
+              Vilkår for bruk av Mynder, og lenke til Trust Center på mynder.no
+              hvor personvernerklæring, databehandleravtale og sikkerhet ligger.
             </p>
           </div>
 
