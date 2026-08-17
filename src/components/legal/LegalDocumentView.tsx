@@ -9,18 +9,36 @@ import { useMemo, type ReactNode } from "react";
  */
 const SKIP_PREFIXES = ["**Status:**", "**Mynder AS**, org.nr.", "---"];
 
-/** Gjør om **fet tekst** til <strong> og fjerner gjenværende stjerner. */
+/** Gjør om **fet tekst** og [lenker](url) til React-elementer. */
 function inline(text: string, keyBase: string): ReactNode[] {
-  return text.split(/(\*\*[^*]+\*\*)/g).filter(Boolean).map((part, i) => {
-    if (part.startsWith("**") && part.endsWith("**")) {
-      return (
-        <strong key={`${keyBase}-${i}`} className="font-medium text-foreground">
-          {part.slice(2, -2)}
-        </strong>
-      );
-    }
-    return <span key={`${keyBase}-${i}`}>{part.replace(/\*/g, "")}</span>;
-  });
+  return text
+    .split(/(\*\*[^*]+\*\*|\[[^\]]+\]\([^)]+\))/g)
+    .filter(Boolean)
+    .map((part, i) => {
+      if (part.startsWith("**") && part.endsWith("**")) {
+        return (
+          <strong key={`${keyBase}-${i}`} className="font-medium text-foreground">
+            {part.slice(2, -2)}
+          </strong>
+        );
+      }
+      const linkMatch = part.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
+      if (linkMatch) {
+        const [, label, href] = linkMatch;
+        return (
+          <a
+            key={`${keyBase}-${i}`}
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-medium text-primary underline underline-offset-4 hover:text-primary/80"
+          >
+            {label}
+          </a>
+        );
+      }
+      return <span key={`${keyBase}-${i}`}>{part.replace(/\*/g, "")}</span>;
+    });
 }
 
 type ListKind = "ul" | "ol";
