@@ -198,11 +198,11 @@ export function TopBar() {
 
           <DropdownMenuSeparator />
 
-          {/* Legal documents */}
+          {/* Dokumenter */}
           <DropdownMenuSub>
             <DropdownMenuSubTrigger className="gap-2">
               <FileText className="h-4 w-4" />
-              {isNb ? "Avtaler og vilkår" : "Terms & agreements"}
+              {isNb ? "Dokumenter" : "Documents"}
             </DropdownMenuSubTrigger>
             <DropdownMenuPortal>
               <DropdownMenuSubContent>
@@ -212,12 +212,16 @@ export function TopBar() {
                 <DropdownMenuItem onClick={() => navigate("/legal?doc=privacy")}>
                   {isNb ? "Personvernerklæring" : "Privacy policy"}
                 </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/legal?doc=security")}>
+                  {isNb ? "Sikkerhet" : "Security"}
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate("/legal?doc=dpa")}>
                   {isNb ? "Databehandleravtale" : "Data processing agreement"}
                 </DropdownMenuItem>
               </DropdownMenuSubContent>
             </DropdownMenuPortal>
           </DropdownMenuSub>
+
 
 
           {/* Mynder Wiki */}

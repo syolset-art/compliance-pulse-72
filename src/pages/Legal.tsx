@@ -15,8 +15,33 @@ import {
 const DOCS: { type: LegalDocType; label: string }[] = [
   { type: "terms", label: "Vilkår" },
   { type: "privacy", label: "Personvernerklæring" },
+  { type: "security", label: "Sikkerhet" },
   { type: "dpa", label: "Databehandleravtale" },
 ];
+
+// Statisk innhold for dokumenter som ikke ligger som versjonert avtale i basen.
+const STATIC_DOCS: Partial<Record<LegalDocType, string>> = {
+  security: `# Sikkerhet i Mynder
+
+## Slik beskytter vi dataene dine
+- All data lagres i EU/EØS og krypteres i transit (TLS 1.2+) og i ro (AES-256).
+- Tilgang styres med rollebasert tilgangskontroll og radsikkerhet per organisasjon.
+- Vi logger tilgang til kundedata og gjennomgår loggene jevnlig.
+
+## Drift og tilgjengelighet
+- Automatiske sikkerhetskopier med punkt-i-tid-gjenoppretting.
+- Overvåking av tilgjengelighet og feil, med varsling til driftsteamet.
+
+## AI og dine dokumenter
+- Dokumenter analyseres kun for å vurdere dekning mot krav du selv har aktivert.
+- Innhold brukes ikke til å trene modeller.
+- Du kan velge å la agenten analysere dokumenter lokalt via MCP, uten å laste dem opp.
+
+## Avvik og varsling
+- Sikkerhetsavvik håndteres etter fast prosedyre, og berørte kunder varsles uten ugrunnet opphold.
+- Mistenker du et sikkerhetsproblem? Kontakt oss på security@mynder.no.`,
+};
+
 
 const CONTEXT_LABELS: Record<string, string> = {
   module_activation: "Aktivering av modul",
@@ -62,10 +87,11 @@ export default function Legal() {
       <main className="flex-1 overflow-auto pt-16">
       <div className="max-w-3xl mx-auto px-6 pb-16 space-y-6">
         <div>
-          <h1 className="text-2xl font-semibold text-foreground">Avtaler og vilkår</h1>
+          <h1 className="text-2xl font-semibold text-foreground">Dokumenter</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Gjeldende avtaledokumenter for Mynder. Alltid tilgjengelig for deg som kunde.
+            Vilkår, personvernerklæring og sikkerhet for Mynder. Alltid tilgjengelig for deg som kunde.
           </p>
+
         </div>
 
         {loading ? (
@@ -87,12 +113,15 @@ export default function Legal() {
               const accepted = acceptedAtFor(doc?.id);
               return (
                 <TabsContent key={d.type} value={d.type} className="mt-6 space-y-4">
-                  {!doc ? (
+                  {!doc && STATIC_DOCS[d.type] ? (
+                    <LegalDocumentView markdown={STATIC_DOCS[d.type] as string} />
+                  ) : !doc ? (
                     <p className="text-sm text-muted-foreground">
                       {d.label} er ikke publisert ennå. Dokumentet kommer her så snart det er
                       klart.
                     </p>
                   ) : (
+
                     <>
                       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-3">
                         <div className="space-y-1">
