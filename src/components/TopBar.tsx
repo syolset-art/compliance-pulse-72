@@ -219,35 +219,13 @@ export function TopBar() {
                 <DropdownMenuItem
                   onClick={() =>
                     window.open(
-                      `https://mynder.no/${isNb ? "no" : "en"}/personvern`,
-                      "_blank",
-                      "noopener,noreferrer",
-                    )
-                  }
-                >
-                  {isNb ? "Personvernerklæring" : "Privacy policy"}
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() =>
-                    window.open(
                       `https://mynder.no/${isNb ? "no" : "en"}/trust-center`,
                       "_blank",
                       "noopener,noreferrer",
                     )
                   }
                 >
-                  {isNb ? "Sikkerhet" : "Security"}
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() =>
-                    window.open(
-                      `https://mynder.no/${isNb ? "no" : "en"}/databehandleravtale`,
-                      "_blank",
-                      "noopener,noreferrer",
-                    )
-                  }
-                >
-                  {isNb ? "Databehandleravtale" : "Data processing agreement"}
+                  {isNb ? "Trust Center" : "Trust Center"}
                 </DropdownMenuItem>
               </DropdownMenuSubContent>
             </DropdownMenuPortal>
