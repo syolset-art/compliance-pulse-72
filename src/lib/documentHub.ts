@@ -46,7 +46,7 @@ export const MODULE_LABELS: Record<HubModule, { nb: string; en: string }> = {
 
 /** Produkt/modul dokumentet hører til — brukt for å lenke fra Dokument hub til modulen. */
 export const MODULE_ROUTES: Record<HubModule, string | null> = {
-  trust: "/trust-center/dashboard",
+  trust: "/trust-center/profile",
   vendor: "/vendors",
   framework: "/regulations",
   workarea: "/work-areas",
