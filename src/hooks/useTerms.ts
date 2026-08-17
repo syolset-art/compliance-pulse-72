@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 
-export type LegalDocType = "terms" | "privacy" | "dpa" | "security";
+export type LegalDocType = "terms" | "partner" | "privacy" | "dpa";
 
 export interface TermsVersion {
   id: string;
@@ -10,6 +10,7 @@ export interface TermsVersion {
   effective_date: string;
   content_md: string;
   doc_type: LegalDocType;
+  is_current?: boolean;
 }
 
 export interface TermsAcceptance {
@@ -45,10 +46,11 @@ export function useTerms() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
+      // Henter både gjeldende og historiske versjoner, slik at akseptloggen
+      // kan vise riktig dokument og versjon også for eldre aksepter.
       const { data: versions } = await supabase
         .from("terms_versions")
-        .select("id, version, effective_date, content_md, doc_type")
-        .eq("is_current", true)
+        .select("id, version, effective_date, content_md, doc_type, is_current")
         .order("effective_date", { ascending: false });
 
       setDocuments((versions ?? []) as TermsVersion[]);
@@ -72,9 +74,14 @@ export function useTerms() {
   }, [load]);
 
   const currentByType = documents.reduce((acc, doc) => {
-    if (!acc[doc.doc_type]) acc[doc.doc_type] = doc;
+    if (doc.is_current && !acc[doc.doc_type]) acc[doc.doc_type] = doc;
     return acc;
   }, {} as Partial<Record<LegalDocType, TermsVersion>>);
+
+  const versionById = documents.reduce((acc, doc) => {
+    acc[doc.id] = doc;
+    return acc;
+  }, {} as Record<string, TermsVersion>);
 
   const current = currentByType.terms ?? null;
 
@@ -134,6 +141,7 @@ export function useTerms() {
   return {
     current,
     currentByType,
+    versionById,
     documents,
     acceptances,
     loading,

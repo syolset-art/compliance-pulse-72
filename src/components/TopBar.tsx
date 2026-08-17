@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { WorkspaceSwitcherCompact } from "@/components/sidebar/WorkspaceSwitcherCompact";
 import { CustomerContextBar } from "@/components/msp/CustomerContextBar";
+import { useWorkspaceMode } from "@/contexts/WorkspaceModeContext";
 
 const AVAILABLE_ROLES = [
   { key: "admin", labelNb: "Administrator", labelEn: "Administrator" },
@@ -44,6 +45,7 @@ export function TopBar() {
   const { t, i18n } = useTranslation();
   const { theme, setTheme } = useTheme();
   const isNb = i18n.language === "nb";
+  const { mode: workspaceMode } = useWorkspaceMode();
   const demoSync = useDemoSyncOptional();
   const demoActive = demoSync?.customerRequestDemo ?? false;
 
@@ -209,13 +211,42 @@ export function TopBar() {
                 <DropdownMenuItem onClick={() => navigate("/legal?doc=terms")}>
                   {isNb ? "Vilkår" : "Terms of service"}
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/legal?doc=privacy")}>
+                {workspaceMode === "partner" && (
+                  <DropdownMenuItem onClick={() => navigate("/legal?doc=partner")}>
+                    {isNb ? "Partnervilkår" : "Partner terms"}
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuItem
+                  onClick={() =>
+                    window.open(
+                      `https://mynder.no/${isNb ? "no" : "en"}/personvern`,
+                      "_blank",
+                      "noopener,noreferrer",
+                    )
+                  }
+                >
                   {isNb ? "Personvernerklæring" : "Privacy policy"}
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/legal?doc=security")}>
+                <DropdownMenuItem
+                  onClick={() =>
+                    window.open(
+                      `https://mynder.no/${isNb ? "no" : "en"}/trust-center`,
+                      "_blank",
+                      "noopener,noreferrer",
+                    )
+                  }
+                >
                   {isNb ? "Sikkerhet" : "Security"}
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/legal?doc=dpa")}>
+                <DropdownMenuItem
+                  onClick={() =>
+                    window.open(
+                      `https://mynder.no/${isNb ? "no" : "en"}/databehandleravtale`,
+                      "_blank",
+                      "noopener,noreferrer",
+                    )
+                  }
+                >
                   {isNb ? "Databehandleravtale" : "Data processing agreement"}
                 </DropdownMenuItem>
               </DropdownMenuSubContent>
