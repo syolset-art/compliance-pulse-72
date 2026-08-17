@@ -576,11 +576,12 @@ const TrustCenterEditProfile = () => {
             </section>
 
 
+            {/* Ressurser (sertifikater, policyer, retningslinjer) */}
+            <ResourcesSection asset={asset} />
+
             {/* Tredjepartsleverandører */}
             <SubprocessorsSection asset={asset} />
 
-            {/* Ressurser (sertifikater, policyer, retningslinjer) */}
-            <ResourcesSection asset={asset} />
 
             {/* Powered By Mynder — footer ingress */}
             <div className="border-t border-border pt-6 pb-2 space-y-2">
