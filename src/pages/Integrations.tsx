@@ -151,32 +151,58 @@ export default function Integrations() {
         </div>
 
         {/* Trust strip */}
-        <Card className="mt-6 p-4 flex flex-wrap items-center gap-6 bg-gradient-to-r from-primary/5 to-transparent border-primary/20">
-          <div className="flex items-center gap-2 text-sm">
-            <Lock className="h-4 w-4 text-primary" />
-            <span className="font-medium">Kryptert lagring</span>
-            <span className="text-muted-foreground">av alle tilgangstokens</span>
-          </div>
-          <div className="flex items-center gap-2 text-sm">
-            <Shield className="h-4 w-4 text-primary" />
-            <span className="font-medium">Kun lesetilgang</span>
-            <span className="text-muted-foreground">som standard</span>
-          </div>
-          <div className="flex items-center gap-2 text-sm">
-            <Sparkles className="h-4 w-4 text-primary" />
-            <span className="font-medium">Lara godkjenning</span>
-            <span className="text-muted-foreground">før noe blir aktivt</span>
-          </div>
-          <div className="ml-auto flex gap-6 text-sm">
-            <div>
-              <div className="text-xs text-muted-foreground">Aktive koblinger</div>
-              <div className="text-lg font-semibold">{activeCount}</div>
+        <Card className="mt-6 border-primary/20">
+          <div className="flex items-center justify-between p-4">
+            <div className="flex items-center gap-2">
+              <div className="h-8 w-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
+                <Shield className="h-4 w-4" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-foreground">Sikkerhet og personvern</p>
+                <p className="text-xs text-muted-foreground">Kryptert lagring · Kun lesetilgang · Lara-godkjenning</p>
+              </div>
             </div>
-            <div>
-              <div className="text-xs text-muted-foreground">Oppdaget</div>
-              <div className="text-lg font-semibold">{discoveredTotal}</div>
+            <div className="flex items-center gap-4">
+              <div className="text-right">
+                <div className="text-xs text-muted-foreground">Aktive koblinger</div>
+                <div className="text-base font-semibold">{activeCount}</div>
+              </div>
+              <div className="text-right">
+                <div className="text-xs text-muted-foreground">Oppdaget</div>
+                <div className="text-base font-semibold">{discoveredTotal}</div>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowTrust((s) => !s)}
+                aria-label={showTrust ? "Skjul detaljer" : "Vis detaljer"}
+                className="h-8 gap-1 text-xs"
+              >
+                {showTrust ? "Skjul" : "Mer info"}
+                {showTrust ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+              </Button>
             </div>
           </div>
+
+          {showTrust && (
+            <div className="border-t border-border px-4 py-3 flex flex-wrap items-center gap-6 bg-gradient-to-r from-primary/5 to-transparent">
+              <div className="flex items-center gap-2 text-sm">
+                <Lock className="h-4 w-4 text-primary" />
+                <span className="font-medium">Kryptert lagring</span>
+                <span className="text-muted-foreground">av alle tilgangstokens</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm">
+                <Shield className="h-4 w-4 text-primary" />
+                <span className="font-medium">Kun lesetilgang</span>
+                <span className="text-muted-foreground">som standard</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm">
+                <Sparkles className="h-4 w-4 text-primary" />
+                <span className="font-medium">Lara godkjenning</span>
+                <span className="text-muted-foreground">før noe blir aktivt</span>
+              </div>
+            </div>
+          )}
         </Card>
 
         {/* Filters */}
