@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { Bot, Download, HelpCircle, CalendarClock, Shield } from "lucide-react";
 import { SaraOnboardingDialog } from "@/components/agents/SaraOnboardingDialog";
 import { useSaraAgent } from "@/lib/saraAgent";
-import saraAgentAsset from "@/assets/sara-agent.png.asset.json";
+import saraAgentPng from "@/assets/sara-agent.png";
 
 const DOC_SOURCES = ["Notion", "SharePoint", "Google Drive", "Confluence", "Lokale mapper"];
 
