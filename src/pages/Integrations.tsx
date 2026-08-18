@@ -171,9 +171,12 @@ export default function Integrations() {
         </div>
 
 
+        <LocalAgentCard />
+
         {Object.values(connections).some((c) => c.status === "active") && (
           <AgentActivityFeed items={activity} />
         )}
+
 
 
         <section className="mt-8">
