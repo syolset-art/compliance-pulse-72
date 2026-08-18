@@ -1831,6 +1831,8 @@
     "coming": "Sara er ikke klar for nedlasting ennå. Meld interessen, så gir vi deg beskjed så snart den er tilgjengelig.",
     "schedule": "Kjøreplan",
     "scheduleHint": "Velg om Sara kjøres manuelt eller regelmessig. Regelmessig kjøring ser også etter signaler som kan påvirke tidligere godkjente funn.",
+    "scheduleHintManual": "Sara kjøres bare når du starter henne manuelt. Passer for kontrollerte omgivelser eller når du vil gå gjennom funn før hver kjøring.",
+    "scheduleHintWeekly": "Sara sjekker dokumentkildene dine ukentlig og varsler om nye funn eller endringer som kan påvirke tidligere godkjente bevis. Du bekrefter fortsatt hvert funn.",
     "scheduleManual": "Manuell start",
     "scheduleWeekly": "Ukentlig",
     "scheduleWeeklyTag": "Anbefalt",
