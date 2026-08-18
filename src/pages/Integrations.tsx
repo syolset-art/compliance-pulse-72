@@ -32,7 +32,6 @@ import {
 import { useConnectedSources } from "@/hooks/useConnectedSources";
 import { ConnectIntegrationDialog } from "@/components/integrations/ConnectIntegrationDialog";
 import { McpAgentConnectionsSection } from "@/components/integrations/McpAgentConnectionsSection";
-import { TrustBoundaryStrip } from "@/components/integrations/TrustBoundaryStrip";
 import { LocalAgentCard } from "@/components/integrations/LocalAgentCard";
 import { AgentActivityFeed, type AgentActivityItem } from "@/components/integrations/AgentActivityFeed";
 import { NextSourceSuggestions } from "@/components/integrations/NextSourceSuggestions";
@@ -80,11 +79,6 @@ export default function Integrations() {
     });
   }, [search, discovery]);
 
-  const activeCount = Object.values(connections).filter((c) => c.status === "active").length;
-  const discoveredTotal = Object.values(connections).reduce(
-    (acc, c) => acc + (c.discoveredSystems ?? 0) + (c.discoveredVendors ?? 0),
-    0,
-  );
 
   const coveredTypes = useMemo(() => {
     const set = new Set<DiscoveryType>();
@@ -176,7 +170,6 @@ export default function Integrations() {
           </div>
         </div>
 
-        <TrustBoundaryStrip activeCount={activeCount} discoveredTotal={discoveredTotal} />
 
         <LocalAgentCard />
 
