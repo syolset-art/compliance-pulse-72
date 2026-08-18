@@ -1369,6 +1369,10 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
         />
       )}
 
+      <SaraOnboardingDialog open={saraOpen} onOpenChange={setSaraOpen} />
+
+
+
 
       {cursorTip && (
         <div
