@@ -14,6 +14,8 @@ const DOC_SOURCES = ["Notion", "SharePoint", "Google Drive", "Confluence", "Loka
  */
 export function LocalAgentCard() {
   const [open, setOpen] = useState(false);
+  const { installed, markInstalled } = useSaraAgent();
+
 
   return (
     <Card className="mt-6 p-5">
