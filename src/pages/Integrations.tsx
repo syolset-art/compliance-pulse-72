@@ -79,11 +79,6 @@ export default function Integrations() {
     });
   }, [search, discovery]);
 
-  const activeCount = Object.values(connections).filter((c) => c.status === "active").length;
-  const discoveredTotal = Object.values(connections).reduce(
-    (acc, c) => acc + (c.discoveredSystems ?? 0) + (c.discoveredVendors ?? 0),
-    0,
-  );
 
   const coveredTypes = useMemo(() => {
     const set = new Set<DiscoveryType>();
