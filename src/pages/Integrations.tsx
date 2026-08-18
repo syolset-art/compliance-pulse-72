@@ -173,7 +173,11 @@ export default function Integrations() {
 
         <LocalAgentCard />
 
-        <AgentActivityFeed items={activity} />
+        {Object.values(connections).some((c) => c.status === "active") && (
+          <AgentActivityFeed items={activity} />
+        )}
+
+
 
         <section className="mt-8">
           <div className="flex items-baseline gap-2">
