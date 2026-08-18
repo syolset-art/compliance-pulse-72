@@ -131,7 +131,9 @@ export function SaraOnboardingDialog({ open, onOpenChange }: SaraOnboardingDialo
                           </Button>
                         </div>
                         <p className="text-[12px] text-muted-foreground mt-2">
-                          {t("saraOnboarding.scheduleHint")}
+                          {schedule === "weekly"
+                            ? t("saraOnboarding.scheduleHintWeekly")
+                            : t("saraOnboarding.scheduleHintManual")}
                         </p>
                       </div>
                     )}
