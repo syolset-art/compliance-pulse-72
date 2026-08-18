@@ -6,5 +6,27 @@
       "orgPlaceholder": "bv. BDO, DNV, TÜV, Bureau Veritas",
       "checkboxText": "Ik bevestig dat het geüploade document is ondertekend of geattesteerd door de opgegeven onafhankelijke instantie en dat de inhoud correct is."
     }
+  },
+  "saraOnboarding": {
+    "title": "Get started with Sara",
+    "subtitle": "Sara is your local Mynder Compliance Agent. She connects to your document sources and updates Mynder automatically — without documents leaving your infrastructure.",
+    "beta": "Coming soon",
+    "download": "Download Sara",
+    "downloadHint": "Click Download to get the installer file for your computer.",
+    "install": "Open and install the file",
+    "installHint": "Run the installer. Sara requires no advanced setup — just follow the steps in the wizard.",
+    "configure": "Start and run the configuration wizard",
+    "configureHint": "Sign in with your Mynder account, approve access, and choose which document sources Sara should monitor.",
+    "connect": "Connect to the right document library",
+    "connectHint": "Connect Sara to where your compliance-related information lives: Notion, SharePoint, Google Drive, Confluence or local folders.",
+    "howItChanges": "How this changes the workflow",
+    "noUpload": "You don't have to upload documents manually.",
+    "localProcessing": "Document processing happens locally on your side.",
+    "onlyEvidence": "Only evidence (coverage and metadata) is uploaded to Mynder.",
+    "newWay": "This is a new way of working with compliance.",
+    "autoSync": "Automatic updates",
+    "syncText": "Sara detects changes every time you start her and updates your profile in Mynder.",
+    "close": "Close",
+    "coming": "Sara is not ready for download yet. Register your interest and we'll notify you as soon as it's available."
   }
 }

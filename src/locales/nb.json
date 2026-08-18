@@ -1807,5 +1807,27 @@
       "high": "Høy"
     },
     "explainer": "Modenhet beregnes som snittet av modenhetsnivå (0–4) på alle krav i scope. Lav 0–49, Middels 50–74, Høy 75–100."
+  },
+  "saraOnboarding": {
+    "title": "Kom i gang med Sara",
+    "subtitle": "Sara er din lokale Mynder Compliance Agent. Hun kobler seg til dokumentkildene dine og oppdaterer Mynder automatisk — uten at dokumentene forlater infrastrukturen din.",
+    "beta": "Kommer snart",
+    "download": "Last ned Sara",
+    "downloadHint": "Klikk på Last ned for å hente installasjonsfilen for din datamaskin.",
+    "install": "Åpne og installer filen",
+    "installHint": "Kjør installasjonsprogrammet. Sara krever ingen avansert oppsett — følg trinnene i veiviseren.",
+    "configure": "Start og kjør konfigurasjonsveiviseren",
+    "configureHint": "Logg inn med Mynder-kontoen din, godkjenn tilgangen, og velg hvilke dokumentkilder Sara skal overvåke.",
+    "connect": "Koble til riktig dokumentbibliotek",
+    "connectHint": "Koble Sara til der du har compliance-relevant informasjon: Notion, SharePoint, Google Drive, Confluence eller lokale mapper.",
+    "howItChanges": "Slik endrer det arbeidsflyten",
+    "noUpload": "Du slipper å laste opp dokumenter manuelt.",
+    "localProcessing": "Dokumentprosessering skjer lokalt hos deg.",
+    "onlyEvidence": "Bare bevis (dekningsgrad og metadata) lastes opp til Mynder.",
+    "newWay": "Dette er en ny måte å jobbe med compliance.",
+    "autoSync": "Automatisk oppdatering",
+    "syncText": "Sara oppdager endringer hver gang du starter henne, og oppdaterer din profil i Mynder.",
+    "close": "Lukk",
+    "coming": "Sara er ikke klar for nedlasting ennå. Meld interessen, så gir vi deg beskjed så snart den er tilgjengelig."
   }
 }
