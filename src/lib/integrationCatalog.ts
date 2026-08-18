@@ -146,7 +146,7 @@ export const INTEGRATION_CATALOG: IntegrationDefinition[] = [
     category: "productivity",
     description:
       "Oppdag Teams, SharePoint-nettsteder og OneDrive-delinger som del av registeret.",
-    discovers: ["systems"],
+    discovers: ["systems", "documents"],
     authType: "oauth",
     scopes: ["Sites.Read.All", "Team.ReadBasic.All"],
     icon: Layers,
