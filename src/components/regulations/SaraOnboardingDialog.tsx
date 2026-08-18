@@ -1,9 +1,23 @@
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Download, FileCheck, Bot, Link, ShieldCheck, CheckCircle2 } from "lucide-react";
+import {
+  Download,
+  FileCheck,
+  Bot,
+  Link,
+  ShieldCheck,
+  CheckCircle2,
+  Laptop,
+  ArrowRight,
+  ChevronDown,
+  ChevronUp,
+  Ban,
+  CalendarClock,
+} from "lucide-react";
 
 interface SaraOnboardingDialogProps {
   open: boolean;
@@ -12,6 +26,8 @@ interface SaraOnboardingDialogProps {
 
 export function SaraOnboardingDialog({ open, onOpenChange }: SaraOnboardingDialogProps) {
   const { t } = useTranslation();
+  const [schedule, setSchedule] = useState<"manual" | "weekly">("weekly");
+  const [showNever, setShowNever] = useState(false);
 
   const steps = [
     {
@@ -28,6 +44,7 @@ export function SaraOnboardingDialog({ open, onOpenChange }: SaraOnboardingDialo
       icon: Bot,
       title: t("saraOnboarding.configure"),
       description: t("saraOnboarding.configureHint"),
+      schedulePicker: true,
     },
     {
       icon: Link,
@@ -49,7 +66,7 @@ export function SaraOnboardingDialog({ open, onOpenChange }: SaraOnboardingDialo
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <div className="flex items-center gap-2">
             <DialogTitle>{t("saraOnboarding.title")}</DialogTitle>
@@ -79,10 +96,80 @@ export function SaraOnboardingDialog({ open, onOpenChange }: SaraOnboardingDialo
                     <p className="text-[13px] text-muted-foreground mt-0.5">
                       {step.description}
                     </p>
+
+                    {step.schedulePicker && (
+                      <div className="mt-3 rounded-md border border-border bg-background p-3">
+                        <div className="flex items-center gap-1.5">
+                          <CalendarClock className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
+                          <p className="text-[13px] font-medium text-foreground">
+                            {t("saraOnboarding.schedule")}
+                          </p>
+                        </div>
+                        <div className="mt-2 flex flex-wrap gap-2">
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant={schedule === "weekly" ? "default" : "outline"}
+                            className="h-7 text-xs"
+                            aria-pressed={schedule === "weekly"}
+                            onClick={() => setSchedule("weekly")}
+                          >
+                            {t("saraOnboarding.scheduleWeekly")}
+                            <span className="ml-1.5 opacity-70">
+                              · {t("saraOnboarding.scheduleWeeklyTag")}
+                            </span>
+                          </Button>
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant={schedule === "manual" ? "default" : "outline"}
+                            className="h-7 text-xs"
+                            aria-pressed={schedule === "manual"}
+                            onClick={() => setSchedule("manual")}
+                          >
+                            {t("saraOnboarding.scheduleManual")}
+                          </Button>
+                        </div>
+                        <p className="text-[12px] text-muted-foreground mt-2">
+                          {t("saraOnboarding.scheduleHint")}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </div>
               );
             })}
+          </div>
+
+          {/* Trust boundary */}
+          <div>
+            <h4 className="text-sm font-semibold text-foreground mb-2">
+              {t("saraOnboarding.boundary")}
+            </h4>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="rounded-lg border border-border bg-muted/30 p-3">
+                <div className="flex items-center gap-1.5">
+                  <Laptop className="h-4 w-4 text-primary" aria-hidden="true" />
+                  <p className="text-[13px] font-medium text-foreground">
+                    {t("saraOnboarding.staysTitle")}
+                  </p>
+                </div>
+                <p className="text-[13px] text-muted-foreground mt-1">
+                  {t("saraOnboarding.staysItems")}
+                </p>
+              </div>
+              <div className="rounded-lg border border-border bg-primary/[0.03] p-3">
+                <div className="flex items-center gap-1.5">
+                  <ArrowRight className="h-4 w-4 text-primary" aria-hidden="true" />
+                  <p className="text-[13px] font-medium text-foreground">
+                    {t("saraOnboarding.sentTitle")}
+                  </p>
+                </div>
+                <p className="text-[13px] text-muted-foreground mt-1">
+                  {t("saraOnboarding.sentItems")}
+                </p>
+              </div>
+            </div>
           </div>
 
           <div className="rounded-lg border border-border bg-primary/[0.03] p-4">
@@ -97,6 +184,39 @@ export function SaraOnboardingDialog({ open, onOpenChange }: SaraOnboardingDialo
                 </li>
               ))}
             </ul>
+          </div>
+
+          {/* What Sara never does */}
+          <div className="rounded-lg border border-border">
+            <button
+              type="button"
+              onClick={() => setShowNever((v) => !v)}
+              aria-expanded={showNever}
+              className="flex w-full items-center justify-between gap-2 p-3 text-left"
+            >
+              <span className="flex items-center gap-2 text-sm font-medium text-foreground">
+                <Ban className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                {t("saraOnboarding.neverTitle")}
+              </span>
+              {showNever ? (
+                <ChevronUp className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+              ) : (
+                <ChevronDown className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+              )}
+            </button>
+            {showNever && (
+              <ul className="space-y-1.5 border-t border-border px-3 py-3">
+                {[
+                  t("saraOnboarding.never1"),
+                  t("saraOnboarding.never2"),
+                  t("saraOnboarding.never3"),
+                ].map((text, idx) => (
+                  <li key={idx} className="text-[13px] text-muted-foreground">
+                    • {text}
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
 
           <div className="flex items-start gap-2 rounded-lg border border-border p-3">
