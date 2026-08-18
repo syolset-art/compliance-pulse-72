@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { Bot, Download, HelpCircle, CalendarClock, Shield } from "lucide-react";
 import { SaraOnboardingDialog } from "@/components/agents/SaraOnboardingDialog";
 import { useSaraAgent } from "@/lib/saraAgent";
-import saraAgentAsset from "@/assets/sara-agent.png.asset.json";
+import saraAgentPng from "@/assets/sara-agent.png";
 
 const DOC_SOURCES = ["Notion", "SharePoint", "Google Drive", "Confluence", "Lokale mapper"];
 
@@ -25,11 +25,11 @@ export function LocalAgentCard() {
         <div className="relative flex items-center justify-center bg-gradient-to-br from-primary/5 via-primary/10 to-primary/5 p-6 md:w-2/5 md:p-8">
           <div className="relative w-full max-w-[240px]">
             <img
-              src={saraAgentAsset.url}
+              src={saraAgentPng}
               alt="Sara – lokal Mynder compliance agent"
               loading="lazy"
-              width={512}
-              height={512}
+              width={1024}
+              height={1024}
               className="w-full rounded-lg"
             />
             <div className="absolute -bottom-2 -right-2 flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg">
