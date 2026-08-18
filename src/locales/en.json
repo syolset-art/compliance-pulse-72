@@ -1830,6 +1830,8 @@
     "coming": "Sara is not ready for download yet. Register your interest and we'll notify you as soon as it's available.",
     "schedule": "Run schedule",
     "scheduleHint": "Choose whether Sara runs manually or on a regular interval. Scheduled runs also look for signals that may affect previously approved findings.",
+    "scheduleHintManual": "Sara only runs when you start her manually. Good for controlled environments or when you want to review findings before each run.",
+    "scheduleHintWeekly": "Sara checks your document sources weekly and alerts you to new findings or changes that may affect previously approved evidence. You still confirm every finding.",
     "scheduleManual": "Manual start",
     "scheduleWeekly": "Weekly",
     "scheduleWeeklyTag": "Recommended",
