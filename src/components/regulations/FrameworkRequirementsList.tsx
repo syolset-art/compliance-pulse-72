@@ -21,6 +21,9 @@ import type { ComplianceRequirement, AgentCapability } from "@/lib/complianceReq
 import { ManualDocumentationDialog } from "@/components/dialogs/ManualDocumentationDialog";
 import { LaraDataSourceExplainer } from "@/components/regulations/LaraDataSourceExplainer";
 import { SaraOnboardingDialog } from "@/components/agents/SaraOnboardingDialog";
+import { SaraActivityLogDialog } from "@/components/agents/SaraActivityLogDialog";
+import { useSaraAgent } from "@/lib/saraAgent";
+
 import { AttachEvidenceDialog, type AttachEvidenceResult } from "@/components/regulations/AttachEvidenceDialog";
 import { MessageSquare, Save, Pencil } from "lucide-react";
 import {
@@ -137,6 +140,9 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
   const [attachDialog, setAttachDialog] = useState<{ id: string; name: string; description?: string; articles?: string[] } | null>(null);
   const [frameworkAttachOpen, setFrameworkAttachOpen] = useState(false);
   const [saraOpen, setSaraOpen] = useState(false);
+  const [saraLogOpen, setSaraLogOpen] = useState(false);
+  const { installed: saraInstalled, newFindings: saraNewFindings } = useSaraAgent();
+
   const [readMoreIds, setReadMoreIds] = useState<Set<string>>(new Set());
   const [showAllDocsIds, setShowAllDocsIds] = useState<Set<string>>(new Set());
   const toggleSet = (setter: Dispatch<SetStateAction<Set<string>>>, id: string) =>
@@ -581,49 +587,86 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
           </TooltipContent>
         </Tooltip>
 
-        <div className="flex items-center gap-1">
+        {!saraInstalled ? (
+          <div className="flex items-center gap-1">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-8 gap-1.5 text-xs shrink-0"
+                  onClick={() => setSaraOpen(true)}
+                >
+                  <Download className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">{isNb ? "Installer Sara" : "Install Sara"}</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="max-w-xs">
+                <p>
+                  {isNb
+                    ? "Mynder Compliance Agent Sara er en lokal agent. Klikk for å se hvordan du installerer, konfigurerer og kobler henne til dokumentkildene dine. Dokumentene prosesseres lokalt og forlater aldri infrastrukturen din — bare bevisene lastes opp til Mynder."
+                    : "Mynder Compliance Agent Sara is a local agent. Click to see how to install, configure and connect her to your document sources. Documents are processed locally and never leave your infrastructure — only the evidence is uploaded to Mynder."}
+                </p>
+              </TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 shrink-0"
+                  onClick={() => setSaraOpen(true)}
+                  aria-label={isNb ? "Hvordan kommer jeg i gang med Sara?" : "How do I get started with Sara?"}
+                >
+                  <HelpCircle className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="max-w-xs">
+                <p>
+                  {isNb
+                    ? "Åpne veiledningen: last ned, installer, konfigurer og koble Sara til dokumentbiblioteket ditt."
+                    : "Open the guide: download, install, configure and connect Sara to your document library."}
+                </p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
+        ) : (
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
                 size="sm"
                 variant="outline"
                 className="h-8 gap-1.5 text-xs shrink-0"
-                onClick={() => setSaraOpen(true)}
+                onClick={() => setSaraLogOpen(true)}
               >
-                <Download className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">{isNb ? "Installer Sara" : "Install Sara"}</span>
+                <Bot className="h-3.5 w-3.5 text-primary" />
+                <span className="hidden sm:inline">
+                  {saraNewFindings > 0
+                    ? isNb
+                      ? `${saraNewFindings} nye bevis fra Sara`
+                      : `${saraNewFindings} new evidence from Sara`
+                    : isNb
+                      ? "Se funn fra Sara"
+                      : "View Sara findings"}
+                </span>
+                {saraNewFindings > 0 && (
+                  <span className="ml-0.5 rounded-full bg-primary px-1.5 text-[10px] font-semibold text-primary-foreground">
+                    {saraNewFindings}
+                  </span>
+                )}
               </Button>
             </TooltipTrigger>
             <TooltipContent side="bottom" className="max-w-xs">
               <p>
                 {isNb
-                  ? "Mynder Compliance Agent Sara er en lokal agent. Klikk for å se hvordan du installerer, konfigurerer og kobler henne til dokumentkildene dine. Dokumentene prosesseres lokalt og forlater aldri infrastrukturen din — bare bevisene lastes opp til Mynder."
-                  : "Mynder Compliance Agent Sara is a local agent. Click to see how to install, configure and connect her to your document sources. Documents are processed locally and never leave your infrastructure — only the evidence is uploaded to Mynder."}
+                  ? "Sara har levert nye funn fra dokumentkildene dine. Åpne aktivitetsloggen for å se de siste og bekrefte dem."
+                  : "Sara has delivered new findings from your document sources. Open the activity log to review and confirm the latest."}
               </p>
             </TooltipContent>
           </Tooltip>
+        )}
 
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 shrink-0"
-                onClick={() => setSaraOpen(true)}
-                aria-label={isNb ? "Hvordan kommer jeg i gang med Sara?" : "How do I get started with Sara?"}
-              >
-                <HelpCircle className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="bottom" className="max-w-xs">
-              <p>
-                {isNb
-                  ? "Åpne veiledningen: last ned, installer, konfigurer og koble Sara til dokumentbiblioteket ditt."
-                  : "Open the guide: download, install, configure and connect Sara to your document library."}
-              </p>
-            </TooltipContent>
-          </Tooltip>
-        </div>
       </div>
 
       {/* Rad 2: agentiske filtre */}
@@ -1370,6 +1413,8 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
       )}
 
       <SaraOnboardingDialog open={saraOpen} onOpenChange={setSaraOpen} />
+      <SaraActivityLogDialog open={saraLogOpen} onOpenChange={setSaraLogOpen} isNb={isNb} />
+
 
 
 
