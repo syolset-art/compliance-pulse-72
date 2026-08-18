@@ -262,6 +262,13 @@ export default function Integrations() {
                 <span className="text-xs text-muted-foreground">{group.desc}</span>
               </div>
 
+              {group.key === "available" && (
+                <div className="mt-3 flex items-center gap-2 rounded-lg border border-border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
+                  <Shield className="h-3.5 w-3.5 shrink-0 text-primary" />
+                  <span>Alle integrasjoner ber kun om lesetilgang. Mynder skriver aldri tilbake til kilden.</span>
+                </div>
+              )}
+
               <div className="mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {group.items.map((integration) => {
                   const conn = connections[integration.id];
