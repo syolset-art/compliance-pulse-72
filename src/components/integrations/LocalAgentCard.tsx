@@ -48,14 +48,17 @@ export function LocalAgentCard() {
 
           <div className="mt-3 flex flex-wrap items-center gap-x-6 gap-y-1 border-t border-border pt-3 text-xs text-muted-foreground">
             <span>
-              Status: <span className="text-foreground">Ikke installert</span>
+              Status:{" "}
+              <span className="text-foreground">
+                {installed ? "Installert" : "Ikke installert"}
+              </span>
             </span>
             <span className="flex items-center gap-1">
               <CalendarClock className="h-3.5 w-3.5" aria-hidden="true" />
               Kjøreplan: <span className="text-foreground">Ukentlig (anbefalt)</span>
             </span>
             <span>
-              Sist kjørt: <span className="text-foreground">—</span>
+              Sist kjørt: <span className="text-foreground">{installed ? "I dag 09:12" : "—"}</span>
             </span>
           </div>
         </div>
@@ -63,15 +66,18 @@ export function LocalAgentCard() {
         <div className="flex items-center gap-2">
           <Button
             size="sm"
-            onClick={() =>
-              toast.info(
-                "Sara er ikke klar for nedlasting ennå. Meld interessen, så gir vi deg beskjed så snart den er tilgjengelig.",
-              )
-            }
+            disabled={installed}
+            onClick={() => {
+              markInstalled();
+              toast.success(
+                "Sara er registrert som installert. Funn fra dokumentkildene dine vises nå i kravlistene.",
+              );
+            }}
           >
             <Download className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" />
-            Last ned Sara
+            {installed ? "Lastet ned" : "Last ned Sara"}
           </Button>
+
           <Button size="sm" variant="outline" onClick={() => setOpen(true)}>
             <HelpCircle className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" />
             Slik kommer du i gang
