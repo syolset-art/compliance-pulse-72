@@ -28,8 +28,10 @@ import {
   ChevronDown,
   ChevronUp,
   Plus,
+  Plug,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { useNavigate } from "react-router-dom";
 
 import type { EvidenceDocument } from "@/lib/requirementStatusModel";
 import { supabase } from "@/integrations/supabase/client";
@@ -71,6 +73,8 @@ type Phase =
   | { kind: "analyzing"; fileName: string }
   | { kind: "review"; result: AttachEvidenceResult; fileName: string }
   | { kind: "error"; message: string };
+
+const MCP_SOURCES = ["Notion", "SharePoint", "Google Drive", "Confluence"];
 
 const STEPS: PhaseKind[] = ["select", "analyzing", "review"];
 
@@ -172,6 +176,7 @@ export function AttachEvidenceDialog({
 }: Props) {
   const { i18n } = useTranslation();
   const isNb = i18n.language !== "en";
+  const navigate = useNavigate();
   const isFrameworkMode = !!frameworkRequirements && frameworkRequirements.length > 0;
   const [phase, setPhase] = useState<Phase>({ kind: "select" });
   const [showArticles, setShowArticles] = useState(false);
@@ -390,6 +395,47 @@ export function AttachEvidenceDialog({
                 }}
               />
             </label>
+
+            <div className="rounded-lg border border-border p-3 space-y-2">
+              <div className="flex items-center gap-1.5">
+                <Plug className="h-3.5 w-3.5 text-primary shrink-0" />
+                <span className="text-xs font-medium text-foreground">
+                  {isNb ? "Hent fra agentisk kilde (MCP)" : "Fetch from agentic source (MCP)"}
+                </span>
+              </div>
+              <p className="text-[11px] text-muted-foreground leading-relaxed">
+                {isNb
+                  ? "Koble til dokumentkildene dine, så henter agenten bevis uten at du laster opp filer manuelt."
+                  : "Connect your document sources and the agent retrieves evidence without manual uploads."}
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                {MCP_SOURCES.map((s) => (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => {
+                      onOpenChange(false);
+                      navigate("/settings/mcp");
+                    }}
+                    className="rounded-full border border-border px-2.5 py-1 text-[11px] text-muted-foreground hover:border-primary/40 hover:text-foreground transition-colors"
+                  >
+                    {s}
+                  </button>
+                ))}
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  onOpenChange(false);
+                  navigate("/settings/mcp");
+                }}
+                className="text-[11px] text-primary hover:underline"
+              >
+                {isNb ? "Administrer agentkoblinger" : "Manage agent connections"}
+              </button>
+            </div>
+
+
 
             {(coveredArticles?.length ?? 0) > 0 && (
               <button
