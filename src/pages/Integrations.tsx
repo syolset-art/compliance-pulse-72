@@ -13,6 +13,8 @@ import {
   Trash2,
   CheckCircle2,
   AlertTriangle,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
