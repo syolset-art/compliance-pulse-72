@@ -33,6 +33,7 @@ import {
 } from "@/lib/integrationCatalog";
 import { useConnectedSources } from "@/hooks/useConnectedSources";
 import { ConnectIntegrationDialog } from "@/components/integrations/ConnectIntegrationDialog";
+import { McpAgentConnectionsSection } from "@/components/integrations/McpAgentConnectionsSection";
 
 interface ConnectionState {
   status: IntegrationStatus;
@@ -377,6 +378,10 @@ export default function Integrations() {
           </Card>
         )}
 
+
+        <div className="mt-10 border-t border-border pt-8">
+          <McpAgentConnectionsSection />
+        </div>
 
         <ConnectIntegrationDialog
           integration={dialogIntegration}
