@@ -22,7 +22,7 @@ export type IntegrationCategory =
 
 export type IntegrationAuthType = "oauth" | "api_key" | "upload";
 
-export type DiscoveryType = "systems" | "vendors" | "users";
+export type DiscoveryType = "systems" | "vendors" | "users" | "documents";
 
 /** available = kan kobles på i dag. planned = vises, men kan ikke kobles på ennå. */
 export type IntegrationAvailability = "available" | "planned";
@@ -56,6 +56,15 @@ export const DISCOVERY_LABEL: Record<DiscoveryType, string> = {
   systems: "Systemer",
   vendors: "Leverandører",
   users: "Brukere",
+  documents: "Dokumenter",
+};
+
+/** Hva kilden gir Lara – brukes som filter på Datakilder og agenter. */
+export const DISCOVERY_FILTER_LABEL: Record<DiscoveryType, string> = {
+  systems: "Systemer",
+  vendors: "Leverandører",
+  documents: "Dokumenter",
+  users: "Personer og tilganger",
 };
 
 export const INTEGRATION_CATALOG: IntegrationDefinition[] = [
@@ -80,7 +89,7 @@ export const INTEGRATION_CATALOG: IntegrationDefinition[] = [
     category: "productivity",
     description:
       "Les policyer, rutiner og prosessbeskrivelser fra Notion slik at Lara kan bruke dem som bevis.",
-    discovers: ["systems"],
+    discovers: ["documents"],
     authType: "oauth",
     scopes: ["read:content"],
     icon: FileText,
@@ -137,7 +146,7 @@ export const INTEGRATION_CATALOG: IntegrationDefinition[] = [
     category: "productivity",
     description:
       "Oppdag Teams, SharePoint-nettsteder og OneDrive-delinger som del av registeret.",
-    discovers: ["systems"],
+    discovers: ["systems", "documents"],
     authType: "oauth",
     scopes: ["Sites.Read.All", "Team.ReadBasic.All"],
     icon: Layers,

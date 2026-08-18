@@ -6,15 +6,12 @@ import {
   Plug,
   ArrowLeft,
   Shield,
-  Lock,
-  Sparkles,
   RefreshCw,
   Settings2,
   Trash2,
   CheckCircle2,
   AlertTriangle,
-  ChevronDown,
-  ChevronUp,
+  Bot,
 } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
@@ -26,16 +23,19 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { toast } from "sonner";
 import {
   INTEGRATION_CATALOG,
-  CATEGORY_LABEL,
-  DISCOVERY_LABEL,
+  DISCOVERY_FILTER_LABEL,
   STATUS_LABEL,
-  type IntegrationCategory,
+  type DiscoveryType,
   type IntegrationDefinition,
   type IntegrationStatus,
 } from "@/lib/integrationCatalog";
 import { useConnectedSources } from "@/hooks/useConnectedSources";
 import { ConnectIntegrationDialog } from "@/components/integrations/ConnectIntegrationDialog";
 import { McpAgentConnectionsSection } from "@/components/integrations/McpAgentConnectionsSection";
+import { TrustBoundaryStrip } from "@/components/integrations/TrustBoundaryStrip";
+import { LocalAgentCard } from "@/components/integrations/LocalAgentCard";
+import { AgentActivityFeed, type AgentActivityItem } from "@/components/integrations/AgentActivityFeed";
+import { NextSourceSuggestions } from "@/components/integrations/NextSourceSuggestions";
 
 interface ConnectionState {
   status: IntegrationStatus;
@@ -45,14 +45,12 @@ interface ConnectionState {
   discoveredVendors?: number;
 }
 
-const CATEGORIES: (IntegrationCategory | "all")[] = [
+const DISCOVERY_FILTERS: (DiscoveryType | "all")[] = [
   "all",
-  "identity",
-  "productivity",
-  "cloud_security",
-  "device",
-  "finance",
-  "custom",
+  "systems",
+  "vendors",
+  "documents",
+  "users",
 ];
 
 const STATUS_STYLE: Record<IntegrationStatus, string> = {
@@ -64,8 +62,8 @@ const STATUS_STYLE: Record<IntegrationStatus, string> = {
 
 export default function Integrations() {
   const [search, setSearch] = useState("");
-  const [category, setCategory] = useState<IntegrationCategory | "all">("all");
-  const [showTrust, setShowTrust] = useState(false);
+  const [discovery, setDiscovery] = useState<DiscoveryType | "all">("all");
+  const [activity, setActivity] = useState<AgentActivityItem[]>([]);
   const [connections, setConnections] = useState<Record<string, ConnectionState>>({});
   const [dialogIntegration, setDialogIntegration] = useState<IntegrationDefinition | null>(null);
   const { connectSource, disconnectSource } = useConnectedSources();
@@ -74,19 +72,27 @@ export default function Integrations() {
 
   const filtered = useMemo(() => {
     return INTEGRATION_CATALOG.filter((i) => {
-      if (category !== "all" && i.category !== category) return false;
+      if (discovery !== "all" && !i.discovers.includes(discovery)) return false;
       if (search.trim() && !`${i.name} ${i.vendor} ${i.description}`.toLowerCase().includes(search.toLowerCase())) {
         return false;
       }
       return true;
     });
-  }, [search, category]);
+  }, [search, discovery]);
 
   const activeCount = Object.values(connections).filter((c) => c.status === "active").length;
   const discoveredTotal = Object.values(connections).reduce(
     (acc, c) => acc + (c.discoveredSystems ?? 0) + (c.discoveredVendors ?? 0),
     0,
   );
+
+  const coveredTypes = useMemo(() => {
+    const set = new Set<DiscoveryType>();
+    INTEGRATION_CATALOG.forEach((i) => {
+      if (connections[i.id]?.status === "active") i.discovers.forEach((d) => set.add(d));
+    });
+    return Array.from(set);
+  }, [connections]);
 
   const handleConnect = (integration: IntegrationDefinition) => {
     setConnections((prev) => ({
@@ -100,6 +106,16 @@ export default function Integrations() {
       },
     }));
     connectSource(integration.id);
+    setActivity((prev) => [
+      {
+        id: `${integration.id}-${Date.now()}`,
+        source: integration.name,
+        summary: `Lara startet kartlegging av ${integration.name}`,
+        at: new Date().toISOString(),
+        status: "pending",
+      },
+      ...prev,
+    ]);
 
     toast.success(`${integration.name} koblet til`, {
       description: "Lara starter automatisk kartlegging. Oppdagede elementer krever din godkjenning.",
@@ -116,6 +132,16 @@ export default function Integrations() {
         discoveredSystems: (prev[id]?.discoveredSystems ?? 0) + Math.floor(Math.random() * 3),
       },
     }));
+    setActivity((prev) => [
+      {
+        id: `${id}-${Date.now()}`,
+        source: name,
+        summary: `Nye funn fra ${name} venter på godkjenning`,
+        at: new Date().toISOString(),
+        status: "pending",
+      },
+      ...prev,
+    ]);
     toast.success(`${name}: synkronisering fullført`);
   };
 
@@ -140,70 +166,30 @@ export default function Integrations() {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div className="h-10 w-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
-            <Plug className="h-5 w-5" />
+            <Bot className="h-5 w-5" />
           </div>
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight">Integrasjoner</h1>
+            <h1 className="text-2xl font-semibold tracking-tight">Datakilder og agenter</h1>
             <p className="text-sm text-muted-foreground mt-1">
-              Mynder Connect – sikre datakilder som lar Lara automatisk kartlegge systemer og leverandører.
+              Her henter Lara og Sara grunnlaget sitt. Du godkjenner alltid funnene før noe blir aktivt.
             </p>
           </div>
         </div>
 
-        {/* Trust strip */}
-        <Card className="mt-6 border-primary/20">
-          <div className="flex items-center justify-between p-4">
-            <div className="flex items-center gap-2">
-              <div className="h-8 w-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
-                <Shield className="h-4 w-4" />
-              </div>
-              <div>
-                <p className="text-sm font-medium text-foreground">Sikkerhet og personvern</p>
-                <p className="text-xs text-muted-foreground">Kryptert lagring · Kun lesetilgang · Lara-godkjenning</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="text-right">
-                <div className="text-xs text-muted-foreground">Aktive koblinger</div>
-                <div className="text-base font-semibold">{activeCount}</div>
-              </div>
-              <div className="text-right">
-                <div className="text-xs text-muted-foreground">Oppdaget</div>
-                <div className="text-base font-semibold">{discoveredTotal}</div>
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowTrust((s) => !s)}
-                aria-label={showTrust ? "Skjul detaljer" : "Vis detaljer"}
-                className="h-8 gap-1 text-xs"
-              >
-                {showTrust ? "Skjul" : "Mer info"}
-                {showTrust ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
-              </Button>
-            </div>
-          </div>
+        <TrustBoundaryStrip activeCount={activeCount} discoveredTotal={discoveredTotal} />
 
-          {showTrust && (
-            <div className="border-t border-border px-4 py-3 flex flex-wrap items-center gap-6 bg-gradient-to-r from-primary/5 to-transparent">
-              <div className="flex items-center gap-2 text-sm">
-                <Lock className="h-4 w-4 text-primary" />
-                <span className="font-medium">Kryptert lagring</span>
-                <span className="text-muted-foreground">av alle tilgangstokens</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm">
-                <Shield className="h-4 w-4 text-primary" />
-                <span className="font-medium">Kun lesetilgang</span>
-                <span className="text-muted-foreground">som standard</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm">
-                <Sparkles className="h-4 w-4 text-primary" />
-                <span className="font-medium">Lara godkjenning</span>
-                <span className="text-muted-foreground">før noe blir aktivt</span>
-              </div>
-            </div>
-          )}
-        </Card>
+        <LocalAgentCard />
+
+        <AgentActivityFeed items={activity} />
+
+        <section className="mt-8">
+          <div className="flex items-baseline gap-2">
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-foreground">
+              Kildekart
+            </h2>
+            <span className="text-xs text-muted-foreground">Filtrer etter hva kilden gir Lara.</span>
+          </div>
+        </section>
 
         {/* Filters */}
         <div className="mt-6 flex flex-col md:flex-row md:items-center gap-3">
@@ -216,11 +202,11 @@ export default function Integrations() {
               className="pl-9"
             />
           </div>
-          <Tabs value={category} onValueChange={(v) => setCategory(v as IntegrationCategory | "all")}>
+          <Tabs value={discovery} onValueChange={(v) => setDiscovery(v as DiscoveryType | "all")}>
             <TabsList>
-              {CATEGORIES.map((c) => (
-                <TabsTrigger key={c} value={c} className="text-xs">
-                  {c === "all" ? "Alle" : CATEGORY_LABEL[c]}
+              {DISCOVERY_FILTERS.map((d) => (
+                <TabsTrigger key={d} value={d} className="text-xs">
+                  {d === "all" ? "Alle" : DISCOVERY_FILTER_LABEL[d]}
                 </TabsTrigger>
               ))}
             </TabsList>
@@ -290,7 +276,7 @@ export default function Integrations() {
                           <div className="flex items-center gap-2">
                             <h3 className="font-semibold text-sm truncate">{integration.name}</h3>
                           </div>
-                          <div className="text-xs text-muted-foreground">{CATEGORY_LABEL[integration.category]}</div>
+                          <div className="text-xs text-muted-foreground">{integration.vendor}</div>
                         </div>
                         {isPlanned ? (
                           <Badge variant="outline" className="text-[10px] bg-muted text-muted-foreground">
@@ -312,7 +298,7 @@ export default function Integrations() {
                       <div className="flex flex-wrap gap-1">
                         {integration.discovers.map((d) => (
                           <Badge key={d} variant="secondary" className="text-[10px] font-normal">
-                            {DISCOVERY_LABEL[d]}
+                            {DISCOVERY_FILTER_LABEL[d]}
                           </Badge>
                         ))}
                       </div>
@@ -404,6 +390,8 @@ export default function Integrations() {
           </Card>
         )}
 
+
+        <NextSourceSuggestions covered={coveredTypes} />
 
         <div className="mt-10 border-t border-border pt-8">
           <McpAgentConnectionsSection />
