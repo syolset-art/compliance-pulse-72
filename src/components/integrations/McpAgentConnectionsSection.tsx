@@ -1,6 +1,4 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Sidebar } from "@/components/Sidebar";
 import { useTranslation } from "react-i18next";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -17,7 +15,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Plug, Copy, Check, Trash2, Info, ArrowLeft } from "lucide-react";
+import { Plug, Copy, Check, Trash2, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   MCP_EXPOSED_TOOLS,
@@ -34,8 +32,7 @@ const STATUS_STYLE = {
   failed: "bg-destructive/15 text-destructive border-destructive/30",
 } as const;
 
-export default function McpAgentConnections() {
-  const navigate = useNavigate();
+export function McpAgentConnectionsSection() {
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
 
@@ -98,24 +95,16 @@ export default function McpAgentConnections() {
   );
 
   return (
-    <div className="flex min-h-screen bg-background">
-      <Sidebar />
-      <main className="flex-1 overflow-auto">
-    <div className="pt-16 px-4 sm:px-6 pb-10 max-w-3xl mx-auto space-y-4">
-      <header className="flex items-start gap-2">
-        <Button variant="ghost" size="icon" className="-ml-2 shrink-0" onClick={() => navigate(-1)} aria-label={isNb ? "Tilbake" : "Back"}>
-          <ArrowLeft className="h-5 w-5" />
-        </Button>
-        <div>
-        <h1 className="text-xl font-semibold text-foreground">
+    <section id="mcp" className="space-y-4 scroll-mt-20">
+      <header>
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-foreground">
           {isNb ? "Agentkoblinger (MCP)" : "Agent connections (MCP)"}
-        </h1>
-        <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
+        </h2>
+        <p className="text-xs text-muted-foreground mt-1 leading-relaxed max-w-3xl">
           {isNb
             ? "MCP lar dine egne AI-agenter snakke med Mynder. Da kan Lara hente leverandørdata dere allerede har i egen infrastruktur, i stedet for å be leverandøren om alt på nytt."
             : "MCP lets your own AI agents talk to Mynder, so Lara can use vendor data you already hold in your own infrastructure instead of asking the vendor for everything again."}
         </p>
-      </div>
       </header>
 
       <Card className="p-4 space-y-3">
@@ -253,8 +242,6 @@ export default function McpAgentConnections() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
-      </main>
-    </div>
+    </section>
   );
 }
