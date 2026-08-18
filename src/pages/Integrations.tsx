@@ -170,7 +170,6 @@ export default function Integrations() {
           </div>
         </div>
 
-        <TrustBoundaryStrip activeCount={activeCount} discoveredTotal={discoveredTotal} />
 
         <LocalAgentCard />
 
