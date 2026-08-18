@@ -23,7 +23,6 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { toast } from "sonner";
 import {
   INTEGRATION_CATALOG,
-  DISCOVERY_LABEL,
   DISCOVERY_FILTER_LABEL,
   STATUS_LABEL,
   type DiscoveryType,
@@ -277,9 +276,7 @@ export default function Integrations() {
                           <div className="flex items-center gap-2">
                             <h3 className="font-semibold text-sm truncate">{integration.name}</h3>
                           </div>
-                          <div className="text-xs text-muted-foreground">
-                            {integration.discovers.map((d) => DISCOVERY_FILTER_LABEL[d]).join(" · ")}
-                          </div>
+                          <div className="text-xs text-muted-foreground">{integration.vendor}</div>
                         </div>
                         {isPlanned ? (
                           <Badge variant="outline" className="text-[10px] bg-muted text-muted-foreground">
@@ -301,7 +298,7 @@ export default function Integrations() {
                       <div className="flex flex-wrap gap-1">
                         {integration.discovers.map((d) => (
                           <Badge key={d} variant="secondary" className="text-[10px] font-normal">
-                            {DISCOVERY_LABEL[d]}
+                            {DISCOVERY_FILTER_LABEL[d]}
                           </Badge>
                         ))}
                       </div>
