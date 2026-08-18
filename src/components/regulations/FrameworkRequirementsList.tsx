@@ -21,6 +21,9 @@ import type { ComplianceRequirement, AgentCapability } from "@/lib/complianceReq
 import { ManualDocumentationDialog } from "@/components/dialogs/ManualDocumentationDialog";
 import { LaraDataSourceExplainer } from "@/components/regulations/LaraDataSourceExplainer";
 import { SaraOnboardingDialog } from "@/components/agents/SaraOnboardingDialog";
+import { SaraActivityLogDialog } from "@/components/agents/SaraActivityLogDialog";
+import { useSaraAgent } from "@/lib/saraAgent";
+
 import { AttachEvidenceDialog, type AttachEvidenceResult } from "@/components/regulations/AttachEvidenceDialog";
 import { MessageSquare, Save, Pencil } from "lucide-react";
 import {
