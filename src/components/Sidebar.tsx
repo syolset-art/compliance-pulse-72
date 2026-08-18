@@ -955,7 +955,7 @@ const SidebarContent = () => {
                       )}
                     >
                       <Plug className="h-3.5 w-3.5" />
-                      {isNb ? "Integrasjoner" : "Integrations"}
+                      {isNb ? "Datakilder og agenter" : "Data sources and agents"}
                     </button>
                     <button
                       onClick={() => navigate("/activity-log")}

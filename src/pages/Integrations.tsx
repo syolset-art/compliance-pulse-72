@@ -23,7 +23,6 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { toast } from "sonner";
 import {
   INTEGRATION_CATALOG,
-  CATEGORY_LABEL,
   DISCOVERY_LABEL,
   DISCOVERY_FILTER_LABEL,
   STATUS_LABEL,
