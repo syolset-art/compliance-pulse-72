@@ -25,8 +25,22 @@
     "onlyEvidence": "Only evidence (coverage and metadata) is uploaded to Mynder.",
     "newWay": "This is a new way of working with compliance.",
     "autoSync": "Automatic updates",
-    "syncText": "Sara detects changes every time you start her and updates your profile in Mynder.",
+    "syncText": "New or changed findings must be confirmed by a named person at your organisation before they count as evidence.",
     "close": "Close",
-    "coming": "Sara is not ready for download yet. Register your interest and we'll notify you as soon as it's available."
+    "coming": "Sara is not ready for download yet. Register your interest and we'll notify you as soon as it's available.",
+    "schedule": "Run schedule",
+    "scheduleHint": "Choose whether Sara runs manually or on a regular interval. Scheduled runs also look for signals that may affect previously approved findings.",
+    "scheduleManual": "Manual start",
+    "scheduleWeekly": "Weekly",
+    "scheduleWeeklyTag": "Recommended",
+    "boundary": "Trust boundary",
+    "staysTitle": "Stays with you",
+    "staysItems": "Documents, files, raw data",
+    "sentTitle": "Sent to Mynder",
+    "sentItems": "Findings, coverage, requirement reference",
+    "neverTitle": "What Sara never does",
+    "never1": "Never uploads documents to Mynder.",
+    "never2": "Never marks a requirement as met without human confirmation.",
+    "never3": "Can be revoked at any time, with a trace in the history."
   }
 }

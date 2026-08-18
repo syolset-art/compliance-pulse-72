@@ -1826,8 +1826,22 @@
     "onlyEvidence": "Bare bevis (dekningsgrad og metadata) lastes opp til Mynder.",
     "newWay": "Dette er en ny måte å jobbe med compliance.",
     "autoSync": "Automatisk oppdatering",
-    "syncText": "Sara oppdager endringer hver gang du starter henne, og oppdaterer din profil i Mynder.",
+    "syncText": "Nye eller endrede funn må bekreftes av en navngitt person hos dere før de teller som bevis.",
     "close": "Lukk",
-    "coming": "Sara er ikke klar for nedlasting ennå. Meld interessen, så gir vi deg beskjed så snart den er tilgjengelig."
+    "coming": "Sara er ikke klar for nedlasting ennå. Meld interessen, så gir vi deg beskjed så snart den er tilgjengelig.",
+    "schedule": "Kjøreplan",
+    "scheduleHint": "Velg om Sara kjøres manuelt eller regelmessig. Regelmessig kjøring ser også etter signaler som kan påvirke tidligere godkjente funn.",
+    "scheduleManual": "Manuell start",
+    "scheduleWeekly": "Ukentlig",
+    "scheduleWeeklyTag": "Anbefalt",
+    "boundary": "Tillitsgrense",
+    "staysTitle": "Blir hos deg",
+    "staysItems": "Dokumenter, filer, rådata",
+    "sentTitle": "Sendes til Mynder",
+    "sentItems": "Funn, dekningsgrad, kravreferanse",
+    "neverTitle": "Hva Sara aldri gjør",
+    "never1": "Laster ikke opp dokumenter til Mynder.",
+    "never2": "Setter aldri et krav til oppfylt uten menneskelig bekreftelse.",
+    "never3": "Kan trekkes tilbake når som helst, med spor i historikken."
   }
 }
