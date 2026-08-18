@@ -1,5 +1,7 @@
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+
 import { Sidebar } from "@/components/Sidebar";
 import {
   Search,
@@ -12,7 +14,9 @@ import {
   CheckCircle2,
   AlertTriangle,
   Bot,
+  Info,
 } from "lucide-react";
+
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -60,6 +64,7 @@ const STATUS_STYLE: Record<IntegrationStatus, string> = {
 };
 
 export default function Integrations() {
+  const { t } = useTranslation();
   const [search, setSearch] = useState("");
   const [discovery, setDiscovery] = useState<DiscoveryType | "all">("all");
   const [activity, setActivity] = useState<AgentActivityItem[]>([]);
@@ -67,6 +72,7 @@ export default function Integrations() {
   const [dialogIntegration, setDialogIntegration] = useState<IntegrationDefinition | null>(null);
   const { connectSource, disconnectSource } = useConnectedSources();
   const navigate = useNavigate();
+
 
 
   const filtered = useMemo(() => {
