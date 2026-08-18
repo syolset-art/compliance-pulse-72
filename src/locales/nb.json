@@ -1216,12 +1216,6 @@
       "title": "Systemintegrasjoner",
       "description": "Koble til eksterne systemer"
     },
-    "sourceMap": {
-      "title": "Kildekart",
-      "description": "Filtrer etter hva kilden gir Lara.",
-      "tooltip": "Kildekartet viser hvilke typer data hver tilkoblede kilde kan levere til Lara: systemer, leverandører, dokumenter, personer og tilganger."
-    },
-
     "showingContent": "Viser innhold til høyre...",
     "navigating": "Navigerer til riktig side...",
     "navigatedTo": "Navigert",
@@ -1851,5 +1845,10 @@
     "never1": "Laster ikke opp dokumenter til Mynder.",
     "never2": "Setter aldri et krav til oppfylt uten menneskelig bekreftelse.",
     "never3": "Kan trekkes tilbake når som helst, med spor i historikken."
+  },
+  "sourceMap": {
+    "title": "Kildekart",
+    "description": "Filtrer etter hva kilden gir Lara.",
+    "tooltip": "Kildekartet viser hvilke typer data hver tilkoblede kilde kan levere til Lara: systemer, leverandører, dokumenter, personer og tilganger."
   }
 }
