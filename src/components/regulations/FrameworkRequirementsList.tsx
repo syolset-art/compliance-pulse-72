@@ -1413,6 +1413,8 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
       )}
 
       <SaraOnboardingDialog open={saraOpen} onOpenChange={setSaraOpen} />
+      <SaraActivityLogDialog open={saraLogOpen} onOpenChange={setSaraLogOpen} isNb={isNb} />
+
 
 
 
