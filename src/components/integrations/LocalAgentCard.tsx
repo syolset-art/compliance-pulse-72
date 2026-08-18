@@ -8,7 +8,13 @@ import { SaraOnboardingDialog } from "@/components/agents/SaraOnboardingDialog";
 import { useSaraAgent } from "@/lib/saraAgent";
 import saraAgentPng from "@/assets/sara-agent.png";
 
-const DOC_SOURCES = ["Notion", "SharePoint", "Google Drive", "Confluence", "Lokale mapper"];
+const DOC_SOURCES: { name: string; available: boolean }[] = [
+  { name: "Notion", available: true },
+  { name: "SharePoint", available: false },
+  { name: "Google Drive", available: false },
+  { name: "Confluence", available: false },
+  { name: "Lokale mapper", available: false },
+];
 
 /**
  * Lokal agent (Sara) – annonsepreget seksjon øverst på Datakilder og agenter.
@@ -63,8 +69,15 @@ export function LocalAgentCard() {
 
             <div className="mt-4 flex flex-wrap gap-1.5">
               {DOC_SOURCES.map((s) => (
-                <Badge key={s} variant="secondary" className="text-[10px] font-normal">
-                  {s}
+                <Badge
+                  key={s.name}
+                  variant={s.available ? "default" : "secondary"}
+                  className="text-[10px] font-normal"
+                >
+                  {s.name}
+                  {!s.available && (
+                    <span className="ml-1 opacity-60">· kommer</span>
+                  )}
                 </Badge>
               ))}
             </div>
