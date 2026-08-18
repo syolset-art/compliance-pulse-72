@@ -5,6 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Bot, Download, HelpCircle, CalendarClock } from "lucide-react";
 import { SaraOnboardingDialog } from "@/components/agents/SaraOnboardingDialog";
+import { useSaraAgent } from "@/lib/saraAgent";
+
 
 const DOC_SOURCES = ["Notion", "SharePoint", "Google Drive", "Confluence", "Lokale mapper"];
 
