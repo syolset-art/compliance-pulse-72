@@ -65,6 +65,7 @@ const STATUS_STYLE: Record<IntegrationStatus, string> = {
 export default function Integrations() {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState<IntegrationCategory | "all">("all");
+  const [showTrust, setShowTrust] = useState(false);
   const [connections, setConnections] = useState<Record<string, ConnectionState>>({});
   const [dialogIntegration, setDialogIntegration] = useState<IntegrationDefinition | null>(null);
   const { connectSource, disconnectSource } = useConnectedSources();
