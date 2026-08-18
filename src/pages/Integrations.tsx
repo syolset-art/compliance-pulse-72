@@ -32,7 +32,6 @@ import {
 import { useConnectedSources } from "@/hooks/useConnectedSources";
 import { ConnectIntegrationDialog } from "@/components/integrations/ConnectIntegrationDialog";
 import { McpAgentConnectionsSection } from "@/components/integrations/McpAgentConnectionsSection";
-import { TrustBoundaryStrip } from "@/components/integrations/TrustBoundaryStrip";
 import { LocalAgentCard } from "@/components/integrations/LocalAgentCard";
 import { AgentActivityFeed, type AgentActivityItem } from "@/components/integrations/AgentActivityFeed";
 import { NextSourceSuggestions } from "@/components/integrations/NextSourceSuggestions";
