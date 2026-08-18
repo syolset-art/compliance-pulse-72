@@ -3,85 +3,113 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Bot, Download, HelpCircle, CalendarClock } from "lucide-react";
+import { Bot, Download, HelpCircle, CalendarClock, Shield } from "lucide-react";
 import { SaraOnboardingDialog } from "@/components/agents/SaraOnboardingDialog";
 import { useSaraAgent } from "@/lib/saraAgent";
-
+import saraAgentAsset from "@/assets/sara-agent.png.asset.json";
 
 const DOC_SOURCES = ["Notion", "SharePoint", "Google Drive", "Confluence", "Lokale mapper"];
 
 /**
- * Lokal agent (Sara) – egen seksjon øverst på Datakilder og agenter.
- * Nedlasting, kjøreplan og status. Onboardingveiledningen gjenbrukes fra SaraOnboardingDialog.
+ * Lokal agent (Sara) – annonsepreget seksjon øverst på Datakilder og agenter.
+ * Illustrasjon til venstre, informasjon og CTA til høyre.
  */
 export function LocalAgentCard() {
   const [open, setOpen] = useState(false);
   const { installed, markInstalled } = useSaraAgent();
 
-
   return (
-    <Card className="mt-6 p-5">
-      <div className="flex flex-wrap items-start gap-4">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-          <Bot className="h-5 w-5" aria-hidden="true" />
+    <Card className="mt-6 overflow-hidden border-primary/20">
+      <div className="flex flex-col md:flex-row">
+        {/* Illustrasjon */}
+        <div className="relative flex items-center justify-center bg-gradient-to-br from-primary/5 via-primary/10 to-primary/5 p-6 md:w-2/5 md:p-8">
+          <div className="relative w-full max-w-[240px]">
+            <img
+              src={saraAgentAsset.url}
+              alt="Sara – lokal Mynder compliance agent"
+              loading="lazy"
+              width={512}
+              height={512}
+              className="w-full rounded-lg"
+            />
+            <div className="absolute -bottom-2 -right-2 flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg">
+              <Bot className="h-5 w-5" aria-hidden="true" />
+            </div>
+          </div>
         </div>
 
-        <div className="min-w-[240px] flex-1">
-          <div className="flex items-center gap-2">
-            <h2 className="text-sm font-semibold text-foreground">Lokal agent (Sara)</h2>
-            <Badge variant="outline" className="text-[10px]">
-              Kommer snart
-            </Badge>
-          </div>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Sara kjører i din egen infrastruktur og leser dokumentkildene dine der de er.
-            Dokumentene forlater aldri infrastrukturen din — bare funnene sendes til Mynder.
-          </p>
-
-          <div className="mt-3 flex flex-wrap gap-1.5">
-            {DOC_SOURCES.map((s) => (
-              <Badge key={s} variant="secondary" className="text-[10px] font-normal">
-                {s}
+        {/* Informasjon og CTA */}
+        <div className="flex flex-1 flex-col justify-between p-6 md:p-8">
+          <div>
+            <div className="flex items-center gap-2">
+              <h2 className="text-lg font-semibold text-foreground">Sara – lokal compliance agent</h2>
+              <Badge variant="outline" className="text-[10px]">
+                Kommer snart
               </Badge>
-            ))}
-          </div>
+            </div>
 
-          <div className="mt-3 flex flex-wrap items-center gap-x-6 gap-y-1 border-t border-border pt-3 text-xs text-muted-foreground">
-            <span>
-              Status:{" "}
-              <span className="text-foreground">
-                {installed ? "Installert" : "Ikke installert"}
+            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+              Sara kjører i din egen infrastruktur og leser dokumentkildene dine der de er. Alt
+              prosesseres lokalt — dokumentene forlater aldri din server, og bare verifiserte funn
+              sendes til Mynder.
+            </p>
+
+            <div className="mt-4 flex flex-wrap items-center gap-2">
+              <div className="flex items-center gap-1.5 text-xs text-primary">
+                <Shield className="h-3.5 w-3.5" aria-hidden="true" />
+                <span className="font-medium">Personvern og sikkerhet fra bunnen</span>
+              </div>
+            </div>
+
+            <div className="mt-4 flex flex-wrap gap-1.5">
+              {DOC_SOURCES.map((s) => (
+                <Badge key={s} variant="secondary" className="text-[10px] font-normal">
+                  {s}
+                </Badge>
+              ))}
+            </div>
+
+            <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-muted-foreground">
+              <span>
+                Status:{" "}
+                <span className="font-medium text-foreground">
+                  {installed ? "Installert" : "Ikke installert"}
+                </span>
               </span>
-            </span>
-            <span className="flex items-center gap-1">
-              <CalendarClock className="h-3.5 w-3.5" aria-hidden="true" />
-              Kjøreplan: <span className="text-foreground">Ukentlig (anbefalt)</span>
-            </span>
-            <span>
-              Sist kjørt: <span className="text-foreground">{installed ? "I dag 09:12" : "—"}</span>
-            </span>
+              <span className="flex items-center gap-1">
+                <CalendarClock className="h-3.5 w-3.5" aria-hidden="true" />
+                Kjøreplan:{" "}
+                <span className="font-medium text-foreground">Ukentlig (anbefalt)</span>
+              </span>
+              <span>
+                Sist kjørt:{" "}
+                <span className="font-medium text-foreground">
+                  {installed ? "I dag 09:12" : "—"}
+                </span>
+              </span>
+            </div>
           </div>
-        </div>
 
-        <div className="flex items-center gap-2">
-          <Button
-            size="sm"
-            disabled={installed}
-            onClick={() => {
-              markInstalled();
-              toast.success(
-                "Sara er registrert som installert. Funn fra dokumentkildene dine vises nå i kravlistene.",
-              );
-            }}
-          >
-            <Download className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" />
-            {installed ? "Lastet ned" : "Last ned Sara"}
-          </Button>
+          <div className="mt-6 flex flex-wrap items-center gap-3">
+            <Button
+              disabled={installed}
+              onClick={() => {
+                markInstalled();
+                toast.success(
+                  "Sara er registrert som installert. Funn fra dokumentkildene dine vises nå i kravlistene.",
+                );
+              }}
+              className="h-10 gap-2"
+            >
+              <Download className="h-4 w-4" aria-hidden="true" />
+              {installed ? "Lastet ned" : "Last ned Sara"}
+            </Button>
 
-          <Button size="sm" variant="outline" onClick={() => setOpen(true)}>
-            <HelpCircle className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" />
-            Slik kommer du i gang
-          </Button>
+            <Button variant="outline" onClick={() => setOpen(true)} className="h-10 gap-2">
+              <HelpCircle className="h-4 w-4" aria-hidden="true" />
+              Slik kommer du i gang
+            </Button>
+          </div>
         </div>
       </div>
 
