@@ -188,10 +188,19 @@ export default function Integrations() {
         <section className="mt-8">
           <div className="flex items-baseline gap-2">
             <h2 className="text-sm font-semibold uppercase tracking-wide text-foreground">
-              Kildekart
+              {t("sourceMap.title")}
             </h2>
-            <span className="text-xs text-muted-foreground">Filtrer etter hva kilden gir Lara.</span>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent side="right" className="max-w-sm">
+                {t("sourceMap.tooltip")}
+              </TooltipContent>
+            </Tooltip>
+            <span className="text-xs text-muted-foreground">{t("sourceMap.description")}</span>
           </div>
+
         </section>
 
         {/* Filters */}
