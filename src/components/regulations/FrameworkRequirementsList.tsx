@@ -561,7 +561,11 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
 
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button size="sm" className="h-8 gap-1.5 text-xs shrink-0" onClick={() => setFrameworkAttachOpen(true)}>
+            <Button
+              size="sm"
+              className="h-8 gap-1.5 text-xs shrink-0"
+              onClick={() => setFrameworkAttachOpen(true)}
+            >
               <Upload className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">{isNb ? "Last opp bevis" : "Upload evidence"}</span>
             </Button>
@@ -571,6 +575,34 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
               {isNb
                 ? "Last opp dokumentasjon. Lara analyserer dokumentet og foreslår hvilke krav det dekker. Bekreft forslaget, så oppdateres kravene og scoren automatisk."
                 : "Upload documentation. Lara analyzes the document and suggests which requirements it covers. Confirm the suggestion, and the requirements and score are updated automatically."}
+            </p>
+          </TooltipContent>
+        </Tooltip>
+
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              size="sm"
+              variant="outline"
+              className="h-8 gap-1.5 text-xs shrink-0"
+              onClick={() => {
+                // TODO: open Sara download / onboarding dialog
+                toast.info(
+                  isNb
+                    ? "Mynder Compliance Agent «Sara» kommer snart."
+                    : "Mynder Compliance Agent 'Sara' coming soon."
+                );
+              }}
+            >
+              <Download className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">{isNb ? "Installer Sara" : "Install Sara"}</span>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="bottom" className="max-w-xs">
+            <p>
+              {isNb
+                ? "Last ned Mynder Compliance Agent Sara. En lokal agent som trygt kobler seg til dokumentkildene dine — Notion, SharePoint, Google Drive, Confluence — og lar Lara finne bevis uten at filene forlater infrastrukturen din."
+                : "Download Mynder Compliance Agent Sara. A local agent that securely connects to your document sources — Notion, SharePoint, Google Drive, Confluence — and lets Lara find evidence without your files leaving your infrastructure."}
             </p>
           </TooltipContent>
         </Tooltip>
