@@ -28,8 +28,10 @@ import {
   ChevronDown,
   ChevronUp,
   Plus,
+  Plug,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { useNavigate } from "react-router-dom";
 
 import type { EvidenceDocument } from "@/lib/requirementStatusModel";
 import { supabase } from "@/integrations/supabase/client";
@@ -71,6 +73,8 @@ type Phase =
   | { kind: "analyzing"; fileName: string }
   | { kind: "review"; result: AttachEvidenceResult; fileName: string }
   | { kind: "error"; message: string };
+
+const MCP_SOURCES = ["Notion", "SharePoint", "Google Drive", "Confluence"];
 
 const STEPS: PhaseKind[] = ["select", "analyzing", "review"];
 
@@ -172,6 +176,7 @@ export function AttachEvidenceDialog({
 }: Props) {
   const { i18n } = useTranslation();
   const isNb = i18n.language !== "en";
+  const navigate = useNavigate();
   const isFrameworkMode = !!frameworkRequirements && frameworkRequirements.length > 0;
   const [phase, setPhase] = useState<Phase>({ kind: "select" });
   const [showArticles, setShowArticles] = useState(false);
