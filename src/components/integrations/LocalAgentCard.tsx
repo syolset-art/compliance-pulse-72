@@ -67,7 +67,7 @@ export function LocalAgentCard() {
               </div>
             </div>
 
-            <div className="mt-4 flex flex-wrap gap-1.5">
+            <div className="mt-4 flex flex-wrap items-center gap-2">
               {DOC_SOURCES.map((s) => (
                 <Badge
                   key={s.name}
@@ -75,11 +75,11 @@ export function LocalAgentCard() {
                   className="text-[10px] font-normal"
                 >
                   {s.name}
-                  {!s.available && (
-                    <span className="ml-1 opacity-60">· kommer</span>
-                  )}
                 </Badge>
               ))}
+              <span className="rounded-md border border-border bg-muted px-2 py-1 text-[10px] text-muted-foreground">
+                Kommer
+              </span>
             </div>
 
             <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-muted-foreground">
