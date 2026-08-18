@@ -289,16 +289,6 @@ export default function Integrations() {
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-2">
                             <h3 className="font-semibold text-sm truncate">{integration.name}</h3>
-                            {integration.readOnly && (
-                              <Tooltip>
-                                <TooltipTrigger>
-                                  <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 border-muted-foreground/30">
-                                    Read-only
-                                  </Badge>
-                                </TooltipTrigger>
-                                <TooltipContent>Mynder ber kun om lesetilgang.</TooltipContent>
-                              </Tooltip>
-                            )}
                           </div>
                           <div className="text-xs text-muted-foreground">{CATEGORY_LABEL[integration.category]}</div>
                         </div>
