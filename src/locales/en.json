@@ -1215,6 +1215,12 @@
       "title": "System Integrations",
       "description": "Connect to external systems"
     },
+    "sourceMap": {
+      "title": "Source map",
+      "description": "Filter by what the source gives Lara.",
+      "tooltip": "The source map shows what types of data each connected source can provide to Lara: systems, vendors, documents, people and access."
+    },
+
     "showingContent": "Showing content on the right...",
     "navigating": "Navigating to the right page...",
     "navigatedTo": "Navigated",

@@ -1,5 +1,7 @@
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+
 import { Sidebar } from "@/components/Sidebar";
 import {
   Search,
@@ -12,7 +14,9 @@ import {
   CheckCircle2,
   AlertTriangle,
   Bot,
+  Info,
 } from "lucide-react";
+
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -60,6 +64,7 @@ const STATUS_STYLE: Record<IntegrationStatus, string> = {
 };
 
 export default function Integrations() {
+  const { t } = useTranslation();
   const [search, setSearch] = useState("");
   const [discovery, setDiscovery] = useState<DiscoveryType | "all">("all");
   const [activity, setActivity] = useState<AgentActivityItem[]>([]);
@@ -67,6 +72,7 @@ export default function Integrations() {
   const [dialogIntegration, setDialogIntegration] = useState<IntegrationDefinition | null>(null);
   const { connectSource, disconnectSource } = useConnectedSources();
   const navigate = useNavigate();
+
 
 
   const filtered = useMemo(() => {
@@ -182,10 +188,19 @@ export default function Integrations() {
         <section className="mt-8">
           <div className="flex items-baseline gap-2">
             <h2 className="text-sm font-semibold uppercase tracking-wide text-foreground">
-              Kildekart
+              {t("sourceMap.title")}
             </h2>
-            <span className="text-xs text-muted-foreground">Filtrer etter hva kilden gir Lara.</span>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent side="right" className="max-w-sm">
+                {t("sourceMap.tooltip")}
+              </TooltipContent>
+            </Tooltip>
+            <span className="text-xs text-muted-foreground">{t("sourceMap.description")}</span>
           </div>
+
         </section>
 
         {/* Filters */}

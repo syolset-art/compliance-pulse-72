@@ -1216,6 +1216,12 @@
       "title": "Systemintegrasjoner",
       "description": "Koble til eksterne systemer"
     },
+    "sourceMap": {
+      "title": "Kildekart",
+      "description": "Filtrer etter hva kilden gir Lara.",
+      "tooltip": "Kildekartet viser hvilke typer data hver tilkoblede kilde kan levere til Lara: systemer, leverandører, dokumenter, personer og tilganger."
+    },
+
     "showingContent": "Viser innhold til høyre...",
     "navigating": "Navigerer til riktig side...",
     "navigatedTo": "Navigert",
