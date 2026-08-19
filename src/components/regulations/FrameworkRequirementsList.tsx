@@ -9,7 +9,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { ChevronDown, ChevronUp, Users, Bot, CheckCircle2, UserCheck, Paperclip, FileText as FileIcon, Download, ShieldCheck, Sparkles, Clock, Search, X, ArrowRight, HelpCircle, Upload, BotMessageSquare, CircleDashed, SlidersHorizontal } from "lucide-react";
+import { ChevronDown, ChevronUp, Users, Bot, CheckCircle2, UserCheck, Paperclip, FileText as FileIcon, Download, ShieldCheck, Sparkles, Clock, Search, X, ArrowRight, HelpCircle, Upload, CircleDashed, SlidersHorizontal } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -22,6 +22,7 @@ import { ManualDocumentationDialog } from "@/components/dialogs/ManualDocumentat
 import { LaraDataSourceExplainer } from "@/components/regulations/LaraDataSourceExplainer";
 import { SaraOnboardingDialog } from "@/components/agents/SaraOnboardingDialog";
 import { SaraActivityLogDialog } from "@/components/agents/SaraActivityLogDialog";
+import { SaraIcon } from "@/components/agents/SaraIcon";
 import { useSaraAgent } from "@/lib/saraAgent";
 
 import { AttachEvidenceDialog, type AttachEvidenceResult } from "@/components/regulations/AttachEvidenceDialog";
@@ -853,7 +854,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
             {([
               { key: "all", nb: "Alle", en: "All", count: docSourceCounts.all, Icon: FileIcon },
               { key: "shared", nb: "Delt dokument", en: "Shared document", count: docSourceCounts.shared, Icon: FileIcon },
-              { key: "agent", nb: "Din agent", en: "Your agent", count: docSourceCounts.agent, Icon: BotMessageSquare },
+              { key: "agent", nb: "Din agent", en: "Your agent", count: docSourceCounts.agent, Icon: SaraIcon },
             ] as const).map((opt) => {
               const OptIcon = opt.Icon;
               const active = docSourceFilter === opt.key;
@@ -1015,16 +1016,11 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                         <div className="shrink-0 flex items-center gap-1.5 text-xs">
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <span className="inline-flex items-center gap-1 text-muted-foreground">
-                                {isAgentDoc ? (
-                                  <BotMessageSquare className="h-4 w-4 text-primary" />
-                                ) : (
-                                  <FileIcon className="h-4 w-4 text-muted-foreground" />
-                                )}
-                                {isAgentDoc
-                                  ? (isNb ? "Din agent" : "Your agent")
-                                  : (isNb ? "Delt dokument" : "Shared document")}
-                              </span>
+                              {isAgentDoc ? (
+                                <SaraIcon size={20} ariaLabel={isNb ? "Sara" : "Sara"} />
+                              ) : (
+                                <FileIcon className="h-4 w-4 text-muted-foreground" aria-label={isNb ? "Delt dokument" : "Shared document"} />
+                              )}
                             </TooltipTrigger>
                             <TooltipContent side="top" className="max-w-xs text-xs">
                               {isAgentDoc
@@ -1054,7 +1050,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                           className="w-full flex items-center gap-3 px-3 py-2 text-left hover:bg-muted/40 transition-colors"
                         >
                           {isAgent ? (
-                            <BotMessageSquare className="h-4 w-4 text-primary shrink-0" />
+                            <SaraIcon size={18} ariaLabel={isNb ? "Sara" : "Sara"} />
                           ) : (
                             <CircleDashed className="h-4 w-4 text-muted-foreground/60 shrink-0" />
                           )}
