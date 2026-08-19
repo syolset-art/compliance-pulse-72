@@ -252,6 +252,17 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
       });
     }
 
+    if (docsOnly) {
+      list = list.filter((r) => {
+        const docs = uiStates[r.requirement_id]?.documents ?? [];
+        if (docs.length === 0) return false;
+        if (docSourceFilter !== "all") {
+          return docs.some((d) => docSourceOf(d) === docSourceFilter);
+        }
+        return true;
+      });
+    }
+
     if (q) {
       list = list.filter((r) =>
         r.name_no.toLowerCase().includes(q) ||
@@ -260,7 +271,8 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
       );
     }
     return list;
-  }, [filter, requirements, uiStates, search, agentFollowedUp]);
+  }, [filter, requirements, uiStates, search, agentFollowedUp, docsOnly, docSourceFilter, docSourceOf]);
+
 
 
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set());
