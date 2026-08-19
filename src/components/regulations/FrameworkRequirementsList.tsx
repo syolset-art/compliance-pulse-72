@@ -642,8 +642,8 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                 <TooltipContent side="bottom" className="max-w-xs">
                   <p>
                     {isNb
-                      ? "Mynder Compliance Agent Sara er en lokal agent. Klikk for å se hvordan du installerer, konfigurerer og kobler henne til dokumentkildene dine. Dokumentene prosesseres lokalt og forlater aldri infrastrukturen din — bare bevisene lastes opp til Mynder."
-                      : "Mynder Compliance Agent Sara is a local agent. Click to see how to install, configure and connect her to your document sources. Documents are processed locally and never leave your infrastructure — only the evidence is uploaded to Mynder."}
+                      ? "Mynder Compliance Agent Sara er en lokal agent. Klikk for å se hvordan du installerer, konfigurerer og kobler henne til dokumentkildene dine. Dokumentene prosesseres lokalt og forlater aldri infrastrukturen din — Dokumentasjonsunderlaget lastes opp til Mynder, slik at vi ikke trenger hele dokumentet, men en bekreftelse på at det finnes."
+                      : "Mynder Compliance Agent Sara is a local agent. Click to see how to install, configure and connect her to your document sources. Documents are processed locally and never leave your infrastructure — the documentation evidence is uploaded to Mynder, so we don't need the full document, just confirmation that it exists."}
                   </p>
                 </TooltipContent>
               </Tooltip>
