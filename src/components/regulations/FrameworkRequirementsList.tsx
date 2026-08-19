@@ -547,14 +547,15 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
             type="button"
             onClick={(e) => e.stopPropagation()}
             className={cn(
-              "inline-flex h-7 items-center gap-1.5 rounded-full border bg-background px-2.5 text-xs font-medium shadow-sm transition-colors hover:bg-muted/60",
+              "inline-flex h-7 max-w-[11rem] lg:max-w-none items-center gap-1.5 rounded-full border bg-background px-2.5 text-xs font-medium shadow-sm transition-colors hover:bg-muted/60",
               currentCfg.badgeClass,
             )}
             aria-label={isNb ? "Endre status" : "Change status"}
           >
-            <CurrentIcon className={cn("h-3 w-3", currentCfg.iconClass)} />
-            <span>{isNb ? currentCfg.labelNb : currentCfg.labelEn}</span>
-            <ChevronDown className="h-3 w-3 text-muted-foreground" />
+            <CurrentIcon className={cn("h-3 w-3 shrink-0", currentCfg.iconClass)} />
+            <span className="truncate">{isNb ? currentCfg.labelNb : currentCfg.labelEn}</span>
+            <ChevronDown className="h-3 w-3 shrink-0 text-muted-foreground" />
+
           </button>
         </PopoverTrigger>
         <PopoverContent align="end" className="w-56 p-1">
@@ -1157,12 +1158,13 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                 role="button"
                 tabIndex={0}
                 aria-expanded={isExpanded}
-                className="w-full p-4 flex items-start gap-3 text-left hover:bg-muted/30 transition-colors"
+                className="w-full p-3 sm:p-4 flex flex-wrap lg:flex-nowrap items-start gap-x-3 gap-y-2 text-left hover:bg-muted/30 transition-colors"
               >
                 <div className="mt-1 shrink-0">
                   <ProgressIcon className={cn("h-5 w-5", progressCfg.iconClass)} />
                 </div>
-                <div className="flex-1 min-w-0">
+                <div className="flex-1 min-w-0 basis-[calc(100%-2rem)] lg:basis-auto">
+
                   <div className="flex items-center gap-2 flex-wrap">
                     <h4 className={cn(
                       "text-base font-semibold text-foreground leading-snug",
@@ -1207,7 +1209,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                     {isExpanded ? getExtendedDescription(req, isNb ? "no" : "en") : (isNb ? req.description_no : req.description)}
                   </p>
                 </div>
-                <div className="flex items-center gap-1.5 shrink-0 mt-1">
+                <div className="flex w-full lg:w-auto flex-wrap items-center justify-end gap-1.5 shrink-0 pl-8 lg:pl-0 lg:mt-1">
                   {/* Subtil dokumentasjonsindikator — kun for besvarte krav */}
                   {(() => {
                     const docCount = state.documents?.length ?? 0;
