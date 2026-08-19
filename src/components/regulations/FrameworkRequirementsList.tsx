@@ -239,6 +239,16 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
     onCountsChange?.(counts);
   }, [counts, onCountsChange]);
 
+  /** Kilde for et dokument: delt (lastet opp) eller hentet av agenten Sara. */
+  const docSourceOf = useCallback(
+    (doc: EvidenceDocument): "shared" | "agent" => {
+      if (doc.source) return doc.source;
+      if (saraInstalled && /ropa|informasjonssikkerhet|retningslinj/i.test(doc.name)) return "agent";
+      return "shared";
+    },
+    [saraInstalled],
+  );
+
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     let list = requirements;
