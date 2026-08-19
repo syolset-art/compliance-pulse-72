@@ -313,6 +313,16 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
       .filter((g) => g.items.length > 0);
   }, [filtered, grouping, uiStates, isNb]);
 
+  /** Kilde for et dokument: delt (lastet opp) eller hentet av agenten Sara. */
+  const docSourceOf = useCallback(
+    (doc: EvidenceDocument): "shared" | "agent" => {
+      if (doc.source) return doc.source;
+      if (saraInstalled && /ropa|informasjonssikkerhet|retningslinj/i.test(doc.name)) return "agent";
+      return "shared";
+    },
+    [saraInstalled],
+  );
+
   /** Dokumentvisning: alle opplastede dokumenter samlet per kontrollområde. */
   const docGroups = useMemo(() => {
     const byArea = new Map<ControlAreaKey, { req: ComplianceRequirement; doc: EvidenceDocument }[]>();
@@ -332,6 +342,30 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
       docs: byArea.get(a.key) ?? [],
     })).filter((g) => g.docs.length > 0);
   }, [filtered, uiStates, isNb]);
+
+  /** Antall dokumenter per kilde (for filterpiller). */
+  const docSourceCounts = useMemo(() => {
+    let shared = 0;
+    let agent = 0;
+    docGroups.forEach((g) =>
+      g.docs.forEach((e) => (docSourceOf(e.doc) === "agent" ? agent++ : shared++)),
+    );
+    return { shared, agent, all: shared + agent };
+  }, [docGroups, docSourceOf]);
+
+  /** Dokumentgrupper filtrert på valgt kilde. */
+  const visibleDocGroups = useMemo(
+    () =>
+      docGroups.map((g) => ({
+        ...g,
+        docs:
+          docSourceFilter === "all"
+            ? g.docs
+            : g.docs.filter((e) => docSourceOf(e.doc) === docSourceFilter),
+      })),
+    [docGroups, docSourceFilter, docSourceOf],
+  );
+
 
   /** Forventet dokumentasjon for regelverket, gruppert per kontrollområde. */
   const expectedRows = useMemo(() => {
