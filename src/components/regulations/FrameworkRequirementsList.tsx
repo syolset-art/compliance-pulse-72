@@ -806,11 +806,11 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
               </span>
             </button>
           </TooltipTrigger>
-          <TooltipContent side="bottom" className="max-w-[16rem]">
+          <TooltipContent side="bottom" className="max-w-[18rem]">
             <p>
               {isNb
-                ? "Vis dokumentasjon per kontrollområde i stedet for kravlisten."
-                : "Show documentation per control area instead of the requirement list."}
+                ? "Vis bare krav hvor det er lastet opp dokumentasjon eller sendt inn underlag fra din lokale agent (Sara)."
+                : "Only show requirements where documentation has been uploaded or evidence submitted by your local agent (Sara)."}
             </p>
           </TooltipContent>
         </Tooltip>
