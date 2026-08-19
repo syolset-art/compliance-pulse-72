@@ -76,7 +76,7 @@
     "guideline": "Guidelines",
     "framework": "Frameworks",
     "allTypes": "All types"
-  }
+  },
   "customerRequests": {
     "title": "Messages",
     "subtitle": "Manage inbound and outbound messages",
