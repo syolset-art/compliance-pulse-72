@@ -576,7 +576,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                 onClick={() => setFrameworkAttachOpen(true)}
               >
                 <Upload className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">{isNb ? "Last opp bevis" : "Upload evidence"}</span>
+                <span className="hidden sm:inline">{isNb ? "Last opp dokumentasjon" : "Upload documentation"}</span>
               </Button>
             </TooltipTrigger>
             <TooltipContent side="bottom" className="max-w-xs">
