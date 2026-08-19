@@ -1157,12 +1157,13 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                 role="button"
                 tabIndex={0}
                 aria-expanded={isExpanded}
-                className="w-full p-4 flex items-start gap-3 text-left hover:bg-muted/30 transition-colors"
+                className="w-full p-3 sm:p-4 flex flex-wrap sm:flex-nowrap items-start gap-x-3 gap-y-2 text-left hover:bg-muted/30 transition-colors"
               >
                 <div className="mt-1 shrink-0">
                   <ProgressIcon className={cn("h-5 w-5", progressCfg.iconClass)} />
                 </div>
-                <div className="flex-1 min-w-0">
+                <div className="flex-1 min-w-0 basis-[calc(100%-2rem)] sm:basis-auto">
+
                   <div className="flex items-center gap-2 flex-wrap">
                     <h4 className={cn(
                       "text-base font-semibold text-foreground leading-snug",
