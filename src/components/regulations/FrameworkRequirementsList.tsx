@@ -1208,7 +1208,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                     {isExpanded ? getExtendedDescription(req, isNb ? "no" : "en") : (isNb ? req.description_no : req.description)}
                   </p>
                 </div>
-                <div className="flex items-center gap-1.5 shrink-0 mt-1">
+                <div className="flex w-full sm:w-auto flex-wrap items-center justify-end gap-1.5 shrink-0 pl-8 sm:pl-0 sm:mt-1">
                   {/* Subtil dokumentasjonsindikator — kun for besvarte krav */}
                   {(() => {
                     const docCount = state.documents?.length ?? 0;
