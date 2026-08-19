@@ -854,7 +854,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
             {([
               { key: "all", nb: "Alle", en: "All", count: docSourceCounts.all, Icon: FileIcon },
               { key: "shared", nb: "Delt dokument", en: "Shared document", count: docSourceCounts.shared, Icon: FileIcon },
-              { key: "agent", nb: "Din agent", en: "Your agent", count: docSourceCounts.agent, Icon: BotMessageSquare },
+              { key: "agent", nb: "Din agent", en: "Your agent", count: docSourceCounts.agent, Icon: SaraIcon },
             ] as const).map((opt) => {
               const OptIcon = opt.Icon;
               const active = docSourceFilter === opt.key;
