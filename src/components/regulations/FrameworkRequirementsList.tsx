@@ -1015,16 +1015,17 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                         <div className="shrink-0 flex items-center gap-1.5 text-xs">
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <span className="inline-flex items-center gap-1 text-muted-foreground">
-                                {isAgentDoc ? (
-                                  <BotMessageSquare className="h-4 w-4 text-primary" />
-                                ) : (
-                                  <FileIcon className="h-4 w-4 text-muted-foreground" />
-                                )}
-                                {isAgentDoc
-                                  ? (isNb ? "Din agent" : "Your agent")
-                                  : (isNb ? "Delt dokument" : "Shared document")}
-                              </span>
+                              {isAgentDoc ? (
+                                <span
+                                  className="inline-flex items-center justify-center rounded-full bg-primary text-white"
+                                  style={{ width: 20, height: 20 }}
+                                  aria-label={isNb ? "Sara" : "Sara"}
+                                >
+                                  <span className="text-[10px] font-semibold leading-none">S</span>
+                                </span>
+                              ) : (
+                                <FileIcon className="h-4 w-4 text-muted-foreground" aria-label={isNb ? "Delt dokument" : "Shared document"} />
+                              )}
                             </TooltipTrigger>
                             <TooltipContent side="top" className="max-w-xs text-xs">
                               {isAgentDoc
