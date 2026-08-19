@@ -4,10 +4,9 @@ import { getCountry, type CountryScope } from "./countryScopeData";
 interface Props {
   scope: CountryScope;
   onEdit: () => void;
-  onRequest?: () => void;
 }
 
-export function CountryScopeBar({ scope, onEdit, onRequest }: Props) {
+export function CountryScopeBar({ scope, onEdit }: Props) {
   const countries = scope.countries.map(getCountry).filter(Boolean) as NonNullable<ReturnType<typeof getCountry>>[];
 
   return (
