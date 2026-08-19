@@ -239,6 +239,16 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
     onCountsChange?.(counts);
   }, [counts, onCountsChange]);
 
+  /** Kilde for et dokument: delt (lastet opp) eller hentet av agenten Sara. */
+  const docSourceOf = useCallback(
+    (doc: EvidenceDocument): "shared" | "agent" => {
+      if (doc.source) return doc.source;
+      if (saraInstalled && /ropa|informasjonssikkerhet|retningslinj/i.test(doc.name)) return "agent";
+      return "shared";
+    },
+    [saraInstalled],
+  );
+
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     let list = requirements;
@@ -252,6 +262,17 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
       });
     }
 
+    if (docsOnly) {
+      list = list.filter((r) => {
+        const docs = uiStates[r.requirement_id]?.documents ?? [];
+        if (docs.length === 0) return false;
+        if (docSourceFilter !== "all") {
+          return docs.some((d) => docSourceOf(d) === docSourceFilter);
+        }
+        return true;
+      });
+    }
+
     if (q) {
       list = list.filter((r) =>
         r.name_no.toLowerCase().includes(q) ||
@@ -260,7 +281,8 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
       );
     }
     return list;
-  }, [filter, requirements, uiStates, search, agentFollowedUp]);
+  }, [filter, requirements, uiStates, search, agentFollowedUp, docsOnly, docSourceFilter, docSourceOf]);
+
 
 
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set());
@@ -314,76 +336,18 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
       .filter((g) => g.items.length > 0);
   }, [filtered, grouping, uiStates, isNb]);
 
-  /** Kilde for et dokument: delt (lastet opp) eller hentet av agenten Sara. */
-  const docSourceOf = useCallback(
-    (doc: EvidenceDocument): "shared" | "agent" => {
-      if (doc.source) return doc.source;
-      if (saraInstalled && /ropa|informasjonssikkerhet|retningslinj/i.test(doc.name)) return "agent";
-      return "shared";
-    },
-    [saraInstalled],
-  );
-
-  /** Dokumentvisning: alle opplastede dokumenter samlet per kontrollområde. */
-  const docGroups = useMemo(() => {
-    const byArea = new Map<ControlAreaKey, { req: ComplianceRequirement; doc: EvidenceDocument }[]>();
-    for (const req of filtered) {
-      const docs = uiStates[req.requirement_id]?.documents ?? [];
-      if (docs.length === 0) continue;
-      const area = toCanonicalArea(req.sla_category);
-      const list = byArea.get(area) ?? [];
-      docs.forEach((doc) => list.push({ req, doc }));
-      byArea.set(area, list);
-    }
-    return CONTROL_AREAS.map((a) => ({
-      key: a.key as string,
-      label: isNb ? a.labelNb : a.labelEn,
-      Icon: a.icon,
-      accentClass: a.accentClass,
-      docs: byArea.get(a.key) ?? [],
-    })).filter((g) => g.docs.length > 0);
-  }, [filtered, uiStates, isNb]);
-
-  /** Antall dokumenter per kilde (for filterpiller). */
+  /** Antall krav med dokumentasjon per kilde (for filterpiller). */
   const docSourceCounts = useMemo(() => {
-    let shared = 0;
-    let agent = 0;
-    docGroups.forEach((g) =>
-      g.docs.forEach((e) => (docSourceOf(e.doc) === "agent" ? agent++ : shared++)),
-    );
-    return { shared, agent, all: shared + agent };
-  }, [docGroups, docSourceOf]);
-
-  /** Dokumentgrupper filtrert på valgt kilde. */
-  const visibleDocGroups = useMemo(
-    () =>
-      docGroups.map((g) => ({
-        ...g,
-        docs:
-          docSourceFilter === "all"
-            ? g.docs
-            : g.docs.filter((e) => docSourceOf(e.doc) === docSourceFilter),
-      })),
-    [docGroups, docSourceFilter, docSourceOf],
-  );
-
-
-  /** Forventet dokumentasjon for regelverket, gruppert per kontrollområde. */
-  const expectedRows = useMemo(() => {
-    const hasDocs = (id: string) => (uiStates[id]?.documents?.length ?? 0) > 0;
-    const agentConfirmed = agentConfirmedRequirementIds(requirements, hasDocs);
-    return buildExpectedEvidenceRows(requirements, hasDocs, agentConfirmed, isNb);
-  }, [requirements, uiStates, isNb]);
-
-  const expectedByArea = useMemo(() => {
-    const map = new Map<string, typeof expectedRows>();
-    expectedRows.forEach((r) => {
-      const list = map.get(r.area) ?? [];
-      list.push(r);
-      map.set(r.area, list);
+    let all = 0, shared = 0, agent = 0;
+    requirements.forEach((req) => {
+      const docs = uiStates[req.requirement_id]?.documents ?? [];
+      if (docs.length === 0) return;
+      all++;
+      if (docs.some((d) => docSourceOf(d) === "shared")) shared++;
+      if (docs.some((d) => docSourceOf(d) === "agent")) agent++;
     });
-    return map;
-  }, [expectedRows]);
+    return { shared, agent, all };
+  }, [requirements, uiStates, docSourceOf]);
 
   /** Kandidater for regelverk-nivå analyse (alle krav + artiklene de dekker). */
   const frameworkCandidates = useMemo(
@@ -395,6 +359,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
       })),
     [requirements, isNb],
   );
+
 
   const allFrameworkArticles = useMemo(
     () => Array.from(new Set(frameworkCandidates.flatMap((c) => c.articles))),
@@ -841,11 +806,11 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
               </span>
             </button>
           </TooltipTrigger>
-          <TooltipContent side="bottom" className="max-w-[16rem]">
+          <TooltipContent side="bottom" className="max-w-[18rem]">
             <p>
               {isNb
-                ? "Vis dokumentasjon per kontrollområde i stedet for kravlisten."
-                : "Show documentation per control area instead of the requirement list."}
+                ? "Vis bare krav hvor det er lastet opp dokumentasjon eller sendt inn underlag fra din lokale agent (Sara)."
+                : "Only show requirements where documentation has been uploaded or evidence submitted by your local agent (Sara)."}
             </p>
           </TooltipContent>
         </Tooltip>
@@ -941,156 +906,15 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
 
 
 
-      {filtered.length === 0 && (
-        <div className="text-center py-8 text-sm text-muted-foreground">
-          {isNb ? "Ingen krav matcher søket." : "No requirements match your search."}
-        </div>
-      )}
-
-      {docsOnly ? (
-        <div className="space-y-6">
-          {CONTROL_AREAS.map((area) => {
-            const GroupIcon = area.icon;
-            const docs = visibleDocGroups.find((g) => g.key === area.key)?.docs ?? [];
-            const expected = docSourceFilter === "all" ? (expectedByArea.get(area.key) ?? []) : [];
-            if (docs.length === 0 && expected.length === 0) return null;
-            const openRequirement = (id: string) => {
-              setDocsOnly(false);
-              setExpandedId(id);
-              setTimeout(() => {
-                reqRefs.current[id]?.scrollIntoView({ behavior: "smooth", block: "center" });
-              }, 60);
-            };
-            return (
-              <section key={area.key} className="space-y-2">
-                <div className="flex items-center gap-2 px-1">
-                  <GroupIcon className={cn("h-4 w-4 shrink-0", area.accentClass)} />
-                  <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                    {isNb ? area.labelNb : area.labelEn}
-                  </span>
-                  <span className="text-xs tabular-nums text-muted-foreground/70">({docs.length})</span>
-                  <span className="flex-1 h-px bg-border ml-2" />
-                </div>
-                <div className="rounded-lg border bg-card divide-y">
-                  {docs.map((entry, i) => {
-                    const src = docSourceOf(entry.doc);
-                    const isAgentDoc = src === "agent";
-                    const sha256 = Array.from({ length: 8 }, (_, j) =>
-                      "0123456789abcdef"[Math.floor(Math.random() * 16)],
-                    ).join("");
-                    const verifiedDate = entry.doc.verifiedAt
-                      ? new Date(entry.doc.verifiedAt).toLocaleDateString(isNb ? "nb-NO" : "en-GB", {
-                          day: "2-digit",
-                          month: "2-digit",
-                          year: "numeric",
-                        })
-                      : "12.06.2026";
-                    const meta = isAgentDoc
-                      ? `${isNb ? "Vurdert av Sara, versjon 1.0" : "Assessed by Sara, version 1.0"} · sha256: ${sha256}...`
-                      : `${entry.doc.name} · ${isNb ? "verifisert" : "verified"} ${verifiedDate}`;
-                    const subtitle = isAgentDoc
-                      ? (isNb
-                          ? "Dekket — foreslått av Sara. Vurdert av kundens egen agent — Dokument ikke delt med Mynder."
-                          : "Covered — suggested by Sara. Assessed by the customer's own agent — Document not shared with Mynder.")
-                      : (isNb
-                          ? "Basert på delt dokument. Lastet opp og verifisert av Mynder."
-                          : "Based on shared document. Uploaded and verified by Mynder.");
-                    return (
-                    <button
-                      key={`${entry.req.requirement_id}-${entry.doc.name}-${i}`}
-                      type="button"
-                      onClick={() => openRequirement(entry.req.requirement_id)}
-                      className="w-full text-left px-4 py-3 hover:bg-muted/40 transition-colors"
-                    >
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="min-w-0 flex-1">
-                          <p className="text-sm font-semibold text-foreground truncate">
-                            {isNb ? entry.req.name_no : entry.req.name}
-                          </p>
-                          <p className="text-sm text-muted-foreground mt-0.5 leading-snug">
-                            {subtitle}
-                          </p>
-                          <p className="text-[11px] text-muted-foreground/70 mt-1.5 truncate">
-                            {meta}
-                          </p>
-                        </div>
-                        <div className="shrink-0 flex items-center gap-1.5 text-xs">
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              {isAgentDoc ? (
-                                <SaraIcon size={20} ariaLabel={isNb ? "Sara" : "Sara"} />
-                              ) : (
-                                <FileIcon className="h-4 w-4 text-muted-foreground" aria-label={isNb ? "Delt dokument" : "Shared document"} />
-                              )}
-                            </TooltipTrigger>
-                            <TooltipContent side="top" className="max-w-xs text-xs">
-                              {isAgentDoc
-                                ? (isNb ? "Hentet av din lokale agent (Sara) fra egen infrastruktur." : "Collected by your local agent (Sara) from your own infrastructure.")
-                                : (isNb ? "Dokument lastet opp og delt av deg eller teamet." : "Document uploaded and shared by you or your team.")}
-                            </TooltipContent>
-                          </Tooltip>
-                        </div>
-                      </div>
-                    </button>
-                    );
-                  })}
-
-
-
-
-                  {/* Forventet dokumentasjon som ennå ikke er lastet opp */}
-                  {expected
-                    .filter((row) => row.status !== "received")
-                    .map((row) => {
-                      const isAgent = row.status === "agent_confirmed";
-                      return (
-                        <button
-                          key={`exp-${row.requirementId}`}
-                          type="button"
-                          onClick={() => openRequirement(row.requirementId)}
-                          className="w-full flex items-center gap-3 px-3 py-2 text-left hover:bg-muted/40 transition-colors"
-                        >
-                          {isAgent ? (
-                            <SaraIcon size={18} ariaLabel={isNb ? "Sara" : "Sara"} />
-                          ) : (
-                            <CircleDashed className="h-4 w-4 text-muted-foreground/60 shrink-0" />
-                          )}
-                          <div className="min-w-0 flex-1">
-                            <p className="text-sm text-muted-foreground truncate">{row.docLabel}</p>
-                            <p className="text-[11px] text-muted-foreground/80 truncate">
-                              {row.requirementId} · {row.requirementName}
-                            </p>
-                          </div>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Badge
-                                variant="outline"
-                                className={cn(
-                                  "h-5 px-1.5 text-[10px] shrink-0",
-                                  isAgent ? "border-primary/40 text-primary" : "text-muted-foreground",
-                                )}
-                              >
-                                {expectedStatusLabel(row.status, isNb)}
-                              </Badge>
-                            </TooltipTrigger>
-                            <TooltipContent side="left" className="max-w-xs text-xs">
-                              {isAgent
-                                ? isNb
-                                  ? "Kundens agent har bekreftet at dokumentet finnes. Regnes som egenrapportert bevis — last opp filen for å bli verifisert."
-                                  : "The customer's agent confirmed the document exists. Counts as self-reported evidence — upload the file to become verified."
-                                : isNb
-                                  ? "Ingen bevis registrert. Klikk for å åpne kravet og laste opp dokumentasjon."
-                                  : "No evidence registered. Click to open the requirement and upload documentation."}
-                            </TooltipContent>
-                          </Tooltip>
-                          <ArrowRight className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                        </button>
-                      );
-                    })}
-                </div>
-              </section>
-            );
-          })}
+      {filtered.length === 0 ? (
+        <div className="text-center py-12 text-muted-foreground">
+          <p>
+            {search
+              ? (isNb ? "Ingen krav matcher søket." : "No requirements match your search.")
+              : docsOnly
+                ? (isNb ? "Ingen krav med dokumentasjon i dette utvalget." : "No requirements with documentation in this selection.")
+                : (isNb ? "Ingen krav i denne kategorien." : "No requirements in this category.")}
+          </p>
         </div>
       ) : (
       <div className="space-y-6">
@@ -1480,11 +1304,6 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
 
 
 
-      {filtered.length === 0 && (
-        <div className="text-center py-12 text-muted-foreground">
-          <p>Ingen krav i denne kategorien.</p>
-        </div>
-      )}
 
       {docDialog && (
         <ManualDocumentationDialog
