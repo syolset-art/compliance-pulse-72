@@ -144,7 +144,7 @@ export const EditActiveFrameworksDialog = ({
             </button>
             {jurExpanded && (
               <div className="border-t border-border/70 px-3 py-2.5">
-                <CountryScopeBar scope={countryScope} onEdit={onEditCountries} onRequest={() => setRequestOpen(true)} />
+                <CountryScopeBar scope={countryScope} onEdit={onEditCountries} />
               </div>
             )}
           </div>
