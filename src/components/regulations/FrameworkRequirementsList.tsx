@@ -336,76 +336,18 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
       .filter((g) => g.items.length > 0);
   }, [filtered, grouping, uiStates, isNb]);
 
-  /** Kilde for et dokument: delt (lastet opp) eller hentet av agenten Sara. */
-  const docSourceOf = useCallback(
-    (doc: EvidenceDocument): "shared" | "agent" => {
-      if (doc.source) return doc.source;
-      if (saraInstalled && /ropa|informasjonssikkerhet|retningslinj/i.test(doc.name)) return "agent";
-      return "shared";
-    },
-    [saraInstalled],
-  );
-
-  /** Dokumentvisning: alle opplastede dokumenter samlet per kontrollområde. */
-  const docGroups = useMemo(() => {
-    const byArea = new Map<ControlAreaKey, { req: ComplianceRequirement; doc: EvidenceDocument }[]>();
-    for (const req of filtered) {
-      const docs = uiStates[req.requirement_id]?.documents ?? [];
-      if (docs.length === 0) continue;
-      const area = toCanonicalArea(req.sla_category);
-      const list = byArea.get(area) ?? [];
-      docs.forEach((doc) => list.push({ req, doc }));
-      byArea.set(area, list);
-    }
-    return CONTROL_AREAS.map((a) => ({
-      key: a.key as string,
-      label: isNb ? a.labelNb : a.labelEn,
-      Icon: a.icon,
-      accentClass: a.accentClass,
-      docs: byArea.get(a.key) ?? [],
-    })).filter((g) => g.docs.length > 0);
-  }, [filtered, uiStates, isNb]);
-
   /** Antall dokumenter per kilde (for filterpiller). */
   const docSourceCounts = useMemo(() => {
     let shared = 0;
     let agent = 0;
-    docGroups.forEach((g) =>
-      g.docs.forEach((e) => (docSourceOf(e.doc) === "agent" ? agent++ : shared++)),
-    );
-    return { shared, agent, all: shared + agent };
-  }, [docGroups, docSourceOf]);
-
-  /** Dokumentgrupper filtrert på valgt kilde. */
-  const visibleDocGroups = useMemo(
-    () =>
-      docGroups.map((g) => ({
-        ...g,
-        docs:
-          docSourceFilter === "all"
-            ? g.docs
-            : g.docs.filter((e) => docSourceOf(e.doc) === docSourceFilter),
-      })),
-    [docGroups, docSourceFilter, docSourceOf],
-  );
-
-
-  /** Forventet dokumentasjon for regelverket, gruppert per kontrollområde. */
-  const expectedRows = useMemo(() => {
-    const hasDocs = (id: string) => (uiStates[id]?.documents?.length ?? 0) > 0;
-    const agentConfirmed = agentConfirmedRequirementIds(requirements, hasDocs);
-    return buildExpectedEvidenceRows(requirements, hasDocs, agentConfirmed, isNb);
-  }, [requirements, uiStates, isNb]);
-
-  const expectedByArea = useMemo(() => {
-    const map = new Map<string, typeof expectedRows>();
-    expectedRows.forEach((r) => {
-      const list = map.get(r.area) ?? [];
-      list.push(r);
-      map.set(r.area, list);
+    requirements.forEach((req) => {
+      (uiStates[req.requirement_id]?.documents ?? []).forEach((doc) => {
+        if (docSourceOf(doc) === "agent") agent++;
+        else shared++;
+      });
     });
-    return map;
-  }, [expectedRows]);
+    return { shared, agent, all: shared + agent };
+  }, [requirements, uiStates, docSourceOf]);
 
   /** Kandidater for regelverk-nivå analyse (alle krav + artiklene de dekker). */
   const frameworkCandidates = useMemo(
@@ -417,6 +359,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
       })),
     [requirements, isNb],
   );
+
 
   const allFrameworkArticles = useMemo(
     () => Array.from(new Set(frameworkCandidates.flatMap((c) => c.articles))),
