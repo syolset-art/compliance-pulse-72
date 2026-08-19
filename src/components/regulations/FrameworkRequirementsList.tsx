@@ -1304,11 +1304,6 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
 
 
 
-      {filtered.length === 0 && (
-        <div className="text-center py-12 text-muted-foreground">
-          <p>Ingen krav i denne kategorien.</p>
-        </div>
-      )}
 
       {docDialog && (
         <ManualDocumentationDialog
