@@ -798,7 +798,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
               )}
             >
               <FileIcon className="h-3.5 w-3.5" />
-              <span>{isNb ? "Bevis" : "Evidence"}</span>
+              <span>{isNb ? "Dokumentasjon" : "Documentation"}</span>
               <span className={cn("tabular-nums", docsOnly ? "opacity-90" : "text-muted-foreground")}>
                 {docGroups.reduce((sum, g) => sum + g.docs.length, 0)}
               </span>
