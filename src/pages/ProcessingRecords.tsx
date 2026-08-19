@@ -255,7 +255,7 @@ export default function ProcessingRecords() {
             <div className="flex items-center justify-between p-4 bg-muted/30 rounded-lg">
               <div>
                 <p className="text-sm text-muted-foreground">{t("processingRecords.dpo")}</p>
-                <p className="font-medium text-foreground">Samti Ahmed</p>
+                <p className="font-medium text-foreground">Ingrid Solvang</p>
               </div>
               <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
                 {t("processingRecords.invited")}

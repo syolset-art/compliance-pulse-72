@@ -58,7 +58,7 @@ const DEMO_MEMBERS: TeamMember[] = [
   { id: "1", name: "Kari Nordmann", email: "kari@acme.no", roles: ["admin"], status: "active", lastSeen: "I dag" },
   { id: "2", name: "Synne Olsetten", email: "synne@acme.no", roles: ["compliance_officer", "internal_auditor"], status: "active", lastSeen: "I går" },
   { id: "3", name: "Sebastian Hernandez", email: "sebastian@acme.no", roles: ["ciso", "incident_manager"], status: "active", lastSeen: "3 dager siden" },
-  { id: "4", name: "Samti Ahmed", email: "samti@acme.no", roles: ["dpo"], status: "active", lastSeen: "I dag" },
+  { id: "4", name: "Ingrid Solvang", email: "ingrid@acme.no", roles: ["dpo"], status: "active", lastSeen: "I dag" },
   { id: "5", name: "Truls Kristoffersen", email: "truls@acme.no", roles: ["data_controller", "vendor_manager"], status: "active", lastSeen: "2 dager siden" },
   { id: "6", name: "Synnøve Olset", email: "synnove@acme.no", roles: ["it_manager"], status: "active", lastSeen: "I dag" },
   { id: "7", name: "Line Berg", email: "line@acme.no", roles: ["member"], status: "invited" },
