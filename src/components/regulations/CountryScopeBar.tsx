@@ -34,19 +34,7 @@ export function CountryScopeBar({ scope, onEdit, onRequest }: Props) {
         </button>
       </div>
 
-      {onRequest && (
-        <div className="flex items-center justify-between gap-3 pt-1">
-          <span className="text-[12px] text-muted-foreground">Mangler et land eller regelverk?</span>
-          <button
-            type="button"
-            onClick={onRequest}
-            className="inline-flex shrink-0 items-center gap-1 rounded-md border border-border bg-background px-2 py-1 text-[12px] font-medium text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          >
-            <Plus className="h-3 w-3" aria-hidden />
-            Nytt regelverk eller Send forespørsel
-          </button>
-        </div>
-      )}
     </div>
   );
 }
+
