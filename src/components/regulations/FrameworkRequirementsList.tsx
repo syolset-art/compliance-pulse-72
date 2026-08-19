@@ -1050,7 +1050,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                           className="w-full flex items-center gap-3 px-3 py-2 text-left hover:bg-muted/40 transition-colors"
                         >
                           {isAgent ? (
-                            <BotMessageSquare className="h-4 w-4 text-primary shrink-0" />
+                            <SaraIcon size={18} ariaLabel={isNb ? "Sara" : "Sara"} />
                           ) : (
                             <CircleDashed className="h-4 w-4 text-muted-foreground/60 shrink-0" />
                           )}
