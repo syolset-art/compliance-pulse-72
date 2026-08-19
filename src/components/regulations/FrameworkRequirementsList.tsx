@@ -835,7 +835,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
               <FileIcon className="h-3.5 w-3.5" />
               <span>{isNb ? "Dokumentasjon" : "Documentation"}</span>
               <span className={cn("tabular-nums", docsOnly ? "opacity-90" : "text-muted-foreground")}>
-                {docGroups.reduce((sum, g) => sum + g.docs.length, 0)}
+                {docSourceCounts.all}
               </span>
             </button>
           </TooltipTrigger>
@@ -847,7 +847,38 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
             </p>
           </TooltipContent>
         </Tooltip>
+
+        {docsOnly && (
+          <div className="inline-flex items-center gap-1 rounded-full border border-border bg-muted/40 p-0.5">
+            {([
+              { key: "all", nb: "Alle", en: "All", count: docSourceCounts.all, Icon: FileIcon },
+              { key: "shared", nb: "Delt dokument", en: "Shared document", count: docSourceCounts.shared, Icon: FileIcon },
+              { key: "agent", nb: "Din agent", en: "Your agent", count: docSourceCounts.agent, Icon: BotMessageSquare },
+            ] as const).map((opt) => {
+              const OptIcon = opt.Icon;
+              const active = docSourceFilter === opt.key;
+              return (
+                <button
+                  key={opt.key}
+                  type="button"
+                  onClick={() => setDocSourceFilter(opt.key)}
+                  className={cn(
+                    "inline-flex items-center gap-1.5 rounded-full px-2.5 h-7 text-xs transition-colors",
+                    active
+                      ? "bg-background text-foreground font-medium shadow-sm"
+                      : "text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  <OptIcon className="h-3.5 w-3.5" />
+                  <span>{isNb ? opt.nb : opt.en}</span>
+                  <span className="tabular-nums opacity-70">{opt.count}</span>
+                </button>
+              );
+            })}
+          </div>
+        )}
       </div>
+
 
       {/* Rad 3: søk + filtrering */}
       <div className="flex items-center gap-2 mb-3">
