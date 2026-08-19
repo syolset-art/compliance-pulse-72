@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useRef, type Dispatch, type SetStateAction } from "react";
+import { useState, useMemo, useEffect, useRef, useCallback, type Dispatch, type SetStateAction } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
