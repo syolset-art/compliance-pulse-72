@@ -980,48 +980,33 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                       onClick={() => openRequirement(entry.req.requirement_id)}
                       className="w-full flex items-center gap-3 px-3 py-2 text-left hover:bg-muted/40 transition-colors"
                     >
-                      {isAgentDoc ? (
-                        <BotMessageSquare className="h-4 w-4 text-primary shrink-0" />
-                      ) : (
-                        <CheckCircle2 className="h-4 w-4 text-success shrink-0" />
-                      )}
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className="shrink-0">
+                            {isAgentDoc ? (
+                              <BotMessageSquare className="h-4 w-4 text-primary" />
+                            ) : (
+                              <FileIcon className="h-4 w-4 text-muted-foreground" />
+                            )}
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent side="top" className="max-w-xs text-xs">
+                          {isAgentDoc
+                            ? (isNb ? "Hentet av din lokale agent (Sara) fra egen infrastruktur." : "Collected by your local agent (Sara) from your own infrastructure.")
+                            : (isNb ? "Dokument lastet opp og delt av deg eller teamet." : "Document uploaded and shared by you or your team.")}
+                        </TooltipContent>
+                      </Tooltip>
                       <div className="min-w-0 flex-1">
                         <p className="text-sm text-foreground truncate">{entry.doc.name}</p>
                         <p className="text-[11px] text-muted-foreground truncate">
                           {entry.req.requirement_id} · {isNb ? entry.req.name_no : entry.req.name}
                         </p>
                       </div>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Badge
-                            variant="outline"
-                            className={cn(
-                              "h-5 px-1.5 text-[10px] shrink-0",
-                              isAgentDoc ? "border-primary/40 text-primary" : "text-muted-foreground",
-                            )}
-                          >
-                            {isAgentDoc
-                              ? (isNb ? "Din agent" : "Your agent")
-                              : (isNb ? "Delt dokument" : "Shared document")}
-                          </Badge>
-                        </TooltipTrigger>
-                        <TooltipContent side="left" className="max-w-xs text-xs">
-                          {isAgentDoc
-                            ? isNb
-                              ? "Hentet av din lokale agent (Sara) fra egen infrastruktur."
-                              : "Collected by your local agent (Sara) from your own infrastructure."
-                            : isNb
-                              ? "Dokument lastet opp og delt av deg eller teamet."
-                              : "Document uploaded and shared by you or your team."}
-                        </TooltipContent>
-                      </Tooltip>
-                      <Badge variant="outline" className="h-5 px-1.5 text-[10px] uppercase shrink-0">
-                        {entry.doc.kind}
-                      </Badge>
                       <ArrowRight className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                     </button>
                     );
                   })}
+
 
 
                   {/* Forventet dokumentasjon som ennå ikke er lastet opp */}
