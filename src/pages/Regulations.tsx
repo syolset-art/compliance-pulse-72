@@ -78,6 +78,7 @@ const Regulations = () => {
   const [highlightReqId, setHighlightReqId] = useState<string | null>(null);
   const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
   const [countryFilter, setCountryFilter] = useState<string | null>(null);
+  const [typeFilter, setTypeFilter] = useState<string | null>(null);
   const [liveCounts, setLiveCounts] = useState<Record<string, { met: number; partial: number; notMet: number; auto: number; manual: number; total: number }>>({});
   const [helpOpen, setHelpOpen] = useState(false);
   const [summaryExpanded, setSummaryExpanded] = useState(false);
@@ -161,12 +162,13 @@ const Regulations = () => {
   const activeFrameworks = useMemo(() => {
     let list = allActiveFrameworks;
     if (categoryFilter) list = list.filter((fw) => fw.category === categoryFilter);
+    if (typeFilter) list = list.filter((fw) => fw.type === typeFilter);
     if (countryFilter) {
       const ids = new Set(getCountry(countryFilter)?.frameworkIds ?? []);
       list = list.filter((fw) => ids.has(fw.id));
     }
     return list;
-  }, [allActiveFrameworks, categoryFilter, countryFilter]);
+  }, [allActiveFrameworks, categoryFilter, typeFilter, countryFilter]);
 
   const activeFrameworkIds = useMemo(
     () => new Set(activeFrameworks.map((f) => f.id)),
@@ -363,10 +365,10 @@ const Regulations = () => {
                   {/* Category filter */}
                   <div className="flex flex-wrap items-center gap-2">
                     <Button
-                      variant={categoryFilter === null && countryFilter === null ? "default" : "outline"}
+                      variant={categoryFilter === null && countryFilter === null && typeFilter === null ? "default" : "outline"}
                       size="sm"
                       className="text-xs h-8"
-                      onClick={() => { setCategoryFilter(null); setCountryFilter(null); }}
+                      onClick={() => { setCategoryFilter(null); setCountryFilter(null); setTypeFilter(null); }}
                     >
                       Alle ({allActiveFrameworks.length})
                     </Button>
