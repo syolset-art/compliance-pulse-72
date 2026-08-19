@@ -88,13 +88,13 @@ export const INTEGRATION_CATALOG: IntegrationDefinition[] = [
     vendor: "Notion",
     category: "productivity",
     description:
-      "Les policyer, rutiner og prosessbeskrivelser fra Notion slik at Lara kan bruke dem som bevis.",
+      "Les policyer, rutiner og prosessbeskrivelser fra Notion slik at Lara kan bruke dem som dokumentasjonsunderlag.",
     discovers: ["documents"],
     authType: "oauth",
     scopes: ["read:content"],
     icon: FileText,
     readOnly: true,
-    availability: "planned",
+    availability: "available",
   },
 
   {
