@@ -55,7 +55,7 @@ export const EditActiveFrameworksDialog = ({
   const [multiSelected, setMultiSelected] = useState<Set<string>>(new Set());
   const [search, setSearch] = useState("");
   const [requestOpen, setRequestOpen] = useState(false);
-  const [jurExpanded, setJurExpanded] = useState(false);
+  const [jurExpanded, setJurExpanded] = useState(true);
   const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
   const [countryFilter, setCountryFilter] = useState<string[]>([]);
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">("active");
@@ -139,7 +139,12 @@ export const EditActiveFrameworksDialog = ({
               onClick={() => setJurExpanded((v) => !v)}
               className="flex w-full items-center justify-between gap-2 px-3 py-2.5 text-left transition-colors hover:bg-muted/50"
             >
-              <span className="text-sm font-semibold text-foreground">Jurisdiksjon</span>
+              <span className="flex items-baseline gap-2">
+                <span className="text-sm font-semibold text-foreground">Land</span>
+                <span className="text-[12px] text-muted-foreground">
+                  {countryScope.countries.length} valgt
+                </span>
+              </span>
               <ChevronDown className={`h-4 w-4 text-muted-foreground shrink-0 transition-transform ${jurExpanded ? "rotate-180" : ""}`} aria-hidden />
             </button>
             {jurExpanded && (

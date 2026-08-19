@@ -533,7 +533,7 @@ const Regulations = () => {
             });
             setShowEditDialog(true);
           } else {
-            toast({ title: "Jurisdiksjon oppdatert", description: `${scope.countries.length} land valgt.` });
+            toast({ title: "Land oppdatert", description: `${scope.countries.length} land valgt.` });
           }
         }}
       />
