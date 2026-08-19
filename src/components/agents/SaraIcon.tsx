@@ -6,18 +6,22 @@ interface SaraIconProps {
   ariaLabel?: string;
 }
 
-/** Circular "S" icon representing the local Sara agent. */
-export function SaraIcon({ size = 20, className, ariaLabel }: SaraIconProps) {
+/** Circular "S" icon representing the local Sara agent.
+ *  If `size` is provided, it sets fixed width/height via inline style.
+ *  Otherwise, use Tailwind sizing classes via `className`.
+ */
+export function SaraIcon({ size, className, ariaLabel }: SaraIconProps) {
   return (
     <span
       className={cn(
         "inline-flex items-center justify-center rounded-full bg-primary text-white shrink-0",
+        !size && "h-4 w-4",
         className,
       )}
-      style={{ width: size, height: size }}
+      style={size ? { width: size, height: size } : undefined}
       aria-label={ariaLabel ?? "Sara"}
     >
-      <span className="font-semibold leading-none" style={{ fontSize: Math.round(size * 0.5) }}>
+      <span className="font-semibold leading-none" style={{ fontSize: Math.round((size ?? 16) * 0.5) }}>
         S
       </span>
     </span>
