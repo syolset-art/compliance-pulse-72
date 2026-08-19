@@ -131,6 +131,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
   const [filter, setFilter] = useState<FilterKey>("all");
   const [grouping, setGrouping] = useState<"status" | "control_area">("status");
   const [docsOnly, setDocsOnly] = useState(false);
+  const [docSourceFilter, setDocSourceFilter] = useState<"all" | "shared" | "agent">("all");
   const [search, setSearch] = useState("");
   const [docDialog, setDocDialog] = useState<{ id: string; name: string } | null>(null);
   const [reqNotes, setReqNotes] = useState<Record<string, string>>({});
