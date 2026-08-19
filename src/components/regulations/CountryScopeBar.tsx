@@ -29,7 +29,7 @@ export function CountryScopeBar({ scope, onEdit }: Props) {
           className="inline-flex items-center gap-1 rounded-md border border-dashed border-border px-2 py-1 text-[12px] font-medium text-primary transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           <Plus className="h-3 w-3" aria-hidden />
-          Legg til land
+          Velg land
         </button>
       </div>
 
