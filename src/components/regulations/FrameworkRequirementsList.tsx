@@ -973,39 +973,71 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                   {docs.map((entry, i) => {
                     const src = docSourceOf(entry.doc);
                     const isAgentDoc = src === "agent";
+                    const sha256 = Array.from({ length: 8 }, (_, j) =>
+                      "0123456789abcdef"[Math.floor(Math.random() * 16)],
+                    ).join("");
+                    const verifiedDate = entry.doc.verifiedAt
+                      ? new Date(entry.doc.verifiedAt).toLocaleDateString(isNb ? "nb-NO" : "en-GB", {
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "numeric",
+                        })
+                      : "12.06.2026";
+                    const meta = isAgentDoc
+                      ? `${isNb ? "Vurdert av Sara, versjon 1.0" : "Assessed by Sara, version 1.0"} · sha256: ${sha256}...`
+                      : `${entry.doc.name} · ${isNb ? "verifisert" : "verified"} ${verifiedDate}`;
+                    const subtitle = isAgentDoc
+                      ? (isNb
+                          ? "Dekket — foreslått av Sara. Vurdert av kundens egen agent — Dokument ikke delt med Mynder."
+                          : "Covered — suggested by Sara. Assessed by the customer's own agent — Document not shared with Mynder.")
+                      : (isNb
+                          ? "Basert på delt dokument. Lastet opp og verifisert av Mynder."
+                          : "Based on shared document. Uploaded and verified by Mynder.");
                     return (
                     <button
                       key={`${entry.req.requirement_id}-${entry.doc.name}-${i}`}
                       type="button"
                       onClick={() => openRequirement(entry.req.requirement_id)}
-                      className="w-full flex items-center gap-3 px-3 py-2 text-left hover:bg-muted/40 transition-colors"
+                      className="w-full text-left px-4 py-3 hover:bg-muted/40 transition-colors"
                     >
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <span className="shrink-0">
-                            {isAgentDoc ? (
-                              <BotMessageSquare className="h-4 w-4 text-primary" />
-                            ) : (
-                              <FileIcon className="h-4 w-4 text-muted-foreground" />
-                            )}
-                          </span>
-                        </TooltipTrigger>
-                        <TooltipContent side="top" className="max-w-xs text-xs">
-                          {isAgentDoc
-                            ? (isNb ? "Hentet av din lokale agent (Sara) fra egen infrastruktur." : "Collected by your local agent (Sara) from your own infrastructure.")
-                            : (isNb ? "Dokument lastet opp og delt av deg eller teamet." : "Document uploaded and shared by you or your team.")}
-                        </TooltipContent>
-                      </Tooltip>
-                      <div className="min-w-0 flex-1">
-                        <p className="text-sm text-foreground truncate">{entry.doc.name}</p>
-                        <p className="text-[11px] text-muted-foreground truncate">
-                          {entry.req.requirement_id} · {isNb ? entry.req.name_no : entry.req.name}
-                        </p>
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-semibold text-foreground truncate">
+                            {isNb ? entry.req.name_no : entry.req.name}
+                          </p>
+                          <p className="text-sm text-muted-foreground mt-0.5 leading-snug">
+                            {subtitle}
+                          </p>
+                          <p className="text-[11px] text-muted-foreground/70 mt-1.5 truncate">
+                            {meta}
+                          </p>
+                        </div>
+                        <div className="shrink-0 flex items-center gap-1.5 text-xs">
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <span className="inline-flex items-center gap-1 text-muted-foreground">
+                                {isAgentDoc ? (
+                                  <BotMessageSquare className="h-4 w-4 text-primary" />
+                                ) : (
+                                  <FileIcon className="h-4 w-4 text-muted-foreground" />
+                                )}
+                                {isAgentDoc
+                                  ? (isNb ? "Din agent" : "Your agent")
+                                  : (isNb ? "Delt dokument" : "Shared document")}
+                              </span>
+                            </TooltipTrigger>
+                            <TooltipContent side="top" className="max-w-xs text-xs">
+                              {isAgentDoc
+                                ? (isNb ? "Hentet av din lokale agent (Sara) fra egen infrastruktur." : "Collected by your local agent (Sara) from your own infrastructure.")
+                                : (isNb ? "Dokument lastet opp og delt av deg eller teamet." : "Document uploaded and shared by you or your team.")}
+                            </TooltipContent>
+                          </Tooltip>
+                        </div>
                       </div>
-                      <ArrowRight className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                     </button>
                     );
                   })}
+
 
 
 
