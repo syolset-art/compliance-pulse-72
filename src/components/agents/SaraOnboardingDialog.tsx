@@ -16,8 +16,10 @@ import {
   ChevronDown,
   ChevronUp,
   Ban,
-  CalendarClock,
+  ListChecks,
+  BadgeCheck,
 } from "lucide-react";
+import { SaraRequirementPackage } from "@/components/agents/SaraRequirementPackage";
 
 interface SaraOnboardingDialogProps {
   open: boolean;
@@ -25,8 +27,8 @@ interface SaraOnboardingDialogProps {
 }
 
 export function SaraOnboardingDialog({ open, onOpenChange }: SaraOnboardingDialogProps) {
-  const { t } = useTranslation();
-  const [schedule, setSchedule] = useState<"manual" | "weekly">("weekly");
+  const { t, i18n } = useTranslation();
+  const isNb = i18n.language?.startsWith("nb") ?? true;
   const [showNever, setShowNever] = useState(false);
 
   const steps = [
@@ -44,12 +46,22 @@ export function SaraOnboardingDialog({ open, onOpenChange }: SaraOnboardingDialo
       icon: Bot,
       title: t("saraOnboarding.configure"),
       description: t("saraOnboarding.configureHint"),
-      schedulePicker: true,
     },
     {
       icon: Link,
       title: t("saraOnboarding.connect"),
       description: t("saraOnboarding.connectHint"),
+    },
+    {
+      icon: ListChecks,
+      title: t("saraOnboarding.package"),
+      description: t("saraOnboarding.packageHint"),
+      requirementPackage: true,
+    },
+    {
+      icon: BadgeCheck,
+      title: t("saraOnboarding.confirm"),
+      description: t("saraOnboarding.confirmHint"),
     },
   ];
 
@@ -74,10 +86,12 @@ export function SaraOnboardingDialog({ open, onOpenChange }: SaraOnboardingDialo
               {t("saraOnboarding.beta")}
             </Badge>
           </div>
-          <DialogDescription>{t("saraOnboarding.subtitle")}</DialogDescription>
+          <DialogDescription>{t("saraOnboarding.problem")}</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-5">
+          <p className="text-sm text-foreground">{t("saraOnboarding.solution")}</p>
+
           <div className="space-y-3">
             {steps.map((step, idx) => {
               const Icon = step.icon;
@@ -97,44 +111,9 @@ export function SaraOnboardingDialog({ open, onOpenChange }: SaraOnboardingDialo
                       {step.description}
                     </p>
 
-                    {step.schedulePicker && (
-                      <div className="mt-3 rounded-md border border-border bg-background p-3">
-                        <div className="flex items-center gap-1.5">
-                          <CalendarClock className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
-                          <p className="text-[13px] font-medium text-foreground">
-                            {t("saraOnboarding.schedule")}
-                          </p>
-                        </div>
-                        <div className="mt-2 flex flex-wrap gap-2">
-                          <Button
-                            type="button"
-                            size="sm"
-                            variant={schedule === "weekly" ? "default" : "outline"}
-                            className="h-7 text-xs"
-                            aria-pressed={schedule === "weekly"}
-                            onClick={() => setSchedule("weekly")}
-                          >
-                            {t("saraOnboarding.scheduleWeekly")}
-                            <span className="ml-1.5 opacity-70">
-                              · {t("saraOnboarding.scheduleWeeklyTag")}
-                            </span>
-                          </Button>
-                          <Button
-                            type="button"
-                            size="sm"
-                            variant={schedule === "manual" ? "default" : "outline"}
-                            className="h-7 text-xs"
-                            aria-pressed={schedule === "manual"}
-                            onClick={() => setSchedule("manual")}
-                          >
-                            {t("saraOnboarding.scheduleManual")}
-                          </Button>
-                        </div>
-                        <p className="text-[12px] text-muted-foreground mt-2">
-                          {schedule === "weekly"
-                            ? t("saraOnboarding.scheduleHintWeekly")
-                            : t("saraOnboarding.scheduleHintManual")}
-                        </p>
+                    {step.requirementPackage && (
+                      <div className="mt-3">
+                        <SaraRequirementPackage isNb={isNb} />
                       </div>
                     )}
                   </div>
@@ -224,7 +203,7 @@ export function SaraOnboardingDialog({ open, onOpenChange }: SaraOnboardingDialo
           <div className="flex items-start gap-2 rounded-lg border border-border p-3">
             <CheckCircle2 className="h-4 w-4 text-success mt-0.5 shrink-0" aria-hidden="true" />
             <div>
-              <p className="text-sm font-medium text-foreground">{t("saraOnboarding.autoSync")}</p>
+              <p className="text-sm font-medium text-foreground">{t("saraOnboarding.manualRun")}</p>
               <p className="text-[13px] text-muted-foreground">{t("saraOnboarding.syncText")}</p>
             </div>
           </div>
