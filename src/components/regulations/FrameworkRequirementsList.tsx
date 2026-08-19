@@ -1017,13 +1017,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                           <Tooltip>
                             <TooltipTrigger asChild>
                               {isAgentDoc ? (
-                                <span
-                                  className="inline-flex items-center justify-center rounded-full bg-primary text-white"
-                                  style={{ width: 20, height: 20 }}
-                                  aria-label={isNb ? "Sara" : "Sara"}
-                                >
-                                  <span className="text-[10px] font-semibold leading-none">S</span>
-                                </span>
+                                <SaraIcon size={20} ariaLabel={isNb ? "Sara" : "Sara"} />
                               ) : (
                                 <FileIcon className="h-4 w-4 text-muted-foreground" aria-label={isNb ? "Delt dokument" : "Shared document"} />
                               )}
