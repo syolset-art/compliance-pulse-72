@@ -336,17 +336,17 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
       .filter((g) => g.items.length > 0);
   }, [filtered, grouping, uiStates, isNb]);
 
-  /** Antall dokumenter per kilde (for filterpiller). */
+  /** Antall krav med dokumentasjon per kilde (for filterpiller). */
   const docSourceCounts = useMemo(() => {
-    let shared = 0;
-    let agent = 0;
+    let all = 0, shared = 0, agent = 0;
     requirements.forEach((req) => {
-      (uiStates[req.requirement_id]?.documents ?? []).forEach((doc) => {
-        if (docSourceOf(doc) === "agent") agent++;
-        else shared++;
-      });
+      const docs = uiStates[req.requirement_id]?.documents ?? [];
+      if (docs.length === 0) return;
+      all++;
+      if (docs.some((d) => docSourceOf(d) === "shared")) shared++;
+      if (docs.some((d) => docSourceOf(d) === "agent")) agent++;
     });
-    return { shared, agent, all: shared + agent };
+    return { shared, agent, all };
   }, [requirements, uiStates, docSourceOf]);
 
   /** Kandidater for regelverk-nivå analyse (alle krav + artiklene de dekker). */
