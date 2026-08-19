@@ -10,10 +10,6 @@ import saraAgentPng from "@/assets/sara-agent.png";
 
 const DOC_SOURCES: { name: string; available: boolean }[] = [
   { name: "Notion", available: true },
-  { name: "SharePoint", available: false },
-  { name: "Google Drive", available: false },
-  { name: "Confluence", available: false },
-  { name: "Lokale mapper", available: false },
 ];
 
 /**
@@ -69,17 +65,10 @@ export function LocalAgentCard() {
 
             <div className="mt-4 flex flex-wrap items-center gap-2">
               {DOC_SOURCES.map((s) => (
-                <Badge
-                  key={s.name}
-                  variant={s.available ? "default" : "secondary"}
-                  className="text-[10px] font-normal"
-                >
+                <Badge key={s.name} variant="default" className="text-[10px] font-normal">
                   {s.name}
                 </Badge>
               ))}
-              <span className="rounded-md border border-border bg-muted px-2 py-1 text-[10px] text-muted-foreground">
-                Kommer
-              </span>
             </div>
 
             <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-muted-foreground">
@@ -91,8 +80,8 @@ export function LocalAgentCard() {
               </span>
               <span className="flex items-center gap-1">
                 <CalendarClock className="h-3.5 w-3.5" aria-hidden="true" />
-                Kjøreplan:{" "}
-                <span className="font-medium text-foreground">Ukentlig (anbefalt)</span>
+                Kjøring:{" "}
+                <span className="font-medium text-foreground">Manuell start</span>
               </span>
               <span>
                 Sist kjørt:{" "}

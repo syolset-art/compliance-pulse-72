@@ -14,6 +14,12 @@ export type SaraFinding = {
   source: string;
   at: string;
   confirmed: boolean;
+  /** Dokumentidentifikator hos kunden (ikke selve dokumentet) */
+  documentId: string;
+  /** Kort hash av dokumentet – bekrefter at det finnes og er uendret */
+  hash: string;
+  /** Versjon av den lokale agenten som produserte funnet */
+  agentVersion: string;
 };
 
 /** Demofunn Sara har levert etter installasjon (bekreftes av bruker). */
@@ -21,9 +27,12 @@ export const SARA_RECENT_FINDINGS: SaraFinding[] = [
   {
     id: "f1",
     requirement: "Art. 32 – Sikkerhet ved behandlingen",
-    source: "SharePoint / Policies/Informasjonssikkerhet.docx",
+    source: "Notion / Sikkerhet / Informasjonssikkerhetspolicy",
     at: "I dag 09:12",
     confirmed: false,
+    documentId: "ntn-4f21c8",
+    hash: "sha256:9c1a…7e04",
+    agentVersion: "0.9.2",
   },
   {
     id: "f2",
@@ -31,13 +40,19 @@ export const SARA_RECENT_FINDINGS: SaraFinding[] = [
     source: "Notion / Compliance / ROPA",
     at: "I dag 09:12",
     confirmed: false,
+    documentId: "ntn-8b03da",
+    hash: "sha256:41f7…b2a9",
+    agentVersion: "0.9.2",
   },
   {
     id: "f3",
     requirement: "A.5.10 – Akseptabel bruk av informasjon",
-    source: "Google Drive / HR/Retningslinjer.pdf",
+    source: "Notion / HR / Retningslinjer",
     at: "I går 16:40",
     confirmed: true,
+    documentId: "ntn-1e77aa",
+    hash: "sha256:d38c…5510",
+    agentVersion: "0.9.1",
   },
 ];
 

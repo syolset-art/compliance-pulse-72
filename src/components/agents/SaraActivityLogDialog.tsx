@@ -8,6 +8,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Bot, CheckCircle2, Clock, FileText } from "lucide-react";
 import { SARA_RECENT_FINDINGS } from "@/lib/saraAgent";
+import { SARA_AGENT_VERSION } from "@/lib/saraScope";
 
 interface Props {
   open: boolean;
@@ -64,7 +65,19 @@ export function SaraActivityLogDialog({ open, onOpenChange, isNb = true }: Props
                       : "Awaiting confirmation"}
                 </Badge>
               </div>
-              <p className="mt-2 text-[11px] text-muted-foreground">{f.at}</p>
+
+              <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-muted-foreground">
+                <span className="font-mono">
+                  {isNb ? "Dok" : "Doc"} {f.documentId}
+                </span>
+                <span className="font-mono">
+                  {isNb ? "Hash" : "Hash"} {f.hash}
+                </span>
+                <span>
+                  {isNb ? "Agent" : "Agent"} v{f.agentVersion ?? SARA_AGENT_VERSION}
+                </span>
+                <span>{f.at}</span>
+              </div>
             </li>
           ))}
         </ul>
