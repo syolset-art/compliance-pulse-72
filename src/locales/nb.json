@@ -70,6 +70,14 @@
     "activityLog": "Aktivitetslogg",
     "legal": "Avtaler og vilkår"
   },
+  "regulationsPage": {
+    "type": "Type",
+    "regulation": "Regelverk",
+    "standard": "Standarder",
+    "guideline": "Retningslinjer",
+    "framework": "Rammeverk",
+    "allTypes": "Alle typer"
+  }
   "customerRequests": {
     "title": "Meldinger",
     "subtitle": "Håndter innkommende og utgående meldinger",
