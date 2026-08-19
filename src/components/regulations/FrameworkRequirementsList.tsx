@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useRef, type Dispatch, type SetStateAction } from "react";
+import { useState, useMemo, useEffect, useRef, useCallback, type Dispatch, type SetStateAction } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -131,6 +131,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
   const [filter, setFilter] = useState<FilterKey>("all");
   const [grouping, setGrouping] = useState<"status" | "control_area">("status");
   const [docsOnly, setDocsOnly] = useState(false);
+  const [docSourceFilter, setDocSourceFilter] = useState<"all" | "shared" | "agent">("all");
   const [search, setSearch] = useState("");
   const [docDialog, setDocDialog] = useState<{ id: string; name: string } | null>(null);
   const [reqNotes, setReqNotes] = useState<Record<string, string>>({});
@@ -312,6 +313,16 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
       .filter((g) => g.items.length > 0);
   }, [filtered, grouping, uiStates, isNb]);
 
+  /** Kilde for et dokument: delt (lastet opp) eller hentet av agenten Sara. */
+  const docSourceOf = useCallback(
+    (doc: EvidenceDocument): "shared" | "agent" => {
+      if (doc.source) return doc.source;
+      if (saraInstalled && /ropa|informasjonssikkerhet|retningslinj/i.test(doc.name)) return "agent";
+      return "shared";
+    },
+    [saraInstalled],
+  );
+
   /** Dokumentvisning: alle opplastede dokumenter samlet per kontrollområde. */
   const docGroups = useMemo(() => {
     const byArea = new Map<ControlAreaKey, { req: ComplianceRequirement; doc: EvidenceDocument }[]>();
@@ -331,6 +342,30 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
       docs: byArea.get(a.key) ?? [],
     })).filter((g) => g.docs.length > 0);
   }, [filtered, uiStates, isNb]);
+
+  /** Antall dokumenter per kilde (for filterpiller). */
+  const docSourceCounts = useMemo(() => {
+    let shared = 0;
+    let agent = 0;
+    docGroups.forEach((g) =>
+      g.docs.forEach((e) => (docSourceOf(e.doc) === "agent" ? agent++ : shared++)),
+    );
+    return { shared, agent, all: shared + agent };
+  }, [docGroups, docSourceOf]);
+
+  /** Dokumentgrupper filtrert på valgt kilde. */
+  const visibleDocGroups = useMemo(
+    () =>
+      docGroups.map((g) => ({
+        ...g,
+        docs:
+          docSourceFilter === "all"
+            ? g.docs
+            : g.docs.filter((e) => docSourceOf(e.doc) === docSourceFilter),
+      })),
+    [docGroups, docSourceFilter, docSourceOf],
+  );
+
 
   /** Forventet dokumentasjon for regelverket, gruppert per kontrollområde. */
   const expectedRows = useMemo(() => {
@@ -800,7 +835,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
               <FileIcon className="h-3.5 w-3.5" />
               <span>{isNb ? "Dokumentasjon" : "Documentation"}</span>
               <span className={cn("tabular-nums", docsOnly ? "opacity-90" : "text-muted-foreground")}>
-                {docGroups.reduce((sum, g) => sum + g.docs.length, 0)}
+                {docSourceCounts.all}
               </span>
             </button>
           </TooltipTrigger>
@@ -812,7 +847,38 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
             </p>
           </TooltipContent>
         </Tooltip>
+
+        {docsOnly && (
+          <div className="inline-flex items-center gap-1 rounded-full border border-border bg-muted/40 p-0.5">
+            {([
+              { key: "all", nb: "Alle", en: "All", count: docSourceCounts.all, Icon: FileIcon },
+              { key: "shared", nb: "Delt dokument", en: "Shared document", count: docSourceCounts.shared, Icon: FileIcon },
+              { key: "agent", nb: "Din agent", en: "Your agent", count: docSourceCounts.agent, Icon: BotMessageSquare },
+            ] as const).map((opt) => {
+              const OptIcon = opt.Icon;
+              const active = docSourceFilter === opt.key;
+              return (
+                <button
+                  key={opt.key}
+                  type="button"
+                  onClick={() => setDocSourceFilter(opt.key)}
+                  className={cn(
+                    "inline-flex items-center gap-1.5 rounded-full px-2.5 h-7 text-xs transition-colors",
+                    active
+                      ? "bg-background text-foreground font-medium shadow-sm"
+                      : "text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  <OptIcon className="h-3.5 w-3.5" />
+                  <span>{isNb ? opt.nb : opt.en}</span>
+                  <span className="tabular-nums opacity-70">{opt.count}</span>
+                </button>
+              );
+            })}
+          </div>
+        )}
       </div>
+
 
       {/* Rad 3: søk + filtrering */}
       <div className="flex items-center gap-2 mb-3">
@@ -883,8 +949,8 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
         <div className="space-y-6">
           {CONTROL_AREAS.map((area) => {
             const GroupIcon = area.icon;
-            const docs = docGroups.find((g) => g.key === area.key)?.docs ?? [];
-            const expected = expectedByArea.get(area.key) ?? [];
+            const docs = visibleDocGroups.find((g) => g.key === area.key)?.docs ?? [];
+            const expected = docSourceFilter === "all" ? (expectedByArea.get(area.key) ?? []) : [];
             if (docs.length === 0 && expected.length === 0) return null;
             const openRequirement = (id: string) => {
               setDocsOnly(false);
@@ -904,26 +970,59 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                   <span className="flex-1 h-px bg-border ml-2" />
                 </div>
                 <div className="rounded-lg border bg-card divide-y">
-                  {docs.map((entry, i) => (
+                  {docs.map((entry, i) => {
+                    const src = docSourceOf(entry.doc);
+                    const isAgentDoc = src === "agent";
+                    return (
                     <button
                       key={`${entry.req.requirement_id}-${entry.doc.name}-${i}`}
                       type="button"
                       onClick={() => openRequirement(entry.req.requirement_id)}
                       className="w-full flex items-center gap-3 px-3 py-2 text-left hover:bg-muted/40 transition-colors"
                     >
-                      <CheckCircle2 className="h-4 w-4 text-success shrink-0" />
+                      {isAgentDoc ? (
+                        <BotMessageSquare className="h-4 w-4 text-primary shrink-0" />
+                      ) : (
+                        <CheckCircle2 className="h-4 w-4 text-success shrink-0" />
+                      )}
                       <div className="min-w-0 flex-1">
                         <p className="text-sm text-foreground truncate">{entry.doc.name}</p>
                         <p className="text-[11px] text-muted-foreground truncate">
                           {entry.req.requirement_id} · {isNb ? entry.req.name_no : entry.req.name}
                         </p>
                       </div>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Badge
+                            variant="outline"
+                            className={cn(
+                              "h-5 px-1.5 text-[10px] shrink-0",
+                              isAgentDoc ? "border-primary/40 text-primary" : "text-muted-foreground",
+                            )}
+                          >
+                            {isAgentDoc
+                              ? (isNb ? "Din agent" : "Your agent")
+                              : (isNb ? "Delt dokument" : "Shared document")}
+                          </Badge>
+                        </TooltipTrigger>
+                        <TooltipContent side="left" className="max-w-xs text-xs">
+                          {isAgentDoc
+                            ? isNb
+                              ? "Hentet av din lokale agent (Sara) fra egen infrastruktur."
+                              : "Collected by your local agent (Sara) from your own infrastructure."
+                            : isNb
+                              ? "Dokument lastet opp og delt av deg eller teamet."
+                              : "Document uploaded and shared by you or your team."}
+                        </TooltipContent>
+                      </Tooltip>
                       <Badge variant="outline" className="h-5 px-1.5 text-[10px] uppercase shrink-0">
                         {entry.doc.kind}
                       </Badge>
                       <ArrowRight className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                     </button>
-                  ))}
+                    );
+                  })}
+
 
                   {/* Forventet dokumentasjon som ennå ikke er lastet opp */}
                   {expected

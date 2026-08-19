@@ -77,6 +77,12 @@ export interface DocumentSignature {
 export interface EvidenceDocument {
   name: string;
   kind: string; // e.g. "PDF", "DOCX", "URL", "Attestasjon"
+  /**
+   * Hvor dokumentasjonen kommer fra:
+   * - "shared": delt dokument lastet opp av bruker
+   * - "agent": hentet av den lokale agenten (Sara)
+   */
+  source?: "shared" | "agent";
   classification?: {
     docType: string;
     /** Artikler/kontrollpunkter dokumentet dekker (avledet av Lara). */
