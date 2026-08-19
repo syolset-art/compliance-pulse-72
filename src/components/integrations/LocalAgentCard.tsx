@@ -10,10 +10,6 @@ import saraAgentPng from "@/assets/sara-agent.png";
 
 const DOC_SOURCES: { name: string; available: boolean }[] = [
   { name: "Notion", available: true },
-  { name: "SharePoint", available: false },
-  { name: "Google Drive", available: false },
-  { name: "Confluence", available: false },
-  { name: "Lokale mapper", available: false },
 ];
 
 /**
@@ -91,8 +87,8 @@ export function LocalAgentCard() {
               </span>
               <span className="flex items-center gap-1">
                 <CalendarClock className="h-3.5 w-3.5" aria-hidden="true" />
-                Kjøreplan:{" "}
-                <span className="font-medium text-foreground">Ukentlig (anbefalt)</span>
+                Kjøring:{" "}
+                <span className="font-medium text-foreground">Manuell start</span>
               </span>
               <span>
                 Sist kjørt:{" "}
