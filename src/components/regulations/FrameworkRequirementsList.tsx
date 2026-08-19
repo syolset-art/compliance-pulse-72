@@ -22,6 +22,7 @@ import { ManualDocumentationDialog } from "@/components/dialogs/ManualDocumentat
 import { LaraDataSourceExplainer } from "@/components/regulations/LaraDataSourceExplainer";
 import { SaraOnboardingDialog } from "@/components/agents/SaraOnboardingDialog";
 import { SaraActivityLogDialog } from "@/components/agents/SaraActivityLogDialog";
+import { SaraIcon } from "@/components/agents/SaraIcon";
 import { useSaraAgent } from "@/lib/saraAgent";
 
 import { AttachEvidenceDialog, type AttachEvidenceResult } from "@/components/regulations/AttachEvidenceDialog";
