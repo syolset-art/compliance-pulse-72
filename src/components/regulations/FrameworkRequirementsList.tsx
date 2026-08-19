@@ -547,14 +547,15 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
             type="button"
             onClick={(e) => e.stopPropagation()}
             className={cn(
-              "inline-flex h-7 items-center gap-1.5 rounded-full border bg-background px-2.5 text-xs font-medium shadow-sm transition-colors hover:bg-muted/60",
+              "inline-flex h-7 max-w-[11rem] sm:max-w-none items-center gap-1.5 rounded-full border bg-background px-2.5 text-xs font-medium shadow-sm transition-colors hover:bg-muted/60",
               currentCfg.badgeClass,
             )}
             aria-label={isNb ? "Endre status" : "Change status"}
           >
-            <CurrentIcon className={cn("h-3 w-3", currentCfg.iconClass)} />
-            <span>{isNb ? currentCfg.labelNb : currentCfg.labelEn}</span>
-            <ChevronDown className="h-3 w-3 text-muted-foreground" />
+            <CurrentIcon className={cn("h-3 w-3 shrink-0", currentCfg.iconClass)} />
+            <span className="truncate">{isNb ? currentCfg.labelNb : currentCfg.labelEn}</span>
+            <ChevronDown className="h-3 w-3 shrink-0 text-muted-foreground" />
+
           </button>
         </PopoverTrigger>
         <PopoverContent align="end" className="w-56 p-1">
