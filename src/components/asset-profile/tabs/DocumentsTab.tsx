@@ -252,6 +252,12 @@ export function DocumentsTab({ assetId, assetName, vendorName, hideUploadButton,
                     <TableCell className="py-3">
                       <span className="text-xs text-muted-foreground">{getTypeLabel(doc.document_type)}</span>
                     </TableCell>
+                    <TableCell className="py-3">
+                      <Badge variant="secondary" className="text-[11px] font-normal">
+                        {docOriginLabel(resolveDocOrigin(doc.source), isNb)}
+                      </Badge>
+                    </TableCell>
+
                     <TableCell className="py-3 text-xs text-muted-foreground hidden sm:table-cell">
                       {expiry ? new Date(expiry).toLocaleDateString(locale) : "—"}
                     </TableCell>
