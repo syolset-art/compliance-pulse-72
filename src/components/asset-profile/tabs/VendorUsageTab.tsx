@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Building2, Database, Workflow, Shield, AlertTriangle, Pencil, Info, Sparkles, ArrowRight, Flag, ChevronDown, UserRound, Check } from "lucide-react";
 import { RELATION_CATEGORIES, relationCategoryLabel, relationCategoryNote, suggestRelationCategory } from "@/lib/vendorRelationCategory";
 import { LaraIcon } from "@/components/agents/LaraIcon";
+import { LaraFieldSuggestion } from "@/components/asset-profile/usage/LaraFieldSuggestion";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/hooks/useAuth";
 import { Switch } from "@/components/ui/switch";
