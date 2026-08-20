@@ -62,7 +62,7 @@ export function VendorFrameworkCard({ frameworks, onAdd, onRemove }: Props) {
   );
 
   return (
-    <Card className="p-5 flex flex-col">
+    <Card className="p-5 flex flex-col h-full">
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
         <div className="min-w-0">
           <h3 className="text-sm font-semibold text-foreground">

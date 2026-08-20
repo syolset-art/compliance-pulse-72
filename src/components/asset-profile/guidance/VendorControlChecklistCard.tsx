@@ -48,7 +48,7 @@ export function VendorControlChecklistCard({
   const complete = done === items.length;
 
   return (
-    <section className={cn("rounded-2xl border border-border bg-card p-4 sm:p-5", className)}>
+    <section className={cn("rounded-2xl border border-border bg-card p-4 sm:p-5 h-full flex flex-col", className)}>
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div className="min-w-0">
           <h3 className="text-sm font-semibold text-foreground">
