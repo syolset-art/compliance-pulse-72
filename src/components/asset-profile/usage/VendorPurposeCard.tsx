@@ -89,8 +89,8 @@ export const VendorPurposeCard = ({
   // ---- Editing state: full palette + free text
   if (editing) {
     return (
-      <Card>
-        <CardContent className="space-y-2.5 p-3">
+      <Card className="h-full">
+        <CardContent className="flex h-full flex-col space-y-2.5 p-3">
           {top}
           {header}
           <div className="flex flex-wrap gap-1">
@@ -144,8 +144,8 @@ export const VendorPurposeCard = ({
   const confirmed = saraInstalled || hasValues;
 
   return (
-    <Card>
-      <CardContent className="space-y-2 p-3">
+    <Card className="h-full">
+      <CardContent className="flex h-full flex-col space-y-2 p-3">
         {top}
         {header}
 

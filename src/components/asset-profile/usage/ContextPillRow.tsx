@@ -69,8 +69,8 @@ export const ContextPillRow = ({ items, openKey, onToggle, bare }: Props) => {
   if (bare) return body;
 
   return (
-    <Card>
-      <CardContent className="p-2">{body}</CardContent>
+    <Card className="h-full">
+      <CardContent className="flex h-full flex-col p-2">{body}</CardContent>
     </Card>
   );
 };
