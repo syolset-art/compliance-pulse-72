@@ -33,27 +33,31 @@ export const ContextPillRow = ({ items, openKey, onToggle, bare }: Props) => {
               <button
                 key={item.key}
                 type="button"
+                title={`${item.label}${item.value ? `: ${item.value}` : ""}`}
                 onClick={() => onToggle(item.key)}
                 className={cn(
-                  "flex items-center gap-2 rounded-lg px-2.5 py-2 text-left transition-colors",
+                  "group flex items-center gap-2 rounded-lg px-2.5 py-2 text-left transition-colors",
                   spanFull && "col-span-2",
                   isOpen ? "bg-accent" : "hover:bg-accent/60"
                 )}
               >
-                <span className="text-muted-foreground">{item.icon}</span>
+                <span className="text-muted-foreground transition-colors group-hover:text-foreground">{item.icon}</span>
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate text-[12px] text-muted-foreground">{item.label}</span>
-                  <span className={cn("block truncate text-[13px] font-semibold", item.toneClass)}>
+                  <span className="block truncate text-[12px] text-muted-foreground transition-colors group-hover:text-foreground">
+                    {item.label}
+                  </span>
+                  <span className={cn("block truncate text-[13px] font-semibold transition-colors group-hover:text-foreground", item.toneClass)}>
                     {item.value}
                   </span>
                 </span>
                 <ChevronDown
                   className={cn(
-                    "h-3.5 w-3.5 shrink-0 text-muted-foreground transition-transform",
+                    "h-3.5 w-3.5 shrink-0 text-muted-foreground transition-transform group-hover:text-foreground",
                     isOpen && "rotate-180"
                   )}
                 />
               </button>
+
             );
           })}
         </div>
