@@ -21,20 +21,20 @@ export function VendorFrameworkCard({ frameworks, onAdd, onRemove }: Props) {
 
   const scope = frameworks;
 
-  const renderPill = (f: VendorFramework) => (
+  const renderPill = (f: VendorFramework) => {
+    /** Match med Laras initielle KI-vurdering (personvern, risiko og sikkerhet
+     *  ut fra bransje) = grønn. Øvrige regelverk i scope vises lilla. */
+    const laraMatch = !f.manual && !f.global;
+    return (
     <TooltipProvider key={f.id} delayDuration={150}>
       <Tooltip>
         <TooltipTrigger asChild>
           <span
             className={cn(
               "inline-flex items-center rounded-full border text-[11px] font-medium",
-              f.manual
-                ? "border-border bg-muted/40 text-foreground"
-                : f.global
-                  ? "border-primary/40 bg-primary/5 text-primary"
-                  : f.confidence === "high"
-                    ? "border-success/40 bg-success/5 text-success"
-                    : "border-border bg-muted/40 text-foreground",
+              laraMatch
+                ? "border-success/40 bg-success/5 text-success"
+                : "border-primary/40 bg-primary/5 text-primary",
             )}
           >
             <span className="inline-flex items-center gap-1 pl-2.5 pr-1 py-1">
@@ -50,6 +50,7 @@ export function VendorFrameworkCard({ frameworks, onAdd, onRemove }: Props) {
                 </span>
               )}
             </span>
+
             <button
               type="button"
               onClick={() => onRemove(f.id)}
@@ -65,7 +66,9 @@ export function VendorFrameworkCard({ frameworks, onAdd, onRemove }: Props) {
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
-  );
+    );
+  };
+
 
   return (
     <Card className="p-5 flex flex-col h-full">
@@ -82,11 +85,23 @@ export function VendorFrameworkCard({ frameworks, onAdd, onRemove }: Props) {
               : "Select the regulations, standards and guidelines the vendor should comply with."}
           </p>
         </div>
-        <span className="inline-flex items-center gap-1 rounded-full border border-recommend/30 bg-recommend/10 px-2 py-0.5 text-[11px] font-medium text-recommend shrink-0">
-          <Sparkles className="h-3 w-3" />
-          {isNb ? "Initiell KI-vurdering" : "Initial AI assessment"}
-        </span>
+        <TooltipProvider delayDuration={150}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="inline-flex items-center gap-1 rounded-full border border-recommend/30 bg-recommend/10 px-2 py-0.5 text-[11px] font-medium text-recommend shrink-0 cursor-help">
+                <Sparkles className="h-3 w-3" />
+                {isNb ? "Initiell KI-vurdering" : "Initial AI assessment"}
+              </span>
+            </TooltipTrigger>
+            <TooltipContent side="top" className="max-w-[300px] text-xs leading-relaxed">
+              {isNb
+                ? "Vises uavhengig av hva du har satt som krav. Lara vurderer hva denne leverandøren må etterleve innen personvern, risiko og sikkerhet ut fra bransje, land og kritikalitet. Grønn = match med Laras vurdering. Lilla = regelverk du selv vil at leverandøren skal følge."
+                : "Shown regardless of the requirements you have set. Lara assesses what this vendor must comply with within privacy, risk and security based on industry, country and criticality. Green = match with Lara's assessment. Purple = frameworks you want the vendor to follow."}
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>
+
 
       <div className="mt-4 space-y-3">
         {scope.length > 0 && (
@@ -100,7 +115,18 @@ export function VendorFrameworkCard({ frameworks, onAdd, onRemove }: Props) {
               </span>
             </p>
             <div className="flex flex-wrap items-center gap-1.5">{scope.map(renderPill)}</div>
+            <div className="flex flex-wrap items-center gap-3 pt-1 text-[10px] text-muted-foreground">
+              <span className="inline-flex items-center gap-1">
+                <span className="h-1.5 w-1.5 rounded-full bg-success" />
+                {isNb ? "Match med KI-vurderingen" : "Match with the AI assessment"}
+              </span>
+              <span className="inline-flex items-center gap-1">
+                <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                {isNb ? "Egne krav til leverandøren" : "Your own requirements"}
+              </span>
+            </div>
           </div>
+
         )}
         {frameworks.length === 0 && (
           <p className="text-sm text-muted-foreground">
