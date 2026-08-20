@@ -83,14 +83,22 @@ export function ServiceCoverageSearch({
   onCreate,
   onOpenFramework,
   onAddProductToOffer,
+  mode: externalMode,
+  onModeChange,
 }: Props) {
   const [query, setQuery] = useState("");
   const [debounced, setDebounced] = useState("");
   const [justAdded, setJustAdded] = useState(false);
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
-  const [mode, setMode] = useState<SearchKind>("framework");
+  const [internalMode, setInternalMode] = useState<SearchKind>("framework");
   const [pickedFrameworkId, setPickedFrameworkId] = useState<string | null>(null);
   const [pickedProductId, setPickedProductId] = useState<string | null>(null);
+
+  const mode = externalMode ?? internalMode;
+  const setMode = (next: SearchKind) => {
+    onModeChange?.(next);
+    setInternalMode(next);
+  };
 
   const { defaultHourlyRate, currency } = useServiceDefaults();
 
