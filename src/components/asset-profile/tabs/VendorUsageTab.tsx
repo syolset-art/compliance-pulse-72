@@ -47,6 +47,25 @@ const riskOptions = [
 ];
 
 const gdprOptions = [
+/** Vanlige forretningsprosesser brukeren kan legge til med ett klikk. */
+const PROCESS_PRESETS: { nb: string; en: string }[] = [
+  { nb: "Kundepålogging og identifikasjon (KYC)", en: "Customer login and identification (KYC)" },
+  { nb: "Digital signering av avtaler", en: "Digital signing of agreements" },
+  { nb: "Sikre nettbetalinger", en: "Secure online payments" },
+  { nb: "Autorisering av sensitive handlinger", en: "Authorisation of sensitive actions" },
+  { nb: "Innsending av offentlige skjema og søknader", en: "Submission of public forms and applications" },
+  { nb: "Fakturering og regnskap", en: "Invoicing and accounting" },
+  { nb: "Lønn og personaladministrasjon", en: "Payroll and HR administration" },
+  { nb: "Rekruttering", en: "Recruitment" },
+  { nb: "Kundeservice og support", en: "Customer service and support" },
+  { nb: "Markedsføring og nyhetsbrev", en: "Marketing and newsletters" },
+  { nb: "Intern samhandling og dokumentdeling", en: "Internal collaboration and document sharing" },
+  { nb: "Drift og overvåking av IT-systemer", en: "IT operations and monitoring" },
+  { nb: "Sikkerhetskopiering og lagring", en: "Backup and storage" },
+  { nb: "Tilgangsstyring og pålogging for ansatte", en: "Access management and employee login" },
+  { nb: "Avvikshåndtering og varsling", en: "Incident handling and notification" },
+];
+
   { value: "databehandler", labelNb: "Databehandler", labelEn: "Data processor" },
   { value: "underdatabehandler", labelNb: "Underdatabehandler", labelEn: "Sub-processor" },
   { value: "ingen_persondata", labelNb: "Ingen persondata", labelEn: "No personal data" },
@@ -892,6 +911,7 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
           }
         }}
         edgeFunction="suggest-vendor-processes"
+        presets={PROCESS_PRESETS}
         context={{
           vendorName: asset?.name,
           vendorCategory: asset?.vendor_category,
