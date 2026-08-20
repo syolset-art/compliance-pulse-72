@@ -72,7 +72,7 @@ function getStatusBadge(status: string | null, validTo: string | null, isNb: boo
   return null;
 }
 
-export function DocumentsTab({ assetId, assetName, vendorName, hideUploadButton, onUploadTriggerReady }: DocumentsTabProps) {
+export function DocumentsTab({ assetId, assetName, vendorName, hideUploadButton, onUploadTriggerReady, inboxItems = [], onApproveInbox, onRejectInbox, onPreviewInbox }: DocumentsTabProps) {
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
   const queryClient = useQueryClient();
