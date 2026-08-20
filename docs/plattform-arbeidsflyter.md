@@ -204,8 +204,6 @@ Steg:
 
 Status: **Implementert**.
 
-
-
 ### 4.2 Oversikt
 Dashbord med nøkkeltall (antall leverandører, kritikalitet, manglende dokumentasjon, avvik) og listevisning der man kan gå inn på én og én leverandør.
 Rute: `/vendors`. Status: Implementert.
