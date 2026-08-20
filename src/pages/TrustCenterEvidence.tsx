@@ -26,9 +26,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { POLICY_TYPES as policyTypes, CERT_TYPES as certTypes, EVIDENCE_TYPES as evidenceTypes, docTypeLabel } from "@/lib/trustDocumentTypes";
-import { FrameworkDocumentCoverage } from "@/components/trust-center/FrameworkDocumentCoverage";
-import { buildComplianceCoverage } from "@/lib/complianceDocumentCoverage";
 import { EvidenceCoverageHeader } from "@/components/trust-center/EvidenceCoverageHeader";
+
 import { EvidenceGapPanel } from "@/components/trust-center/EvidenceGapPanel";
 import { buildEvidenceIntelligence } from "@/lib/evidenceIntelligence";
 import { useDocumentHub } from "@/hooks/useDocumentHub";
