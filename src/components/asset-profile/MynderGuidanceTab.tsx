@@ -430,6 +430,23 @@ export function MynderGuidanceTab({
 
         <div className="space-y-2">
           <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground px-0.5">
+            {isNb ? "Grunnlag" : "Basics"}
+          </p>
+          <VendorControlChecklistCard
+            contactPerson={contactPerson}
+            criticality={criticality}
+            gdprRole={gdprRole}
+            priority={priority}
+            riskLevel={riskLevel}
+            usagePurpose={usagePurpose}
+            onOpen={onOpenUsageTab}
+          />
+        </div>
+
+
+
+        <div className="space-y-2">
+          <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground px-0.5">
             {isNb ? "Hva må gjøres videre" : "What to do next"}
           </p>
           <VendorNextStepsCard
