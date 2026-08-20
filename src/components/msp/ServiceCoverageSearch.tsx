@@ -1,5 +1,5 @@
-import { useMemo, useState, useEffect } from "react";
-import { Search, Plus, Check, Info, Scale, Package, ArrowRight } from "lucide-react";
+import { useMemo, useState, useEffect, useCallback } from "react";
+import { Search, Plus, Check, Info, Scale, Package, ArrowRight, GripVertical } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
@@ -57,6 +57,9 @@ const MODES: Array<{ id: SearchKind; label: string }> = [
   { id: "product", label: "Mynder-produkt" },
 ];
 
+const STORAGE_KEY = "mynder-service-search-mode-order";
+const DEFAULT_ORDER: SearchKind[] = MODES.map((m) => m.id);
+
 
 interface FrameworkGroup {
   frameworkId: string;
@@ -82,6 +85,73 @@ export function ServiceCoverageSearch({
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const [modeOverride, setModeOverride] = useState<SearchKind | null>(null);
   const { defaultHourlyRate, currency } = useServiceDefaults();
+
+  // Brukeren kan dra søkemodus-knappene for å velge rekkefølge
+  const [modeOrder, setModeOrder] = useState<SearchKind[]>(() => {
+    if (typeof window === "undefined") return DEFAULT_ORDER;
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved) as SearchKind[];
+        if (
+          parsed.length === DEFAULT_ORDER.length &&
+          DEFAULT_ORDER.every((id) => parsed.includes(id))
+        ) {
+          return parsed;
+        }
+      }
+    } catch {}
+    return DEFAULT_ORDER;
+  });
+  const [dragMode, setDragMode] = useState<SearchKind | null>(null);
+  const [overMode, setOverMode] = useState<SearchKind | null>(null);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(modeOrder));
+    } catch {}
+  }, [modeOrder]);
+
+  const orderedModes = useMemo(
+    () => modeOrder.map((id) => MODES.find((m) => m.id === id)!).filter(Boolean),
+    [modeOrder]
+  );
+
+  const handleDragStart = useCallback(
+    (e: React.DragEvent<HTMLButtonElement>, id: SearchKind) => {
+      setDragMode(id);
+      e.dataTransfer.effectAllowed = "move";
+      e.dataTransfer.setData("text/plain", id);
+    },
+    []
+  );
+
+  const handleDragOver = useCallback(
+    (e: React.DragEvent<HTMLButtonElement>, id: SearchKind) => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = "move";
+      if (dragMode && dragMode !== id) setOverMode(id);
+    },
+    [dragMode]
+  );
+
+  const handleDragEnd = useCallback(() => {
+    if (dragMode && overMode && dragMode !== overMode) {
+      const fromIdx = modeOrder.indexOf(dragMode);
+      const toIdx = modeOrder.indexOf(overMode);
+      if (fromIdx !== -1 && toIdx !== -1) {
+        const newOrder = [...modeOrder];
+        const fullFrom = newOrder.indexOf(dragMode);
+        newOrder.splice(fullFrom, 1);
+        const fullTo = newOrder.indexOf(overMode);
+        newOrder.splice(toIdx > fromIdx ? fullTo + 1 : fullTo, 0, dragMode);
+        setModeOrder(newOrder);
+      }
+    }
+    setDragMode(null);
+    setOverMode(null);
+  }, [dragMode, overMode, modeOrder]);
+
 
   const { data: reqRows = [] } = useQuery({
     queryKey: ["all-compliance-requirements"],
@@ -186,22 +256,42 @@ export function ServiceCoverageSearch({
         role="group"
         aria-label="Hva søker du etter?"
       >
-        {MODES.map((m) => (
-          <button
-            key={m.id}
-            type="button"
-            onClick={() => setModeOverride(m.id)}
-            aria-pressed={mode === m.id}
-            className={cn(
-              "px-3 py-1.5 text-xs font-medium rounded-md transition-colors",
-              mode === m.id
-                ? "bg-primary text-primary-foreground"
-                : "text-muted-foreground hover:text-foreground",
-            )}
-          >
-            {m.label}
-          </button>
-        ))}
+        {orderedModes.map((m) => {
+          const isDragged = dragMode === m.id;
+          const isOver = overMode === m.id && dragMode !== m.id;
+          return (
+            <button
+              key={m.id}
+              type="button"
+              draggable
+              onClick={() => setModeOverride(m.id)}
+              onDragStart={(e) => handleDragStart(e, m.id)}
+              onDragEnd={handleDragEnd}
+              onDragOver={(e) => handleDragOver(e, m.id)}
+              onDragLeave={() => setOverMode(null)}
+              aria-pressed={mode === m.id}
+              title="Dra for å endre rekkefølge"
+              className={cn(
+                "px-3 py-1.5 text-xs font-medium rounded-md transition-colors flex items-center gap-1.5 group",
+                mode === m.id
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:text-foreground",
+                isDragged && "opacity-40",
+                isOver && "ring-2 ring-primary ring-dashed",
+              )}
+            >
+              <GripVertical
+                className={cn(
+                  "h-3 w-3 transition-opacity",
+                  mode === m.id
+                    ? "text-primary-foreground/60"
+                    : "text-muted-foreground/40 group-hover:text-muted-foreground/70",
+                )}
+              />
+              {m.label}
+            </button>
+          );
+        })}
       </div>
 
       <div className="flex flex-col sm:flex-row gap-2">
