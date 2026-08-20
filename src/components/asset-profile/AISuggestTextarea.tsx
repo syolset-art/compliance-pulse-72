@@ -11,10 +11,15 @@ import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { LaraIcon } from "@/components/agents/LaraIcon";
 
+/** Fjerner markdown-stjerner og understrek fra fritekst. */
+export function stripMarkdown(text: string): string {
+  return text.replace(/\*+/g, "").replace(/__+/g, "").replace(/[ \t]{2,}/g, " ");
+}
+
 function parseSuggestionItems(raw: string): string[] {
-  return raw
+  return stripMarkdown(raw)
     .split(/\r?\n/)
-    .map((l) => l.replace(/^\s*[-*•\d.)]+\s*/, "").trim())
+    .map((l) => l.replace(/^\s*[-•\d.)]+\s*/, "").trim())
     .filter((l) => l.length > 0);
 }
 
@@ -27,6 +32,8 @@ interface Props {
   value: string;
   onSave: (next: string) => Promise<void> | void;
   edgeFunction: "suggest-vendor-data-types" | "suggest-vendor-processes";
+  /** Ferdige forslag brukeren kan legge til uten AI. */
+  presets?: { nb: string; en: string }[];
   context: {
     vendorName?: string | null;
     vendorCategory?: string | null;
@@ -44,6 +51,7 @@ export function AISuggestTextarea({
   value,
   onSave,
   edgeFunction,
+  presets,
   context,
 }: Props) {
   const { i18n } = useTranslation();
@@ -55,7 +63,14 @@ export function AISuggestTextarea({
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => { setDraft(value); }, [value]);
+  useEffect(() => { setDraft(stripMarkdown(value)); }, [value]);
+
+  const addLine = (line: string) => {
+    const clean = stripMarkdown(line).trim();
+    if (!clean) return;
+    if (draft.includes(clean)) return;
+    setDraft(draft ? `${draft}\n• ${clean}` : `• ${clean}`);
+  };
 
   const isDirty = draft !== value;
 
@@ -98,7 +113,7 @@ export function AISuggestTextarea({
   const handleSave = async () => {
     setSaving(true);
     try {
-      await onSave(draft);
+      await onSave(stripMarkdown(draft));
     } finally {
       setSaving(false);
     }
@@ -137,11 +152,42 @@ export function AISuggestTextarea({
       <CardContent className="space-y-3">
         <Textarea
           value={draft}
-          onChange={(e) => setDraft(e.target.value)}
+          onChange={(e) => setDraft(stripMarkdown(e.target.value))}
           placeholder={isNb ? placeholderNb : placeholderEn}
           rows={5}
           className="text-sm resize-y min-h-[110px]"
         />
+
+        {presets && presets.length > 0 && !suggestionItems && (
+          <div className="space-y-1.5">
+            <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+              {isNb ? "Vanlige prosesser — klikk for å legge til" : "Common processes — click to add"}
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              {presets.map((p) => {
+                const label = isNb ? p.nb : p.en;
+                const added = draft.includes(label);
+                return (
+                  <button
+                    key={label}
+                    type="button"
+                    onClick={() => addLine(label)}
+                    disabled={added}
+                    className={cn(
+                      "rounded-full border px-2.5 py-1 text-[11px] transition-colors",
+                      added
+                        ? "border-border bg-muted text-muted-foreground"
+                        : "border-border text-foreground hover:border-primary/50 hover:bg-primary/5",
+                    )}
+                  >
+                    {added ? "✓ " : "+ "}
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {suggestionItems && (
           <div className="rounded-lg border border-primary/30 bg-primary/[0.04] p-3 space-y-3 animate-in fade-in-0 slide-in-from-top-1 duration-200">
