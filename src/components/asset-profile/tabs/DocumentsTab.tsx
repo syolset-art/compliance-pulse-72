@@ -456,30 +456,33 @@ export function DocumentsTab({ assetId, assetName, vendorName, hideUploadButton,
             )}
           </div>
 
-          {/* Kildefilter */}
+          {/* Intern / ekstern */}
           <div className="flex flex-wrap items-end justify-between gap-3 border-b border-border">
             <div className="flex flex-wrap items-center gap-5">
-              {(["all", ...DOC_SOURCE_ORDER] as const).map((key) => {
-                const count = key === "all" ? visibleDocs.length : coverage.bySource[key as DocSourceKey];
-                const active = sourceFilter === key;
+              {(["all", "internal", "external"] as const).map((key) => {
+                const count =
+                  key === "all" ? visibleDocs.length : originCounts[key as DocOrigin];
+                const active = originFilter === key;
                 return (
                   <button
                     key={key}
                     type="button"
-                    onClick={() => setSourceFilter(key as DocSourceKey | "all")}
+                    onClick={() => setOriginFilter(key as DocOrigin | "all")}
                     className={`-mb-px flex items-center gap-1.5 pb-2.5 text-xs transition-colors ${
                       active
                         ? "border-b-2 border-foreground font-medium text-foreground"
                         : "text-muted-foreground hover:text-foreground"
                     }`}
                   >
-                    {key !== "all" && <DocumentSourceIcon source={key as DocSourceKey} isNb={isNb} />}
-                    {key === "all" ? (isNb ? "Alle" : "All") : docSourceLabel(key as DocSourceKey, isNb)}
+                    {key === "all"
+                      ? isNb ? "Alle" : "All"
+                      : docOriginLabel(key as DocOrigin, isNb) + (isNb ? "e" : "")}
                     <span className="text-muted-foreground/70">{count}</span>
                   </button>
                 );
               })}
             </div>
+
             <div className="flex items-center gap-3 pb-2">
               {historyCount > 0 && (
                 <div className="flex items-center gap-1.5">
