@@ -233,10 +233,11 @@ export function DocumentsTab({ assetId, assetName, vendorName, hideUploadButton,
                 const isExpired = expiry && new Date(expiry) < new Date();
                 const replacement = doc.superseded_by ? docsById[doc.superseded_by] : null;
                 const isHistorical = doc.status === "superseded" || doc.status === "expired" || doc.status === "rejected";
+                const origin = resolveDocOrigin(doc.source);
                 return (
                   <TableRow
                     key={doc.id}
-                    className={`group hover:bg-muted/30 transition-colors ${isHistorical ? "opacity-60" : ""} ${idx === docs.length - 1 ? "border-b-0" : "border-b border-border/60"}`}
+                    className={`group hover:bg-muted/30 transition-colors ${origin === "external" ? "bg-warning/[0.02]" : ""} ${isHistorical ? "opacity-60" : ""} ${idx === docs.length - 1 && !showInboxRows ? "border-b-0" : "border-b border-border/60"}`}
                   >
                     <TableCell className="py-3">
                       <div
@@ -263,7 +264,7 @@ export function DocumentsTab({ assetId, assetName, vendorName, hideUploadButton,
                     </TableCell>
                     <TableCell className="py-3">
                       <Badge variant="secondary" className="text-[11px] font-normal">
-                        {docOriginLabel(resolveDocOrigin(doc.source), isNb)}
+                        {docOriginLabel(origin, isNb)}
                       </Badge>
                     </TableCell>
 
@@ -325,6 +326,59 @@ export function DocumentsTab({ assetId, assetName, vendorName, hideUploadButton,
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+
+              {/* Eksterne dokumenter – venter på godkjenning fra innboks */}
+              {showInboxRows && allExternalItems.map((item: any) => {
+                const docTypeLabel = DOCUMENT_TYPES.find((d) => d.value === item.matched_document_type)?.[isNb ? "label" : "labelEn"] || item.matched_document_type || (isNb ? "Dokument" : "Document");
+                const receivedDate = item.received_at ? new Date(item.received_at).toLocaleDateString(locale, { day: "numeric", month: "short", year: "numeric" }) : "—";
+                const statusLabel = item.analysis_status === "analyzed"
+                  ? (isNb ? "Klar for godkjenning" : "Ready for approval")
+                  : item.analysis_status === "analyzing"
+                    ? (isNb ? "Lara analyserer" : "Lara analyzing")
+                    : (isNb ? "Venter på Lara" : "Waiting for Lara");
+                return (
+                  <TableRow key={`inbox-${item.id}`} className="group hover:bg-muted/30 transition-colors border-b border-border/60 bg-warning/[0.04]">
+                    <TableCell className="py-3">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <FileText className="h-4 w-4 text-warning flex-shrink-0" />
+                        <div className="min-w-0">
+                          <span className="text-sm font-medium truncate block max-w-[220px] text-foreground">{item.file_name || item.subject}</span>
+                          <span className="text-[12px] text-muted-foreground hidden md:block">{item.sender_name || item.sender_email} · {receivedDate}</span>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell className="py-3">
+                      <span className="text-xs text-muted-foreground">{docTypeLabel}</span>
+                    </TableCell>
+                    <TableCell className="py-3">
+                      <Badge variant="secondary" className="text-[11px] font-normal">
+                        {docOriginLabel("external", isNb)}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="py-3 text-xs text-muted-foreground hidden sm:table-cell">—</TableCell>
+                    <TableCell className="py-3">
+                      <Badge variant="secondary" className="text-[12px]">{statusLabel}</Badge>
+                    </TableCell>
+                    <TableCell className="py-3">
+                      <span className="text-xs text-muted-foreground">—</span>
+                    </TableCell>
+                    <TableCell className="py-3">
+                      <div className="flex items-center justify-end gap-1">
+                        <Button size="sm" variant="ghost" className="h-7 px-2 text-xs" onClick={() => onPreviewInbox?.(item)}>
+                          <Eye className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button size="sm" variant="ghost" className="h-7 px-2 text-xs text-muted-foreground hover:text-destructive" onClick={() => onRejectInbox?.(item.id)}>
+                          {isNb ? "Avvis" : "Reject"}
+                        </Button>
+                        <Button size="sm" className="h-7 px-2.5 text-xs gap-1" onClick={() => onApproveInbox?.(item)} disabled={item.analysis_status !== "analyzed"}>
+                          <CheckCircle2 className="h-3.5 w-3.5" />
+                          {isNb ? "Godkjenn" : "Approve"}
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 );
