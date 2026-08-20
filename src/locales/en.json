@@ -1856,5 +1856,11 @@
     "title": "Source map",
     "description": "Filter by what the source gives Lara.",
     "tooltip": "The source map shows what types of data each connected source can provide to Lara: systems, vendors, documents, people and access."
+  },
+  "assetMaturityByDomain": {
+    "titleVendor": "Vendor maturity",
+    "phase2Badge": "Phase 2",
+    "vendorExplainer": "This is the vendor's maturity. You cannot influence it except by requesting documentation. A real picture will appear only when the vendor takes over its Trust Profile via Agentic Trust Profile — the request will then be limited to vendor management and control in the value chain.",
+    "previewNote": "Preview values"
   }
 }
