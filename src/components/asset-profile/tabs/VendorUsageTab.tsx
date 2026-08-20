@@ -882,20 +882,6 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
         </div>
       )}
 
-      <LaraContextBanner
-        isNb={isNb}
-        suggestion={contextSuggestion}
-        riskLabel={getLabel(riskOptions, riskSuggestion.level)}
-        criticalityLabel={getLabel(criticalityOptions, contextSuggestion.criticality)}
-        gdprLabel={getLabel(gdprOptions, contextSuggestion.gdprRole)}
-        loading={laraLoading}
-        onAcceptAll={handleAcceptAll}
-        accepted={suggestionApplied}
-        acceptedAt={acceptedAt}
-        appliedItems={appliedItems}
-        nextStep={nextStep}
-        onUndo={preAcceptSnapshot ? handleUndoAccept : null}
-      />
 
       <div className="grid grid-cols-1 items-stretch gap-4 lg:grid-cols-2">
         <ContextPillRow
