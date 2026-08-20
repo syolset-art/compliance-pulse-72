@@ -104,10 +104,14 @@ export function InviteVendorDialog({ open, onOpenChange, vendor }: InviteVendorD
           <div className="min-w-0 flex-1">
             <DialogHeader className="space-y-0">
               <DialogTitle className="text-[15px] font-semibold leading-tight">
-                Lara forbereder invitasjon til {vendor.name}
+                {phase === "sent"
+                  ? "Invitasjon sendt"
+                  : `Lara forbereder invitasjon til ${vendor.name}`}
               </DialogTitle>
               <p className="text-[12.5px] text-muted-foreground mt-0.5">
-                Agenten klargjør innhold og en sikker claim-lenke. Du godkjenner før utsendelse.
+                {phase === "sent"
+                  ? "Leverandøren vil motta e-post med en sikker claim-lenke."
+                  : "Agenten klargjør innhold og en sikker claim-lenke. Du godkjenner før utsendelse."}
               </p>
             </DialogHeader>
           </div>
