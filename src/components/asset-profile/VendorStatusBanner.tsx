@@ -44,6 +44,7 @@ interface VendorStatusBannerProps {
     priority?: string | null;
     access_members?: string[];
   };
+  accessMembers?: string[];
 }
 
 function Donut({ score, tone }: { score: number; tone: VendorStatusMeta["tone"] }) {
