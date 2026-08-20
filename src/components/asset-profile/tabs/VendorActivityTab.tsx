@@ -73,15 +73,21 @@ export function VendorActivityTab({ assetId, assetName, baselinePercent = 19, en
       const log = (data.metadata as any)?.sensitive_data_log;
       if (!Array.isArray(log)) return [];
       return log.map((entry: any, i: number) => {
-        const fromNb = sensitiveDataStatusLabel(entry.from, true);
-        const toNb = sensitiveDataStatusLabel(entry.to, true);
-        const fromEn = sensitiveDataStatusLabel(entry.from, false);
-        const toEn = sensitiveDataStatusLabel(entry.to, false);
+        const isCategories = entry.field === "sensitive_data_categories";
+        const empty = { nb: "ingen", en: "none" };
+        const fromNb = isCategories ? (entry.from || empty.nb) : sensitiveDataStatusLabel(entry.from, true);
+        const toNb = isCategories ? (entry.to || empty.nb) : sensitiveDataStatusLabel(entry.to, true);
+        const fromEn = isCategories ? (entry.from || empty.en) : sensitiveDataStatusLabel(entry.from, false);
+        const toEn = isCategories ? (entry.to || empty.en) : sensitiveDataStatusLabel(entry.to, false);
         return {
           id: `sensitive-log-${i}`,
           type: "setting" as const,
-          titleNb: "Særlige kategorier personopplysninger endret",
-          titleEn: "Special categories of personal data changed",
+          titleNb: isCategories
+            ? "Kategorier for særlige personopplysninger endret"
+            : "Særlige kategorier personopplysninger endret",
+          titleEn: isCategories
+            ? "Special category selection changed"
+            : "Special categories of personal data changed",
           descriptionNb: `Endret fra «${fromNb}» til «${toNb}».`,
           descriptionEn: `Changed from "${fromEn}" to "${toEn}".`,
           date: entry.at ? new Date(entry.at) : new Date(),
