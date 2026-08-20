@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Bell, Copy, Send, Sparkles, ExternalLink, Building2, UserPlus, MessageSquare, ShieldCheck } from "lucide-react";
+import { Bell, Copy, Send, Sparkles, ExternalLink, Building2, UserPlus, MessageSquare } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { deriveVendorStatus, deriveCriticality, type VendorStatusMeta } from "@/lib/vendorStatus";
