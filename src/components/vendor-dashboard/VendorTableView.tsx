@@ -11,7 +11,7 @@ import {
   Popover, PopoverContent, PopoverTrigger,
 } from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
-import { Filter, X, UserPlus } from "lucide-react";
+import { Filter, X, UserPlus, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { maturityTextClass, maturityLabelNb, getMaturityLevel } from "@/lib/maturityLevel";
 import { staggerEntranceClass } from "@/lib/animation";
