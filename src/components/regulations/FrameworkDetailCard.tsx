@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { FileText, Bot, Users, CheckCircle2, CircleAlert, Circle, Share2, Loader2 } from "lucide-react";
+import { FileText, Share2, Loader2 } from "lucide-react";
 import { getCategoryById, type Framework } from "@/lib/frameworkDefinitions";
 import { exportCompliancePdf } from "./ExportCompliancePdf";
 import { ShareReportDialog } from "./ShareReportDialog";
