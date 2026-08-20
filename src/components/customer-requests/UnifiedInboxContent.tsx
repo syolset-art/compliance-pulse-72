@@ -43,7 +43,14 @@ function buildAnalysisSummary(docType: string) {
 
 type FilterKey = "all" | "needs_you" | "done";
 
-export function UnifiedInboxContent() {
+interface UnifiedInboxContentProps {
+  /** Begrens til meldinger utvekslet med én leverandør */
+  assetId?: string;
+  vendorName?: string;
+  emptyMessage?: string;
+}
+
+export function UnifiedInboxContent({ assetId, vendorName, emptyMessage }: UnifiedInboxContentProps = {}) {
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
   const queryClient = useQueryClient();
@@ -64,12 +71,14 @@ export function UnifiedInboxContent() {
 
   // Fetch both sources in parallel
   const { data: laraItems = [], isLoading: laraLoading } = useQuery({
-    queryKey: ["unified-inbox-lara"],
+    queryKey: ["unified-inbox-lara", assetId ?? "all"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from("lara_inbox")
         .select("*, assets:matched_asset_id(id, name, asset_type, criticality, risk_level, next_review_date)")
         .order("received_at", { ascending: false });
+      if (assetId) query = query.eq("matched_asset_id", assetId);
+      const { data, error } = await query;
       if (error) throw error;
       return data || [];
     },
@@ -77,16 +86,20 @@ export function UnifiedInboxContent() {
   });
 
   const { data: manualItems = [], isLoading: manualLoading } = useQuery({
-    queryKey: ["unified-inbox-manual"],
+    queryKey: ["unified-inbox-manual", vendorName ?? "all"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("customer_compliance_requests")
         .select("*")
         .order("created_at", { ascending: false });
       if (error) throw error;
-      return data || [];
+      const rows = data || [];
+      if (!vendorName) return rows;
+      const needle = vendorName.trim().toLowerCase();
+      return rows.filter((r: any) => (r.customer_name || "").trim().toLowerCase() === needle);
     },
   });
+
 
   // Auto-progress pending → analyzing → analyzed (same logic as before)
   const notifiedRef = useRef<Set<string>>(new Set());
