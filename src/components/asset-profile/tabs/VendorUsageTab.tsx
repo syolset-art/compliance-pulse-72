@@ -20,6 +20,9 @@ import { LaraContextBanner } from "@/components/asset-profile/usage/LaraContextB
 
 import { VendorPurposeCard } from "@/components/asset-profile/usage/VendorPurposeCard";
 import { ContextPillRow, type ContextPillItem } from "@/components/asset-profile/usage/ContextPillRow";
+import { SaraMappedContextView, type SaraContextField } from "@/components/asset-profile/usage/SaraMappedContextView";
+import { buildSaraVendorMapping } from "@/lib/saraVendorMapping";
+import { useSaraAgent } from "@/lib/saraAgent";
 import { toast } from "sonner";
 import { useState } from "react";
 import { AISuggestTextarea } from "@/components/asset-profile/AISuggestTextarea";
