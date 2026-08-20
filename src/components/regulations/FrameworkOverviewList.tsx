@@ -2,7 +2,7 @@ import { ChevronRight, Sparkles, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { staggerEntranceClass } from "@/lib/animation";
 import { getCategoryById, type Framework } from "@/lib/frameworkDefinitions";
-import type { FrameworkAgentStats } from "@/lib/regulationsAgentQueue";
+import type { FrameworkAgentStats } from "@/lib/regulationsApprovalQueue";
 
 interface Props {
   frameworks: Framework[];

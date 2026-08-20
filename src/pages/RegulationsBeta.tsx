@@ -15,17 +15,27 @@ import { FrameworkActivationDialog } from "@/components/dialogs/FrameworkActivat
 import { FrameworkPurchaseDialog } from "@/components/dialogs/FrameworkPurchaseDialog";
 import { loadCountryScope, type CountryScope } from "@/components/regulations/countryScopeData";
 import { LaraRegulationsHeader } from "@/components/regulations/LaraRegulationsHeader";
-import { RegulationsWorkQueue } from "@/components/regulations/RegulationsWorkQueue";
+import { PendingApprovalCard } from "@/components/regulations/PendingApprovalCard";
+import { ApprovalReviewDialog } from "@/components/regulations/ApprovalReviewDialog";
+import { RegulationsWorkPanel } from "@/components/regulations/RegulationsWorkPanel";
 import { FrameworkOverviewList } from "@/components/regulations/FrameworkOverviewList";
 import { RegulationsViewSwitch, rememberRegulationsView } from "@/components/regulations/RegulationsViewSwitch";
 import {
-  buildRegulationsQueue,
+  buildApprovalItems,
+  buildWorkItems,
   getFrameworkAgentStats,
   summarizeAgentWork,
-  type RegulationQueueItem,
-} from "@/lib/regulationsAgentQueue";
+  useApprovalDecisions,
+  type ApprovalDecision,
+  type ApprovalItem,
+  type WorkItem,
+} from "@/lib/regulationsApprovalQueue";
+import { useSaraAgent } from "@/lib/saraAgent";
+import { useUserTasks } from "@/hooks/useUserTasks";
+import { PLATFORM_USERS } from "@/lib/platformUsers";
 import { staggerEntranceClass } from "@/lib/animation";
 import { cn } from "@/lib/utils";
+
 
 interface SelectedFrameworkRow {
   id: string;
@@ -54,7 +64,12 @@ const RegulationsBeta = () => {
     Record<string, { met: number; partial: number; notMet: number; auto: number; manual: number; total: number }>
   >({});
   const [countryScope] = useState<CountryScope>(() => loadCountryScope());
+  const [approvalOpen, setApprovalOpen] = useState(false);
   const detailRef = useRef<HTMLDivElement | null>(null);
+  const { installed: saraInstalled } = useSaraAgent();
+  const { decisions, setDecision } = useApprovalDecisions();
+  const { createTask } = useUserTasks();
+
 
   useEffect(() => {
     rememberRegulationsView("beta");
@@ -122,7 +137,32 @@ const RegulationsBeta = () => {
     return total > 0 ? Math.round((met / total) * 100) : 0;
   }, [allActiveFrameworks]);
 
-  const queue = useMemo(() => buildRegulationsQueue(allActiveFrameworks), [allActiveFrameworks]);
+  const approvalItems = useMemo(
+    () => buildApprovalItems(allActiveFrameworks, saraInstalled),
+    [allActiveFrameworks, saraInstalled],
+  );
+
+  const work = useMemo(
+    () => buildWorkItems(allActiveFrameworks, saraInstalled, decisions),
+    [allActiveFrameworks, saraInstalled, decisions],
+  );
+
+  const approvalStats = useMemo(() => {
+    let waiting = 0;
+    let deferred = 0;
+    let fromSara = 0;
+    approvalItems.forEach((a) => {
+      const d = decisions[a.key];
+      if (!d) {
+        waiting++;
+        if (a.source === "sara") fromSara++;
+      } else if (d === "deferred") {
+        deferred++;
+      }
+    });
+    return { waiting, deferred, fromSara };
+  }, [approvalItems, decisions]);
+
 
   const currentCounts = useMemo(() => {
     if (!selectedId) return { met: 0, partial: 0, notMet: 0, auto: 0, manual: 0, total: 0 };
@@ -152,10 +192,105 @@ const RegulationsBeta = () => {
     requestAnimationFrame(() => detailRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }));
   }, []);
 
-  const handleQueueOpen = useCallback(
-    (item: RegulationQueueItem) => openFramework(item.frameworkId),
-    [openFramework],
+  const openRequirement = useCallback(
+    (item: { frameworkId: string; requirementId: string }) => {
+      setSelectedId(item.frameworkId);
+      setHighlightReqId(item.requirementId);
+      requestAnimationFrame(() => detailRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }));
+    },
+    [],
   );
+
+  const approverName = useCallback(
+    (id?: string) => PLATFORM_USERS.find((u) => u.id === id)?.name ?? "ansvarlig",
+    [],
+  );
+
+  const handleDecide = useCallback(
+    (item: ApprovalItem, decision: ApprovalDecision, approverId?: string) => {
+      setDecision(item.key, decision);
+      if (decision === "approved") {
+        toast({
+          title: "Dokumentasjon godkjent",
+          description: `${item.requirementName} er satt som oppfylt i ${item.frameworkName}.`,
+        });
+        return;
+      }
+      if (decision === "rejected") {
+        toast({
+          title: "Avvist",
+          description: `${item.requirementName} vises nå som gap.`,
+        });
+        return;
+      }
+      // Godkjennes senere → oppgave til ansvarlig
+      createTask.mutate(
+        {
+          title: `Godkjenn dokumentasjon: ${item.requirementName}`,
+          description: `${item.frameworkName} · ${item.requirementId} · ${item.docLabel}. Kilde: ${item.sourceDetail}${
+            item.documentId ? ` (${item.documentId}, ${item.hash}, agent ${item.agentVersion})` : ""
+          }`,
+          assignee: approverName(approverId),
+        },
+        {
+          onSuccess: () =>
+            toast({
+              title: "Venter på godkjenning",
+              description: `Oppgave sendt til ${approverName(approverId)}.`,
+            }),
+          onError: () =>
+            toast({
+              title: "Venter på godkjenning",
+              description: "Kravet er markert, men oppgaven kunne ikke lagres.",
+              variant: "destructive",
+            }),
+        },
+      );
+    },
+    [setDecision, toast, createTask, approverName],
+  );
+
+  const handleAskSara = useCallback(
+    (item: WorkItem) => {
+      toast({
+        title: "Sara henter dokumentasjonen",
+        description: `${item.requirementName} — Sara søker i tilkoblede kilder lokalt hos dere. Du får den til godkjenning når den er funnet.`,
+      });
+    },
+    [toast],
+  );
+
+  const handleCreateTaskForGap = useCallback(
+    (item: WorkItem) => {
+      const owner = PLATFORM_USERS.find((u) => u.role === "compliance_officer")?.name ?? PLATFORM_USERS[0]?.name;
+      createTask.mutate(
+        {
+          title: `Mangler dokumentasjon: ${item.requirementName}`,
+          description: `${item.frameworkName} · ${item.requirementId}. Forventet dokumentasjon: ${item.docLabel}. Ingen dokumentasjon funnet i plattformen eller tilkoblede kilder.`,
+          assignee: owner,
+        },
+        {
+          onSuccess: () =>
+            toast({ title: "Oppgave opprettet", description: `Sendt til ${owner}.` }),
+          onError: () =>
+            toast({ title: "Kunne ikke opprette oppgave", variant: "destructive" }),
+        },
+      );
+    },
+    [createTask, toast],
+  );
+
+  const handleAssess = useCallback(
+    (item: WorkItem) => {
+      openRequirement(item);
+      toast({
+        title: "Vurder kravet",
+        description: "Sett status manuelt eller marker kravet som ikke relevant med begrunnelse.",
+      });
+    },
+    [openRequirement, toast],
+  );
+
 
   const executeToggleFramework = async (frameworkId: string, currentlyActive: boolean) => {
     const fw = frameworks.find((f) => f.id === frameworkId);
@@ -263,16 +398,25 @@ const RegulationsBeta = () => {
                 confirmed={summary.confirmed}
                 waitingYou={summary.waitingYou}
                 percent={overallPercent}
-                onReview={queue.length > 0 ? () => handleQueueOpen(queue[0]) : undefined}
+                onReview={approvalStats.waiting > 0 ? () => setApprovalOpen(true) : undefined}
                 onEditFrameworks={() => setShowEditDialog(true)}
               />
 
-              <RegulationsWorkQueue items={queue} onOpen={handleQueueOpen} />
+              {/* 1. Venter på godkjenning */}
+              <PendingApprovalCard
+                className={staggerEntranceClass(2)}
+                waiting={approvalStats.waiting}
+                deferred={approvalStats.deferred}
+                fromSara={approvalStats.fromSara}
+                saraInstalled={saraInstalled}
+                onOpen={() => setApprovalOpen(true)}
+              />
 
-              {/* Rolig regelverksliste */}
+              {/* 2. Mine regelverk */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between gap-2">
-                  <h2 className="text-sm font-semibold text-foreground">Dine regelverk</h2>
+                  <h2 className="text-sm font-semibold text-foreground">Mine regelverk</h2>
+
                   {allActiveFrameworks.length > 3 && (
                     <Popover>
                       <PopoverTrigger asChild>
@@ -324,7 +468,20 @@ const RegulationsBeta = () => {
                   onSelect={openFramework}
                 />
               </div>
+
+              {/* 3. Jobb med regelverk */}
+              <RegulationsWorkPanel
+                items={work.items}
+                counts={work.counts}
+                saraInstalled={saraInstalled}
+                onOpenRequirement={openRequirement}
+                onUpload={openRequirement}
+                onAskSara={handleAskSara}
+                onCreateTask={handleCreateTaskForGap}
+                onAssess={handleAssess}
+              />
             </>
+
           )}
 
           {/* Detalj for valgt regelverk */}
@@ -363,7 +520,21 @@ const RegulationsBeta = () => {
         </div>
       </main>
 
+      <ApprovalReviewDialog
+        open={approvalOpen}
+        onOpenChange={setApprovalOpen}
+        items={approvalItems}
+        decisions={decisions}
+        saraInstalled={saraInstalled}
+        onDecide={handleDecide}
+        onOpenRequirement={(item) => {
+          setApprovalOpen(false);
+          openRequirement(item);
+        }}
+      />
+
       <EditActiveFrameworksDialog
+
         open={showEditDialog}
         onOpenChange={setShowEditDialog}
         activeFrameworkIds={activeFrameworkIds}

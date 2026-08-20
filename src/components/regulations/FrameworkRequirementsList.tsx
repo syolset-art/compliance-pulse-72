@@ -102,7 +102,7 @@ function getRecommendedDocs(req: ComplianceRequirement, isNb: boolean): string[]
     "Skriftlig policy eller rutine som beskriver hvordan kravet oppfylles",
     "Risikovurdering som viser vurderte trusler og tiltak",
     "Sist reviderte versjon av dokumentet (dato og eier)",
-    "Bevis på gjennomføring — logg, sjekkliste eller rapport",
+    "Dokumentasjon på gjennomføring — logg, sjekkliste eller rapport",
     "Referanse til relevant artikkel eller kontroll i regelverket",
   ];
   const en = [
@@ -395,7 +395,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
     setFrameworkAttachOpen(false);
     toast.success(
       isNb
-        ? `Bevis tilknyttet ${requirementIds.length} krav`
+        ? `Dokumentasjon tilknyttet ${requirementIds.length} krav`
         : `Evidence attached to ${requirementIds.length} requirements`,
     );
   };
@@ -499,7 +499,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
     const total = covered + result.missingArticles.length;
     toast.success(
       isNb
-        ? `Bevis tilknyttet${total ? ` — ${covered}/${total} artikler dekket` : ""}`
+        ? `Dokumentasjon tilknyttet${total ? ` — ${covered}/${total} artikler dekket` : ""}`
         : `Evidence attached${total ? ` — ${covered}/${total} articles covered` : ""}`,
     );
   };
@@ -660,7 +660,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                           </li>
                           <li className="flex gap-1.5">
                             <Sparkles className="h-3 w-3 mt-0.5 shrink-0 text-muted-foreground" />
-                            <span>{isNb ? "Bevis og svar dere allerede har registrert på andre krav" : "Evidence and answers already registered on other requirements"}</span>
+                            <span>{isNb ? "Dokumentasjon og svar dere allerede har registrert på andre krav" : "Evidence and answers already registered on other requirements"}</span>
                           </li>
                         </ul>
                       </div>
@@ -671,7 +671,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                         <ol className="space-y-0.5 text-xs leading-snug list-decimal pl-4">
                           <li>{isNb ? "Leser og tolker innholdet i dokumentene" : "Reads and interprets the document content"}</li>
                           <li>{isNb ? "Mapper innholdet mot krav og artikler i aktiverte regelverk" : "Maps content to requirements and articles in activated frameworks"}</li>
-                          <li>{isNb ? "Foreslår status og bevis — du godkjenner" : "Suggests status and evidence — you approve"}</li>
+                          <li>{isNb ? "Foreslår status og dokumentasjon — du godkjenner" : "Suggests status and evidence — you approve"}</li>
                         </ol>
                       </div>
                       <p className="text-[11px] text-muted-foreground border-t border-border/50 pt-2">
@@ -1178,7 +1178,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                             <TooltipContent side="top" className="max-w-[260px] text-xs">
                               {fulfillment.evidenceMandatory
                                 ? (isNb
-                                    ? "Dette kravet må dokumenteres med opplastet bevis (policy, avtale, sertifikat, rapport)."
+                                    ? "Dette kravet må dokumenteres med opplastet dokumentasjon (policy, avtale, sertifikat, rapport)."
                                     : "This requirement must be documented with uploaded evidence (policy, agreement, certificate, report).")
                                 : (isNb ? fulfillment.descriptionNo : fulfillment.descriptionEn)}
                             </TooltipContent>
@@ -1241,7 +1241,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
           open={frameworkAttachOpen}
           onOpenChange={setFrameworkAttachOpen}
           requirementId={frameworkId}
-          requirementName={isNb ? "Bevis for hele regelverket" : "Evidence for the whole framework"}
+          requirementName={isNb ? "Dokumentasjon for hele regelverket" : "Evidence for the whole framework"}
           coveredArticles={allFrameworkArticles}
           frameworkRequirements={frameworkCandidates}
           onConfirm={() => {}}
