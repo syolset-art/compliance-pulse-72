@@ -60,6 +60,9 @@ import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { INTEGRATION_CATALOG } from "@/lib/integrationCatalog";
 import { useConnectedSources } from "@/hooks/useConnectedSources";
+import { useSaraAgent } from "@/lib/saraAgent";
+import { SaraIcon } from "@/components/agents/SaraIcon";
+import { SaraLiveDeviationsPanel } from "@/components/deviations/SaraLiveDeviationsPanel";
 
 const dummyPeople = [
   "Kari Nordmann",
@@ -125,6 +128,7 @@ export default function Deviations() {
   const [view, setView] = useState("all");
   const navigate = useNavigate();
   const { isSourceConnected } = useConnectedSources();
+  const { installed: saraInstalled } = useSaraAgent();
   const incidentSources = INTEGRATION_CATALOG.filter((i) => i.discovers.includes("incidents"));
   const connectedIncidentIds = incidentSources
     .filter((i) => isSourceConnected(i.id))
@@ -442,6 +446,12 @@ export default function Deviations() {
                         Aktiv
                       </Badge>
                     )}
+                    {saraInstalled && (
+                      <Badge variant="outline" className="gap-1 text-[13px] font-normal">
+                        <SaraIcon className="h-3.5 w-3.5" />
+                        Lokal agent
+                      </Badge>
+                    )}
                   </div>
                   <p className="text-sm text-muted-foreground">
                     Motta sikkerhetshendelser i sanntid fra tilkoblede kilder — overvåking, sakssystem eller intern meldekanal
@@ -462,7 +472,23 @@ export default function Deviations() {
                     </div>
                   )}
 
-
+                  {!saraInstalled && (
+                    <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                      <SaraIcon className="h-4 w-4" />
+                      <span>
+                        Avvik kan også fanges opp lokalt i din egen infrastruktur med agenten Sara.
+                      </span>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-7 px-2 text-xs"
+                        onClick={() => navigate("/settings/integrations")}
+                      >
+                        Se datakilder og agenter
+                        <ArrowRight className="h-3 w-3 ml-1" />
+                      </Button>
+                    </div>
+                  )}
 
                   {/* Expand/collapse details */}
                   <button
@@ -486,6 +512,13 @@ export default function Deviations() {
                   />
                 </div>
               </div>
+
+              {/* Sara – lokal agent i kundens egen infrastruktur */}
+              {saraInstalled && (
+                <div className="mt-4 pt-4 border-t border-border">
+                  <SaraLiveDeviationsPanel />
+                </div>
+              )}
 
               {/* Expanded info */}
               {liveInfoExpanded && (
