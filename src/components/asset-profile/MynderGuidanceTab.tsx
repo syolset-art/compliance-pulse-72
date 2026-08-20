@@ -384,6 +384,7 @@ export function MynderGuidanceTab({
             priority={priority}
             riskLevel={riskLevel}
             usagePurpose={usagePurpose}
+            accessRoles={accessRoles}
             onOpen={onOpenUsageTab}
           />
         </div>
