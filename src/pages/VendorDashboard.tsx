@@ -17,7 +17,7 @@ import { VendorListTab } from "@/components/vendor-dashboard/VendorListTab";
 import { VendorMapView } from "@/components/vendor-dashboard/VendorMapView";
 import { SupplyChainTab } from "@/components/vendor-dashboard/SupplyChainTab";
 import { VendorCompareTab } from "@/components/vendor-dashboard/VendorCompareTab";
-import { VendorFrameworkScopeTab } from "@/components/vendor-dashboard/VendorFrameworkScopeTab";
+import { VendorFrameworkScopeTab, VENDOR_SCOPE_INTRO_KEY, VENDOR_SCOPE_INTRO_EVENT } from "@/components/vendor-dashboard/VendorFrameworkScopeTab";
 
 import { useGlobalChat } from "@/components/GlobalChatProvider";
 
@@ -186,6 +186,22 @@ export default function VendorDashboard() {
                 <TabsTrigger value="supplyChain" className="text-sm px-3">{t("vendorDashboard.tabs.supplyChain")}</TabsTrigger>
                 <TabsTrigger value="compare" className="text-sm px-3">{t("vendorDashboard.tabs.compare")}</TabsTrigger>
               </TabsList>
+
+              <Button
+                variant="ghost"
+                size="sm"
+                className="gap-1.5 text-muted-foreground hover:text-foreground"
+                onClick={() => {
+                  const next = new URLSearchParams(searchParams);
+                  next.set("tab", "frameworks");
+                  setSearchParams(next, { replace: true });
+                  localStorage.removeItem(VENDOR_SCOPE_INTRO_KEY);
+                  window.dispatchEvent(new Event(VENDOR_SCOPE_INTRO_EVENT));
+                }}
+              >
+                <Settings2 className="h-4 w-4" />
+                {t("vendorDashboard.tabs.settings", "Innstillinger")}
+              </Button>
             </div>
 
             <TabsContent value="overview">
