@@ -31,8 +31,8 @@ export const SaraSignalList = ({ isNb, signals }: Props) => (
             </TooltipTrigger>
             <TooltipContent className="max-w-xs text-[12px]">
               {isNb
-                ? "Dette er metadataene Sara sendte til Mynder. Dokumentene selv forlot aldri infrastrukturen deres."
-                : "This is the metadata Sara sent to Mynder. The documents themselves never left your infrastructure."}
+                ? "Dette er signaler mottatt av Sara — din lokale compliance agent."
+                : "These are signals received by Sara — your local compliance agent."}
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
