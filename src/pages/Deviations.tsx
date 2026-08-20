@@ -123,6 +123,15 @@ export default function Deviations() {
   const [liveInfoExpanded, setLiveInfoExpanded] = useState(false);
   const [selectedDeviation, setSelectedDeviation] = useState<Deviation | null>(null);
   const [view, setView] = useState("all");
+  const navigate = useNavigate();
+  const { isConnected } = useConnectedSources();
+  const incidentSources = INTEGRATION_CATALOG.filter((i) => i.discovers.includes("incidents"));
+  const connectedIncidentIds = incidentSources
+    .filter((i) => isConnected?.(i.id))
+    .map((i) => i.id);
+  const hasIncidentSource = connectedIncidentIds.length > 0;
+
+
 
   // Fetch deviations from system_incidents
   const { data: systemDeviations = [], isLoading: loadingSystem } = useQuery({
