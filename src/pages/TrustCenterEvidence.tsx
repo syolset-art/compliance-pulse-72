@@ -843,8 +843,51 @@ const TrustCenterEvidence = () => {
               </div>
             );
           })()}
+
+          {/* Zone 3b: dokumentasjon som ligger i andre moduler i plattformen */}
+          {platformRows.length > 0 && (
+            <div className="mt-8">
+              <h2 className="mb-1 text-base font-semibold text-foreground">
+                {isNb ? "Dokumentasjon i andre moduler" : "Documentation in other modules"}
+              </h2>
+              <p className="mb-3 text-xs text-muted-foreground">
+                {isNb
+                  ? "Samlet fra leverandører, regelverk og arbeidsområder. Åpne modulen for å redigere."
+                  : "Collected from vendors, frameworks and work areas. Open the module to edit."}
+              </p>
+              <div className="divide-y rounded-lg border bg-card">
+                {platformRows.slice(0, 40).map((row) => {
+                  const route = row.doc.sourceRoute || MODULE_ROUTES[row.doc.module];
+                  const fws = Array.from(new Set(row.requirements.map((r) => r.frameworkName)));
+                  return (
+                    <div key={row.doc.id} className="flex items-center gap-3 px-4 py-3">
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-muted">
+                        {row.sourceKind === "agent" ? <SaraIcon size={18} /> : <FileText className="h-4 w-4 text-muted-foreground" />}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-medium">{row.doc.name}</p>
+                        <p className="truncate text-[11px] text-muted-foreground">
+                          {MODULE_LABELS[row.doc.module][isNb ? "nb" : "en"]}
+                          {row.doc.contextLabel ? ` · ${row.doc.contextLabel}` : ""}
+                          {row.requirements.length > 0
+                            ? ` · ${isNb ? "kartlagt mot" : "mapped to"} ${row.requirements.length} ${isNb ? "krav" : "req."} (${fws.join(", ")})`
+                            : ` · ${isNb ? "ikke kartlagt" : "not mapped"}`}
+                        </p>
+                      </div>
+                      {route && (
+                        <Button asChild variant="ghost" size="sm" className="text-xs shrink-0">
+                          <Link to={route}>{isNb ? "Åpne" : "Open"}</Link>
+                        </Button>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </>
       )}
+
 
       {/* Access tab content */}
       {activeMainTab === "access" && !isLoading && (
