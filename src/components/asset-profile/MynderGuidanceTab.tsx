@@ -508,6 +508,7 @@ export function MynderGuidanceTab({
         onOpenChange={setAddFrameworkOpen}
         activatedLabels={[]}
         existingIds={frameworks.map((f) => f.id)}
+        hidePrice
         onAdd={(item) => {
           const id = item.frameworkId ?? item.id;
           updateFwState({
