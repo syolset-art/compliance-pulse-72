@@ -1,4 +1,4 @@
-import { CORE_TIERS, VENDOR_TIERS, TRUST_CENTER_PRICE_KR } from "@/lib/planConstants";
+import { CORE_TIERS, VENDOR_TIERS, TRUST_CENTER_PRICE_KR, EXTRA_FRAMEWORK_PRICE_KR } from "@/lib/planConstants";
 import type { ModuleKey } from "@/lib/moduleInfo";
 
 export interface MynderProduct {
@@ -9,6 +9,7 @@ export interface MynderProduct {
   fromPrice: number;
   tiers: Array<{ label: string; priceKr: number; isFree?: boolean }>;
 }
+
 
 export const MYNDER_PRODUCTS: MynderProduct[] = [
   {
