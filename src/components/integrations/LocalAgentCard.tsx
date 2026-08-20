@@ -3,14 +3,10 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Bot, Download, HelpCircle, CalendarClock, Shield } from "lucide-react";
+import { Download, HelpCircle } from "lucide-react";
 import { SaraOnboardingDialog } from "@/components/agents/SaraOnboardingDialog";
 import { useSaraAgent } from "@/lib/saraAgent";
-import saraAgentPng from "@/assets/sara-agent.png";
-
-const DOC_SOURCES: { name: string; available: boolean }[] = [
-  { name: "Notion", available: true },
-];
+import saraAgentHero from "@/assets/sara-agent-hero.png";
 
 /**
  * Lokal agent (Sara) – annonsepreget seksjon øverst på Datakilder og agenter.
@@ -21,76 +17,37 @@ export function LocalAgentCard() {
   const { installed, markInstalled } = useSaraAgent();
 
   return (
-    <Card className="mt-6 overflow-hidden border-primary/20">
+    <Card className="mt-6 overflow-hidden border-border">
       <div className="flex flex-col md:flex-row">
         {/* Illustrasjon */}
-        <div className="relative flex items-center justify-center bg-gradient-to-br from-primary/5 via-primary/10 to-primary/5 p-6 md:w-2/5 md:p-8">
-          <div className="relative w-full max-w-[240px]">
+        <div className="relative flex items-center justify-center bg-muted/50 p-6 md:w-1/2 md:p-10">
+          <div className="relative w-full max-w-[320px]">
             <img
-              src={saraAgentPng}
+              src={saraAgentHero}
               alt="Sara – lokal Mynder compliance agent"
               loading="lazy"
               width={1024}
               height={1024}
-              className="w-full rounded-lg"
+              className="w-full"
             />
-            <div className="absolute -bottom-2 -right-2 flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg">
-              <Bot className="h-5 w-5" aria-hidden="true" />
-            </div>
           </div>
         </div>
 
         {/* Informasjon og CTA */}
-        <div className="flex flex-1 flex-col justify-between p-6 md:p-8">
-          <div>
-            <div className="flex items-center gap-2">
-              <h2 className="text-lg font-semibold text-foreground">Sara – lokal compliance agent</h2>
-              <Badge variant="outline" className="text-[10px]">
-                Kommer snart
-              </Badge>
-            </div>
-
-            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-              Sara kjører i din egen infrastruktur og leser dokumentkildene dine der de er. Alt
-              prosesseres lokalt — dokumentene forlater aldri din server, og bare verifiserte funn
-              sendes til Mynder.
-            </p>
-
-            <div className="mt-4 flex flex-wrap items-center gap-2">
-              <div className="flex items-center gap-1.5 text-xs text-primary">
-                <Shield className="h-3.5 w-3.5" aria-hidden="true" />
-                <span className="font-medium">Personvern og sikkerhet fra bunnen</span>
-              </div>
-            </div>
-
-            <div className="mt-4 flex flex-wrap items-center gap-2">
-              {DOC_SOURCES.map((s) => (
-                <Badge key={s.name} variant="default" className="text-[10px] font-normal">
-                  {s.name}
-                </Badge>
-              ))}
-            </div>
-
-            <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-muted-foreground">
-              <span>
-                Status:{" "}
-                <span className="font-medium text-foreground">
-                  {installed ? "Installert" : "Ikke installert"}
-                </span>
-              </span>
-              <span className="flex items-center gap-1">
-                <CalendarClock className="h-3.5 w-3.5" aria-hidden="true" />
-                Kjøring:{" "}
-                <span className="font-medium text-foreground">Manuell start</span>
-              </span>
-              <span>
-                Sist kjørt:{" "}
-                <span className="font-medium text-foreground">
-                  {installed ? "I dag 09:12" : "—"}
-                </span>
-              </span>
-            </div>
+        <div className="flex flex-1 flex-col justify-center p-6 md:p-10">
+          <div className="flex items-center gap-2">
+            <h2 className="text-2xl font-semibold tracking-tight text-foreground">
+              Sara jobber hos deg
+            </h2>
+            <Badge variant="outline" className="text-[10px]">
+              Kommer snart
+            </Badge>
           </div>
+
+          <p className="mt-4 max-w-md text-sm leading-relaxed text-muted-foreground">
+            Dokumentene dine forlater aldri deg. Bare et kort, strukturert funn sendes til
+            Mynder — og et menneske hos dere godkjenner det alltid først.
+          </p>
 
           <div className="mt-6 flex flex-wrap items-center gap-3">
             <Button
@@ -104,12 +61,16 @@ export function LocalAgentCard() {
               className="h-10 gap-2"
             >
               <Download className="h-4 w-4" aria-hidden="true" />
-              {installed ? "Lastet ned" : "Last ned Sara"}
+              {installed ? "Lastet ned" : "Kom i gang"}
             </Button>
 
-            <Button variant="outline" onClick={() => setOpen(true)} className="h-10 gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setOpen(true)}
+              className="h-10 gap-2"
+            >
               <HelpCircle className="h-4 w-4" aria-hidden="true" />
-              Slik kommer du i gang
+              Hva Sara aldri gjør
             </Button>
           </div>
         </div>
