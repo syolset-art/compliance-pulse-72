@@ -239,6 +239,13 @@ export function MSPServiceCatalogTab({ onOpenSecondary, onRegisterActions }: { o
   const [openFrameworkId, setOpenFrameworkId] = useState<string | null>(null);
   const [searchMode, setSearchMode] = useState<SearchKind>("framework");
 
+  useEffect(() => {
+    if (searchMode === "product") {
+      setActiveTab("mine");
+      setShowMynderProducts(true);
+    }
+  }, [searchMode]);
+
 
   // Forrige wizard-svar — brukes for å oppdage scope-endringer.
   const [previousAnswers, setPreviousAnswers] = useState<WizardAnswers | null>(() => {
