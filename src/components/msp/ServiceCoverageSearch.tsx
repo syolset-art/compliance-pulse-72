@@ -256,22 +256,42 @@ export function ServiceCoverageSearch({
         role="group"
         aria-label="Hva søker du etter?"
       >
-        {MODES.map((m) => (
-          <button
-            key={m.id}
-            type="button"
-            onClick={() => setModeOverride(m.id)}
-            aria-pressed={mode === m.id}
-            className={cn(
-              "px-3 py-1.5 text-xs font-medium rounded-md transition-colors",
-              mode === m.id
-                ? "bg-primary text-primary-foreground"
-                : "text-muted-foreground hover:text-foreground",
-            )}
-          >
-            {m.label}
-          </button>
-        ))}
+        {orderedModes.map((m) => {
+          const isDragged = dragMode === m.id;
+          const isOver = overMode === m.id && dragMode !== m.id;
+          return (
+            <button
+              key={m.id}
+              type="button"
+              draggable
+              onClick={() => setModeOverride(m.id)}
+              onDragStart={(e) => handleDragStart(e, m.id)}
+              onDragEnd={handleDragEnd}
+              onDragOver={(e) => handleDragOver(e, m.id)}
+              onDragLeave={() => setOverMode(null)}
+              aria-pressed={mode === m.id}
+              title="Dra for å endre rekkefølge"
+              className={cn(
+                "px-3 py-1.5 text-xs font-medium rounded-md transition-colors flex items-center gap-1.5 group",
+                mode === m.id
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:text-foreground",
+                isDragged && "opacity-40",
+                isOver && "ring-2 ring-primary ring-dashed",
+              )}
+            >
+              <GripVertical
+                className={cn(
+                  "h-3 w-3 transition-opacity",
+                  mode === m.id
+                    ? "text-primary-foreground/60"
+                    : "text-muted-foreground/40 group-hover:text-muted-foreground/70",
+                )}
+              />
+              {m.label}
+            </button>
+          );
+        })}
       </div>
 
       <div className="flex flex-col sm:flex-row gap-2">
