@@ -121,6 +121,8 @@ const TrustCenterEvidence = () => {
   const isNb = i18n.language === "nb";
   const [dialogOpen, setDialogOpen] = useState(false);
   const [seeding, setSeeding] = useState(false);
+  const [saraOnboardingOpen, setSaraOnboardingOpen] = useState(false);
+  const { installed: saraInstalled } = useSaraAgent();
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [visibilityFilter, setVisibilityFilter] = useState("all");
