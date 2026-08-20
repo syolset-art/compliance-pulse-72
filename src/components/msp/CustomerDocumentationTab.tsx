@@ -269,9 +269,7 @@ export function CustomerDocumentationTab({
               </TooltipTrigger>
               <TooltipContent side="right" className="max-w-xs bg-popover border border-border p-3 text-popover-foreground shadow-md rounded-md">
                 <p className="text-xs leading-relaxed">
-                  Bevisene under er utledet fra regelverkene {customerName} er tilknyttet.
-                  Last opp dokumenter — eller registrer en URL for publiserte dokumenter
-                  som personvernerklæring.
+                  Dokumentene under er utledet fra regelverkene {customerName} er tilknyttet. Last opp dokumenter — eller registrer en URL for publiserte dokumenter som personvernerklæring.
                 </p>
               </TooltipContent>
             </Tooltip>
@@ -279,7 +277,7 @@ export function CustomerDocumentationTab({
         </div>
         <div className="flex items-center gap-3">
           <span className="text-xs text-muted-foreground">
-            {visibleDocCount} bevis · {allSelected ? groupedDocs.size : `${selectedFrameworks.size}/${groupedDocs.size}`} regelverk
+            {visibleDocCount} er dokumentert· {allSelected ? groupedDocs.size : `${selectedFrameworks.size}/${groupedDocs.size}`} regelverk
           </span>
 
           <Button size="sm" className="h-7 gap-1.5" onClick={() => openUpload()}>
@@ -381,7 +379,7 @@ export function CustomerDocumentationTab({
                 {group.frameworkName}
               </h3>
               <span className="text-xs text-muted-foreground shrink-0">
-                {group.docs.length} bevis
+                {group.docs.length} er dokumentert
               </span>
             </div>
             <div className="divide-y divide-border/60">
