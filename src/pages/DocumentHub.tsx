@@ -33,6 +33,8 @@ import {
 } from "lucide-react";
 import { useDocumentHub } from "@/hooks/useDocumentHub";
 import { UploadHubDocumentDialog } from "@/components/documents/UploadHubDocumentDialog";
+import { DocumentActionButtons } from "@/components/agents/DocumentActionButtons";
+
 import { GuidingDocumentsTab } from "@/components/documents/GuidingDocumentsTab";
 import {
   MODULE_LABELS,
