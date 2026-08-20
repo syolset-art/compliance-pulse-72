@@ -393,6 +393,60 @@ export function ServiceCoverageSearch({
         </p>
       )}
 
+      {mode === "framework" && (
+        <div className="flex flex-wrap gap-1.5">
+          {frameworkList.map((f) => (
+            <button
+              key={f.id}
+              type="button"
+              onClick={() => setPickedFrameworkId(f.id)}
+              className={cn(
+                "rounded-full border px-2.5 py-1 text-[11px] font-medium transition-colors",
+                framework?.id === f.id
+                  ? "border-primary bg-primary/10 text-primary"
+                  : "border-border text-muted-foreground hover:text-foreground hover:border-primary/40",
+              )}
+            >
+              {f.name}
+            </button>
+          ))}
+          {frameworkList.length === 0 && (
+            <p className="text-xs text-muted-foreground px-1">Ingen regelverk matcher søket.</p>
+          )}
+        </div>
+      )}
+
+      {mode === "product" && (
+        <div className="flex flex-wrap gap-1.5">
+          {productList.map((p) => (
+            <button
+              key={p.id}
+              type="button"
+              onClick={() => setPickedProductId(p.id)}
+              className={cn(
+                "rounded-full border px-2.5 py-1 text-[11px] font-medium transition-colors",
+                product?.id === p.id
+                  ? "border-primary bg-primary/10 text-primary"
+                  : "border-border text-muted-foreground hover:text-foreground hover:border-primary/40",
+              )}
+            >
+              {p.name}
+            </button>
+          ))}
+          {productList.length === 0 && (
+            <p className="text-xs text-muted-foreground px-1">Ingen produkter matcher søket.</p>
+          )}
+        </div>
+      )}
+
+      {mode === "service" && (
+        <div className="rounded-md border border-dashed border-border bg-muted/20 px-3 py-2.5 text-xs text-muted-foreground">
+          Tjeneste- og oppgavesøk kommer senere. Bruk Regelverk eller Mynder-produkt i mellomtiden.
+        </div>
+      )}
+
+
+
       {mode === "framework" && framework && (
         <Card className="p-4">
           <div className="flex items-start justify-between gap-4 flex-wrap">
