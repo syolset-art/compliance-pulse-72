@@ -9,6 +9,9 @@ import { cn } from "@/lib/utils";
 export interface OutboundRequest {
   id: string;
   vendor_name: string;
+  /** Kobling til leverandør-ressursen (settes på nye forespørsler) */
+  vendor_id?: string;
+
   vendor_category?: string;
   request_type: string;
   status: "sent" | "awaiting" | "received" | "overdue" | "archived";

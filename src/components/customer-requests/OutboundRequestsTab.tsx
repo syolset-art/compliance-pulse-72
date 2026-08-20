@@ -75,9 +75,13 @@ function autoCleanOldRequests(requests: OutboundRequest[]): OutboundRequest[] {
 interface OutboundRequestsTabProps {
   wizardOpen?: boolean;
   onWizardOpenChange?: (open: boolean) => void;
+  /** Begrens til én leverandør (brukes fra leverandørprofilen) */
+  assetId?: string;
+  vendorName?: string;
+  hideRetentionNote?: boolean;
 }
 
-export function OutboundRequestsTab({ wizardOpen: externalWizardOpen, onWizardOpenChange }: OutboundRequestsTabProps = {}) {
+export function OutboundRequestsTab({ wizardOpen: externalWizardOpen, onWizardOpenChange, assetId, vendorName, hideRetentionNote }: OutboundRequestsTabProps = {}) {
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
   const [search, setSearch] = useState("");
@@ -91,13 +95,20 @@ export function OutboundRequestsTab({ wizardOpen: externalWizardOpen, onWizardOp
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const filtered = useMemo(() => {
+    const needle = vendorName?.trim().toLowerCase();
     return requests.filter((r) => {
+      const matchesVendor =
+        !needle && !assetId
+          ? true
+          : (assetId && r.vendor_id === assetId) ||
+            (!!needle && r.vendor_name.trim().toLowerCase() === needle);
       const matchesSearch = !search || r.vendor_name.toLowerCase().includes(search.toLowerCase());
       const matchesType = typeFilter === "all" || r.request_type === typeFilter;
       const matchesStatus = statusFilter === "all" ? r.status !== "archived" : r.status === statusFilter;
-      return matchesSearch && matchesType && matchesStatus;
+      return matchesVendor && matchesSearch && matchesType && matchesStatus;
     });
-  }, [requests, search, typeFilter, statusFilter]);
+  }, [requests, search, typeFilter, statusFilter, assetId, vendorName]);
+
 
 
   useEffect(() => {
@@ -115,6 +126,7 @@ export function OutboundRequestsTab({ wizardOpen: externalWizardOpen, onWizardOp
       vendorIds.map((id, i) => ({
         id: `out-new-${Date.now()}-${type}-${i}`,
         vendor_name: vendorNames?.[id] || `Leverandør ${id.substring(0, 6)}`,
+        vendor_id: id,
         request_type: type,
         status: "sent" as const,
         due_date: dueDate,
@@ -146,14 +158,17 @@ export function OutboundRequestsTab({ wizardOpen: externalWizardOpen, onWizardOp
   return (
     <div className="space-y-6">
       {/* GDPR auto-cleanup info */}
-      <div className="flex items-start gap-3 rounded-lg border border-muted bg-muted/30 px-4 py-3">
-        <ShieldAlert className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
-        <p className="text-xs text-muted-foreground leading-relaxed">
-          {isNb
-            ? `Meldinger slettes automatisk etter ${AUTO_DELETE_DAYS} dager i tråd med dataminimeringsprinsippet (GDPR art. 5). Du kan også slette eller arkivere meldinger manuelt via menyen på hver rad.`
-            : `Messages are automatically deleted after ${AUTO_DELETE_DAYS} days in accordance with the data minimization principle (GDPR Art. 5). You can also manually delete or archive messages via the menu on each row.`}
-        </p>
-      </div>
+      {!hideRetentionNote && (
+        <div className="flex items-start gap-3 rounded-lg border border-muted bg-muted/30 px-4 py-3">
+          <ShieldAlert className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            {isNb
+              ? `Meldinger slettes automatisk etter ${AUTO_DELETE_DAYS} dager i tråd med dataminimeringsprinsippet (GDPR art. 5). Du kan også slette eller arkivere meldinger manuelt via menyen på hver rad.`
+              : `Messages are automatically deleted after ${AUTO_DELETE_DAYS} days in accordance with the data minimization principle (GDPR Art. 5). You can also manually delete or archive messages via the menu on each row.`}
+          </p>
+        </div>
+      )}
+
 
       <div className="flex flex-wrap items-center gap-3">
         <div className="relative flex-1 min-w-[200px] max-w-md">
@@ -221,7 +236,7 @@ export function OutboundRequestsTab({ wizardOpen: externalWizardOpen, onWizardOp
         </div>
       )}
 
-      <SendRequestWizard open={wizardOpen} onOpenChange={setWizardOpen} onSend={handleSend} />
+      <SendRequestWizard open={wizardOpen} onOpenChange={setWizardOpen} onSend={handleSend} presetVendorId={assetId} />
 
       {/* Delete confirmation */}
       <AlertDialog open={!!deleteId} onOpenChange={(open) => !open && setDeleteId(null)}>

@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -83,14 +83,22 @@ interface SendRequestWizardProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSend: (types: string[], vendorIds: string[], dueDate: string, vendorNames?: Record<string, string>) => void;
+  /** Forhåndsvalgt leverandør (brukes fra leverandørprofilen) */
+  presetVendorId?: string;
 }
 
-export function SendRequestWizard({ open, onOpenChange, onSend }: SendRequestWizardProps) {
+export function SendRequestWizard({ open, onOpenChange, onSend, presetVendorId }: SendRequestWizardProps) {
+
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
   const [step, setStep] = useState(1);
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
-  const [selectedVendors, setSelectedVendors] = useState<string[]>([]);
+  const [selectedVendors, setSelectedVendors] = useState<string[]>(presetVendorId ? [presetVendorId] : []);
+
+  useEffect(() => {
+    if (open && presetVendorId) setSelectedVendors([presetVendorId]);
+  }, [open, presetVendorId]);
+
   const [dueDate, setDueDate] = useState(() => {
     const d = new Date();
     d.setDate(d.getDate() + 30);
