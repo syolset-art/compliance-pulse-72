@@ -651,6 +651,14 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
                   ? "GDPR-rollen bestemmer hvilke kontroller og dokumentasjonskrav som gjelder (f.eks. DPA-krav)."
                   : "The GDPR role determines which controls and documentation requirements apply (e.g. DPA requirements).")}
           </p>
+
+          {(asset as any)?.vendor_category && (
+            <p className="text-[13px] text-muted-foreground leading-snug">
+              {isNb
+                ? `Relasjonskategori: ${relationCategoryLabel((asset as any).vendor_category, true)} — kommer i tillegg til GDPR-rollen og styrer øvrige krav.`
+                : `Relationship category: ${relationCategoryLabel((asset as any).vendor_category, false)} — applies in addition to the GDPR role and drives other requirements.`}
+            </p>
+          )}
           <button onClick={() => onNavigateToTab?.("overview")} className="flex items-center gap-1 text-[13px] text-primary hover:underline">
             <ArrowRight className="h-2.5 w-2.5" />
             {isNb ? "Påvirker: Personvern og datahåndtering" : "Affects: Privacy & data handling"}
