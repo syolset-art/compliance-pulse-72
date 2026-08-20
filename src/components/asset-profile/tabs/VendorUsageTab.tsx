@@ -327,6 +327,19 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
 
   const riskReason = (isNb ? riskSuggestion.reasons : riskSuggestion.reasonsEn).join(" · ");
 
+  /** Godkjenn Laras risikoforslag (fjerner manuell overstyring) */
+  const handleAcceptRiskSuggestion = () => {
+    updateMutation.mutate({
+      risk_level: riskSuggestion.level,
+      metadata: { ...riskMeta, risk_set_by: null, risk_set_at: null, risk_rationale: null },
+    } as any);
+    setRationaleDraft("");
+    toast.success(isNb ? "Laras forslag er godkjent" : "Lara's suggestion approved");
+  };
+
+  /** Prioritetsforslag utledet av foreslått kritikalitet */
+  const prioritySuggestion = contextSuggestion.criticality;
+
 
 
   // --- Laras plan for GDPR-rolle (må godkjennes av brukeren) ---
