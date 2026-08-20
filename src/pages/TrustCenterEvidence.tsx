@@ -31,6 +31,9 @@ import { buildComplianceCoverage } from "@/lib/complianceDocumentCoverage";
 import { DocumentComplianceCard } from "@/components/trust-center/DocumentComplianceCard";
 import { DocumentAccessDialog } from "@/components/trust-center/DocumentAccessDialog";
 import { Network, Users } from "lucide-react";
+import { SaraEvidencePromo } from "@/components/agents/SaraEvidencePromo";
+import { useSaraAgent } from "@/lib/saraAgent";
+import { SaraIcon } from "@/components/agents/SaraIcon";
 
 // localStorage helpers for collapsible UI state
 const LS_REQUIRED_OPEN = "trust.evidence.required.open";
@@ -121,6 +124,8 @@ const TrustCenterEvidence = () => {
   const isNb = i18n.language === "nb";
   const [dialogOpen, setDialogOpen] = useState(false);
   const [seeding, setSeeding] = useState(false);
+  const [saraOnboardingOpen, setSaraOnboardingOpen] = useState(false);
+  const { installed: saraInstalled } = useSaraAgent();
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [visibilityFilter, setVisibilityFilter] = useState("all");
@@ -409,12 +414,27 @@ const TrustCenterEvidence = () => {
     </DropdownMenu>
   );
 
+  const isSaraSourced = (doc: any) =>
+    ["sara", "agent", "local_agent"].includes(String(doc.source ?? doc.origin ?? "").toLowerCase()) ||
+    String(doc.file_path ?? "").startsWith("sara/");
+
   const renderDocRow = (doc: any, icon: React.ReactNode) => (
     <Card key={doc.id} className="hover:shadow-sm transition-shadow cursor-pointer" onClick={() => openPreview(doc)}>
       <CardContent className="flex items-center justify-between py-4 px-5">
         <div className="flex items-center gap-3 min-w-0">
           <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-            {icon}
+            {isSaraSourced(doc) ? (
+              <TooltipProvider delayDuration={150}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span><SaraIcon size={20} /></span>
+                  </TooltipTrigger>
+                  <TooltipContent side="right" className="text-[12px]">
+                    {isNb ? "Hentet av Sara – lokal agent" : "Collected by Sara – local agent"}
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            ) : icon}
           </div>
           <div className="min-w-0">
             <p className="text-sm font-medium truncate">{doc.display_name || doc.file_name}</p>
@@ -528,12 +548,23 @@ const TrustCenterEvidence = () => {
             {seeding ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Database className="h-3.5 w-3.5" />}
             Demo
           </Button>
+          {!saraInstalled && (
+            <Button size="sm" variant="outline" className="gap-1.5" onClick={() => setSaraOnboardingOpen(true)}>
+              <Download className="h-4 w-4" />
+              {isNb ? "Installer Sara" : "Install Sara"}
+            </Button>
+          )}
           <Button size="sm" className="gap-1.5" onClick={() => setDialogOpen(true)}>
             <Plus className="h-4 w-4" />
             {isNb ? "Legg til" : "Add"}
           </Button>
         </div>
       </div>
+
+      <SaraEvidencePromo
+        onboardingOpen={saraOnboardingOpen}
+        onOnboardingOpenChange={setSaraOnboardingOpen}
+      />
 
       {/* Trust Profile summary — three states */}
       {vendorDocs.length > 0 && !isLoading && (() => {
