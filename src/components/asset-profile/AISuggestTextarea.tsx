@@ -62,17 +62,32 @@ export function AISuggestTextarea({
   const [selected, setSelected] = useState<Record<number, boolean>>({});
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [editing, setEditing] = useState(false);
 
   useEffect(() => { setDraft(stripMarkdown(value)); }, [value]);
+
+  const lines = draft
+    .split(/\r?\n/)
+    .map((l) => l.replace(/^\s*[-•\d.)]+\s*/, "").trim())
+    .filter(Boolean);
+
+  const setLines = (next: string[]) => setDraft(next.map((l) => `• ${l}`).join("\n"));
 
   const addLine = (line: string) => {
     const clean = stripMarkdown(line).trim();
     if (!clean) return;
-    if (draft.includes(clean)) return;
-    setDraft(draft ? `${draft}\n• ${clean}` : `• ${clean}`);
+    if (lines.some((l) => l.includes(clean))) return;
+    setLines([...lines, clean]);
   };
 
+  const removeLine = (line: string) => setLines(lines.filter((l) => l !== line));
+
+  const availablePresets = (presets ?? [])
+    .map((p) => (isNb ? p.nb : p.en))
+    .filter((label) => !lines.some((l) => l.includes(label)));
+
   const isDirty = draft !== value;
+
 
   const handleSuggest = async () => {
     if (!context.vendorName) {
