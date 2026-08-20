@@ -10,6 +10,14 @@ export interface ChecklistValues {
   priority?: string | number | null;
   riskLevel?: string | null;
   usagePurpose?: string | null;
+  accessRoles?: string[] | null;
+}
+
+interface ChecklistItem {
+  nb: string;
+  en: string;
+  done: boolean;
+  optional?: boolean;
 }
 
 interface Props extends ChecklistValues {
