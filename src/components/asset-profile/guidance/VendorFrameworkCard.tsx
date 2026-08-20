@@ -66,7 +66,9 @@ export function VendorFrameworkCard({ frameworks, onAdd, onRemove }: Props) {
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
-  );
+    );
+  };
+
 
   return (
     <Card className="p-5 flex flex-col h-full">
