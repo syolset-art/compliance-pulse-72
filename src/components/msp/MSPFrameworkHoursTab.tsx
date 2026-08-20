@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
@@ -22,12 +22,24 @@ import {
 
 export function MSPFrameworkHoursTab({
   onSaveAsService,
+  openFrameworkId = null,
+  onOpenedFramework,
 }: {
   onSaveAsService: (pkg: SavedFrameworkPackage) => void;
+  openFrameworkId?: string | null;
+  onOpenedFramework?: () => void;
 }) {
   const { defaultHourlyRate, currency } = useServiceDefaults();
   const [active, setActive] = useState<{ id: string; name: string } | null>(null);
   const [version, setVersion] = useState(0);
+
+  useEffect(() => {
+    if (!openFrameworkId) return;
+    const fw = FRAMEWORK_DEFS.find((f) => f.id === openFrameworkId);
+    if (fw) setActive({ id: fw.id, name: fw.name });
+    onOpenedFramework?.();
+  }, [openFrameworkId, onOpenedFramework]);
+
 
   const { data: rows = [] } = useQuery({
     queryKey: ["all-compliance-requirements"],

@@ -43,6 +43,8 @@ import {
 } from "@/lib/laraScopeDiff";
 
 import { CORE_TIERS, VENDOR_TIERS, TRUST_CENTER_PRICE_KR, TRUST_CENTER_V2 } from "@/lib/planConstants";
+import { MYNDER_PRODUCTS } from "@/lib/mynderProducts";
+
 import { usePartnerBranding } from "@/hooks/usePartnerBranding";
 import { formatTaxNote } from "@/lib/partnerTax";
 import { useSavedOffers, type LockInfo } from "@/lib/customerOffers";
@@ -80,47 +82,8 @@ function formatNOK(n: number): string {
   return new Intl.NumberFormat("nb-NO").format(Math.round(n)) + " kr";
 }
 
-const MYNDER_PRODUCTS: Array<{
-  id: string;
-  moduleKey: ModuleKey;
-  name: string;
-  commissionPct: number;
-  fromPrice: number;
-  tiers: Array<{ label: string; priceKr: number; isFree?: boolean }>;
-}> = [
-  {
-    id: "core",
-    moduleKey: "core",
-    name: "Mynder Core",
-    commissionPct: 30,
-    fromPrice: CORE_TIERS[0].monthlyPriceKr,
-    tiers: CORE_TIERS.map((t) => ({ label: t.label, priceKr: t.monthlyPriceKr })),
-  },
-  {
-    id: "vendors",
-    moduleKey: "vendors",
-    name: "Leverandørmodulen",
-    commissionPct: 30,
-    fromPrice: VENDOR_TIERS[1].monthlyPriceKr,
-    tiers: VENDOR_TIERS.map((t) => ({ label: t.label, priceKr: t.monthlyPriceKr, isFree: t.isFree })),
-  },
-  {
-    id: "assets",
-    moduleKey: "assets",
-    name: "Eiendeler",
-    commissionPct: 25,
-    fromPrice: 490,
-    tiers: [{ label: "Standard", priceKr: 490 }],
-  },
-  {
-    id: "trust",
-    moduleKey: "trust",
-    name: "Trust Center",
-    commissionPct: 30,
-    fromPrice: TRUST_CENTER_PRICE_KR,
-    tiers: [{ label: "Standard", priceKr: TRUST_CENTER_PRICE_KR }],
-  },
-];
+
+
 
 
 
@@ -272,6 +235,8 @@ export function MSPServiceCatalogTab({ onOpenSecondary, onRegisterActions }: { o
   const [curationSummary, setCurationSummary] = useState<string | null>(null);
   const [onlyRecommended, setOnlyRecommended] = useState(false);
   const [activeTab, setActiveTab] = useState("regelverk");
+  const [openFrameworkId, setOpenFrameworkId] = useState<string | null>(null);
+
 
   // Forrige wizard-svar — brukes for å oppdage scope-endringer.
   const [previousAnswers, setPreviousAnswers] = useState<WizardAnswers | null>(() => {
@@ -712,7 +677,17 @@ export function MSPServiceCatalogTab({ onOpenSecondary, onRegisterActions }: { o
           setPreviewTemplate(null);
           setManualOpen(true);
         }}
+        onOpenFramework={(frameworkId) => {
+          setActiveTab("regelverk");
+          setOpenFrameworkId(frameworkId);
+        }}
+        onAddProductToOffer={(productId) => {
+          setActiveTab("mine");
+          setShowMynderProducts(true);
+          setExpandedProduct(productId);
+        }}
       />
+
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
 
@@ -731,7 +706,12 @@ export function MSPServiceCatalogTab({ onOpenSecondary, onRegisterActions }: { o
         </div>
 
         <TabsContent value="regelverk" className="space-y-6 mt-4">
-          <MSPFrameworkHoursTab onSaveAsService={saveFrameworkPackageAsService} />
+          <MSPFrameworkHoursTab
+            onSaveAsService={saveFrameworkPackageAsService}
+            openFrameworkId={openFrameworkId}
+            onOpenedFramework={() => setOpenFrameworkId(null)}
+          />
+
         </TabsContent>
 
         <TabsContent value="alle" className="space-y-6 mt-4">
