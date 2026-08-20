@@ -17,6 +17,8 @@ import { VendorListTab } from "@/components/vendor-dashboard/VendorListTab";
 import { VendorMapView } from "@/components/vendor-dashboard/VendorMapView";
 import { SupplyChainTab } from "@/components/vendor-dashboard/SupplyChainTab";
 import { VendorCompareTab } from "@/components/vendor-dashboard/VendorCompareTab";
+import { VendorFrameworkScopeTab } from "@/components/vendor-dashboard/VendorFrameworkScopeTab";
+
 import { useGlobalChat } from "@/components/GlobalChatProvider";
 
 import { VendorPremiumBanner } from "@/components/vendor-dashboard/VendorPremiumBanner";
