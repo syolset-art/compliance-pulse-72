@@ -271,7 +271,7 @@ export function MSPServiceCatalogTab({ onOpenSecondary, onRegisterActions }: { o
   const [curatedPicks, setCuratedPicks] = useState<Pick[] | null>(null);
   const [curationSummary, setCurationSummary] = useState<string | null>(null);
   const [onlyRecommended, setOnlyRecommended] = useState(false);
-  const [activeTab, setActiveTab] = useState("mine");
+  const [activeTab, setActiveTab] = useState("regelverk");
 
   // Forrige wizard-svar — brukes for å oppdage scope-endringer.
   const [previousAnswers, setPreviousAnswers] = useState<WizardAnswers | null>(() => {
@@ -718,14 +718,15 @@ export function MSPServiceCatalogTab({ onOpenSecondary, onRegisterActions }: { o
 
         <div className="flex items-center justify-between gap-2">
           <TabsList>
+            <TabsTrigger value="regelverk">Regelverk</TabsTrigger>
             <TabsTrigger value="mine">
               Mine ({mineActiveCount + 3})
             </TabsTrigger>
             <TabsTrigger value="alle">
               Alle ({availablePicks.length})
             </TabsTrigger>
-            <TabsTrigger value="regelverk">Regelverk</TabsTrigger>
           </TabsList>
+
 
         </div>
 
