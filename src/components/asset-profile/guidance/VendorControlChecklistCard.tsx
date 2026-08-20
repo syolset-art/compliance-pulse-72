@@ -37,23 +37,27 @@ export function VendorControlChecklistCard({
   priority,
   riskLevel,
   usagePurpose,
+  accessRoles,
   onOpen,
   className,
 }: Props) {
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb" || i18n.language === "no";
 
-  const items = [
+  const items: ChecklistItem[] = [
     { nb: "Kontaktperson", en: "Contact person", done: has(contactPerson) },
     { nb: "Kritikalitet", en: "Criticality", done: has(criticality) },
     { nb: "GDPR-rolle", en: "GDPR role", done: has(gdprRole) },
     { nb: "Prioritet", en: "Priority", done: has(priority) },
     { nb: "Risikonivå", en: "Risk level", done: has(riskLevel) },
     { nb: "Hva leverandøren brukes til", en: "What the vendor is used for", done: has(usagePurpose) },
+    { nb: "Tilgang og roller", en: "Access and roles", done: Array.isArray(accessRoles) && accessRoles.length > 0, optional: true },
   ];
 
-  const done = items.filter((i) => i.done).length;
-  const complete = done === items.length;
+  const requiredItems = items.filter((i) => !i.optional);
+  const done = requiredItems.filter((i) => i.done).length;
+  const complete = done === requiredItems.length;
+  const optionalItems = items.filter((i) => i.optional);
 
   return (
     <section className={cn("rounded-2xl border border-border bg-card p-4 sm:p-5 h-full flex flex-col", className)}>
