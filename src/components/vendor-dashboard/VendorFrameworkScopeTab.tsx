@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Scale, BookOpen, Shield, Info, Loader2 } from "lucide-react";
+import { Scale, BookOpen, Shield, Info, Loader2, X } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,9 @@ import {
   useVendorFrameworkScope,
   VENDOR_FRAMEWORK_SCOPE_KEY,
 } from "@/hooks/useVendorFrameworkScope";
+
+export const VENDOR_SCOPE_INTRO_KEY = "vendor-framework-scope-intro";
+export const VENDOR_SCOPE_INTRO_EVENT = "vendor-framework-scope-intro-show";
 
 type GroupKey = "regulation" | "standard" | "guidance";
 
@@ -32,6 +35,20 @@ export function VendorFrameworkScopeTab() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [initialised, setInitialised] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [showIntro, setShowIntro] = useState(
+    () => localStorage.getItem(VENDOR_SCOPE_INTRO_KEY) !== "dismissed",
+  );
+
+  useEffect(() => {
+    const handler = () => setShowIntro(true);
+    window.addEventListener(VENDOR_SCOPE_INTRO_EVENT, handler);
+    return () => window.removeEventListener(VENDOR_SCOPE_INTRO_EVENT, handler);
+  }, []);
+
+  const dismissIntro = () => {
+    localStorage.setItem(VENDOR_SCOPE_INTRO_KEY, "dismissed");
+    setShowIntro(false);
+  };
 
   useEffect(() => {
     if (!isLoading && !initialised) {
@@ -90,10 +107,11 @@ export function VendorFrameworkScopeTab() {
 
   return (
     <div className="space-y-4">
+      {showIntro && (
       <Card className="border-primary/20 bg-primary/[0.03]">
         <CardContent className="p-4 flex items-start gap-3">
           <Info className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-          <div className="space-y-1">
+          <div className="space-y-1 flex-1 min-w-0">
             <p className="text-sm font-medium text-foreground">
               {isNb
                 ? "Velg hvilke regelverk som gjelder for leverandørstyring"
@@ -105,8 +123,18 @@ export function VendorFrameworkScopeTab() {
                 : "The selection applies to all vendors and controls which requirements and maturity views appear on vendor profiles. Frameworks in the vendor module are included in the module price."}
             </p>
           </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7 shrink-0 text-muted-foreground"
+            onClick={dismissIntro}
+            aria-label={isNb ? "Skjul forklaringen" : "Dismiss explanation"}
+          >
+            <X className="h-4 w-4" />
+          </Button>
         </CardContent>
       </Card>
+      )}
 
       {grouped.map((group) => {
         const Icon = group.icon;
