@@ -8,6 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Upload, FileText, Trash2, FileCheck, Lock, Send, Mail, Globe, EyeOff, HelpCircle, MoreHorizontal, CheckCircle2, Clock, Archive } from "lucide-react";
+import { DocumentActionButtons } from "@/components/agents/DocumentActionButtons";
+
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { DocumentSharingPopover } from "../DocumentSharingPopover";
 import { toast } from "sonner";
