@@ -702,7 +702,10 @@ export function MSPServiceCatalogTab({ onOpenSecondary, onRegisterActions }: { o
             </TabsTrigger>
           </TabsList>
 
-
+          <div className="hidden md:flex items-start gap-2 rounded-md bg-warning/15 border border-warning/20 p-2.5 shadow-sm max-w-[260px]">
+            <StickyNote className="h-4 w-4 text-warning shrink-0 mt-0.5" />
+            <span className="text-xs font-medium text-foreground">Dette kan avventes med.</span>
+          </div>
         </div>
 
         <TabsContent value="regelverk" className="space-y-6 mt-4">
