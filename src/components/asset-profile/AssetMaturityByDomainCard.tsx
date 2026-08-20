@@ -1,12 +1,14 @@
 import { useTranslation } from "react-i18next";
-import { Shield, ChevronDown, HelpCircle } from "lucide-react";
+import { Shield, ChevronDown, HelpCircle, Sparkles } from "lucide-react";
 import { useTrustControlEvaluation } from "@/hooks/useTrustControlEvaluation";
 import { cn } from "@/lib/utils";
 import { CONTROL_AREAS, type ControlAreaKey } from "@/lib/controlAreas";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Badge } from "@/components/ui/badge";
 
 interface Props {
   assetId: string;
+  variant?: "default" | "vendor";
 }
 
 const AREA_THRESHOLDS: Record<ControlAreaKey, { green: number; orange: number }> = {
@@ -27,15 +29,18 @@ function colorFor(score: number, areaKey: ControlAreaKey | "overall") {
 /**
  * Standard Trust Profile-blokk: kompakt 2x2-grid med modenhet per kontrollområde.
  * Brukes på alle Trust Profil-maler (leverandører + systemer).
+ * I "vendor"-varianten presenteres blokken som en fase 2-forhåndsvisning av
+ * leverandørens modenhet, som brukeren ikke kan påvirke utover å be om dokumentasjon.
  */
-export function AssetMaturityByDomainCard({ assetId }: Props) {
-  const { i18n } = useTranslation();
+export function AssetMaturityByDomainCard({ assetId, variant = "default" }: Props) {
+  const { t, i18n } = useTranslation();
   const isNb = i18n.language === "nb" || i18n.language === "no";
+  const isVendor = variant === "vendor";
   const evaluation = useTrustControlEvaluation(assetId);
 
   if (!evaluation) {
     return (
-      <div className="rounded-2xl border border-border bg-card p-5">
+      <div className={cn("rounded-2xl border border-border bg-card p-5", isVendor && "bg-muted/20 border-dashed")}>
         <p className="text-sm text-muted-foreground italic">{isNb ? "Laster modenhet…" : "Loading maturity…"}</p>
       </div>
     );
@@ -45,14 +50,29 @@ export function AssetMaturityByDomainCard({ assetId }: Props) {
   const overallColor = colorFor(overall, "overall");
 
   return (
-    <div className="rounded-2xl border border-border bg-card p-5 space-y-4">
+    <div className={cn("rounded-2xl border border-border bg-card p-5 space-y-4", isVendor && "bg-muted/20 border-dashed")}>
       {/* Header */}
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2 min-w-0">
-          <Shield className="h-4 w-4 text-primary shrink-0" />
-          <h3 className="text-sm font-semibold text-foreground">
-            {isNb ? "Modenhet per kontrollområde" : "Maturity by control area"}
-          </h3>
+      <div className="flex items-start justify-between gap-3">
+        <div className="space-y-1.5 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <Shield className="h-4 w-4 text-primary shrink-0" />
+            <h3 className="text-sm font-semibold text-foreground">
+              {isVendor
+                ? t("assetMaturityByDomain.titleVendor")
+                : (isNb ? "Modenhet per kontrollområde" : "Maturity by control area")}
+            </h3>
+            {isVendor && (
+              <Badge variant="outline" className="text-[10px] uppercase tracking-wide gap-1 px-2 py-0.5 h-5">
+                <Sparkles className="h-3 w-3" />
+                {t("assetMaturityByDomain.phase2Badge")}
+              </Badge>
+            )}
+          </div>
+          {isVendor && (
+            <p className="text-[12px] text-muted-foreground leading-relaxed max-w-2xl">
+              {t("assetMaturityByDomain.vendorExplainer")}
+            </p>
+          )}
         </div>
         <TooltipProvider delayDuration={150}>
           <Tooltip>
@@ -69,7 +89,7 @@ export function AssetMaturityByDomainCard({ assetId }: Props) {
                 {isNb ? "Hvordan beregnes Trust Score?" : "How is the Trust Score calculated?"}
               </p>
               <p>
-                {isNb 
+                {isNb
                   ? "Hvert område scores 0–100 ut fra hvor godt kontrollpunktene er på plass. Områdene teller ulikt i den samlede scoren:"
                   : "Each area is scored 0–100 based on how well the control points are in place. The areas weigh differently in the overall score:"}
               </p>
@@ -101,7 +121,7 @@ export function AssetMaturityByDomainCard({ assetId }: Props) {
       </div>
 
       {/* Grid of all 5 areas */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+      <div className={cn("grid grid-cols-1 sm:grid-cols-2 gap-2.5", isVendor && "opacity-85")}>
         {CONTROL_AREAS.map(({ key, icon: Icon, labelNb, labelEn }) => {
           const score = evaluation.areaScore(key as any);
           const c = colorFor(score, key);
