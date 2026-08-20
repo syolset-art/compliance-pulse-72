@@ -13,7 +13,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { SENSITIVE_DATA_CATEGORIES, sensitiveCategoryLabel, gdprRoleHandlesPersonalData } from "@/lib/sensitiveData";
 import { suggestVendorRisk } from "@/lib/vendorRiskSuggestion";
-import { suggestVendorContext } from "@/lib/vendorContextSuggestion";
+import { suggestVendorContext, usageTagLabel } from "@/lib/vendorContextSuggestion";
 import { buildGdprRolePlan } from "@/lib/vendorGdprRolePlan";
 import { GdprRolePlanCard } from "@/components/asset-profile/usage/GdprRolePlanCard";
 import { LaraContextBanner } from "@/components/asset-profile/usage/LaraContextBanner";
@@ -61,6 +61,15 @@ const priorityOptions = [
   { value: "not_set", labelNb: "Ikke satt", labelEn: "Not set" },
 ];
 
+const getLabelFor = (
+  options: { value: string; labelNb: string; labelEn: string }[],
+  value: string | null | undefined,
+  isNb: boolean,
+) => {
+  const opt = options.find((o) => o.value === (value || "not_set"));
+  return opt ? (isNb ? opt.labelNb : opt.labelEn) : (isNb ? "Ikke satt" : "Not set");
+};
+
 const priorityColor = (value: string | null | undefined) => {
   switch (value) {
     case "critical": return "text-destructive bg-destructive/10 border-destructive/20";
@@ -89,6 +98,13 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
   const [laraLoading, setLaraLoading] = useState(false);
   const { installed: saraInstalled } = useSaraAgent();
   const [viewMode, setViewMode] = useState<"auto" | "manual">("auto");
+  const [acceptedAt, setAcceptedAt] = useState<Date | null>(null);
+  const [preAcceptSnapshot, setPreAcceptSnapshot] = useState<{
+    criticality: string | null;
+    gdpr_role: string | null;
+    risk_level: string | null;
+    metadata: Record<string, any>;
+  } | null>(null);
 
   const { data: asset } = useQuery({
     queryKey: ["asset-usage", assetId],
@@ -333,11 +349,11 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
     (asset as any)?.risk_level === riskSuggestion.level;
 
   const appliedItems = [
-    { label: isNb ? "Kritikalitet" : "Criticality", value: getLabel(criticalityOptions, contextSuggestion.criticality) },
+    { label: isNb ? "Kritikalitet" : "Criticality", value: getLabelFor(criticalityOptions, contextSuggestion.criticality, isNb) },
     ...(contextSuggestion.gdprRole
-      ? [{ label: isNb ? "GDPR-rolle" : "GDPR role", value: getLabel(gdprOptions, contextSuggestion.gdprRole) }]
+      ? [{ label: isNb ? "GDPR-rolle" : "GDPR role", value: getLabelFor(gdprOptions, contextSuggestion.gdprRole, isNb) }]
       : []),
-    { label: isNb ? "Risiko" : "Risk", value: getLabel(riskOptions, riskSuggestion.level) },
+    { label: isNb ? "Risiko" : "Risk", value: getLabelFor(riskOptions, riskSuggestion.level, isNb) },
     ...(usageTags.length
       ? [{ label: isNb ? "Bruk" : "Usage", value: usageTags.map((t) => usageTagLabel(t, isNb)).join(", ") }]
       : []),
