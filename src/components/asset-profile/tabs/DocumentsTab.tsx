@@ -7,18 +7,24 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Upload, FileText, Trash2, FileCheck, Lock, Send, Mail, Globe, EyeOff, HelpCircle, MoreHorizontal, CheckCircle2, Clock, Archive } from "lucide-react";
+import { Upload, FileText, Trash2, Lock, Send, Mail, MoreHorizontal, CheckCircle2, Clock, Archive } from "lucide-react";
 import { DocumentActionButtons } from "@/components/agents/DocumentActionButtons";
+import { DocumentSourceIcon } from "../DocumentSourceIcon";
+import {
+  computeDocCoverage,
+  docSourceLabel,
+  resolveDocSource,
+  DOC_SOURCE_ORDER,
+  type DocSourceKey,
+} from "@/lib/vendorDocumentSource";
 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { DocumentSharingPopover } from "../DocumentSharingPopover";
 import { toast } from "sonner";
 import { useSubscription } from "@/hooks/useSubscription";
-import { DocumentRequestsSection } from "./DocumentRequestsSection";
 import { RequestUpdateDialog } from "../RequestUpdateDialog";
 import { DocumentDetailDialog } from "../DocumentDetailDialog";
 import { UploadDocumentDialog } from "../UploadDocumentDialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 
@@ -67,6 +73,21 @@ export function DocumentsTab({ assetId, assetName, vendorName, hideUploadButton,
   const [showUploadDialog, setShowUploadDialog] = useState(false);
   const [detailDoc, setDetailDoc] = useState<any>(null);
   const [showHistory, setShowHistory] = useState(false);
+  const [sourceFilter, setSourceFilter] = useState<DocSourceKey | "all">("all");
+
+  const { data: requests = [] } = useQuery({
+    queryKey: ["vendor-document-requests", assetId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("vendor_document_requests")
+        .select("*")
+        .eq("asset_id", assetId)
+        .order("due_date", { ascending: true });
+      if (error) throw error;
+      return data;
+    },
+  });
+
 
   useEffect(() => {
     onUploadTriggerReady?.(() => setShowUploadDialog(true));
@@ -141,13 +162,19 @@ export function DocumentsTab({ assetId, assetName, vendorName, hideUploadButton,
   const visibleDocs = showHistory ? documents : documents.filter((d: any) => !isHistorical(d));
   const docsById: Record<string, any> = Object.fromEntries((documents as any[]).map((d) => [d.id, d]));
 
-  const vendorDocs = visibleDocs.filter((d: any) => d.source === "vendor_portal" || d.source === "email_inbox");
-  const internalDocs = visibleDocs.filter((d: any) => d.source !== "vendor_portal" && d.source !== "email_inbox");
+  const coverage = computeDocCoverage(documents as any[]);
+  const filteredDocs =
+    sourceFilter === "all"
+      ? visibleDocs
+      : (visibleDocs as any[]).filter((d: any) => resolveDocSource(d.source) === sourceFilter);
   const expiredCount = (documents as any[]).filter((d: any) => d.valid_to && new Date(d.valid_to) < new Date() && d.status !== "superseded").length;
   const historyCount = (documents as any[]).filter(isHistorical).length;
+  const pendingRequests = (requests as any[]).filter((r: any) => r.status !== "received");
+  const showRequestRows = sourceFilter === "all" || sourceFilter === "vendor";
 
-  const renderDocTable = (docs: any[], emptyMsg: string) => {
-    if (docs.length === 0) {
+
+  const renderDocTable = (docs: any[], emptyMsg: string, reqs: any[] = []) => {
+    if (docs.length === 0 && reqs.length === 0) {
       return (
         <div className="flex flex-col items-center justify-center py-8 text-center">
           <FileText className="h-8 w-8 text-muted-foreground/30 mb-2" />
@@ -155,6 +182,7 @@ export function DocumentsTab({ assetId, assetName, vendorName, hideUploadButton,
         </div>
       );
     }
+
 
     return (
       <div className="rounded-xl border border-border bg-card overflow-hidden">
@@ -185,13 +213,12 @@ export function DocumentsTab({ assetId, assetName, vendorName, hideUploadButton,
                         className={`flex items-center gap-2.5 ${isExpired ? "cursor-pointer" : ""}`}
                         onClick={() => isExpired && setDetailDoc(doc)}
                       >
-                        <div className="h-7 w-7 rounded-md bg-primary/8 flex items-center justify-center shrink-0">
-                          <FileCheck className="h-3.5 w-3.5 text-primary" />
-                        </div>
+                        <DocumentSourceIcon source={resolveDocSource(doc.source)} isNb={isNb} />
                         <div className="min-w-0">
                           <span className={`text-sm font-medium truncate block max-w-[220px] ${isExpired ? "text-destructive" : "text-foreground"}`}>
                             {doc.file_name}
                           </span>
+
                           <span className="text-[12px] text-muted-foreground hidden md:block">
                             {doc.version || "v1.0"} · {new Date(doc.created_at).toLocaleDateString(locale)}
                             {replacement && (
@@ -266,7 +293,67 @@ export function DocumentsTab({ assetId, assetName, vendorName, hideUploadButton,
                   </TableRow>
                 );
               })}
+
+              {/* Etterspurt dokumentasjon – venter på leverandøren */}
+              {reqs.map((req: any) => {
+                const daysLeft = req.due_date
+                  ? Math.ceil((new Date(req.due_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+                  : null;
+                const overdue = daysLeft !== null && daysLeft < 0;
+                return (
+                  <TableRow key={`req-${req.id}`} className="border-b border-border/60 bg-muted/20">
+                    <TableCell className="py-3">
+                      <div className="flex items-center gap-2.5">
+                        <Clock className="h-4 w-4 shrink-0 text-muted-foreground" />
+                        <div className="min-w-0">
+                          <span className="block truncate text-sm font-medium text-muted-foreground">
+                            {isNb ? "Etterspurt" : "Requested"}: {getTypeLabel(req.document_type)}
+                          </span>
+                          <span className="hidden text-[12px] text-muted-foreground md:block">
+                            {req.due_date
+                              ? `${isNb ? "Frist" : "Due"} ${new Date(req.due_date).toLocaleDateString(locale)}`
+                              : isNb ? "Ingen frist" : "No due date"}
+                            {req.reminder_count > 0 && ` · ${req.reminder_count} ${isNb ? "purringer" : "reminders"}`}
+                          </span>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell className="py-3">
+                      <span className="text-xs text-muted-foreground">{getTypeLabel(req.document_type)}</span>
+                    </TableCell>
+                    <TableCell className="hidden py-3 text-xs text-muted-foreground sm:table-cell">
+                      {req.due_date ? new Date(req.due_date).toLocaleDateString(locale) : "—"}
+                    </TableCell>
+                    <TableCell className="py-3">
+                      {overdue ? (
+                        <Badge variant="destructive" className="text-[12px]">
+                          {isNb ? "Over frist" : "Overdue"}
+                        </Badge>
+                      ) : (
+                        <Badge variant="secondary" className="text-[12px]">
+                          {isNb ? "Venter" : "Waiting"}
+                        </Badge>
+                      )}
+                    </TableCell>
+                    <TableCell className="py-3">
+                      <span className="text-xs text-muted-foreground">{isNb ? "Leverandør" : "Vendor"}</span>
+                    </TableCell>
+                    <TableCell className="py-3">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 text-xs"
+                        onClick={() => { setPreselectedDocType(req.document_type); setRequestDialogOpen(true); }}
+                      >
+                        <Send className="mr-1 h-3 w-3" />
+                        {isNb ? "Purr" : "Remind"}
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
+
           </Table>
         </div>
       </div>
@@ -313,7 +400,7 @@ export function DocumentsTab({ assetId, assetName, vendorName, hideUploadButton,
 
       {isLoading ? (
         <div className="space-y-3">{[1, 2].map((i) => <div key={i} className="h-12 bg-muted animate-pulse rounded" />)}</div>
-      ) : documents.length === 0 ? (
+      ) : documents.length === 0 && pendingRequests.length === 0 ? (
         hideUploadButton ? (
           <p className="text-xs text-muted-foreground">
             {isNb ? "Ingen dokumenter lastet opp ennå." : "No documents uploaded yet."}
@@ -322,31 +409,58 @@ export function DocumentsTab({ assetId, assetName, vendorName, hideUploadButton,
           <div className="flex items-center justify-end">{uploadButton}</div>
         )
       ) : (
-        <Tabs defaultValue="all" className="w-full">
-          <div className="flex items-end justify-between gap-3 border-b border-border">
-            <TabsList className="h-auto bg-transparent p-0 gap-5 justify-start rounded-none border-0">
-              <TabsTrigger
-                value="all"
-                className="text-xs gap-1.5 px-0 pb-2.5 pt-0 rounded-none bg-transparent text-muted-foreground data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-foreground -mb-px"
-              >
-                {isNb ? "Alle" : "All"}
-                <span className="text-muted-foreground/70">{visibleDocs.length}</span>
-              </TabsTrigger>
-              <TabsTrigger
-                value="internal"
-                className="text-xs gap-1.5 px-0 pb-2.5 pt-0 rounded-none bg-transparent text-muted-foreground data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-foreground -mb-px"
-              >
-                {isNb ? "Interne" : "Internal"}
-                <span className="text-muted-foreground/70">{internalDocs.length}</span>
-              </TabsTrigger>
-              <TabsTrigger
-                value="vendor"
-                className="text-xs gap-1.5 px-0 pb-2.5 pt-0 rounded-none bg-transparent text-muted-foreground data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-foreground -mb-px"
-              >
-                {isNb ? "Fra leverandør" : "From vendor"}
-                <span className="text-muted-foreground/70">{vendorDocs.length}</span>
-              </TabsTrigger>
-            </TabsList>
+        <div className="w-full space-y-4">
+          {/* Dekning – kompakt linje */}
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-muted-foreground">
+            <span className="font-medium text-foreground">
+              {coverage.total} {isNb ? "dokumenter" : "documents"}
+            </span>
+            <span>·</span>
+            <span>{coverage.valid} {isNb ? "gyldige" : "valid"}</span>
+            {coverage.expiring > 0 && (
+              <>
+                <span>·</span>
+                <span className="text-warning">{coverage.expiring} {isNb ? "utløper snart" : "expiring soon"}</span>
+              </>
+            )}
+            {coverage.expired > 0 && (
+              <>
+                <span>·</span>
+                <span className="text-destructive">{coverage.expired} {isNb ? "utløpt" : "expired"}</span>
+              </>
+            )}
+            {pendingRequests.length > 0 && (
+              <>
+                <span>·</span>
+                <span>{pendingRequests.length} {isNb ? "etterspurt" : "requested"}</span>
+              </>
+            )}
+          </div>
+
+          {/* Kildefilter */}
+          <div className="flex flex-wrap items-end justify-between gap-3 border-b border-border">
+            <div className="flex flex-wrap items-center gap-5">
+              {(["all", ...DOC_SOURCE_ORDER] as const).map((key) => {
+                const count = key === "all" ? visibleDocs.length : coverage.bySource[key as DocSourceKey];
+                const active = sourceFilter === key;
+                return (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() => setSourceFilter(key as DocSourceKey | "all")}
+                    className={`-mb-px flex items-center gap-1.5 pb-2.5 text-xs transition-colors ${
+                      active
+                        ? "border-b-2 border-foreground font-medium text-foreground"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {key !== "all" && <DocumentSourceIcon source={key as DocSourceKey} isNb={isNb} />}
+                    {key === "all" ? (isNb ? "Alle" : "All") : docSourceLabel(key as DocSourceKey, isNb)}
+                    <span className="text-muted-foreground/70">{count}</span>
+                  </button>
+                );
+              })}
+            </div>
             <div className="flex items-center gap-3 pb-2">
               {historyCount > 0 && (
                 <div className="flex items-center gap-1.5">
@@ -360,17 +474,14 @@ export function DocumentsTab({ assetId, assetName, vendorName, hideUploadButton,
             </div>
           </div>
 
-          <TabsContent value="all" className="mt-4">
-            {renderDocTable(visibleDocs, isNb ? "Ingen dokumenter" : "No documents")}
-          </TabsContent>
-          <TabsContent value="internal" className="mt-4">
-            {renderDocTable(internalDocs, isNb ? "Ingen interne dokumenter lastet opp ennå" : "No internal documents uploaded yet")}
-          </TabsContent>
-          <TabsContent value="vendor" className="mt-4">
-            {renderDocTable(vendorDocs, isNb ? "Ingen dokumenter mottatt fra leverandøren ennå" : "No documents received from vendor yet")}
-          </TabsContent>
-        </Tabs>
+          {renderDocTable(
+            filteredDocs,
+            isNb ? "Ingen dokumenter fra denne kilden ennå" : "No documents from this source yet",
+            showRequestRows ? pendingRequests : [],
+          )}
+        </div>
       )}
+
 
       {atLimit && (
         <div className="flex items-center gap-2 p-3 rounded-lg bg-warning/10 border border-warning/20 text-sm">
@@ -379,8 +490,8 @@ export function DocumentsTab({ assetId, assetName, vendorName, hideUploadButton,
         </div>
       )}
 
-      {/* Requests section */}
-      <DocumentRequestsSection assetId={assetId} />
+      {/* Dialogs */}
+
 
       {/* Dialogs */}
       <DocumentDetailDialog
