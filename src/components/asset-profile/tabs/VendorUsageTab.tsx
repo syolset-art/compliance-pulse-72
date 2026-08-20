@@ -489,6 +489,16 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
               ))}
             </SelectContent>
           </Select>
+
+          <LaraFieldSuggestion
+            isNb={isNb}
+            suggestedLabel={getLabel(priorityOptions, prioritySuggestion)}
+            reason={contextReason}
+            approvedBy={riskMeta.priority_set_by || null}
+            matchesCurrent={(asset as any)?.priority === prioritySuggestion}
+            onApprove={() => handleFieldChange("priority", prioritySuggestion)}
+          />
+
           <p className="text-[13px] text-muted-foreground leading-snug">
             {isNb
               ? "Din prioritering av leverandøren for filtrering og oppfølging."
