@@ -174,16 +174,21 @@ export function DocumentsTab({ assetId, assetName, vendorName, hideUploadButton,
 
   const coverage = computeDocCoverage(documents as any[]);
   const filteredDocs =
-    sourceFilter === "all"
+    originFilter === "all"
       ? visibleDocs
-      : (visibleDocs as any[]).filter((d: any) => resolveDocSource(d.source) === sourceFilter);
+      : (visibleDocs as any[]).filter((d: any) => resolveDocOrigin(d.source) === originFilter);
+  const originCounts = {
+    internal: (visibleDocs as any[]).filter((d: any) => resolveDocOrigin(d.source) === "internal").length,
+    external: (visibleDocs as any[]).filter((d: any) => resolveDocOrigin(d.source) === "external").length,
+  };
   const expiredCount = (documents as any[]).filter((d: any) => {
     const expiry = getExpiryDate(d);
     return expiry && new Date(expiry) < new Date() && d.status !== "superseded";
   }).length;
   const historyCount = (documents as any[]).filter(isHistorical).length;
   const pendingRequests = (requests as any[]).filter((r: any) => r.status !== "received");
-  const showRequestRows = sourceFilter === "all" || sourceFilter === "vendor";
+  const showRequestRows = originFilter === "all" || originFilter === "external";
+
 
 
   const renderDocTable = (docs: any[], emptyMsg: string, reqs: any[] = []) => {
