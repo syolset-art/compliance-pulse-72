@@ -387,7 +387,7 @@ const AssetTrustProfile = () => {
             {/* Vendor: unified status card (stripe + name + donut + context + kontakt-footer) */}
             {isVendor && (
               <div ref={headerRef}>
-                <VendorStatusBanner asset={asset as any} />
+                <VendorStatusBanner asset={asset as any} accessMembers={["Synnøve Olset", "Erik Solheim", "Marte Halvorsen"]} />
               </div>
             )}
 

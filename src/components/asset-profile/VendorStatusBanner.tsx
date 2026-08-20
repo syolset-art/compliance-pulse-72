@@ -42,7 +42,9 @@ interface VendorStatusBannerProps {
     org_number?: string | null;
     criticality?: string | null;
     priority?: string | null;
+    access_members?: string[];
   };
+  accessMembers?: string[];
 }
 
 function Donut({ score, tone }: { score: number; tone: VendorStatusMeta["tone"] }) {
@@ -98,8 +100,9 @@ function InitialAvatar({ name, color = "bg-primary/15 text-primary" }: { name: s
   );
 }
 
-export function VendorStatusBanner({ asset }: VendorStatusBannerProps) {
+export function VendorStatusBanner({ asset, accessMembers }: VendorStatusBannerProps) {
   const { t } = useTranslation();
+  const members = accessMembers || asset.access_members || [];
 
   const { data: expiredDocsCount = 0 } = useQuery({
     queryKey: ["vendor-banner-expired-docs", asset.id],
@@ -428,11 +431,16 @@ export function VendorStatusBanner({ asset }: VendorStatusBannerProps) {
             </div>
 
             <div className="flex items-center gap-2 min-w-0">
-              <span className="text-[12px] uppercase tracking-wider text-muted-foreground font-semibold">Ansvarlig hos oss:</span>
-              {asset.asset_manager ? (
-                <span className="inline-flex items-center gap-1.5 text-foreground/90">
-                  <InitialAvatar name={asset.asset_manager} color="bg-primary/15 text-primary" />
-                  <span className="truncate">{asset.asset_manager}</span>
+              <span className="text-[12px] uppercase tracking-wider text-muted-foreground font-semibold shrink-0">Tilgang til leverandørmodulen:</span>
+              {members.length > 0 ? (
+                <span className="inline-flex items-center gap-1.5 flex-wrap">
+                  {members.map((member, idx) => (
+                    <span key={idx} className="inline-flex items-center gap-1.5 text-foreground/90">
+                      <InitialAvatar name={member} color="bg-primary/15 text-primary" />
+                      <span className="truncate">{member}</span>
+                      {idx < members.length - 1 && <span className="text-muted-foreground">·</span>}
+                    </span>
+                  ))}
                 </span>
               ) : (
                 <span className="text-muted-foreground italic">Ikke tildelt</span>
