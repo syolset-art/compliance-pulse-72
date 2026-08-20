@@ -363,17 +363,6 @@ export function MynderGuidanceTab({
 
 
 
-        <div className="space-y-2 h-full">
-          <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground px-0.5">
-            {isNb ? "Hva må gjøres videre" : "What to do next"}
-          </p>
-          <VendorNextStepsCard
-            steps={nextSteps}
-            onRunStep={runNextStep}
-            onRunAllLara={runAllLaraSteps}
-            
-          />
-        </div>
       </div>
 
 
