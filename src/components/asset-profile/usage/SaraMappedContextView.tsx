@@ -17,11 +17,17 @@ export interface SaraContextField {
   label: string;
   /** Nåværende lagret verdi (kan være null når ingenting er satt) */
   value: string | null | undefined;
-  /** Saras utledede forslag */
+  /** Laras utledede forslag */
   suggested: string;
   options: { value: string; label: string }[];
-  /** True når brukeren har overstyrt feltet */
+  /** True når brukeren har bekreftet/overstyrt feltet */
   overridden: boolean;
+  /** Navn på mennesket som bekreftet verdien */
+  approvedBy?: string | null;
+  /** Dato (formatert) for bekreftelsen */
+  approvedAt?: string | null;
+  /** Godkjenn Laras forslag som det er */
+  onApprove?: () => void;
   onChange: (value: string) => void;
 }
 
