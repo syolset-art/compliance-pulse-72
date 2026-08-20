@@ -100,8 +100,9 @@ function InitialAvatar({ name, color = "bg-primary/15 text-primary" }: { name: s
   );
 }
 
-export function VendorStatusBanner({ asset }: VendorStatusBannerProps) {
+export function VendorStatusBanner({ asset, accessMembers }: VendorStatusBannerProps) {
   const { t } = useTranslation();
+  const members = accessMembers || asset.access_members || [];
 
   const { data: expiredDocsCount = 0 } = useQuery({
     queryKey: ["vendor-banner-expired-docs", asset.id],
