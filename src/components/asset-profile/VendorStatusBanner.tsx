@@ -99,8 +99,7 @@ function InitialAvatar({ name, color = "bg-primary/15 text-primary" }: { name: s
 }
 
 export function VendorStatusBanner({ asset }: VendorStatusBannerProps) {
-  const { t, i18n } = useTranslation();
-  const isNb = i18n.language === "nb" || i18n.language === "no";
+  const { t } = useTranslation();
 
   const { data: expiredDocsCount = 0 } = useQuery({
     queryKey: ["vendor-banner-expired-docs", asset.id],
