@@ -124,6 +124,8 @@ interface FrameworkRequirementsListProps {
 
 import { useRequirementEvidence } from "@/hooks/useRequirementEvidence";
 import { persistRequirementEvidence } from "@/lib/requirementEvidence";
+import { DocumentActionButtons } from "@/components/agents/DocumentActionButtons";
+
 
 export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlightRequirementId }: FrameworkRequirementsListProps) => {
   const { i18n } = useTranslation();
