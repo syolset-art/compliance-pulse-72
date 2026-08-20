@@ -340,7 +340,7 @@ export function ServiceCoverageSearch({
       )}
 
 
-      {groups.length > 0 && (
+      {mode === "service" && groups.length > 0 && (
         <div className="space-y-2">
           <div className="rounded-md border border-border bg-card overflow-hidden">
             <RadioGroup value={selectedKey ?? ""} onValueChange={setSelectedKey}>
