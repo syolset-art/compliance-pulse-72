@@ -11,6 +11,8 @@ import { deriveVendorStatus, deriveCriticality, type VendorStatusMeta } from "@/
 import { VendorInlinePillSelect } from "@/components/vendor-dashboard/VendorInlinePillSelect";
 import { InviteVendorDialog } from "@/components/vendor-dashboard/InviteVendorDialog";
 import { useState } from "react";
+import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
+
 import {
   NOT_REQUESTED_LABEL,
   SOURCING_METHOD_META,
