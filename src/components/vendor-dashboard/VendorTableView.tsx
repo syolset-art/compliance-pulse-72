@@ -11,7 +11,7 @@ import {
   Popover, PopoverContent, PopoverTrigger,
 } from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
-import { Filter, X, UserPlus } from "lucide-react";
+import { Filter, X, UserPlus, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { maturityTextClass, maturityLabelNb, getMaturityLevel } from "@/lib/maturityLevel";
 import { staggerEntranceClass } from "@/lib/animation";
@@ -198,13 +198,15 @@ function OwnerCell({
     <Popover>
       <PopoverTrigger asChild onClick={stop}>
         {ownerName ? (
-          <button className="text-xs text-muted-foreground hover:text-foreground truncate max-w-[140px] text-left">
-            {ownerName}
+          <button className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground hover:bg-muted rounded px-1.5 py-0.5 transition-colors max-w-[160px] text-left group">
+            <span className="truncate">{ownerName}</span>
+            <ChevronDown className="h-3 w-3 shrink-0 opacity-60 group-hover:opacity-100" />
           </button>
         ) : (
-          <button className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
+          <button className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground hover:bg-muted rounded px-1.5 py-0.5 transition-colors">
             <UserPlus className="h-3 w-3" />
             {t("vendorDashboard.list.assign", "Tilordne")}
+            <ChevronDown className="h-3 w-3 shrink-0 opacity-60" />
           </button>
         )}
       </PopoverTrigger>
