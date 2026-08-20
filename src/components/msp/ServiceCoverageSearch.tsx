@@ -70,11 +70,41 @@ function keyFor(it: ControlSuggestion) {
   return `${it.frameworkId}:${it.controlId}`;
 }
 
-export function ServiceCoverageSearch({ existingNames, onCreate }: Props) {
+export function ServiceCoverageSearch({
+  existingNames,
+  onCreate,
+  onOpenFramework,
+  onAddProductToOffer,
+}: Props) {
   const [query, setQuery] = useState("");
   const [debounced, setDebounced] = useState("");
   const [justAdded, setJustAdded] = useState(false);
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
+  const [modeOverride, setModeOverride] = useState<SearchKind | null>(null);
+  const { defaultHourlyRate, currency } = useServiceDefaults();
+
+  const { data: reqRows = [] } = useQuery({
+    queryKey: ["all-compliance-requirements"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("compliance_requirements")
+        .select("framework_id, requirement_id, name_no, category");
+      if (error) return [] as Array<{ framework_id: string }>;
+      return (data ?? []) as unknown as Array<{ framework_id: string }>;
+    },
+  });
+
+  const detected = useMemo<SearchKind>(
+    () => (debounced.length >= 2 ? detectSearchKind(debounced) : "service"),
+    [debounced],
+  );
+  const mode = modeOverride ?? detected;
+  const framework = useMemo(() => matchFramework(debounced), [debounced]);
+  const product = useMemo(() => matchProduct(debounced), [debounced]);
+
+  const fmt = (n: number) =>
+    `${new Intl.NumberFormat("nb-NO", { maximumFractionDigits: 0 }).format(Math.round(n))} ${currency}`;
+
 
   useEffect(() => {
     const t = window.setTimeout(() => setDebounced(query.trim()), 250);
