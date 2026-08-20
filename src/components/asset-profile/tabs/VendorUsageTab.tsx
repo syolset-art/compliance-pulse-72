@@ -18,7 +18,6 @@ import { suggestVendorRisk } from "@/lib/vendorRiskSuggestion";
 import { suggestVendorContext, usageTagLabel } from "@/lib/vendorContextSuggestion";
 import { buildGdprRolePlan } from "@/lib/vendorGdprRolePlan";
 import { GdprRolePlanCard } from "@/components/asset-profile/usage/GdprRolePlanCard";
-import { LaraContextBanner } from "@/components/asset-profile/usage/LaraContextBanner";
 
 import { VendorPurposeCard } from "@/components/asset-profile/usage/VendorPurposeCard";
 import { ContextPillRow, type ContextPillItem } from "@/components/asset-profile/usage/ContextPillRow";
@@ -120,13 +119,6 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
   const [laraLoading, setLaraLoading] = useState(false);
   const { installed: saraInstalled } = useSaraAgent();
   const [viewMode, setViewMode] = useState<"auto" | "manual">("auto");
-  const [acceptedAt, setAcceptedAt] = useState<Date | null>(null);
-  const [preAcceptSnapshot, setPreAcceptSnapshot] = useState<{
-    criticality: string | null;
-    gdpr_role: string | null;
-    risk_level: string | null;
-    metadata: Record<string, any>;
-  } | null>(null);
 
   const { data: asset } = useQuery({
     queryKey: ["asset-usage", assetId],
@@ -335,33 +327,6 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
   const riskReason = (isNb ? riskSuggestion.reasons : riskSuggestion.reasonsEn).join(" · ");
 
 
-
-  const nextStep = (() => {
-    const isProcessor =
-      (asset as any)?.gdpr_role === "databehandler" || (asset as any)?.gdpr_role === "underdatabehandler";
-    if (isProcessor && !(asset as any)?.has_dpa) {
-      return {
-        labelNb: "Legg til databehandleravtale",
-        labelEn: "Add data processing agreement",
-        onClick: () => onNavigateToTab?.("evidence"),
-      };
-    }
-    if (
-      (asset?.criticality === "high" || asset?.criticality === "critical") &&
-      !riskMeta.risk_rationale
-    ) {
-      return {
-        labelNb: "Gjør risikovurdering",
-        labelEn: "Do a risk assessment",
-        onClick: () => setOpenPill("risk"),
-      };
-    }
-    return {
-      labelNb: "Se leverandørens dokumentasjon",
-      labelEn: "View vendor documentation",
-      onClick: () => onNavigateToTab?.("evidence"),
-    };
-  })();
 
   // --- Laras plan for GDPR-rolle (må godkjennes av brukeren) ---
   const [gdprPlanDismissed, setGdprPlanDismissed] = useState(false);
