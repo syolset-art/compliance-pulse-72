@@ -136,17 +136,15 @@ export default function DocumentHub() {
               <span className="text-sm font-medium text-muted-foreground">
                 {stats.total} {L("dokumenter", "documents")}
               </span>
-              <Button
-                size="sm"
-                className="ml-auto gap-1.5"
-                onClick={() => {
+              <DocumentActionButtons
+                className="ml-auto"
+                uploadLabel={{ nb: "Last opp dokument", en: "Upload document" }}
+                onUpload={() => {
                   setPreset({});
                   setUploadOpen(true);
                 }}
-              >
-                <Upload className="h-3.5 w-3.5" aria-hidden="true" />
-                {L("Last opp dokument", "Upload document")}
-              </Button>
+              />
+
             </div>
             <p className="text-sm text-muted-foreground">
               {L(
