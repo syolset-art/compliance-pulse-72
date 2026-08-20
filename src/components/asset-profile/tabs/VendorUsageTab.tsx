@@ -645,22 +645,26 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
         onAcceptAll={handleAcceptAll}
       />
 
-      <VendorPurposeCard
-        isNb={isNb}
-        purpose={usagePurpose}
-        tags={usageTags}
-        suggestedText={isNb ? contextSuggestion.usageTextNb : contextSuggestion.usageTextEn}
-        suggesting={laraLoading}
-        onSavePurpose={(v) => saveMeta({ usage_purpose: v })}
-        onToggleTag={handleToggleUsageTag}
-        onSuggest={handleSuggestPurpose}
-      />
+      <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-2">
+        <ContextPillRow
+          items={pillItems}
+          openKey={openPill}
+          onToggle={(k) => setOpenPill(openPill === k ? null : k)}
+        />
 
-      <ContextPillRow
-        items={pillItems}
-        openKey={openPill}
-        onToggle={(k) => setOpenPill(openPill === k ? null : k)}
-      />
+        <VendorPurposeCard
+          isNb={isNb}
+          purpose={usagePurpose}
+          tags={usageTags}
+          suggestedText={isNb ? contextSuggestion.usageTextNb : contextSuggestion.usageTextEn}
+          suggesting={laraLoading}
+          onSavePurpose={(v) => saveMeta({ usage_purpose: v })}
+          onToggleTag={handleToggleUsageTag}
+          onSuggest={handleSuggestPurpose}
+        />
+      </div>
+
+
 
 
       {/* Processes (free-text + AI suggestions) */}

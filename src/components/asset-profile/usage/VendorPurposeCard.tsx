@@ -26,16 +26,16 @@ export const VendorPurposeCard = ({
 
   return (
     <Card>
-      <CardContent className="space-y-3 p-4">
+      <CardContent className="space-y-2.5 p-3">
         <div className="flex flex-wrap items-center gap-2">
-          <Briefcase className="h-4 w-4 text-muted-foreground" />
-          <span className="text-sm font-medium text-foreground">
+          <Briefcase className="h-3.5 w-3.5 text-muted-foreground" />
+          <span className="text-[13px] font-medium text-foreground">
             {isNb ? "Hva brukes leverandøren til?" : "What is this vendor used for?"}
           </span>
           <Button
             size="sm"
-            variant="outline"
-            className="ml-auto h-7 gap-1 text-[12px]"
+            variant="ghost"
+            className="ml-auto h-6 gap-1 px-2 text-[12px] text-primary"
             disabled={suggesting}
             onClick={onSuggest}
           >
@@ -44,7 +44,7 @@ export const VendorPurposeCard = ({
           </Button>
         </div>
 
-        <div className="flex flex-wrap gap-1.5">
+        <div className="flex flex-wrap gap-1">
           {USAGE_TAGS.map((t) => {
             const active = tags.includes(t.value);
             return (
@@ -53,7 +53,7 @@ export const VendorPurposeCard = ({
                 type="button"
                 onClick={() => onToggleTag(t.value)}
                 className={cn(
-                  "rounded-full border px-2.5 py-1 text-[12px] transition-colors",
+                  "rounded-full border px-2 py-0.5 text-[12px] transition-colors",
                   active
                     ? "border-primary/30 bg-primary/10 text-primary"
                     : "border-border text-muted-foreground hover:bg-accent"
@@ -70,17 +70,24 @@ export const VendorPurposeCard = ({
           onChange={(e) => setDraft(e.target.value)}
           onBlur={() => { if (draft !== purpose) onSavePurpose(draft); }}
           rows={2}
-          className="text-[13px]"
+          className="min-h-[52px] text-[13px] transition-[min-height] focus:min-h-[96px]"
           placeholder={isNb
             ? "Beskriv kort hva leverandøren utfører på vegne av virksomheten …"
             : "Briefly describe what the vendor performs on behalf of the business …"}
         />
 
         {!draft.trim() && suggestedText && (
-          <p className="flex items-start gap-1.5 text-[13px] text-muted-foreground leading-snug">
-            <Sparkles className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
-            {isNb ? "Laras forslag: " : "Lara suggests: "}{suggestedText}
-          </p>
+          <div className="flex items-start gap-1.5 rounded-md bg-muted/40 p-2 text-[12px] leading-snug text-muted-foreground">
+            <Sparkles className="mt-0.5 h-3 w-3 shrink-0 text-primary" />
+            <span className="min-w-0 flex-1">{suggestedText}</span>
+            <button
+              type="button"
+              onClick={() => { setDraft(suggestedText); onSavePurpose(suggestedText); }}
+              className="shrink-0 font-medium text-primary hover:underline"
+            >
+              {isNb ? "Bruk" : "Use"}
+            </button>
+          </div>
         )}
       </CardContent>
     </Card>
