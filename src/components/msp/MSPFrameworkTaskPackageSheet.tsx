@@ -23,6 +23,7 @@ import {
 import { Plus, RotateCcw, Sparkles, Trash2, Pencil, Check, X } from "lucide-react";
 import { toast } from "sonner";
 import { formatPriceRange } from "@/lib/documentDeliverables";
+import { baselineRequirementRows } from "@/lib/frameworkRequirementBaseline";
 import {
   buildFrameworkTasks,
   resolveTasks,
