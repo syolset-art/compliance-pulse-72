@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 import { Sidebar } from "@/components/Sidebar";
 import {
@@ -54,6 +54,7 @@ const DISCOVERY_FILTERS: (DiscoveryType | "all")[] = [
   "vendors",
   "documents",
   "users",
+  "incidents",
 ];
 
 const STATUS_STYLE: Record<IntegrationStatus, string> = {
@@ -65,8 +66,15 @@ const STATUS_STYLE: Record<IntegrationStatus, string> = {
 
 export default function Integrations() {
   const { t } = useTranslation();
+  const [searchParams] = useSearchParams();
+  const initialDiscovery = (() => {
+    const q = searchParams.get("discover");
+    return q && DISCOVERY_FILTERS.includes(q as DiscoveryType)
+      ? (q as DiscoveryType)
+      : ("all" as const);
+  })();
   const [search, setSearch] = useState("");
-  const [discovery, setDiscovery] = useState<DiscoveryType | "all">("all");
+  const [discovery, setDiscovery] = useState<DiscoveryType | "all">(initialDiscovery);
   const [activity, setActivity] = useState<AgentActivityItem[]>([]);
   const [connections, setConnections] = useState<Record<string, ConnectionState>>({});
   const [dialogIntegration, setDialogIntegration] = useState<IntegrationDefinition | null>(null);
