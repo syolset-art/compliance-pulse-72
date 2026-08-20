@@ -507,6 +507,13 @@ export default function Deviations() {
                 </div>
               </div>
 
+              {/* Sara – lokal agent i kundens egen infrastruktur */}
+              {saraInstalled && (
+                <div className="mt-4 pt-4 border-t border-border">
+                  <SaraLiveDeviationsPanel />
+                </div>
+              )}
+
               {/* Expanded info */}
               {liveInfoExpanded && (
                 <div className="mt-4 pt-4 border-t border-border space-y-4">
