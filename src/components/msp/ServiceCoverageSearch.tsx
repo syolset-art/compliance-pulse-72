@@ -1,5 +1,5 @@
-import { useMemo, useState, useEffect } from "react";
-import { Search, Plus, Check, Info, Scale, Package, ArrowRight } from "lucide-react";
+import { useMemo, useState, useEffect, useCallback } from "react";
+import { Search, Plus, Check, Info, Scale, Package, ArrowRight, GripVertical } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
