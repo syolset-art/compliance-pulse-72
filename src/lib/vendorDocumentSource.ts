@@ -81,3 +81,16 @@ export function computeDocCoverage(docs: any[]): DocCoverage {
 
   return { total: docs.length, valid, expiring, expired, bySource };
 }
+
+/** Intern = produsert/hentet i egen organisasjon. Ekstern = mottatt fra leverandør/tredjepart. */
+export type DocOrigin = "internal" | "external";
+
+export function resolveDocOrigin(rawSource?: string | null): DocOrigin {
+  const key = resolveDocSource(rawSource);
+  return key === "uploaded" || key === "agent" ? "internal" : "external";
+}
+
+export function docOriginLabel(origin: DocOrigin, isNb: boolean): string {
+  if (origin === "internal") return isNb ? "Intern" : "Internal";
+  return isNb ? "Ekstern" : "External";
+}
