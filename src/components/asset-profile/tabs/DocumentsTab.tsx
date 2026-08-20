@@ -14,9 +14,13 @@ import {
   computeDocCoverage,
   docSourceLabel,
   resolveDocSource,
+  resolveDocOrigin,
+  docOriginLabel,
   DOC_SOURCE_ORDER,
   type DocSourceKey,
+  type DocOrigin,
 } from "@/lib/vendorDocumentSource";
+
 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { DocumentSharingPopover } from "../DocumentSharingPopover";
