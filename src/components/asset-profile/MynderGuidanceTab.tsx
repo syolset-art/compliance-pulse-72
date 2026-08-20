@@ -44,6 +44,8 @@ import {
   type VendorFramework,
   type VendorFrameworkAction,
 } from "@/lib/vendorFrameworkSuggestions";
+import { useVendorFrameworkScope } from "@/hooks/useVendorFrameworkScope";
+import { frameworks as allFrameworkDefs } from "@/lib/frameworkDefinitions";
 import type { VendorActivity } from "@/utils/vendorActivityData";
 
 interface Props {
@@ -125,11 +127,34 @@ export function MynderGuidanceTab({
     writeFrameworkState(assetId, next);
   };
 
+  const { scopeIds } = useVendorFrameworkScope();
+
+  const globalFrameworks: VendorFramework[] = useMemo(
+    () =>
+      scopeIds
+        .map((id) => allFrameworkDefs.find((f) => f.id === id))
+        .filter((f): f is (typeof allFrameworkDefs)[number] => Boolean(f))
+        .map((f) => ({
+          id: f.id,
+          label: f.name,
+          confidence: "high" as const,
+          reasonNb: "Valgt globalt for alle leverandører under Leverandører › Regelverk.",
+          reasonEn: "Selected globally for all vendors under Vendors › Frameworks.",
+          global: true,
+        })),
+    [scopeIds],
+  );
+
   const frameworks: VendorFramework[] = useMemo(() => {
     const base = laraFrameworks.filter((f) => !fwState.removed.includes(f.id));
-    const extra = fwState.added.filter((f) => !base.some((b) => b.id === f.id));
-    return [...base, ...extra];
-  }, [laraFrameworks, fwState]);
+    const merged = [...base];
+    for (const f of [...globalFrameworks, ...fwState.added]) {
+      const existing = merged.findIndex((m) => m.id === f.id);
+      if (existing >= 0) merged[existing] = { ...merged[existing], ...f };
+      else if (!fwState.removed.includes(f.id)) merged.push(f);
+    }
+    return merged;
+  }, [laraFrameworks, fwState, globalFrameworks]);
 
   const actions: VendorFrameworkAction[] = useMemo(() => {
     const known = frameworks.filter((f) => frameworkById(f.id));
