@@ -816,6 +816,10 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
   const opts = (list: typeof criticalityOptions) =>
     list.map((o) => ({ value: o.value, label: isNb ? o.labelNb : o.labelEn }));
 
+  const nowIso = () => new Date().toISOString();
+  const fmtDate = (v?: string | null) =>
+    v ? new Date(v).toLocaleDateString(isNb ? "nb-NO" : "en-GB") : null;
+
   const saraFields: SaraContextField[] = [
     {
       key: "criticality",
@@ -824,8 +828,18 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
       suggested: saraMapping.criticality,
       options: opts(criticalityOptions),
       overridden: !!riskMeta.criticality_set_by,
+      approvedBy: riskMeta.criticality_set_by || null,
+      approvedAt: fmtDate(riskMeta.criticality_set_at),
+      onApprove: () =>
+        updateMutation.mutate({
+          criticality: saraMapping.criticality,
+          metadata: { ...riskMeta, criticality_set_by: currentUserName, criticality_set_at: nowIso() },
+        } as any),
       onChange: (v) =>
-        updateMutation.mutate({ criticality: v, metadata: { ...riskMeta, criticality_set_by: currentUserName } } as any),
+        updateMutation.mutate({
+          criticality: v,
+          metadata: { ...riskMeta, criticality_set_by: currentUserName, criticality_set_at: nowIso() },
+        } as any),
     },
     {
       key: "priority",
@@ -834,8 +848,18 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
       suggested: saraMapping.priority,
       options: opts(priorityOptions),
       overridden: !!riskMeta.priority_set_by,
+      approvedBy: riskMeta.priority_set_by || null,
+      approvedAt: fmtDate(riskMeta.priority_set_at),
+      onApprove: () =>
+        updateMutation.mutate({
+          priority: saraMapping.priority,
+          metadata: { ...riskMeta, priority_set_by: currentUserName, priority_set_at: nowIso() },
+        } as any),
       onChange: (v) =>
-        updateMutation.mutate({ priority: v, metadata: { ...riskMeta, priority_set_by: currentUserName } } as any),
+        updateMutation.mutate({
+          priority: v,
+          metadata: { ...riskMeta, priority_set_by: currentUserName, priority_set_at: nowIso() },
+        } as any),
     },
     {
       key: "gdpr",
@@ -844,6 +868,9 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
       suggested: saraMapping.gdprRole,
       options: opts(gdprOptions),
       overridden: !!riskMeta.gdpr_role_approved_by,
+      approvedBy: riskMeta.gdpr_role_approved_by || null,
+      approvedAt: fmtDate(riskMeta.gdpr_role_approved_at),
+      onApprove: () => handleGdprRoleChange(saraMapping.gdprRole),
       onChange: handleGdprRoleChange,
     },
     {
@@ -853,6 +880,9 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
       suggested: saraMapping.riskLevel,
       options: opts(riskOptions),
       overridden: !!riskSetBy,
+      approvedBy: riskSetBy || null,
+      approvedAt: riskSetAt || null,
+      onApprove: () => handleManualRiskChange(saraMapping.riskLevel),
       onChange: handleManualRiskChange,
     },
   ];
