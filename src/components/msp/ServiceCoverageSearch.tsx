@@ -286,9 +286,12 @@ export function ServiceCoverageSearch({
     setSelectedKey(null);
   };
 
-  const requirementCount = framework
+  const dbRequirementCount = framework
     ? reqRows.filter((r) => r.framework_id === framework.id).length
     : 0;
+  const { count: requirementCount, estimated: requirementsEstimated } = framework
+    ? effectiveRequirementCount(framework.id, dbRequirementCount)
+    : { count: 0, estimated: false };
   const potential = frameworkPotential(requirementCount, defaultHourlyRate);
 
   return (
