@@ -49,7 +49,7 @@ export const EvidenceGapPanel = ({ coverage, saraInstalled, onUpload, onAskSara,
           <button
             key={t.id}
             type="button"
-            onClick={() => setTab(t.id)}
+            onClick={() => { setTab(t.id); setShowAll(false); }}
             className={cn(
               "rounded-md px-3 py-1.5 text-sm transition-colors",
               tab === t.id ? "bg-muted font-medium text-foreground" : "text-muted-foreground hover:text-foreground",
