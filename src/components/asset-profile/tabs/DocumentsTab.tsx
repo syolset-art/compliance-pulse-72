@@ -402,7 +402,7 @@ export function DocumentsTab({ assetId, assetName, vendorName, hideUploadButton,
 
       {isLoading ? (
         <div className="space-y-3">{[1, 2].map((i) => <div key={i} className="h-12 bg-muted animate-pulse rounded" />)}</div>
-      ) : documents.length === 0 ? (
+      ) : documents.length === 0 && pendingRequests.length === 0 ? (
         hideUploadButton ? (
           <p className="text-xs text-muted-foreground">
             {isNb ? "Ingen dokumenter lastet opp ennå." : "No documents uploaded yet."}
@@ -411,31 +411,58 @@ export function DocumentsTab({ assetId, assetName, vendorName, hideUploadButton,
           <div className="flex items-center justify-end">{uploadButton}</div>
         )
       ) : (
-        <Tabs defaultValue="all" className="w-full">
-          <div className="flex items-end justify-between gap-3 border-b border-border">
-            <TabsList className="h-auto bg-transparent p-0 gap-5 justify-start rounded-none border-0">
-              <TabsTrigger
-                value="all"
-                className="text-xs gap-1.5 px-0 pb-2.5 pt-0 rounded-none bg-transparent text-muted-foreground data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-foreground -mb-px"
-              >
-                {isNb ? "Alle" : "All"}
-                <span className="text-muted-foreground/70">{visibleDocs.length}</span>
-              </TabsTrigger>
-              <TabsTrigger
-                value="internal"
-                className="text-xs gap-1.5 px-0 pb-2.5 pt-0 rounded-none bg-transparent text-muted-foreground data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-foreground -mb-px"
-              >
-                {isNb ? "Interne" : "Internal"}
-                <span className="text-muted-foreground/70">{internalDocs.length}</span>
-              </TabsTrigger>
-              <TabsTrigger
-                value="vendor"
-                className="text-xs gap-1.5 px-0 pb-2.5 pt-0 rounded-none bg-transparent text-muted-foreground data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-foreground -mb-px"
-              >
-                {isNb ? "Fra leverandør" : "From vendor"}
-                <span className="text-muted-foreground/70">{vendorDocs.length}</span>
-              </TabsTrigger>
-            </TabsList>
+        <div className="w-full space-y-4">
+          {/* Dekning – kompakt linje */}
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-muted-foreground">
+            <span className="font-medium text-foreground">
+              {coverage.total} {isNb ? "dokumenter" : "documents"}
+            </span>
+            <span>·</span>
+            <span>{coverage.valid} {isNb ? "gyldige" : "valid"}</span>
+            {coverage.expiring > 0 && (
+              <>
+                <span>·</span>
+                <span className="text-warning">{coverage.expiring} {isNb ? "utløper snart" : "expiring soon"}</span>
+              </>
+            )}
+            {coverage.expired > 0 && (
+              <>
+                <span>·</span>
+                <span className="text-destructive">{coverage.expired} {isNb ? "utløpt" : "expired"}</span>
+              </>
+            )}
+            {pendingRequests.length > 0 && (
+              <>
+                <span>·</span>
+                <span>{pendingRequests.length} {isNb ? "etterspurt" : "requested"}</span>
+              </>
+            )}
+          </div>
+
+          {/* Kildefilter */}
+          <div className="flex flex-wrap items-end justify-between gap-3 border-b border-border">
+            <div className="flex flex-wrap items-center gap-5">
+              {(["all", ...DOC_SOURCE_ORDER] as const).map((key) => {
+                const count = key === "all" ? visibleDocs.length : coverage.bySource[key as DocSourceKey];
+                const active = sourceFilter === key;
+                return (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() => setSourceFilter(key as DocSourceKey | "all")}
+                    className={`-mb-px flex items-center gap-1.5 pb-2.5 text-xs transition-colors ${
+                      active
+                        ? "border-b-2 border-foreground font-medium text-foreground"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {key !== "all" && <DocumentSourceIcon source={key as DocSourceKey} isNb={isNb} />}
+                    {key === "all" ? (isNb ? "Alle" : "All") : docSourceLabel(key as DocSourceKey, isNb)}
+                    <span className="text-muted-foreground/70">{count}</span>
+                  </button>
+                );
+              })}
+            </div>
             <div className="flex items-center gap-3 pb-2">
               {historyCount > 0 && (
                 <div className="flex items-center gap-1.5">
@@ -449,17 +476,14 @@ export function DocumentsTab({ assetId, assetName, vendorName, hideUploadButton,
             </div>
           </div>
 
-          <TabsContent value="all" className="mt-4">
-            {renderDocTable(visibleDocs, isNb ? "Ingen dokumenter" : "No documents")}
-          </TabsContent>
-          <TabsContent value="internal" className="mt-4">
-            {renderDocTable(internalDocs, isNb ? "Ingen interne dokumenter lastet opp ennå" : "No internal documents uploaded yet")}
-          </TabsContent>
-          <TabsContent value="vendor" className="mt-4">
-            {renderDocTable(vendorDocs, isNb ? "Ingen dokumenter mottatt fra leverandøren ennå" : "No documents received from vendor yet")}
-          </TabsContent>
-        </Tabs>
+          {renderDocTable(
+            filteredDocs,
+            isNb ? "Ingen dokumenter fra denne kilden ennå" : "No documents from this source yet",
+            showRequestRows ? pendingRequests : [],
+          )}
+        </div>
       )}
+
 
       {atLimit && (
         <div className="flex items-center gap-2 p-3 rounded-lg bg-warning/10 border border-warning/20 text-sm">
