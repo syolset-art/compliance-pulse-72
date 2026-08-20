@@ -632,8 +632,121 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
     },
   ];
 
+  // --- Alternativ visning: alt kartlagt automatisk av den lokale agenten Sara ---
+  const saraMapping = buildSaraVendorMapping({
+    vendorName: asset?.name,
+    vendorCategory: (asset as any)?.vendor_category,
+    description: asset?.description,
+    hasDpa: !!(asset as any)?.has_dpa,
+    hasPrivacyPolicy: !!asset?.privacy_policy_url,
+    sensitive: sensitiveOn,
+    dataCategoryCount: dataCategories.length,
+    processorCount: processors.length,
+    nonEuProcessorCount: processors.filter((p: any) => p.eu_eos_compliant === false).length,
+  });
+
+  const opts = (list: typeof criticalityOptions) =>
+    list.map((o) => ({ value: o.value, label: isNb ? o.labelNb : o.labelEn }));
+
+  const saraFields: SaraContextField[] = [
+    {
+      key: "criticality",
+      label: isNb ? "Kritikalitet" : "Criticality",
+      value: asset?.criticality,
+      suggested: saraMapping.criticality,
+      options: opts(criticalityOptions),
+      overridden: !!riskMeta.criticality_set_by,
+      onChange: (v) =>
+        updateMutation.mutate({ criticality: v, metadata: { ...riskMeta, criticality_set_by: currentUserName } } as any),
+    },
+    {
+      key: "priority",
+      label: isNb ? "Prioritet" : "Priority",
+      value: (asset as any)?.priority,
+      suggested: saraMapping.priority,
+      options: opts(priorityOptions),
+      overridden: !!riskMeta.priority_set_by,
+      onChange: (v) =>
+        updateMutation.mutate({ priority: v, metadata: { ...riskMeta, priority_set_by: currentUserName } } as any),
+    },
+    {
+      key: "gdpr",
+      label: isNb ? "GDPR-rolle" : "GDPR role",
+      value: asset?.gdpr_role,
+      suggested: saraMapping.gdprRole,
+      options: opts(gdprOptions),
+      overridden: !!riskMeta.gdpr_role_approved_by,
+      onChange: handleGdprRoleChange,
+    },
+    {
+      key: "risk",
+      label: isNb ? "Risikonivå" : "Risk level",
+      value: asset?.risk_level,
+      suggested: saraMapping.riskLevel,
+      options: opts(riskOptions),
+      overridden: !!riskSetBy,
+      onChange: handleManualRiskChange,
+    },
+  ];
+
+  if (saraInstalled && viewMode === "auto") {
+    return (
+      <div className="space-y-4">
+        <div className="flex justify-end">
+          <div className="inline-flex rounded-lg border border-border bg-muted/30 p-0.5">
+            <button
+              type="button"
+              onClick={() => setViewMode("auto")}
+              className="rounded-md bg-background px-2.5 py-1 text-[12px] font-medium shadow-sm"
+            >
+              {isNb ? "Automatisk (Sara)" : "Automatic (Sara)"}
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode("manual")}
+              className="rounded-md px-2.5 py-1 text-[12px] text-muted-foreground"
+            >
+              {isNb ? "Manuell" : "Manual"}
+            </button>
+          </div>
+        </div>
+
+        <SaraMappedContextView
+          isNb={isNb}
+          mapping={saraMapping}
+          fields={saraFields}
+          purpose={usagePurpose}
+          tags={usageTags}
+          onSavePurpose={(v) => saveMeta({ usage_purpose: v })}
+          onToggleTag={handleToggleUsageTag}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
+
+      {saraInstalled && (
+        <div className="flex justify-end">
+          <div className="inline-flex rounded-lg border border-border bg-muted/30 p-0.5">
+            <button
+              type="button"
+              onClick={() => setViewMode("auto")}
+              className="rounded-md px-2.5 py-1 text-[12px] text-muted-foreground"
+            >
+              {isNb ? "Automatisk (Sara)" : "Automatic (Sara)"}
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode("manual")}
+              className="rounded-md bg-background px-2.5 py-1 text-[12px] font-medium shadow-sm"
+            >
+              {isNb ? "Manuell" : "Manual"}
+            </button>
+          </div>
+        </div>
+      )}
 
       <LaraContextBanner
         isNb={isNb}
