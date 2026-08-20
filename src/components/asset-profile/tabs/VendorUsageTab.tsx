@@ -193,15 +193,17 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
     updateMutation.mutate({ [field]: value });
   };
 
-  // Sensitive personopplysninger — kun relevant når en GDPR-rolle med persondata er valgt
+  // Særlige kategorier personopplysninger — kun relevant når GDPR-rollen innebærer persondatabehandling
   const showSensitive = gdprRoleHandlesPersonalData(asset?.gdpr_role);
-  const sensitiveOn = !!(asset as any)?.processes_sensitive_data;
+  const sensitiveStatus = normalizeSensitiveDataStatus((asset as any)?.sensitive_data_status);
+  const sensitiveOn = sensitiveStatus === "yes";
   const selectedSensitive: string[] = ((asset as any)?.sensitive_data_categories as string[]) || [];
 
   const handleGdprRoleChange = (value: string) => {
     if (!gdprRoleHandlesPersonalData(value)) {
       updateMutation.mutate({
         gdpr_role: value,
+        sensitive_data_status: "not_assessed",
         processes_sensitive_data: false,
         sensitive_data_categories: [],
       } as any);
@@ -210,10 +212,22 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
     handleFieldChange("gdpr_role", value);
   };
 
-  const handleSensitiveToggle = (checked: boolean) => {
+  const handleSensitiveStatusChange = (value: string) => {
+    const next = normalizeSensitiveDataStatus(value);
+    if (next === sensitiveStatus) return;
+    const logEntry = {
+      field: "sensitive_data_status",
+      from: sensitiveStatus,
+      to: next,
+      by: currentUserName,
+      at: new Date().toISOString(),
+    };
+    const existingLog: any[] = Array.isArray(riskMeta.sensitive_data_log) ? riskMeta.sensitive_data_log : [];
     updateMutation.mutate({
-      processes_sensitive_data: checked,
-      ...(checked ? {} : { sensitive_data_categories: [] }),
+      sensitive_data_status: next,
+      processes_sensitive_data: next === "yes",
+      ...(next === "yes" ? {} : { sensitive_data_categories: [] }),
+      metadata: { ...riskMeta, sensitive_data_log: [...existingLog, logEntry] },
     } as any);
   };
 
@@ -223,6 +237,7 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
       : [...selectedSensitive, value];
     updateMutation.mutate({ sensitive_data_categories: next } as any);
   };
+
 
   const riskSuggestion = suggestVendorRisk({
     criticality: asset?.criticality,
