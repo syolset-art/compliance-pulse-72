@@ -175,8 +175,8 @@ export function DocumentsTab({ assetId, assetName, vendorName, hideUploadButton,
   const showRequestRows = sourceFilter === "all" || sourceFilter === "vendor";
 
 
-  const renderDocTable = (docs: any[], emptyMsg: string) => {
-    if (docs.length === 0) {
+  const renderDocTable = (docs: any[], emptyMsg: string, reqs: any[] = []) => {
+    if (docs.length === 0 && reqs.length === 0) {
       return (
         <div className="flex flex-col items-center justify-center py-8 text-center">
           <FileText className="h-8 w-8 text-muted-foreground/30 mb-2" />
@@ -184,6 +184,7 @@ export function DocumentsTab({ assetId, assetName, vendorName, hideUploadButton,
         </div>
       );
     }
+
 
     return (
       <div className="rounded-xl border border-border bg-card overflow-hidden">
