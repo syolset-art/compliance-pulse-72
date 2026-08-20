@@ -807,6 +807,10 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
     },
   ];
 
+  const assessmentPills = pillItems.filter((p) => ["criticality", "priority", "risk"].includes(p.key));
+  const relationPills = pillItems.filter((p) => ["gdpr", "relation"].includes(p.key));
+
+
 
   // --- Alternativ visning: alt kartlagt automatisk av den lokale agenten Sara ---
   const saraMapping = buildSaraVendorMapping({
