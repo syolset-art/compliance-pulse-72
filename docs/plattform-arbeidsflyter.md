@@ -174,10 +174,10 @@ Rute: `/reports/compliance`, `/maturity`. Status: Implementert.
 
 **Formål:** få leverandøren inn med nok kontekst til at Lara kan vurdere risiko og foreslå hvordan dokumentasjon skal innhentes.
 
+#### Alternativ 1 — Enkeltvis registrering
+
 Steg:
-1. **Start** — velg først om du skal legge til **én** eller **flere** leverandører:
-   1. *Én leverandør* — søk opp leverandøren. Oppslag mot offentlig register og nettside gir navn, org.nr., bransje og land. Finnes leverandøren allerede som eiendel, foreslås kobling i stedet for duplikat.
-   2. *Flere leverandører* — enten manuelt søk én om gangen, eller **filopplasting** av én fil med flere leverandører (se 4.1b). Automatisk API-synkronisering er ikke implementert ennå.
+1. **Start** — søk opp leverandøren. Oppslag mot offentlig register og nettside gir navn, org.nr., bransje og land. Finnes leverandøren allerede som eiendel, foreslås kobling i stedet for duplikat.
 2. **Grunndata og rolle** — bekreft navn og kontaktpunkt, og sett **GDPR-rolle**: databehandler eller behandlingsansvarlig. Når rollen innebærer behandling av personopplysninger, registrerer brukeren også **særlige kategorier personopplysninger** (art. 9/10) med verdiene Ja / Nei / Ikke vurdert. Feltet er brukerregistrert, defaulter til «Ikke vurdert», og endringer logges i aktivitetsloggen.
 3. **Bruk og kontekst** — beskriv hva leverandøren brukes til, hvilke prosesser og systemer de berører, og hvilke data som deles.
 4. **Kritikalitet og prioritet** — kritikalitet settes av brukeren (nøytral pille). Lara foreslår **prioritet P0–P3**; brukeren kan overstyre med begrunnelse, som logges.
@@ -189,20 +189,20 @@ Steg:
 7. **Dokumentasjon og bevis** — mottatte dokumenter analyseres av KI, som foreslår hvilke krav og artikler de dekker. Bruker godkjenner, setter gyldighet og utløpsdato, og verifiserer at avsender er uavhengig part der det kreves.
 8. **Oppfølging** — leverandøren får modenhet per kontrollområde, aktivitetslogg og Laras «Veiledning fra Mynder» med neste steg.
 
-Status: Implementert.
+Status: **Implementert**.
 
-### 4.1b Legg til flere leverandører via filopplasting
+#### Alternativ 2 — Registrer flere leverandører via filopplasting
 
 **Formål:** få inn mange leverandører på én gang fra en leverandørliste, policy eller annet dokument kunden allerede har.
 
 Steg:
 1. Velg **Flere leverandører** → **Last opp fil** i «Legg til»-dialogen.
-2. Filen analyseres av KI, som identifiserer leverandørene i dokumentet og presenterer dem som en liste med forslag.
-3. Brukeren bekrefter hvilke av de identifiserte leverandørene som skal opprettes, og kan fjerne treff som ikke er relevante.
-4. Hver bekreftet leverandør opprettes som eiendel og går videre gjennom samme baseline-berikelse og bekreftelse som ved enkeltregistrering (grunndata og GDPR-rolle, bruk og kontekst, kritikalitet/prioritet, regelverk og innhentingsmetode).
+2. Last opp én fil med leverandører. Støttede formater er **CSV, TXT eller JSON**. PDF, Excel og Word kan ikke leses av KI direkte.
+3. Filen analyseres av KI, som klassifiserer dokumenttypen og, dersom filen er en leverandørliste, identifiserer leverandørene og presenterer dem som en liste med forslag.
+4. Brukeren bekrefter hvilke av de identifiserte leverandørene som skal opprettes, og kan fjerne treff som ikke er relevante.
+5. Hver bekreftet leverandør opprettes som eiendel og går videre gjennom samme baseline-berikelse og bekreftelse som ved enkeltregistrering (grunndata og GDPR-rolle, bruk og kontekst, kritikalitet/prioritet, regelverk og innhentingsmetode).
 
-Status: Implementert.
-
+Status: **Implementert**.
 
 ### 4.2 Oversikt
 Dashbord med nøkkeltall (antall leverandører, kritikalitet, manglende dokumentasjon, avvik) og listevisning der man kan gå inn på én og én leverandør.
