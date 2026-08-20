@@ -157,14 +157,17 @@ export function OutboundRequestsTab({ wizardOpen: externalWizardOpen, onWizardOp
   return (
     <div className="space-y-6">
       {/* GDPR auto-cleanup info */}
-      <div className="flex items-start gap-3 rounded-lg border border-muted bg-muted/30 px-4 py-3">
-        <ShieldAlert className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
-        <p className="text-xs text-muted-foreground leading-relaxed">
-          {isNb
-            ? `Meldinger slettes automatisk etter ${AUTO_DELETE_DAYS} dager i tråd med dataminimeringsprinsippet (GDPR art. 5). Du kan også slette eller arkivere meldinger manuelt via menyen på hver rad.`
-            : `Messages are automatically deleted after ${AUTO_DELETE_DAYS} days in accordance with the data minimization principle (GDPR Art. 5). You can also manually delete or archive messages via the menu on each row.`}
-        </p>
-      </div>
+      {!hideRetentionNote && (
+        <div className="flex items-start gap-3 rounded-lg border border-muted bg-muted/30 px-4 py-3">
+          <ShieldAlert className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            {isNb
+              ? `Meldinger slettes automatisk etter ${AUTO_DELETE_DAYS} dager i tråd med dataminimeringsprinsippet (GDPR art. 5). Du kan også slette eller arkivere meldinger manuelt via menyen på hver rad.`
+              : `Messages are automatically deleted after ${AUTO_DELETE_DAYS} days in accordance with the data minimization principle (GDPR Art. 5). You can also manually delete or archive messages via the menu on each row.`}
+          </p>
+        </div>
+      )}
+
 
       <div className="flex flex-wrap items-center gap-3">
         <div className="relative flex-1 min-w-[200px] max-w-md">
