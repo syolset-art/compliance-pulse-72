@@ -26,6 +26,8 @@ import { useServiceDefaults } from "@/hooks/useServiceDefaults";
 import { RetireServiceDialog, type RetireServiceOptions } from "./RetireServiceDialog";
 import { MSPLaraServiceWizard } from "./MSPLaraServiceWizard";
 import { ServiceCoverageSearch } from "./ServiceCoverageSearch";
+import { MSPFrameworkHoursTab } from "./MSPFrameworkHoursTab";
+import type { SavedFrameworkPackage } from "./MSPFrameworkTaskPackageSheet";
 import { AiMappingDisclosure } from "./AiMappingDisclosure";
 import { LaraScopeChangeDialog, type ScopeChangeSelection } from "./LaraScopeChangeDialog";
 import type { PartnerService, WizardAnswers } from "@/lib/serviceCatalog";
@@ -555,6 +557,33 @@ export function MSPServiceCatalogTab({ onOpenSecondary, onRegisterActions }: { o
     setSearchDraft(null);
   };
 
+  const saveFrameworkPackageAsService = (pkg: SavedFrameworkPackage) => {
+    const service: ExtraService = {
+      id: `framework-${pkg.frameworkId}-${Date.now()}`,
+      name: pkg.name,
+      description: `Full timeleveranse som dekker kravene i ${pkg.frameworkName}.`,
+      hours: pkg.hours,
+      activities: pkg.tasks,
+      source: "manual",
+      mappings: pkg.requirementIds.slice(0, 40).map((rid) => ({
+        frameworkId: pkg.frameworkId,
+        frameworkShortName: pkg.frameworkName,
+        controlId: rid,
+        controlLabel: rid,
+      })),
+      priceOverride: pkg.price,
+    };
+    setExtras((prev) => [...prev, service]);
+    setActiveTab("mine");
+    revealInCatalog(service.id);
+    toast.success(`La til «${pkg.name}» i din tjenestekatalog`, {
+      description: `${pkg.tasks.length} oppgaver · ${pkg.hours} timer`,
+      action: { label: "Vis i katalogen", onClick: () => revealInCatalog(service.id) },
+    });
+  };
+
+
+
   const removeExtra = (id: string) => {
     const target = extras.find((e) => e.id === id);
     if (target) {
@@ -695,9 +724,14 @@ export function MSPServiceCatalogTab({ onOpenSecondary, onRegisterActions }: { o
             <TabsTrigger value="alle">
               Alle ({availablePicks.length})
             </TabsTrigger>
+            <TabsTrigger value="regelverk">Regelverk</TabsTrigger>
           </TabsList>
 
         </div>
+
+        <TabsContent value="regelverk" className="space-y-6 mt-4">
+          <MSPFrameworkHoursTab onSaveAsService={saveFrameworkPackageAsService} />
+        </TabsContent>
 
         <TabsContent value="alle" className="space-y-6 mt-4">
       {/* Foreslåtte tjenester — vises øverst når brukeren kommer inn */}
