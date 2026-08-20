@@ -67,7 +67,7 @@ export const EvidenceGapPanel = ({ coverage, saraInstalled, onUpload, onAskSara,
         </p>
       ) : (
         <div className="divide-y rounded-lg border bg-card">
-          {rows.map((r, i) => (
+          {(showAll ? rows : rows.slice(0, 10)).map((r, i) => (
             <div key={`${r.frameworkId}-${r.key}-${i}`} className="flex flex-wrap items-center gap-3 px-4 py-3">
               {r.state === "covered" ? (
                 <CheckCircle2 className="h-4 w-4 shrink-0 text-success" />
