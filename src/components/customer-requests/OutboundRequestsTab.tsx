@@ -75,9 +75,13 @@ function autoCleanOldRequests(requests: OutboundRequest[]): OutboundRequest[] {
 interface OutboundRequestsTabProps {
   wizardOpen?: boolean;
   onWizardOpenChange?: (open: boolean) => void;
+  /** Begrens til én leverandør (brukes fra leverandørprofilen) */
+  assetId?: string;
+  vendorName?: string;
+  hideRetentionNote?: boolean;
 }
 
-export function OutboundRequestsTab({ wizardOpen: externalWizardOpen, onWizardOpenChange }: OutboundRequestsTabProps = {}) {
+export function OutboundRequestsTab({ wizardOpen: externalWizardOpen, onWizardOpenChange, assetId, vendorName, hideRetentionNote }: OutboundRequestsTabProps = {}) {
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
   const [search, setSearch] = useState("");
@@ -91,13 +95,20 @@ export function OutboundRequestsTab({ wizardOpen: externalWizardOpen, onWizardOp
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const filtered = useMemo(() => {
+    const needle = vendorName?.trim().toLowerCase();
     return requests.filter((r) => {
+      const matchesVendor =
+        !needle && !assetId
+          ? true
+          : (assetId && r.vendor_id === assetId) ||
+            (!!needle && r.vendor_name.trim().toLowerCase() === needle);
       const matchesSearch = !search || r.vendor_name.toLowerCase().includes(search.toLowerCase());
       const matchesType = typeFilter === "all" || r.request_type === typeFilter;
       const matchesStatus = statusFilter === "all" ? r.status !== "archived" : r.status === statusFilter;
-      return matchesSearch && matchesType && matchesStatus;
+      return matchesVendor && matchesSearch && matchesType && matchesStatus;
     });
-  }, [requests, search, typeFilter, statusFilter]);
+  }, [requests, search, typeFilter, statusFilter, assetId, vendorName]);
+
 
 
   useEffect(() => {
