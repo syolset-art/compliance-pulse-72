@@ -666,6 +666,8 @@ export function MSPServiceCatalogTab({ onOpenSecondary, onRegisterActions }: { o
       {/* Global søk — over arkfanene, alltid tilgjengelig */}
       <ServiceCoverageSearch
         existingNames={extras.filter((e) => !e.isMynder && e.status !== "retired").map((e) => e.name)}
+        mode={searchMode}
+        onModeChange={setSearchMode}
         onCreate={({ name, suggestedDescription, mappings }) => {
           setSearchDraft({
             name,
