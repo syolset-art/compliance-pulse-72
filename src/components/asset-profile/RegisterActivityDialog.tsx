@@ -18,8 +18,9 @@ import type { VendorActivity, ActivityType, ActivityLevel } from "@/utils/vendor
 import { deviationCategories } from "@/lib/deviationCategories";
 import { getControlAreaLabel } from "@/lib/controlAreas";
 import { suggestRequirementImpacts, sourceForActivityType } from "@/lib/deviationImpact";
-import { DeviationScoreImpactNote } from "@/components/deviations/DeviationScoreImpactNote";
 import { useRegisterVendorDeviation } from "@/hooks/useVendorDeviations";
+import { SaraActivityTeaser } from "@/components/agents/SaraActivityTeaser";
+
 
 interface Props {
   onSubmit: (activity: VendorActivity) => void;
