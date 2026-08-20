@@ -321,66 +321,20 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
     }, 500);
   };
 
-  const handleAcceptAll = () => {
-    setLaraLoading(true);
-    setPreAcceptSnapshot({
-      criticality: asset?.criticality ?? null,
-      gdpr_role: (asset as any)?.gdpr_role ?? null,
-      risk_level: (asset as any)?.risk_level ?? null,
-      metadata: { ...riskMeta },
-    });
-    setTimeout(() => {
-      updateMutation.mutate({
-        criticality: contextSuggestion.criticality,
-        ...(contextSuggestion.gdprRole ? { gdpr_role: contextSuggestion.gdprRole } : {}),
-        risk_level: riskSuggestion.level,
-        metadata: {
-          ...riskMeta,
-          usage_tags: contextSuggestion.usageTags.length ? contextSuggestion.usageTags : usageTags,
-          usage_purpose: usagePurpose || (isNb ? contextSuggestion.usageTextNb : contextSuggestion.usageTextEn),
-          risk_set_by: null,
-          risk_set_at: null,
-          risk_rationale: null,
-        },
-      } as any);
-      setRationaleDraft("");
-      setAcceptedAt(new Date());
-      setLaraLoading(false);
-    }, 600);
-  };
+  /** Kort begrunnelse for Laras forslag, basert på hvilke kilder det bygger på */
+  const contextReason = (() => {
+    const first = (isNb ? contextSuggestion.reasonsNb : contextSuggestion.reasonsEn)[0];
+    if (first) return first;
+    const src = contextSuggestion.sources[0];
+    if (src === "category") return isNb ? "basert på bransje" : "based on industry";
+    if (src === "privacyPolicy") return isNb ? "basert på personvernerklæring" : "based on the privacy policy";
+    if (src === "description") return isNb ? "basert på beskrivelsen" : "based on the description";
+    return isNb ? "basert på bruksformål" : "based on the stated usage";
+  })();
 
-  const handleUndoAccept = () => {
-    if (!preAcceptSnapshot) return;
-    setLaraLoading(true);
-    updateMutation.mutate({
-      criticality: preAcceptSnapshot.criticality,
-      gdpr_role: preAcceptSnapshot.gdpr_role,
-      risk_level: preAcceptSnapshot.risk_level,
-      metadata: preAcceptSnapshot.metadata,
-    } as any);
-    setPreAcceptSnapshot(null);
-    setAcceptedAt(null);
-    setLaraLoading(false);
-  };
+  const riskReason = (isNb ? riskSuggestion.reasons : riskSuggestion.reasonsEn).join(" · ");
 
-  // Bekreftet tilstand vises så lenge lagrede verdier fortsatt matcher forslaget
-  const suggestionApplied =
-    !!acceptedAt &&
-    asset?.criticality === contextSuggestion.criticality &&
-    (!contextSuggestion.gdprRole || (asset as any)?.gdpr_role === contextSuggestion.gdprRole) &&
-    (asset as any)?.risk_level === riskSuggestion.level;
 
-  const appliedItems = [
-    { label: isNb ? "Kritikalitet" : "Criticality", value: getLabelFor(criticalityOptions, contextSuggestion.criticality, isNb) },
-    ...(contextSuggestion.gdprRole
-      ? [{ label: isNb ? "GDPR-rolle" : "GDPR role", value: getLabelFor(gdprOptions, contextSuggestion.gdprRole, isNb) }]
-      : []),
-    { label: isNb ? "Risiko" : "Risk", value: getLabelFor(riskOptions, riskSuggestion.level, isNb) },
-    ...(usageTags.length
-      ? [{ label: isNb ? "Bruk" : "Usage", value: usageTags.map((t) => usageTagLabel(t, isNb)).join(", ") }]
-      : []),
-    ...(usagePurpose ? [{ label: isNb ? "Bruksformål" : "Purpose", value: usagePurpose }] : []),
-  ];
 
   const nextStep = (() => {
     const isProcessor =
