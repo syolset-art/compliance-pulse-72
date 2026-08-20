@@ -61,11 +61,13 @@ export function MSPFrameworkHoursTab({
     });
 
     return FRAMEWORK_DEFS.map((fw) => {
-      const reqs = byFramework.get(fw.id) ?? [];
+      const dbReqs = byFramework.get(fw.id) ?? [];
+      const estimated = dbReqs.length === 0;
+      const reqs = estimated ? baselineRequirementRows(fw.id) : dbReqs;
       const base = buildFrameworkTasks(reqs);
       const resolved = resolveTasks(base, loadPackageState(fw.id), defaultHourlyRate);
       const totals = summarizePackage(resolved);
-      return { fw, requirements: reqs.length, totals };
+      return { fw, requirements: reqs.length, totals, estimated };
     })
       .filter((i) => i.requirements > 0 || i.totals.tasks > 0)
       .sort((a, b) => b.requirements - a.requirements);
