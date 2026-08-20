@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { SENSITIVE_DATA_STATUS_OPTIONS, normalizeSensitiveDataStatus, sensitiveDataStatusLabel } from "@/lib/sensitiveData";
+import { VendorFrameworkScopeStrip } from "@/components/vendor-dashboard/VendorFrameworkScopeStrip";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
