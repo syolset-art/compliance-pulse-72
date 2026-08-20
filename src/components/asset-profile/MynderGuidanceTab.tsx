@@ -374,7 +374,7 @@ export function MynderGuidanceTab({
 
 
       {/* Standard Trust Profile-blokk: modenhet per kontrollområde */}
-      <AssetMaturityByDomainCard assetId={assetId} />
+      <AssetMaturityByDomainCard assetId={assetId} variant="vendor" />
 
       {/* Tidslinje: aktiviteter over tid og påvirkning på modenhet */}
       <Card className="border-primary/20">
