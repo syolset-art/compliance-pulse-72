@@ -13,7 +13,7 @@ import { ReportActionButtons } from "@/components/reports/ReportActionButtons";
 import type { ReportData } from "@/components/reports/DownloadReportDialog";
 import { getRequirementsByFramework } from "@/lib/complianceRequirementsData";
 import { ALL_ADDITIONAL_REQUIREMENTS } from "@/lib/additionalFrameworkRequirements";
-import { getMaturityLevel, maturityBgClass, maturitySoftClass, maturityLabelNb, maturityTextClass } from "@/lib/maturityLevel";
+import { getMaturityLevel, maturityBgClass, maturitySoftClass, maturityLabelNb } from "@/lib/maturityLevel";
 import { MaturityIndicator } from "@/components/shared/MaturityIndicator";
 
 // Demo: which frameworks are "active" in scope
