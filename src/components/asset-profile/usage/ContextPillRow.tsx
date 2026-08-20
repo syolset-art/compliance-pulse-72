@@ -25,8 +25,9 @@ export const ContextPillRow = ({ items, openKey, onToggle }: Props) => {
     <Card>
       <CardContent className="p-2">
         <div className="grid grid-cols-2 gap-1.5">
-          {items.map((item) => {
+          {items.map((item, index) => {
             const isOpen = item.key === openKey;
+            const spanFull = items.length % 2 === 1 && index === items.length - 1;
             return (
               <button
                 key={item.key}
@@ -34,6 +35,7 @@ export const ContextPillRow = ({ items, openKey, onToggle }: Props) => {
                 onClick={() => onToggle(item.key)}
                 className={cn(
                   "flex items-center gap-2 rounded-lg px-2.5 py-2 text-left transition-colors",
+                  spanFull && "col-span-2",
                   isOpen ? "bg-accent" : "hover:bg-accent/60"
                 )}
               >

@@ -5,7 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Building2, Database, Workflow, Shield, AlertTriangle, Pencil, Info, Sparkles, ArrowRight, Flag, ChevronDown, UserRound } from "lucide-react";
+import { Building2, Database, Workflow, Shield, AlertTriangle, Pencil, Info, Sparkles, ArrowRight, Flag, ChevronDown, UserRound, Check } from "lucide-react";
+import { RELATION_CATEGORIES, relationCategoryLabel, relationCategoryNote, suggestRelationCategory } from "@/lib/vendorRelationCategory";
+import { LaraIcon } from "@/components/agents/LaraIcon";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/hooks/useAuth";
 import { Switch } from "@/components/ui/switch";
@@ -481,7 +483,15 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
   const getLabel = (options: typeof criticalityOptions, value: string | null | undefined) =>
     getLabelFor(options, value, isNb);
 
+  const relationSuggestion = suggestRelationCategory({
+    vendorName: asset?.name,
+    description: asset?.description,
+    category: asset?.category,
+    usageTags,
+  });
+
   const pillItems: ContextPillItem[] = [
+
     {
       key: "criticality",
       icon: <AlertTriangle className="h-3.5 w-3.5" />,
@@ -641,6 +651,14 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
                   ? "GDPR-rollen bestemmer hvilke kontroller og dokumentasjonskrav som gjelder (f.eks. DPA-krav)."
                   : "The GDPR role determines which controls and documentation requirements apply (e.g. DPA requirements).")}
           </p>
+
+          {(asset as any)?.vendor_category && (
+            <p className="text-[13px] text-muted-foreground leading-snug">
+              {isNb
+                ? `Relasjonskategori: ${relationCategoryLabel((asset as any).vendor_category, true)} — kommer i tillegg til GDPR-rollen og styrer øvrige krav.`
+                : `Relationship category: ${relationCategoryLabel((asset as any).vendor_category, false)} — applies in addition to the GDPR role and drives other requirements.`}
+            </p>
+          )}
           <button onClick={() => onNavigateToTab?.("overview")} className="flex items-center gap-1 text-[13px] text-primary hover:underline">
             <ArrowRight className="h-2.5 w-2.5" />
             {isNb ? "Påvirker: Personvern og datahåndtering" : "Affects: Privacy & data handling"}
@@ -736,7 +754,59 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
         </>
       ),
     },
+    {
+      key: "relation",
+      icon: <Building2 className="h-3.5 w-3.5" />,
+      label: isNb ? "Relasjonskategori" : "Relationship category",
+      value: relationCategoryLabel((asset as any)?.vendor_category, isNb),
+      toneClass: "text-foreground",
+      panel: (
+        <>
+          <Select
+            value={(asset as any)?.vendor_category || "not_set"}
+            onValueChange={(v) => handleFieldChange("vendor_category", v === "not_set" ? (null as any) : v)}
+          >
+            <SelectTrigger className="h-9 max-w-xs text-sm font-semibold border">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {RELATION_CATEGORIES.map((o) => (
+                <SelectItem key={o.value} value={o.value}>{isNb ? o.labelNb : o.labelEn}</SelectItem>
+              ))}
+              <SelectItem value="not_set">{isNb ? "Ikke satt" : "Not set"}</SelectItem>
+            </SelectContent>
+          </Select>
+
+          {relationSuggestion && relationSuggestion !== (asset as any)?.vendor_category && (
+            <div className="flex flex-wrap items-center gap-2 text-[13px] text-muted-foreground">
+              <LaraIcon size={16} />
+              <span>
+                {isNb ? "Forslag: " : "Suggestion: "}
+                <span className="font-medium text-foreground">{relationCategoryLabel(relationSuggestion, isNb)}</span>
+              </span>
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-7 gap-1 text-[12px]"
+                onClick={() => handleFieldChange("vendor_category", relationSuggestion)}
+              >
+                <Check className="h-3 w-3" />
+                {isNb ? "Bruk forslaget" : "Use suggestion"}
+              </Button>
+            </div>
+          )}
+
+          <p className="text-[13px] text-muted-foreground leading-snug">
+            {relationCategoryNote((asset as any)?.vendor_category, isNb) ||
+              (isNb
+                ? "Sier hva slags forhold vi har til leverandøren. Styrer hvilke krav og kontroller som er relevante — uavhengig av GDPR-rollen."
+                : "Describes what kind of relationship we have with the vendor. Drives which requirements and controls apply — independent of the GDPR role.")}
+          </p>
+        </>
+      ),
+    },
   ];
+
 
   // --- Alternativ visning: alt kartlagt automatisk av den lokale agenten Sara ---
   const saraMapping = buildSaraVendorMapping({
