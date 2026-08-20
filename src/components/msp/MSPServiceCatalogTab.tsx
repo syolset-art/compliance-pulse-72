@@ -687,6 +687,7 @@ export function MSPServiceCatalogTab({ onOpenSecondary, onRegisterActions }: { o
         }}
         onAddProductToOffer={(productId) => {
           setActiveTab("mine");
+          setSearchMode("product");
           setShowMynderProducts(true);
           setExpandedProduct(productId);
         }}
