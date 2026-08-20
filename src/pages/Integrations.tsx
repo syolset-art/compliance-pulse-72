@@ -187,6 +187,9 @@ export default function Integrations() {
 
         <LocalAgentCard />
 
+        <SaraDetailsSection />
+
+
         {Object.values(connections).some((c) => c.status === "active") && (
           <AgentActivityFeed items={activity} />
         )}
