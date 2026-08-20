@@ -54,48 +54,51 @@ export function SaraLiveDeviationsPanel({ isNb = true }: Props) {
   const visible = showAll ? SARA_RECENT_DEVIATIONS : SARA_RECENT_DEVIATIONS.slice(0, 3);
 
   return (
-    <div className="rounded-lg border border-primary/20 bg-primary/[0.03]">
-      {/* Header */}
-      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 border-b border-border/60 px-3 py-2">
-        <SaraIcon className="h-5 w-5" />
-        <span className="text-sm font-medium text-foreground">
+    <div className="rounded-lg border border-border bg-muted/20">
+      {/* Compact header line */}
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 px-3 py-2">
+        <SaraIcon className="h-4 w-4" />
+        <span className="text-[13px] font-medium text-foreground">
           {isNb ? "Sara – lokal agent" : "Sara – local agent"}
         </span>
         <span className="text-xs text-muted-foreground">
-          v{SARA_AGENT_VERSION} · {isNb ? "sist kjørt" : "last run"} {inScope[0]?.lastRun ?? "—"}
+          v{SARA_AGENT_VERSION} · {inScope.length} {isNb ? "kobling" : "connection"}
+          {inScope.length === 1 ? "" : isNb ? "er" : "s"} · {types.length}{" "}
+          {isNb ? "avvikstyper" : "deviation types"} · {SARA_RECENT_DEVIATIONS.length}{" "}
+          {isNb ? "funn" : "findings"}
+          {criticalCount > 0 && (
+            <span className="text-destructive">
+              {" "}
+              ({criticalCount} {isNb ? "kritiske" : "critical"})
+            </span>
+          )}
         </span>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="ml-auto h-7 px-2 text-xs text-primary"
-          onClick={() => navigate("/settings/integrations")}
-        >
-          <Settings2 className="mr-1 h-3.5 w-3.5" />
-          {isNb ? "Innstillinger for Sara" : "Sara settings"}
-        </Button>
+        <div className="ml-auto flex items-center gap-1">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 px-2 text-xs"
+            onClick={() => setShowAll((v) => !v)}
+          >
+            {showAll ? (isNb ? "Skjul funn" : "Hide findings") : isNb ? "Se funn" : "View findings"}
+            {showAll ? <ChevronUp className="ml-1 h-3 w-3" /> : <ChevronDown className="ml-1 h-3 w-3" />}
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 px-2 text-xs text-primary"
+            onClick={() => navigate("/settings/integrations")}
+          >
+            <Settings2 className="mr-1 h-3.5 w-3.5" />
+            {isNb ? "Om Sara" : "About Sara"}
+          </Button>
+        </div>
       </div>
 
-      {/* KPI row */}
-      <div className="grid grid-cols-2 divide-x divide-y divide-border/60 sm:grid-cols-4 sm:divide-y-0">
-        {stats.map((s) => (
-          <div key={s.nb} className="px-3 py-2.5">
-            <p className={cn("text-lg font-semibold leading-none", s.alert ? "text-destructive" : "text-foreground")}>
-              {s.value}
-            </p>
-            <p className="mt-1 text-[11px] uppercase tracking-wide text-muted-foreground">
-              {isNb ? s.nb : s.en}
-            </p>
-          </div>
-        ))}
-      </div>
-
-      {/* Latest findings */}
-      <div className="border-t border-border/60 px-3 py-2">
-        <p className="mb-1 text-xs font-medium text-foreground">
-          {isNb ? "Siste avvik fra Sara" : "Latest deviations from Sara"}
-        </p>
-        <ul className="divide-y divide-border/60">
-          {visible.map((f) => {
+      {/* Findings, only on demand */}
+      {showAll && (
+        <ul className="divide-y divide-border/60 border-t border-border/60 px-3">
+          {SARA_RECENT_DEVIATIONS.map((f) => {
             const sev = severityLabel[f.severity];
             return (
               <li key={f.id} className="flex flex-wrap items-center gap-x-2 gap-y-1 py-1.5 text-xs">
@@ -110,31 +113,8 @@ export function SaraLiveDeviationsPanel({ isNb = true }: Props) {
             );
           })}
         </ul>
-        <div className="mt-1 flex items-center gap-2">
-          {SARA_RECENT_DEVIATIONS.length > 3 && (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-7 px-2 text-xs"
-              onClick={() => setShowAll((v) => !v)}
-            >
-              {showAll
-                ? isNb ? "Vis færre" : "Show fewer"
-                : isNb ? `Vis alle (${SARA_RECENT_DEVIATIONS.length})` : `Show all (${SARA_RECENT_DEVIATIONS.length})`}
-              {showAll ? <ChevronUp className="ml-1 h-3 w-3" /> : <ChevronDown className="ml-1 h-3 w-3" />}
-            </Button>
-          )}
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-7 px-2 text-xs text-primary"
-            onClick={() => navigate("/settings/integrations")}
-          >
-            {isNb ? "Koblinger, avvikstyper og personverngrense" : "Connections, deviation types and privacy boundary"}
-            <ArrowRight className="ml-1 h-3 w-3" />
-          </Button>
-        </div>
-      </div>
+      )}
     </div>
   );
 }
+
