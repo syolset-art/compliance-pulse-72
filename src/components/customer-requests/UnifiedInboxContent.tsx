@@ -292,7 +292,7 @@ export function UnifiedInboxContent({ assetId, vendorName, emptyMessage }: Unifi
       ) : filtered.length === 0 ? (
         <div className="text-center py-16 text-muted-foreground border border-dashed border-border rounded-lg">
           <Inbox className="h-8 w-8 mx-auto mb-2 opacity-40" />
-          <p className="text-sm">{isNb ? "Ingen meldinger her" : "No messages here"}</p>
+          <p className="text-sm">{emptyMessage || (isNb ? "Ingen meldinger her" : "No messages here")}</p>
         </div>
       ) : (
         <div className="space-y-6">
