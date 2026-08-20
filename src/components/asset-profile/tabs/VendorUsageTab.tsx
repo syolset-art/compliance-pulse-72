@@ -46,7 +46,6 @@ const riskOptions = [
   { value: "critical", labelNb: "Kritisk", labelEn: "Critical" },
 ];
 
-const gdprOptions = [
 /** Vanlige forretningsprosesser brukeren kan legge til med ett klikk. */
 const PROCESS_PRESETS: { nb: string; en: string }[] = [
   { nb: "Kundepålogging og identifikasjon (KYC)", en: "Customer login and identification (KYC)" },
@@ -66,7 +65,9 @@ const PROCESS_PRESETS: { nb: string; en: string }[] = [
   { nb: "Avvikshåndtering og varsling", en: "Incident handling and notification" },
 ];
 
+const gdprOptions = [
   { value: "databehandler", labelNb: "Databehandler", labelEn: "Data processor" },
+
   { value: "underdatabehandler", labelNb: "Underdatabehandler", labelEn: "Sub-processor" },
   { value: "ingen_persondata", labelNb: "Ingen persondata", labelEn: "No personal data" },
   { value: "not_set", labelNb: "Ikke satt", labelEn: "Not set" },
