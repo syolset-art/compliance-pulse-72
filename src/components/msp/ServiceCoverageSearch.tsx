@@ -37,6 +37,8 @@ import {
   annualPrice,
   type SearchKind,
 } from "@/lib/serviceSearchMatch";
+import { frameworks, getFrameworkById } from "@/lib/frameworkDefinitions";
+import { MYNDER_PRODUCTS } from "@/lib/mynderProducts";
 import type { ServiceMapping } from "./CustomServiceDialog";
 import { AiMappingDisclosure } from "./AiMappingDisclosure";
 
