@@ -11,6 +11,8 @@ import { deriveVendorStatus, deriveCriticality, type VendorStatusMeta } from "@/
 import { VendorInlinePillSelect } from "@/components/vendor-dashboard/VendorInlinePillSelect";
 import { InviteVendorDialog } from "@/components/vendor-dashboard/InviteVendorDialog";
 import { useState } from "react";
+import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
+
 import {
   NOT_REQUESTED_LABEL,
   SOURCING_METHOD_META,
@@ -103,6 +105,11 @@ function InitialAvatar({ name, color = "bg-primary/15 text-primary" }: { name: s
 export function VendorStatusBanner({ asset, accessMembers }: VendorStatusBannerProps) {
   const { t } = useTranslation();
   const members = accessMembers || asset.access_members || [];
+  const ownerCandidates = Array.from(
+    new Set([...(members || []), asset.asset_manager, "Synnøve Olset", "Ola Nordmann", "Kari Hansen"].filter(Boolean) as string[])
+  );
+  const [owner, setOwner] = useState<string | null>(asset.asset_manager || members[0] || null);
+
 
   const { data: expiredDocsCount = 0 } = useQuery({
     queryKey: ["vendor-banner-expired-docs", asset.id],
@@ -431,21 +438,27 @@ export function VendorStatusBanner({ asset, accessMembers }: VendorStatusBannerP
             </div>
 
             <div className="flex items-center gap-2 min-w-0">
-              <span className="text-[12px] uppercase tracking-wider text-muted-foreground font-semibold shrink-0">Tilgang til leverandørmodulen:</span>
-              {members.length > 0 ? (
-                <span className="inline-flex items-center gap-1.5 flex-wrap">
-                  {members.map((member, idx) => (
-                    <span key={idx} className="inline-flex items-center gap-1.5 text-foreground/90">
-                      <InitialAvatar name={member} color="bg-primary/15 text-primary" />
-                      <span className="truncate">{member}</span>
-                      {idx < members.length - 1 && <span className="text-muted-foreground">·</span>}
+              <span className="text-[12px] uppercase tracking-wider text-muted-foreground font-semibold shrink-0">Leverandøransvarlig:</span>
+              <Select value={owner ?? "none"} onValueChange={(v) => { setOwner(v === "none" ? null : v); toast.success(v === "none" ? "Leverandøransvarlig fjernet" : `${v} satt som leverandøransvarlig`); }}>
+                <SelectTrigger className="h-7 w-[220px] border-none bg-transparent px-1 text-[13px] shadow-none focus:ring-0">
+                  {owner ? (
+                    <span className="inline-flex items-center gap-1.5 text-foreground/90 min-w-0">
+                      <InitialAvatar name={owner} color="bg-primary/15 text-primary" />
+                      <span className="truncate">{owner}</span>
                     </span>
+                  ) : (
+                    <span className="text-muted-foreground italic">Velg ansvarlig</span>
+                  )}
+                </SelectTrigger>
+                <SelectContent className="bg-popover z-50">
+                  <SelectItem value="none">Ikke tildelt</SelectItem>
+                  {ownerCandidates.map((name) => (
+                    <SelectItem key={name} value={name}>{name}</SelectItem>
                   ))}
-                </span>
-              ) : (
-                <span className="text-muted-foreground italic">Ikke tildelt</span>
-              )}
+                </SelectContent>
+              </Select>
             </div>
+
           </div>
         </div>
       </div>
