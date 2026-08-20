@@ -10,6 +10,13 @@
 import type { VendorFrameworkAction } from "@/lib/vendorFrameworkSuggestions";
 
 export type NextStepOwner = "lara" | "user";
+/**
+ * Autonominivå per tiltak (Mynders AI-policy):
+ *  - automatic: Lara utfører selv og logger. Vises aldri som oppgave.
+ *  - assisted:  Lara gjør ferdig utkastet, brukeren godkjenner før iverksetting.
+ *  - manual:    krever menneskelig skjønn.
+ */
+export type NextStepAutonomy = "automatic" | "assisted" | "manual";
 export type NextStepSeverity = "critical" | "high" | "normal";
 
 export type NextStepActionKey =
@@ -23,6 +30,9 @@ export type NextStepActionKey =
 export interface NextStep {
   id: string;
   actionKey: NextStepActionKey;
+  /** Kjent autonominivå — styrer om Lara kjører selv eller stopper for godkjenning. */
+  autonomy: NextStepAutonomy;
+  /** Avledet av autonomi — beholdt for bakoverkompatibilitet. */
   owner: NextStepOwner;
   severity: NextStepSeverity;
   titleNb: string;
@@ -64,7 +74,8 @@ export function buildVendorNextSteps(input: VendorNextStepsInput): NextStep[] {
     steps.push({
       id: "usage_purpose",
       actionKey: "usage_purpose",
-      owner: input.hasContextSuggestion ? "lara" : "user",
+      autonomy: "automatic",
+      owner: "lara",
       severity: "high",
       titleNb: "Registrer hva leverandøren brukes til",
       titleEn: "Register what the vendor is used for",
@@ -80,6 +91,7 @@ export function buildVendorNextSteps(input: VendorNextStepsInput): NextStep[] {
     steps.push({
       id: "gdpr_role",
       actionKey: "gdpr_role",
+      autonomy: "automatic",
       owner: "lara",
       severity: "high",
       titleNb: "Bekreft GDPR-rolle",
@@ -95,6 +107,7 @@ export function buildVendorNextSteps(input: VendorNextStepsInput): NextStep[] {
     steps.push({
       id: "risk_level",
       actionKey: "risk_level",
+      autonomy: "automatic",
       owner: "lara",
       severity: "normal",
       titleNb: "Sett risikonivå",
@@ -111,6 +124,7 @@ export function buildVendorNextSteps(input: VendorNextStepsInput): NextStep[] {
     steps.push({
       id: "criticality",
       actionKey: "criticality",
+      autonomy: "manual",
       owner: "user",
       severity: "normal",
       titleNb: "Sett kritikalitet",
@@ -125,6 +139,7 @@ export function buildVendorNextSteps(input: VendorNextStepsInput): NextStep[] {
     steps.push({
       id: "baseline",
       actionKey: "baseline",
+      autonomy: "automatic",
       owner: "lara",
       severity: "critical",
       titleNb: "Hent inn grunnlag fra leverandøren",
@@ -141,6 +156,7 @@ export function buildVendorNextSteps(input: VendorNextStepsInput): NextStep[] {
     steps.push({
       id: `fw-${a.id}`,
       actionKey: "framework_action",
+      autonomy: a.documentType ? "assisted" : "manual",
       owner: a.documentType ? "lara" : "user",
       severity: severityFromCriticality(a.criticality),
       titleNb: a.titleNb,
@@ -154,6 +170,19 @@ export function buildVendorNextSteps(input: VendorNextStepsInput): NextStep[] {
 
   const rank: Record<NextStepSeverity, number> = { critical: 0, high: 1, normal: 2 };
   return steps.sort((a, b) => rank[a.severity] - rank[b.severity]);
+}
+
+/** Deler stegene etter autonominivå — det som er automatisk skal aldri vises som oppgave. */
+export function splitByAutonomy(steps: NextStep[]): {
+  autoHandled: NextStep[];
+  needsApproval: NextStep[];
+  needsDecision: NextStep[];
+} {
+  return {
+    autoHandled: steps.filter((s) => s.autonomy === "automatic"),
+    needsApproval: steps.filter((s) => s.autonomy === "assisted"),
+    needsDecision: steps.filter((s) => s.autonomy === "manual"),
+  };
 }
 
 export const SEVERITY_DOT: Record<NextStepSeverity, string> = {
