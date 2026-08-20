@@ -272,16 +272,20 @@ export function DocumentsTab({ assetId, assetName, vendorName, hideUploadButton,
   };
 
   const uploadButton = (
-    <Button
-      size="sm"
-      onClick={() => setShowUploadDialog(true)}
-      disabled={atLimit}
-      className="h-8 gap-1.5 text-xs"
-    >
-      <Upload className="h-3.5 w-3.5" />
-      {isNb ? "Last opp" : "Upload"}
-    </Button>
+    <div className="flex items-center gap-2">
+      <Button
+        size="sm"
+        onClick={() => setShowUploadDialog(true)}
+        disabled={atLimit}
+        className="h-8 gap-1.5 text-xs"
+      >
+        <Upload className="h-3.5 w-3.5" />
+        {isNb ? "Last opp" : "Upload"}
+      </Button>
+      <DocumentActionButtons showUpload={false} />
+    </div>
   );
+
 
   return (
     <div className="space-y-5">
