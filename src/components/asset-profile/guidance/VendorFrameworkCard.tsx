@@ -21,20 +21,20 @@ export function VendorFrameworkCard({ frameworks, onAdd, onRemove }: Props) {
 
   const scope = frameworks;
 
-  const renderPill = (f: VendorFramework) => (
+  const renderPill = (f: VendorFramework) => {
+    /** Match med Laras initielle KI-vurdering (personvern, risiko og sikkerhet
+     *  ut fra bransje) = grønn. Øvrige regelverk i scope vises lilla. */
+    const laraMatch = !f.manual && !f.global;
+    return (
     <TooltipProvider key={f.id} delayDuration={150}>
       <Tooltip>
         <TooltipTrigger asChild>
           <span
             className={cn(
               "inline-flex items-center rounded-full border text-[11px] font-medium",
-              f.manual
-                ? "border-border bg-muted/40 text-foreground"
-                : f.global
-                  ? "border-primary/40 bg-primary/5 text-primary"
-                  : f.confidence === "high"
-                    ? "border-success/40 bg-success/5 text-success"
-                    : "border-border bg-muted/40 text-foreground",
+              laraMatch
+                ? "border-success/40 bg-success/5 text-success"
+                : "border-primary/40 bg-primary/5 text-primary",
             )}
           >
             <span className="inline-flex items-center gap-1 pl-2.5 pr-1 py-1">
@@ -50,6 +50,7 @@ export function VendorFrameworkCard({ frameworks, onAdd, onRemove }: Props) {
                 </span>
               )}
             </span>
+
             <button
               type="button"
               onClick={() => onRemove(f.id)}
