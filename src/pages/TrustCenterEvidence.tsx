@@ -28,6 +28,12 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { POLICY_TYPES as policyTypes, CERT_TYPES as certTypes, EVIDENCE_TYPES as evidenceTypes, docTypeLabel } from "@/lib/trustDocumentTypes";
 import { FrameworkDocumentCoverage } from "@/components/trust-center/FrameworkDocumentCoverage";
 import { buildComplianceCoverage } from "@/lib/complianceDocumentCoverage";
+import { EvidenceCoverageHeader } from "@/components/trust-center/EvidenceCoverageHeader";
+import { EvidenceGapPanel } from "@/components/trust-center/EvidenceGapPanel";
+import { buildEvidenceIntelligence } from "@/lib/evidenceIntelligence";
+import { useDocumentHub } from "@/hooks/useDocumentHub";
+import { MODULE_LABELS, MODULE_ROUTES } from "@/lib/documentHub";
+
 import { DocumentComplianceCard } from "@/components/trust-center/DocumentComplianceCard";
 import { DocumentAccessDialog } from "@/components/trust-center/DocumentAccessDialog";
 import { Network, Users } from "lucide-react";
