@@ -107,7 +107,7 @@ export const VendorDocumentsTab = ({ assetId, assetName, vendorName }: VendorDoc
           </div>
           <Button size="sm" onClick={() => uploadTriggerRef.current?.()} className="h-8 shrink-0 gap-1.5 text-xs">
             <Upload className="h-3.5 w-3.5" />
-            {isNb ? "Last opp dokumentasjon" : "Upload documentation"}
+            {isNb ? "Last opp" : "Upload"}
           </Button>
         </div>
         <DocumentsTab
