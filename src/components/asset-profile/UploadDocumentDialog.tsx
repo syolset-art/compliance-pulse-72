@@ -369,6 +369,7 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
           received_at: new Date().toISOString(),
           valid_from: validFrom || null,
           valid_to: validTo || null,
+          expires_at: validTo ? new Date(validTo).toISOString() : null,
         } as any).select("id").single();
 
         // Auto-erstatt forrige current-dokument av samme type
