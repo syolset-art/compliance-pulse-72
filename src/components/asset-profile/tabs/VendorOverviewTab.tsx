@@ -146,8 +146,8 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
     },
   });
 
-  // Only vendor-relevant frameworks for "Modenhet per regelverk"
-  const VENDOR_RELEVANT_FRAMEWORKS = ["gdpr", "iso27001", "nis2", "dora", "iso27701"];
+  // Global vendor-management framework scope (set on /vendors?tab=frameworks)
+  const { isInScope } = useVendorFrameworkScope();
 
   const { data: allFrameworks = [] } = useQuery({
     queryKey: ["selected-frameworks-active-all"],
@@ -164,9 +164,8 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
     },
   });
 
-  const vendorFrameworks = allFrameworks.filter((fw) =>
-    VENDOR_RELEVANT_FRAMEWORKS.some(vf => fw.framework_id?.toLowerCase().includes(vf))
-  );
+  const vendorFrameworks = allFrameworks.filter((fw) => isInScope(fw.framework_id));
+
   const frameworks = showAllFrameworks ? allFrameworks : vendorFrameworks;
 
   const { data: expiredCount = 0 } = useQuery({
