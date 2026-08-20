@@ -437,7 +437,7 @@ export function MynderGuidanceTab({
             steps={nextSteps}
             onRunStep={runNextStep}
             onRunAllLara={runAllLaraSteps}
-            onShowAll={() => setShowAllActions((v) => !v)}
+            
           />
         </div>
       </div>
