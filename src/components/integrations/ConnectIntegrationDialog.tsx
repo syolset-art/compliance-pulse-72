@@ -11,6 +11,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Lock, Shield, Sparkles, Info, KeyRound, ExternalLink, Upload } from "lucide-react";
 import {
@@ -27,8 +34,13 @@ interface Props {
 export function ConnectIntegrationDialog({ integration, onOpenChange, onConfirm }: Props) {
   const [apiKey, setApiKey] = useState("");
   const [acknowledged, setAcknowledged] = useState(false);
+  const [defaultSeverity, setDefaultSeverity] = useState("high");
+  const [autoClassify, setAutoClassify] = useState(true);
+  const [defaultOwner, setDefaultOwner] = useState("");
 
   if (!integration) return null;
+
+  const isIncidentSource = integration.discovers.includes("incidents");
 
   const canConfirm =
     acknowledged &&
@@ -115,6 +127,52 @@ export function ConnectIntegrationDialog({ integration, onOpenChange, onConfirm 
               <p className="text-[11px] text-muted-foreground mt-1">
                 Lagres kryptert. Vises aldri i klartekst etter lagring.
               </p>
+            </div>
+          )}
+
+          {isIncidentSource && (
+            <div className="rounded-md border border-border p-3 space-y-3">
+              <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                Mottaksregler
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs">Standard alvorlighetsgrad</Label>
+                <Select value={defaultSeverity} onValueChange={setDefaultSeverity}>
+                  <SelectTrigger className="h-8 text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="critical">Kritisk</SelectItem>
+                    <SelectItem value="high">Høy</SelectItem>
+                    <SelectItem value="medium">Middels</SelectItem>
+                    <SelectItem value="low">Lav</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="default-owner" className="text-xs">
+                  Standard ansvarlig
+                </Label>
+                <Input
+                  id="default-owner"
+                  placeholder="F.eks. sikkerhetsansvarlig"
+                  value={defaultOwner}
+                  onChange={(e) => setDefaultOwner(e.target.value)}
+                  className="h-8 text-xs"
+                />
+              </div>
+              <label className="flex items-start gap-2 cursor-pointer text-xs text-muted-foreground">
+                <input
+                  type="checkbox"
+                  checked={autoClassify}
+                  onChange={(e) => setAutoClassify(e.target.checked)}
+                  className="mt-0.5 accent-primary"
+                />
+                <span>
+                  La Lara klassifisere alvorlighetsgrad og koble hendelsen til system, prosess og krav.
+                  Kritiske avvik krever alltid din godkjenning.
+                </span>
+              </label>
             </div>
           )}
 
