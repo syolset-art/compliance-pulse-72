@@ -807,6 +807,10 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
     },
   ];
 
+  const assessmentPills = pillItems.filter((p) => ["criticality", "priority", "risk"].includes(p.key));
+  const relationPills = pillItems.filter((p) => ["gdpr", "relation"].includes(p.key));
+
+
 
   // --- Alternativ visning: alt kartlagt automatisk av den lokale agenten Sara ---
   const saraMapping = buildSaraVendorMapping({
@@ -941,13 +945,21 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
 
       <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-2">
         <ContextPillRow
-          items={pillItems}
+          items={assessmentPills}
           openKey={openPill}
           onToggle={(k) => setOpenPill(openPill === k ? null : k)}
         />
 
         <VendorPurposeCard
           isNb={isNb}
+          topContent={
+            <ContextPillRow
+              bare
+              items={relationPills}
+              openKey={openPill}
+              onToggle={(k) => setOpenPill(openPill === k ? null : k)}
+            />
+          }
           purpose={usagePurpose}
           tags={usageTags}
           suggestedText={isNb ? contextSuggestion.usageTextNb : contextSuggestion.usageTextEn}

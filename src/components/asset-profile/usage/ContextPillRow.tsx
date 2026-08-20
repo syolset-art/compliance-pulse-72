@@ -16,14 +16,15 @@ interface Props {
   items: ContextPillItem[];
   openKey: string | null;
   onToggle: (key: string) => void;
+  /** Render without the surrounding Card (for embedding inside another card) */
+  bare?: boolean;
 }
 
-export const ContextPillRow = ({ items, openKey, onToggle }: Props) => {
+export const ContextPillRow = ({ items, openKey, onToggle, bare }: Props) => {
   const active = items.find((i) => i.key === openKey);
 
-  return (
-    <Card>
-      <CardContent className="p-2">
+  const body = (
+    <>
         <div className="grid grid-cols-2 gap-1.5">
           {items.map((item, index) => {
             const isOpen = item.key === openKey;
@@ -57,12 +58,19 @@ export const ContextPillRow = ({ items, openKey, onToggle }: Props) => {
           })}
         </div>
 
-        {active && (
-          <div className="mt-2 space-y-2.5 rounded-lg border border-border bg-muted/30 p-3">
-            {active.panel}
-          </div>
-        )}
-      </CardContent>
+      {active && (
+        <div className="mt-2 space-y-2.5 rounded-lg border border-border bg-muted/30 p-3">
+          {active.panel}
+        </div>
+      )}
+    </>
+  );
+
+  if (bare) return body;
+
+  return (
+    <Card>
+      <CardContent className="p-2">{body}</CardContent>
     </Card>
   );
 };
