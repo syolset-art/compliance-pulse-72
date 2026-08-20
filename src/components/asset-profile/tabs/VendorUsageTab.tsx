@@ -112,7 +112,7 @@ const severityColor = (value: string | null | undefined) => {
   }
 };
 
-export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps) => {
+export const VendorUsageTab = ({ assetId, assetName, onNavigateToTab }: VendorUsageTabProps) => {
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
   const queryClient = useQueryClient();
