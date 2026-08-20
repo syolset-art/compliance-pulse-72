@@ -20,6 +20,9 @@ import { getControlAreaLabel } from "@/lib/controlAreas";
 import { suggestRequirementImpacts, sourceForActivityType } from "@/lib/deviationImpact";
 import { DeviationScoreImpactNote } from "@/components/deviations/DeviationScoreImpactNote";
 import { useRegisterVendorDeviation } from "@/hooks/useVendorDeviations";
+import { SaraActivityTeaser } from "@/components/agents/SaraActivityTeaser";
+
+
 
 interface Props {
   onSubmit: (activity: VendorActivity) => void;
@@ -192,8 +195,11 @@ export function RegisterActivityDialog({ onSubmit, open: controlledOpen, onOpenC
 
         <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
           <div className="px-6 py-5 space-y-5">
+            <SaraActivityTeaser />
+
             {/* Type — icon-only segmented */}
             <div className="space-y-1.5">
+
               <Label className="text-xs">{isNb ? "Type" : "Type"}</Label>
               <div className="grid grid-cols-4 gap-1.5">
                 {TYPES.map((t) => {
