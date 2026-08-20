@@ -61,6 +61,8 @@ import { useNavigate } from "react-router-dom";
 import { INTEGRATION_CATALOG } from "@/lib/integrationCatalog";
 import { useConnectedSources } from "@/hooks/useConnectedSources";
 import { useSaraAgent } from "@/lib/saraAgent";
+import { SaraOnboardingDialog } from "@/components/agents/SaraOnboardingDialog";
+import { ConnectIncidentServiceDialog } from "@/components/deviations/ConnectIncidentServiceDialog";
 import { SaraIcon } from "@/components/agents/SaraIcon";
 import { SaraLiveDeviationsPanel } from "@/components/deviations/SaraLiveDeviationsPanel";
 
@@ -886,6 +888,8 @@ export default function Deviations() {
         ]}
         laraSuggestion="Hjelp meg med å registrere og følge opp et avvik"
       />
+      <SaraOnboardingDialog open={saraOpen} onOpenChange={setSaraOpen} />
+      <ConnectIncidentServiceDialog open={connectServiceOpen} onOpenChange={setConnectServiceOpen} />
     </div>
   );
 }
