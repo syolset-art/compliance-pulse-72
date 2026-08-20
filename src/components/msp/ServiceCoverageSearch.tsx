@@ -168,13 +168,39 @@ export function ServiceCoverageSearch({
     },
   });
 
-  const detected = useMemo<SearchKind>(
-    () => (debounced.length >= 2 ? detectSearchKind(debounced) : "service"),
-    [debounced],
+  // Skriver brukeren noe som tydelig er et regelverk eller produkt, bytter modus selv
+  useEffect(() => {
+    if (debounced.length < 2) return;
+    const detected = detectSearchKind(debounced);
+    if (detected === "framework" || detected === "product") setMode(detected);
+  }, [debounced]);
+
+  const matchedFramework = useMemo(() => matchFramework(debounced), [debounced]);
+  const matchedProduct = useMemo(() => matchProduct(debounced), [debounced]);
+  const framework = useMemo(
+    () => (pickedFrameworkId ? getFrameworkById(pickedFrameworkId) ?? null : matchedFramework),
+    [pickedFrameworkId, matchedFramework],
   );
-  const mode = modeOverride ?? detected;
-  const framework = useMemo(() => matchFramework(debounced), [debounced]);
-  const product = useMemo(() => matchProduct(debounced), [debounced]);
+  const product = useMemo(
+    () =>
+      pickedProductId
+        ? MYNDER_PRODUCTS.find((p) => p.id === pickedProductId) ?? null
+        : matchedProduct,
+    [pickedProductId, matchedProduct],
+  );
+
+  const frameworkList = useMemo(() => {
+    const q = debounced.toLowerCase();
+    return frameworks.filter(
+      (f) => q.length < 2 || f.name.toLowerCase().includes(q) || f.id.includes(q),
+    );
+  }, [debounced]);
+
+  const productList = useMemo(() => {
+    const q = debounced.toLowerCase();
+    return MYNDER_PRODUCTS.filter((p) => q.length < 2 || p.name.toLowerCase().includes(q));
+  }, [debounced]);
+
 
   const fmt = (n: number) =>
     `${new Intl.NumberFormat("nb-NO", { maximumFractionDigits: 0 }).format(Math.round(n))} ${currency}`;
