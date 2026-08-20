@@ -462,7 +462,23 @@ export default function Deviations() {
                     </div>
                   )}
 
-
+                  {!saraInstalled && (
+                    <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                      <SaraIcon className="h-4 w-4" />
+                      <span>
+                        Avvik kan også fanges opp lokalt i din egen infrastruktur med agenten Sara.
+                      </span>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-7 px-2 text-xs"
+                        onClick={() => navigate("/settings/integrations")}
+                      >
+                        Se datakilder og agenter
+                        <ArrowRight className="h-3 w-3 ml-1" />
+                      </Button>
+                    </div>
+                  )}
 
                   {/* Expand/collapse details */}
                   <button
