@@ -37,6 +37,25 @@ export const MYNDER_PRODUCTS: MynderProduct[] = [
     tiers: [{ label: "Standard", priceKr: 490 }],
   },
   {
+    id: "frameworks",
+    moduleKey: "frameworks",
+    name: "Regelverk",
+    commissionPct: 30,
+    fromPrice: 0,
+    tiers: [
+      { label: "Basis (GDPR/ISO 27001)", priceKr: 0, isFree: true },
+      { label: "Per regelverk", priceKr: EXTRA_FRAMEWORK_PRICE_KR },
+    ],
+  },
+  {
+    id: "deviations",
+    moduleKey: "deviations",
+    name: "Avviksregister",
+    commissionPct: 25,
+    fromPrice: 0,
+    tiers: [{ label: "Standard", priceKr: 0, isFree: true }],
+  },
+  {
     id: "trust",
     moduleKey: "trust",
     name: "Trust Center",
