@@ -31,6 +31,8 @@ import { buildComplianceCoverage } from "@/lib/complianceDocumentCoverage";
 import { DocumentComplianceCard } from "@/components/trust-center/DocumentComplianceCard";
 import { DocumentAccessDialog } from "@/components/trust-center/DocumentAccessDialog";
 import { Network, Users } from "lucide-react";
+import { SaraEvidencePromo } from "@/components/agents/SaraEvidencePromo";
+import { useSaraAgent } from "@/lib/saraAgent";
 
 // localStorage helpers for collapsible UI state
 const LS_REQUIRED_OPEN = "trust.evidence.required.open";
