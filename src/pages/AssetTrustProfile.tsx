@@ -46,7 +46,7 @@ import { DeliveriesTab } from "@/components/asset-profile/tabs/DeliveriesTab";
 import { RegisterActivityDialog } from "@/components/asset-profile/RegisterActivityDialog";
 import { MynderGuidanceTab } from "@/components/asset-profile/MynderGuidanceTab";
 import { VendorMessagesTab } from '@/components/asset-profile/tabs/VendorMessagesTab';
-import { VendorAccessTab } from "@/components/asset-profile/tabs/VendorAccessTab";
+
 import { VendorTasksTab } from "@/components/asset-profile/tabs/VendorTasksTab";
 import { VendorGapAnalysisTab } from "@/components/asset-profile/tabs/VendorGapAnalysisTab";
 import type { VendorActivity } from "@/utils/vendorActivityData";
