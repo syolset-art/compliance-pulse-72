@@ -83,9 +83,12 @@ interface SendRequestWizardProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSend: (types: string[], vendorIds: string[], dueDate: string, vendorNames?: Record<string, string>) => void;
+  /** Forhåndsvalgt leverandør (brukes fra leverandørprofilen) */
+  presetVendorId?: string;
 }
 
-export function SendRequestWizard({ open, onOpenChange, onSend }: SendRequestWizardProps) {
+export function SendRequestWizard({ open, onOpenChange, onSend, presetVendorId }: SendRequestWizardProps) {
+
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
   const [step, setStep] = useState(1);
