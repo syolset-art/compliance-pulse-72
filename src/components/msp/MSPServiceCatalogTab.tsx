@@ -557,6 +557,33 @@ export function MSPServiceCatalogTab({ onOpenSecondary, onRegisterActions }: { o
     setSearchDraft(null);
   };
 
+  const saveFrameworkPackageAsService = (pkg: SavedFrameworkPackage) => {
+    const service: ExtraService = {
+      id: `framework-${pkg.frameworkId}-${Date.now()}`,
+      name: pkg.name,
+      description: `Full timeleveranse som dekker kravene i ${pkg.frameworkName}.`,
+      hours: pkg.hours,
+      activities: pkg.tasks,
+      source: "manual",
+      mappings: pkg.requirementIds.slice(0, 40).map((rid) => ({
+        frameworkId: pkg.frameworkId,
+        frameworkShortName: pkg.frameworkName,
+        controlId: rid,
+        controlLabel: rid,
+      })),
+      priceOverride: pkg.price,
+    };
+    setExtras((prev) => [...prev, service]);
+    setActiveTab("mine");
+    revealInCatalog(service.id);
+    toast.success(`La til «${pkg.name}» i din tjenestekatalog`, {
+      description: `${pkg.tasks.length} oppgaver · ${pkg.hours} timer`,
+      action: { label: "Vis i katalogen", onClick: () => revealInCatalog(service.id) },
+    });
+  };
+
+
+
   const removeExtra = (id: string) => {
     const target = extras.find((e) => e.id === id);
     if (target) {
