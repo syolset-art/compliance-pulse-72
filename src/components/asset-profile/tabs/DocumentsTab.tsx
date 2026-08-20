@@ -492,8 +492,8 @@ export function DocumentsTab({ assetId, assetName, vendorName, hideUploadButton,
         </div>
       )}
 
-      {/* Requests section */}
-      <DocumentRequestsSection assetId={assetId} />
+      {/* Dialogs */}
+
 
       {/* Dialogs */}
       <DocumentDetailDialog
