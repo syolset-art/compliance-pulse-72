@@ -15,7 +15,7 @@ export const MYNDER_PRODUCTS: MynderProduct[] = [
   {
     id: "core",
     moduleKey: "core",
-    name: "Mynder Core",
+    name: "Core",
     commissionPct: 30,
     fromPrice: CORE_TIERS[0].monthlyPriceKr,
     tiers: CORE_TIERS.map((t) => ({ label: t.label, priceKr: t.monthlyPriceKr })),
