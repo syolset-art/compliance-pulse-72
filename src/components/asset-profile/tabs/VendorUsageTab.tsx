@@ -861,6 +861,8 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
           purpose={usagePurpose}
           tags={usageTags}
           suggestedText={isNb ? contextSuggestion.usageTextNb : contextSuggestion.usageTextEn}
+          suggestedTags={contextSuggestion.usageTags}
+          saraInstalled={saraInstalled}
           suggesting={laraLoading}
           onSavePurpose={(v) => saveMeta({ usage_purpose: v })}
           onToggleTag={handleToggleUsageTag}

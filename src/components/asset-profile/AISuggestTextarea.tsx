@@ -8,6 +8,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { LaraIcon } from "@/components/agents/LaraIcon";
 
 function parseSuggestionItems(raw: string): string[] {
   return raw
@@ -109,17 +111,28 @@ export function AISuggestTextarea({
           {icon}
           {isNb ? titleNb : titleEn}
         </CardTitle>
-        <Button
-          type="button"
-          size="sm"
-          variant="outline"
-          className="gap-1.5 h-8"
-          onClick={handleSuggest}
-          disabled={loading}
-        >
-          {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5 text-primary" />}
-          {isNb ? "La Lara foreslå" : "Let Lara suggest"}
-        </Button>
+        <TooltipProvider delayDuration={150}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                type="button"
+                onClick={handleSuggest}
+                disabled={loading}
+                className="inline-flex items-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                aria-label="Lara"
+              >
+                {loading
+                  ? <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                  : <LaraIcon size={18} />}
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="left" className="max-w-[240px] text-[12px]">
+              {isNb
+                ? "Lara kan foreslå dette – godkjenn eller rediger."
+                : "Lara can suggest this – approve or edit."}
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </CardHeader>
       <CardContent className="space-y-3">
         <Textarea
