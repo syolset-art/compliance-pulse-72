@@ -76,6 +76,12 @@ export function AddFrameworkDialog({
       />
       <CommandList>
         <CommandEmpty>Ingen treff i katalogen.</CommandEmpty>
+        {hidePrice && (
+          <div className="px-3 py-2 text-[11px] text-muted-foreground border-b">
+            Velg hvilke regelverk leverandøren skal måles på. Valget styrer hvilken dokumentasjon
+            du trenger fra leverandøren.
+          </div>
+        )}
 
         {CATEGORY_ORDER.map((cat) => {
           const items = MANUAL_FRAMEWORKS.filter((f) => f.category === cat);
@@ -103,7 +109,7 @@ export function AddFrameworkDialog({
                       </span>
                     ) : isAdded ? (
                       <span className="text-[11px] text-muted-foreground">Allerede i listen</span>
-                    ) : (
+                    ) : hidePrice ? null : (
                       <span className="text-[11px] text-muted-foreground tabular-nums">
                         {price === null
                           ? "Ingen lisenskostnad"
