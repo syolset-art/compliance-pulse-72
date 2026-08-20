@@ -531,6 +531,12 @@ export function DocumentsTab({ assetId, assetName, vendorName, hideUploadButton,
                 <span>{pendingRequests.length} {isNb ? "etterspurt" : "requested"}</span>
               </>
             )}
+            {allExternalItems.length > 0 && (
+              <>
+                <span>·</span>
+                <span>{allExternalItems.length} {isNb ? "til godkjenning" : "for approval"}</span>
+              </>
+            )}
           </div>
 
           {/* Intern / ekstern */}
