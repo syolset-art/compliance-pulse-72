@@ -1,4 +1,4 @@
-import { CORE_TIERS, VENDOR_TIERS, TRUST_CENTER_PRICE_KR } from "@/lib/planConstants";
+import { CORE_TIERS, VENDOR_TIERS, TRUST_CENTER_PRICE_KR, EXTRA_FRAMEWORK_PRICE_KR } from "@/lib/planConstants";
 import type { ModuleKey } from "@/lib/moduleInfo";
 
 export interface MynderProduct {
@@ -9,6 +9,7 @@ export interface MynderProduct {
   fromPrice: number;
   tiers: Array<{ label: string; priceKr: number; isFree?: boolean }>;
 }
+
 
 export const MYNDER_PRODUCTS: MynderProduct[] = [
   {
@@ -34,6 +35,25 @@ export const MYNDER_PRODUCTS: MynderProduct[] = [
     commissionPct: 25,
     fromPrice: 490,
     tiers: [{ label: "Standard", priceKr: 490 }],
+  },
+  {
+    id: "frameworks",
+    moduleKey: "frameworks",
+    name: "Regelverk",
+    commissionPct: 30,
+    fromPrice: 0,
+    tiers: [
+      { label: "Basis (GDPR/ISO 27001)", priceKr: 0, isFree: true },
+      { label: "Per regelverk", priceKr: EXTRA_FRAMEWORK_PRICE_KR },
+    ],
+  },
+  {
+    id: "deviations",
+    moduleKey: "deviations",
+    name: "Avviksregister",
+    commissionPct: 25,
+    fromPrice: 0,
+    tiers: [{ label: "Standard", priceKr: 0, isFree: true }],
   },
   {
     id: "trust",

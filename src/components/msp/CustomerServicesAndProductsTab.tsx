@@ -115,6 +115,13 @@ const PRODUCTS: ProductDef[] = [
     description: "System- og eiendelsregister.",
   },
   {
+    key: "frameworks",
+    moduleKey: "frameworks",
+    title: "Regelverk",
+    description: "Aktiver rammeverk og regelverk du må etterleve.",
+    usageSuffix: "regelverk",
+  },
+  {
     key: "deviations",
     moduleKey: "deviations",
     title: "Avviksregister",
