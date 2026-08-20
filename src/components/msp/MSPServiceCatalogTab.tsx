@@ -675,7 +675,17 @@ export function MSPServiceCatalogTab({ onOpenSecondary, onRegisterActions }: { o
           setPreviewTemplate(null);
           setManualOpen(true);
         }}
+        onOpenFramework={(frameworkId) => {
+          setActiveTab("regelverk");
+          setOpenFrameworkId(frameworkId);
+        }}
+        onAddProductToOffer={(productId) => {
+          setActiveTab("mine");
+          setShowMynderProducts(true);
+          setExpandedProduct(productId);
+        }}
       />
+
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
 
