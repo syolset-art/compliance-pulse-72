@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,8 @@ interface Props {
   suggestedTags?: string[];
   suggesting?: boolean;
   saraInstalled?: boolean;
+  /** Optional content rendered above the purpose section (e.g. relation pills) */
+  topContent?: ReactNode;
   onSavePurpose: (value: string) => void;
   onToggleTag: (value: string) => void;
   onSuggest: () => void;
@@ -28,7 +30,7 @@ const tagLabel = (value: string, isNb: boolean) => {
 };
 
 export const VendorPurposeCard = ({
-  isNb, purpose, tags, suggestedText, suggestedTags = [], suggesting, saraInstalled,
+  isNb, purpose, tags, suggestedText, suggestedTags = [], suggesting, saraInstalled, topContent,
   onSavePurpose, onToggleTag, onSuggest,
 }: Props) => {
   const [draft, setDraft] = useState(purpose);
@@ -80,11 +82,16 @@ export const VendorPurposeCard = ({
     </div>
   );
 
+  const top = topContent ? (
+    <div className="-mx-1 mb-1 border-b border-border pb-2">{topContent}</div>
+  ) : null;
+
   // ---- Editing state: full palette + free text
   if (editing) {
     return (
       <Card>
         <CardContent className="space-y-2.5 p-3">
+          {top}
           {header}
           <div className="flex flex-wrap gap-1">
             {USAGE_TAGS.map((t) => {
@@ -139,6 +146,7 @@ export const VendorPurposeCard = ({
   return (
     <Card>
       <CardContent className="space-y-2 p-3">
+        {top}
         {header}
 
         {proposalTags.length > 0 && (
