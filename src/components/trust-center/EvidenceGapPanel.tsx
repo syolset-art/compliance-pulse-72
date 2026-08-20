@@ -22,6 +22,8 @@ export const EvidenceGapPanel = ({ coverage, saraInstalled, onUpload, onAskSara,
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
   const [tab, setTab] = useState<Tab>("missing");
+  const [showAll, setShowAll] = useState(false);
+
 
   const all = useMemo(() => flattenRequirements(coverage), [coverage]);
   const rows = useMemo(
