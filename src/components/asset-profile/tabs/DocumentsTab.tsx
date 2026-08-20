@@ -50,7 +50,12 @@ interface DocumentsTabProps {
   vendorName?: string;
   hideUploadButton?: boolean;
   onUploadTriggerReady?: (trigger: () => void) => void;
+  inboxItems?: any[];
+  onApproveInbox?: (item: any) => void;
+  onRejectInbox?: (itemId: string) => void;
+  onPreviewInbox?: (item: any) => void;
 }
+
 
 function getStatusBadge(status: string | null, validTo: string | null, isNb: boolean) {
   if (status === "expired" || (validTo && new Date(validTo) < new Date())) {
