@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { FileText, Bot, Users, CheckCircle2, CircleAlert, Circle, Share2, Loader2 } from "lucide-react";
+import { FileText, Share2, Loader2 } from "lucide-react";
 import { getCategoryById, type Framework } from "@/lib/frameworkDefinitions";
 import { exportCompliancePdf } from "./ExportCompliancePdf";
 import { ShareReportDialog } from "./ShareReportDialog";
@@ -83,35 +83,6 @@ export const FrameworkDetailCard = ({ framework, counts }: FrameworkDetailCardPr
               </span>
             </div>
             <Progress value={pct} className="h-2" />
-          </div>
-
-          {/* Status indicators */}
-          <div className="flex flex-wrap gap-4">
-            <div className="flex items-center gap-1.5 text-xs">
-              <Circle className="h-3.5 w-3.5 text-destructive/60" />
-              <span className="text-muted-foreground">Ikke oppfylt</span>
-              <span className="font-semibold text-foreground">{counts.notMet}</span>
-            </div>
-            <div className="flex items-center gap-1.5 text-xs">
-              <CircleAlert className="h-3.5 w-3.5 text-warning" />
-              <span className="text-muted-foreground">Delvis</span>
-              <span className="font-semibold text-foreground">{counts.partial}</span>
-            </div>
-            <div className="flex items-center gap-1.5 text-xs">
-              <CheckCircle2 className="h-3.5 w-3.5 text-status-closed" />
-              <span className="text-muted-foreground">Oppfylt</span>
-              <span className="font-semibold text-foreground">{counts.met}</span>
-            </div>
-            <div className="border-l border-border pl-4 flex items-center gap-1.5 text-xs">
-              <Bot className="h-3.5 w-3.5 text-status-closed" />
-              <span className="text-muted-foreground">Automatisk</span>
-              <span className="font-semibold text-foreground">{counts.auto}</span>
-            </div>
-            <div className="flex items-center gap-1.5 text-xs">
-              <Users className="h-3.5 w-3.5 text-muted-foreground" />
-              <span className="text-muted-foreground">Manuell</span>
-              <span className="font-semibold text-foreground">{counts.manual}</span>
-            </div>
           </div>
         </CardContent>
       </Card>
