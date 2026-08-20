@@ -35,6 +35,7 @@ export const ContextPillRow = ({ items, openKey, onToggle }: Props) => {
                 onClick={() => onToggle(item.key)}
                 className={cn(
                   "flex items-center gap-2 rounded-lg px-2.5 py-2 text-left transition-colors",
+                  spanFull && "col-span-2",
                   isOpen ? "bg-accent" : "hover:bg-accent/60"
                 )}
               >
