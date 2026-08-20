@@ -84,7 +84,10 @@ export function ServiceCoverageSearch({
   const [debounced, setDebounced] = useState("");
   const [justAdded, setJustAdded] = useState(false);
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
-  const [modeOverride, setModeOverride] = useState<SearchKind | null>(null);
+  const [mode, setMode] = useState<SearchKind>("framework");
+  const [pickedFrameworkId, setPickedFrameworkId] = useState<string | null>(null);
+  const [pickedProductId, setPickedProductId] = useState<string | null>(null);
+
   const { defaultHourlyRate, currency } = useServiceDefaults();
 
   // Brukeren kan dra søkemodus-knappene for å velge rekkefølge
