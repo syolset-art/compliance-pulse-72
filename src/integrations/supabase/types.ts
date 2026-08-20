@@ -4632,6 +4632,33 @@ export type Database = {
           },
         ]
       }
+      vendor_framework_scope: {
+        Row: {
+          created_at: string
+          framework_id: string
+          framework_name: string
+          id: string
+          is_enabled: boolean
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          framework_id: string
+          framework_name: string
+          id?: string
+          is_enabled?: boolean
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          framework_id?: string
+          framework_name?: string
+          id?: string
+          is_enabled?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
       vendor_gap_analyses: {
         Row: {
           asset_id: string

@@ -1,4 +1,5 @@
 import { useTranslation } from "react-i18next";
+import { useVendorFrameworkScope } from "@/hooks/useVendorFrameworkScope";
 import { Card, CardContent } from "@/components/ui/card";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -146,8 +147,8 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
     },
   });
 
-  // Only vendor-relevant frameworks for "Modenhet per regelverk"
-  const VENDOR_RELEVANT_FRAMEWORKS = ["gdpr", "iso27001", "nis2", "dora", "iso27701"];
+  // Global vendor-management framework scope (set on /vendors?tab=frameworks)
+  const { isInScope } = useVendorFrameworkScope();
 
   const { data: allFrameworks = [] } = useQuery({
     queryKey: ["selected-frameworks-active-all"],
@@ -164,9 +165,8 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
     },
   });
 
-  const vendorFrameworks = allFrameworks.filter((fw) =>
-    VENDOR_RELEVANT_FRAMEWORKS.some(vf => fw.framework_id?.toLowerCase().includes(vf))
-  );
+  const vendorFrameworks = allFrameworks.filter((fw) => isInScope(fw.framework_id));
+
   const frameworks = showAllFrameworks ? allFrameworks : vendorFrameworks;
 
   const { data: expiredCount = 0 } = useQuery({
@@ -395,8 +395,8 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
                     </TooltipTrigger>
                     <TooltipContent side="top" className="max-w-[280px] text-xs leading-relaxed">
                       {isNb
-                        ? "Viser kun regelverk som er relevante for leverandørhåndtering (GDPR, ISO 27001, NIS2, DORA, ISO 27701). Klikk «Vis alle» for å se samtlige aktive regelverk."
-                        : "Only frameworks relevant to vendor management are shown (GDPR, ISO 27001, NIS2, DORA, ISO 27701). Click 'Show all' to see all active frameworks."}
+                        ? "Viser regelverk som er valgt som scope for leverandørstyring (endres under Leverandører → Regelverk). Klikk «Vis alle» for å se samtlige aktive regelverk."
+                        : "Showing the frameworks selected as scope for vendor management (change under Vendors → Frameworks). Click 'Show all' to see all active frameworks."}
                     </TooltipContent>
                   </Tooltip>
                 </div>

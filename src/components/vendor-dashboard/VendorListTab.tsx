@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { SENSITIVE_DATA_STATUS_OPTIONS, normalizeSensitiveDataStatus, sensitiveDataStatusLabel } from "@/lib/sensitiveData";
+import { VendorFrameworkScopeStrip } from "@/components/vendor-dashboard/VendorFrameworkScopeStrip";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -292,7 +293,9 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete, new
 
   return (
     <div className="space-y-4">
+      <VendorFrameworkScopeStrip />
       {/* Toolbar */}
+
       <div className="flex items-center gap-2 motion-safe:animate-fade-in-up motion-safe:animate-delay-200">
 
         <Input
