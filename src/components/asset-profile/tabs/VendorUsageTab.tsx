@@ -11,7 +11,6 @@ import { LaraIcon } from "@/components/agents/LaraIcon";
 import { LaraFieldSuggestion } from "@/components/asset-profile/usage/LaraFieldSuggestion";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/hooks/useAuth";
-import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { SENSITIVE_DATA_CATEGORIES, sensitiveCategoryLabel, gdprRoleHandlesPersonalData, SENSITIVE_DATA_STATUS_OPTIONS, normalizeSensitiveDataStatus } from "@/lib/sensitiveData";
