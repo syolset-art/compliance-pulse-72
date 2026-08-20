@@ -296,7 +296,11 @@ export function ServiceCoverageSearch({
               key={m.id}
               type="button"
               draggable
-              onClick={() => setModeOverride(m.id)}
+              onClick={() => {
+                setMode(m.id);
+                setPickedFrameworkId(null);
+                setPickedProductId(null);
+              }}
               onDragStart={(e) => handleDragStart(e, m.id)}
               onDragEnd={handleDragEnd}
               onDragOver={(e) => handleDragOver(e, m.id)}
@@ -321,6 +325,19 @@ export function ServiceCoverageSearch({
                 )}
               />
               {m.label}
+              {m.deferred && (
+                <span
+                  className={cn(
+                    "rounded px-1 py-0.5 text-[9px] font-normal",
+                    mode === m.id
+                      ? "bg-primary-foreground/20"
+                      : "bg-muted text-muted-foreground",
+                  )}
+                >
+                  Kommer
+                </span>
+              )}
+
             </button>
           );
         })}
