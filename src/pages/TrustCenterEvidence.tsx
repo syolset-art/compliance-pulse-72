@@ -405,7 +405,13 @@ const TrustCenterEvidence = () => {
       (visibilityFilter === "ecosystem" && d.visibility === "ecosystem") ||
       (visibilityFilter === "restricted" && d.visibility !== "published" && d.visibility !== "ecosystem" && (grantsByDoc[d.id] || 0) > 0) ||
       (visibilityFilter === "hidden" && d.visibility !== "published" && d.visibility !== "ecosystem" && !(grantsByDoc[d.id] > 0));
-    return matchesSearch && matchesCategory && matchesVisibility;
+    const sourceKind = intel.rows.find((r) => r.doc.id === d.id)?.sourceKind ?? "upload";
+    const matchesSource = sourceFilter === "all" || sourceKind === sourceFilter;
+    const mapped = intel.rows.find((r) => r.doc.id === d.id)?.requirements ?? [];
+    const matchesFramework =
+      selectedFrameworkIds.length === 0 || mapped.some((m) => selectedFrameworkIds.includes(m.frameworkId));
+    return matchesSearch && matchesCategory && matchesVisibility && matchesSource && matchesFramework;
+
   });
 
   const policies = filteredDocs.filter((d: any) => policyTypes.includes(d.document_type));
