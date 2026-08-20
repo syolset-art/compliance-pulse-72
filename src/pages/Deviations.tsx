@@ -119,6 +119,8 @@ export default function Deviations() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [agentOpen, setAgentOpen] = useState(false);
+  const [saraOpen, setSaraOpen] = useState(false);
+  const [connectServiceOpen, setConnectServiceOpen] = useState(false);
   const [sourceFilter, setSourceFilter] = useState<string>("all");
   const [liveEnabled, setLiveEnabled] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
