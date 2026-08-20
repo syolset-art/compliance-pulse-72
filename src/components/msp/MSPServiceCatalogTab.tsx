@@ -706,7 +706,12 @@ export function MSPServiceCatalogTab({ onOpenSecondary, onRegisterActions }: { o
         </div>
 
         <TabsContent value="regelverk" className="space-y-6 mt-4">
-          <MSPFrameworkHoursTab onSaveAsService={saveFrameworkPackageAsService} />
+          <MSPFrameworkHoursTab
+            onSaveAsService={saveFrameworkPackageAsService}
+            openFrameworkId={openFrameworkId}
+            onOpenedFramework={() => setOpenFrameworkId(null)}
+          />
+
         </TabsContent>
 
         <TabsContent value="alle" className="space-y-6 mt-4">
