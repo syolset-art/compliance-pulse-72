@@ -21,9 +21,6 @@ import {
 } from "@/components/ui/select";
 import {
   AlertTriangle,
-  Clock,
-  CheckCircle,
-  FileText,
   Plus,
   Monitor,
   Layers,
