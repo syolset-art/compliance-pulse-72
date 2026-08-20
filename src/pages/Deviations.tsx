@@ -51,8 +51,6 @@ import { nb } from "date-fns/locale";
 import { AddDeviationDialog } from "@/components/dialogs/AddDeviationDialog";
 import { InlineDeviationAgent } from "@/components/deviations/InlineDeviationAgent";
 import { deviationCategories } from "@/lib/deviationCategories";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { VendorDeviationsOverview } from "@/components/deviations/VendorDeviationsOverview";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { INTEGRATION_CATALOG } from "@/lib/integrationCatalog";
@@ -92,6 +90,25 @@ interface Deviation {
   auto_created?: boolean;
 }
 
+export type DeviationObjectType = "system" | "ai_system" | "vendor" | "asset" | "other";
+
+const OBJECT_TYPE_OPTIONS: { value: DeviationObjectType | "all"; label: string }[] = [
+  { value: "all", label: "Alle objekter" },
+  { value: "vendor", label: "Leverandører" },
+  { value: "system", label: "Systemer" },
+  { value: "ai_system", label: "KI-systemer" },
+  { value: "asset", label: "Eiendeler" },
+  { value: "other", label: "Annet" },
+];
+
+const objectTypeLabel: Record<DeviationObjectType, string> = {
+  vendor: "Leverandør",
+  system: "System",
+  ai_system: "KI-system",
+  asset: "Eiendel",
+  other: "Annet",
+};
+
 const categoryLabels: Record<string, string> = Object.fromEntries(
   deviationCategories.map((c) => [c.id, c.label])
 );
@@ -126,7 +143,7 @@ export default function Deviations() {
   usePageHelpListener(setHelpOpen);
   const [liveInfoExpanded, setLiveInfoExpanded] = useState(false);
   const [selectedDeviation, setSelectedDeviation] = useState<Deviation | null>(null);
-  const [view, setView] = useState("all");
+  const [objectFilter, setObjectFilter] = useState<string>("all");
   const navigate = useNavigate();
   const { isSourceConnected } = useConnectedSources();
   const { installed: saraInstalled } = useSaraAgent();
@@ -214,6 +231,36 @@ export default function Deviations() {
     },
   });
 
+  // Objektene avvik kan være registrert på (leverandør, system, KI-system, eiendel)
+  const { data: objectIndex } = useQuery({
+    queryKey: ["deviation-object-index"],
+    queryFn: async () => {
+      const [{ data: assets }, { data: aiUsage }] = await Promise.all([
+        supabase.from("assets").select("id, name, asset_type"),
+        supabase.from("asset_ai_usage").select("asset_id, has_ai"),
+      ]);
+      const aiIds = new Set((aiUsage || []).filter((a: any) => a.has_ai).map((a: any) => a.asset_id));
+      const map = new Map<string, { name: string; type: DeviationObjectType }>();
+      (assets || []).forEach((a: any) => {
+        let type: DeviationObjectType = "asset";
+        if (aiIds.has(a.id)) type = "ai_system";
+        else if (a.asset_type === "vendor") type = "vendor";
+        else if (a.asset_type === "system" || a.asset_type === "saas") type = "system";
+        map.set(a.id, { name: a.name, type });
+      });
+      return map;
+    },
+  });
+
+  const resolveObject = useCallback(
+    (d: Deviation): { name: string | null; type: DeviationObjectType } => {
+      const hit = objectIndex?.get((d as any).asset_id || d.system_id || "");
+      if (hit) return { name: hit.name, type: hit.type };
+      return { name: null, type: "other" };
+    },
+    [objectIndex],
+  );
+
   const isLoading = loadingSystem || loadingEmployee || loadingNotifications;
   const deviations = [...systemDeviations, ...employeeReports, ...notificationItems].sort(
     (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
@@ -228,6 +275,12 @@ export default function Deviations() {
     total: deviations.length,
   };
 
+  const objectTypeCounts = deviations.reduce((acc, d) => {
+    const type = resolveObject(d).type;
+    acc[type] = (acc[type] || 0) + 1;
+    return acc;
+  }, {} as Record<DeviationObjectType, number>);
+
   // Filter deviations
   const filteredDeviations = deviations.filter((d) => {
     if (titleFilter && !d.title.toLowerCase().includes(titleFilter.toLowerCase())) {
@@ -237,6 +290,9 @@ export default function Deviations() {
       return false;
     }
     if (statusFilter !== "all" && d.status !== statusFilter) {
+      return false;
+    }
+    if (objectFilter !== "all" && resolveObject(d).type !== objectFilter) {
       return false;
     }
       if (sourceFilter !== "all") {
@@ -297,6 +353,16 @@ export default function Deviations() {
             {deviation.auto_created && (
               <Badge variant="outline" className="text-[13px]">Auto</Badge>
             )}
+            {(() => {
+              const obj = resolveObject(deviation);
+              if (obj.type === "other" && !obj.name) return null;
+              return (
+                <Badge variant="outline" className="text-[13px] font-normal">
+                  {objectTypeLabel[obj.type]}
+                  {obj.name ? `: ${obj.name}` : ""}
+                </Badge>
+              );
+            })()}
           </div>
 
           {/* Title */}
@@ -409,17 +475,6 @@ export default function Deviations() {
           }}
         />
 
-        <Tabs value={view} onValueChange={setView} className="w-full">
-          <TabsList>
-            <TabsTrigger value="all">Alle avvik</TabsTrigger>
-            <TabsTrigger value="vendors">Leverandøravvik</TabsTrigger>
-          </TabsList>
-        </Tabs>
-
-        {view === "vendors" && <VendorDeviationsOverview />}
-
-        {view === "all" && (
-        <>
         {/* Live Deviations Activation Banner */}
         <Card className={cn(
           "border transition-all overflow-hidden",
@@ -626,6 +681,19 @@ export default function Deviations() {
                   <SelectItem value="manual">Manuell</SelectItem>
                 </SelectContent>
               </Select>
+              <Select value={objectFilter} onValueChange={setObjectFilter}>
+                <SelectTrigger className="bg-background">
+                  <SelectValue placeholder="Filtrer etter objekt" />
+                </SelectTrigger>
+                <SelectContent>
+                  {OBJECT_TYPE_OPTIONS.map((o) => (
+                    <SelectItem key={o.value} value={o.value}>
+                      {o.label}
+                      {o.value !== "all" ? ` (${objectTypeCounts[o.value as DeviationObjectType] || 0})` : ""}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </CardContent>
         </Card>
@@ -808,8 +876,6 @@ export default function Deviations() {
           open={isAddDialogOpen}
           onOpenChange={setIsAddDialogOpen}
         />
-        </>
-        )}
         </div>
         </ModuleActivationGate>
       </main>
