@@ -431,6 +431,12 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete, new
                 <button onClick={() => setGdprRoleFilter("")}><X className="h-3 w-3" /></button>
               </Badge>
             )}
+            {sensitiveFilter && sensitiveFilter !== "all" && (
+              <Badge variant="secondary" className="text-[13px] gap-1 pl-2 pr-1 py-0.5">
+                {(isNb ? "Særlige kategorier: " : "Special categories: ") + sensitiveDataStatusLabel(sensitiveFilter, isNb)}
+                <button onClick={() => setSensitiveFilter("")}><X className="h-3 w-3" /></button>
+              </Badge>
+            )}
             {priorityFilter && priorityFilter !== "all" && (
               <Badge variant="secondary" className="text-[13px] gap-1 pl-2 pr-1 py-0.5">
                 {priorityFilter === "critical" ? tl("priorityCritical") : priorityFilter === "high" ? tl("priorityHigh") : priorityFilter === "medium" ? tl("priorityMedium") : tl("priorityLow")} {tl("prioritySuffix")}
