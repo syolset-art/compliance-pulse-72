@@ -556,6 +556,7 @@ const AssetTrustProfile = () => {
                     gdprRole={(asset as any).gdpr_role}
                     riskLevel={(asset as any).risk_level}
                     riskSetBy={((asset as any).metadata as any)?.risk_set_by}
+                    accessRoles={((asset as any).metadata as any)?.access_roles}
                     onOpenUsageTab={() => setActiveTab("usage")}
                   />
                 </TabsContent>

@@ -70,6 +70,7 @@ interface Props {
   gdprRole?: string | null;
   riskLevel?: string | null;
   riskSetBy?: string | null;
+  accessRoles?: string[] | null;
   /** Åpner «Bruk og kontekst»-fanen når et tiltak krever registrering der. */
   onOpenUsageTab?: () => void;
 }
@@ -94,6 +95,7 @@ export function MynderGuidanceTab({
   gdprRole,
   riskLevel,
   riskSetBy,
+  accessRoles,
   onOpenUsageTab,
 }: Props) {
   const { i18n } = useTranslation();
@@ -382,6 +384,7 @@ export function MynderGuidanceTab({
             priority={priority}
             riskLevel={riskLevel}
             usagePurpose={usagePurpose}
+            accessRoles={accessRoles}
             onOpen={onOpenUsageTab}
           />
         </div>
