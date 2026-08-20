@@ -85,11 +85,23 @@ export function VendorFrameworkCard({ frameworks, onAdd, onRemove }: Props) {
               : "Select the regulations, standards and guidelines the vendor should comply with."}
           </p>
         </div>
-        <span className="inline-flex items-center gap-1 rounded-full border border-recommend/30 bg-recommend/10 px-2 py-0.5 text-[11px] font-medium text-recommend shrink-0">
-          <Sparkles className="h-3 w-3" />
-          {isNb ? "Initiell KI-vurdering" : "Initial AI assessment"}
-        </span>
+        <TooltipProvider delayDuration={150}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="inline-flex items-center gap-1 rounded-full border border-recommend/30 bg-recommend/10 px-2 py-0.5 text-[11px] font-medium text-recommend shrink-0 cursor-help">
+                <Sparkles className="h-3 w-3" />
+                {isNb ? "Initiell KI-vurdering" : "Initial AI assessment"}
+              </span>
+            </TooltipTrigger>
+            <TooltipContent side="top" className="max-w-[300px] text-xs leading-relaxed">
+              {isNb
+                ? "Vises uavhengig av hva du har satt som krav. Lara vurderer hva denne leverandøren må etterleve innen personvern, risiko og sikkerhet ut fra bransje, land og kritikalitet. Grønn = match med Laras vurdering. Lilla = regelverk du selv vil at leverandøren skal følge."
+                : "Shown regardless of the requirements you have set. Lara assesses what this vendor must comply with within privacy, risk and security based on industry, country and criticality. Green = match with Lara's assessment. Purple = frameworks you want the vendor to follow."}
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>
+
 
       <div className="mt-4 space-y-3">
         {scope.length > 0 && (
