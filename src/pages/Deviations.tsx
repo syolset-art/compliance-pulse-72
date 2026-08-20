@@ -21,9 +21,6 @@ import {
 } from "@/components/ui/select";
 import {
   AlertTriangle,
-  Clock,
-  CheckCircle,
-  FileText,
   Plus,
   Monitor,
   Layers,
@@ -583,54 +580,6 @@ export default function Deviations() {
           </CardContent>
         </Card>
 
-        {/* Summary Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-          <Card className="bg-card border-border">
-            <CardContent className="p-4 flex items-center gap-3">
-              <AlertTriangle className="h-5 w-5 text-destructive" />
-              <div>
-                <p className="text-2xl font-bold text-foreground">{stats.critical}</p>
-                <p className="text-xs text-muted-foreground">Kritiske</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="bg-card border-border">
-            <CardContent className="p-4 flex items-center gap-3">
-              <AlertTriangle className="h-5 w-5 text-warning" />
-              <div>
-                <p className="text-2xl font-bold text-foreground">{stats.high}</p>
-                <p className="text-xs text-muted-foreground">Høye</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="bg-card border-border">
-            <CardContent className="p-4 flex items-center gap-3">
-              <Clock className="h-5 w-5 text-accent" />
-              <div>
-                <p className="text-2xl font-bold text-foreground">{stats.inProgress}</p>
-                <p className="text-xs text-muted-foreground">Under behandling</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="bg-card border-border">
-            <CardContent className="p-4 flex items-center gap-3">
-              <CheckCircle className="h-5 w-5 text-status-closed" />
-              <div>
-                <p className="text-2xl font-bold text-foreground">{stats.resolved}</p>
-                <p className="text-xs text-muted-foreground">Løste</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="bg-card border-border">
-            <CardContent className="p-4 flex items-center gap-3">
-              <FileText className="h-5 w-5 text-muted-foreground" />
-              <div>
-                <p className="text-2xl font-bold text-foreground">{stats.total}</p>
-                <p className="text-xs text-muted-foreground">Totalt</p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
 
         {/* Filters */}
         <Card className="bg-card border-border">
