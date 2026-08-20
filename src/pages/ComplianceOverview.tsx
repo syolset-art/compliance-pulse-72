@@ -200,11 +200,10 @@ const ComplianceOverview = () => {
 
 
           {/* Tabs */}
-          <Tabs defaultValue="regelverk" className="space-y-4">
+          <Tabs defaultValue="forbedring" className="space-y-4">
             <TabsList>
               <TabsTrigger value="forbedring">Forbedringspunkter</TabsTrigger>
               <TabsTrigger value="malepunkter">Kontrollpunkter</TabsTrigger>
-              <TabsTrigger value="regelverk">Regelverk</TabsTrigger>
             </TabsList>
 
             {/* Forbedringspunkter */}
