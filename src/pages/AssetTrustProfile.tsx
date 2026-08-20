@@ -217,7 +217,6 @@ const AssetTrustProfile = () => {
     { value: 'requests', label: isNb ? 'Meldinger' : 'Messages', labelFull: isNb ? 'Meldinger' : 'Messages' },
     
     { value: 'deliveries', label: isNb ? 'Leveranser' : 'Deliveries', labelFull: isNb ? 'Leveranser' : 'Deliveries' },
-    { value: 'vendor-access', label: isNb ? 'Tilgang' : 'Access', labelFull: isNb ? 'Tilgang og roller' : 'Access & Roles' },
   ], [isNb]);
 
   const [visibleTabIds, setVisibleTabIds] = useState<string[]>(() => {
@@ -595,9 +594,6 @@ const AssetTrustProfile = () => {
                 </TabsContent>
                 <TabsContent value="requests" className="mt-6">
                   <VendorMessagesTab assetId={asset.id} assetName={asset.name} />
-                </TabsContent>
-                <TabsContent value="vendor-access" className="mt-6">
-                  <VendorAccessTab assetId={asset.id} assetName={asset.name} />
                 </TabsContent>
               </Tabs>
             )}
