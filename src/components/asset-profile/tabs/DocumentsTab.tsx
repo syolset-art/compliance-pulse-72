@@ -348,6 +348,12 @@ export function DocumentsTab({ assetId, assetName, vendorName, hideUploadButton,
                     <TableCell className="py-3">
                       <span className="text-xs text-muted-foreground">{getTypeLabel(req.document_type)}</span>
                     </TableCell>
+                    <TableCell className="py-3">
+                      <Badge variant="secondary" className="text-[11px] font-normal">
+                        {docOriginLabel("external", isNb)}
+                      </Badge>
+                    </TableCell>
+
                     <TableCell className="hidden py-3 text-xs text-muted-foreground sm:table-cell">
                       {req.due_date ? new Date(req.due_date).toLocaleDateString(locale) : "—"}
                     </TableCell>
