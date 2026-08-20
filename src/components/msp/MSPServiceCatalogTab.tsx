@@ -695,9 +695,14 @@ export function MSPServiceCatalogTab({ onOpenSecondary, onRegisterActions }: { o
             <TabsTrigger value="alle">
               Alle ({availablePicks.length})
             </TabsTrigger>
+            <TabsTrigger value="regelverk">Regelverk</TabsTrigger>
           </TabsList>
 
         </div>
+
+        <TabsContent value="regelverk" className="space-y-6 mt-4">
+          <MSPFrameworkHoursTab onSaveAsService={saveFrameworkPackageAsService} />
+        </TabsContent>
 
         <TabsContent value="alle" className="space-y-6 mt-4">
       {/* Foreslåtte tjenester — vises øverst når brukeren kommer inn */}
