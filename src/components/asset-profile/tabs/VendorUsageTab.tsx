@@ -442,10 +442,8 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
     }
   };
 
-  const getLabel = (options: typeof criticalityOptions, value: string | null | undefined) => {
-    const opt = options.find(o => o.value === (value || "not_set"));
-    return opt ? (isNb ? opt.labelNb : opt.labelEn) : (isNb ? "Ikke satt" : "Not set");
-  };
+  const getLabel = (options: typeof criticalityOptions, value: string | null | undefined) =>
+    getLabelFor(options, value, isNb);
 
   const pillItems: ContextPillItem[] = [
     {
