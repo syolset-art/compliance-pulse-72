@@ -37,6 +37,8 @@ import {
   annualPrice,
   type SearchKind,
 } from "@/lib/serviceSearchMatch";
+import { frameworks, getFrameworkById } from "@/lib/frameworkDefinitions";
+import { MYNDER_PRODUCTS } from "@/lib/mynderProducts";
 import type { ServiceMapping } from "./CustomServiceDialog";
 import { AiMappingDisclosure } from "./AiMappingDisclosure";
 
@@ -51,14 +53,15 @@ interface Props {
   onAddProductToOffer?: (productId: string) => void;
 }
 
-const MODES: Array<{ id: SearchKind; label: string }> = [
-  { id: "service", label: "Tjeneste/oppgave" },
+const MODES: Array<{ id: SearchKind; label: string; deferred?: boolean }> = [
   { id: "framework", label: "Regelverk" },
   { id: "product", label: "Mynder-produkt" },
+  { id: "service", label: "Tjeneste/oppgave", deferred: true },
 ];
 
 const STORAGE_KEY = "mynder-service-search-mode-order";
 const DEFAULT_ORDER: SearchKind[] = MODES.map((m) => m.id);
+
 
 
 interface FrameworkGroup {
@@ -83,7 +86,10 @@ export function ServiceCoverageSearch({
   const [debounced, setDebounced] = useState("");
   const [justAdded, setJustAdded] = useState(false);
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
-  const [modeOverride, setModeOverride] = useState<SearchKind | null>(null);
+  const [mode, setMode] = useState<SearchKind>("framework");
+  const [pickedFrameworkId, setPickedFrameworkId] = useState<string | null>(null);
+  const [pickedProductId, setPickedProductId] = useState<string | null>(null);
+
   const { defaultHourlyRate, currency } = useServiceDefaults();
 
   // Brukeren kan dra søkemodus-knappene for å velge rekkefølge
@@ -164,13 +170,39 @@ export function ServiceCoverageSearch({
     },
   });
 
-  const detected = useMemo<SearchKind>(
-    () => (debounced.length >= 2 ? detectSearchKind(debounced) : "service"),
-    [debounced],
+  // Skriver brukeren noe som tydelig er et regelverk eller produkt, bytter modus selv
+  useEffect(() => {
+    if (debounced.length < 2) return;
+    const detected = detectSearchKind(debounced);
+    if (detected === "framework" || detected === "product") setMode(detected);
+  }, [debounced]);
+
+  const matchedFramework = useMemo(() => matchFramework(debounced), [debounced]);
+  const matchedProduct = useMemo(() => matchProduct(debounced), [debounced]);
+  const framework = useMemo(
+    () => (pickedFrameworkId ? getFrameworkById(pickedFrameworkId) ?? null : matchedFramework),
+    [pickedFrameworkId, matchedFramework],
   );
-  const mode = modeOverride ?? detected;
-  const framework = useMemo(() => matchFramework(debounced), [debounced]);
-  const product = useMemo(() => matchProduct(debounced), [debounced]);
+  const product = useMemo(
+    () =>
+      pickedProductId
+        ? MYNDER_PRODUCTS.find((p) => p.id === pickedProductId) ?? null
+        : matchedProduct,
+    [pickedProductId, matchedProduct],
+  );
+
+  const frameworkList = useMemo(() => {
+    const q = debounced.toLowerCase();
+    return frameworks.filter(
+      (f) => q.length < 2 || f.name.toLowerCase().includes(q) || f.id.includes(q),
+    );
+  }, [debounced]);
+
+  const productList = useMemo(() => {
+    const q = debounced.toLowerCase();
+    return MYNDER_PRODUCTS.filter((p) => q.length < 2 || p.name.toLowerCase().includes(q));
+  }, [debounced]);
+
 
   const fmt = (n: number) =>
     `${new Intl.NumberFormat("nb-NO", { maximumFractionDigits: 0 }).format(Math.round(n))} ${currency}`;
@@ -264,7 +296,11 @@ export function ServiceCoverageSearch({
               key={m.id}
               type="button"
               draggable
-              onClick={() => setModeOverride(m.id)}
+              onClick={() => {
+                setMode(m.id);
+                setPickedFrameworkId(null);
+                setPickedProductId(null);
+              }}
               onDragStart={(e) => handleDragStart(e, m.id)}
               onDragEnd={handleDragEnd}
               onDragOver={(e) => handleDragOver(e, m.id)}
@@ -289,6 +325,19 @@ export function ServiceCoverageSearch({
                 )}
               />
               {m.label}
+              {m.deferred && (
+                <span
+                  className={cn(
+                    "rounded px-1 py-0.5 text-[9px] font-normal",
+                    mode === m.id
+                      ? "bg-primary-foreground/20"
+                      : "bg-muted text-muted-foreground",
+                  )}
+                >
+                  Kommer
+                </span>
+              )}
+
             </button>
           );
         })}
@@ -301,12 +350,20 @@ export function ServiceCoverageSearch({
             value={query}
             onChange={(e) => {
               setQuery(e.target.value);
-              setModeOverride(null);
+              setPickedFrameworkId(null);
+              setPickedProductId(null);
             }}
-            placeholder="Skriv en tjeneste, oppgave, et regelverk (GDPR) eller et Mynder-produkt"
+            placeholder={
+              mode === "framework"
+                ? "Søk regelverk (GDPR, NIS2, ISO 27001 …)"
+                : mode === "product"
+                  ? "Søk Mynder-produkt (Core, Leverandørmodulen …)"
+                  : "Skriv en tjeneste eller oppgave"
+            }
             className="pl-9 h-10"
-            aria-label="Søk tjeneste, regelverk eller produkt"
+            aria-label="Søk regelverk, produkt eller tjeneste"
           />
+
         </div>
         {mode === "service" && debounced.length >= 2 && groups.length > 0 && (
           <Button
@@ -335,6 +392,60 @@ export function ServiceCoverageSearch({
           <Check className="h-3.5 w-3.5" /> Åpnet for redigering.
         </p>
       )}
+
+      {mode === "framework" && (
+        <div className="flex flex-wrap gap-1.5">
+          {frameworkList.map((f) => (
+            <button
+              key={f.id}
+              type="button"
+              onClick={() => setPickedFrameworkId(f.id)}
+              className={cn(
+                "rounded-full border px-2.5 py-1 text-[11px] font-medium transition-colors",
+                framework?.id === f.id
+                  ? "border-primary bg-primary/10 text-primary"
+                  : "border-border text-muted-foreground hover:text-foreground hover:border-primary/40",
+              )}
+            >
+              {f.name}
+            </button>
+          ))}
+          {frameworkList.length === 0 && (
+            <p className="text-xs text-muted-foreground px-1">Ingen regelverk matcher søket.</p>
+          )}
+        </div>
+      )}
+
+      {mode === "product" && (
+        <div className="flex flex-wrap gap-1.5">
+          {productList.map((p) => (
+            <button
+              key={p.id}
+              type="button"
+              onClick={() => setPickedProductId(p.id)}
+              className={cn(
+                "rounded-full border px-2.5 py-1 text-[11px] font-medium transition-colors",
+                product?.id === p.id
+                  ? "border-primary bg-primary/10 text-primary"
+                  : "border-border text-muted-foreground hover:text-foreground hover:border-primary/40",
+              )}
+            >
+              {p.name}
+            </button>
+          ))}
+          {productList.length === 0 && (
+            <p className="text-xs text-muted-foreground px-1">Ingen produkter matcher søket.</p>
+          )}
+        </div>
+      )}
+
+      {mode === "service" && (
+        <div className="rounded-md border border-dashed border-border bg-muted/20 px-3 py-2.5 text-xs text-muted-foreground">
+          Tjeneste- og oppgavesøk kommer senere. Bruk Regelverk eller Mynder-produkt i mellomtiden.
+        </div>
+      )}
+
+
 
       {mode === "framework" && framework && (
         <Card className="p-4">
