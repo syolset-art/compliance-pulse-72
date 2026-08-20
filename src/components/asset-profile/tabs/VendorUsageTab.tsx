@@ -285,6 +285,12 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
 
   const handleAcceptAll = () => {
     setLaraLoading(true);
+    setPreAcceptSnapshot({
+      criticality: asset?.criticality ?? null,
+      gdpr_role: (asset as any)?.gdpr_role ?? null,
+      risk_level: (asset as any)?.risk_level ?? null,
+      metadata: { ...riskMeta },
+    });
     setTimeout(() => {
       updateMutation.mutate({
         criticality: contextSuggestion.criticality,
@@ -300,9 +306,70 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
         },
       } as any);
       setRationaleDraft("");
+      setAcceptedAt(new Date());
       setLaraLoading(false);
     }, 600);
   };
+
+  const handleUndoAccept = () => {
+    if (!preAcceptSnapshot) return;
+    setLaraLoading(true);
+    updateMutation.mutate({
+      criticality: preAcceptSnapshot.criticality,
+      gdpr_role: preAcceptSnapshot.gdpr_role,
+      risk_level: preAcceptSnapshot.risk_level,
+      metadata: preAcceptSnapshot.metadata,
+    } as any);
+    setPreAcceptSnapshot(null);
+    setAcceptedAt(null);
+    setLaraLoading(false);
+  };
+
+  // Bekreftet tilstand vises så lenge lagrede verdier fortsatt matcher forslaget
+  const suggestionApplied =
+    !!acceptedAt &&
+    asset?.criticality === contextSuggestion.criticality &&
+    (!contextSuggestion.gdprRole || (asset as any)?.gdpr_role === contextSuggestion.gdprRole) &&
+    (asset as any)?.risk_level === riskSuggestion.level;
+
+  const appliedItems = [
+    { label: isNb ? "Kritikalitet" : "Criticality", value: getLabel(criticalityOptions, contextSuggestion.criticality) },
+    ...(contextSuggestion.gdprRole
+      ? [{ label: isNb ? "GDPR-rolle" : "GDPR role", value: getLabel(gdprOptions, contextSuggestion.gdprRole) }]
+      : []),
+    { label: isNb ? "Risiko" : "Risk", value: getLabel(riskOptions, riskSuggestion.level) },
+    ...(usageTags.length
+      ? [{ label: isNb ? "Bruk" : "Usage", value: usageTags.map((t) => usageTagLabel(t, isNb)).join(", ") }]
+      : []),
+    ...(usagePurpose ? [{ label: isNb ? "Bruksformål" : "Purpose", value: usagePurpose }] : []),
+  ];
+
+  const nextStep = (() => {
+    const isProcessor =
+      (asset as any)?.gdpr_role === "databehandler" || (asset as any)?.gdpr_role === "underdatabehandler";
+    if (isProcessor && !(asset as any)?.has_dpa) {
+      return {
+        labelNb: "Legg til databehandleravtale",
+        labelEn: "Add data processing agreement",
+        onClick: () => onNavigateToTab?.("evidence"),
+      };
+    }
+    if (
+      (asset?.criticality === "high" || asset?.criticality === "critical") &&
+      !riskMeta.risk_rationale
+    ) {
+      return {
+        labelNb: "Gjør risikovurdering",
+        labelEn: "Do a risk assessment",
+        onClick: () => setOpenPill("risk"),
+      };
+    }
+    return {
+      labelNb: "Se leverandørens dokumentasjon",
+      labelEn: "View vendor documentation",
+      onClick: () => onNavigateToTab?.("evidence"),
+    };
+  })();
 
   // --- Laras plan for GDPR-rolle (må godkjennes av brukeren) ---
   const [gdprPlanDismissed, setGdprPlanDismissed] = useState(false);
