@@ -8,7 +8,6 @@ import { RegisterActivityDialog } from "@/components/asset-profile/RegisterActiv
 import { RequestUpdateDialog } from "@/components/asset-profile/RequestUpdateDialog";
 import { DocumentRequestsSection } from "@/components/asset-profile/tabs/DocumentRequestsSection";
 import { VendorFrameworkCard } from "@/components/asset-profile/guidance/VendorFrameworkCard";
-import { VendorRecommendedActionsCard } from "@/components/asset-profile/guidance/VendorRecommendedActionsCard";
 import { VendorNextStepsCard } from "@/components/asset-profile/guidance/VendorNextStepsCard";
 import { buildVendorNextSteps, splitByAutonomy, type NextStep } from "@/lib/vendorNextSteps";
 import { InviteAgenticTrustCenterDialog } from "@/components/asset-profile/guidance/InviteAgenticTrustCenterDialog";
@@ -238,7 +237,6 @@ export function MynderGuidanceTab({
   };
 
   // ── Neste steg: hull i leverandørdata + regelverkstiltak ──
-  const [showAllActions, setShowAllActions] = useState(false);
 
   const nextSteps: NextStep[] = useMemo(
     () =>
@@ -438,39 +436,13 @@ export function MynderGuidanceTab({
             steps={nextSteps}
             onRunStep={runNextStep}
             onRunAllLara={runAllLaraSteps}
-            onShowAll={() => setShowAllActions((v) => !v)}
+            
           />
         </div>
       </div>
 
-      {showAllActions && (
-        <VendorRecommendedActionsCard
-          assetId={assetId}
-          signals={inferred.signals}
-          segmentLabel={isNb ? inferred.segment.nb : inferred.segment.en}
-          actions={actions}
-          onRequestDocumentation={openDocRequest}
-          onCreateActivity={createActivityFromAction}
-          onCreateVendorActivity={() => setCreateActivityOpen(true)}
-          trustCenter={trustCenter}
-          onInviteTrustCenter={() => setInviteTrustCenterOpen(true)}
-          onOpenTrustCenter={() => {
-            const link = trustCenter.link ?? trustCenterLink(assetId);
-            window.open(link, "_blank", "noopener");
-          }}
-          onRemindTrustCenter={() => {
-            const next = { ...trustCenter, remindedAt: new Date().toISOString() };
-            setTrustCenter(next);
-            writeTrustCenterState(assetId, next);
-            toast({
-              title: isNb ? "Påminnelse sendt" : "Reminder sent",
-              description: isNb
-                ? "Lara har purret kontaktpersonene hos leverandøren."
-                : "Lara reminded the vendor contacts.",
-            });
-          }}
-        />
-      )}
+
+
 
       {/* Aktive dokumentasjonsforespørsler */}
       <DocumentRequestsSection assetId={assetId} />
