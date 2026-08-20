@@ -548,6 +548,7 @@ const AssetTrustProfile = () => {
                     industry={(asset as any).category}
                     country={(asset as any).country}
                     criticality={(asset as any).criticality ?? asset.risk_level}
+                    priority={(asset as any).priority}
                     contactPerson={(asset as any).contact_person}
                     contactEmail={(asset as any).contact_email}
                     usagePurpose={((asset as any).metadata as any)?.usage_purpose}
