@@ -1,7 +1,11 @@
 import { useMemo, useState, useEffect } from "react";
-import { Search, Plus, Check, Info } from "lucide-react";
+import { Search, Plus, Check, Info, Scale, Package, ArrowRight } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Tooltip,
@@ -24,6 +28,15 @@ import {
 } from "@/lib/serviceMappingSuggester";
 import { getFrameworkTheme } from "@/lib/serviceFrameworkTheme";
 import { lookupServiceDescription } from "@/lib/serviceDescriptionLookup";
+import { useServiceDefaults } from "@/hooks/useServiceDefaults";
+import {
+  detectSearchKind,
+  matchFramework,
+  matchProduct,
+  frameworkPotential,
+  annualPrice,
+  type SearchKind,
+} from "@/lib/serviceSearchMatch";
 import type { ServiceMapping } from "./CustomServiceDialog";
 import { AiMappingDisclosure } from "./AiMappingDisclosure";
 
@@ -34,7 +47,16 @@ interface Props {
     suggestedDescription: string;
     mappings: ServiceMapping[];
   }) => void;
+  onOpenFramework?: (frameworkId: string) => void;
+  onAddProductToOffer?: (productId: string) => void;
 }
+
+const MODES: Array<{ id: SearchKind; label: string }> = [
+  { id: "service", label: "Tjeneste/oppgave" },
+  { id: "framework", label: "Regelverk" },
+  { id: "product", label: "Mynder-produkt" },
+];
+
 
 interface FrameworkGroup {
   frameworkId: string;
