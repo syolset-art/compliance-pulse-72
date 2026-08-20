@@ -86,6 +86,73 @@ export function ServiceCoverageSearch({
   const [modeOverride, setModeOverride] = useState<SearchKind | null>(null);
   const { defaultHourlyRate, currency } = useServiceDefaults();
 
+  // Brukeren kan dra søkemodus-knappene for å velge rekkefølge
+  const [modeOrder, setModeOrder] = useState<SearchKind[]>(() => {
+    if (typeof window === "undefined") return DEFAULT_ORDER;
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved) as SearchKind[];
+        if (
+          parsed.length === DEFAULT_ORDER.length &&
+          DEFAULT_ORDER.every((id) => parsed.includes(id))
+        ) {
+          return parsed;
+        }
+      }
+    } catch {}
+    return DEFAULT_ORDER;
+  });
+  const [dragMode, setDragMode] = useState<SearchKind | null>(null);
+  const [overMode, setOverMode] = useState<SearchKind | null>(null);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(modeOrder));
+    } catch {}
+  }, [modeOrder]);
+
+  const orderedModes = useMemo(
+    () => modeOrder.map((id) => MODES.find((m) => m.id === id)!).filter(Boolean),
+    [modeOrder]
+  );
+
+  const handleDragStart = useCallback(
+    (e: React.DragEvent<HTMLButtonElement>, id: SearchKind) => {
+      setDragMode(id);
+      e.dataTransfer.effectAllowed = "move";
+      e.dataTransfer.setData("text/plain", id);
+    },
+    []
+  );
+
+  const handleDragOver = useCallback(
+    (e: React.DragEvent<HTMLButtonElement>, id: SearchKind) => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = "move";
+      if (dragMode && dragMode !== id) setOverMode(id);
+    },
+    [dragMode]
+  );
+
+  const handleDragEnd = useCallback(() => {
+    if (dragMode && overMode && dragMode !== overMode) {
+      const fromIdx = modeOrder.indexOf(dragMode);
+      const toIdx = modeOrder.indexOf(overMode);
+      if (fromIdx !== -1 && toIdx !== -1) {
+        const newOrder = [...modeOrder];
+        const fullFrom = newOrder.indexOf(dragMode);
+        newOrder.splice(fullFrom, 1);
+        const fullTo = newOrder.indexOf(overMode);
+        newOrder.splice(toIdx > fromIdx ? fullTo + 1 : fullTo, 0, dragMode);
+        setModeOrder(newOrder);
+      }
+    }
+    setDragMode(null);
+    setOverMode(null);
+  }, [dragMode, overMode, modeOrder]);
+
+
   const { data: reqRows = [] } = useQuery({
     queryKey: ["all-compliance-requirements"],
     queryFn: async () => {
