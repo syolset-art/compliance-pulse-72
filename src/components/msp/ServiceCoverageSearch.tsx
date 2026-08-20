@@ -57,6 +57,9 @@ const MODES: Array<{ id: SearchKind; label: string }> = [
   { id: "product", label: "Mynder-produkt" },
 ];
 
+const STORAGE_KEY = "mynder-service-search-mode-order";
+const DEFAULT_ORDER: SearchKind[] = MODES.map((m) => m.id);
+
 
 interface FrameworkGroup {
   frameworkId: string;
