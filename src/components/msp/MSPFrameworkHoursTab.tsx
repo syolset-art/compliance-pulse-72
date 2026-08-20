@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Scale, Clock, ChevronRight } from "lucide-react";
 import { frameworks as FRAMEWORK_DEFS } from "@/lib/frameworkDefinitions";
+import { baselineRequirementRows } from "@/lib/frameworkRequirementBaseline";
 import { useServiceDefaults } from "@/hooks/useServiceDefaults";
 import { formatPriceRange } from "@/lib/documentDeliverables";
 import {
