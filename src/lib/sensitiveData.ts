@@ -27,3 +27,23 @@ export function sensitiveCategoryLabel(value: string, isNb: boolean): string {
 export function gdprRoleHandlesPersonalData(role: string | null | undefined): boolean {
   return !!role && role !== "not_set" && role !== "ingen_persondata";
 }
+
+/** Tre tilstander for "Særlige kategorier personopplysninger" (GDPR art. 9/10). */
+export type SensitiveDataStatus = "yes" | "no" | "not_assessed";
+
+export const SENSITIVE_DATA_STATUS_OPTIONS: { value: SensitiveDataStatus; labelNb: string; labelEn: string }[] = [
+  { value: "yes", labelNb: "Ja", labelEn: "Yes" },
+  { value: "no", labelNb: "Nei", labelEn: "No" },
+  { value: "not_assessed", labelNb: "Ikke vurdert", labelEn: "Not assessed" },
+];
+
+/** Tomt/ukjent felt skal alltid tolkes som "Ikke vurdert" – aldri "Nei". */
+export function normalizeSensitiveDataStatus(value: unknown): SensitiveDataStatus {
+  return value === "yes" || value === "no" ? value : "not_assessed";
+}
+
+export function sensitiveDataStatusLabel(value: unknown, isNb: boolean): string {
+  const status = normalizeSensitiveDataStatus(value);
+  const opt = SENSITIVE_DATA_STATUS_OPTIONS.find((o) => o.value === status)!;
+  return isNb ? opt.labelNb : opt.labelEn;
+}
