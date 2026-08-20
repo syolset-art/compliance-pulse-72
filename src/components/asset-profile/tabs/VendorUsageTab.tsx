@@ -432,6 +432,16 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
               ))}
             </SelectContent>
           </Select>
+
+          <LaraFieldSuggestion
+            isNb={isNb}
+            suggestedLabel={getLabel(criticalityOptions, contextSuggestion.criticality)}
+            reason={contextReason}
+            approvedBy={riskMeta.criticality_set_by || null}
+            matchesCurrent={(asset?.criticality || "medium") === contextSuggestion.criticality}
+            onApprove={() => handleFieldChange("criticality", contextSuggestion.criticality)}
+          />
+
           <p className="text-[13px] text-muted-foreground leading-snug">
             {isNb
               ? "Hvor viktig denne leverandøren er for virksomheten. Høy kritikalitet krever strengere oppfølging."
