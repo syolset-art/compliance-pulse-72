@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Upload, FileText, Trash2, Lock, Send, Mail, MoreHorizontal, CheckCircle2, Clock, Archive } from "lucide-react";
+import { Upload, FileText, Trash2, Lock, Send, Mail, MoreHorizontal, CheckCircle2, Clock, Archive, Eye, XCircle } from "lucide-react";
 import { DocumentActionButtons } from "@/components/agents/DocumentActionButtons";
 import { DocumentSourceIcon } from "../DocumentSourceIcon";
 import {
