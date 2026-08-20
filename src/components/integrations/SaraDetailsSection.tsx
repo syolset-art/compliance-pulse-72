@@ -1,13 +1,20 @@
 import { useTranslation } from "react-i18next";
+import { useQuery } from "@tanstack/react-query";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { Laptop, ArrowRight } from "lucide-react";
+import { Laptop, ArrowRight, Check } from "lucide-react";
 import { SaraRequirementPackage } from "@/components/agents/SaraRequirementPackage";
+import { supabase } from "@/integrations/supabase/client";
+import {
+  SARA_MONITORED_SYSTEMS,
+  getSaraDeviationTypes,
+} from "@/lib/saraDeviationScope";
 
 /**
  * Utdypende informasjon om Sara. Ligger kun her, slik at
@@ -17,9 +24,90 @@ export function SaraDetailsSection() {
   const { t, i18n } = useTranslation();
   const isNb = i18n.language?.startsWith("nb") ?? true;
 
+  const { data: activeFrameworkIds = [] } = useQuery({
+    queryKey: ["sara-active-frameworks"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("selected_frameworks")
+        .select("framework_id, is_selected")
+        .eq("is_selected", true);
+      return (data || []).map((f: any) => f.framework_id as string);
+    },
+  });
+
+  const types = getSaraDeviationTypes(activeFrameworkIds);
+  const inScope = SARA_MONITORED_SYSTEMS.filter((s) => s.status === "connected");
+  const outOfScope = SARA_MONITORED_SYSTEMS.filter((s) => s.status === "out_of_scope");
+
   return (
     <Card className="mt-6 p-1">
       <Accordion type="single" collapsible className="w-full">
+        <AccordionItem value="connections" className="border-b px-4">
+          <AccordionTrigger className="text-sm">
+            {isNb ? "Hva Sara er koblet til" : "What Sara is connected to"}
+          </AccordionTrigger>
+          <AccordionContent>
+            <ul className="space-y-1.5 pb-2">
+              {inScope.map((s) => (
+                <li key={s.id} className="flex flex-wrap items-baseline gap-x-2 text-[13px]">
+                  <Check className="h-3 w-3 shrink-0 translate-y-0.5 text-primary" aria-hidden="true" />
+                  <span className="font-medium text-foreground">{s.name}</span>
+                  <span className="text-muted-foreground">{s.watches}</span>
+                  <span className="ml-auto text-muted-foreground/70">
+                    {isNb ? "Eier" : "Owner"}: {s.owner} · {s.lastRun}
+                  </span>
+                </li>
+              ))}
+            </ul>
+            {outOfScope.length > 0 && (
+              <div className="flex flex-wrap items-center gap-1.5 border-t border-border pt-2">
+                <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                  {isNb ? "Kommer senere" : "Coming later"}
+                </span>
+                {outOfScope.map((s) => (
+                  <Badge
+                    key={s.id}
+                    variant="outline"
+                    className="border-dashed text-xs font-normal text-muted-foreground/80"
+                  >
+                    {s.name}
+                  </Badge>
+                ))}
+              </div>
+            )}
+          </AccordionContent>
+        </AccordionItem>
+
+        <AccordionItem value="deviationTypes" className="border-b px-4">
+          <AccordionTrigger className="text-sm">
+            {isNb ? "Avvik Sara dokumenterer" : "Deviations Sara documents"}
+          </AccordionTrigger>
+          <AccordionContent>
+            {types.length === 0 ? (
+              <p className="pb-2 text-[13px] text-muted-foreground">
+                {isNb
+                  ? "Ingen regelverk er aktivert ennå, så Sara har ingen pålagte avvikstyper å fange opp."
+                  : "No regulations are activated yet, so Sara has no mandatory deviation types to capture."}
+              </p>
+            ) : (
+              <ul className="divide-y divide-border pb-2">
+                {types.map((tp) => (
+                  <li key={tp.id} className="flex flex-wrap items-baseline gap-x-2 py-1.5 text-[13px]">
+                    <span className="font-medium text-foreground">{isNb ? tp.title : tp.titleEn}</span>
+                    <Badge variant="outline" className="text-[11px] font-normal">
+                      {tp.frameworkLabel} {tp.requirementRef}
+                    </Badge>
+                    <span className="w-full text-muted-foreground sm:w-auto">
+                      {isNb ? tp.obligation : tp.obligationEn}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </AccordionContent>
+        </AccordionItem>
+
+
         <AccordionItem value="boundary" className="border-b px-4">
           <AccordionTrigger className="text-sm">{t("saraDetails.boundary")}</AccordionTrigger>
           <AccordionContent>
