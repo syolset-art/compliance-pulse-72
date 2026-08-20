@@ -139,12 +139,36 @@ export function VendorFrameworkCard({ frameworks, onAdd, onRemove }: Props) {
             <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
               Scope
               <span className="ml-1.5 normal-case font-normal tracking-normal opacity-70">
-                {isNb
-                  ? "– alle regelverk denne leverandøren følges opp på"
-                  : "– all frameworks this vendor is followed up on"}
+                {expanded
+                  ? isNb
+                    ? "– alle regelverk denne leverandøren følges opp på"
+                    : "– all frameworks this vendor is followed up on"
+                  : isNb
+                    ? "– et utvalg fra personvern, risiko og sikkerhet"
+                    : "– a selection from privacy, risk and security"}
               </span>
             </p>
-            <div className="flex flex-wrap items-center gap-1.5">{scope.map(renderPill)}</div>
+            <div className="flex flex-wrap items-center gap-1.5">
+              {displayedFrameworks.map(renderPill)}
+              {!expanded && remainingCount > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setExpanded(true)}
+                  className="inline-flex items-center rounded-full border border-border bg-muted/50 px-2 py-1 text-[11px] font-medium text-muted-foreground hover:bg-muted"
+                >
+                  +{remainingCount} {isNb ? "flere" : "more"}
+                </button>
+              )}
+              {expanded && (
+                <button
+                  type="button"
+                  onClick={() => setExpanded(false)}
+                  className="inline-flex items-center rounded-full border border-border bg-muted/50 px-2 py-1 text-[11px] font-medium text-muted-foreground hover:bg-muted"
+                >
+                  {isNb ? "Vis færre" : "Show less"}
+                </button>
+              )}
+            </div>
             <div className="flex flex-wrap items-center gap-3 pt-1 text-[10px] text-muted-foreground">
               <span className="inline-flex items-center gap-1">
                 <span className="h-1.5 w-1.5 rounded-full bg-success" />
