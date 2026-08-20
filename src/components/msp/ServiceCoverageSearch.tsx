@@ -51,6 +51,8 @@ interface Props {
   }) => void;
   onOpenFramework?: (frameworkId: string) => void;
   onAddProductToOffer?: (productId: string) => void;
+  mode?: SearchKind;
+  onModeChange?: (mode: SearchKind) => void;
 }
 
 const MODES: Array<{ id: SearchKind; label: string; deferred?: boolean }> = [
