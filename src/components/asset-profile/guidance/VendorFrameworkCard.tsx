@@ -19,8 +19,7 @@ export function VendorFrameworkCard({ frameworks, onAdd, onRemove }: Props) {
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
 
-  const mandatory = frameworks.filter((f) => f.confidence === "high" && !f.manual && !f.global);
-  const scope = frameworks.filter((f) => !mandatory.includes(f));
+  const scope = frameworks;
 
   const renderPill = (f: VendorFramework) => (
     <TooltipProvider key={f.id} delayDuration={150}>
@@ -79,8 +78,8 @@ export function VendorFrameworkCard({ frameworks, onAdd, onRemove }: Props) {
           </h3>
           <p className="text-xs text-muted-foreground mt-0.5">
             {isNb
-              ? "Lovpålagte er vurdert automatisk av Lara. Du kan legge til egne standarder og retningslinjer."
-              : "Mandatory ones are assessed automatically by Lara. You can add your own standards and guidelines."}
+              ? "Velg regelverk, standarder og retningslinjer leverandøren skal etterleve."
+              : "Select the regulations, standards and guidelines the vendor should comply with."}
           </p>
         </div>
         <span className="inline-flex items-center gap-1 rounded-full border border-recommend/30 bg-recommend/10 px-2 py-0.5 text-[11px] font-medium text-recommend shrink-0">
@@ -90,14 +89,6 @@ export function VendorFrameworkCard({ frameworks, onAdd, onRemove }: Props) {
       </div>
 
       <div className="mt-4 space-y-3">
-        {mandatory.length > 0 && (
-          <div className="space-y-1.5">
-            <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
-              {isNb ? "Lovpålagte" : "Mandatory"}
-            </p>
-            <div className="flex flex-wrap items-center gap-1.5">{mandatory.map(renderPill)}</div>
-          </div>
-        )}
         {scope.length > 0 && (
           <div className="space-y-1.5">
             <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
