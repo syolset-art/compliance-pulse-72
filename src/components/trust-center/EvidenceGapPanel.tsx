@@ -109,7 +109,19 @@ export const EvidenceGapPanel = ({ coverage, saraInstalled, onUpload, onAskSara,
               )}
             </div>
           ))}
+          {rows.length > 10 && (
+            <button
+              type="button"
+              onClick={() => setShowAll((v) => !v)}
+              className="w-full px-4 py-2.5 text-xs text-muted-foreground transition-colors hover:text-foreground"
+            >
+              {showAll
+                ? isNb ? "Vis færre" : "Show fewer"
+                : isNb ? `Vis alle ${rows.length}` : `Show all ${rows.length}`}
+            </button>
+          )}
         </div>
+
       )}
     </div>
   );
