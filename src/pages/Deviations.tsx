@@ -124,10 +124,10 @@ export default function Deviations() {
   const [selectedDeviation, setSelectedDeviation] = useState<Deviation | null>(null);
   const [view, setView] = useState("all");
   const navigate = useNavigate();
-  const { isConnected } = useConnectedSources();
+  const { isSourceConnected } = useConnectedSources();
   const incidentSources = INTEGRATION_CATALOG.filter((i) => i.discovers.includes("incidents"));
   const connectedIncidentIds = incidentSources
-    .filter((i) => isConnected?.(i.id))
+    .filter((i) => isSourceConnected(i.id))
     .map((i) => i.id);
   const hasIncidentSource = connectedIncidentIds.length > 0;
 
