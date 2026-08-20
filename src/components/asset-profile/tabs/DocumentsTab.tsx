@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Upload, FileText, Trash2, FileCheck, Lock, Send, Mail, Globe, EyeOff, HelpCircle, MoreHorizontal, CheckCircle2, Clock, Archive } from "lucide-react";
+import { Upload, FileText, Trash2, Lock, Send, Mail, MoreHorizontal, CheckCircle2, Clock, Archive } from "lucide-react";
 import { DocumentActionButtons } from "@/components/agents/DocumentActionButtons";
 import { DocumentSourceIcon } from "../DocumentSourceIcon";
 import {
@@ -22,11 +22,9 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { DocumentSharingPopover } from "../DocumentSharingPopover";
 import { toast } from "sonner";
 import { useSubscription } from "@/hooks/useSubscription";
-import { DocumentRequestsSection } from "./DocumentRequestsSection";
 import { RequestUpdateDialog } from "../RequestUpdateDialog";
 import { DocumentDetailDialog } from "../DocumentDetailDialog";
 import { UploadDocumentDialog } from "../UploadDocumentDialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 
