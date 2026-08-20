@@ -83,12 +83,22 @@ export const SaraMappedContextView = ({
         {/* Kontekst (auto) */}
         <Card className="h-full">
           <CardContent className="space-y-3 p-3">
-            <div className="flex items-center gap-1.5">
-              <LaraIcon size={14} />
-              <p className="text-[13px] font-medium text-foreground">
-                {isNb ? "Kontekst utledet av Lara" : "Context derived by Lara"}
-              </p>
-            </div>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="flex w-fit cursor-help items-center gap-1.5">
+                  <LaraIcon size={14} />
+                  <p className="text-[13px] font-medium text-foreground">
+                    {isNb ? "Kontekst utledet av Lara" : "Context derived by Lara"}
+                  </p>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent className="max-w-[280px] text-[12px]">
+                {isNb
+                  ? "Sara samler signaler lokalt hos deg. Lara tolker signalene og foreslår kritikalitet, prioritet, GDPR-rolle og risikonivå. Ingenting er gyldig før et menneske godkjenner – da logges navn og dato."
+                  : "Sara collects signals locally in your environment. Lara interprets them and suggests criticality, priority, GDPR role and risk level. Nothing counts until a human approves – name and date are then logged."}
+              </TooltipContent>
+            </Tooltip>
+
             {fields.map((f) => {
               const current = f.value || f.suggested;
               return (
