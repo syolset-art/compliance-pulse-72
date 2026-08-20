@@ -545,6 +545,18 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
             </SelectContent>
           </Select>
 
+          {contextSuggestion.gdprRole && (
+            <LaraFieldSuggestion
+              isNb={isNb}
+              suggestedLabel={getLabel(gdprOptions, contextSuggestion.gdprRole)}
+              reason={contextReason}
+              approvedBy={gdprPlanApprovedBy}
+              approvedAt={gdprPlanApprovedAt}
+              matchesCurrent={asset?.gdpr_role === contextSuggestion.gdprRole}
+              onApprove={() => handleGdprRoleChange(contextSuggestion.gdprRole as string)}
+            />
+          )}
+
 
           {showSensitive && (
             <div className="space-y-2 pt-0.5">
