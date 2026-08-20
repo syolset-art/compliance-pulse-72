@@ -60,22 +60,37 @@ export function MSPFrameworkHoursTab({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rows, defaultHourlyRate, version]);
 
+  const totalRequirements = items.reduce((sum, i) => sum + i.requirements, 0);
+  const totalPotential = totalRequirements * defaultHourlyRate;
+
   return (
     <div className="space-y-4">
       <Card className="p-4 bg-muted/30 border-dashed">
-        <div className="flex items-start gap-2.5">
-          <Scale className="h-4 w-4 text-primary mt-0.5" />
-          <div>
-            <p className="text-sm font-medium text-foreground">Timeleveranse per regelverk</p>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              Åpne et regelverk for å se alle oppgaver som må gjøres for å dekke kravene. Juster
-              timer, fjern det som ikke er relevant og lagre pakken som en tjeneste. Pris beregnes
-              fra timeprisen i innstillingene ({defaultHourlyRate.toLocaleString("nb-NO")} {currency}
-              /time).
+        <div className="flex items-start justify-between gap-4 flex-wrap">
+          <div className="flex items-start gap-2.5">
+            <Scale className="h-4 w-4 text-primary mt-0.5" />
+            <div>
+              <p className="text-sm font-medium text-foreground">Timeleveranse per regelverk</p>
+              <p className="text-xs text-muted-foreground mt-0.5 max-w-xl">
+                Åpne et regelverk for å se alle oppgaver som må gjøres for å dekke kravene. Juster
+                timer, fjern det som ikke er relevant og lagre pakken som en tjeneste. Pris beregnes
+                fra timeprisen i innstillingene ({defaultHourlyRate.toLocaleString("nb-NO")}{" "}
+                {currency}/time).
+              </p>
+            </div>
+          </div>
+          <div className="text-right shrink-0">
+            <p className="text-[11px] text-muted-foreground">Totalt salgspotensial</p>
+            <p className="text-xl font-semibold text-foreground tabular-nums">
+              {totalPotential.toLocaleString("nb-NO")} {currency}
+            </p>
+            <p className="text-[11px] text-muted-foreground">
+              {totalRequirements.toLocaleString("nb-NO")} krav · 1 time per krav · eks. mva
             </p>
           </div>
         </div>
       </Card>
+
 
       <div className="grid gap-2">
         {items.map(({ fw, requirements, totals }) => (
