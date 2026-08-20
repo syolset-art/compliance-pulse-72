@@ -109,7 +109,14 @@ export function MSPFrameworkTaskPackageSheet({
     },
   });
 
-  const baseTasks = useMemo<FrameworkTask[]>(() => buildFrameworkTasks(rows), [rows]);
+  const effectiveRows = useMemo<RequirementRow[]>(
+    () => (rows.length > 0 || !frameworkId ? rows : baselineRequirementRows(frameworkId)),
+    [rows, frameworkId],
+  );
+  const baseTasks = useMemo<FrameworkTask[]>(
+    () => buildFrameworkTasks(effectiveRows),
+    [effectiveRows],
+  );
   const tasks = useMemo(
     () => resolveTasks(baseTasks, state, hourlyRate),
     [baseTasks, state, hourlyRate],
