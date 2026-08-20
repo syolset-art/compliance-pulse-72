@@ -33,6 +33,7 @@ import { DocumentAccessDialog } from "@/components/trust-center/DocumentAccessDi
 import { Network, Users } from "lucide-react";
 import { SaraEvidencePromo } from "@/components/agents/SaraEvidencePromo";
 import { useSaraAgent } from "@/lib/saraAgent";
+import { SaraIcon } from "@/components/agents/SaraIcon";
 
 // localStorage helpers for collapsible UI state
 const LS_REQUIRED_OPEN = "trust.evidence.required.open";
