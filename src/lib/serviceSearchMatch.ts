@@ -27,7 +27,7 @@ const PRODUCT_ALIASES: Record<string, string[]> = {
   vendors: ["leverandør", "leverandormodul", "leverandørmodul", "vendor"],
   assets: ["eiendel", "eiendeler", "assets"],
   trust: ["trust center", "trust", "tillitssenter"],
-  frameworks: ["regelverk", "regelverk", "frameworks", "rammeverk"],
+  frameworks: ["regelverk", "frameworks", "rammeverk"],
   deviations: ["avvik", "avviksregister", "avvikshåndtering", "deviations"],
 };
 
