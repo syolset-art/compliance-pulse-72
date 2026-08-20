@@ -51,14 +51,15 @@ interface Props {
   onAddProductToOffer?: (productId: string) => void;
 }
 
-const MODES: Array<{ id: SearchKind; label: string }> = [
-  { id: "service", label: "Tjeneste/oppgave" },
+const MODES: Array<{ id: SearchKind; label: string; deferred?: boolean }> = [
   { id: "framework", label: "Regelverk" },
   { id: "product", label: "Mynder-produkt" },
+  { id: "service", label: "Tjeneste/oppgave", deferred: true },
 ];
 
 const STORAGE_KEY = "mynder-service-search-mode-order";
 const DEFAULT_ORDER: SearchKind[] = MODES.map((m) => m.id);
+
 
 
 interface FrameworkGroup {
