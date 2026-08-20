@@ -142,10 +142,16 @@ export function DocumentsTab({ assetId, assetName, vendorName, hideUploadButton,
     return isNb ? dt?.label || type : dt?.labelEn || type;
   };
 
-  // Auto-merk utgåtte dokumenter som "expired" – avledet fra valid_to, ingen cron
+  const getExpiryDate = (document: { expires_at?: string | null; valid_to?: string | null }) =>
+    document.expires_at || document.valid_to || null;
+
+  // Auto-merk utgåtte dokumenter som "expired" – avledet fra utløpsdato, ingen cron
   useEffect(() => {
     const stale = (documents as any[]).filter(
-      (d) => d.status === "current" && d.valid_to && new Date(d.valid_to) < new Date(),
+      (d) => {
+        const expiry = getExpiryDate(d);
+        return d.status === "current" && expiry && new Date(expiry) < new Date();
+      },
     );
     if (stale.length) {
       supabase
@@ -167,7 +173,10 @@ export function DocumentsTab({ assetId, assetName, vendorName, hideUploadButton,
     sourceFilter === "all"
       ? visibleDocs
       : (visibleDocs as any[]).filter((d: any) => resolveDocSource(d.source) === sourceFilter);
-  const expiredCount = (documents as any[]).filter((d: any) => d.valid_to && new Date(d.valid_to) < new Date() && d.status !== "superseded").length;
+  const expiredCount = (documents as any[]).filter((d: any) => {
+    const expiry = getExpiryDate(d);
+    return expiry && new Date(expiry) < new Date() && d.status !== "superseded";
+  }).length;
   const historyCount = (documents as any[]).filter(isHistorical).length;
   const pendingRequests = (requests as any[]).filter((r: any) => r.status !== "received");
   const showRequestRows = sourceFilter === "all" || sourceFilter === "vendor";
@@ -200,7 +209,8 @@ export function DocumentsTab({ assetId, assetName, vendorName, hideUploadButton,
             </TableHeader>
             <TableBody>
               {docs.map((doc: any, idx: number) => {
-                const isExpired = doc.valid_to && new Date(doc.valid_to) < new Date();
+                const expiry = getExpiryDate(doc);
+                const isExpired = expiry && new Date(expiry) < new Date();
                 const replacement = doc.superseded_by ? docsById[doc.superseded_by] : null;
                 const isHistorical = doc.status === "superseded" || doc.status === "expired" || doc.status === "rejected";
                 return (
@@ -232,9 +242,9 @@ export function DocumentsTab({ assetId, assetName, vendorName, hideUploadButton,
                       <span className="text-xs text-muted-foreground">{getTypeLabel(doc.document_type)}</span>
                     </TableCell>
                     <TableCell className="py-3 text-xs text-muted-foreground hidden sm:table-cell">
-                      {doc.valid_to ? new Date(doc.valid_to).toLocaleDateString(locale) : "—"}
+                      {expiry ? new Date(expiry).toLocaleDateString(locale) : "—"}
                     </TableCell>
-                    <TableCell className="py-3">{getStatusBadge(doc.status, doc.valid_to, isNb)}</TableCell>
+                    <TableCell className="py-3">{getStatusBadge(doc.status, expiry, isNb)}</TableCell>
                     <TableCell className="py-3">
                       <DocumentSharingPopover
                         docId={doc.id}

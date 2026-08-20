@@ -10,6 +10,7 @@ import { ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import type { Json } from "@/integrations/supabase/types";
 import { VERIFIER_TYPES, VERIFICATION_BASIS, appendAudit, type AuditEvent } from "@/lib/evidenceStatus";
 
 interface Props {
@@ -54,9 +55,8 @@ export function AddVerificationDialog({ open, onOpenChange, documentId, document
         verification_notes: notes || null,
         verification_expiry_date: expiry || null,
         expires_at: expiry ? new Date(expiry).toISOString() : null,
-
-        audit_trail: trail as unknown as never,
-      } as never).eq("id", documentId);
+        audit_trail: trail as unknown as Json,
+      }).eq("id", documentId);
       if (error) throw error;
     },
     onSuccess: () => {
