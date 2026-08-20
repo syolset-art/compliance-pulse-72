@@ -13,7 +13,7 @@ import { ReportActionButtons } from "@/components/reports/ReportActionButtons";
 import type { ReportData } from "@/components/reports/DownloadReportDialog";
 import { getRequirementsByFramework } from "@/lib/complianceRequirementsData";
 import { ALL_ADDITIONAL_REQUIREMENTS } from "@/lib/additionalFrameworkRequirements";
-import { getMaturityLevel, maturityBgClass, maturitySoftClass, maturityLabelNb, maturityTextClass } from "@/lib/maturityLevel";
+import { getMaturityLevel, maturityBgClass, maturitySoftClass, maturityLabelNb } from "@/lib/maturityLevel";
 import { MaturityIndicator } from "@/components/shared/MaturityIndicator";
 
 // Demo: which frameworks are "active" in scope
@@ -200,11 +200,10 @@ const ComplianceOverview = () => {
 
 
           {/* Tabs */}
-          <Tabs defaultValue="regelverk" className="space-y-4">
+          <Tabs defaultValue="forbedring" className="space-y-4">
             <TabsList>
               <TabsTrigger value="forbedring">Forbedringspunkter</TabsTrigger>
               <TabsTrigger value="malepunkter">Kontrollpunkter</TabsTrigger>
-              <TabsTrigger value="regelverk">Regelverk</TabsTrigger>
             </TabsList>
 
             {/* Forbedringspunkter */}
@@ -252,69 +251,6 @@ const ComplianceOverview = () => {
               ))}
             </TabsContent>
 
-            {/* Regelverk */}
-            <TabsContent value="regelverk">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {frameworkScores.map((fw) => {
-                  const Icon = fw.icon;
-                  return (
-                    <Card
-                      key={fw.id}
-                      className="hover:border-primary/30 transition-colors cursor-pointer group"
-                      onClick={() => navigate(`/trust-center/regulations`)}
-                    >
-                      <CardContent className="p-5">
-                        <div className="flex items-center gap-4">
-                          {/* Circular progress */}
-                          <div className="relative h-16 w-16 shrink-0">
-                            <svg className="h-16 w-16 -rotate-90" viewBox="0 0 64 64">
-                              <circle
-                                cx="32" cy="32" r="28"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="4"
-                                className="text-muted/30"
-                              />
-                              <circle
-                                cx="32" cy="32" r="28"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="4"
-                                strokeDasharray={`${(fw.score / 100) * 175.93} 175.93`}
-                                strokeLinecap="round"
-                                className={maturityTextClass(fw.score)}
-                              />
-                            </svg>
-                            <span className={`absolute inset-0 flex items-center justify-center text-[11px] font-bold ${maturityTextClass(fw.score)}`}>
-                              {maturityLabelNb(getMaturityLevel(fw.score))}
-                            </span>
-                          </div>
-
-                          {/* Info */}
-                          <div className="flex-1 min-w-0 space-y-1.5">
-                            <div className="flex items-center gap-2">
-                              <Icon className={`h-4 w-4 ${fw.iconColor} shrink-0`} />
-                              <span className="font-semibold text-sm text-foreground truncate">
-                                {fw.name}
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <Badge className={`text-[13px] px-1.5 py-0 border-0 ${fw.levelColor}`}>
-                                {fw.level}
-                              </Badge>
-                              <span className="text-[13px] text-muted-foreground">
-                                {fw.fulfilled}/{fw.total} OPPFYLT
-                              </span>
-                            </div>
-                            <Progress value={fw.score} className="h-1.5" />
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
-              </div>
-            </TabsContent>
           </Tabs>
         </div>
       </main>
