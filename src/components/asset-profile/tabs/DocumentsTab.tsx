@@ -215,13 +215,12 @@ export function DocumentsTab({ assetId, assetName, vendorName, hideUploadButton,
                         className={`flex items-center gap-2.5 ${isExpired ? "cursor-pointer" : ""}`}
                         onClick={() => isExpired && setDetailDoc(doc)}
                       >
-                        <div className="h-7 w-7 rounded-md bg-primary/8 flex items-center justify-center shrink-0">
-                          <FileCheck className="h-3.5 w-3.5 text-primary" />
-                        </div>
+                        <DocumentSourceIcon source={resolveDocSource(doc.source)} isNb={isNb} />
                         <div className="min-w-0">
                           <span className={`text-sm font-medium truncate block max-w-[220px] ${isExpired ? "text-destructive" : "text-foreground"}`}>
                             {doc.file_name}
                           </span>
+
                           <span className="text-[12px] text-muted-foreground hidden md:block">
                             {doc.version || "v1.0"} · {new Date(doc.created_at).toLocaleDateString(locale)}
                             {replacement && (
