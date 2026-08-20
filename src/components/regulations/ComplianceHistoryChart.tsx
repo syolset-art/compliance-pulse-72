@@ -161,6 +161,7 @@ export const ComplianceHistoryChart = ({ frameworkId, onEventClick }: Compliance
         </ResponsiveContainer>
 
       </CardContent>
+      )}
     </Card>
   );
 };
