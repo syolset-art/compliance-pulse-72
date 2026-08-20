@@ -10,7 +10,10 @@ import { cn } from "@/lib/utils";
 
 interface DocumentActionButtonsProps {
   /** Åpner sidens egen opplastingsdialog */
-  onUpload: () => void;
+  onUpload?: () => void;
+  /** Skjul opplastingsknappen når siden allerede har sin egen */
+  showUpload?: boolean;
+
   /** Overstyr etiketten på opplastingsknappen */
   uploadLabel?: { nb: string; en: string };
   className?: string;
