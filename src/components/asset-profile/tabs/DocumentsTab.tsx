@@ -538,7 +538,7 @@ export function DocumentsTab({ assetId, assetName, vendorName, hideUploadButton,
             <div className="flex flex-wrap items-center gap-5">
               {(["all", "internal", "external"] as const).map((key) => {
                 const count =
-                  key === "all" ? visibleDocs.length : originCounts[key as DocOrigin];
+                  key === "all" ? visibleDocs.length + allExternalItems.length : originCounts[key as DocOrigin];
                 const active = originFilter === key;
                 return (
                   <button
