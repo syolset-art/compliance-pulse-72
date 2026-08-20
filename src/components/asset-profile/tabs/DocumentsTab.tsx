@@ -67,6 +67,21 @@ export function DocumentsTab({ assetId, assetName, vendorName, hideUploadButton,
   const [showUploadDialog, setShowUploadDialog] = useState(false);
   const [detailDoc, setDetailDoc] = useState<any>(null);
   const [showHistory, setShowHistory] = useState(false);
+  const [sourceFilter, setSourceFilter] = useState<DocSourceKey | "all">("all");
+
+  const { data: requests = [] } = useQuery({
+    queryKey: ["vendor-document-requests", assetId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("vendor_document_requests")
+        .select("*")
+        .eq("asset_id", assetId)
+        .order("due_date", { ascending: true });
+      if (error) throw error;
+      return data;
+    },
+  });
+
 
   useEffect(() => {
     onUploadTriggerReady?.(() => setShowUploadDialog(true));
