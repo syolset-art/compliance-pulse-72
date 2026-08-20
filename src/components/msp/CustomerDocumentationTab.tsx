@@ -282,7 +282,7 @@ export function CustomerDocumentationTab({
 
           <Button size="sm" className="h-7 gap-1.5" onClick={() => openUpload()}>
             <Upload className="h-3.5 w-3.5" />
-            Last opp dokumentasjon
+            Last opp
           </Button>
 
           {/* Regelverk-filter */}
