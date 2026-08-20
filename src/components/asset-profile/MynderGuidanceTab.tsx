@@ -415,7 +415,7 @@ export function MynderGuidanceTab({
 
       {/* Hva gjelder + hva må gjøres videre */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div className="space-y-2">
+        <div className="space-y-2 h-full">
           <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground px-0.5">
             {isNb ? "Hva gjelder" : "What applies"}
           </p>
@@ -431,7 +431,7 @@ export function MynderGuidanceTab({
           />
         </div>
 
-        <div className="space-y-2">
+        <div className="space-y-2 h-full">
           <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground px-0.5">
             {isNb ? "Grunnlag" : "Basics"}
           </p>
@@ -448,7 +448,7 @@ export function MynderGuidanceTab({
 
 
 
-        <div className="space-y-2">
+        <div className="space-y-2 h-full">
           <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground px-0.5">
             {isNb ? "Hva må gjøres videre" : "What to do next"}
           </p>
