@@ -144,11 +144,24 @@ export const SaraMappedContextView = ({
               <span className="text-[13px] font-medium text-foreground">
                 {isNb ? "Hva brukes leverandøren til?" : "What is this vendor used for?"}
               </span>
-              <Badge variant="outline" className="h-4 gap-1 border-primary/30 px-1.5 text-[11px] text-primary">
-                <SaraIcon size={10} />
-                {isNb ? "Auto" : "Auto"}
-              </Badge>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Badge
+                    variant="outline"
+                    className="h-4 cursor-help gap-1 border-primary/30 px-1.5 text-[11px] text-primary"
+                  >
+                    <LaraIcon size={10} />
+                    {isNb ? "Foreslått av Lara" : "Suggested by Lara"}
+                  </Badge>
+                </TooltipTrigger>
+                <TooltipContent className="max-w-[280px] text-[12px]">
+                  {isNb
+                    ? `Lara har foreslått bruksområder og beskrivelse basert på ${mapping.signals.length} signaler Sara fant lokalt i ${mapping.source}. Du kan endre alt fritt – teksten lagres først når du redigerer den.`
+                    : `Lara suggested the usage tags and description from ${mapping.signals.length} signals Sara found locally in ${mapping.source}. You can change everything – the text is saved when you edit it.`}
+                </TooltipContent>
+              </Tooltip>
             </div>
+
 
             <div className="flex flex-wrap gap-1">
               {USAGE_TAGS.map((t) => {
