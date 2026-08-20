@@ -575,12 +575,26 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
 
           {showSensitive && (
             <div className="space-y-2 pt-0.5">
-              <div className="flex items-center justify-between gap-2 max-w-xs">
-                <span className="text-[13px] text-foreground leading-tight">
-                  {isNb ? "Behandler sensitive personopplysninger" : "Processes sensitive personal data"}
-                </span>
-                <Switch checked={sensitiveOn} onCheckedChange={handleSensitiveToggle} />
+              <div className="space-y-1.5 max-w-xs">
+                <label htmlFor="sensitive-data-status" className="block text-[13px] text-foreground leading-tight">
+                  {isNb ? "Særlige kategorier personopplysninger" : "Special categories of personal data"}
+                  <span className="ml-1 text-muted-foreground">{isNb ? "(art. 9/10)" : "(art. 9/10)"}</span>
+                </label>
+                <Select value={sensitiveStatus} onValueChange={handleSensitiveStatusChange}>
+                  <SelectTrigger id="sensitive-data-status" className="h-9 text-sm border">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {SENSITIVE_DATA_STATUS_OPTIONS.map((o) => (
+                      <SelectItem key={o.value} value={o.value}>{isNb ? o.labelNb : o.labelEn}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-[12px] text-muted-foreground">
+                  {isNb ? "Registreres av bruker – ikke satt av KI." : "Registered by the user – not set by AI."}
+                </p>
               </div>
+
 
               {sensitiveOn && (
                 <div className="space-y-1.5 max-w-xs">
