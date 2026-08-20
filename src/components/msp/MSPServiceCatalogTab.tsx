@@ -43,6 +43,8 @@ import {
 } from "@/lib/laraScopeDiff";
 
 import { CORE_TIERS, VENDOR_TIERS, TRUST_CENTER_PRICE_KR, TRUST_CENTER_V2 } from "@/lib/planConstants";
+import { MYNDER_PRODUCTS } from "@/lib/mynderProducts";
+
 import { usePartnerBranding } from "@/hooks/usePartnerBranding";
 import { formatTaxNote } from "@/lib/partnerTax";
 import { useSavedOffers, type LockInfo } from "@/lib/customerOffers";
