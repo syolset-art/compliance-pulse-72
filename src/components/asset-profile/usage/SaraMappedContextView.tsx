@@ -5,6 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { SaraIcon } from "@/components/agents/SaraIcon";
+import { LaraIcon } from "@/components/agents/LaraIcon";
+import { Check } from "lucide-react";
 import { SaraActivityLogDialog } from "@/components/agents/SaraActivityLogDialog";
 import { SaraSignalList } from "./SaraSignalList";
 import { SaraPrivacyBoundaryCard } from "./SaraPrivacyBoundaryCard";
