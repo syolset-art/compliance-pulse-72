@@ -1852,7 +1852,14 @@
     "confirmHint": "Sara delivers findings with requirement reference, document identifier and hash. A named person confirms before anything counts as documentation.",
     "manualRun": "Manual start"
   },
+  "saraActivityTeaser": {
+    "title": "Stop manual vendor risk analysis",
+    "description": "Sara is your local compliance agent. She monitors the vendor automatically and alerts you when something changes — without documents leaving your infrastructure.",
+    "cta": "See how Sara works",
+    "dismiss": "Close"
+  },
   "sourceMap": {
+
     "title": "Source map",
     "description": "Filter by what the source gives Lara.",
     "tooltip": "The source map shows what types of data each connected source can provide to Lara: systems, vendors, documents, people and access."
