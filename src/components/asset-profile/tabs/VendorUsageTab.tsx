@@ -30,6 +30,7 @@ import { AISuggestTextarea } from "@/components/asset-profile/AISuggestTextarea"
 
 interface VendorUsageTabProps {
   assetId: string;
+  assetName: string;
   onNavigateToTab?: (tab: string) => void;
 }
 
@@ -911,6 +912,8 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
 
         <SaraMappedContextView
           isNb={isNb}
+          assetId={assetId}
+          assetName={assetName}
           mapping={saraMapping}
           fields={saraFields}
           purpose={usagePurpose}

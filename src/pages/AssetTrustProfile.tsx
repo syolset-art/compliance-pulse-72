@@ -564,16 +564,7 @@ const AssetTrustProfile = () => {
                   <VendorTasksTab asset={asset} />
                 </TabsContent>
                 <TabsContent value="usage" className="mt-6 space-y-6">
-                  <VendorUsageTab assetId={asset.id} />
-                  <details className="rounded-xl border border-border bg-card/50 p-4 group">
-                    <summary className="cursor-pointer text-sm font-medium list-none flex items-center justify-between">
-                      <span>{isNb ? 'Tilgang og roller' : 'Access & roles'}</span>
-                      <span className="text-xs text-muted-foreground font-normal">{isNb ? 'Valgfritt' : 'Optional'}</span>
-                    </summary>
-                    <div className="mt-4">
-                      <VendorAccessTab assetId={asset.id} assetName={asset.name} />
-                    </div>
-                  </details>
+                  <VendorUsageTab assetId={asset.id} assetName={asset.name} />
                 </TabsContent>
 
                 <TabsContent value="history" className="mt-6">

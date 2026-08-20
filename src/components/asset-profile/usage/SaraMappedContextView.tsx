@@ -214,6 +214,15 @@ export const SaraMappedContextView = ({
       </div>
 
       <SaraSignalList isNb={isNb} signals={mapping.signals} />
+      <details className="rounded-xl border border-border bg-card/50 p-4 group">
+        <summary className="cursor-pointer text-sm font-medium list-none flex items-center justify-between">
+          <span>{isNb ? 'Tilgang og roller' : 'Access & roles'}</span>
+          <span className="text-xs text-muted-foreground font-normal">{isNb ? 'Valgfritt' : 'Optional'}</span>
+        </summary>
+        <div className="mt-4">
+          <VendorAccessTab assetId={assetId} assetName={assetName} />
+        </div>
+      </details>
       <SaraActivityLogDialog open={logOpen} onOpenChange={setLogOpen} isNb={isNb} />
     </div>
   );
