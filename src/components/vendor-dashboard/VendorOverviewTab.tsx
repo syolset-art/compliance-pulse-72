@@ -33,8 +33,6 @@ import {
   Tooltip,
 } from "recharts";
 import { VendorActionCards } from "./VendorActionCards";
-import { VendorLaraInsightsPanel } from "./VendorLaraInsightsPanel";
-import { DashboardLaraRecommendation } from "@/components/dashboard/DashboardLaraRecommendation";
 import { SystemsPriorityChart } from "./SystemsPriorityChart";
 import { ComplianceActivityChart } from "./ComplianceActivityChart";
 import { BulkSendConfirmDialog } from "./BulkSendConfirmDialog";
@@ -227,11 +225,6 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
 
   return (
     <div className="space-y-6">
-
-      {/* Lara recommendation banner — replaces noisy KPI widgets */}
-      <div className="motion-safe:animate-fade-in-up motion-safe:animate-delay-200">
-        <DashboardLaraRecommendation />
-      </div>
 
       {/* Aktiviteter + Leverandører per prioritet */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 motion-safe:animate-fade-in-up motion-safe:animate-delay-250">
