@@ -130,7 +130,10 @@ const TrustCenterEvidence = () => {
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [visibilityFilter, setVisibilityFilter] = useState("all");
   const [activeMainTab, setActiveMainTab] = useState<"documents" | "access">("documents");
+  const [selectedFrameworkIds, setSelectedFrameworkIds] = useState<string[]>([]);
+  const [sourceFilter, setSourceFilter] = useState<"all" | "upload" | "agent">("all");
   const queryClient = useQueryClient();
+
 
   // Edit state
   const [editDoc, setEditDoc] = useState<any>(null);
