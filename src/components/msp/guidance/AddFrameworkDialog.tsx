@@ -27,6 +27,8 @@ interface Props {
   /** Id-er som allerede ligger i listen (anbefalt eller manuelt valgt). */
   existingIds: string[];
   onAdd: (item: OfferSuggestion) => void;
+  /** Skjul pris (f.eks. i leverandørmodulen der regelverk kun styrer dokumentasjonskrav). */
+  hidePrice?: boolean;
 }
 
 const CATEGORY_ICON: Record<FrameworkCategory, typeof Scale> = {
