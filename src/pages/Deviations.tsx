@@ -60,6 +60,9 @@ import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { INTEGRATION_CATALOG } from "@/lib/integrationCatalog";
 import { useConnectedSources } from "@/hooks/useConnectedSources";
+import { useSaraAgent } from "@/lib/saraAgent";
+import { SaraIcon } from "@/components/agents/SaraIcon";
+import { SaraLiveDeviationsPanel } from "@/components/deviations/SaraLiveDeviationsPanel";
 
 const dummyPeople = [
   "Kari Nordmann",
