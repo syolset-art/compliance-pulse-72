@@ -1,8 +1,10 @@
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Card } from "@/components/ui/card";
 import { Sparkles, Plus, X } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
+import { frameworks as allFrameworkDefs } from "@/lib/frameworkDefinitions";
 import type { VendorFramework } from "@/lib/vendorFrameworkSuggestions";
 
 interface Props {
