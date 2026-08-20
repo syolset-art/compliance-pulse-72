@@ -350,12 +350,20 @@ export function ServiceCoverageSearch({
             value={query}
             onChange={(e) => {
               setQuery(e.target.value);
-              setModeOverride(null);
+              setPickedFrameworkId(null);
+              setPickedProductId(null);
             }}
-            placeholder="Skriv en tjeneste, oppgave, et regelverk (GDPR) eller et Mynder-produkt"
+            placeholder={
+              mode === "framework"
+                ? "Søk regelverk (GDPR, NIS2, ISO 27001 …)"
+                : mode === "product"
+                  ? "Søk Mynder-produkt (Core, Leverandørmodulen …)"
+                  : "Skriv en tjeneste eller oppgave"
+            }
             className="pl-9 h-10"
-            aria-label="Søk tjeneste, regelverk eller produkt"
+            aria-label="Søk regelverk, produkt eller tjeneste"
           />
+
         </div>
         {mode === "service" && debounced.length >= 2 && groups.length > 0 && (
           <Button
