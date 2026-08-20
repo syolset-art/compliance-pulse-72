@@ -78,9 +78,9 @@ export const SaraMappedContextView = ({
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-2">
+      <div className="grid grid-cols-1 items-stretch gap-4 lg:grid-cols-2">
         {/* Kontekst (auto) */}
-        <Card>
+        <Card className="h-full">
           <CardContent className="space-y-3 p-3">
             <div className="flex items-center gap-1.5">
               <LaraIcon size={14} />
@@ -138,7 +138,7 @@ export const SaraMappedContextView = ({
         </Card>
 
         {/* Bruk (auto) */}
-        <Card>
+        <Card className="h-full">
           <CardContent className="space-y-2.5 p-3">
             <div className="flex items-center gap-2">
               <span className="text-[13px] font-medium text-foreground">
