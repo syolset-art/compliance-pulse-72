@@ -234,7 +234,18 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
     const next = selectedSensitive.includes(value)
       ? selectedSensitive.filter((v) => v !== value)
       : [...selectedSensitive, value];
-    updateMutation.mutate({ sensitive_data_categories: next } as any);
+    const existingLog: any[] = Array.isArray(riskMeta.sensitive_data_log) ? riskMeta.sensitive_data_log : [];
+    const logEntry = {
+      field: "sensitive_data_categories",
+      from: selectedSensitive.join(", "),
+      to: next.join(", "),
+      by: currentUserName,
+      at: new Date().toISOString(),
+    };
+    updateMutation.mutate({
+      sensitive_data_categories: next,
+      metadata: { ...riskMeta, sensitive_data_log: [...existingLog, logEntry] },
+    } as any);
   };
 
 
