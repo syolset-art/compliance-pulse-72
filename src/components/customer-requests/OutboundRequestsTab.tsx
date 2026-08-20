@@ -126,6 +126,7 @@ export function OutboundRequestsTab({ wizardOpen: externalWizardOpen, onWizardOp
       vendorIds.map((id, i) => ({
         id: `out-new-${Date.now()}-${type}-${i}`,
         vendor_name: vendorNames?.[id] || `Leverandør ${id.substring(0, 6)}`,
+        vendor_id: id,
         request_type: type,
         status: "sent" as const,
         due_date: dueDate,
@@ -235,7 +236,7 @@ export function OutboundRequestsTab({ wizardOpen: externalWizardOpen, onWizardOp
         </div>
       )}
 
-      <SendRequestWizard open={wizardOpen} onOpenChange={setWizardOpen} onSend={handleSend} />
+      <SendRequestWizard open={wizardOpen} onOpenChange={setWizardOpen} onSend={handleSend} presetVendorId={assetId} />
 
       {/* Delete confirmation */}
       <AlertDialog open={!!deleteId} onOpenChange={(open) => !open && setDeleteId(null)}>
