@@ -522,111 +522,57 @@ export default function Deviations() {
 
               {/* Expanded info */}
               {liveInfoExpanded && (
-                <div className="mt-4 pt-4 border-t border-border space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="flex items-start gap-3">
-                      <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center shrink-0">
-                        <Zap className="h-4 w-4 text-primary" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-foreground">Sanntidsovervåking</p>
-                        <p className="text-xs text-muted-foreground mt-0.5">
-                          Hendelser fra sikkerhetsleverandører som 7 Security mottas automatisk og opprettes som avvik i registeret
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center shrink-0">
+                <div className="mt-4 pt-4 border-t border-border space-y-3">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {/* Valg 1: Sara */}
+                    <div className="rounded-lg border border-border bg-muted/20 p-4 flex flex-col">
+                      <div className="flex items-center gap-2 mb-1">
                         <Shield className="h-4 w-4 text-primary" />
+                        <p className="text-sm font-medium text-foreground">Sara – lokal agent</p>
                       </div>
-                      <div>
-                        <p className="text-sm font-medium text-foreground">Automatisk klassifisering</p>
-                        <p className="text-xs text-muted-foreground mt-0.5">
-                          Lara vurderer alvorlighetsgrad og kobler hendelsen til riktig system, prosess og rammeverk automatisk
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center shrink-0">
-                        <Bell className="h-4 w-4 text-primary" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-foreground">Varsling og eskalering</p>
-                        <p className="text-xs text-muted-foreground mt-0.5">
-                          Kritiske hendelser utløser umiddelbar varsling til ansvarlige personer med foreslåtte tiltak
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* How it works flow */}
-                  <div className="rounded-lg border border-border bg-muted/30 p-4">
-                    <p className="text-xs font-medium text-foreground mb-3">Slik fungerer det:</p>
-                    <div className="flex flex-col md:flex-row items-start md:items-center gap-2 md:gap-3 text-xs text-muted-foreground">
-                      <div className="flex items-center gap-2">
-                        <Badge variant="outline" className="text-[13px] bg-background">1</Badge>
-                        <span>Tilkoblet kilde oppdager hendelse</span>
-                      </div>
-                      <ArrowRight className="h-3 w-3 hidden md:block text-muted-foreground/50" />
-                      <div className="flex items-center gap-2">
-                        <Badge variant="outline" className="text-[13px] bg-background">2</Badge>
-                        <span>Hendelsen sendes til Lara Innboks</span>
-                      </div>
-                      <ArrowRight className="h-3 w-3 hidden md:block text-muted-foreground/50" />
-                      <div className="flex items-center gap-2">
-                        <Badge variant="outline" className="text-[13px] bg-background">3</Badge>
-                        <span>Lara oppretter avvik automatisk</span>
-                      </div>
-                      <ArrowRight className="h-3 w-3 hidden md:block text-muted-foreground/50" />
-                      <div className="flex items-center gap-2">
-                        <Badge variant="outline" className="text-[13px] bg-background">4</Badge>
-                        <span>Du får varsel og kan følge opp</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Avvikskilder fra integrasjonskatalogen */}
-                  <div>
-                    <div className="flex items-center justify-between mb-2 gap-2">
-                      <p className="text-xs font-medium text-foreground">Avvikskilder:</p>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-7 px-2 text-xs text-primary"
-                        onClick={() => navigate("/settings/integrations?discover=incidents")}
-                      >
-                        Administrer kilder
-                        <ArrowRight className="h-3 w-3 ml-1" />
-                      </Button>
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      {incidentSources.map((src) => {
-                        const isConnected = connectedIncidentIds.includes(src.id);
-                        const isPlanned = src.availability === "planned";
-                        const SrcIcon = src.icon;
-                        return (
-                          <Badge
-                            key={src.id}
-                            variant="outline"
-                            className={cn(
-                              "text-xs gap-1.5 font-normal",
-                              isConnected
-                                ? "bg-primary/10 text-primary border-primary/30"
-                                : isPlanned
-                                ? "text-muted-foreground/70 border-dashed"
-                                : "text-foreground"
-                            )}
-                          >
-                            <SrcIcon className="h-3 w-3" />
-                            {src.name}
-                            <span className="opacity-70">
-                              · {isConnected ? "Tilkoblet" : isPlanned ? "Kommer" : "Ikke tilkoblet"}
-                            </span>
+                      <p className="text-xs text-muted-foreground flex-1">
+                        Fanger avvik direkte i din egen infrastruktur. Ingen data
+                        forlater huset før du godkjenner.
+                      </p>
+                      <div className="mt-3">
+                        {saraInstalled ? (
+                          <Badge variant="outline" className="text-xs bg-primary/10 text-primary border-primary/30">
+                            Aktiv
                           </Badge>
-                        );
-                      })}
+                        ) : (
+                          <Button size="sm" className="h-7 text-xs" onClick={() => setSaraOpen(true)}>
+                            Installer Sara
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Valg 2: Ekstern tjeneste */}
+                    <div className="rounded-lg border border-border bg-muted/20 p-4 flex flex-col">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Zap className="h-4 w-4 text-primary" />
+                        <p className="text-sm font-medium text-foreground">Koble til en tjeneste</p>
+                      </div>
+                      <p className="text-xs text-muted-foreground flex-1">
+                        Motta hendelser fra en ekstern leverandør. I dag er MDR
+                        tilgjengelig, med 7 Security som tjenestetilbyder.
+                      </p>
+                      <div className="mt-3">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-7 text-xs"
+                          onClick={() => setConnectServiceOpen(true)}
+                        >
+                          Be om tilkobling
+                        </Button>
+                      </div>
                     </div>
                   </div>
+
+                  <p className="text-xs text-muted-foreground">
+                    Flere områder kommer senere: ITSM, e-post/webhook, SIEM og ansattapp.
+                  </p>
                 </div>
               )}
             </div>
