@@ -292,7 +292,9 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete, new
 
   return (
     <div className="space-y-4">
+      <VendorFrameworkScopeStrip />
       {/* Toolbar */}
+
       <div className="flex items-center gap-2 motion-safe:animate-fade-in-up motion-safe:animate-delay-200">
 
         <Input
