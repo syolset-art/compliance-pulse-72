@@ -605,16 +605,11 @@ const TrustCenterEvidence = () => {
             {seeding ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Database className="h-3.5 w-3.5" />}
             Demo
           </Button>
-          {!saraInstalled && (
-            <Button size="sm" variant="outline" className="gap-1.5" onClick={() => setSaraOnboardingOpen(true)}>
-              <Download className="h-4 w-4" />
-              {isNb ? "Installer Sara" : "Install Sara"}
-            </Button>
-          )}
-          <Button size="sm" className="gap-1.5" onClick={() => setDialogOpen(true)}>
-            <Plus className="h-4 w-4" />
-            {isNb ? "Legg til" : "Add"}
-          </Button>
+          <DocumentActionButtons
+            uploadLabel={{ nb: "Last opp dokumentasjon", en: "Upload documentation" }}
+            onUpload={() => setDialogOpen(true)}
+          />
+
         </div>
       </div>
 
