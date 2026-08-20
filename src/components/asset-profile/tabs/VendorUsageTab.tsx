@@ -722,24 +722,16 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
             </SelectContent>
           </Select>
 
-          {relationSuggestion && relationSuggestion !== (asset as any)?.vendor_category && (
-            <div className="flex flex-wrap items-center gap-2 text-[13px] text-muted-foreground">
-              <LaraIcon size={16} />
-              <span>
-                {isNb ? "Forslag: " : "Suggestion: "}
-                <span className="font-medium text-foreground">{relationCategoryLabel(relationSuggestion, isNb)}</span>
-              </span>
-              <Button
-                size="sm"
-                variant="outline"
-                className="h-7 gap-1 text-[12px]"
-                onClick={() => handleFieldChange("vendor_category", relationSuggestion)}
-              >
-                <Check className="h-3 w-3" />
-                {isNb ? "Bruk forslaget" : "Use suggestion"}
-              </Button>
-            </div>
+          {relationSuggestion && (
+            <LaraFieldSuggestion
+              isNb={isNb}
+              suggestedLabel={relationCategoryLabel(relationSuggestion, isNb)}
+              reason={contextReason}
+              matchesCurrent={relationSuggestion === (asset as any)?.vendor_category}
+              onApprove={() => handleFieldChange("vendor_category", relationSuggestion)}
+            />
           )}
+
 
           <p className="text-[13px] text-muted-foreground leading-snug">
             {relationCategoryNote((asset as any)?.vendor_category, isNb) ||
