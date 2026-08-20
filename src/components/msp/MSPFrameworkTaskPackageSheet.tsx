@@ -23,6 +23,7 @@ import {
 import { Plus, RotateCcw, Sparkles, Trash2, Pencil, Check, X } from "lucide-react";
 import { toast } from "sonner";
 import { formatPriceRange } from "@/lib/documentDeliverables";
+import { baselineRequirementRows } from "@/lib/frameworkRequirementBaseline";
 import {
   buildFrameworkTasks,
   resolveTasks,
@@ -109,7 +110,14 @@ export function MSPFrameworkTaskPackageSheet({
     },
   });
 
-  const baseTasks = useMemo<FrameworkTask[]>(() => buildFrameworkTasks(rows), [rows]);
+  const effectiveRows = useMemo<RequirementRow[]>(
+    () => (rows.length > 0 || !frameworkId ? rows : baselineRequirementRows(frameworkId)),
+    [rows, frameworkId],
+  );
+  const baseTasks = useMemo<FrameworkTask[]>(
+    () => buildFrameworkTasks(effectiveRows),
+    [effectiveRows],
+  );
   const tasks = useMemo(
     () => resolveTasks(baseTasks, state, hourlyRate),
     [baseTasks, state, hourlyRate],

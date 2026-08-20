@@ -38,6 +38,7 @@ import {
   type SearchKind,
 } from "@/lib/serviceSearchMatch";
 import { frameworks, getFrameworkById } from "@/lib/frameworkDefinitions";
+import { effectiveRequirementCount } from "@/lib/frameworkRequirementBaseline";
 import { MYNDER_PRODUCTS } from "@/lib/mynderProducts";
 import type { ServiceMapping } from "./CustomServiceDialog";
 import { AiMappingDisclosure } from "./AiMappingDisclosure";
@@ -286,9 +287,12 @@ export function ServiceCoverageSearch({
     setSelectedKey(null);
   };
 
-  const requirementCount = framework
+  const dbRequirementCount = framework
     ? reqRows.filter((r) => r.framework_id === framework.id).length
     : 0;
+  const { count: requirementCount, estimated: requirementsEstimated } = framework
+    ? effectiveRequirementCount(framework.id, dbRequirementCount)
+    : { count: 0, estimated: false };
   const potential = frameworkPotential(requirementCount, defaultHourlyRate);
 
   return (
@@ -466,10 +470,11 @@ export function ServiceCoverageSearch({
                 <p className="text-sm font-medium text-foreground">{framework.name}</p>
                 <p className="text-xs text-muted-foreground mt-0.5">
                   {requirementCount} krav · foreslåtte timer {potential.hours} t (1 time per krav)
+                  {requirementsEstimated && " · estimert kravtall"}
                 </p>
                 <p className="text-xs text-muted-foreground mt-1 max-w-xl">
-                  Timene er et utgangspunkt — du kan justere timer per oppgave når du oppretter
-                  tilbudet.
+                  Timene er et utgangspunkt — åpne oppgavepakken for å justere timer og lagre den
+                  som en fast tjenestepakke, eller bruk den direkte i et tilbud og endre der.
                 </p>
               </div>
             </div>
