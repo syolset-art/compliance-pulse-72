@@ -42,6 +42,7 @@ interface VendorStatusBannerProps {
     org_number?: string | null;
     criticality?: string | null;
     priority?: string | null;
+    access_members?: string[];
   };
 }
 
