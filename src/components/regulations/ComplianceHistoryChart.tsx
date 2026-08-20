@@ -1,7 +1,7 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceDot } from "recharts";
-import { CheckCircle2, CircleAlert, Circle } from "lucide-react";
+import { CheckCircle2, CircleAlert, Circle, ChevronDown } from "lucide-react";
 import { getRequirementsByFramework } from "@/lib/complianceRequirementsData";
 import { ALL_ADDITIONAL_REQUIREMENTS } from "@/lib/additionalFrameworkRequirements";
 import type { ComplianceRequirement } from "@/lib/complianceRequirementsData";
@@ -121,14 +121,23 @@ const CustomTooltip = ({ active, payload }: any) => {
 
 export const ComplianceHistoryChart = ({ frameworkId, onEventClick }: ComplianceHistoryChartProps) => {
   const { data, events } = useMemo(() => generateDemoData(frameworkId), [frameworkId]);
-  const recentEvents = useMemo(() => [...events].reverse().slice(0, 6), [events]);
+  const [open, setOpen] = useState(false);
 
   return (
     <Card>
       <CardHeader className="pb-2">
-        <CardTitle className="text-sm font-semibold">Historisk utvikling</CardTitle>
+        <button
+          type="button"
+          onClick={() => setOpen((v) => !v)}
+          className="flex items-center justify-between w-full text-left"
+          aria-expanded={open}
+        >
+          <CardTitle className="text-sm font-semibold">Historisk utvikling</CardTitle>
+          <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${open ? "rotate-180" : ""}`} />
+        </button>
       </CardHeader>
-      <CardContent className="pb-4 space-y-3">
+      {open && (
+        <CardContent className="pb-4 space-y-3">
         <ResponsiveContainer width="100%" height={180}>
           <LineChart data={data}>
             <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
@@ -152,6 +161,7 @@ export const ComplianceHistoryChart = ({ frameworkId, onEventClick }: Compliance
         </ResponsiveContainer>
 
       </CardContent>
+      )}
     </Card>
   );
 };
