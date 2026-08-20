@@ -26,8 +26,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { POLICY_TYPES as policyTypes, CERT_TYPES as certTypes, EVIDENCE_TYPES as evidenceTypes, docTypeLabel } from "@/lib/trustDocumentTypes";
-import { FrameworkDocumentCoverage } from "@/components/trust-center/FrameworkDocumentCoverage";
-import { buildComplianceCoverage } from "@/lib/complianceDocumentCoverage";
+import { EvidenceCoverageHeader } from "@/components/trust-center/EvidenceCoverageHeader";
+
+import { EvidenceGapPanel } from "@/components/trust-center/EvidenceGapPanel";
+import { buildEvidenceIntelligence } from "@/lib/evidenceIntelligence";
+import { useDocumentHub } from "@/hooks/useDocumentHub";
+import { MODULE_LABELS, MODULE_ROUTES } from "@/lib/documentHub";
+
 import { DocumentComplianceCard } from "@/components/trust-center/DocumentComplianceCard";
 import { DocumentAccessDialog } from "@/components/trust-center/DocumentAccessDialog";
 import { Network, Users } from "lucide-react";
@@ -130,7 +135,10 @@ const TrustCenterEvidence = () => {
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [visibilityFilter, setVisibilityFilter] = useState("all");
   const [activeMainTab, setActiveMainTab] = useState<"documents" | "access">("documents");
+  const [selectedFrameworkIds, setSelectedFrameworkIds] = useState<string[]>([]);
+  const [sourceFilter, setSourceFilter] = useState<"all" | "upload" | "agent">("all");
   const queryClient = useQueryClient();
+
 
   // Edit state
   const [editDoc, setEditDoc] = useState<any>(null);
@@ -220,14 +228,38 @@ const TrustCenterEvidence = () => {
     },
   });
 
-  const coverage = useMemo(
-    () =>
-      buildComplianceCoverage(
-        (frameworks as any[]).map((f) => ({ framework_id: f.framework_id, framework_name: f.framework_name })),
-        vendorDocs as any,
-      ),
-    [frameworks, vendorDocs],
+  // Alle dokumenter i plattformen (Trust Center, leverandør, regelverk, arbeidsområde)
+  const { documents: hubDocuments } = useDocumentHub();
+
+  const frameworkRefs = useMemo(
+    () => (frameworks as any[]).map((f) => ({ framework_id: f.framework_id, framework_name: f.framework_name })),
+    [frameworks],
   );
+
+  const intel = useMemo(
+    () => buildEvidenceIntelligence(frameworkRefs, hubDocuments, selectedFrameworkIds),
+    [frameworkRefs, hubDocuments, selectedFrameworkIds],
+  );
+  const coverage = intel.coverage;
+
+  const toggleFramework = (id: string) =>
+    setSelectedFrameworkIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+
+  /** Dokumenter fra andre moduler enn Trust Center — vises som lesbar oversikt. */
+  const platformRows = useMemo(() => {
+    const ownIds = new Set((vendorDocs as any[]).map((d) => d.id));
+    return intel.rows
+      .filter((r) => !ownIds.has(r.doc.id))
+      .filter((r) => sourceFilter === "all" || r.sourceKind === sourceFilter)
+      .filter(
+        (r) =>
+          selectedFrameworkIds.length === 0 ||
+          r.requirements.some((q) => selectedFrameworkIds.includes(q.frameworkId)),
+      )
+      .sort((a, b) => b.requirements.length - a.requirements.length);
+  }, [intel.rows, vendorDocs, sourceFilter, selectedFrameworkIds]);
+
+
 
 
   const grantsByDoc = (grantsRows as any[]).reduce<Record<string, number>>((acc, r) => {
@@ -372,7 +404,13 @@ const TrustCenterEvidence = () => {
       (visibilityFilter === "ecosystem" && d.visibility === "ecosystem") ||
       (visibilityFilter === "restricted" && d.visibility !== "published" && d.visibility !== "ecosystem" && (grantsByDoc[d.id] || 0) > 0) ||
       (visibilityFilter === "hidden" && d.visibility !== "published" && d.visibility !== "ecosystem" && !(grantsByDoc[d.id] > 0));
-    return matchesSearch && matchesCategory && matchesVisibility;
+    const sourceKind = intel.rows.find((r) => r.doc.id === d.id)?.sourceKind ?? "upload";
+    const matchesSource = sourceFilter === "all" || sourceKind === sourceFilter;
+    const mapped = intel.rows.find((r) => r.doc.id === d.id)?.requirements ?? [];
+    const matchesFramework =
+      selectedFrameworkIds.length === 0 || mapped.some((m) => selectedFrameworkIds.includes(m.frameworkId));
+    return matchesSearch && matchesCategory && matchesVisibility && matchesSource && matchesFramework;
+
   });
 
   const policies = filteredDocs.filter((d: any) => policyTypes.includes(d.document_type));
@@ -442,6 +480,25 @@ const TrustCenterEvidence = () => {
               {docTypeLabel(doc.document_type, isNb)} · {isNb ? "Opprettet" : "Created"} {new Date(doc.created_at).toLocaleDateString(isNb ? "nb-NO" : "en-US")}
               {doc.valid_to && <> · {isNb ? "Utløper" : "Expires"} {new Date(doc.valid_to).toLocaleDateString(isNb ? "nb-NO" : "en-US")}</>}
             </p>
+            {(() => {
+              const mapped = intel.rows.find((r) => r.doc.id === doc.id)?.requirements ?? [];
+              if (mapped.length === 0) {
+                return (
+                  <p className="mt-0.5 text-[11px] text-muted-foreground/70">
+                    {isNb ? "Ikke kartlagt mot krav" : "Not mapped to requirements"}
+                  </p>
+                );
+              }
+              const fws = Array.from(new Set(mapped.map((m) => m.frameworkName)));
+              return (
+                <p className="mt-0.5 truncate text-[11px] text-primary">
+                  {isNb
+                    ? `Kartlagt mot ${mapped.length} krav · ${fws.join(", ")}`
+                    : `Mapped to ${mapped.length} requirement${mapped.length === 1 ? "" : "s"} · ${fws.join(", ")}`}
+                </p>
+              );
+            })()}
+
           </div>
         </div>
         <div className="flex items-center gap-3 shrink-0" onClick={(e) => e.stopPropagation()}>
@@ -626,17 +683,38 @@ const TrustCenterEvidence = () => {
         </div>
       )}
 
-      {/* Compliance-dokumentasjon: krav fra aktiverte regelverk */}
-      {!isLoading && asset?.id && activeMainTab === "documents" && (
-        <FrameworkDocumentCoverage
-          coverage={coverage}
-          onUpload={() => setDialogOpen(true)}
-          onOpenDoc={(id) => {
-            const doc = (vendorDocs as any[]).find((d) => d.id === id);
-            if (doc) openPreview(doc);
-          }}
-        />
+      {/* Zone 1 + 2: dekningsbilde og gap mot aktiverte regelverk */}
+      {!isLoading && activeMainTab === "documents" && (
+        <>
+          <EvidenceCoverageHeader
+            intel={intel}
+            frameworks={frameworkRefs}
+            selected={selectedFrameworkIds}
+            onToggleFramework={toggleFramework}
+            onClearFrameworks={() => setSelectedFrameworkIds([])}
+            sourceFilter={sourceFilter}
+            onSourceFilter={setSourceFilter}
+          />
+          <EvidenceGapPanel
+            coverage={coverage}
+            saraInstalled={saraInstalled}
+            onUpload={() => setDialogOpen(true)}
+            onAskSara={(name) =>
+              toast.success(
+                isNb
+                  ? `Sara ser etter dokumentasjon for «${name}» ved neste kjøring.`
+                  : `Sara will look for documentation for "${name}" on the next run.`,
+              )
+            }
+
+            onOpenDoc={(id) => {
+              const doc = (vendorDocs as any[]).find((d) => d.id === id);
+              if (doc) openPreview(doc);
+            }}
+          />
+        </>
       )}
+
 
 
       {/* Documents tab content */}
@@ -764,8 +842,51 @@ const TrustCenterEvidence = () => {
               </div>
             );
           })()}
+
+          {/* Zone 3b: dokumentasjon som ligger i andre moduler i plattformen */}
+          {platformRows.length > 0 && (
+            <div className="mt-8">
+              <h2 className="mb-1 text-base font-semibold text-foreground">
+                {isNb ? "Dokumentasjon i andre moduler" : "Documentation in other modules"}
+              </h2>
+              <p className="mb-3 text-xs text-muted-foreground">
+                {isNb
+                  ? "Samlet fra leverandører, regelverk og arbeidsområder. Åpne modulen for å redigere."
+                  : "Collected from vendors, frameworks and work areas. Open the module to edit."}
+              </p>
+              <div className="divide-y rounded-lg border bg-card">
+                {platformRows.slice(0, 40).map((row) => {
+                  const route = row.doc.sourceRoute || MODULE_ROUTES[row.doc.module];
+                  const fws = Array.from(new Set(row.requirements.map((r) => r.frameworkName)));
+                  return (
+                    <div key={row.doc.id} className="flex items-center gap-3 px-4 py-3">
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-muted">
+                        {row.sourceKind === "agent" ? <SaraIcon size={18} /> : <FileText className="h-4 w-4 text-muted-foreground" />}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-medium">{row.doc.name}</p>
+                        <p className="truncate text-[11px] text-muted-foreground">
+                          {MODULE_LABELS[row.doc.module][isNb ? "nb" : "en"]}
+                          {row.doc.contextLabel ? ` · ${row.doc.contextLabel}` : ""}
+                          {row.requirements.length > 0
+                            ? ` · ${isNb ? "kartlagt mot" : "mapped to"} ${row.requirements.length} ${isNb ? "krav" : "req."} (${fws.join(", ")})`
+                            : ` · ${isNb ? "ikke kartlagt" : "not mapped"}`}
+                        </p>
+                      </div>
+                      {route && (
+                        <Button asChild variant="ghost" size="sm" className="text-xs shrink-0">
+                          <Link to={route}>{isNb ? "Åpne" : "Open"}</Link>
+                        </Button>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </>
       )}
+
 
       {/* Access tab content */}
       {activeMainTab === "access" && !isLoading && (
