@@ -110,7 +110,7 @@ export function exportCompliancePdf(framework: Framework, counts: ExportCounts, 
 
   autoTable(doc, {
     startY: boxY + 36,
-    head: [["ID", "Krav", "Kategori", "Prioritet", "Status", "Bevis"]],
+    head: [["ID", "Krav", "Kategori", "Prioritet", "Status", "Dokumentasjon"]],
     body: tableData,
     styles: { fontSize: 8, cellPadding: 3 },
     headStyles: { fillColor: [59, 130, 246], textColor: 255, fontStyle: "bold" },

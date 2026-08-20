@@ -358,7 +358,7 @@ export function AttachEvidenceDialog({
         <DialogHeader className="space-y-2">
           <DialogTitle className="flex items-center gap-2 text-base">
             <Sparkles className="h-4 w-4 text-primary" />
-            {isNb ? "Tilknytt bevis" : "Attach evidence"}
+            {isNb ? "Tilknytt dokumentasjon" : "Attach evidence"}
           </DialogTitle>
           <DialogDescription className="text-xs text-muted-foreground truncate">
             {requirementName}
@@ -405,7 +405,7 @@ export function AttachEvidenceDialog({
               </div>
               <p className="text-[11px] text-muted-foreground leading-relaxed">
                 {isNb
-                  ? "Koble til dokumentkildene dine, så henter agenten bevis uten at du laster opp filer manuelt."
+                  ? "Koble til dokumentkildene dine, så henter agenten dokumentasjon uten at du laster opp filer manuelt."
                   : "Connect your document sources and the agent retrieves evidence without manual uploads."}
               </p>
               <div className="flex flex-wrap gap-1.5">
@@ -577,7 +577,7 @@ export function AttachEvidenceDialog({
                                   <TooltipContent side="top" className="text-xs">
                                     {isCovered
                                       ? isNb ? "Dekket av dokumentet" : "Covered by the document"
-                                      : isNb ? "Ikke dekket — trenger ytterligere bevis" : "Not covered — needs additional evidence"}
+                                      : isNb ? "Ikke dekket — trenger ytterligere dokumentasjon" : "Not covered — needs additional evidence"}
                                   </TooltipContent>
                                 </Tooltip>
                               </TooltipProvider>
