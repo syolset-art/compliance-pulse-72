@@ -115,7 +115,18 @@ export function VendorFrameworkCard({ frameworks, onAdd, onRemove }: Props) {
               </span>
             </p>
             <div className="flex flex-wrap items-center gap-1.5">{scope.map(renderPill)}</div>
+            <div className="flex flex-wrap items-center gap-3 pt-1 text-[10px] text-muted-foreground">
+              <span className="inline-flex items-center gap-1">
+                <span className="h-1.5 w-1.5 rounded-full bg-success" />
+                {isNb ? "Match med KI-vurderingen" : "Match with the AI assessment"}
+              </span>
+              <span className="inline-flex items-center gap-1">
+                <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                {isNb ? "Egne krav til leverandøren" : "Your own requirements"}
+              </span>
+            </div>
           </div>
+
         )}
         {frameworks.length === 0 && (
           <p className="text-sm text-muted-foreground">
