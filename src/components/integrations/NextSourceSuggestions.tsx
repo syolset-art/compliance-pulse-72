@@ -16,9 +16,11 @@ const SUGGESTIONS: Record<DiscoveryType, string> = {
     "Ingen leverandørkilde tilkoblet — Tripletex, Fiken eller Xero avdekker leverandørene dine.",
   users:
     "Ingen kilde for personer og tilganger — Entra ID, Okta eller Google Workspace dekker dette.",
+  incidents:
+    "Ingen avvikskilde tilkoblet — 7 Security, e-postinnboks for avvik eller webhook gir Lara hendelsene.",
 };
 
-const ORDER: DiscoveryType[] = ["documents", "systems", "vendors", "users"];
+const ORDER: DiscoveryType[] = ["documents", "systems", "vendors", "users", "incidents"];
 
 /** Neste steg fra Lara: hvilke kildetyper som mangler for automatisk kravdekning. */
 export function NextSourceSuggestions({ covered }: NextSourceSuggestionsProps) {

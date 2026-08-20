@@ -57,6 +57,9 @@ import { deviationCategories } from "@/lib/deviationCategories";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { VendorDeviationsOverview } from "@/components/deviations/VendorDeviationsOverview";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
+import { INTEGRATION_CATALOG } from "@/lib/integrationCatalog";
+import { useConnectedSources } from "@/hooks/useConnectedSources";
 
 const dummyPeople = [
   "Kari Nordmann",
@@ -120,6 +123,15 @@ export default function Deviations() {
   const [liveInfoExpanded, setLiveInfoExpanded] = useState(false);
   const [selectedDeviation, setSelectedDeviation] = useState<Deviation | null>(null);
   const [view, setView] = useState("all");
+  const navigate = useNavigate();
+  const { isSourceConnected } = useConnectedSources();
+  const incidentSources = INTEGRATION_CATALOG.filter((i) => i.discovers.includes("incidents"));
+  const connectedIncidentIds = incidentSources
+    .filter((i) => isSourceConnected(i.id))
+    .map((i) => i.id);
+  const hasIncidentSource = connectedIncidentIds.length > 0;
+
+
 
   // Fetch deviations from system_incidents
   const { data: systemDeviations = [], isLoading: loadingSystem } = useQuery({
@@ -432,8 +444,25 @@ export default function Deviations() {
                     )}
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    Motta sikkerhetshendelser i sanntid fra tilkoblede leverandører og overvåkingstjenester
+                    Motta sikkerhetshendelser i sanntid fra tilkoblede kilder — overvåking, sakssystem eller intern meldekanal
                   </p>
+
+                  {liveEnabled && !hasIncidentSource && (
+                    <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                      <span>Ingen avvikskilde er tilkoblet ennå.</span>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-7 px-2 text-xs"
+                        onClick={() => navigate("/settings/integrations?discover=incidents")}
+                      >
+                        Koble til en kilde
+                        <ArrowRight className="h-3 w-3 ml-1" />
+                      </Button>
+                    </div>
+                  )}
+
+
 
                   {/* Expand/collapse details */}
                   <button
@@ -503,7 +532,7 @@ export default function Deviations() {
                     <div className="flex flex-col md:flex-row items-start md:items-center gap-2 md:gap-3 text-xs text-muted-foreground">
                       <div className="flex items-center gap-2">
                         <Badge variant="outline" className="text-[13px] bg-background">1</Badge>
-                        <span>Leverandør oppdager hendelse</span>
+                        <span>Tilkoblet kilde oppdager hendelse</span>
                       </div>
                       <ArrowRight className="h-3 w-3 hidden md:block text-muted-foreground/50" />
                       <div className="flex items-center gap-2">
@@ -523,22 +552,46 @@ export default function Deviations() {
                     </div>
                   </div>
 
-                  {/* Supported providers */}
+                  {/* Avvikskilder fra integrasjonskatalogen */}
                   <div>
-                    <p className="text-xs font-medium text-foreground mb-2">Støttede leverandører:</p>
+                    <div className="flex items-center justify-between mb-2 gap-2">
+                      <p className="text-xs font-medium text-foreground">Avvikskilder:</p>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 px-2 text-xs text-primary"
+                        onClick={() => navigate("/settings/integrations?discover=incidents")}
+                      >
+                        Administrer kilder
+                        <ArrowRight className="h-3 w-3 ml-1" />
+                      </Button>
+                    </div>
                     <div className="flex flex-wrap gap-2">
-                      <Badge className="bg-muted text-foreground border-border text-xs gap-1.5">
-                        <Shield className="h-3 w-3" />
-                        7 Security
-                      </Badge>
-                      <Badge variant="outline" className="text-xs text-muted-foreground gap-1.5">
-                        <Shield className="h-3 w-3" />
-                        Acronis (kommer snart)
-                      </Badge>
-                      <Badge variant="outline" className="text-xs text-muted-foreground gap-1.5">
-                        <Shield className="h-3 w-3" />
-                        Arctic Security (kommer snart)
-                      </Badge>
+                      {incidentSources.map((src) => {
+                        const isConnected = connectedIncidentIds.includes(src.id);
+                        const isPlanned = src.availability === "planned";
+                        const SrcIcon = src.icon;
+                        return (
+                          <Badge
+                            key={src.id}
+                            variant="outline"
+                            className={cn(
+                              "text-xs gap-1.5 font-normal",
+                              isConnected
+                                ? "bg-primary/10 text-primary border-primary/30"
+                                : isPlanned
+                                ? "text-muted-foreground/70 border-dashed"
+                                : "text-foreground"
+                            )}
+                          >
+                            <SrcIcon className="h-3 w-3" />
+                            {src.name}
+                            <span className="opacity-70">
+                              · {isConnected ? "Tilkoblet" : isPlanned ? "Kommer" : "Ikke tilkoblet"}
+                            </span>
+                          </Badge>
+                        );
+                      })}
                     </div>
                   </div>
                 </div>
