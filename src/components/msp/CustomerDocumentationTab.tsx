@@ -347,24 +347,6 @@ export function CustomerDocumentationTab({
             </PopoverContent>
           </Popover>
 
-          <TooltipProvider delayDuration={150}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <label className="inline-flex items-center gap-1.5 h-7 pl-2 pr-1.5 rounded-full border border-border bg-card hover:bg-muted/40 transition-colors cursor-pointer">
-                  <ShieldCheck className="h-3.5 w-3.5 text-primary" />
-                  <span className="text-xs font-medium text-foreground">Lara-tilgang</span>
-                  <Switch checked={access} onCheckedChange={toggleAccess} className="scale-75 -mr-0.5" />
-                </label>
-              </TooltipTrigger>
-              <TooltipContent side="bottom" className="max-w-xs bg-popover border border-border p-3 text-popover-foreground shadow-md rounded-md">
-                <p className="text-xs leading-relaxed">
-                  Når Lara-tilgang er på, leser hun opplastede dokumenter og oppdaterer
-                  baseline-svarene. Hun kan også fylle ut gap i aktiverte regelverk der
-                  dokumentet utgjør et bevis — og viser alltid kilden sitatet kommer fra.
-                </p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
         </div>
       </div>
 
