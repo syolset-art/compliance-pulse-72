@@ -212,8 +212,6 @@ export const SaraMappedContextView = ({
       </div>
 
       <SaraSignalList isNb={isNb} signals={mapping.signals} />
-      <SaraPrivacyBoundaryCard isNb={isNb} />
-
       <SaraActivityLogDialog open={logOpen} onOpenChange={setLogOpen} isNb={isNb} />
     </div>
   );
