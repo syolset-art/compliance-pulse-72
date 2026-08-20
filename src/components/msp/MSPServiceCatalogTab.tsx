@@ -1247,8 +1247,8 @@ export function MSPServiceCatalogTab({ onOpenSecondary, onRegisterActions }: { o
         </section>
       )}
 
-      {/* Mynder-produkter — videresalg med provisjon (kollapsbar) */}
-      {(() => {
+      {/* Mynder-produkter — videresalg med provisjon (vises kun når Mynder-produkt-modus er valgt) */}
+      {searchMode === "product" && (() => {
         const products = MYNDER_PRODUCTS;
         const sym = currencyOption.symbol;
         const trailing = sym === "kr";
