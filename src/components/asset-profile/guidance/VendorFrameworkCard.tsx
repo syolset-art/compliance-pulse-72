@@ -19,8 +19,8 @@ export function VendorFrameworkCard({ frameworks, onAdd, onRemove }: Props) {
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
 
-  const mandatory = frameworks.filter((f) => f.confidence === "high");
-  const recommended = frameworks.filter((f) => f.confidence !== "high");
+  const mandatory = frameworks.filter((f) => f.confidence === "high" && !f.manual && !f.global);
+  const scope = frameworks.filter((f) => !mandatory.includes(f));
 
   const renderPill = (f: VendorFramework) => (
     <TooltipProvider key={f.id} delayDuration={150}>
@@ -31,14 +31,21 @@ export function VendorFrameworkCard({ frameworks, onAdd, onRemove }: Props) {
               "inline-flex items-center rounded-full border text-[11px] font-medium",
               f.manual
                 ? "border-border bg-muted/40 text-foreground"
-                : f.confidence === "high"
-                  ? "border-success/40 bg-success/5 text-success"
-                  : "border-recommend/60 bg-recommend/15 text-recommend",
+                : f.global
+                  ? "border-primary/40 bg-primary/5 text-primary"
+                  : f.confidence === "high"
+                    ? "border-success/40 bg-success/5 text-success"
+                    : "border-border bg-muted/40 text-foreground",
             )}
           >
             <span className="inline-flex items-center gap-1 pl-2.5 pr-1 py-1">
               {f.label}
-              {f.manual && (
+              {f.global && (
+                <span className="text-[9px] uppercase tracking-wide opacity-70">
+                  {isNb ? "Global" : "Global"}
+                </span>
+              )}
+              {f.manual && !f.global && (
                 <span className="text-[9px] uppercase tracking-wide opacity-70">
                   {isNb ? "Egen" : "Manual"}
                 </span>
@@ -91,12 +98,17 @@ export function VendorFrameworkCard({ frameworks, onAdd, onRemove }: Props) {
             <div className="flex flex-wrap items-center gap-1.5">{mandatory.map(renderPill)}</div>
           </div>
         )}
-        {recommended.length > 0 && (
+        {scope.length > 0 && (
           <div className="space-y-1.5">
             <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
-              {isNb ? "Anbefalte" : "Recommended"}
+              Scope
+              <span className="ml-1.5 normal-case font-normal tracking-normal opacity-70">
+                {isNb
+                  ? "– alle regelverk denne leverandøren følges opp på"
+                  : "– all frameworks this vendor is followed up on"}
+              </span>
             </p>
-            <div className="flex flex-wrap items-center gap-1.5">{recommended.map(renderPill)}</div>
+            <div className="flex flex-wrap items-center gap-1.5">{scope.map(renderPill)}</div>
           </div>
         )}
         {frameworks.length === 0 && (
