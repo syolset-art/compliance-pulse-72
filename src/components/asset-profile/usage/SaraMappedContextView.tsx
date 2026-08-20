@@ -79,46 +79,54 @@ export const SaraMappedContextView = ({
       <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-2">
         {/* Kontekst (auto) */}
         <Card>
-          <CardContent className="space-y-2.5 p-3">
-            <p className="text-[13px] font-medium text-foreground">
-              {isNb ? "Kontekst utledet av Sara" : "Context derived by Sara"}
-            </p>
+          <CardContent className="space-y-3 p-3">
+            <div className="flex items-center gap-1.5">
+              <LaraIcon size={14} />
+              <p className="text-[13px] font-medium text-foreground">
+                {isNb ? "Kontekst utledet av Lara" : "Context derived by Lara"}
+              </p>
+            </div>
             {fields.map((f) => {
               const current = f.value || f.suggested;
               return (
                 <div key={f.key} className="space-y-1">
+                  <span className="text-[12px] text-muted-foreground">{f.label}</span>
                   <div className="flex items-center gap-1.5">
-                    <span className="text-[12px] text-muted-foreground">{f.label}</span>
-                    <Badge
-                      variant="outline"
-                      className={cn(
-                        "h-4 gap-1 px-1.5 text-[11px]",
-                        f.overridden ? "text-muted-foreground" : "border-primary/30 text-primary"
-                      )}
-                    >
-                      {!f.overridden && <SaraIcon size={10} />}
-                      {f.overridden
-                        ? isNb ? "Satt av bruker" : "Set by user"
-                        : isNb ? "Forslag" : "Suggested"}
-                    </Badge>
+                    <Select value={current} onValueChange={f.onChange}>
+                      <SelectTrigger className="h-8 flex-1 text-[13px]">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {f.options.map((o) => (
+                          <SelectItem key={o.value} value={o.value} className="text-[13px]">
+                            {o.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {!f.overridden && f.onApprove && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-8 shrink-0 px-2 text-[12px]"
+                        onClick={f.onApprove}
+                      >
+                        <Check className="mr-1 h-3.5 w-3.5" />
+                        {isNb ? "Godkjenn" : "Approve"}
+                      </Button>
+                    )}
                   </div>
-                  <Select value={current} onValueChange={f.onChange}>
-                    <SelectTrigger className="h-8 text-[13px]">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {f.options.map((o) => (
-                        <SelectItem key={o.value} value={o.value} className="text-[13px]">
-                          {o.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {!f.overridden && (
+                  {f.overridden && f.approvedBy ? (
+                    <p className="flex items-center gap-1 text-[11px] text-muted-foreground">
+                      <Check className="h-3 w-3 text-success" />
+                      {isNb ? "Bekreftet av" : "Confirmed by"} {f.approvedBy}
+                      {f.approvedAt ? ` · ${f.approvedAt}` : ""}
+                    </p>
+                  ) : (
                     <p className="text-[11px] text-muted-foreground">
                       {isNb
-                        ? `Utledet av ${mapping.signals.length} signaler — foreslått: ${labelOf(f, f.suggested)}`
-                        : `Derived from ${mapping.signals.length} signals — suggested: ${labelOf(f, f.suggested)}`}
+                        ? `Laras forslag: ${labelOf(f, f.suggested)} — utledet av ${mapping.signals.length} signaler`
+                        : `Lara's suggestion: ${labelOf(f, f.suggested)} — derived from ${mapping.signals.length} signals`}
                     </p>
                   )}
                 </div>
