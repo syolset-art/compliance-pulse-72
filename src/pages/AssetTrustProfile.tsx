@@ -45,6 +45,7 @@ import { DeliveriesTab } from "@/components/asset-profile/tabs/DeliveriesTab";
 
 import { RegisterActivityDialog } from "@/components/asset-profile/RegisterActivityDialog";
 import { MynderGuidanceTab } from "@/components/asset-profile/MynderGuidanceTab";
+import { VendorMessagesTab } from '@/components/asset-profile/tabs/VendorMessagesTab';
 import { VendorAccessTab } from "@/components/asset-profile/tabs/VendorAccessTab";
 import { VendorTasksTab } from "@/components/asset-profile/tabs/VendorTasksTab";
 import { VendorGapAnalysisTab } from "@/components/asset-profile/tabs/VendorGapAnalysisTab";
@@ -213,7 +214,7 @@ const AssetTrustProfile = () => {
     { value: 'usage', label: isNb ? 'Bruk' : 'Usage', labelFull: isNb ? 'Bruk og kontekst' : 'Usage & Context' },
     { value: 'evidence', label: isNb ? 'Dokumenter' : 'Docs', labelFull: isNb ? 'Dokumentasjon' : 'Documentation' },
     { value: 'gap-analysis', label: isNb ? 'Gap-analyse' : 'Gap analysis', labelFull: isNb ? 'Gap-analyse\u00a0' : 'Gap analysis vs framework' },
-    { value: 'requests', label: isNb ? 'Forespørsler' : 'Requests', labelFull: isNb ? 'Forespørsler' : 'Requests' },
+    { value: 'requests', label: isNb ? 'Meldinger' : 'Messages', labelFull: isNb ? 'Meldinger' : 'Messages' },
     
     { value: 'deliveries', label: isNb ? 'Leveranser' : 'Deliveries', labelFull: isNb ? 'Leveranser' : 'Deliveries' },
     { value: 'vendor-access', label: isNb ? 'Tilgang' : 'Access', labelFull: isNb ? 'Tilgang og roller' : 'Access & Roles' },
@@ -280,7 +281,7 @@ const AssetTrustProfile = () => {
     { value: 'inbox', label: isNb ? 'Innboks' : 'Inbox', show: true, badge: inboxCount },
     { value: 'nis2', label: isNb ? 'NIS2 Vurdering' : 'NIS2 Assessment', show: true },
     { value: 'security-services', label: isNb ? 'Sikkerhetstjenester' : 'Security Services', show: true },
-    { value: 'requests', label: isNb ? 'Forespørsler' : 'Requests', show: true },
+    { value: 'requests', label: isNb ? 'Meldinger' : 'Messages', show: true },
   ] : [];
 
   // Overflow button label
@@ -583,7 +584,7 @@ const AssetTrustProfile = () => {
                   <VendorGapAnalysisTab assetId={asset.id} assetName={asset.name} onOpenActivityLog={() => setActiveTab('overview')} />
                 </TabsContent>
                 <TabsContent value="requests" className="mt-6">
-                  <CustomerRequestsTab />
+                  <VendorMessagesTab assetId={asset.id} assetName={asset.name} />
                 </TabsContent>
                 <TabsContent value="vendor-access" className="mt-6">
                   <VendorAccessTab assetId={asset.id} assetName={asset.name} />
