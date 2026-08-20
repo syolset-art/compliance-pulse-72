@@ -210,6 +210,8 @@ export function DocumentsTab({ assetId, assetName, vendorName, hideUploadButton,
               <TableRow className="hover:bg-transparent border-b border-border">
                 <TableHead className="text-[12px] font-medium text-muted-foreground tracking-wide h-9">{isNb ? "Dokument" : "Document"}</TableHead>
                 <TableHead className="text-[12px] font-medium text-muted-foreground tracking-wide h-9">{isNb ? "Type" : "Type"}</TableHead>
+                <TableHead className="text-[12px] font-medium text-muted-foreground tracking-wide h-9">{isNb ? "Opprinnelse" : "Origin"}</TableHead>
+
                 <TableHead className="text-[12px] font-medium text-muted-foreground tracking-wide h-9 hidden sm:table-cell">{isNb ? "Gyldig til" : "Valid to"}</TableHead>
                 <TableHead className="text-[12px] font-medium text-muted-foreground tracking-wide h-9">{isNb ? "Status" : "Status"}</TableHead>
                 <TableHead className="text-[12px] font-medium text-muted-foreground tracking-wide h-9">{isNb ? "Tilgang" : "Access"}</TableHead>
