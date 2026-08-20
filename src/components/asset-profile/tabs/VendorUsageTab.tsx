@@ -87,6 +87,8 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
   const queryClient = useQueryClient();
   const { user } = useAuth();
   const [laraLoading, setLaraLoading] = useState(false);
+  const { installed: saraInstalled } = useSaraAgent();
+  const [viewMode, setViewMode] = useState<"auto" | "manual">("auto");
 
   const { data: asset } = useQuery({
     queryKey: ["asset-usage", assetId],
