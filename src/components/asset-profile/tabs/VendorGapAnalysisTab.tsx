@@ -15,6 +15,8 @@ import { toast } from "sonner";
 import { frameworks } from "@/lib/frameworkDefinitions";
 import { buildProposal } from "@/components/asset-profile/gap/InlineAgentProposal";
 import { ActivityConfirmPreview, buildPlannedActivities } from "@/components/asset-profile/gap/ActivityConfirmPreview";
+import { GapDocumentationTable } from "@/components/asset-profile/gap/GapDocumentationTable";
+import { GapRequirementsView } from "@/components/asset-profile/gap/GapRequirementsView";
 
 interface VendorGapAnalysisTabProps {
   assetId: string;
@@ -84,6 +86,7 @@ export function VendorGapAnalysisTab({ assetId, assetName, onOpenActivityLog }: 
   const [skipped, setSkipped] = useState<Set<string>>(new Set());
   const [confirmedPerGap, setConfirmedPerGap] = useState<Set<string>>(new Set());
   const [previewOpen, setPreviewOpen] = useState<Set<string>>(new Set());
+  const [view, setView] = useState<"gap" | "docs" | "requirements">("gap");
 
   const availableFrameworks = useMemo(
     () => frameworks.filter((f) => SUPPORTED_FRAMEWORKS.includes(f.id)),
@@ -308,6 +311,44 @@ export function VendorGapAnalysisTab({ assetId, assetName, onOpenActivityLog }: 
             </CardContent>
           </Card>
 
+          {/* View switcher */}
+          <div className="inline-flex rounded-lg border border-border bg-muted/30 p-1">
+            {([
+              { key: "gap" as const, label: isNb ? "Gap" : "Gap" },
+              { key: "docs" as const, label: isNb ? "Dokumentasjon" : "Documentation" },
+              { key: "requirements" as const, label: isNb ? "Regelverk" : "Requirements" },
+            ]).map((v) => (
+              <button
+                key={v.key}
+                onClick={() => setView(v.key)}
+                className={cn(
+                  "h-8 rounded-md px-3 text-xs font-medium transition-colors",
+                  view === v.key ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground",
+                )}
+              >
+                {v.label}
+              </button>
+            ))}
+          </div>
+
+          {view === "docs" && (
+            <GapDocumentationTable
+              rows={allResults}
+              onRequestDocs={(r) =>
+                toast.info(isNb ? "Forespørsel om dokumentasjon" : "Documentation request", { description: r.name })
+              }
+              onUpload={(r) =>
+                toast.info(isNb ? "Last opp dokumentasjon" : "Upload documentation", { description: r.name })
+              }
+            />
+          )}
+
+          {view === "requirements" && (
+            <GapRequirementsView frameworkId={framework} items={allResults} vendorName={assetName} />
+          )}
+
+          {view === "gap" && (
+          <>
           {/* Lara summary card */}
           {visibleGaps.length > 0 && followupState === "asking" && (
             <Card className="border-primary/20 bg-primary/[0.03]">
@@ -534,6 +575,8 @@ export function VendorGapAnalysisTab({ assetId, assetName, onOpenActivityLog }: 
                 </p>
               </CardContent>
             </Card>
+          )}
+          </>
           )}
         </>
       )}
