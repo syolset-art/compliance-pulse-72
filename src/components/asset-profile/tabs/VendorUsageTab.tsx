@@ -13,7 +13,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { SENSITIVE_DATA_CATEGORIES, sensitiveCategoryLabel, gdprRoleHandlesPersonalData } from "@/lib/sensitiveData";
 import { suggestVendorRisk } from "@/lib/vendorRiskSuggestion";
-import { suggestVendorContext } from "@/lib/vendorContextSuggestion";
+import { suggestVendorContext, usageTagLabel } from "@/lib/vendorContextSuggestion";
 import { buildGdprRolePlan } from "@/lib/vendorGdprRolePlan";
 import { GdprRolePlanCard } from "@/components/asset-profile/usage/GdprRolePlanCard";
 import { LaraContextBanner } from "@/components/asset-profile/usage/LaraContextBanner";
@@ -61,6 +61,15 @@ const priorityOptions = [
   { value: "not_set", labelNb: "Ikke satt", labelEn: "Not set" },
 ];
 
+const getLabelFor = (
+  options: { value: string; labelNb: string; labelEn: string }[],
+  value: string | null | undefined,
+  isNb: boolean,
+) => {
+  const opt = options.find((o) => o.value === (value || "not_set"));
+  return opt ? (isNb ? opt.labelNb : opt.labelEn) : (isNb ? "Ikke satt" : "Not set");
+};
+
 const priorityColor = (value: string | null | undefined) => {
   switch (value) {
     case "critical": return "text-destructive bg-destructive/10 border-destructive/20";
@@ -89,6 +98,13 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
   const [laraLoading, setLaraLoading] = useState(false);
   const { installed: saraInstalled } = useSaraAgent();
   const [viewMode, setViewMode] = useState<"auto" | "manual">("auto");
+  const [acceptedAt, setAcceptedAt] = useState<Date | null>(null);
+  const [preAcceptSnapshot, setPreAcceptSnapshot] = useState<{
+    criticality: string | null;
+    gdpr_role: string | null;
+    risk_level: string | null;
+    metadata: Record<string, any>;
+  } | null>(null);
 
   const { data: asset } = useQuery({
     queryKey: ["asset-usage", assetId],
@@ -285,6 +301,12 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
 
   const handleAcceptAll = () => {
     setLaraLoading(true);
+    setPreAcceptSnapshot({
+      criticality: asset?.criticality ?? null,
+      gdpr_role: (asset as any)?.gdpr_role ?? null,
+      risk_level: (asset as any)?.risk_level ?? null,
+      metadata: { ...riskMeta },
+    });
     setTimeout(() => {
       updateMutation.mutate({
         criticality: contextSuggestion.criticality,
@@ -300,9 +322,70 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
         },
       } as any);
       setRationaleDraft("");
+      setAcceptedAt(new Date());
       setLaraLoading(false);
     }, 600);
   };
+
+  const handleUndoAccept = () => {
+    if (!preAcceptSnapshot) return;
+    setLaraLoading(true);
+    updateMutation.mutate({
+      criticality: preAcceptSnapshot.criticality,
+      gdpr_role: preAcceptSnapshot.gdpr_role,
+      risk_level: preAcceptSnapshot.risk_level,
+      metadata: preAcceptSnapshot.metadata,
+    } as any);
+    setPreAcceptSnapshot(null);
+    setAcceptedAt(null);
+    setLaraLoading(false);
+  };
+
+  // Bekreftet tilstand vises så lenge lagrede verdier fortsatt matcher forslaget
+  const suggestionApplied =
+    !!acceptedAt &&
+    asset?.criticality === contextSuggestion.criticality &&
+    (!contextSuggestion.gdprRole || (asset as any)?.gdpr_role === contextSuggestion.gdprRole) &&
+    (asset as any)?.risk_level === riskSuggestion.level;
+
+  const appliedItems = [
+    { label: isNb ? "Kritikalitet" : "Criticality", value: getLabelFor(criticalityOptions, contextSuggestion.criticality, isNb) },
+    ...(contextSuggestion.gdprRole
+      ? [{ label: isNb ? "GDPR-rolle" : "GDPR role", value: getLabelFor(gdprOptions, contextSuggestion.gdprRole, isNb) }]
+      : []),
+    { label: isNb ? "Risiko" : "Risk", value: getLabelFor(riskOptions, riskSuggestion.level, isNb) },
+    ...(usageTags.length
+      ? [{ label: isNb ? "Bruk" : "Usage", value: usageTags.map((t) => usageTagLabel(t, isNb)).join(", ") }]
+      : []),
+    ...(usagePurpose ? [{ label: isNb ? "Bruksformål" : "Purpose", value: usagePurpose }] : []),
+  ];
+
+  const nextStep = (() => {
+    const isProcessor =
+      (asset as any)?.gdpr_role === "databehandler" || (asset as any)?.gdpr_role === "underdatabehandler";
+    if (isProcessor && !(asset as any)?.has_dpa) {
+      return {
+        labelNb: "Legg til databehandleravtale",
+        labelEn: "Add data processing agreement",
+        onClick: () => onNavigateToTab?.("evidence"),
+      };
+    }
+    if (
+      (asset?.criticality === "high" || asset?.criticality === "critical") &&
+      !riskMeta.risk_rationale
+    ) {
+      return {
+        labelNb: "Gjør risikovurdering",
+        labelEn: "Do a risk assessment",
+        onClick: () => setOpenPill("risk"),
+      };
+    }
+    return {
+      labelNb: "Se leverandørens dokumentasjon",
+      labelEn: "View vendor documentation",
+      onClick: () => onNavigateToTab?.("evidence"),
+    };
+  })();
 
   // --- Laras plan for GDPR-rolle (må godkjennes av brukeren) ---
   const [gdprPlanDismissed, setGdprPlanDismissed] = useState(false);
@@ -375,10 +458,8 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
     }
   };
 
-  const getLabel = (options: typeof criticalityOptions, value: string | null | undefined) => {
-    const opt = options.find(o => o.value === (value || "not_set"));
-    return opt ? (isNb ? opt.labelNb : opt.labelEn) : (isNb ? "Ikke satt" : "Not set");
-  };
+  const getLabel = (options: typeof criticalityOptions, value: string | null | undefined) =>
+    getLabelFor(options, value, isNb);
 
   const pillItems: ContextPillItem[] = [
     {
@@ -761,6 +842,11 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
         gdprLabel={getLabel(gdprOptions, contextSuggestion.gdprRole)}
         loading={laraLoading}
         onAcceptAll={handleAcceptAll}
+        accepted={suggestionApplied}
+        acceptedAt={acceptedAt}
+        appliedItems={appliedItems}
+        nextStep={nextStep}
+        onUndo={preAcceptSnapshot ? handleUndoAccept : null}
       />
 
       <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-2">
