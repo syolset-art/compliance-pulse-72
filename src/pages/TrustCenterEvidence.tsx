@@ -229,14 +229,38 @@ const TrustCenterEvidence = () => {
     },
   });
 
-  const coverage = useMemo(
-    () =>
-      buildComplianceCoverage(
-        (frameworks as any[]).map((f) => ({ framework_id: f.framework_id, framework_name: f.framework_name })),
-        vendorDocs as any,
-      ),
-    [frameworks, vendorDocs],
+  // Alle dokumenter i plattformen (Trust Center, leverandør, regelverk, arbeidsområde)
+  const { documents: hubDocuments } = useDocumentHub();
+
+  const frameworkRefs = useMemo(
+    () => (frameworks as any[]).map((f) => ({ framework_id: f.framework_id, framework_name: f.framework_name })),
+    [frameworks],
   );
+
+  const intel = useMemo(
+    () => buildEvidenceIntelligence(frameworkRefs, hubDocuments, selectedFrameworkIds),
+    [frameworkRefs, hubDocuments, selectedFrameworkIds],
+  );
+  const coverage = intel.coverage;
+
+  const toggleFramework = (id: string) =>
+    setSelectedFrameworkIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+
+  /** Dokumenter fra andre moduler enn Trust Center — vises som lesbar oversikt. */
+  const platformRows = useMemo(() => {
+    const ownIds = new Set((vendorDocs as any[]).map((d) => d.id));
+    return intel.rows
+      .filter((r) => !ownIds.has(r.doc.id))
+      .filter((r) => sourceFilter === "all" || r.sourceKind === sourceFilter)
+      .filter(
+        (r) =>
+          selectedFrameworkIds.length === 0 ||
+          r.requirements.some((q) => selectedFrameworkIds.includes(q.frameworkId)),
+      )
+      .sort((a, b) => b.requirements.length - a.requirements.length);
+  }, [intel.rows, vendorDocs, sourceFilter, selectedFrameworkIds]);
+
+
 
 
   const grantsByDoc = (grantsRows as any[]).reduce<Record<string, number>>((acc, r) => {
