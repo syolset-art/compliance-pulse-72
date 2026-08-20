@@ -1,4 +1,7 @@
 import { useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { sensitiveDataStatusLabel } from "@/lib/sensitiveData";
 import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
 import { CreateUserTaskDialog } from "@/components/tasks/CreateUserTaskDialog";
@@ -61,11 +64,42 @@ export function VendorActivityTab({ assetId, assetName, baselinePercent = 19, en
       actor: isNb ? "Kunde" : "Customer",
     }));
   }, [assetId, mspPartnerView, isNb]);
+  // Brukerregistrerte endringer av "Særlige kategorier personopplysninger" – hvem, når, gammel/ny verdi
+  const { data: fieldChangeActivities = [] } = useQuery({
+    queryKey: ["vendor-sensitive-data-log", assetId],
+    queryFn: async (): Promise<VendorActivity[]> => {
+      const { data, error } = await supabase.from("assets").select("metadata").eq("id", assetId).maybeSingle();
+      if (error || !data) return [];
+      const log = (data.metadata as any)?.sensitive_data_log;
+      if (!Array.isArray(log)) return [];
+      return log.map((entry: any, i: number) => {
+        const fromNb = sensitiveDataStatusLabel(entry.from, true);
+        const toNb = sensitiveDataStatusLabel(entry.to, true);
+        const fromEn = sensitiveDataStatusLabel(entry.from, false);
+        const toEn = sensitiveDataStatusLabel(entry.to, false);
+        return {
+          id: `sensitive-log-${i}`,
+          type: "setting" as const,
+          titleNb: "Særlige kategorier personopplysninger endret",
+          titleEn: "Special categories of personal data changed",
+          descriptionNb: `Endret fra «${fromNb}» til «${toNb}».`,
+          descriptionEn: `Changed from "${fromEn}" to "${toEn}".`,
+          date: entry.at ? new Date(entry.at) : new Date(),
+          actor: entry.by || undefined,
+          phase: "ongoing" as const,
+          outcomeNb: `${fromNb} → ${toNb}`,
+          outcomeEn: `${fromEn} → ${toEn}`,
+          outcomeStatus: "closed" as const,
+        };
+      });
+    },
+  });
+
   const activities = useMemo(
-    () => [...demoActivities, ...manualActivities, ...externalActivities]
+    () => [...demoActivities, ...manualActivities, ...externalActivities, ...fieldChangeActivities]
       .map(a => activityOverrides[a.id] ? { ...a, ...activityOverrides[a.id] } : a)
       .sort((a, b) => b.date.getTime() - a.date.getTime()),
-    [demoActivities, manualActivities, externalActivities, activityOverrides]
+    [demoActivities, manualActivities, externalActivities, fieldChangeActivities, activityOverrides]
   );
 
   const updateActivity = (id: string, patch: Partial<VendorActivity>) => {

@@ -11,10 +11,9 @@ import { LaraIcon } from "@/components/agents/LaraIcon";
 import { LaraFieldSuggestion } from "@/components/asset-profile/usage/LaraFieldSuggestion";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/hooks/useAuth";
-import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { SENSITIVE_DATA_CATEGORIES, sensitiveCategoryLabel, gdprRoleHandlesPersonalData } from "@/lib/sensitiveData";
+import { SENSITIVE_DATA_CATEGORIES, sensitiveCategoryLabel, gdprRoleHandlesPersonalData, SENSITIVE_DATA_STATUS_OPTIONS, normalizeSensitiveDataStatus } from "@/lib/sensitiveData";
 import { suggestVendorRisk } from "@/lib/vendorRiskSuggestion";
 import { suggestVendorContext, usageTagLabel } from "@/lib/vendorContextSuggestion";
 import { buildGdprRolePlan } from "@/lib/vendorGdprRolePlan";
@@ -193,15 +192,17 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
     updateMutation.mutate({ [field]: value });
   };
 
-  // Sensitive personopplysninger — kun relevant når en GDPR-rolle med persondata er valgt
+  // Særlige kategorier personopplysninger — kun relevant når GDPR-rollen innebærer persondatabehandling
   const showSensitive = gdprRoleHandlesPersonalData(asset?.gdpr_role);
-  const sensitiveOn = !!(asset as any)?.processes_sensitive_data;
+  const sensitiveStatus = normalizeSensitiveDataStatus((asset as any)?.sensitive_data_status);
+  const sensitiveOn = sensitiveStatus === "yes";
   const selectedSensitive: string[] = ((asset as any)?.sensitive_data_categories as string[]) || [];
 
   const handleGdprRoleChange = (value: string) => {
     if (!gdprRoleHandlesPersonalData(value)) {
       updateMutation.mutate({
         gdpr_role: value,
+        sensitive_data_status: "not_assessed",
         processes_sensitive_data: false,
         sensitive_data_categories: [],
       } as any);
@@ -210,10 +211,22 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
     handleFieldChange("gdpr_role", value);
   };
 
-  const handleSensitiveToggle = (checked: boolean) => {
+  const handleSensitiveStatusChange = (value: string) => {
+    const next = normalizeSensitiveDataStatus(value);
+    if (next === sensitiveStatus) return;
+    const logEntry = {
+      field: "sensitive_data_status",
+      from: sensitiveStatus,
+      to: next,
+      by: currentUserName,
+      at: new Date().toISOString(),
+    };
+    const existingLog: any[] = Array.isArray(riskMeta.sensitive_data_log) ? riskMeta.sensitive_data_log : [];
     updateMutation.mutate({
-      processes_sensitive_data: checked,
-      ...(checked ? {} : { sensitive_data_categories: [] }),
+      sensitive_data_status: next,
+      processes_sensitive_data: next === "yes",
+      ...(next === "yes" ? {} : { sensitive_data_categories: [] }),
+      metadata: { ...riskMeta, sensitive_data_log: [...existingLog, logEntry] },
     } as any);
   };
 
@@ -223,6 +236,7 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
       : [...selectedSensitive, value];
     updateMutation.mutate({ sensitive_data_categories: next } as any);
   };
+
 
   const riskSuggestion = suggestVendorRisk({
     criticality: asset?.criticality,
@@ -560,12 +574,26 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
 
           {showSensitive && (
             <div className="space-y-2 pt-0.5">
-              <div className="flex items-center justify-between gap-2 max-w-xs">
-                <span className="text-[13px] text-foreground leading-tight">
-                  {isNb ? "Behandler sensitive personopplysninger" : "Processes sensitive personal data"}
-                </span>
-                <Switch checked={sensitiveOn} onCheckedChange={handleSensitiveToggle} />
+              <div className="space-y-1.5 max-w-xs">
+                <label htmlFor="sensitive-data-status" className="block text-[13px] text-foreground leading-tight">
+                  {isNb ? "Særlige kategorier personopplysninger" : "Special categories of personal data"}
+                  <span className="ml-1 text-muted-foreground">{isNb ? "(art. 9/10)" : "(art. 9/10)"}</span>
+                </label>
+                <Select value={sensitiveStatus} onValueChange={handleSensitiveStatusChange}>
+                  <SelectTrigger id="sensitive-data-status" className="h-9 text-sm border">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {SENSITIVE_DATA_STATUS_OPTIONS.map((o) => (
+                      <SelectItem key={o.value} value={o.value}>{isNb ? o.labelNb : o.labelEn}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-[12px] text-muted-foreground">
+                  {isNb ? "Registreres av bruker – ikke satt av KI." : "Registered by the user – not set by AI."}
+                </p>
               </div>
+
 
               {sensitiveOn && (
                 <div className="space-y-1.5 max-w-xs">

@@ -649,6 +649,7 @@ export type Database = {
           security_contact_name: string | null
           security_contact_phone: string | null
           sensitive_data_categories: string[]
+          sensitive_data_status: string
           sync_enabled: boolean | null
           tprm_status: string | null
           updated_at: string | null
@@ -704,6 +705,7 @@ export type Database = {
           security_contact_name?: string | null
           security_contact_phone?: string | null
           sensitive_data_categories?: string[]
+          sensitive_data_status?: string
           sync_enabled?: boolean | null
           tprm_status?: string | null
           updated_at?: string | null
@@ -759,6 +761,7 @@ export type Database = {
           security_contact_name?: string | null
           security_contact_phone?: string | null
           sensitive_data_categories?: string[]
+          sensitive_data_status?: string
           sync_enabled?: boolean | null
           tprm_status?: string | null
           updated_at?: string | null
@@ -4453,6 +4456,7 @@ export type Database = {
           document_date: string | null
           document_type: string
           evidence_status: string | null
+          expires_at: string | null
           external_url: string | null
           extracted_metadata: Json | null
           file_name: string
@@ -4512,6 +4516,7 @@ export type Database = {
           document_date?: string | null
           document_type?: string
           evidence_status?: string | null
+          expires_at?: string | null
           external_url?: string | null
           extracted_metadata?: Json | null
           file_name: string
@@ -4571,6 +4576,7 @@ export type Database = {
           document_date?: string | null
           document_type?: string
           evidence_status?: string | null
+          expires_at?: string | null
           external_url?: string | null
           extracted_metadata?: Json | null
           file_name?: string

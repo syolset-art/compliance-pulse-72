@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { SENSITIVE_DATA_STATUS_OPTIONS, normalizeSensitiveDataStatus, sensitiveDataStatusLabel } from "@/lib/sensitiveData";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -72,6 +73,7 @@ interface Asset {
   created_at?: string;
   vendor_category?: string | null;
   gdpr_role?: string | null;
+  sensitive_data_status?: string | null;
   work_area_id?: string | null;
   lifecycle_status?: string | null;
   priority?: string | null;
@@ -177,6 +179,7 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete, new
   const [riskFilter, setRiskFilter] = useState("");
   const [vendorCategoryFilter, setVendorCategoryFilter] = useState("");
   const [gdprRoleFilter, setGdprRoleFilter] = useState("");
+  const [sensitiveFilter, setSensitiveFilter] = useState("");
   const [searchParams] = useSearchParams();
   const [priorityFilter, setPriorityFilter] = useState(searchParams.get("priority") || "");
   const [statusFilter, setStatusFilter] = useState("");
@@ -200,6 +203,8 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete, new
       const matchesRisk = !riskFilter || riskFilter === "all" || a.risk_level === riskFilter;
       const matchesVendorCat = !vendorCategoryFilter || vendorCategoryFilter === "all" || a.vendor_category === vendorCategoryFilter;
       const matchesGdpr = !gdprRoleFilter || gdprRoleFilter === "all" || a.gdpr_role === gdprRoleFilter;
+      const matchesSensitive = !sensitiveFilter || sensitiveFilter === "all"
+        || normalizeSensitiveDataStatus(a.sensitive_data_status) === sensitiveFilter;
       const matchesPriority = !priorityFilter || priorityFilter === "all" || a.priority === priorityFilter;
       const matchesCountry = !countryFilter || countryFilter === "all" || a.country === countryFilter;
       const ownerName = a.asset_owner || (a.work_area_id
@@ -213,7 +218,7 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete, new
         expiredDocsCount: expiredCounts[a.id] || 0,
         inboxCount: inboxCounts[a.id] || 0,
       }).key === statusFilter;
-      return matchesName && matchesCat && matchesRisk && matchesVendorCat && matchesGdpr && matchesPriority && matchesStatus && matchesCountry && matchesOwner;
+      return matchesName && matchesCat && matchesRisk && matchesVendorCat && matchesGdpr && matchesSensitive && matchesPriority && matchesStatus && matchesCountry && matchesOwner;
     });
 
     if (sortColumn) {
@@ -246,7 +251,7 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete, new
     }
 
     return result;
-  }, [items, nameFilter, categoryFilter, riskFilter, vendorCategoryFilter, gdprRoleFilter, priorityFilter, statusFilter, countryFilter, ownerFilter, workAreas, expiredCounts, inboxCounts, sortColumn, sortDirection, newlyAddedId]);
+  }, [items, nameFilter, categoryFilter, riskFilter, vendorCategoryFilter, gdprRoleFilter, sensitiveFilter, priorityFilter, statusFilter, countryFilter, ownerFilter, workAreas, expiredCounts, inboxCounts, sortColumn, sortDirection, newlyAddedId]);
 
   const handleSort = (col: string) => {
     if (sortColumn === col) setSortDirection(d => d === "asc" ? "desc" : "asc");
@@ -270,7 +275,7 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete, new
     return null;
   };
 
-  const activeFilterCount = [categoryFilter, riskFilter, vendorCategoryFilter, gdprRoleFilter, priorityFilter, statusFilter, countryFilter, ownerFilter]
+  const activeFilterCount = [categoryFilter, riskFilter, vendorCategoryFilter, gdprRoleFilter, sensitiveFilter, priorityFilter, statusFilter, countryFilter, ownerFilter]
     .filter(f => f && f !== "all").length + (showAll ? 1 : 0);
 
   const clearAllFilters = () => {
@@ -363,6 +368,17 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete, new
                   <SelectItem value="ingen">{tl("gdpr.ingen")}</SelectItem>
                 </SelectContent>
               </Select>
+              <Select value={sensitiveFilter} onValueChange={setSensitiveFilter}>
+                <SelectTrigger className="h-8 text-xs">
+                  <SelectValue placeholder={isNb ? "Særlige kategorier" : "Special categories"} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">{isNb ? "Alle særlige kategorier" : "All special categories"}</SelectItem>
+                  {SENSITIVE_DATA_STATUS_OPTIONS.map(o => (
+                    <SelectItem key={o.value} value={o.value}>{isNb ? o.labelNb : o.labelEn}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <Select value={priorityFilter} onValueChange={setPriorityFilter}>
                 <SelectTrigger className="h-8 text-xs">
                   <SelectValue placeholder={tl("priority")} />
@@ -413,6 +429,12 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete, new
               <Badge variant="secondary" className="text-[13px] gap-1 pl-2 pr-1 py-0.5">
                 {tl(`gdpr.${gdprRoleFilter}`)}
                 <button onClick={() => setGdprRoleFilter("")}><X className="h-3 w-3" /></button>
+              </Badge>
+            )}
+            {sensitiveFilter && sensitiveFilter !== "all" && (
+              <Badge variant="secondary" className="text-[13px] gap-1 pl-2 pr-1 py-0.5">
+                {(isNb ? "Særlige kategorier: " : "Special categories: ") + sensitiveDataStatusLabel(sensitiveFilter, isNb)}
+                <button onClick={() => setSensitiveFilter("")}><X className="h-3 w-3" /></button>
               </Badge>
             )}
             {priorityFilter && priorityFilter !== "all" && (

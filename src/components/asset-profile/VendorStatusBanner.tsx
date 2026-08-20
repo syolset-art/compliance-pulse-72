@@ -106,11 +106,15 @@ export function VendorStatusBanner({ asset }: VendorStatusBannerProps) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("vendor_documents")
-        .select("expires_at")
+        .select("expires_at, valid_to")
         .eq("asset_id", asset.id);
       if (error) return 0;
       const now = new Date();
-      return (data || []).filter((d: any) => d.expires_at && new Date(d.expires_at) < now).length;
+      return (data || []).filter((d: any) => {
+        const expiry = d.expires_at || d.valid_to;
+        return expiry && new Date(expiry) < now;
+      }).length;
+
     },
   });
 

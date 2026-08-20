@@ -53,6 +53,8 @@ export function AddVerificationDialog({ open, onOpenChange, documentId, document
         verification_basis: basis,
         verification_notes: notes || null,
         verification_expiry_date: expiry || null,
+        expires_at: expiry ? new Date(expiry).toISOString() : null,
+
         audit_trail: trail as unknown as never,
       } as never).eq("id", documentId);
       if (error) throw error;
