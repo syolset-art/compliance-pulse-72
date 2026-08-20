@@ -178,13 +178,16 @@ export function DocumentsTab({ assetId, assetName, vendorName, hideUploadButton,
   const docsById: Record<string, any> = Object.fromEntries((documents as any[]).map((d) => [d.id, d]));
 
   const coverage = computeDocCoverage(documents as any[]);
+  const allExternalItems = (inboxItems as any[]).filter((i) => i.status === "new" || i.status === "auto_matched");
   const filteredDocs =
     originFilter === "all"
       ? visibleDocs
-      : (visibleDocs as any[]).filter((d: any) => resolveDocOrigin(d.source) === originFilter);
+      : originFilter === "external"
+        ? (visibleDocs as any[]).filter((d: any) => resolveDocOrigin(d.source) === "external")
+        : (visibleDocs as any[]).filter((d: any) => resolveDocOrigin(d.source) === "internal");
   const originCounts = {
     internal: (visibleDocs as any[]).filter((d: any) => resolveDocOrigin(d.source) === "internal").length,
-    external: (visibleDocs as any[]).filter((d: any) => resolveDocOrigin(d.source) === "external").length,
+    external: (visibleDocs as any[]).filter((d: any) => resolveDocOrigin(d.source) === "external").length + allExternalItems.length,
   };
   const expiredCount = (documents as any[]).filter((d: any) => {
     const expiry = getExpiryDate(d);
@@ -193,6 +196,7 @@ export function DocumentsTab({ assetId, assetName, vendorName, hideUploadButton,
   const historyCount = (documents as any[]).filter(isHistorical).length;
   const pendingRequests = (requests as any[]).filter((r: any) => r.status !== "received");
   const showRequestRows = originFilter === "all" || originFilter === "external";
+  const showInboxRows = originFilter === "all" || originFilter === "external";
 
 
 
