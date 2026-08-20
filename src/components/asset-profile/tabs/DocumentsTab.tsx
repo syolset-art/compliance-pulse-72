@@ -295,7 +295,67 @@ export function DocumentsTab({ assetId, assetName, vendorName, hideUploadButton,
                   </TableRow>
                 );
               })}
+
+              {/* Etterspurt dokumentasjon – venter på leverandøren */}
+              {reqs.map((req: any) => {
+                const daysLeft = req.due_date
+                  ? Math.ceil((new Date(req.due_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+                  : null;
+                const overdue = daysLeft !== null && daysLeft < 0;
+                return (
+                  <TableRow key={`req-${req.id}`} className="border-b border-border/60 bg-muted/20">
+                    <TableCell className="py-3">
+                      <div className="flex items-center gap-2.5">
+                        <Clock className="h-4 w-4 shrink-0 text-muted-foreground" />
+                        <div className="min-w-0">
+                          <span className="block truncate text-sm font-medium text-muted-foreground">
+                            {isNb ? "Etterspurt" : "Requested"}: {getTypeLabel(req.document_type)}
+                          </span>
+                          <span className="hidden text-[12px] text-muted-foreground md:block">
+                            {req.due_date
+                              ? `${isNb ? "Frist" : "Due"} ${new Date(req.due_date).toLocaleDateString(locale)}`
+                              : isNb ? "Ingen frist" : "No due date"}
+                            {req.reminder_count > 0 && ` · ${req.reminder_count} ${isNb ? "purringer" : "reminders"}`}
+                          </span>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell className="py-3">
+                      <span className="text-xs text-muted-foreground">{getTypeLabel(req.document_type)}</span>
+                    </TableCell>
+                    <TableCell className="hidden py-3 text-xs text-muted-foreground sm:table-cell">
+                      {req.due_date ? new Date(req.due_date).toLocaleDateString(locale) : "—"}
+                    </TableCell>
+                    <TableCell className="py-3">
+                      {overdue ? (
+                        <Badge variant="destructive" className="text-[12px]">
+                          {isNb ? "Over frist" : "Overdue"}
+                        </Badge>
+                      ) : (
+                        <Badge variant="secondary" className="text-[12px]">
+                          {isNb ? "Venter" : "Waiting"}
+                        </Badge>
+                      )}
+                    </TableCell>
+                    <TableCell className="py-3">
+                      <span className="text-xs text-muted-foreground">{isNb ? "Leverandør" : "Vendor"}</span>
+                    </TableCell>
+                    <TableCell className="py-3">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 text-xs"
+                        onClick={() => { setPreselectedDocType(req.document_type); setRequestDialogOpen(true); }}
+                      >
+                        <Send className="mr-1 h-3 w-3" />
+                        {isNb ? "Purr" : "Remind"}
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
+
           </Table>
         </div>
       </div>
