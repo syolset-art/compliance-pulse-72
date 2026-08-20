@@ -39,6 +39,8 @@ import { McpAgentConnectionsSection } from "@/components/integrations/McpAgentCo
 import { LocalAgentCard } from "@/components/integrations/LocalAgentCard";
 import { AgentActivityFeed, type AgentActivityItem } from "@/components/integrations/AgentActivityFeed";
 import { NextSourceSuggestions } from "@/components/integrations/NextSourceSuggestions";
+import { SaraDetailsSection } from "@/components/integrations/SaraDetailsSection";
+
 
 interface ConnectionState {
   status: IntegrationStatus;
@@ -186,6 +188,9 @@ export default function Integrations() {
 
 
         <LocalAgentCard />
+
+        <SaraDetailsSection />
+
 
         {Object.values(connections).some((c) => c.status === "active") && (
           <AgentActivityFeed items={activity} />

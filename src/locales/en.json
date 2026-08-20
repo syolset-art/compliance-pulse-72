@@ -1817,40 +1817,15 @@
   },
   "saraOnboarding": {
     "title": "Get started with Sara",
-    "subtitle": "Sara is your local Mynder Compliance Agent. She connects to your document sources and updates Mynder automatically — without documents leaving your infrastructure.",
-    "beta": "Coming soon",
+    "short": "Sara reads your documentation locally and sends only confirmation to Mynder.",
+    "step1": "Download and install Sara locally.",
+    "step2": "Connect her to Notion.",
+    "step3": "Run her, and approve the findings.",
+    "boundaryLine": "Your documents stay with you. Only metadata and confirmation are sent to Mynder.",
     "download": "Download Sara",
-    "downloadHint": "Click Download to get the installer file for your computer.",
-    "install": "Open and install the file",
-    "installHint": "Run the installer. Sara requires no advanced setup — just follow the steps in the wizard.",
-    "configure": "Start and run the configuration wizard",
-    "configureHint": "Sign in with your Mynder account, approve access, and choose which document sources Sara should monitor.",
-    "connect": "Connect to the right document library",
-    "connectHint": "Connect Sara to Notion, where your compliance-related information lives.",
-    "howItChanges": "How this changes the workflow",
-    "noUpload": "You don't have to upload documents manually.",
-    "localProcessing": "Document processing happens locally on your side.",
-    "onlyEvidence": "Only evidence (coverage and metadata) is uploaded to Mynder.",
-    "newWay": "This is a new way of working with compliance.",
-    "syncText": "Sara runs when you start her. New or changed findings must be confirmed by a named person at your organisation before they count as evidence.",
-    "close": "Close",
+    "readMore": "Learn more about Sara",
     "coming": "Sara is not ready for download yet. Register your interest and we'll notify you as soon as it's available.",
-    "boundary": "Trust boundary",
-    "staysTitle": "Stays with you",
-    "staysItems": "Documents, files, raw data",
-    "sentTitle": "Sent to Mynder",
-    "sentItems": "Findings, coverage, requirement reference",
-    "neverTitle": "What Sara never does",
-    "never1": "Never uploads documents to Mynder.",
-    "never2": "Never marks a requirement as met without human confirmation.",
-    "never3": "Can be revoked at any time, with a trace in the history.",
-    "problem": "You already have the documentation. The problem is getting it out every time someone asks — a vendor review, an audit, a security assessment.",
-    "solution": "Sara pulls it out for you, without anything leaving the building.",
-    "package": "Review the requirement package Sara assesses",
-    "packageHint": "Before the connection is completed, you see in plain language which requirements Sara assesses and what counts as fulfilment.",
-    "confirm": "Confirm the first findings",
-    "confirmHint": "Sara delivers findings with requirement reference, document identifier and hash. A named person confirms before anything counts as documentation.",
-    "manualRun": "Manual start"
+    "close": "Close"
   },
   "saraActivityTeaser": {
     "title": "Stop manual vendor risk analysis",
@@ -1859,7 +1834,6 @@
     "dismiss": "Close"
   },
   "sourceMap": {
-
     "title": "Source map",
     "description": "Filter by what the source gives Lara.",
     "tooltip": "The source map shows what types of data each connected source can provide to Lara: systems, vendors, documents, people and access."
@@ -1876,5 +1850,19 @@
       "description": "Trust Engine is phase 2. Invite the vendor to register, so you can collect the information you need for good vendor management.",
       "cta": "Invite to Trust Engine"
     }
+  },
+  "saraDetails": {
+    "boundary": "Trust boundary",
+    "staysTitle": "Stays with you",
+    "staysItems": "Documents, files, raw data",
+    "sentTitle": "Sent to Mynder",
+    "sentItems": "Findings, coverage, requirement reference",
+    "neverTitle": "What Sara never does",
+    "never1": "Never uploads documents to Mynder.",
+    "never2": "Never marks a requirement as met without human confirmation.",
+    "never3": "Can be revoked at any time, with a trace in the history.",
+    "manualRun": "Manual start",
+    "syncText": "Sara runs when you start her. New or changed findings must be confirmed by a named person at your organisation before they count as evidence.",
+    "package": "The requirement package Sara assesses"
   }
 }

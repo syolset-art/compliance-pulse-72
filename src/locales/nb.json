@@ -1818,40 +1818,15 @@
   },
   "saraOnboarding": {
     "title": "Kom i gang med Sara",
-    "subtitle": "Sara er din lokale Mynder Compliance Agent. Hun kobler seg til dokumentkildene dine og oppdaterer Mynder automatisk — uten at dokumentene forlater infrastrukturen din.",
-    "beta": "Kommer snart",
+    "short": "Sara leser dokumentasjonen din lokalt og sender kun bekreftelse til Mynder.",
+    "step1": "Last ned og installer Sara lokalt hos dere.",
+    "step2": "Koble henne til Notion.",
+    "step3": "Kjør henne, og godkjenn funnene.",
+    "boundaryLine": "Dokumentene forblir hos deg. Kun metadata og bekreftelse sendes til Mynder.",
     "download": "Last ned Sara",
-    "downloadHint": "Klikk på Last ned for å hente installasjonsfilen for din datamaskin.",
-    "install": "Åpne og installer filen",
-    "installHint": "Kjør installasjonsprogrammet. Sara krever ingen avansert oppsett — følg trinnene i veiviseren.",
-    "configure": "Start og kjør konfigurasjonsveiviseren",
-    "configureHint": "Logg inn med Mynder-kontoen din, godkjenn tilgangen, og velg hvilke dokumentkilder Sara skal overvåke.",
-    "connect": "Koble til riktig dokumentbibliotek",
-    "connectHint": "Koble Sara til Notion, der du har compliance-relevant informasjon.",
-    "howItChanges": "Slik endrer det arbeidsflyten",
-    "noUpload": "Du slipper å laste opp dokumenter manuelt.",
-    "localProcessing": "Dokumentprosessering skjer lokalt hos deg.",
-    "onlyEvidence": "Bare bevis (dekningsgrad og metadata) lastes opp til Mynder.",
-    "newWay": "Dette er en ny måte å jobbe med compliance.",
-    "syncText": "Sara kjøres når du starter henne. Nye eller endrede funn må bekreftes av en navngitt person hos dere før de teller som bevis.",
-    "close": "Lukk",
+    "readMore": "Les mer om Sara",
     "coming": "Sara er ikke klar for nedlasting ennå. Meld interessen, så gir vi deg beskjed så snart den er tilgjengelig.",
-    "boundary": "Tillitsgrense",
-    "staysTitle": "Blir hos deg",
-    "staysItems": "Dokumenter, filer, rådata",
-    "sentTitle": "Sendes til Mynder",
-    "sentItems": "Funn, dekningsgrad, kravreferanse",
-    "neverTitle": "Hva Sara aldri gjør",
-    "never1": "Laster ikke opp dokumenter til Mynder.",
-    "never2": "Setter aldri et krav til oppfylt uten menneskelig bekreftelse.",
-    "never3": "Kan trekkes tilbake når som helst, med spor i historikken.",
-    "problem": "Dere har allerede dokumentasjonen. Problemet er å hente den ut hver gang noen spør — ved en leverandøroppfølging, et tilsyn, en sikkerhetsvurdering.",
-    "solution": "Sara henter det ut for deg, uten at noe forlater huset.",
-    "package": "Se kravpakken Sara vurderer",
-    "packageHint": "Før tilkoblingen fullføres ser du i klartekst hvilke krav Sara vurderer, og hva som teller som oppfyllelse.",
-    "confirm": "Bekreft første funn",
-    "confirmHint": "Sara leverer funn med kravreferanse, dokumentidentifikator og hash. En navngitt person bekrefter før noe teller som dokumentasjon.",
-    "manualRun": "Manuell start"
+    "close": "Lukk"
   },
   "saraActivityTeaser": {
     "title": "Slipp manuell ROS-analyse av leverandører",
@@ -1860,7 +1835,6 @@
     "dismiss": "Lukk"
   },
   "sourceMap": {
-
     "title": "Kildekart",
     "description": "Filtrer etter hva kilden gir Lara.",
     "tooltip": "Kildekartet viser hvilke typer data hver tilkoblede kilde kan levere til Lara: systemer, leverandører, dokumenter, personer og tilganger."
@@ -1877,5 +1851,19 @@
       "description": "Trust Engine er fase 2. Inviter leverandøren til å registrere seg, så får du samlet inn informasjonen du trenger for god leverandørstyring.",
       "cta": "Inviter til Trust Engine"
     }
+  },
+  "saraDetails": {
+    "boundary": "Tillitsgrense",
+    "staysTitle": "Blir hos deg",
+    "staysItems": "Dokumenter, filer, rådata",
+    "sentTitle": "Sendes til Mynder",
+    "sentItems": "Funn, dekningsgrad, kravreferanse",
+    "neverTitle": "Hva Sara aldri gjør",
+    "never1": "Laster ikke opp dokumenter til Mynder.",
+    "never2": "Setter aldri et krav til oppfylt uten menneskelig bekreftelse.",
+    "never3": "Kan trekkes tilbake når som helst, med spor i historikken.",
+    "manualRun": "Manuell start",
+    "syncText": "Sara kjøres når du starter henne. Nye eller endrede funn må bekreftes av en navngitt person hos dere før de teller som bevis.",
+    "package": "Kravpakken Sara vurderer"
   }
 }
