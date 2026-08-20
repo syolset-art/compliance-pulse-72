@@ -483,7 +483,15 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
   const getLabel = (options: typeof criticalityOptions, value: string | null | undefined) =>
     getLabelFor(options, value, isNb);
 
+  const relationSuggestion = suggestRelationCategory({
+    vendorName: asset?.name,
+    description: asset?.description,
+    category: asset?.category,
+    usageTags,
+  });
+
   const pillItems: ContextPillItem[] = [
+
     {
       key: "criticality",
       icon: <AlertTriangle className="h-3.5 w-3.5" />,
