@@ -1,18 +1,19 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ChevronDown, Inbox, ShieldCheck, Upload } from "lucide-react";
+import { ShieldCheck, Upload } from "lucide-react";
 import { DocumentsTab } from "./DocumentsTab";
-import { LaraInboxTab } from "./LaraInboxTab";
 import { SaraIcon } from "@/components/agents/SaraIcon";
 import { SaraOnboardingDialog } from "@/components/agents/SaraOnboardingDialog";
 import { SaraActivityLogDialog } from "@/components/agents/SaraActivityLogDialog";
 import { useSaraAgent } from "@/lib/saraAgent";
 import { InviteVendorDialog } from "@/components/vendor-dashboard/InviteVendorDialog";
-import { useRef } from "react";
+import { ApprovalSuccessDialog } from "@/components/ApprovalSuccessDialog";
+import { InboxPreviewDialog } from "./InboxPreviewDialog";
+import { useVendorInbox } from "@/hooks/useVendorInbox";
 
 interface VendorDocumentsTabProps {
   assetId: string;
@@ -28,8 +29,10 @@ export const VendorDocumentsTab = ({ assetId, assetName, vendorName }: VendorDoc
 
   const [saraOpen, setSaraOpen] = useState(false);
   const [logOpen, setLogOpen] = useState(false);
-  const [inboxOpen, setInboxOpen] = useState(false);
   const [inviteOpen, setInviteOpen] = useState(false);
+  const [previewItem, setPreviewItem] = useState<any | null>(null);
+
+  const { inboxItems, approve, reject, approvedItem, clearApprovedItem } = useVendorInbox({ assetId, assetName });
 
   const { data: pendingInbox = 0 } = useQuery({
     queryKey: ["lara-inbox-pending", assetId],
@@ -89,30 +92,6 @@ export const VendorDocumentsTab = ({ assetId, assetName, vendorName }: VendorDoc
         </div>
       )}
 
-      {/* Venter på godkjenning – tynn linje, ikke egen stor seksjon */}
-      {pendingInbox > 0 && (
-        <div className="rounded-lg border border-warning/25 bg-warning/[0.05]">
-          <button
-            type="button"
-            onClick={() => setInboxOpen((v) => !v)}
-            className="flex w-full items-center gap-2 px-3 py-2 text-left text-[13px]"
-          >
-            <Inbox className="h-4 w-4 text-warning" />
-            <span className="text-foreground">
-              {isNb
-                ? `${pendingInbox} dokument${pendingInbox > 1 ? "er" : ""} venter på godkjenning`
-                : `${pendingInbox} document${pendingInbox > 1 ? "s" : ""} awaiting approval`}
-            </span>
-            <ChevronDown className={`ml-auto h-4 w-4 text-muted-foreground transition-transform ${inboxOpen ? "rotate-180" : ""}`} />
-          </button>
-          {inboxOpen && (
-            <div className="border-t border-warning/20 p-3">
-              <LaraInboxTab assetId={assetId} assetName={assetName} />
-            </div>
-          )}
-        </div>
-      )}
-
       {/* Dokumentliste med proveniens */}
       <section className="space-y-3">
         <div className="flex items-center justify-between gap-3">
@@ -122,8 +101,8 @@ export const VendorDocumentsTab = ({ assetId, assetName, vendorName }: VendorDoc
             </h3>
             <p className="text-sm text-muted-foreground">
               {isNb
-                ? "Alt vi har om leverandøren – og hvor det kommer fra"
-                : "Everything we hold on this vendor – and where it came from"}
+                ? "Alt vi har om leverandøren – internt og eksternt"
+                : "Everything we hold on this vendor – internal and external"}
             </p>
           </div>
           <Button size="sm" onClick={() => uploadTriggerRef.current?.()} className="h-8 shrink-0 gap-1.5 text-xs">
@@ -137,6 +116,10 @@ export const VendorDocumentsTab = ({ assetId, assetName, vendorName }: VendorDoc
           vendorName={vendorName}
           hideUploadButton
           onUploadTriggerReady={(trigger) => { uploadTriggerRef.current = trigger; }}
+          inboxItems={inboxItems}
+          onApproveInbox={(item) => approve(item)}
+          onRejectInbox={(itemId) => reject(itemId)}
+          onPreviewInbox={(item) => setPreviewItem(item)}
         />
       </section>
 
@@ -171,6 +154,17 @@ export const VendorDocumentsTab = ({ assetId, assetName, vendorName }: VendorDoc
         open={inviteOpen}
         onOpenChange={setInviteOpen}
         vendor={{ id: assetId, name: vendorName || assetName }}
+      />
+
+      <ApprovalSuccessDialog data={approvedItem} onClose={clearApprovedItem} />
+      <InboxPreviewDialog
+        open={!!previewItem}
+        onOpenChange={(open) => !open && setPreviewItem(null)}
+        item={previewItem}
+        assetName={assetName}
+        isNb={isNb}
+        onApprove={() => { approve(previewItem); setPreviewItem(null); }}
+        onReject={() => { reject(previewItem?.id); setPreviewItem(null); }}
       />
     </div>
   );

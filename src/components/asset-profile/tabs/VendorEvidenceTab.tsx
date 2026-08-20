@@ -1,9 +1,10 @@
-import { DocumentsTab } from "./DocumentsTab";
-import { LaraInboxTab } from "./LaraInboxTab";
-import { useTranslation } from "react-i18next";
-import { FolderLock, Inbox, Upload } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { useRef } from "react";
+import { useTranslation } from "react-i18next";
+import { DocumentsTab } from "./DocumentsTab";
+import { ApprovalSuccessDialog } from "@/components/ApprovalSuccessDialog";
+import { InboxPreviewDialog } from "./InboxPreviewDialog";
+import { useVendorInbox } from "@/hooks/useVendorInbox";
+import { useState } from "react";
 
 interface VendorEvidenceTabProps {
   assetId: string;
@@ -15,62 +16,32 @@ export const VendorEvidenceTab = ({ assetId, assetName, vendorName }: VendorEvid
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
   const uploadTriggerRef = useRef<(() => void) | null>(null);
+  const [previewItem, setPreviewItem] = useState<any | null>(null);
+  const { inboxItems, approve, reject, approvedItem, clearApprovedItem } = useVendorInbox({ assetId, assetName });
 
   return (
-    <div className="space-y-8">
-      {/* Interne dokumenter — manuelt opplastet */}
-      <section className="rounded-2xl border border-border/60 bg-card/40 p-5 space-y-4">
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2.5">
-            <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center">
-              <FolderLock className="h-5 w-5 text-primary" />
-            </div>
-            <div>
-              <h3 className="text-base font-semibold text-foreground tracking-tight">
-                {isNb ? "Interne dokumenter" : "Internal documents"}
-              </h3>
-              <p className="text-sm text-muted-foreground">
-                {isNb ? "Dokumenter du har lastet opp selv" : "Documents you have uploaded"}
-              </p>
-            </div>
-          </div>
-          <Button
-            size="sm"
-            onClick={() => uploadTriggerRef.current?.()}
-            className="h-8 gap-1.5 text-xs shrink-0"
-          >
-            <Upload className="h-3.5 w-3.5" />
-            {isNb ? "Last opp" : "Upload"}
-          </Button>
-        </div>
-        <DocumentsTab
-          assetId={assetId}
-          assetName={assetName}
-          vendorName={vendorName}
-          hideUploadButton
-          onUploadTriggerReady={(trigger) => { uploadTriggerRef.current = trigger; }}
-        />
-      </section>
+    <div className="space-y-6">
+      <DocumentsTab
+        assetId={assetId}
+        assetName={assetName}
+        vendorName={vendorName}
+        onUploadTriggerReady={(trigger) => { uploadTriggerRef.current = trigger; }}
+        inboxItems={inboxItems}
+        onApproveInbox={(item) => approve(item)}
+        onRejectInbox={(itemId) => reject(itemId)}
+        onPreviewInbox={(item) => setPreviewItem(item)}
+      />
 
-      {/* Eksterne dokumenter — mottatt og klar for godkjenning */}
-      <section className="rounded-2xl border border-warning/25 bg-gradient-to-br from-warning/[0.04] via-card/40 to-transparent p-5 space-y-4">
-        <div className="flex items-center gap-2.5">
-          <div className="h-9 w-9 rounded-lg bg-warning/15 flex items-center justify-center">
-            <Inbox className="h-5 w-5 text-warning" />
-          </div>
-          <div>
-            <h3 className="text-base font-semibold text-foreground tracking-tight">
-              {isNb ? "Eksterne dokumenter" : "External documents"}
-            </h3>
-            <p className="text-sm text-muted-foreground">
-              {isNb
-                ? "Godkjenn for å berike leverandørprofilen og styrke modenheten"
-                : "Approve to enrich the vendor profile and strengthen maturity"}
-            </p>
-          </div>
-        </div>
-        <LaraInboxTab assetId={assetId} assetName={assetName} />
-      </section>
+      <ApprovalSuccessDialog data={approvedItem} onClose={clearApprovedItem} />
+      <InboxPreviewDialog
+        open={!!previewItem}
+        onOpenChange={(open) => !open && setPreviewItem(null)}
+        item={previewItem}
+        assetName={assetName}
+        isNb={isNb}
+        onApprove={() => { approve(previewItem); setPreviewItem(null); }}
+        onReject={() => { reject(previewItem?.id); setPreviewItem(null); }}
+      />
     </div>
   );
 };
