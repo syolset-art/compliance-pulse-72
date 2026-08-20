@@ -413,12 +413,27 @@ const TrustCenterEvidence = () => {
     </DropdownMenu>
   );
 
+  const isSaraSourced = (doc: any) =>
+    ["sara", "agent", "local_agent"].includes(String(doc.source ?? doc.origin ?? "").toLowerCase()) ||
+    String(doc.file_path ?? "").startsWith("sara/");
+
   const renderDocRow = (doc: any, icon: React.ReactNode) => (
     <Card key={doc.id} className="hover:shadow-sm transition-shadow cursor-pointer" onClick={() => openPreview(doc)}>
       <CardContent className="flex items-center justify-between py-4 px-5">
         <div className="flex items-center gap-3 min-w-0">
           <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-            {icon}
+            {isSaraSourced(doc) ? (
+              <TooltipProvider delayDuration={150}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span><SaraIcon size={20} /></span>
+                  </TooltipTrigger>
+                  <TooltipContent side="right" className="text-[12px]">
+                    {isNb ? "Hentet av Sara – lokal agent" : "Collected by Sara – local agent"}
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            ) : icon}
           </div>
           <div className="min-w-0">
             <p className="text-sm font-medium truncate">{doc.display_name || doc.file_name}</p>
