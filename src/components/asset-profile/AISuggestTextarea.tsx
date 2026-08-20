@@ -150,44 +150,76 @@ export function AISuggestTextarea({
         </TooltipProvider>
       </CardHeader>
       <CardContent className="space-y-3">
-        <Textarea
-          value={draft}
-          onChange={(e) => setDraft(stripMarkdown(e.target.value))}
-          placeholder={isNb ? placeholderNb : placeholderEn}
-          rows={5}
-          className="text-sm resize-y min-h-[110px]"
-        />
-
-        {presets && presets.length > 0 && !suggestionItems && (
+        {editing ? (
+          <Textarea
+            value={draft}
+            onChange={(e) => setDraft(stripMarkdown(e.target.value))}
+            placeholder={isNb ? placeholderNb : placeholderEn}
+            rows={5}
+            className="text-sm resize-y min-h-[110px]"
+          />
+        ) : (
           <div className="space-y-1.5">
+            <div className="flex items-center justify-between gap-2">
+              <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                {isNb ? "Registrert" : "Registered"}
+              </p>
+              <button
+                type="button"
+                onClick={() => setEditing(true)}
+                className="inline-flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground underline-offset-2 hover:underline"
+              >
+                <Pencil className="h-3 w-3" />
+                {isNb ? "Rediger" : "Edit"}
+              </button>
+            </div>
+            {lines.length === 0 ? (
+              <p className="text-xs text-muted-foreground">
+                {isNb ? "Ingenting registrert ennå." : "Nothing registered yet."}
+              </p>
+            ) : (
+              <div className="flex flex-wrap gap-1.5">
+                {lines.map((line) => (
+                  <span
+                    key={line}
+                    className="group inline-flex items-center gap-1 rounded-full border border-border bg-muted/50 px-2.5 py-1 text-[11px] text-foreground"
+                  >
+                    {line}
+                    <button
+                      type="button"
+                      onClick={() => removeLine(line)}
+                      aria-label={isNb ? `Fjern ${line}` : `Remove ${line}`}
+                      className="text-muted-foreground hover:text-destructive"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {presets && presets.length > 0 && !suggestionItems && !editing && availablePresets.length > 0 && (
+          <div className="space-y-1.5 border-t border-border pt-3">
             <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-              {isNb ? "Vanlige prosesser — klikk for å legge til" : "Common processes — click to add"}
+              {isNb ? "Anbefalte — klikk for å legge til" : "Recommended — click to add"}
             </p>
             <div className="flex flex-wrap gap-1.5">
-              {presets.map((p) => {
-                const label = isNb ? p.nb : p.en;
-                const added = draft.includes(label);
-                return (
-                  <button
-                    key={label}
-                    type="button"
-                    onClick={() => addLine(label)}
-                    disabled={added}
-                    className={cn(
-                      "rounded-full border px-2.5 py-1 text-[11px] transition-colors",
-                      added
-                        ? "border-border bg-muted text-muted-foreground"
-                        : "border-border text-foreground hover:border-primary/50 hover:bg-primary/5",
-                    )}
-                  >
-                    {added ? "✓ " : "+ "}
-                    {label}
-                  </button>
-                );
-              })}
+              {availablePresets.map((label) => (
+                <button
+                  key={label}
+                  type="button"
+                  onClick={() => addLine(label)}
+                  className="rounded-full border border-dashed border-border px-2.5 py-1 text-[11px] text-muted-foreground transition-colors hover:border-primary/50 hover:bg-primary/5 hover:text-foreground"
+                >
+                  + {label}
+                </button>
+              ))}
             </div>
           </div>
         )}
+
 
         {suggestionItems && (
           <div className="rounded-lg border border-primary/30 bg-primary/[0.04] p-3 space-y-3 animate-in fade-in-0 slide-in-from-top-1 duration-200">
