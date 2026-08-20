@@ -275,6 +275,12 @@ export default function Deviations() {
     total: deviations.length,
   };
 
+  const objectTypeCounts = deviations.reduce((acc, d) => {
+    const type = resolveObject(d).type;
+    acc[type] = (acc[type] || 0) + 1;
+    return acc;
+  }, {} as Record<DeviationObjectType, number>);
+
   // Filter deviations
   const filteredDeviations = deviations.filter((d) => {
     if (titleFilter && !d.title.toLowerCase().includes(titleFilter.toLowerCase())) {
@@ -347,6 +353,16 @@ export default function Deviations() {
             {deviation.auto_created && (
               <Badge variant="outline" className="text-[13px]">Auto</Badge>
             )}
+            {(() => {
+              const obj = resolveObject(deviation);
+              if (obj.type === "other" && !obj.name) return null;
+              return (
+                <Badge variant="outline" className="text-[13px] font-normal">
+                  {objectTypeLabel[obj.type]}
+                  {obj.name ? `: ${obj.name}` : ""}
+                </Badge>
+              );
+            })()}
           </div>
 
           {/* Title */}
@@ -663,6 +679,19 @@ export default function Deviations() {
                   <SelectItem value="employee">Ansattmelding (Mynder Me)</SelectItem>
                   <SelectItem value="notification">Varsel (Mynder Me)</SelectItem>
                   <SelectItem value="manual">Manuell</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={objectFilter} onValueChange={setObjectFilter}>
+                <SelectTrigger className="bg-background">
+                  <SelectValue placeholder="Filtrer etter objekt" />
+                </SelectTrigger>
+                <SelectContent>
+                  {OBJECT_TYPE_OPTIONS.map((o) => (
+                    <SelectItem key={o.value} value={o.value}>
+                      {o.label}
+                      {o.value !== "all" ? ` (${objectTypeCounts[o.value as DeviationObjectType] || 0})` : ""}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
