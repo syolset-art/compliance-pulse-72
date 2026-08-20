@@ -49,6 +49,7 @@ export function AddFrameworkDialog({
   activatedLabels,
   existingIds,
   onAdd,
+  hidePrice = false,
 }: Props) {
   const [query, setQuery] = useState("");
   const activated = useMemo(() => new Set(activatedLabels), [activatedLabels]);
