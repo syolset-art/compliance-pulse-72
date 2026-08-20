@@ -10,7 +10,6 @@ import { LaraIcon } from "@/components/agents/LaraIcon";
 import { Check } from "lucide-react";
 import { SaraActivityLogDialog } from "@/components/agents/SaraActivityLogDialog";
 import { SaraSignalList } from "./SaraSignalList";
-import { SaraPrivacyBoundaryCard } from "./SaraPrivacyBoundaryCard";
 import type { SaraVendorMapping } from "@/lib/saraVendorMapping";
 import { USAGE_TAGS } from "@/lib/vendorContextSuggestion";
 import { cn } from "@/lib/utils";
@@ -212,8 +211,6 @@ export const SaraMappedContextView = ({
       </div>
 
       <SaraSignalList isNb={isNb} signals={mapping.signals} />
-      <SaraPrivacyBoundaryCard isNb={isNb} />
-
       <SaraActivityLogDialog open={logOpen} onOpenChange={setLogOpen} isNb={isNb} />
     </div>
   );
