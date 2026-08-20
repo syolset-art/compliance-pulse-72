@@ -10,7 +10,7 @@ import { DocumentRequestsSection } from "@/components/asset-profile/tabs/Documen
 import { VendorFrameworkCard } from "@/components/asset-profile/guidance/VendorFrameworkCard";
 import { VendorRecommendedActionsCard } from "@/components/asset-profile/guidance/VendorRecommendedActionsCard";
 import { VendorNextStepsCard } from "@/components/asset-profile/guidance/VendorNextStepsCard";
-import { buildVendorNextSteps, type NextStep } from "@/lib/vendorNextSteps";
+import { buildVendorNextSteps, splitByAutonomy, type NextStep } from "@/lib/vendorNextSteps";
 import { InviteAgenticTrustCenterDialog } from "@/components/asset-profile/guidance/InviteAgenticTrustCenterDialog";
 import { CreateVendorActivityDialog } from "@/components/asset-profile/guidance/CreateVendorActivityDialog";
 import { RequestBaselineDialog } from "@/components/asset-profile/guidance/RequestBaselineDialog";
@@ -293,6 +293,21 @@ export function MynderGuidanceTab({
         break;
     }
   };
+
+  // Autonominivå «automatisk» kjøres av Lara uten å spørre — brukeren varsles én gang per leverandør.
+  const autoRunRef = useRef<string | null>(null);
+  useEffect(() => {
+    const autoHandled = splitByAutonomy(nextSteps).autoHandled;
+    if (!assetId || autoHandled.length === 0) return;
+    if (autoRunRef.current === assetId) return;
+    autoRunRef.current = assetId;
+    toast({
+      title: isNb ? "Lara har håndtert punktene automatisk" : "Lara handled the items automatically",
+      description: isNb
+        ? `${autoHandled.length} punkter er utført og logget. Bare det som krever din godkjenning vises.`
+        : `${autoHandled.length} items were completed and logged. Only items needing your approval are shown.`,
+    });
+  }, [assetId, nextSteps, isNb]);
 
   const runAllLaraSteps = () => {
     const laraSteps = nextSteps.filter((s) => s.owner === "lara");
