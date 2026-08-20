@@ -1862,5 +1862,12 @@
     "phase2Badge": "Phase 2",
     "vendorExplainer": "This is the vendor's maturity. You cannot influence it except by requesting documentation. A real picture will appear only when the vendor takes over its Trust Profile via Agentic Trust Profile — the request will then be limited to vendor management and control in the value chain.",
     "previewNote": "Preview values"
+  },
+  "vendorStatusBanner": {
+    "claimed": {
+      "title": "Get the vendor to share data continuously",
+      "description": "Trust Engine is phase 2. Invite the vendor to register, so you can collect the information you need for good vendor management.",
+      "cta": "Ask vendor to register in Trust Engine"
+    }
   }
 }
