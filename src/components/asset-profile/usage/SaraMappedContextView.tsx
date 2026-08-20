@@ -10,6 +10,7 @@ import { LaraIcon } from "@/components/agents/LaraIcon";
 import { Check } from "lucide-react";
 import { SaraActivityLogDialog } from "@/components/agents/SaraActivityLogDialog";
 import { SaraSignalList } from "./SaraSignalList";
+import { VendorAccessTab } from "@/components/asset-profile/tabs/VendorAccessTab";
 import type { SaraVendorMapping } from "@/lib/saraVendorMapping";
 import { USAGE_TAGS } from "@/lib/vendorContextSuggestion";
 import { cn } from "@/lib/utils";
@@ -35,6 +36,8 @@ export interface SaraContextField {
 
 interface Props {
   isNb: boolean;
+  assetId: string;
+  assetName: string;
   mapping: SaraVendorMapping;
   fields: SaraContextField[];
   purpose: string;
@@ -45,7 +48,7 @@ interface Props {
 
 /** Alternativ visning av "Bruk og kontekst" når alt er kartlagt av den lokale agenten Sara. */
 export const SaraMappedContextView = ({
-  isNb, mapping, fields, purpose, tags, onSavePurpose, onToggleTag,
+  isNb, assetId, assetName, mapping, fields, purpose, tags, onSavePurpose, onToggleTag,
 }: Props) => {
   const [logOpen, setLogOpen] = useState(false);
   const [draft, setDraft] = useState(purpose || (isNb ? mapping.usageTextNb : mapping.usageTextEn));
