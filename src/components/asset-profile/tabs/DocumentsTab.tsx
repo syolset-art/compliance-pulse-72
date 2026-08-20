@@ -77,7 +77,7 @@ export function DocumentsTab({ assetId, assetName, vendorName, hideUploadButton,
   const [showUploadDialog, setShowUploadDialog] = useState(false);
   const [detailDoc, setDetailDoc] = useState<any>(null);
   const [showHistory, setShowHistory] = useState(false);
-  const [sourceFilter, setSourceFilter] = useState<DocSourceKey | "all">("all");
+  const [originFilter, setOriginFilter] = useState<DocOrigin | "all">("all");
 
   const { data: requests = [] } = useQuery({
     queryKey: ["vendor-document-requests", assetId],
