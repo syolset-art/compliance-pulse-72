@@ -174,20 +174,51 @@ export function ServiceCoverageSearch({
     setSelectedKey(null);
   };
 
+  const requirementCount = framework
+    ? reqRows.filter((r) => r.framework_id === framework.id).length
+    : 0;
+  const potential = frameworkPotential(requirementCount, defaultHourlyRate);
+
   return (
     <section className="space-y-3">
+      <div
+        className="inline-flex rounded-lg border border-border p-0.5"
+        role="group"
+        aria-label="Hva søker du etter?"
+      >
+        {MODES.map((m) => (
+          <button
+            key={m.id}
+            type="button"
+            onClick={() => setModeOverride(m.id)}
+            aria-pressed={mode === m.id}
+            className={cn(
+              "px-3 py-1.5 text-xs font-medium rounded-md transition-colors",
+              mode === m.id
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground hover:text-foreground",
+            )}
+          >
+            {m.label}
+          </button>
+        ))}
+      </div>
+
       <div className="flex flex-col sm:flex-row gap-2">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
           <Input
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Beskriv en tjeneste — se hvilke regelverk og krav den dekker"
+            onChange={(e) => {
+              setQuery(e.target.value);
+              setModeOverride(null);
+            }}
+            placeholder="Skriv en tjeneste, oppgave, et regelverk (GDPR) eller et Mynder-produkt"
             className="pl-9 h-10"
-            aria-label="Søk tjeneste for å se dekning"
+            aria-label="Søk tjeneste, regelverk eller produkt"
           />
         </div>
-        {debounced.length >= 2 && groups.length > 0 && (
+        {mode === "service" && debounced.length >= 2 && groups.length > 0 && (
           <Button
             type="button"
             onClick={handleOpenForEdit}
@@ -215,12 +246,99 @@ export function ServiceCoverageSearch({
         </p>
       )}
 
-      {debounced.length >= 2 && groups.length === 0 && (
+      {mode === "framework" && framework && (
+        <Card className="p-4">
+          <div className="flex items-start justify-between gap-4 flex-wrap">
+            <div className="flex items-start gap-2.5">
+              <Scale className="h-4 w-4 text-primary mt-0.5" />
+              <div>
+                <p className="text-sm font-medium text-foreground">{framework.name}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {requirementCount} krav · foreslåtte timer {potential.hours} t (1 time per krav)
+                </p>
+                <p className="text-xs text-muted-foreground mt-1 max-w-xl">
+                  Timene er et utgangspunkt — du kan justere timer per oppgave når du oppretter
+                  tilbudet.
+                </p>
+              </div>
+            </div>
+            <div className="text-right shrink-0">
+              <p className="text-[11px] text-muted-foreground">Salgspotensial</p>
+              <p className="text-xl font-semibold text-foreground tabular-nums">
+                {fmt(potential.amount)}
+              </p>
+              <p className="text-[11px] text-muted-foreground">
+                {defaultHourlyRate.toLocaleString("nb-NO")} {currency}/t · eks. mva
+              </p>
+            </div>
+          </div>
+          <div className="flex flex-wrap gap-2 mt-3">
+            <Button
+              size="sm"
+              onClick={() => onOpenFramework?.(framework.id)}
+              className="gap-1.5"
+            >
+              Åpne oppgavepakke
+              <ArrowRight className="h-3.5 w-3.5" />
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => onOpenFramework?.(framework.id)}>
+              Bruk i tilbud
+            </Button>
+          </div>
+        </Card>
+      )}
+
+      {mode === "product" && product && (
+        <Card className="p-4">
+          <div className="flex items-start justify-between gap-4 flex-wrap">
+            <div className="flex items-start gap-2.5">
+              <Package className="h-4 w-4 text-primary mt-0.5" />
+              <div>
+                <p className="text-sm font-medium text-foreground">{product.name}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Fra {fmt(product.fromPrice)}/mnd · din provisjon {product.commissionPct} %
+                </p>
+                <div className="flex flex-wrap gap-1.5 mt-2">
+                  {product.tiers.map((t) => (
+                    <Badge key={t.label} variant="secondary" className="text-[10px] font-normal">
+                      {t.label}: {t.isFree ? "Gratis" : `${fmt(t.priceKr)}/mnd`}
+                    </Badge>
+                  ))}
+                </div>
+                <p className="text-xs text-muted-foreground mt-2 max-w-xl">
+                  Du kan lage et tilbud der produktet kombineres med rådgivningstimer, eller
+                  aktivere det direkte på utvalgte kunder — aktivering gjøres inne på hvert
+                  kundekort.
+                </p>
+              </div>
+            </div>
+            <div className="text-right shrink-0">
+              <p className="text-[11px] text-muted-foreground">Årspris fra</p>
+              <p className="text-xl font-semibold text-foreground tabular-nums">
+                {fmt(annualPrice(product.fromPrice))}
+              </p>
+              <p className="text-[11px] text-muted-foreground">eks. mva</p>
+            </div>
+          </div>
+          <div className="flex flex-wrap gap-2 mt-3">
+            <Button size="sm" onClick={() => onAddProductToOffer?.(product.id)} className="gap-1.5">
+              Legg i tilbud
+              <ArrowRight className="h-3.5 w-3.5" />
+            </Button>
+            <Button size="sm" variant="outline" asChild>
+              <a href="/msp-dashboard">Aktiver på kunde</a>
+            </Button>
+          </div>
+        </Card>
+      )}
+
+      {mode === "service" && debounced.length >= 2 && groups.length === 0 && (
         <p className="text-xs text-muted-foreground px-1">
           Ingen tydelige treff. Prøv nøkkelord som beskriver aktiviteten
           (patch, awareness, DPO, backup …).
         </p>
       )}
+
 
       {groups.length > 0 && (
         <div className="space-y-2">
