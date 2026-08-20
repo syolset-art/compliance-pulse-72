@@ -475,6 +475,25 @@ const TrustCenterEvidence = () => {
               {docTypeLabel(doc.document_type, isNb)} · {isNb ? "Opprettet" : "Created"} {new Date(doc.created_at).toLocaleDateString(isNb ? "nb-NO" : "en-US")}
               {doc.valid_to && <> · {isNb ? "Utløper" : "Expires"} {new Date(doc.valid_to).toLocaleDateString(isNb ? "nb-NO" : "en-US")}</>}
             </p>
+            {(() => {
+              const mapped = intel.rows.find((r) => r.doc.id === doc.id)?.requirements ?? [];
+              if (mapped.length === 0) {
+                return (
+                  <p className="mt-0.5 text-[11px] text-muted-foreground/70">
+                    {isNb ? "Ikke kartlagt mot krav" : "Not mapped to requirements"}
+                  </p>
+                );
+              }
+              const fws = Array.from(new Set(mapped.map((m) => m.frameworkName)));
+              return (
+                <p className="mt-0.5 truncate text-[11px] text-primary">
+                  {isNb
+                    ? `Kartlagt mot ${mapped.length} krav · ${fws.join(", ")}`
+                    : `Mapped to ${mapped.length} requirement${mapped.length === 1 ? "" : "s"} · ${fws.join(", ")}`}
+                </p>
+              );
+            })()}
+
           </div>
         </div>
         <div className="flex items-center gap-3 shrink-0" onClick={(e) => e.stopPropagation()}>
