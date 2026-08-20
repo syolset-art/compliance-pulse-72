@@ -675,7 +675,14 @@ const TrustCenterEvidence = () => {
             coverage={coverage}
             saraInstalled={saraInstalled}
             onUpload={() => setDialogOpen(true)}
-            onAskSara={() => setSaraOnboardingOpen(true)}
+            onAskSara={(name) =>
+              toast.success(
+                isNb
+                  ? `Sara ser etter dokumentasjon for «${name}» ved neste kjøring.`
+                  : `Sara will look for documentation for "${name}" on the next run.`,
+              )
+            }
+
             onOpenDoc={(id) => {
               const doc = (vendorDocs as any[]).find((d) => d.id === id);
               if (doc) openPreview(doc);
