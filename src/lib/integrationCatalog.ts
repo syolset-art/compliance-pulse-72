@@ -6,8 +6,13 @@ import {
   Landmark,
   Layers,
   Lock,
+  Mail,
+  MessageSquare,
+  Radio,
   Server,
   Shield,
+  Ticket,
+  Webhook,
   Users,
   type LucideIcon,
 } from "lucide-react";
@@ -18,11 +23,12 @@ export type IntegrationCategory =
   | "cloud_security"
   | "device"
   | "finance"
+  | "incident_source"
   | "custom";
 
 export type IntegrationAuthType = "oauth" | "api_key" | "upload";
 
-export type DiscoveryType = "systems" | "vendors" | "users" | "documents";
+export type DiscoveryType = "systems" | "vendors" | "users" | "documents" | "incidents";
 
 /** available = kan kobles på i dag. planned = vises, men kan ikke kobles på ennå. */
 export type IntegrationAvailability = "available" | "planned";
@@ -49,6 +55,7 @@ export const CATEGORY_LABEL: Record<IntegrationCategory, string> = {
   cloud_security: "Skysikkerhet / SaaS-oppdagelse",
   device: "Enhet & MDM",
   finance: "Fakturering & Regnskap",
+  incident_source: "Avvik og hendelser",
   custom: "Egendefinert",
 };
 
@@ -57,6 +64,7 @@ export const DISCOVERY_LABEL: Record<DiscoveryType, string> = {
   vendors: "Leverandører",
   users: "Brukere",
   documents: "Dokumenter",
+  incidents: "Avvik og hendelser",
 };
 
 /** Hva kilden gir Lara – brukes som filter på Datakilder og agenter. */
@@ -65,6 +73,7 @@ export const DISCOVERY_FILTER_LABEL: Record<DiscoveryType, string> = {
   vendors: "Leverandører",
   documents: "Dokumenter",
   users: "Personer og tilganger",
+  incidents: "Avvik",
 };
 
 export const INTEGRATION_CATALOG: IntegrationDefinition[] = [
@@ -265,6 +274,162 @@ export const INTEGRATION_CATALOG: IntegrationDefinition[] = [
     readOnly: true,
     availability: "planned",
   },
+  /* ---------- Avvik og hendelser ---------- */
+  {
+    id: "seven_security_incidents",
+    name: "7 Security (MDR)",
+    vendor: "7 Security",
+    category: "incident_source",
+    description:
+      "Sikkerhetshendelser fra overvåkingen sendes til Lara Innboks og opprettes som avvik med foreslått alvorlighetsgrad.",
+    discovers: ["incidents"],
+    authType: "api_key",
+    scopes: ["incidents:read"],
+    icon: Shield,
+    readOnly: true,
+    availability: "available",
+  },
+  {
+    id: "deviation_mailbox",
+    name: "E-postinnboks for avvik",
+    vendor: "Mynder",
+    category: "incident_source",
+    description:
+      "Videresend e-post til en dedikert adresse (f.eks. avvik@virksomhet.no). Lara leser meldingen og foreslår et avvik.",
+    discovers: ["incidents"],
+    authType: "api_key",
+    scopes: ["mailbox:read"],
+    icon: Mail,
+    readOnly: true,
+    availability: "available",
+  },
+  {
+    id: "incident_webhook",
+    name: "Webhook / API-inngang",
+    vendor: "Mynder",
+    category: "incident_source",
+    description:
+      "Generisk mottak av hendelser via signert webhook. For kilder uten ferdig kobling, som interne systemer eller egne skript.",
+    discovers: ["incidents"],
+    authType: "api_key",
+    scopes: ["incidents:write"],
+    icon: Webhook,
+    readOnly: true,
+    availability: "available",
+  },
+  {
+    id: "acronis_incidents",
+    name: "Acronis Cyber Protect (hendelser)",
+    vendor: "Acronis",
+    category: "incident_source",
+    description:
+      "Alarmer om feilede backups, malware-funn og enhetsavvik fra Acronis blir til avvik i registeret.",
+    discovers: ["incidents"],
+    authType: "api_key",
+    scopes: ["alerts:read"],
+    icon: Server,
+    readOnly: true,
+    availability: "planned",
+  },
+  {
+    id: "defender_incidents",
+    name: "Microsoft Defender / Sentinel",
+    vendor: "Microsoft",
+    category: "incident_source",
+    description:
+      "Hendelser og varsler fra Defender XDR eller Sentinel mottas og klassifiseres av Lara før de blir avvik.",
+    discovers: ["incidents"],
+    authType: "oauth",
+    scopes: ["SecurityIncident.Read.All", "SecurityAlert.Read.All"],
+    icon: Shield,
+    readOnly: true,
+    availability: "planned",
+  },
+  {
+    id: "arctic_security",
+    name: "Arctic Security",
+    vendor: "Arctic Security",
+    category: "incident_source",
+    description:
+      "Trusselvarsler om eksponerte tjenester og kompromitterte kontoer knyttet til organisasjonens domener.",
+    discovers: ["incidents"],
+    authType: "api_key",
+    scopes: ["observations:read"],
+    icon: Radio,
+    readOnly: true,
+    availability: "planned",
+  },
+  {
+    id: "jira_service_management",
+    name: "Jira Service Management",
+    vendor: "Atlassian",
+    category: "incident_source",
+    description:
+      "Saker merket som avvik eller sikkerhetshendelse hentes inn og følges opp i Mynder uten dobbeltregistrering.",
+    discovers: ["incidents"],
+    authType: "oauth",
+    scopes: ["read:jira-work"],
+    icon: Ticket,
+    readOnly: true,
+    availability: "planned",
+  },
+  {
+    id: "servicenow",
+    name: "ServiceNow",
+    vendor: "ServiceNow",
+    category: "incident_source",
+    description:
+      "Hent incidents fra ITSM-prosessen og koble dem til systemer, leverandører og rammeverkskrav.",
+    discovers: ["incidents"],
+    authType: "api_key",
+    scopes: ["incident.read"],
+    icon: Ticket,
+    readOnly: true,
+    availability: "planned",
+  },
+  {
+    id: "zendesk",
+    name: "Zendesk / Freshservice",
+    vendor: "Zendesk",
+    category: "incident_source",
+    description:
+      "Henvendelser fra kunder eller ansatte som gjelder personvern eller sikkerhet fanges opp som avvik.",
+    discovers: ["incidents"],
+    authType: "api_key",
+    scopes: ["tickets:read"],
+    icon: Ticket,
+    readOnly: true,
+    availability: "planned",
+  },
+  {
+    id: "teams_slack_reporting",
+    name: "Microsoft Teams / Slack",
+    vendor: "Microsoft",
+    category: "incident_source",
+    description:
+      "Meld avvik der folk allerede jobber. Meldingen blir et utkast til avvik som ansvarlig bekrefter.",
+    discovers: ["incidents"],
+    authType: "oauth",
+    scopes: ["ChannelMessage.Read.All"],
+    icon: MessageSquare,
+    readOnly: true,
+    availability: "planned",
+  },
+  {
+    id: "mynder_me_reporting",
+    name: "Mynder Me (ansattapp)",
+    vendor: "Mynder",
+    category: "incident_source",
+    description:
+      "Intern meldekanal for ansatte. Avvik meldt i appen havner direkte i registeret med riktig arbeidsområde.",
+    discovers: ["incidents"],
+    authType: "oauth",
+    scopes: [],
+    icon: Users,
+    readOnly: true,
+    availability: "planned",
+  },
+
   {
     id: "csv_upload",
     name: "CSV-import",
