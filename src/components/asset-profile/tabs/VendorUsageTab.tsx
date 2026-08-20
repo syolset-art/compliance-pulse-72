@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Building2, Database, Workflow, Shield, AlertTriangle, Pencil, Info, Sparkles, ArrowRight, Flag, ChevronDown, UserRound, Check } from "lucide-react";
 import { RELATION_CATEGORIES, relationCategoryLabel, relationCategoryNote, suggestRelationCategory } from "@/lib/vendorRelationCategory";
 import { LaraIcon } from "@/components/agents/LaraIcon";
+import { LaraFieldSuggestion } from "@/components/asset-profile/usage/LaraFieldSuggestion";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/hooks/useAuth";
 import { Switch } from "@/components/ui/switch";
@@ -18,7 +19,6 @@ import { suggestVendorRisk } from "@/lib/vendorRiskSuggestion";
 import { suggestVendorContext, usageTagLabel } from "@/lib/vendorContextSuggestion";
 import { buildGdprRolePlan } from "@/lib/vendorGdprRolePlan";
 import { GdprRolePlanCard } from "@/components/asset-profile/usage/GdprRolePlanCard";
-import { LaraContextBanner } from "@/components/asset-profile/usage/LaraContextBanner";
 
 import { VendorPurposeCard } from "@/components/asset-profile/usage/VendorPurposeCard";
 import { ContextPillRow, type ContextPillItem } from "@/components/asset-profile/usage/ContextPillRow";
@@ -120,13 +120,6 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
   const [laraLoading, setLaraLoading] = useState(false);
   const { installed: saraInstalled } = useSaraAgent();
   const [viewMode, setViewMode] = useState<"auto" | "manual">("auto");
-  const [acceptedAt, setAcceptedAt] = useState<Date | null>(null);
-  const [preAcceptSnapshot, setPreAcceptSnapshot] = useState<{
-    criticality: string | null;
-    gdpr_role: string | null;
-    risk_level: string | null;
-    metadata: Record<string, any>;
-  } | null>(null);
 
   const { data: asset } = useQuery({
     queryKey: ["asset-usage", assetId],
@@ -321,93 +314,33 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
     }, 500);
   };
 
-  const handleAcceptAll = () => {
-    setLaraLoading(true);
-    setPreAcceptSnapshot({
-      criticality: asset?.criticality ?? null,
-      gdpr_role: (asset as any)?.gdpr_role ?? null,
-      risk_level: (asset as any)?.risk_level ?? null,
-      metadata: { ...riskMeta },
-    });
-    setTimeout(() => {
-      updateMutation.mutate({
-        criticality: contextSuggestion.criticality,
-        ...(contextSuggestion.gdprRole ? { gdpr_role: contextSuggestion.gdprRole } : {}),
-        risk_level: riskSuggestion.level,
-        metadata: {
-          ...riskMeta,
-          usage_tags: contextSuggestion.usageTags.length ? contextSuggestion.usageTags : usageTags,
-          usage_purpose: usagePurpose || (isNb ? contextSuggestion.usageTextNb : contextSuggestion.usageTextEn),
-          risk_set_by: null,
-          risk_set_at: null,
-          risk_rationale: null,
-        },
-      } as any);
-      setRationaleDraft("");
-      setAcceptedAt(new Date());
-      setLaraLoading(false);
-    }, 600);
-  };
-
-  const handleUndoAccept = () => {
-    if (!preAcceptSnapshot) return;
-    setLaraLoading(true);
-    updateMutation.mutate({
-      criticality: preAcceptSnapshot.criticality,
-      gdpr_role: preAcceptSnapshot.gdpr_role,
-      risk_level: preAcceptSnapshot.risk_level,
-      metadata: preAcceptSnapshot.metadata,
-    } as any);
-    setPreAcceptSnapshot(null);
-    setAcceptedAt(null);
-    setLaraLoading(false);
-  };
-
-  // Bekreftet tilstand vises så lenge lagrede verdier fortsatt matcher forslaget
-  const suggestionApplied =
-    !!acceptedAt &&
-    asset?.criticality === contextSuggestion.criticality &&
-    (!contextSuggestion.gdprRole || (asset as any)?.gdpr_role === contextSuggestion.gdprRole) &&
-    (asset as any)?.risk_level === riskSuggestion.level;
-
-  const appliedItems = [
-    { label: isNb ? "Kritikalitet" : "Criticality", value: getLabelFor(criticalityOptions, contextSuggestion.criticality, isNb) },
-    ...(contextSuggestion.gdprRole
-      ? [{ label: isNb ? "GDPR-rolle" : "GDPR role", value: getLabelFor(gdprOptions, contextSuggestion.gdprRole, isNb) }]
-      : []),
-    { label: isNb ? "Risiko" : "Risk", value: getLabelFor(riskOptions, riskSuggestion.level, isNb) },
-    ...(usageTags.length
-      ? [{ label: isNb ? "Bruk" : "Usage", value: usageTags.map((t) => usageTagLabel(t, isNb)).join(", ") }]
-      : []),
-    ...(usagePurpose ? [{ label: isNb ? "Bruksformål" : "Purpose", value: usagePurpose }] : []),
-  ];
-
-  const nextStep = (() => {
-    const isProcessor =
-      (asset as any)?.gdpr_role === "databehandler" || (asset as any)?.gdpr_role === "underdatabehandler";
-    if (isProcessor && !(asset as any)?.has_dpa) {
-      return {
-        labelNb: "Legg til databehandleravtale",
-        labelEn: "Add data processing agreement",
-        onClick: () => onNavigateToTab?.("evidence"),
-      };
-    }
-    if (
-      (asset?.criticality === "high" || asset?.criticality === "critical") &&
-      !riskMeta.risk_rationale
-    ) {
-      return {
-        labelNb: "Gjør risikovurdering",
-        labelEn: "Do a risk assessment",
-        onClick: () => setOpenPill("risk"),
-      };
-    }
-    return {
-      labelNb: "Se leverandørens dokumentasjon",
-      labelEn: "View vendor documentation",
-      onClick: () => onNavigateToTab?.("evidence"),
-    };
+  /** Kort begrunnelse for Laras forslag, basert på hvilke kilder det bygger på */
+  const contextReason = (() => {
+    const first = (isNb ? contextSuggestion.reasonsNb : contextSuggestion.reasonsEn)[0];
+    if (first) return first;
+    const src = contextSuggestion.sources[0];
+    if (src === "category") return isNb ? "basert på bransje" : "based on industry";
+    if (src === "privacyPolicy") return isNb ? "basert på personvernerklæring" : "based on the privacy policy";
+    if (src === "description") return isNb ? "basert på beskrivelsen" : "based on the description";
+    return isNb ? "basert på bruksformål" : "based on the stated usage";
   })();
+
+  const riskReason = (isNb ? riskSuggestion.reasons : riskSuggestion.reasonsEn).join(" · ");
+
+  /** Godkjenn Laras risikoforslag (fjerner manuell overstyring) */
+  const handleAcceptRiskSuggestion = () => {
+    updateMutation.mutate({
+      risk_level: riskSuggestion.level,
+      metadata: { ...riskMeta, risk_set_by: null, risk_set_at: null, risk_rationale: null },
+    } as any);
+    setRationaleDraft("");
+    toast.success(isNb ? "Laras forslag er godkjent" : "Lara's suggestion approved");
+  };
+
+  /** Prioritetsforslag utledet av foreslått kritikalitet */
+  const prioritySuggestion = contextSuggestion.criticality;
+
+
 
   // --- Laras plan for GDPR-rolle (må godkjennes av brukeren) ---
   const [gdprPlanDismissed, setGdprPlanDismissed] = useState(false);
@@ -513,6 +446,16 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
               ))}
             </SelectContent>
           </Select>
+
+          <LaraFieldSuggestion
+            isNb={isNb}
+            suggestedLabel={getLabel(criticalityOptions, contextSuggestion.criticality)}
+            reason={contextReason}
+            approvedBy={riskMeta.criticality_set_by || null}
+            matchesCurrent={(asset?.criticality || "medium") === contextSuggestion.criticality}
+            onApprove={() => handleFieldChange("criticality", contextSuggestion.criticality)}
+          />
+
           <p className="text-[13px] text-muted-foreground leading-snug">
             {isNb
               ? "Hvor viktig denne leverandøren er for virksomheten. Høy kritikalitet krever strengere oppfølging."
@@ -546,6 +489,16 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
               ))}
             </SelectContent>
           </Select>
+
+          <LaraFieldSuggestion
+            isNb={isNb}
+            suggestedLabel={getLabel(priorityOptions, prioritySuggestion)}
+            reason={contextReason}
+            approvedBy={riskMeta.priority_set_by || null}
+            matchesCurrent={(asset as any)?.priority === prioritySuggestion}
+            onApprove={() => handleFieldChange("priority", prioritySuggestion)}
+          />
+
           <p className="text-[13px] text-muted-foreground leading-snug">
             {isNb
               ? "Din prioritering av leverandøren for filtrering og oppfølging."
@@ -591,6 +544,18 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
               ))}
             </SelectContent>
           </Select>
+
+          {contextSuggestion.gdprRole && (
+            <LaraFieldSuggestion
+              isNb={isNb}
+              suggestedLabel={getLabel(gdprOptions, contextSuggestion.gdprRole)}
+              reason={contextReason}
+              approvedBy={gdprPlanApprovedBy}
+              approvedAt={gdprPlanApprovedAt}
+              matchesCurrent={asset?.gdpr_role === contextSuggestion.gdprRole}
+              onApprove={() => handleGdprRoleChange(contextSuggestion.gdprRole as string)}
+            />
+          )}
 
 
           {showSensitive && (
@@ -691,24 +656,16 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
             </Button>
           </div>
 
-          {riskSetBy ? (
-            <div className="flex items-start gap-1.5 rounded-md bg-warning/15 px-2 py-1.5 text-[13px] text-warning-foreground/90 leading-tight">
-              <UserRound className="h-3.5 w-3.5 mt-0.5 shrink-0" />
-              <span>
-                {isNb ? "Satt manuelt av " : "Set manually by "}{riskSetBy}{riskSetAt ? `, ${riskSetAt}` : ""}
-              </span>
-            </div>
-          ) : (
-            <div className="flex items-start gap-1.5 text-[13px] text-muted-foreground leading-tight">
-              <Sparkles className="h-3.5 w-3.5 text-primary mt-0.5 shrink-0" />
-              <span>
-                {isNb ? "Foreslått av Lara: " : "Suggested by Lara: "}
-                <span className="font-medium text-foreground">{getLabel(riskOptions, riskSuggestion.level)}</span>
-                {" — "}
-                {(isNb ? riskSuggestion.reasons : riskSuggestion.reasonsEn).join(" · ")}
-              </span>
-            </div>
-          )}
+          <LaraFieldSuggestion
+            isNb={isNb}
+            suggestedLabel={getLabel(riskOptions, riskSuggestion.level)}
+            reason={riskReason}
+            approvedBy={riskSetBy}
+            approvedAt={riskSetAt}
+            matchesCurrent={(asset?.risk_level || "medium") === riskSuggestion.level}
+            onApprove={() => handleAcceptRiskSuggestion()}
+          />
+
 
           {riskSetBy && (
             <div className="space-y-1">
@@ -777,24 +734,16 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
             </SelectContent>
           </Select>
 
-          {relationSuggestion && relationSuggestion !== (asset as any)?.vendor_category && (
-            <div className="flex flex-wrap items-center gap-2 text-[13px] text-muted-foreground">
-              <LaraIcon size={16} />
-              <span>
-                {isNb ? "Forslag: " : "Suggestion: "}
-                <span className="font-medium text-foreground">{relationCategoryLabel(relationSuggestion, isNb)}</span>
-              </span>
-              <Button
-                size="sm"
-                variant="outline"
-                className="h-7 gap-1 text-[12px]"
-                onClick={() => handleFieldChange("vendor_category", relationSuggestion)}
-              >
-                <Check className="h-3 w-3" />
-                {isNb ? "Bruk forslaget" : "Use suggestion"}
-              </Button>
-            </div>
+          {relationSuggestion && (
+            <LaraFieldSuggestion
+              isNb={isNb}
+              suggestedLabel={relationCategoryLabel(relationSuggestion, isNb)}
+              reason={contextReason}
+              matchesCurrent={relationSuggestion === (asset as any)?.vendor_category}
+              onApprove={() => handleFieldChange("vendor_category", relationSuggestion)}
+            />
           )}
+
 
           <p className="text-[13px] text-muted-foreground leading-snug">
             {relationCategoryNote((asset as any)?.vendor_category, isNb) ||
@@ -928,20 +877,6 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
         </div>
       )}
 
-      <LaraContextBanner
-        isNb={isNb}
-        suggestion={contextSuggestion}
-        riskLabel={getLabel(riskOptions, riskSuggestion.level)}
-        criticalityLabel={getLabel(criticalityOptions, contextSuggestion.criticality)}
-        gdprLabel={getLabel(gdprOptions, contextSuggestion.gdprRole)}
-        loading={laraLoading}
-        onAcceptAll={handleAcceptAll}
-        accepted={suggestionApplied}
-        acceptedAt={acceptedAt}
-        appliedItems={appliedItems}
-        nextStep={nextStep}
-        onUndo={preAcceptSnapshot ? handleUndoAccept : null}
-      />
 
       <div className="grid grid-cols-1 items-stretch gap-4 lg:grid-cols-2">
         <ContextPillRow
