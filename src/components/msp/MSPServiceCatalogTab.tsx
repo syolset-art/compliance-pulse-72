@@ -26,6 +26,8 @@ import { useServiceDefaults } from "@/hooks/useServiceDefaults";
 import { RetireServiceDialog, type RetireServiceOptions } from "./RetireServiceDialog";
 import { MSPLaraServiceWizard } from "./MSPLaraServiceWizard";
 import { ServiceCoverageSearch } from "./ServiceCoverageSearch";
+import { MSPFrameworkHoursTab } from "./MSPFrameworkHoursTab";
+import type { SavedFrameworkPackage } from "./MSPFrameworkTaskPackageSheet";
 import { AiMappingDisclosure } from "./AiMappingDisclosure";
 import { LaraScopeChangeDialog, type ScopeChangeSelection } from "./LaraScopeChangeDialog";
 import type { PartnerService, WizardAnswers } from "@/lib/serviceCatalog";
