@@ -470,10 +470,11 @@ export function ServiceCoverageSearch({
                 <p className="text-sm font-medium text-foreground">{framework.name}</p>
                 <p className="text-xs text-muted-foreground mt-0.5">
                   {requirementCount} krav · foreslåtte timer {potential.hours} t (1 time per krav)
+                  {requirementsEstimated && " · estimert kravtall"}
                 </p>
                 <p className="text-xs text-muted-foreground mt-1 max-w-xl">
-                  Timene er et utgangspunkt — du kan justere timer per oppgave når du oppretter
-                  tilbudet.
+                  Timene er et utgangspunkt — åpne oppgavepakken for å justere timer og lagre den
+                  som en fast tjenestepakke, eller bruk den direkte i et tilbud og endre der.
                 </p>
               </div>
             </div>
