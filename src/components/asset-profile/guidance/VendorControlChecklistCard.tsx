@@ -72,8 +72,8 @@ export function VendorControlChecklistCard({
                 ? "Alt grunnlaget er på plass."
                 : "All the basics are in place."
               : isNb
-                ? `${done} av ${items.length} er registrert.`
-                : `${done} of ${items.length} registered.`}
+                ? `${done} av ${requiredItems.length} er registrert.`
+                : `${done} of ${requiredItems.length} registered.`}
           </p>
         </div>
         {!complete && onOpen && (
@@ -85,7 +85,7 @@ export function VendorControlChecklistCard({
       </div>
 
       <ul className="mt-3 grid gap-1.5 sm:grid-cols-2">
-        {items.map((item) => (
+        {requiredItems.map((item) => (
           <li key={item.nb} className="flex items-center gap-2 text-sm">
             <span
               className={cn(
@@ -101,6 +101,31 @@ export function VendorControlChecklistCard({
           </li>
         ))}
       </ul>
+
+      {optionalItems.length > 0 && (
+        <div className="mt-4 pt-3 border-t border-border/60">
+          <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground mb-1.5">
+            {isNb ? "Valgfritt" : "Optional"}
+          </p>
+          <ul className="grid gap-1.5 sm:grid-cols-2">
+            {optionalItems.map((item) => (
+              <li key={item.nb} className="flex items-center gap-2 text-sm">
+                <span
+                  className={cn(
+                    "flex h-4 w-4 shrink-0 items-center justify-center rounded-full border",
+                    item.done ? "border-success bg-success text-success-foreground" : "border-muted-foreground/40",
+                  )}
+                >
+                  {item.done && <Check className="h-3 w-3" />}
+                </span>
+                <span className={cn("truncate", item.done ? "text-muted-foreground" : "text-foreground")}>
+                  {isNb ? item.nb : item.en}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </section>
   );
 }
