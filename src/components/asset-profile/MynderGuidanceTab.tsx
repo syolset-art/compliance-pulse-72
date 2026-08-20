@@ -237,7 +237,6 @@ export function MynderGuidanceTab({
   };
 
   // ── Neste steg: hull i leverandørdata + regelverkstiltak ──
-  const [showAllActions, setShowAllActions] = useState(false);
 
   const nextSteps: NextStep[] = useMemo(
     () =>
