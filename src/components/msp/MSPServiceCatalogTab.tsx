@@ -235,6 +235,8 @@ export function MSPServiceCatalogTab({ onOpenSecondary, onRegisterActions }: { o
   const [curationSummary, setCurationSummary] = useState<string | null>(null);
   const [onlyRecommended, setOnlyRecommended] = useState(false);
   const [activeTab, setActiveTab] = useState("regelverk");
+  const [openFrameworkId, setOpenFrameworkId] = useState<string | null>(null);
+
 
   // Forrige wizard-svar — brukes for å oppdage scope-endringer.
   const [previousAnswers, setPreviousAnswers] = useState<WizardAnswers | null>(() => {
