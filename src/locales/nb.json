@@ -1868,7 +1868,7 @@
     "claimed": {
       "title": "Få leverandøren til å dele data løpende",
       "description": "Trust Engine er fase 2. Inviter leverandøren til å registrere seg, så får du samlet inn informasjonen du trenger for god leverandørstyring.",
-      "cta": "Be leverandør registrere seg i Trust Engine"
+      "cta": "Inviter til Trust Engine"
     }
   }
 }
