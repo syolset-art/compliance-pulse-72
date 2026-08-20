@@ -443,34 +443,8 @@ export function MynderGuidanceTab({
         </div>
       </div>
 
-      {showAllActions && (
-        <VendorRecommendedActionsCard
-          assetId={assetId}
-          signals={inferred.signals}
-          segmentLabel={isNb ? inferred.segment.nb : inferred.segment.en}
-          actions={actions}
-          onRequestDocumentation={openDocRequest}
-          onCreateActivity={createActivityFromAction}
-          onCreateVendorActivity={() => setCreateActivityOpen(true)}
-          trustCenter={trustCenter}
-          onInviteTrustCenter={() => setInviteTrustCenterOpen(true)}
-          onOpenTrustCenter={() => {
-            const link = trustCenter.link ?? trustCenterLink(assetId);
-            window.open(link, "_blank", "noopener");
-          }}
-          onRemindTrustCenter={() => {
-            const next = { ...trustCenter, remindedAt: new Date().toISOString() };
-            setTrustCenter(next);
-            writeTrustCenterState(assetId, next);
-            toast({
-              title: isNb ? "Påminnelse sendt" : "Reminder sent",
-              description: isNb
-                ? "Lara har purret kontaktpersonene hos leverandøren."
-                : "Lara reminded the vendor contacts.",
-            });
-          }}
-        />
-      )}
+
+
 
       {/* Aktive dokumentasjonsforespørsler */}
       <DocumentRequestsSection assetId={assetId} />
