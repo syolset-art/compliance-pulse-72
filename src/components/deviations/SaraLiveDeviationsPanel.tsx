@@ -44,14 +44,7 @@ export function SaraLiveDeviationsPanel({ isNb = true }: Props) {
   const inScope = SARA_MONITORED_SYSTEMS.filter((s) => s.status === "connected");
   const criticalCount = SARA_RECENT_DEVIATIONS.filter((d) => d.severity === "critical").length;
 
-  const stats = [
-    { value: inScope.length, nb: "Koblinger", en: "Connections" },
-    { value: types.length, nb: "Avvikstyper", en: "Deviation types" },
-    { value: SARA_RECENT_DEVIATIONS.length, nb: "Funn", en: "Findings" },
-    { value: criticalCount, nb: "Kritiske", en: "Critical", alert: criticalCount > 0 },
-  ];
 
-  const visible = showAll ? SARA_RECENT_DEVIATIONS : SARA_RECENT_DEVIATIONS.slice(0, 3);
 
   return (
     <div className="rounded-lg border border-border bg-muted/20">
