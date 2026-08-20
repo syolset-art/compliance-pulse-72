@@ -19,6 +19,8 @@ export interface VendorFramework {
   reasonEn: string;
   /** Lagt til manuelt av brukeren (ikke foreslått av Lara). */
   manual?: boolean;
+  /** Satt globalt for alle leverandører under Leverandører > Regelverk. */
+  global?: boolean;
 }
 
 export type ActionCriticality = "kritisk" | "hoy" | "medium";
