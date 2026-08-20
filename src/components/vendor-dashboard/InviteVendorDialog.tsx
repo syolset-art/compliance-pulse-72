@@ -116,53 +116,55 @@ export function InviteVendorDialog({ open, onOpenChange, vendor }: InviteVendorD
 
         {/* Body */}
         <div className="px-6 py-5 max-h-[70vh] overflow-y-auto">
-          {/* Agent timeline */}
-          <ol className="space-y-2.5 mb-5" aria-label="Lara prosess">
-            {STEPS.map((step, idx) => {
-              const state: "done" | "active" | "todo" =
-                phase === "preparing"
-                  ? idx < activeStep ? "done" : idx === activeStep ? "active" : "todo"
-                  : "done";
-              const Icon = step.icon;
-              return (
-                <li key={step.key} className="flex items-start gap-3">
-                  <div
-                    className={cn(
-                      "mt-0.5 h-7 w-7 rounded-full flex items-center justify-center shrink-0 transition-colors",
-                      state === "done" && "bg-success/10 text-success",
-                      state === "active" && "bg-primary/10 text-primary",
-                      state === "todo" && "bg-muted text-muted-foreground",
-                    )}
-                    aria-hidden
-                  >
-                    {state === "done" ? (
-                      <CheckCircle2 className="h-4 w-4" />
-                    ) : state === "active" ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <Icon className="h-4 w-4" />
-                    )}
-                  </div>
-                  <div className="min-w-0 flex-1 pt-0.5">
-                    <div className={cn(
-                      "text-[14px] font-medium",
-                      state === "todo" ? "text-muted-foreground" : "text-foreground",
-                    )}>
-                      {step.label}
+          {/* Agent timeline — hidden after send */}
+          {phase !== "sent" && (
+            <ol className="space-y-2.5 mb-5" aria-label="Lara prosess">
+              {STEPS.map((step, idx) => {
+                const state: "done" | "active" | "todo" =
+                  phase === "preparing"
+                    ? idx < activeStep ? "done" : idx === activeStep ? "active" : "todo"
+                    : "done";
+                const Icon = step.icon;
+                return (
+                  <li key={step.key} className="flex items-start gap-3">
+                    <div
+                      className={cn(
+                        "mt-0.5 h-7 w-7 rounded-full flex items-center justify-center shrink-0 transition-colors",
+                        state === "done" && "bg-success/10 text-success",
+                        state === "active" && "bg-primary/10 text-primary",
+                        state === "todo" && "bg-muted text-muted-foreground",
+                      )}
+                      aria-hidden
+                    >
+                      {state === "done" ? (
+                        <CheckCircle2 className="h-4 w-4" />
+                      ) : state === "active" ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Icon className="h-4 w-4" />
+                      )}
                     </div>
-                    <div className="text-[12.5px] text-muted-foreground leading-snug">
-                      {step.detail}
+                    <div className="min-w-0 flex-1 pt-0.5">
+                      <div className={cn(
+                        "text-[14px] font-medium",
+                        state === "todo" ? "text-muted-foreground" : "text-foreground",
+                      )}>
+                        {step.label}
+                      </div>
+                      <div className="text-[12.5px] text-muted-foreground leading-snug">
+                        {step.detail}
+                      </div>
                     </div>
-                  </div>
-                  {state === "done" && (
-                    <span className="text-[12px] text-muted-foreground shrink-0 mt-1">Ferdig</span>
-                  )}
-                </li>
-              );
-            })}
-          </ol>
+                    {state === "done" && (
+                      <span className="text-[12px] text-muted-foreground shrink-0 mt-1">Ferdig</span>
+                    )}
+                  </li>
+                );
+              })}
+            </ol>
+          )}
 
-          {/* Review form (after preparation) */}
+          {/* Review form (after preparation, before send) */}
           {(phase === "review" || phase === "sending") && (
             <div className="space-y-4 rounded-xl border border-border bg-card/50 p-4">
               <div className="flex items-center gap-2">
@@ -234,20 +236,15 @@ export function InviteVendorDialog({ open, onOpenChange, vendor }: InviteVendorD
 
           {/* Sent confirmation */}
           {phase === "sent" && (
-            <div className="rounded-xl border border-success/30 bg-success/5 p-5 text-center space-y-3">
-              <div className="h-12 w-12 rounded-full bg-success/15 flex items-center justify-center mx-auto">
-                <CheckCircle2 className="h-6 w-6 text-success" />
+            <div className="rounded-xl border border-success/30 bg-success/5 p-8 text-center space-y-4">
+              <div className="h-14 w-14 rounded-full bg-success/15 flex items-center justify-center mx-auto">
+                <CheckCircle2 className="h-7 w-7 text-success" />
               </div>
               <div>
-                <div className="text-[15px] font-semibold">Invitasjon sendt til {recipientName}</div>
+                <div className="text-[17px] font-semibold">Invitasjon sendt</div>
                 <div className="text-[13px] text-muted-foreground mt-1">
-                  Lara overvåker innboksen og oppdaterer profilen automatisk når leverandøren svarer.
+                  {recipientName} · {recipient}
                 </div>
-              </div>
-              <div className="flex items-center justify-center gap-2 text-[12.5px] text-muted-foreground">
-                <Mail className="h-3.5 w-3.5" /> {recipient}
-                <span className="opacity-40">·</span>
-                <Bell className="h-3.5 w-3.5" /> Påminnelser planlagt
               </div>
             </div>
           )}
