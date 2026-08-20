@@ -95,7 +95,7 @@ export function SaraLiveDeviationsPanel({ isNb = true }: Props) {
         {outOfScope.length > 0 && (
           <div className="mt-2 flex flex-wrap items-center gap-1.5 border-t border-border pt-2">
             <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
-              {isNb ? "Utenfor scope" : "Out of scope"}
+              {isNb ? "Kommer senere" : "Coming later"}
             </span>
             {outOfScope.map((s) => (
               <Badge key={s.id} variant="outline" className="border-dashed text-xs font-normal text-muted-foreground/80">
@@ -106,8 +106,8 @@ export function SaraLiveDeviationsPanel({ isNb = true }: Props) {
         )}
         <p className="mt-2 text-[12px] text-muted-foreground">
           {isNb
-            ? "Sara ser kun det som er listet her. Systemer utenfor scope kartlegges ikke."
-            : "Sara only sees what is listed here. Systems out of scope are not assessed."}
+            ? "Sara ser kun det som er listet her. Øvrige koblinger kommer senere."
+            : "Sara only sees what is listed here. Other connections are coming later."}
         </p>
       </div>
 
