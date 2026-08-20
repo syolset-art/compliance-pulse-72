@@ -217,7 +217,6 @@ const AssetTrustProfile = () => {
     { value: 'requests', label: isNb ? 'Meldinger' : 'Messages', labelFull: isNb ? 'Meldinger' : 'Messages' },
     
     { value: 'deliveries', label: isNb ? 'Leveranser' : 'Deliveries', labelFull: isNb ? 'Leveranser' : 'Deliveries' },
-    { value: 'vendor-access', label: isNb ? 'Tilgang' : 'Access', labelFull: isNb ? 'Tilgang og roller' : 'Access & Roles' },
   ], [isNb]);
 
   const [visibleTabIds, setVisibleTabIds] = useState<string[]>(() => {
@@ -563,9 +562,19 @@ const AssetTrustProfile = () => {
                 <TabsContent value="vendor-tasks" className="mt-6">
                   <VendorTasksTab asset={asset} />
                 </TabsContent>
-                <TabsContent value="usage" className="mt-6">
+                <TabsContent value="usage" className="mt-6 space-y-6">
                   <VendorUsageTab assetId={asset.id} />
+                  <details className="rounded-xl border border-border bg-card/50 p-4 group">
+                    <summary className="cursor-pointer text-sm font-medium list-none flex items-center justify-between">
+                      <span>{isNb ? 'Tilgang og roller' : 'Access & roles'}</span>
+                      <span className="text-xs text-muted-foreground font-normal">{isNb ? 'Valgfritt' : 'Optional'}</span>
+                    </summary>
+                    <div className="mt-4">
+                      <VendorAccessTab assetId={asset.id} assetName={asset.name} />
+                    </div>
+                  </details>
                 </TabsContent>
+
                 <TabsContent value="history" className="mt-6">
                   <VendorHistoryTab assetId={asset.id} />
                 </TabsContent>
@@ -585,9 +594,6 @@ const AssetTrustProfile = () => {
                 </TabsContent>
                 <TabsContent value="requests" className="mt-6">
                   <VendorMessagesTab assetId={asset.id} assetName={asset.name} />
-                </TabsContent>
-                <TabsContent value="vendor-access" className="mt-6">
-                  <VendorAccessTab assetId={asset.id} assetName={asset.name} />
                 </TabsContent>
               </Tabs>
             )}
