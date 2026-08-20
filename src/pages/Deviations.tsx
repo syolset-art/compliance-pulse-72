@@ -128,6 +128,7 @@ export default function Deviations() {
   const [view, setView] = useState("all");
   const navigate = useNavigate();
   const { isSourceConnected } = useConnectedSources();
+  const { installed: saraInstalled } = useSaraAgent();
   const incidentSources = INTEGRATION_CATALOG.filter((i) => i.discovers.includes("incidents"));
   const connectedIncidentIds = incidentSources
     .filter((i) => isSourceConnected(i.id))
