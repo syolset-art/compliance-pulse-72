@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { SaraIcon } from "@/components/agents/SaraIcon";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
-import { ArrowRight, ChevronDown, ChevronUp, Settings2 } from "lucide-react";
+import { ChevronDown, ChevronUp, Settings2 } from "lucide-react";
 import {
   SARA_MONITORED_SYSTEMS,
   SARA_RECENT_DEVIATIONS,
