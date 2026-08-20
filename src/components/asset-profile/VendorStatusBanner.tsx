@@ -103,6 +103,11 @@ function InitialAvatar({ name, color = "bg-primary/15 text-primary" }: { name: s
 export function VendorStatusBanner({ asset, accessMembers }: VendorStatusBannerProps) {
   const { t } = useTranslation();
   const members = accessMembers || asset.access_members || [];
+  const ownerCandidates = Array.from(
+    new Set([...(members || []), asset.asset_manager, "Synnøve Olset", "Ola Nordmann", "Kari Hansen"].filter(Boolean) as string[])
+  );
+  const [owner, setOwner] = useState<string | null>(asset.asset_manager || members[0] || null);
+
 
   const { data: expiredDocsCount = 0 } = useQuery({
     queryKey: ["vendor-banner-expired-docs", asset.id],
