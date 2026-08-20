@@ -20,8 +20,36 @@ interface Props {
 export function VendorFrameworkCard({ frameworks, onAdd, onRemove }: Props) {
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
+  const [expanded, setExpanded] = useState(false);
 
   const scope = frameworks;
+
+  const getCategory = (id: string) => allFrameworkDefs.find((f) => f.id === id)?.category ?? "other";
+
+  /** Vis maks. tre regelverk — ett fra personvern, ett fra risiko/sikkerhet og ett fra sikkerhet —
+   *  som en subtil forhåndsvisning av at det finnes mer. */
+  const previewFrameworks = useMemo(() => {
+    const groups: Record<string, VendorFramework[]> = {};
+    for (const f of frameworks) {
+      const cat = getCategory(f.id);
+      if (!groups[cat]) groups[cat] = [];
+      groups[cat].push(f);
+    }
+
+    const out: VendorFramework[] = [];
+    const add = (f?: VendorFramework) => {
+      if (f && !out.find((x) => x.id === f.id)) out.push(f);
+    };
+
+    add(groups["privacy"]?.[0]);
+    add(groups["security"]?.find((f) => ["nis2", "dora", "cra"].includes(f.id)));
+    add(groups["security"]?.find((f) => !out.find((x) => x.id === f.id)));
+
+    return out.slice(0, 3);
+  }, [frameworks]);
+
+  const displayedFrameworks = expanded ? scope : previewFrameworks;
+  const remainingCount = Math.max(0, scope.length - previewFrameworks.length);
 
   const renderPill = (f: VendorFramework) => {
     /** Match med Laras initielle KI-vurdering (personvern, risiko og sikkerhet
