@@ -25,8 +25,9 @@ export const ContextPillRow = ({ items, openKey, onToggle }: Props) => {
     <Card>
       <CardContent className="p-2">
         <div className="grid grid-cols-2 gap-1.5">
-          {items.map((item) => {
+          {items.map((item, index) => {
             const isOpen = item.key === openKey;
+            const spanFull = items.length % 2 === 1 && index === items.length - 1;
             return (
               <button
                 key={item.key}
