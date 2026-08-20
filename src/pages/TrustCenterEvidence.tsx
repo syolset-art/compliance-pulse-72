@@ -659,17 +659,31 @@ const TrustCenterEvidence = () => {
         </div>
       )}
 
-      {/* Compliance-dokumentasjon: krav fra aktiverte regelverk */}
-      {!isLoading && asset?.id && activeMainTab === "documents" && (
-        <FrameworkDocumentCoverage
-          coverage={coverage}
-          onUpload={() => setDialogOpen(true)}
-          onOpenDoc={(id) => {
-            const doc = (vendorDocs as any[]).find((d) => d.id === id);
-            if (doc) openPreview(doc);
-          }}
-        />
+      {/* Zone 1 + 2: dekningsbilde og gap mot aktiverte regelverk */}
+      {!isLoading && activeMainTab === "documents" && (
+        <>
+          <EvidenceCoverageHeader
+            intel={intel}
+            frameworks={frameworkRefs}
+            selected={selectedFrameworkIds}
+            onToggleFramework={toggleFramework}
+            onClearFrameworks={() => setSelectedFrameworkIds([])}
+            sourceFilter={sourceFilter}
+            onSourceFilter={setSourceFilter}
+          />
+          <EvidenceGapPanel
+            coverage={coverage}
+            saraInstalled={saraInstalled}
+            onUpload={() => setDialogOpen(true)}
+            onAskSara={() => setSaraOnboardingOpen(true)}
+            onOpenDoc={(id) => {
+              const doc = (vendorDocs as any[]).find((d) => d.id === id);
+              if (doc) openPreview(doc);
+            }}
+          />
+        </>
       )}
+
 
 
       {/* Documents tab content */}
