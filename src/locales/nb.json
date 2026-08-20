@@ -1863,5 +1863,12 @@
     "phase2Badge": "Fase 2",
     "vendorExplainer": "Dette er leverandørens modenhet. Du kan ikke påvirke den utover å be om dokumentasjon. Et reelt bilde vises først når leverandøren overtar sin Trust Profile via Agentisk Trust Profile — da begrenses forespørselen til leverandørstyring og kontroll i verdikjeden.",
     "previewNote": "Foreløpige verdier"
+  },
+  "vendorStatusBanner": {
+    "claimed": {
+      "title": "Få leverandøren til å dele data løpende",
+      "description": "Trust Engine er fase 2. Inviter leverandøren til å registrere seg, så får du samlet inn informasjonen du trenger for god leverandørstyring.",
+      "cta": "Be leverandør registrere seg i Trust Engine"
+    }
   }
 }

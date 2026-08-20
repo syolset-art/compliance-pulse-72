@@ -1,9 +1,10 @@
+import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Bell, Copy, Send, Sparkles, ExternalLink, Building2, UserPlus, MessageSquare, ShieldCheck } from "lucide-react";
+import { Bell, Copy, Send, Sparkles, ExternalLink, Building2, UserPlus, MessageSquare } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { deriveVendorStatus, deriveCriticality, type VendorStatusMeta } from "@/lib/vendorStatus";
@@ -98,6 +99,8 @@ function InitialAvatar({ name, color = "bg-primary/15 text-primary" }: { name: s
 }
 
 export function VendorStatusBanner({ asset }: VendorStatusBannerProps) {
+  const { t } = useTranslation();
+
   const { data: expiredDocsCount = 0 } = useQuery({
     queryKey: ["vendor-banner-expired-docs", asset.id],
     queryFn: async () => {
@@ -266,21 +269,21 @@ export function VendorStatusBanner({ asset }: VendorStatusBannerProps) {
       );
     }
     if (status.key === "claimed") {
-      const claimDate =
-        md.claimed_at_label ||
-        (md.claimed_at || asset.updated_at
-          ? new Date(md.claimed_at || asset.updated_at!).toLocaleDateString("nb-NO", {
-              day: "numeric",
-              month: "long",
-              year: "numeric",
-            })
-          : "nylig");
       return (
-        <div className="rounded-lg bg-success/5 border border-success/20 px-4 py-2 flex items-center gap-2">
-          <ShieldCheck className="h-3.5 w-3.5 text-success shrink-0" />
-          <p className="text-[13px] text-foreground/80">
-            Leverandøren tok eierskap til sin Agentiske Trust Profile {claimDate} — oppdateres av leverandøren selv
-          </p>
+        <div className="rounded-lg bg-muted/40 border border-border px-4 py-3 flex items-center justify-between gap-3 flex-wrap">
+          <div className="space-y-0.5">
+            <p className="text-[13px] font-medium text-foreground flex items-center gap-2">
+              <Sparkles className="h-3.5 w-3.5 text-primary shrink-0" />
+              {t("vendorStatusBanner.claimed.title")}
+            </p>
+            <p className="text-[12px] text-muted-foreground max-w-xl">
+              {t("vendorStatusBanner.claimed.description")}
+            </p>
+          </div>
+          <Button size="sm" className="gap-1.5 h-8" onClick={() => setInviteOpen(true)}>
+            <Send className="h-3.5 w-3.5" />
+            {t("vendorStatusBanner.claimed.cta")}
+          </Button>
         </div>
       );
     }
