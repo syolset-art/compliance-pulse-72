@@ -376,20 +376,56 @@ export function LaraInboxTab({ assetId, assetName }: Props) {
       {/* Behandlet */}
       {processedItems.length > 0 && (
         <section>
-          <h3 className="text-sm font-medium text-foreground mb-3">Behandlet <span className="text-muted-foreground font-normal">{processedItems.length}</span></h3>
-          <div className="space-y-1.5">
-            {processedItems.map((item: any) => (
-              <div key={item.id} className="flex items-center gap-3 px-4 py-2.5 rounded-lg border border-border bg-card">
-                <FileText className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium truncate text-foreground">{item.file_name || item.subject}</p>
-                  <p className="text-xs text-muted-foreground">{DOC_TYPE_LABELS[item.matched_document_type] || ""} · {new Date(item.received_at).toLocaleDateString(locale)}</p>
-                </div>
-                <span className={`text-xs ${item.status === "manually_assigned" ? "text-success" : "text-muted-foreground"}`}>
-                  {item.status === "manually_assigned" ? "Godkjent" : "Avvist"}
-                </span>
-              </div>
-            ))}
+          <h3 className="text-sm font-medium text-foreground mb-3">
+            Behandlet{" "}
+            <span className="text-muted-foreground font-normal">{processedItems.length}</span>
+          </h3>
+          <div className="rounded-lg border border-border bg-card overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow className="hover:bg-transparent">
+                  <TableHead className="h-9 text-xs font-medium text-muted-foreground">Dokument</TableHead>
+                  <TableHead className="h-9 text-xs font-medium text-muted-foreground w-[120px]">Dato</TableHead>
+                  <TableHead className="h-9 text-xs font-medium text-muted-foreground">Fra</TableHead>
+                  <TableHead className="h-9 text-xs font-medium text-muted-foreground text-right w-[120px]">Status</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {processedItems.map((item: any) => {
+                  const docTypeLabel = DOC_TYPE_LABELS[item.matched_document_type] || item.matched_document_type;
+                  const receivedDate = new Date(item.received_at).toLocaleDateString(locale, { day: "numeric", month: "short", year: "numeric" });
+                  const sender = item.sender_name || item.sender_email;
+                  return (
+                    <TableRow key={item.id} className="group">
+                      <TableCell className="py-2.5">
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <FileText className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                          <div className="min-w-0">
+                            <p className="text-sm font-medium truncate text-foreground">{item.file_name || item.subject}</p>
+                            <p className="text-[11px] text-muted-foreground truncate">{docTypeLabel}</p>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="py-2.5 text-xs text-muted-foreground whitespace-nowrap">{receivedDate}</TableCell>
+                      <TableCell className="py-2.5">
+                        <p className="text-xs text-foreground truncate">{sender}</p>
+                        {item.sender_name && item.sender_email && (
+                          <p className="text-[11px] text-muted-foreground truncate">{item.sender_email}</p>
+                        )}
+                      </TableCell>
+                      <TableCell className="py-2.5 text-right">
+                        <Badge
+                          variant={item.status === "manually_assigned" ? "secondary" : "outline"}
+                          className={`text-xs ${item.status === "rejected" ? "text-muted-foreground" : ""}`}
+                        >
+                          {item.status === "manually_assigned" ? "Godkjent" : "Avvist"}
+                        </Badge>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
           </div>
         </section>
       )}
