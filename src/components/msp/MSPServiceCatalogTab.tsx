@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import type { SearchKind } from "@/lib/serviceSearchMatch";
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -236,6 +237,14 @@ export function MSPServiceCatalogTab({ onOpenSecondary, onRegisterActions }: { o
   const [onlyRecommended, setOnlyRecommended] = useState(false);
   const [activeTab, setActiveTab] = useState("regelverk");
   const [openFrameworkId, setOpenFrameworkId] = useState<string | null>(null);
+  const [searchMode, setSearchMode] = useState<SearchKind>("framework");
+
+  useEffect(() => {
+    if (searchMode === "product") {
+      setActiveTab("mine");
+      setShowMynderProducts(true);
+    }
+  }, [searchMode]);
 
 
   // Forrige wizard-svar — brukes for å oppdage scope-endringer.
@@ -664,6 +673,8 @@ export function MSPServiceCatalogTab({ onOpenSecondary, onRegisterActions }: { o
       {/* Global søk — over arkfanene, alltid tilgjengelig */}
       <ServiceCoverageSearch
         existingNames={extras.filter((e) => !e.isMynder && e.status !== "retired").map((e) => e.name)}
+        mode={searchMode}
+        onModeChange={setSearchMode}
         onCreate={({ name, suggestedDescription, mappings }) => {
           setSearchDraft({
             name,
@@ -683,6 +694,7 @@ export function MSPServiceCatalogTab({ onOpenSecondary, onRegisterActions }: { o
         }}
         onAddProductToOffer={(productId) => {
           setActiveTab("mine");
+          setSearchMode("product");
           setShowMynderProducts(true);
           setExpandedProduct(productId);
         }}
@@ -1243,8 +1255,8 @@ export function MSPServiceCatalogTab({ onOpenSecondary, onRegisterActions }: { o
         </section>
       )}
 
-      {/* Mynder-produkter — videresalg med provisjon (kollapsbar) */}
-      {(() => {
+      {/* Mynder-produkter — videresalg med provisjon (vises kun når Mynder-produkt-modus er valgt) */}
+      {searchMode === "product" && (() => {
         const products = MYNDER_PRODUCTS;
         const sym = currencyOption.symbol;
         const trailing = sym === "kr";
