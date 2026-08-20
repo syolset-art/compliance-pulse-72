@@ -38,6 +38,8 @@ import { DocumentAccessDialog } from "@/components/trust-center/DocumentAccessDi
 import { Network, Users } from "lucide-react";
 import { SaraEvidencePromo } from "@/components/agents/SaraEvidencePromo";
 import { useSaraAgent } from "@/lib/saraAgent";
+import { DocumentActionButtons } from "@/components/agents/DocumentActionButtons";
+
 import { SaraIcon } from "@/components/agents/SaraIcon";
 
 // localStorage helpers for collapsible UI state
