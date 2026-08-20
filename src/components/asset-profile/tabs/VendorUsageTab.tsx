@@ -621,24 +621,16 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
             </Button>
           </div>
 
-          {riskSetBy ? (
-            <div className="flex items-start gap-1.5 rounded-md bg-warning/15 px-2 py-1.5 text-[13px] text-warning-foreground/90 leading-tight">
-              <UserRound className="h-3.5 w-3.5 mt-0.5 shrink-0" />
-              <span>
-                {isNb ? "Satt manuelt av " : "Set manually by "}{riskSetBy}{riskSetAt ? `, ${riskSetAt}` : ""}
-              </span>
-            </div>
-          ) : (
-            <div className="flex items-start gap-1.5 text-[13px] text-muted-foreground leading-tight">
-              <Sparkles className="h-3.5 w-3.5 text-primary mt-0.5 shrink-0" />
-              <span>
-                {isNb ? "Foreslått av Lara: " : "Suggested by Lara: "}
-                <span className="font-medium text-foreground">{getLabel(riskOptions, riskSuggestion.level)}</span>
-                {" — "}
-                {(isNb ? riskSuggestion.reasons : riskSuggestion.reasonsEn).join(" · ")}
-              </span>
-            </div>
-          )}
+          <LaraFieldSuggestion
+            isNb={isNb}
+            suggestedLabel={getLabel(riskOptions, riskSuggestion.level)}
+            reason={riskReason}
+            approvedBy={riskSetBy}
+            approvedAt={riskSetAt}
+            matchesCurrent={(asset?.risk_level || "medium") === riskSuggestion.level}
+            onApprove={() => handleAcceptRiskSuggestion()}
+          />
+
 
           {riskSetBy && (
             <div className="space-y-1">
