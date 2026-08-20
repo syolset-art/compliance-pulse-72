@@ -14,7 +14,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { SENSITIVE_DATA_CATEGORIES, sensitiveCategoryLabel, gdprRoleHandlesPersonalData } from "@/lib/sensitiveData";
+import { SENSITIVE_DATA_CATEGORIES, sensitiveCategoryLabel, gdprRoleHandlesPersonalData, SENSITIVE_DATA_STATUS_OPTIONS, normalizeSensitiveDataStatus } from "@/lib/sensitiveData";
 import { suggestVendorRisk } from "@/lib/vendorRiskSuggestion";
 import { suggestVendorContext, usageTagLabel } from "@/lib/vendorContextSuggestion";
 import { buildGdprRolePlan } from "@/lib/vendorGdprRolePlan";
