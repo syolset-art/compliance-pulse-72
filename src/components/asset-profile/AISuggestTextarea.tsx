@@ -8,6 +8,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { LaraIcon } from "@/components/agents/LaraIcon";
 
 function parseSuggestionItems(raw: string): string[] {
   return raw
