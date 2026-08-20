@@ -24,7 +24,12 @@ interface DocumentActionButtonsProps {
  * «Last opp dokumentasjon» (alltid aktiv) + «Installer Sara» (deaktivert når agenten
  * allerede er installert) + «Se aktivitet» når Sara har nye funn.
  */
-export function DocumentActionButtons({ onUpload, uploadLabel, className }: DocumentActionButtonsProps) {
+export function DocumentActionButtons({
+  onUpload,
+  uploadLabel,
+  className,
+  showUpload = true,
+}: DocumentActionButtonsProps) {
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb" || i18n.language === "no";
   const { installed, newFindings } = useSaraAgent();
@@ -36,21 +41,24 @@ export function DocumentActionButtons({ onUpload, uploadLabel, className }: Docu
   return (
     <TooltipProvider delayDuration={150}>
       <div className={cn("flex items-center gap-2", className)}>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button size="sm" className="h-8 shrink-0 gap-1.5 text-xs" onClick={onUpload}>
-              <Upload className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">{isNb ? upload.nb : upload.en}</span>
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent side="bottom" className="max-w-xs">
-            <p>
-              {isNb
-                ? "Last opp dokumentasjon. Lara analyserer dokumentet og foreslår hvilke krav det dekker. Bekreft forslaget, så oppdateres kravene og scoren automatisk."
-                : "Upload documentation. Lara analyzes the document and suggests which requirements it covers. Confirm the suggestion, and the requirements and score are updated automatically."}
-            </p>
-          </TooltipContent>
-        </Tooltip>
+        {showUpload && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button size="sm" className="h-8 shrink-0 gap-1.5 text-xs" onClick={onUpload}>
+                <Upload className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">{isNb ? upload.nb : upload.en}</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom" className="max-w-xs">
+              <p>
+                {isNb
+                  ? "Last opp dokumentasjon. Lara analyserer dokumentet og foreslår hvilke krav det dekker. Bekreft forslaget, så oppdateres kravene og scoren automatisk."
+                  : "Upload documentation. Lara analyzes the document and suggests which requirements it covers. Confirm the suggestion, and the requirements and score are updated automatically."}
+              </p>
+            </TooltipContent>
+          </Tooltip>
+        )}
+
 
         <Tooltip>
           <TooltipTrigger asChild>
