@@ -847,8 +847,6 @@ export default function Deviations() {
           open={isAddDialogOpen}
           onOpenChange={setIsAddDialogOpen}
         />
-        </>
-        )}
         </div>
         </ModuleActivationGate>
       </main>
