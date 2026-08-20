@@ -446,6 +446,12 @@ export default function Deviations() {
                         Aktiv
                       </Badge>
                     )}
+                    {saraInstalled && (
+                      <Badge variant="outline" className="gap-1 text-[13px] font-normal">
+                        <SaraIcon className="h-3.5 w-3.5" />
+                        Lokal agent
+                      </Badge>
+                    )}
                   </div>
                   <p className="text-sm text-muted-foreground">
                     Motta sikkerhetshendelser i sanntid fra tilkoblede kilder — overvåking, sakssystem eller intern meldekanal
