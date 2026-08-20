@@ -172,6 +172,8 @@ export default function VendorDashboard() {
 
               <TabsList className="h-10 p-0.5" aria-label={t("vendorDashboard.tabs.overview", "Oversikt") + " – navigasjon"}>
                 <TabsTrigger value="overview" className="text-sm px-3">{t("vendorDashboard.tabs.overview", "Oversikt")}</TabsTrigger>
+                <TabsTrigger value="frameworks" className="text-sm px-3">{t("vendorDashboard.tabs.frameworks", "Regelverk")}</TabsTrigger>
+
                 <TabsTrigger value="all" className="text-sm px-3 gap-1.5">
                   {t("vendorDashboard.tabs.all")}
                   <span className="inline-flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full bg-muted text-foreground text-xs font-semibold">
