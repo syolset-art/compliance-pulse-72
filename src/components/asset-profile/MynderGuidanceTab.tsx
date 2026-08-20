@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useToast } from "@/hooks/use-toast";
 import { LaraRecommendationBanner } from "@/components/lara/LaraRecommendationBanner";
@@ -8,9 +8,7 @@ import { RegisterActivityDialog } from "@/components/asset-profile/RegisterActiv
 import { RequestUpdateDialog } from "@/components/asset-profile/RequestUpdateDialog";
 import { DocumentRequestsSection } from "@/components/asset-profile/tabs/DocumentRequestsSection";
 import { VendorFrameworkCard } from "@/components/asset-profile/guidance/VendorFrameworkCard";
-import { VendorNextStepsCard } from "@/components/asset-profile/guidance/VendorNextStepsCard";
 import { VendorControlChecklistCard } from "@/components/asset-profile/guidance/VendorControlChecklistCard";
-import { buildVendorNextSteps, splitByAutonomy, type NextStep } from "@/lib/vendorNextSteps";
 import { InviteAgenticTrustCenterDialog } from "@/components/asset-profile/guidance/InviteAgenticTrustCenterDialog";
 import { CreateVendorActivityDialog } from "@/components/asset-profile/guidance/CreateVendorActivityDialog";
 import { RequestBaselineDialog } from "@/components/asset-profile/guidance/RequestBaselineDialog";
@@ -239,89 +237,6 @@ export function MynderGuidanceTab({
     });
   };
 
-  // ── Neste steg: hull i leverandørdata + regelverkstiltak ──
-
-  const nextSteps: NextStep[] = useMemo(
-    () =>
-      buildVendorNextSteps({
-        usagePurpose,
-        usageTags,
-        gdprRole,
-        riskLevel,
-        criticality,
-        riskSetBy,
-        baselineRequested: !!sourcing.method || trustCenter.status !== "none",
-        hasContextSuggestion: !!(vendorType || industry),
-        frameworkActions: actions,
-      }),
-    [
-      usagePurpose,
-      usageTags,
-      gdprRole,
-      riskLevel,
-      criticality,
-      riskSetBy,
-      sourcing.method,
-      trustCenter.status,
-      vendorType,
-      industry,
-      actions,
-    ],
-  );
-
-  const runNextStep = (step: NextStep) => {
-    switch (step.actionKey) {
-      case "usage_purpose":
-      case "gdpr_role":
-      case "risk_level":
-      case "criticality":
-        onOpenUsageTab?.();
-        toast({
-          title: isNb ? "Lara har forberedt forslag" : "Lara prepared a suggestion",
-          description: isNb
-            ? "Åpnet «Bruk og kontekst» — godkjenn eller juster Laras forslag."
-            : "Opened “Usage & context” — approve or adjust Lara's suggestion.",
-        });
-        break;
-      case "baseline":
-        setRequestBaselineOpen(true);
-        break;
-      case "framework_action":
-        if (step.action) {
-          if (step.action.documentType) openDocRequest(step.action);
-          else createActivityFromAction(step.action);
-        }
-        break;
-    }
-  };
-
-  // Autonominivå «automatisk» kjøres av Lara uten å spørre — brukeren varsles én gang per leverandør.
-  const autoRunRef = useRef<string | null>(null);
-  useEffect(() => {
-    const autoHandled = splitByAutonomy(nextSteps).autoHandled;
-    if (!assetId || autoHandled.length === 0) return;
-    if (autoRunRef.current === assetId) return;
-    autoRunRef.current = assetId;
-    toast({
-      title: isNb ? "Lara har håndtert punktene automatisk" : "Lara handled the items automatically",
-      description: isNb
-        ? `${autoHandled.length} punkter er utført og logget. Bare det som krever din godkjenning vises.`
-        : `${autoHandled.length} items were completed and logged. Only items needing your approval are shown.`,
-    });
-  }, [assetId, nextSteps, isNb]);
-
-  const runAllLaraSteps = () => {
-    const laraSteps = nextSteps.filter((s) => s.owner === "lara");
-    if (laraSteps.length === 0) return;
-    const first = laraSteps[0];
-    toast({
-      title: isNb ? "Lara jobber med tiltakene" : "Lara is working on the actions",
-      description: isNb
-        ? `Lara forbereder utkast for ${laraSteps.length} tiltak. Du godkjenner hvert forslag.`
-        : `Lara drafts ${laraSteps.length} actions. You approve each suggestion.`,
-    });
-    runNextStep(first);
-  };
 
 
 
@@ -448,17 +363,6 @@ export function MynderGuidanceTab({
 
 
 
-        <div className="space-y-2 h-full">
-          <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground px-0.5">
-            {isNb ? "Hva må gjøres videre" : "What to do next"}
-          </p>
-          <VendorNextStepsCard
-            steps={nextSteps}
-            onRunStep={runNextStep}
-            onRunAllLara={runAllLaraSteps}
-            
-          />
-        </div>
       </div>
 
 
