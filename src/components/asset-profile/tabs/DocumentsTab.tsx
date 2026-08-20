@@ -14,9 +14,13 @@ import {
   computeDocCoverage,
   docSourceLabel,
   resolveDocSource,
+  resolveDocOrigin,
+  docOriginLabel,
   DOC_SOURCE_ORDER,
   type DocSourceKey,
+  type DocOrigin,
 } from "@/lib/vendorDocumentSource";
+
 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { DocumentSharingPopover } from "../DocumentSharingPopover";
@@ -73,7 +77,7 @@ export function DocumentsTab({ assetId, assetName, vendorName, hideUploadButton,
   const [showUploadDialog, setShowUploadDialog] = useState(false);
   const [detailDoc, setDetailDoc] = useState<any>(null);
   const [showHistory, setShowHistory] = useState(false);
-  const [sourceFilter, setSourceFilter] = useState<DocSourceKey | "all">("all");
+  const [originFilter, setOriginFilter] = useState<DocOrigin | "all">("all");
 
   const { data: requests = [] } = useQuery({
     queryKey: ["vendor-document-requests", assetId],
@@ -170,16 +174,21 @@ export function DocumentsTab({ assetId, assetName, vendorName, hideUploadButton,
 
   const coverage = computeDocCoverage(documents as any[]);
   const filteredDocs =
-    sourceFilter === "all"
+    originFilter === "all"
       ? visibleDocs
-      : (visibleDocs as any[]).filter((d: any) => resolveDocSource(d.source) === sourceFilter);
+      : (visibleDocs as any[]).filter((d: any) => resolveDocOrigin(d.source) === originFilter);
+  const originCounts = {
+    internal: (visibleDocs as any[]).filter((d: any) => resolveDocOrigin(d.source) === "internal").length,
+    external: (visibleDocs as any[]).filter((d: any) => resolveDocOrigin(d.source) === "external").length,
+  };
   const expiredCount = (documents as any[]).filter((d: any) => {
     const expiry = getExpiryDate(d);
     return expiry && new Date(expiry) < new Date() && d.status !== "superseded";
   }).length;
   const historyCount = (documents as any[]).filter(isHistorical).length;
   const pendingRequests = (requests as any[]).filter((r: any) => r.status !== "received");
-  const showRequestRows = sourceFilter === "all" || sourceFilter === "vendor";
+  const showRequestRows = originFilter === "all" || originFilter === "external";
+
 
 
   const renderDocTable = (docs: any[], emptyMsg: string, reqs: any[] = []) => {
@@ -201,6 +210,8 @@ export function DocumentsTab({ assetId, assetName, vendorName, hideUploadButton,
               <TableRow className="hover:bg-transparent border-b border-border">
                 <TableHead className="text-[12px] font-medium text-muted-foreground tracking-wide h-9">{isNb ? "Dokument" : "Document"}</TableHead>
                 <TableHead className="text-[12px] font-medium text-muted-foreground tracking-wide h-9">{isNb ? "Type" : "Type"}</TableHead>
+                <TableHead className="text-[12px] font-medium text-muted-foreground tracking-wide h-9">{isNb ? "Opprinnelse" : "Origin"}</TableHead>
+
                 <TableHead className="text-[12px] font-medium text-muted-foreground tracking-wide h-9 hidden sm:table-cell">{isNb ? "Gyldig til" : "Valid to"}</TableHead>
                 <TableHead className="text-[12px] font-medium text-muted-foreground tracking-wide h-9">{isNb ? "Status" : "Status"}</TableHead>
                 <TableHead className="text-[12px] font-medium text-muted-foreground tracking-wide h-9">{isNb ? "Tilgang" : "Access"}</TableHead>
@@ -241,6 +252,12 @@ export function DocumentsTab({ assetId, assetName, vendorName, hideUploadButton,
                     <TableCell className="py-3">
                       <span className="text-xs text-muted-foreground">{getTypeLabel(doc.document_type)}</span>
                     </TableCell>
+                    <TableCell className="py-3">
+                      <Badge variant="secondary" className="text-[11px] font-normal">
+                        {docOriginLabel(resolveDocOrigin(doc.source), isNb)}
+                      </Badge>
+                    </TableCell>
+
                     <TableCell className="py-3 text-xs text-muted-foreground hidden sm:table-cell">
                       {expiry ? new Date(expiry).toLocaleDateString(locale) : "—"}
                     </TableCell>
@@ -331,6 +348,12 @@ export function DocumentsTab({ assetId, assetName, vendorName, hideUploadButton,
                     <TableCell className="py-3">
                       <span className="text-xs text-muted-foreground">{getTypeLabel(req.document_type)}</span>
                     </TableCell>
+                    <TableCell className="py-3">
+                      <Badge variant="secondary" className="text-[11px] font-normal">
+                        {docOriginLabel("external", isNb)}
+                      </Badge>
+                    </TableCell>
+
                     <TableCell className="hidden py-3 text-xs text-muted-foreground sm:table-cell">
                       {req.due_date ? new Date(req.due_date).toLocaleDateString(locale) : "—"}
                     </TableCell>
@@ -447,30 +470,33 @@ export function DocumentsTab({ assetId, assetName, vendorName, hideUploadButton,
             )}
           </div>
 
-          {/* Kildefilter */}
+          {/* Intern / ekstern */}
           <div className="flex flex-wrap items-end justify-between gap-3 border-b border-border">
             <div className="flex flex-wrap items-center gap-5">
-              {(["all", ...DOC_SOURCE_ORDER] as const).map((key) => {
-                const count = key === "all" ? visibleDocs.length : coverage.bySource[key as DocSourceKey];
-                const active = sourceFilter === key;
+              {(["all", "internal", "external"] as const).map((key) => {
+                const count =
+                  key === "all" ? visibleDocs.length : originCounts[key as DocOrigin];
+                const active = originFilter === key;
                 return (
                   <button
                     key={key}
                     type="button"
-                    onClick={() => setSourceFilter(key as DocSourceKey | "all")}
+                    onClick={() => setOriginFilter(key as DocOrigin | "all")}
                     className={`-mb-px flex items-center gap-1.5 pb-2.5 text-xs transition-colors ${
                       active
                         ? "border-b-2 border-foreground font-medium text-foreground"
                         : "text-muted-foreground hover:text-foreground"
                     }`}
                   >
-                    {key !== "all" && <DocumentSourceIcon source={key as DocSourceKey} isNb={isNb} />}
-                    {key === "all" ? (isNb ? "Alle" : "All") : docSourceLabel(key as DocSourceKey, isNb)}
+                    {key === "all"
+                      ? isNb ? "Alle" : "All"
+                      : docOriginLabel(key as DocOrigin, isNb) + (isNb ? "e" : "")}
                     <span className="text-muted-foreground/70">{count}</span>
                   </button>
                 );
               })}
             </div>
+
             <div className="flex items-center gap-3 pb-2">
               {historyCount > 0 && (
                 <div className="flex items-center gap-1.5">
