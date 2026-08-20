@@ -296,17 +296,18 @@ export function AISuggestTextarea({
           </div>
         )}
 
-        {isDirty && (
+        {(isDirty || editing) && (
           <div className="flex items-center justify-end gap-2">
-            <Button type="button" size="sm" variant="ghost" onClick={() => setDraft(value)} disabled={saving}>
+            <Button type="button" size="sm" variant="ghost" onClick={() => { setDraft(value); setEditing(false); }} disabled={saving}>
               {isNb ? "Avbryt" : "Cancel"}
             </Button>
-            <Button type="button" size="sm" onClick={handleSave} disabled={saving} className="gap-1.5">
+            <Button type="button" size="sm" onClick={async () => { await handleSave(); setEditing(false); }} disabled={saving || !isDirty} className="gap-1.5">
               {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
               {isNb ? "Lagre" : "Save"}
             </Button>
           </div>
         )}
+
       </CardContent>
     </Card>
   );
