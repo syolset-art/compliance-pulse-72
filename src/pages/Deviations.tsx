@@ -444,8 +444,25 @@ export default function Deviations() {
                     )}
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    Motta sikkerhetshendelser i sanntid fra tilkoblede leverandører og overvåkingstjenester
+                    Motta sikkerhetshendelser i sanntid fra tilkoblede kilder — overvåking, sakssystem eller intern meldekanal
                   </p>
+
+                  {liveEnabled && !hasIncidentSource && (
+                    <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                      <span>Ingen avvikskilde er tilkoblet ennå.</span>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-7 px-2 text-xs"
+                        onClick={() => navigate("/settings/integrations?discover=incidents")}
+                      >
+                        Koble til en kilde
+                        <ArrowRight className="h-3 w-3 ml-1" />
+                      </Button>
+                    </div>
+                  )}
+
+
 
                   {/* Expand/collapse details */}
                   <button
