@@ -943,7 +943,7 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
         onUndo={preAcceptSnapshot ? handleUndoAccept : null}
       />
 
-      <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-2">
+      <div className="grid grid-cols-1 items-stretch gap-4 lg:grid-cols-2">
         <ContextPillRow
           items={assessmentPills}
           openKey={openPill}
