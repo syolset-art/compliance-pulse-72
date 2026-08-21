@@ -92,11 +92,10 @@ export function MSPFrameworkTaskPackageSheet({
 }: Props) {
   const [state, setState] = useState<FrameworkPackageState>(EMPTY_PACKAGE_STATE);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [draft, setDraft] = useState<{ name: string; kind: DeliverableKind; min: string; max: string }>({
+  const [draft, setDraft] = useState<{ name: string; kind: DeliverableKind; hours: string }>({
     name: "",
     kind: "advisory",
-    min: "",
-    max: "",
+    hours: "",
   });
   const [adding, setAdding] = useState(false);
 
@@ -165,13 +164,12 @@ export function MSPFrameworkTaskPackageSheet({
   const startEdit = (t: ResolvedTask) => {
     setAdding(false);
     setEditingId(t.id);
-    setDraft({ name: t.name, kind: t.kind, min: String(t.hours.min), max: String(t.hours.max) });
+    setDraft({ name: t.name, kind: t.kind, hours: String(t.hours.min) });
   };
 
   const saveEdit = () => {
     if (!editingId) return;
-    const min = Number(draft.min) || 0;
-    const max = Math.max(min, Number(draft.max) || min);
+    const hours = Math.max(0, Number(draft.hours) || 0);
     persist({
       ...state,
       overrides: {
@@ -180,8 +178,8 @@ export function MSPFrameworkTaskPackageSheet({
           ...state.overrides[editingId],
           name: draft.name.trim() || undefined,
           kind: draft.kind,
-          hoursMin: min,
-          hoursMax: max,
+          hoursMin: hours,
+          hoursMax: hours,
         },
       },
     });
@@ -191,8 +189,7 @@ export function MSPFrameworkTaskPackageSheet({
   const addCustom = () => {
     const name = draft.name.trim();
     if (!name) return;
-    const min = Number(draft.min) || 1;
-    const max = Math.max(min, Number(draft.max) || min);
+    const hours = Math.max(0, Number(draft.hours) || 1);
     const id = `custom-${slugifyTaskName(name)}-${Date.now()}`;
     persist({
       ...state,
@@ -202,7 +199,7 @@ export function MSPFrameworkTaskPackageSheet({
           id,
           name,
           kind: draft.kind,
-          hours: { min, max },
+          hours: { min: hours, max: hours },
           note: "Egendefinert oppgave.",
           laraDraft: draft.kind === "advisory",
           category: "Egendefinerte oppgaver",
@@ -212,7 +209,7 @@ export function MSPFrameworkTaskPackageSheet({
       ],
     });
     setAdding(false);
-    setDraft({ name: "", kind: "advisory", min: "", max: "" });
+    setDraft({ name: "", kind: "advisory", hours: "" });
   };
 
   const buildPackage = (): SavedFrameworkPackage => ({
