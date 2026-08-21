@@ -18,7 +18,9 @@ import {
   Users,
   Database,
   Workflow,
+  Sparkles,
 } from "lucide-react";
+import { dataClassLabel } from "@/lib/processingActivity";
 import { ProcessAITab } from "./ProcessAITab";
 import { ProcessSystemsTab } from "./tabs/ProcessSystemsTab";
 import { ProcessDataTypesTab } from "./tabs/ProcessDataTypesTab";
@@ -180,6 +182,48 @@ export const ProcessCard = ({ processId, workAreaId, onEdit }: ProcessCardProps)
           )}
         </CardContent>
       </Card>
+
+      {/* Utkast-banner: AI-foreslåtte felt venter menneskelig bekreftelse */}
+      {(process.status === "draft" ||
+        (!!(process as { ai_suggested_fields?: Record<string, unknown> | null }).ai_suggested_fields &&
+          Object.keys((process as { ai_suggested_fields?: Record<string, unknown> }).ai_suggested_fields || {}).length > 0)) && (
+        <Card className="border-primary/20 bg-primary/5">
+          <CardContent className="p-3 sm:p-4 flex items-start gap-2.5">
+            <Sparkles className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+            <div className="text-sm">
+              <p className="font-medium">Utkast foreslått av Lara – venter bekreftelse</p>
+              <p className="text-muted-foreground text-xs mt-0.5">
+                {(() => {
+                  const fields = Object.keys(
+                    ((process as { ai_suggested_fields?: Record<string, unknown> }).ai_suggested_fields) || {},
+                  );
+                  return fields.length > 0
+                    ? `${fields.length} felt er AI-foreslått og må godkjennes av et menneske før de lagres endelig.`
+                    : "Denne behandlingsaktiviteten er lagret som utkast og er ikke bekreftet ennå.";
+                })()}
+              </p>
+              {(process as { purpose?: string | null }).purpose && (
+                <p className="text-xs mt-1.5">
+                  <span className="text-muted-foreground">Formål: </span>
+                  {(process as { purpose?: string | null }).purpose}
+                </p>
+              )}
+              {(process as { data_class?: string | null }).data_class && (
+                <p className="text-xs">
+                  <span className="text-muted-foreground">Datatype: </span>
+                  {dataClassLabel((process as { data_class?: string | null }).data_class, true)}
+                </p>
+              )}
+              {(process as { controller_name?: string | null }).controller_name && (
+                <p className="text-xs">
+                  <span className="text-muted-foreground">Behandlingsansvarlig: </span>
+                  {(process as { controller_name?: string | null }).controller_name}
+                </p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Metrics Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
