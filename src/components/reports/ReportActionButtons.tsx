@@ -19,7 +19,7 @@ export const ReportActionButtons = ({ reportName, reportId, reportData }: Report
       <div className="flex items-center gap-2">
         <Button variant="outline" size="sm" className="gap-2" onClick={() => setShareOpen(true)}>
           <Share2 className="h-4 w-4" />
-          Del
+          Del rapport
         </Button>
         <Button variant="outline" size="sm" className="gap-2" onClick={() => setDownloadOpen(true)}>
           <Download className="h-4 w-4" />
