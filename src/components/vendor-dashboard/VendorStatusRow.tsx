@@ -257,7 +257,7 @@ export function VendorStatusRow({
       const created = formatShortDate(vendor.created_at);
       const sent = formatShortDate(md.invited_at) || formatShortDate(vendor.updated_at);
       return (
-        <div className="mt-3 pt-3 border-t border-border/60 flex items-center gap-3 text-[12px] text-muted-foreground">
+        <div className="mt-3 pt-3 border-t border-border/60 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-muted-foreground">
           {created && (<><span className="inline-flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full bg-success" /> Opprettet {created}</span><span>→</span></>)}
           <span className="inline-flex items-center gap-1.5 text-primary font-medium"><span className="h-1.5 w-1.5 rounded-full bg-primary" /> Invitasjon sendt {sent || "—"}</span>
           <span>→</span>
