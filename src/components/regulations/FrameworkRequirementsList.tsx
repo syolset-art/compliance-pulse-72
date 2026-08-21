@@ -1033,10 +1033,10 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                               {agentFinding.agentName}
                             </Badge>
                           </TooltipTrigger>
-                          <TooltipContent side="top" className="text-xs max-w-[260px]">
+                          <TooltipContent side="top" className="text-xs max-w-[280px]">
                             {isNb
-                              ? `Dokumentasjon levert fra kundens infrastruktur via ${agentFinding.channel === "sara" ? "Sara (lokal agent)" : "MCP"} — ${agentFinding.source}`
-                              : `Documentation delivered from the customer's infrastructure via ${agentFinding.channel === "sara" ? "Sara (local agent)" : "MCP"} — ${agentFinding.source}`}
+                              ? `Dokumentasjon levert av en AI-agent fra kundens egen infrastruktur via ${agentFinding.channel === "sara" ? "Sara (lokal agent)" : "MCP"}. Kun dokument-ID og hash er delt — selve dokumentet forlot aldri kundens miljø.`
+                              : `Documentation delivered by an AI agent from the customer's own infrastructure via ${agentFinding.channel === "sara" ? "Sara (local agent)" : "MCP"}. Only the document ID and hash are shared — the document itself never left the customer's environment.`}
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
