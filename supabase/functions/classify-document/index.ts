@@ -109,6 +109,14 @@ Dagens dato er ${new Date().toISOString().split('T')[0]}.`
                       required: ["regulation", "relevance", "reason"]
                     }
                   },
+                  hasFindings: {
+                    type: "boolean",
+                    description: "True hvis dokumentet er en rapport/revisjon/pentest som identifiserer svakheter, sårbarheter eller avvik som må utbedres"
+                  },
+                  findingsSummary: {
+                    type: "string",
+                    description: "Kort oppsummering av svakhetene/funnene på norsk (1-2 setninger). Null hvis hasFindings er false."
+                  },
                   extractedVendors: {
                     type: "array",
                     description: "Liste over leverandørnavn funnet i dokumentet (kun for vendor_list)",
