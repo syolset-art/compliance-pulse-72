@@ -1103,8 +1103,31 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                     <Separator className="mb-4" />
                     <div className="space-y-3">
 
-
-
+                    {/* Dokumentasjon levert av agent (Sara / MCP) med godkjenningsflyt */}
+                    {agentFinding && agentFindingStatus && (
+                      <AgentFindingCard
+                        finding={agentFinding}
+                        status={agentFindingStatus}
+                        decidedAt={findingDecisions[agentFinding.requirementId]?.at}
+                        isNb={isNb}
+                        onApprove={() => {
+                          approveFinding(agentFinding.requirementId);
+                          toast.success(
+                            isNb
+                              ? "Funnet er godkjent og teller nå som dokumentasjon."
+                              : "Finding approved — it now counts as documentation.",
+                          );
+                        }}
+                        onReject={() => {
+                          rejectFinding(agentFinding.requirementId);
+                          toast(
+                            isNb
+                              ? "Funnet er avvist. Kravet må dokumenteres på nytt."
+                              : "Finding rejected — the requirement must be documented again.",
+                          );
+                        }}
+                      />
+                    )}
 
                     {/* Veiledning til dokumentasjon — skjult som standard */}
                     {(() => {
