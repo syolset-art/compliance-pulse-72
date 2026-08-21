@@ -86,7 +86,7 @@ export default function MSPServiceCatalog() {
 
           <PartnerProductList />
 
-          <section className="space-y-3">
+          <section id="regelverk-pakker" className="space-y-3 scroll-mt-20">
             <div>
               <h2 className="text-lg font-semibold text-foreground">
                 Regelverk og rådgivningspakker

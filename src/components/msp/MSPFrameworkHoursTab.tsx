@@ -101,41 +101,21 @@ export function MSPFrameworkHoursTab({
       .sort((a, b) => b.requirements - a.requirements);
   }, [rows, defaultHourlyRate, packages]);
 
-  const activeItems = items.filter((i) => i.saved?.is_active);
-  const totalAdvisory = activeItems.reduce((sum, i) => sum + i.advisoryPrice, 0);
-  const totalLicense = activeItems.length * EXTRA_FRAMEWORK_PRICE_KR;
 
   const activeItem = active ? items.find((i) => i.fw.id === active.id) : undefined;
 
   return (
     <div className="space-y-4">
       <Card className="p-4 bg-muted/30 border-dashed">
-        <div className="flex items-start justify-between gap-4 flex-wrap">
-          <div className="flex items-start gap-2.5">
-            <Scale className="h-4 w-4 text-primary mt-0.5" />
-            <div>
-              <p className="text-sm font-medium text-foreground">Slik fungerer det</p>
-              <p className="text-xs text-muted-foreground mt-0.5 max-w-xl">
-                Åpne et regelverk for å aktivere det og sette opp rådgivningspakken: alle krav med
-                AI-foreslåtte timer fra Lara. Fjern krav du ikke vil jobbe med, juster timer og
-                lagre pakken. Pakken dukker opp som ferdig forslag når du lager tilbud til kunder.
-                Timepris hentes fra innstillingene ({fmt(defaultHourlyRate)} {currency}/time).
-              </p>
-            </div>
-          </div>
-          <div className="text-right shrink-0">
-            <p className="text-[11px] text-muted-foreground">Potensial fra aktiverte regelverk</p>
-            <p className="text-xl font-semibold text-foreground tabular-nums">
-              {fmt(totalLicense)} {currency}/mnd
-              {totalAdvisory > 0 && (
-                <span className="text-sm font-medium text-muted-foreground">
-                  {" "}
-                  + {fmt(totalAdvisory)} {currency} i timer
-                </span>
-              )}
-            </p>
-            <p className="text-[11px] text-muted-foreground">
-              {activeItems.length} aktivert · {items.length} tilgjengelig
+        <div className="flex items-start gap-2.5">
+          <Scale className="h-4 w-4 text-primary mt-0.5" />
+          <div>
+            <p className="text-sm font-medium text-foreground">Slik fungerer det</p>
+            <p className="text-xs text-muted-foreground mt-0.5 max-w-xl">
+              Åpne et regelverk for å aktivere det og sette opp rådgivningspakken: alle krav med
+              AI-foreslåtte timer fra Lara. Fjern krav du ikke vil jobbe med, juster timer og
+              lagre pakken. Pakken dukker opp som ferdig forslag når du lager tilbud til kunder.
+              Timepris hentes fra innstillingene ({fmt(defaultHourlyRate)} {currency}/time).
             </p>
           </div>
         </div>
