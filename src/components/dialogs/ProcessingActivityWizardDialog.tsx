@@ -66,6 +66,20 @@ interface ProcessingActivityWizardDialogProps {
   systemName?: string;
   workAreaId?: string;
   workAreaName?: string;
+  /** Redigeringsmodus: eksisterende aktivitet (f.eks. utkast) som skal gjennomgås/bekreftes */
+  existingProcess?: {
+    id: string;
+    system_id?: string | null;
+    system_name?: string | null;
+    name: string | null;
+    description: string | null;
+    purpose: string | null;
+    data_class: string | null;
+    special_categories: string[] | null;
+    legal_basis: string | null;
+    controller_name: string | null;
+    ai_suggested_fields?: Record<string, unknown> | null;
+  };
   onSaved?: () => void;
 }
 
@@ -79,6 +93,7 @@ export function ProcessingActivityWizardDialog({
   systemName: initialSystemName,
   workAreaId,
   workAreaName,
+  existingProcess,
   onSaved,
 }: ProcessingActivityWizardDialogProps) {
   const { i18n } = useTranslation();
@@ -126,16 +141,43 @@ export function ProcessingActivityWizardDialog({
       if (error) throw error;
       return data || [];
     },
-    enabled: open && !initialSystemId,
+    enabled: open && !initialSystemId && !existingProcess,
   });
 
   const selectedSystemName = useMemo(() => {
     if (initialSystemName) return initialSystemName;
+    if (existingProcess?.system_name) return existingProcess.system_name;
     return systems.find((s) => s.id === selectedSystemId)?.name || "";
-  }, [initialSystemName, systems, selectedSystemId]);
+  }, [initialSystemName, existingProcess, systems, selectedSystemId]);
 
   const reset = () => {
     setStep(0);
+    setControllerName(null);
+    // Redigeringsmodus: forhåndsutfyll fra eksisterende aktivitet og bygg et
+    // syntetisk forslagsobjekt slik at AI-merkede felt kan godkjennes felt for felt.
+    if (existingProcess) {
+      setSelectedSystemId(existingProcess.system_id || initialSystemId || "");
+      setPurpose(existingProcess.purpose || "");
+      setDataClass((existingProcess.data_class as DataClass | "") || "");
+      setSpecialCategories(existingProcess.special_categories || []);
+      setLegalBasis(existingProcess.legal_basis || "");
+      setActivityName(existingProcess.name || "");
+      setDescription(existingProcess.description || "");
+      setControllerName(existingProcess.controller_name || null);
+      const flags = (existingProcess.ai_suggested_fields || {}) as Record<string, unknown>;
+      setAiSuggested({
+        purpose: !!flags.purpose && !!existingProcess.purpose,
+        legal_basis: !!flags.legal_basis && !!existingProcess.legal_basis,
+        data_class: !!flags.data_class && !!existingProcess.data_class,
+      });
+      setSuggestion({
+        purpose: existingProcess.purpose || "",
+        legal_basis: existingProcess.legal_basis || "",
+        suggested_data_class: (existingProcess.data_class as DataClass) || "ordinary",
+        description: existingProcess.description || "",
+      });
+      return;
+    }
     setSelectedSystemId(initialSystemId || "");
     setSuggestion(null);
     setPurpose("");
@@ -150,7 +192,7 @@ export function ProcessingActivityWizardDialog({
   useEffect(() => {
     if (open) reset();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, initialSystemId]);
+  }, [open, initialSystemId, existingProcess?.id]);
 
   const fetchSuggestion = async (sysId: string) => {
     setIsLoadingSuggestion(true);
@@ -200,9 +242,9 @@ export function ProcessingActivityWizardDialog({
   };
 
   useEffect(() => {
-    if (open && initialSystemId) fetchSuggestion(initialSystemId);
+    if (open && initialSystemId && !existingProcess) fetchSuggestion(initialSystemId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, initialSystemId]);
+  }, [open, initialSystemId, existingProcess]);
 
   const toggleCategory = (key: string) => {
     setSpecialCategories((prev) =>
