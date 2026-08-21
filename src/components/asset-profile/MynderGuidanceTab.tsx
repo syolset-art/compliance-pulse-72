@@ -9,6 +9,7 @@ import { RequestUpdateDialog } from "@/components/asset-profile/RequestUpdateDia
 import { DocumentRequestsSection } from "@/components/asset-profile/tabs/DocumentRequestsSection";
 import { VendorFrameworkCard } from "@/components/asset-profile/guidance/VendorFrameworkCard";
 import { VendorControlChecklistCard } from "@/components/asset-profile/guidance/VendorControlChecklistCard";
+import { GovernanceSystemCheckpoint } from "@/components/asset-profile/guidance/GovernanceSystemCheckpoint";
 import { InviteAgenticTrustCenterDialog } from "@/components/asset-profile/guidance/InviteAgenticTrustCenterDialog";
 import { CreateVendorActivityDialog } from "@/components/asset-profile/guidance/CreateVendorActivityDialog";
 import { RequestBaselineDialog } from "@/components/asset-profile/guidance/RequestBaselineDialog";

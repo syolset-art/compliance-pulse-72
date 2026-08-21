@@ -192,9 +192,14 @@ export function GovernanceSystemCheckpoint({ assetId, frameworks = [], className
   };
 
   const setState = (s: CheckpointState) => {
-    const next = s === derived ? null : s;
-    setOverride(s === (override ?? derived) && override !== null ? null : s);
-    writeOverride(assetId, s === (override ?? derived) && override !== null ? null : next === null && s === derived ? null : s);
+    // Velger brukeren det samme som dokumentasjonen tilsier, fjernes overstyringen (tilbake til auto).
+    if (s === derived) {
+      setOverride(null);
+      writeOverride(assetId, null);
+    } else {
+      setOverride(s);
+      writeOverride(assetId, s);
+    }
   };
 
   const stateMeta: Record<CheckpointState, { nb: string; en: string; icon: typeof Check; cls: string }> = {
