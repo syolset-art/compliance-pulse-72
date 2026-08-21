@@ -61,6 +61,49 @@ export function ProcessingActivitiesTab({
     localStorage.setItem(key, new Date().toISOString());
   }, [workAreaId]);
 
+  /**
+   * Catch-up: uansett hvordan et system havnet i arbeidsområdet (lagt til
+   * manuelt, oppdaget av Sara/agenten eller importert) skal det finnes et
+   * utkast til behandlingsaktivitet. Systemer uten aktivitet får et
+   * AI-generert utkast i bakgrunnen neste gang fanen åpnes — uten å avbryte
+   * brukeren. Oppgave i oppgavekøen opprettes av generateRopaDraftForSystem.
+   */
+  const queryClient = useQueryClient();
+  const autoGenDone = useRef<Set<string>>(new Set());
+  useEffect(() => {
+    if (!workAreaId || autoGenDone.current.has(workAreaId)) return;
+    autoGenDone.current.add(workAreaId);
+    (async () => {
+      try {
+        const { data: systemsData } = await supabase
+          .from("systems")
+          .select("id, name")
+          .eq("work_area_id", workAreaId);
+        if (!systemsData || systemsData.length === 0) return;
+
+        const { data: procs } = await supabase
+          .from("system_processes")
+          .select("system_id")
+          .in("system_id", systemsData.map((s) => s.id));
+        const covered = new Set((procs || []).map((p) => p.system_id as string));
+        const missing = systemsData.filter((s) => !covered.has(s.id));
+        if (missing.length === 0) return;
+
+        for (const s of missing) {
+          try {
+            await generateRopaDraftForSystem({ systemId: s.id, systemName: s.name, isNb: true });
+          } catch (e) {
+            console.error("RoPA catch-up: autogenerering feilet for", s.name, e);
+          }
+        }
+        queryClient.invalidateQueries({ queryKey: ["wa-processing-activities", workAreaId] });
+        queryClient.invalidateQueries({ queryKey: ["user-tasks"] });
+      } catch (e) {
+        console.error("RoPA catch-up feilet", e);
+      }
+    })();
+  }, [workAreaId, queryClient]);
+
   const { data: activities = [], isLoading } = useQuery({
     queryKey: ["wa-processing-activities", workAreaId],
     queryFn: async () => {
