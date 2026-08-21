@@ -37,7 +37,7 @@ import {
   annualPrice,
   type SearchKind,
 } from "@/lib/serviceSearchMatch";
-import { frameworks, getFrameworkById } from "@/lib/frameworkDefinitions";
+import { getFrameworkById } from "@/lib/frameworkDefinitions";
 import { effectiveRequirementCount } from "@/lib/frameworkRequirementBaseline";
 import { MYNDER_PRODUCTS } from "@/lib/mynderProducts";
 import type { ServiceMapping } from "./CustomServiceDialog";
