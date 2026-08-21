@@ -291,14 +291,28 @@ export function MSPFrameworkTaskPackageSheet({
 
         <div className="mt-3 space-y-2">
           {onToggleActive && (
-            <div className="flex items-center justify-between gap-3 rounded-md border border-border bg-muted/30 px-3 py-2">
-              <div>
+            <div
+              className={`flex items-center justify-between gap-3 rounded-md border px-3 py-2 ${
+                isActive ? "border-success/40 bg-success/5" : "border-border bg-muted/30"
+              }`}
+            >
+              <div className="space-y-1">
                 <Label htmlFor="fw-active" className="text-sm font-medium text-foreground">
                   Aktivert i salgsporteføljen
                 </Label>
                 <p className="text-[11px] text-muted-foreground">
-                  Regelverket telles med i salgspotensialet og kan legges i tilbud.
+                  Når aktivert inngår regelverket med oppgaver, timer og pris i salgspotensialet ditt, og kan
+                  legges i tilbud til kunder.
                 </p>
+                {isActive && (
+                  <p className="text-[11px] font-medium text-success">
+                    Aktivert — {totals.tasks} oppgaver ·{" "}
+                    {totals.hours.min === totals.hours.max
+                      ? `${totals.hours.min} timer`
+                      : `${totals.hours.min}–${totals.hours.max} timer`}{" "}
+                    · {formatPriceRange(totals.price, currency)} telles nå med i salgspotensialet.
+                  </p>
+                )}
               </div>
               <Switch
                 id="fw-active"
