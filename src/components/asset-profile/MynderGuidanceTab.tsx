@@ -397,6 +397,9 @@ export function MynderGuidanceTab({
 
 
 
+      {/* Sjekkpunkt: styringssystem — Ja/Nei/Ikke vurdert, utvidbart med krav- og dokumentgrunnlag */}
+      <GovernanceSystemCheckpoint assetId={assetId} frameworks={frameworks} />
+
       {/* Aktive dokumentasjonsforespørsler */}
       <DocumentRequestsSection assetId={assetId} />
 
