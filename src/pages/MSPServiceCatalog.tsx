@@ -8,7 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Settings2, Sparkles, FileText } from "lucide-react";
+import { Settings2, FileText } from "lucide-react";
 import { MSPServiceCatalogTab } from "@/components/msp/MSPServiceCatalogTab";
 import { MSPServiceSettingsTab } from "@/components/msp/MSPServiceSettingsTab";
 import { MSPServiceHowItWorksTab } from "@/components/msp/MSPServiceHowItWorksTab";
