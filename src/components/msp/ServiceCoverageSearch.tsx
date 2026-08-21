@@ -8,13 +8,6 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
@@ -44,7 +37,7 @@ import {
   annualPrice,
   type SearchKind,
 } from "@/lib/serviceSearchMatch";
-import { frameworks, getFrameworkById } from "@/lib/frameworkDefinitions";
+
 import { effectiveRequirementCount } from "@/lib/frameworkRequirementBaseline";
 import { MYNDER_PRODUCTS } from "@/lib/mynderProducts";
 import type { ServiceMapping } from "./CustomServiceDialog";
@@ -99,7 +92,6 @@ export function ServiceCoverageSearch({
   const [justAdded, setJustAdded] = useState(false);
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const [internalMode, setInternalMode] = useState<SearchKind>("framework");
-  const [pickedFrameworkId, setPickedFrameworkId] = useState<string | null>(null);
   const [pickedProductId, setPickedProductId] = useState<string | null>(null);
 
   const mode = externalMode ?? internalMode;
@@ -197,10 +189,7 @@ export function ServiceCoverageSearch({
 
   const matchedFramework = useMemo(() => matchFramework(debounced), [debounced]);
   const matchedProduct = useMemo(() => matchProduct(debounced), [debounced]);
-  const framework = useMemo(
-    () => (pickedFrameworkId ? getFrameworkById(pickedFrameworkId) ?? null : matchedFramework),
-    [pickedFrameworkId, matchedFramework],
-  );
+  const framework = matchedFramework;
   const product = useMemo(
     () =>
       pickedProductId
@@ -208,13 +197,6 @@ export function ServiceCoverageSearch({
         : matchedProduct,
     [pickedProductId, matchedProduct],
   );
-
-  const frameworkList = useMemo(() => {
-    const q = debounced.toLowerCase();
-    return frameworks.filter(
-      (f) => q.length < 2 || f.name.toLowerCase().includes(q) || f.id.includes(q),
-    );
-  }, [debounced]);
 
   const productList = useMemo(() => {
     const q = debounced.toLowerCase();
@@ -319,7 +301,6 @@ export function ServiceCoverageSearch({
               draggable
               onClick={() => {
                 setMode(m.id);
-                setPickedFrameworkId(null);
                 setPickedProductId(null);
               }}
               onDragStart={(e) => handleDragStart(e, m.id)}
@@ -371,7 +352,6 @@ export function ServiceCoverageSearch({
             value={query}
             onChange={(e) => {
               setQuery(e.target.value);
-              setPickedFrameworkId(null);
               setPickedProductId(null);
             }}
             placeholder={
@@ -414,30 +394,6 @@ export function ServiceCoverageSearch({
         </p>
       )}
 
-      {mode === "framework" && (
-        <div className="max-w-sm">
-          <Select
-            value={framework?.id ?? ""}
-            onValueChange={(id) => setPickedFrameworkId(id)}
-          >
-            <SelectTrigger className="h-9 text-sm" aria-label="Velg regelverk">
-              <SelectValue placeholder="Velg regelverk…" />
-            </SelectTrigger>
-            <SelectContent>
-              {frameworkList.map((f) => (
-                <SelectItem key={f.id} value={f.id}>
-                  {f.name}
-                </SelectItem>
-              ))}
-              {frameworkList.length === 0 && (
-                <div className="px-2 py-1.5 text-xs text-muted-foreground">
-                  Ingen regelverk matcher søket.
-                </div>
-              )}
-            </SelectContent>
-          </Select>
-        </div>
-      )}
 
       {mode === "product" && (
         <div className="flex flex-wrap gap-1.5">
