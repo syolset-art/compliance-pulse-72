@@ -902,6 +902,10 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
           const isMuted = state.progress === "not_applicable" || state.evidence === "out_of_scope";
           const isVerifiedDue = normalizeProgress(state.progress) === "fulfilled" && state.evidence === "revalidation_due";
           const fulfillment = inferFulfillment(req);
+          const agentFinding = findingsByReq.get(req.requirement_id);
+          const agentFindingStatus: FindingStatus | null = agentFinding
+            ? resolveFindingStatus(agentFinding, findingDecisions)
+            : null;
 
 
           return (
@@ -1011,7 +1015,39 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                     );
                   })()}
 
-                  {(() => {
+                  {agentFinding ? (
+                    <>
+                      <TooltipProvider delayDuration={200}>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Badge
+                              variant="outline"
+                              className="h-6 px-2 gap-1 text-[10px] font-semibold tracking-wide text-primary border-primary/30 bg-primary/5 cursor-help normal-case"
+                              onMouseEnter={(e) => { e.stopPropagation(); setCursorTip(null); }}
+                            >
+                              {agentFinding.channel === "sara" ? (
+                                <SaraIcon size={12} />
+                              ) : (
+                                <Bot className="h-3 w-3" />
+                              )}
+                              {agentFinding.agentName}
+                            </Badge>
+                          </TooltipTrigger>
+                          <TooltipContent side="top" className="text-xs max-w-[260px]">
+                            {isNb
+                              ? `Dokumentasjon levert fra kundens infrastruktur via ${agentFinding.channel === "sara" ? "Sara (lokal agent)" : "MCP"} — ${agentFinding.source}`
+                              : `Documentation delivered from the customer's infrastructure via ${agentFinding.channel === "sara" ? "Sara (local agent)" : "MCP"} — ${agentFinding.source}`}
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                      {agentFindingStatus === "awaiting" && (
+                        <span className="inline-flex h-6 items-center gap-1 rounded-full border border-warning/40 bg-warning/5 px-2 text-[10px] font-semibold uppercase tracking-wide text-warning">
+                          <Clock className="h-3 w-3" />
+                          {isNb ? "Venter godkjenning" : "Awaiting approval"}
+                        </span>
+                      )}
+                    </>
+                  ) : (() => {
                     const cap = req.agent_capability;
                     const isAuto = cap === "full";
                     return (
