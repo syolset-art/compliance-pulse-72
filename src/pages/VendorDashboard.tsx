@@ -140,11 +140,11 @@ export default function VendorDashboard() {
                 {vendors.length}
               </span>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
               <VendorPortfolioActions vendors={vendors} />
               <Button
                 onClick={requestAddVendor}
-                className="gap-2"
+                className="gap-2 flex-1 sm:flex-none min-w-0"
                 title={
                   capacity.atCap
                     ? `Grensen på ${capacity.limit} leverandører er nådd. Endre nivå for å legge til flere.`
@@ -155,6 +155,7 @@ export default function VendorDashboard() {
                 {t("vendorDashboard.addVendor", "Legg til")}
               </Button>
             </div>
+
           </div>
 
           {/* Kapasitetsbanner */}
