@@ -102,7 +102,8 @@ export function buildFrameworkTasks(rows: RequirementRow[]): FrameworkTask[] {
         id,
         name: docName,
         kind: profile.kind,
-        hours: { ...profile.hours },
+        // Standard: 1 time per kontrollpunkt — partneren justerer selv opp/ned.
+        hours: { min: 1, max: 1 },
         note: profile.note,
         laraDraft: profile.laraDraft,
         category,

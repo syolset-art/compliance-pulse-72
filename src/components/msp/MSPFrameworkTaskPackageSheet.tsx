@@ -26,6 +26,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { toast } from "sonner";
 import { formatPriceRange } from "@/lib/documentDeliverables";
 import { baselineRequirementRows } from "@/lib/frameworkRequirementBaseline";
+import { frameworkLicensePrice } from "@/lib/planConstants";
 import {
   buildFrameworkTasks,
   resolveTasks,
@@ -91,11 +92,10 @@ export function MSPFrameworkTaskPackageSheet({
 }: Props) {
   const [state, setState] = useState<FrameworkPackageState>(EMPTY_PACKAGE_STATE);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [draft, setDraft] = useState<{ name: string; kind: DeliverableKind; min: string; max: string }>({
+  const [draft, setDraft] = useState<{ name: string; kind: DeliverableKind; hours: string }>({
     name: "",
     kind: "advisory",
-    min: "",
-    max: "",
+    hours: "",
   });
   const [adding, setAdding] = useState(false);
 
@@ -138,6 +138,7 @@ export function MSPFrameworkTaskPackageSheet({
     [baseTasks, state, hourlyRate],
   );
   const totals = useMemo(() => summarizePackage(tasks), [tasks]);
+  const licensePrice = frameworkId ? frameworkLicensePrice(frameworkId) : 0;
 
   const grouped = useMemo(() => {
     const map = new Map<string, ResolvedTask[]>();
@@ -164,13 +165,12 @@ export function MSPFrameworkTaskPackageSheet({
   const startEdit = (t: ResolvedTask) => {
     setAdding(false);
     setEditingId(t.id);
-    setDraft({ name: t.name, kind: t.kind, min: String(t.hours.min), max: String(t.hours.max) });
+    setDraft({ name: t.name, kind: t.kind, hours: String(t.hours.min) });
   };
 
   const saveEdit = () => {
     if (!editingId) return;
-    const min = Number(draft.min) || 0;
-    const max = Math.max(min, Number(draft.max) || min);
+    const hours = Math.max(0, Number(draft.hours) || 0);
     persist({
       ...state,
       overrides: {
@@ -179,8 +179,8 @@ export function MSPFrameworkTaskPackageSheet({
           ...state.overrides[editingId],
           name: draft.name.trim() || undefined,
           kind: draft.kind,
-          hoursMin: min,
-          hoursMax: max,
+          hoursMin: hours,
+          hoursMax: hours,
         },
       },
     });
@@ -190,8 +190,7 @@ export function MSPFrameworkTaskPackageSheet({
   const addCustom = () => {
     const name = draft.name.trim();
     if (!name) return;
-    const min = Number(draft.min) || 1;
-    const max = Math.max(min, Number(draft.max) || min);
+    const hours = Math.max(0, Number(draft.hours) || 1);
     const id = `custom-${slugifyTaskName(name)}-${Date.now()}`;
     persist({
       ...state,
@@ -201,7 +200,7 @@ export function MSPFrameworkTaskPackageSheet({
           id,
           name,
           kind: draft.kind,
-          hours: { min, max },
+          hours: { min: hours, max: hours },
           note: "Egendefinert oppgave.",
           laraDraft: draft.kind === "advisory",
           category: "Egendefinerte oppgaver",
@@ -211,7 +210,7 @@ export function MSPFrameworkTaskPackageSheet({
       ],
     });
     setAdding(false);
-    setDraft({ name: "", kind: "advisory", min: "", max: "" });
+    setDraft({ name: "", kind: "advisory", hours: "" });
   };
 
   const buildPackage = (): SavedFrameworkPackage => ({
@@ -233,7 +232,7 @@ export function MSPFrameworkTaskPackageSheet({
   };
 
   const editor = (onSave: () => void, onCancel: () => void) => (
-    <div className="grid grid-cols-1 sm:grid-cols-[1fr_140px_80px_80px_auto] gap-2 items-end rounded-md border border-border p-2 bg-muted/30">
+    <div className="grid grid-cols-1 sm:grid-cols-[1fr_140px_90px_auto] gap-2 items-end rounded-md border border-border p-2 bg-muted/30">
       <div className="space-y-1">
         <Label className="text-[11px]">Navn</Label>
         <Input
@@ -258,22 +257,12 @@ export function MSPFrameworkTaskPackageSheet({
         </Select>
       </div>
       <div className="space-y-1">
-        <Label className="text-[11px]">Timer fra</Label>
+        <Label className="text-[11px]">Timer</Label>
         <Input
           type="number"
           min={0}
-          value={draft.min}
-          onChange={(e) => setDraft({ ...draft, min: e.target.value })}
-          className="h-8 text-sm"
-        />
-      </div>
-      <div className="space-y-1">
-        <Label className="text-[11px]">Til</Label>
-        <Input
-          type="number"
-          min={0}
-          value={draft.max}
-          onChange={(e) => setDraft({ ...draft, max: e.target.value })}
+          value={draft.hours}
+          onChange={(e) => setDraft({ ...draft, hours: e.target.value })}
           className="h-8 text-sm"
         />
       </div>
@@ -318,6 +307,18 @@ export function MSPFrameworkTaskPackageSheet({
               />
             </div>
           )}
+          <div className="flex items-center justify-between gap-3 rounded-md border border-border px-3 py-2">
+            <div>
+              <p className="text-sm font-medium text-foreground">Aktiveringspris</p>
+              <p className="text-[11px] text-muted-foreground">
+                Månedlig lisens kunden betaler for å aktivere regelverket — inkludert i totalsummen
+                nederst.
+              </p>
+            </div>
+            <p className="text-sm font-semibold text-foreground shrink-0">
+              {formatPriceRange({ min: licensePrice, max: licensePrice }, currency)}/mnd
+            </p>
+          </div>
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -326,9 +327,8 @@ export function MSPFrameworkTaskPackageSheet({
                 </Badge>
               </TooltipTrigger>
               <TooltipContent side="bottom" className="max-w-xs text-xs">
-                Timene per kontrollpunkt er et AI-forslag fra Lara, beregnet fra kravets omfang og
-                typisk dokumentasjonsbehov. Du kan endre alle timer og fjerne krav du ikke vil
-                jobbe med — forslaget er kun et utgangspunkt.
+                Utgangspunktet er 1 time per kontrollpunkt. Juster timene opp eller ned selv, og
+                fjern krav du ikke vil jobbe med — forslaget er kun et utgangspunkt.
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
@@ -424,7 +424,7 @@ export function MSPFrameworkTaskPackageSheet({
                   className="h-8 text-xs"
                   onClick={() => {
                     setEditingId(null);
-                    setDraft({ name: "", kind: "advisory", min: "", max: "" });
+                    setDraft({ name: "", kind: "advisory", hours: "" });
                     setAdding(true);
                   }}
                 >
@@ -442,7 +442,13 @@ export function MSPFrameworkTaskPackageSheet({
           <div className="flex items-center justify-between gap-3 flex-wrap">
             <p className="text-xs text-muted-foreground">
               <span className="font-medium text-foreground">{totals.tasks} oppgaver</span> ·{" "}
-              {totals.hours.min}–{totals.hours.max} timer · {formatPriceRange(totals.price, currency)}
+              {totals.hours.min} timer · {formatPriceRange(totals.price, currency)}
+              {licensePrice > 0 && (
+                <>
+                  {" "}+ {formatPriceRange({ min: licensePrice, max: licensePrice }, currency)}/mnd
+                  aktivering
+                </>
+              )}
             </p>
             <div className="flex items-center gap-2">
               {onUseInOffer && (
