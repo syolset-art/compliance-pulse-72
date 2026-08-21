@@ -71,7 +71,7 @@ import { getCoreTier, formatKr, DEFAULT_CORE_TIER_ID, type CoreTierId } from "@/
 import { getModuleTier, setModuleTier } from "@/lib/moduleActivationState";
 import { SystemStatusRow } from "@/components/systems/SystemStatusRow";
 import { PriorityChip } from "@/components/PriorityChip";
-import { ProcessingActivityWizardDialog } from "@/components/dialogs/ProcessingActivityWizardDialog";
+import { generateRopaDraftForSystem } from "@/lib/ropaAutoDraft";
 
 
 interface System {
@@ -250,13 +250,6 @@ export default function Systems() {
     },
   });
 
-  const [ropaWizard, setRopaWizard] = useState<{
-    systemId: string;
-    systemName: string;
-    workAreaId: string;
-    workAreaName: string;
-  } | null>(null);
-
   const assignOwner = useMutation({
     mutationFn: async ({ id, workAreaId }: { id: string; workAreaId: string }) => {
       const workArea = workAreas.find((wa: WorkArea) => wa.id === workAreaId);
@@ -274,20 +267,36 @@ export default function Systems() {
       queryClient.invalidateQueries({ queryKey: ["systems"] });
       toast.success("Eier satt");
 
-      // Tilby automatisk RoPA-utkast dersom systemet ikke har en behandlingsaktivitet fra før
+      // Generer RoPA-utkast i bakgrunnen dersom systemet ikke har en behandlingsaktivitet fra før.
+      // Brukeren avbrytes ikke – utkastet dukker opp som en oppgave i oppgavekøen.
       const { count } = await supabase
         .from("system_processes")
         .select("id", { count: "exact", head: true })
         .eq("system_id", id);
       if (!count) {
         const sys = systems.find((s: System) => s.id === id);
-        const wa = workAreas.find((w: WorkArea) => w.id === workAreaId);
-        setRopaWizard({
-          systemId: id,
-          systemName: sys?.name || "",
-          workAreaId,
-          workAreaName: wa?.name || "",
-        });
+        const systemName = sys?.name || "";
+        const isNb = i18n.language !== "en";
+        toast.info(
+          isNb
+            ? `Lara lager et utkast til behandlingsaktivitet for «${systemName}» i bakgrunnen …`
+            : `Lara is drafting a processing activity for "${systemName}" in the background …`,
+          { duration: 4000 },
+        );
+        generateRopaDraftForSystem({ systemId: id, systemName, isNb })
+          .then(({ processId }) => {
+            queryClient.invalidateQueries({ queryKey: ["wa-processing-activities"] });
+            queryClient.invalidateQueries({ queryKey: ["user-tasks"] });
+            if (processId) {
+              toast.success(
+                isNb
+                  ? `Utkast til behandlingsaktivitet for «${systemName}» er klart – se Oppgaver for å bekrefte.`
+                  : `Draft processing activity for "${systemName}" is ready – see Tasks to confirm.`,
+                { duration: 7000 },
+              );
+            }
+          })
+          .catch((e) => console.error("RoPA auto-generering feilet", e));
       }
     },
   });
@@ -962,18 +971,6 @@ export default function Systems() {
           }
         }}
       />
-
-      {ropaWizard && (
-        <ProcessingActivityWizardDialog
-          open={!!ropaWizard}
-          onOpenChange={(open) => { if (!open) setRopaWizard(null); }}
-          systemId={ropaWizard.systemId}
-          systemName={ropaWizard.systemName}
-          workAreaId={ropaWizard.workAreaId}
-          workAreaName={ropaWizard.workAreaName}
-          onSaved={() => queryClient.invalidateQueries({ queryKey: ["wa-processing-activities"] })}
-        />
-      )}
 
       <ChangeCoreTierDialog
         open={changeCoreTierOpen}

@@ -66,6 +66,20 @@ interface ProcessingActivityWizardDialogProps {
   systemName?: string;
   workAreaId?: string;
   workAreaName?: string;
+  /** Redigeringsmodus: eksisterende aktivitet (f.eks. utkast) som skal gjennomgås/bekreftes */
+  existingProcess?: {
+    id: string;
+    system_id?: string | null;
+    system_name?: string | null;
+    name: string | null;
+    description: string | null;
+    purpose: string | null;
+    data_class: string | null;
+    special_categories: string[] | null;
+    legal_basis: string | null;
+    controller_name: string | null;
+    ai_suggested_fields?: Record<string, unknown> | null;
+  };
   onSaved?: () => void;
 }
 
@@ -79,6 +93,7 @@ export function ProcessingActivityWizardDialog({
   systemName: initialSystemName,
   workAreaId,
   workAreaName,
+  existingProcess,
   onSaved,
 }: ProcessingActivityWizardDialogProps) {
   const { i18n } = useTranslation();
@@ -126,16 +141,43 @@ export function ProcessingActivityWizardDialog({
       if (error) throw error;
       return data || [];
     },
-    enabled: open && !initialSystemId,
+    enabled: open && !initialSystemId && !existingProcess,
   });
 
   const selectedSystemName = useMemo(() => {
     if (initialSystemName) return initialSystemName;
+    if (existingProcess?.system_name) return existingProcess.system_name;
     return systems.find((s) => s.id === selectedSystemId)?.name || "";
-  }, [initialSystemName, systems, selectedSystemId]);
+  }, [initialSystemName, existingProcess, systems, selectedSystemId]);
 
   const reset = () => {
     setStep(0);
+    setControllerName(null);
+    // Redigeringsmodus: forhåndsutfyll fra eksisterende aktivitet og bygg et
+    // syntetisk forslagsobjekt slik at AI-merkede felt kan godkjennes felt for felt.
+    if (existingProcess) {
+      setSelectedSystemId(existingProcess.system_id || initialSystemId || "");
+      setPurpose(existingProcess.purpose || "");
+      setDataClass((existingProcess.data_class as DataClass | "") || "");
+      setSpecialCategories(existingProcess.special_categories || []);
+      setLegalBasis(existingProcess.legal_basis || "");
+      setActivityName(existingProcess.name || "");
+      setDescription(existingProcess.description || "");
+      setControllerName(existingProcess.controller_name || null);
+      const flags = (existingProcess.ai_suggested_fields || {}) as Record<string, unknown>;
+      setAiSuggested({
+        purpose: !!flags.purpose && !!existingProcess.purpose,
+        legal_basis: !!flags.legal_basis && !!existingProcess.legal_basis,
+        data_class: !!flags.data_class && !!existingProcess.data_class,
+      });
+      setSuggestion({
+        purpose: existingProcess.purpose || "",
+        legal_basis: existingProcess.legal_basis || "",
+        suggested_data_class: (existingProcess.data_class as DataClass) || "ordinary",
+        description: existingProcess.description || "",
+      });
+      return;
+    }
     setSelectedSystemId(initialSystemId || "");
     setSuggestion(null);
     setPurpose("");
@@ -150,7 +192,7 @@ export function ProcessingActivityWizardDialog({
   useEffect(() => {
     if (open) reset();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, initialSystemId]);
+  }, [open, initialSystemId, existingProcess?.id]);
 
   const fetchSuggestion = async (sysId: string) => {
     setIsLoadingSuggestion(true);
@@ -200,9 +242,9 @@ export function ProcessingActivityWizardDialog({
   };
 
   useEffect(() => {
-    if (open && initialSystemId) fetchSuggestion(initialSystemId);
+    if (open && initialSystemId && !existingProcess) fetchSuggestion(initialSystemId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, initialSystemId]);
+  }, [open, initialSystemId, existingProcess]);
 
   const toggleCategory = (key: string) => {
     setSpecialCategories((prev) =>
@@ -234,10 +276,9 @@ export function ProcessingActivityWizardDialog({
       const { data: userResp } = await supabase.auth.getUser();
       const who = userResp?.user?.email ?? userResp?.user?.id ?? null;
 
-      const { error } = await supabase.from("system_processes").insert({
+      const values = {
         name,
         description: description.trim() || null,
-        system_id: selectedSystemId,
         purpose: purpose.trim(),
         data_class: dataClass || null,
         special_categories: dataClass === "sensitive" ? specialCategories : null,
@@ -249,12 +290,33 @@ export function ProcessingActivityWizardDialog({
           : Object.fromEntries(Object.entries(aiSuggested).filter(([, v]) => v)),
         confirmed_by: confirm ? who : null,
         confirmed_at: confirm ? new Date().toISOString() : null,
-      } as never);
+      };
+
+      let error;
+      if (existingProcess) {
+        // Redigeringsmodus: oppdater eksisterende aktivitet (f.eks. bekreft et utkast)
+        ({ error } = await supabase
+          .from("system_processes")
+          .update(values as never)
+          .eq("id", existingProcess.id));
+        if (!error && confirm) {
+          // Løs koblede oppgaver i oppgavekøen
+          await supabase
+            .from("user_tasks")
+            .update({ status: "fullført" } as never)
+            .eq("process_id", existingProcess.id);
+        }
+      } else {
+        ({ error } = await supabase.from("system_processes").insert({
+          ...values,
+          system_id: selectedSystemId,
+        } as never));
+      }
       if (error) throw error;
 
       // RoPA er knyttet til arbeidsområdet via systemet: sørg for at systemet
       // ligger i arbeidsområdet (kun hvis det ikke allerede har et eierområde).
-      if (workAreaId) {
+      if (workAreaId && !existingProcess) {
         await supabase
           .from("systems")
           .update({ work_area_id: workAreaId } as never)
@@ -266,10 +328,13 @@ export function ProcessingActivityWizardDialog({
       queryClient.invalidateQueries({ queryKey: ["wa-processing-activities"] });
       queryClient.invalidateQueries({ queryKey: ["work-area-processes"] });
       queryClient.invalidateQueries({ queryKey: ["processes"] });
+      queryClient.invalidateQueries({ queryKey: ["user-tasks"] });
 
       toast({
         title: confirm
-          ? isNb ? "Behandlingsaktivitet opprettet" : "Processing activity created"
+          ? existingProcess
+            ? isNb ? "Behandlingsaktivitet bekreftet" : "Processing activity confirmed"
+            : isNb ? "Behandlingsaktivitet opprettet" : "Processing activity created"
           : isNb ? "Utkast lagret" : "Draft saved",
         description: confirm
           ? isNb
@@ -303,7 +368,9 @@ export function ProcessingActivityWizardDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <FileCheck2 className="h-5 w-5 text-primary" />
-            {isNb ? "Ny behandlingsaktivitet" : "New processing activity"}
+            {existingProcess
+              ? isNb ? "Gå gjennom behandlingsaktivitet" : "Review processing activity"
+              : isNb ? "Ny behandlingsaktivitet" : "New processing activity"}
             {selectedSystemName && (
               <span className="text-muted-foreground font-normal">– {selectedSystemName}</span>
             )}
@@ -342,7 +409,7 @@ export function ProcessingActivityWizardDialog({
         {/* STEG 0: Formål */}
         {step === 0 && (
           <div className="space-y-4">
-            {!initialSystemId && (
+            {!initialSystemId && !existingProcess && (
               <div className="space-y-2">
                 <Label>{isNb ? "System *" : "System *"}</Label>
                 <Select value={selectedSystemId} onValueChange={startWithSystem}>
@@ -652,7 +719,9 @@ export function ProcessingActivityWizardDialog({
                 ) : (
                   <Check className="h-4 w-4 mr-2" />
                 )}
-                {isNb ? "Bekreft og opprett" : "Confirm and create"}
+                {existingProcess
+                  ? isNb ? "Bekreft og aktiver" : "Confirm and activate"
+                  : isNb ? "Bekreft og opprett" : "Confirm and create"}
               </Button>
             </div>
             {hasUnconfirmed && (

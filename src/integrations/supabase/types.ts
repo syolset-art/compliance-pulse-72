@@ -4295,6 +4295,7 @@ export type Database = {
           description: string | null
           due_date: string | null
           id: string
+          process_id: string | null
           status: string
           title: string
           updated_at: string
@@ -4307,6 +4308,7 @@ export type Database = {
           description?: string | null
           due_date?: string | null
           id?: string
+          process_id?: string | null
           status?: string
           title: string
           updated_at?: string
@@ -4319,6 +4321,7 @@ export type Database = {
           description?: string | null
           due_date?: string | null
           id?: string
+          process_id?: string | null
           status?: string
           title?: string
           updated_at?: string
@@ -4330,6 +4333,13 @@ export type Database = {
             columns: ["asset_id"]
             isOneToOne: false
             referencedRelation: "assets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_tasks_process_id_fkey"
+            columns: ["process_id"]
+            isOneToOne: false
+            referencedRelation: "system_processes"
             referencedColumns: ["id"]
           },
         ]

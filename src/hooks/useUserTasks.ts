@@ -5,6 +5,7 @@ export interface UserTask {
   id: string;
   user_id: string;
   asset_id: string | null;
+  process_id?: string | null;
   title: string;
   description: string | null;
   assignee: string | null;
