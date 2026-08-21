@@ -202,6 +202,15 @@ export function getNextVendorTier(id: VendorTierId): VendorTier | null {
 export const EXTRA_WORK_AREA_PRICE_KR = 190; // /mnd, only on Starter
 export const EXTRA_FRAMEWORK_PRICE_KR = 290; // /mnd per framework
 
+// Regelverk kan ha ulik månedspris. Overstyr per regelverk her —
+// fallback er EXTRA_FRAMEWORK_PRICE_KR.
+export const FRAMEWORK_LICENSE_PRICES_KR: Record<string, number> = {
+  gdpr: 290,
+};
+
+export const frameworkLicensePrice = (frameworkId: string): number =>
+  FRAMEWORK_LICENSE_PRICES_KR[frameworkId] ?? EXTRA_FRAMEWORK_PRICE_KR;
+
 // ─── Framework add-on pricing (kept as-is) ──────────────────────────
 
 export const FREE_FRAMEWORKS = ["gdpr", "iso27001"] as const;
