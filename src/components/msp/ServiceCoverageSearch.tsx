@@ -408,25 +408,27 @@ export function ServiceCoverageSearch({
       )}
 
       {mode === "framework" && (
-        <div className="flex flex-wrap gap-1.5">
-          {frameworkList.map((f) => (
-            <button
-              key={f.id}
-              type="button"
-              onClick={() => setPickedFrameworkId(f.id)}
-              className={cn(
-                "rounded-full border px-2.5 py-1 text-[11px] font-medium transition-colors",
-                framework?.id === f.id
-                  ? "border-primary bg-primary/10 text-primary"
-                  : "border-border text-muted-foreground hover:text-foreground hover:border-primary/40",
+        <div className="max-w-sm">
+          <Select
+            value={framework?.id ?? ""}
+            onValueChange={(id) => setPickedFrameworkId(id)}
+          >
+            <SelectTrigger className="h-9 text-sm" aria-label="Velg regelverk">
+              <SelectValue placeholder="Velg regelverk…" />
+            </SelectTrigger>
+            <SelectContent>
+              {frameworkList.map((f) => (
+                <SelectItem key={f.id} value={f.id}>
+                  {f.name}
+                </SelectItem>
+              ))}
+              {frameworkList.length === 0 && (
+                <div className="px-2 py-1.5 text-xs text-muted-foreground">
+                  Ingen regelverk matcher søket.
+                </div>
               )}
-            >
-              {f.name}
-            </button>
-          ))}
-          {frameworkList.length === 0 && (
-            <p className="text-xs text-muted-foreground px-1">Ingen regelverk matcher søket.</p>
-          )}
+            </SelectContent>
+          </Select>
         </div>
       )}
 
