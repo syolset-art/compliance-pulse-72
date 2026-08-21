@@ -17,6 +17,7 @@ import { VendorListTab } from "@/components/vendor-dashboard/VendorListTab";
 import { VendorMapView } from "@/components/vendor-dashboard/VendorMapView";
 import { SupplyChainTab } from "@/components/vendor-dashboard/SupplyChainTab";
 import { VendorCompareTab } from "@/components/vendor-dashboard/VendorCompareTab";
+import { VendorModuleSettingsSheet } from "@/components/vendor-dashboard/settings/VendorModuleSettingsSheet";
 
 
 import { useGlobalChat } from "@/components/GlobalChatProvider";
@@ -171,7 +172,8 @@ export default function VendorDashboard() {
 
 
           <Tabs value={tabFromUrl} onValueChange={(v) => { const next = new URLSearchParams(searchParams); next.set("tab", v); setSearchParams(next, { replace: true }); }} className="space-y-4">
-            <div className="-mx-4 px-4 sm:mx-0 sm:px-0 overflow-x-auto scrollbar-none motion-safe:animate-fade-in-up motion-safe:animate-delay-150">
+            <div className="flex items-center justify-between gap-2 motion-safe:animate-fade-in-up motion-safe:animate-delay-150">
+              <div className="-mx-4 px-4 sm:mx-0 sm:px-0 overflow-x-auto scrollbar-none">
               <TabsList className="h-10 p-0.5 w-max" aria-label={t("vendorDashboard.tabs.overview", "Oversikt") + " – navigasjon"}>
                 <TabsTrigger value="overview" className="text-sm px-3">{t("vendorDashboard.tabs.overview", "Oversikt")}</TabsTrigger>
                 <TabsTrigger value="all" className="text-sm px-3 gap-1.5">
@@ -184,6 +186,8 @@ export default function VendorDashboard() {
                 <TabsTrigger value="supplyChain" className="text-sm px-3">{t("vendorDashboard.tabs.supplyChain")}</TabsTrigger>
                 <TabsTrigger value="compare" className="text-sm px-3">{t("vendorDashboard.tabs.compare")}</TabsTrigger>
               </TabsList>
+              </div>
+              <VendorModuleSettingsSheet />
             </div>
 
 
