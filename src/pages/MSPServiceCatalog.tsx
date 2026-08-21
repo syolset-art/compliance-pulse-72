@@ -51,8 +51,8 @@ export default function MSPServiceCatalog() {
               </DropdownMenu>
             </div>
             <p className="text-base text-foreground/80 mt-1 leading-relaxed max-w-3xl">
-              Bygg din tjenestekatalog og se hvilke regelverk hver tjeneste dekker.
-              Videreselg Mynder-produkter til dine kunder og tjen provisjon på lisenser.
+              Se hvilke regelverk og krav som er tilgjengelige, og bygg pakkede tjenester basert på
+              krav som gjelder for dine kunder.
             </p>
           </header>
 
