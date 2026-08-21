@@ -301,7 +301,6 @@ export function ServiceCoverageSearch({
               draggable
               onClick={() => {
                 setMode(m.id);
-                setPickedFrameworkId(null);
                 setPickedProductId(null);
               }}
               onDragStart={(e) => handleDragStart(e, m.id)}
