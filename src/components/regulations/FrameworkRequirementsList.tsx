@@ -1165,13 +1165,15 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                     {/* Auto-vurdering: informasjon + overstyringsknapp */}
                     {req.agent_capability === "full" && !readMoreIds.has(`__override_${req.requirement_id}`) && (
                       <>
-                        <div className="rounded-md border border-border/60 bg-muted/20 px-3 py-2.5">
-                          <p className="text-xs text-muted-foreground leading-relaxed">
-                            {isNb
-                              ? "Mynder har ikke nok data til å automatisk vurdere dette kravet ennå. Registrer relevant data i portalen for å forbedre scoren."
-                              : "Mynder does not yet have enough data to automatically assess this requirement. Register relevant data in the portal to improve the score."}
-                          </p>
-                        </div>
+                        {!agentFinding && (
+                          <div className="rounded-md border border-border/60 bg-muted/20 px-3 py-2.5">
+                            <p className="text-xs text-muted-foreground leading-relaxed">
+                              {isNb
+                                ? "Mynder har ikke nok data til å automatisk vurdere dette kravet ennå. Registrer relevant data i portalen for å forbedre scoren."
+                                : "Mynder does not yet have enough data to automatically assess this requirement. Register relevant data in the portal to improve the score."}
+                            </p>
+                          </div>
+                        )}
                         <button
                           type="button"
                           onClick={(e) => { e.stopPropagation(); toggleSet(setReadMoreIds, `__override_${req.requirement_id}`); }}
