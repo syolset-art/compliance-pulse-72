@@ -193,7 +193,28 @@ export function ChatPanel(props: ChatPanelProps) {
   );
 }
 
-function MinimalHeader({ onClose, onShowDemo, pageName }: { onClose: () => void; onShowDemo: () => void; pageName?: string }) {
+interface ChatHeaderExtras {
+  isDocked?: boolean;
+  onToggleDock?: () => void;
+}
+
+function DockToggleButton({ isDocked, onToggleDock }: ChatHeaderExtras) {
+  const { t } = useTranslation();
+  if (!onToggleDock) return null;
+  return (
+    <Button
+      variant="ghost"
+      size="icon"
+      className="hidden md:inline-flex h-7 w-7 text-muted-foreground hover:text-primary"
+      onClick={onToggleDock}
+      title={isDocked ? t("chatPanel.undock") : t("chatPanel.dock")}
+    >
+      {isDocked ? <PinOff className="h-4 w-4" /> : <Pin className="h-4 w-4" />}
+    </Button>
+  );
+}
+
+function MinimalHeader({ onClose, onShowDemo, pageName, isDocked, onToggleDock }: { onClose: () => void; onShowDemo: () => void; pageName?: string } & ChatHeaderExtras) {
   const { t } = useTranslation();
   return (
     <div className="flex items-center justify-between px-4 py-2 border-b border-border/50">
@@ -206,6 +227,7 @@ function MinimalHeader({ onClose, onShowDemo, pageName }: { onClose: () => void;
         )}
       </div>
       <div className="flex items-center gap-1">
+        <DockToggleButton isDocked={isDocked} onToggleDock={onToggleDock} />
         <Button
           variant="ghost"
           size="icon"
