@@ -17,10 +17,6 @@ type SecondaryView = "settings" | "how-it-works" | null;
 
 export default function MSPServiceCatalog() {
   const [secondary, setSecondary] = useState<SecondaryView>(null);
-  const actionsRef = useRef<{ openWizard: () => void } | null>(null);
-  const registerActions = useCallback((actions: { openWizard: () => void }) => {
-    actionsRef.current = actions;
-  }, []);
 
   return (
     <div className="flex min-h-screen w-full bg-background">
