@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { X, Sparkles, HelpCircle, MessageCircle } from "lucide-react";
+import { X, Sparkles, HelpCircle, MessageCircle, Pin, PinOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ChatInterface } from "@/components/ChatInterface";
 import laraButterfly from "@/assets/lara-butterfly.png";
@@ -25,9 +25,11 @@ interface ChatPanelProps {
   onClose: () => void;
   onShowContent?: (contentType: string, filter?: string, options?: ContentViewOptions, explanation?: string) => void;
   onBackToDashboard?: () => void;
+  isDocked?: boolean;
+  onToggleDock?: () => void;
 }
 
-function ChatPanelContent({ isOpen, onClose, onShowContent, onBackToDashboard }: ChatPanelProps) {
+function ChatPanelContent({ isOpen, onClose, onShowContent, onBackToDashboard, isDocked = false, onToggleDock }: ChatPanelProps) {
   const { t } = useTranslation();
   const isMobile = useIsMobile();
   const [hasMessages, setHasMessages] = useState(false);
