@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Sidebar } from "@/components/Sidebar";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
-import { Plus, Settings2 } from "lucide-react";
+import { Plus } from "lucide-react";
 import { AddVendorDialog } from "@/components/dialogs/AddVendorDialog";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "sonner";
@@ -17,7 +17,7 @@ import { VendorListTab } from "@/components/vendor-dashboard/VendorListTab";
 import { VendorMapView } from "@/components/vendor-dashboard/VendorMapView";
 import { SupplyChainTab } from "@/components/vendor-dashboard/SupplyChainTab";
 import { VendorCompareTab } from "@/components/vendor-dashboard/VendorCompareTab";
-import { VendorFrameworkScopeTab, VENDOR_SCOPE_INTRO_KEY, VENDOR_SCOPE_INTRO_EVENT } from "@/components/vendor-dashboard/VendorFrameworkScopeTab";
+
 
 import { useGlobalChat } from "@/components/GlobalChatProvider";
 
