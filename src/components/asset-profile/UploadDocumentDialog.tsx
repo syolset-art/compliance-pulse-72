@@ -519,6 +519,7 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
   };
 
   const confidencePercent = classification ? Math.round((classification.confidence || 0) * 100) : 0;
+  const totalRequirementHits = requirementHits.reduce((n, g) => n + g.matches.length, 0);
   const confidenceColor = confidencePercent >= 80 ? "bg-status-closed" : confidencePercent >= 50 ? "bg-warning" : "bg-destructive";
   const confidenceTextColor = confidencePercent >= 80 ? "text-status-closed" : confidencePercent >= 50 ? "text-warning" : "text-destructive";
 
