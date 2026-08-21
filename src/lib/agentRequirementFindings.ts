@@ -142,6 +142,9 @@ export function resolveFindingStatus(
   const d = decisions[finding.requirementId];
   if (d?.decision === "approved") return "approved_mynder";
   if (d?.decision === "rejected") return "rejected";
+  // Sara-funn er allerede verifisert i kundens egen infrastruktur av en ansvarlig person
+  // og trenger ikke ny godkjenning i Mynder.
+  if (finding.channel === "sara") return "approved_source";
   return finding.approval === "pre_approved_at_source" ? "approved_source" : "awaiting";
 }
 
