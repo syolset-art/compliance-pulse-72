@@ -93,12 +93,9 @@ const ProcessProfile = () => {
           </div>
 
           {/* Process Card */}
-          <ProcessCard 
-            processId={id!} 
+          <ProcessCard
+            processId={id!}
             workAreaId={workAreaId}
-            onEdit={() => {
-              // Open edit dialog or navigate to edit page
-            }}
           />
         </div>
       </main>
