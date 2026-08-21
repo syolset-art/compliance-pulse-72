@@ -112,9 +112,17 @@ export function ProcessingActivityWizardDialog({
   const { data: systems = [] } = useQuery({
     queryKey: ["pa-wizard-systems", workAreaId],
     queryFn: async () => {
-      let q = supabase.from("systems").select("id, name").order("name");
-      if (workAreaId) q = q.eq("work_area_id", workAreaId);
-      const { data, error } = await q;
+      if (workAreaId) {
+        const { data, error } = await supabase
+          .from("systems")
+          .select("id, name")
+          .eq("work_area_id", workAreaId)
+          .order("name");
+        if (error) throw error;
+        if (data && data.length > 0) return data;
+      }
+      // Fallback: alle systemer (f.eks. når ingen er knyttet til arbeidsområdet ennå)
+      const { data, error } = await supabase.from("systems").select("id, name").order("name");
       if (error) throw error;
       return data || [];
     },
