@@ -185,7 +185,21 @@ export function ProcessingActivitiesTab({
                   </Badge>
                 </TableCell>
                 <TableCell>
-                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                  {hasUnconfirmedAi(activity) || activity.status === "draft" ? (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-7 text-xs"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openReview(activity);
+                      }}
+                    >
+                      Gå gjennom
+                    </Button>
+                  ) : (
+                    <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                  )}
                 </TableCell>
               </TableRow>
             ))}
