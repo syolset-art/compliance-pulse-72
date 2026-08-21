@@ -246,15 +246,16 @@ export function PartnerSalesPotentialCard({ currency }: { currency: string }) {
                       <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
                     </TooltipTrigger>
                     <TooltipContent side="bottom" className="max-w-xs text-xs">
-                      Beregnet med 1 time per kontrollpunkt i snitt, ganget med antall regelverk i
-                      rådgivningspakken og timeprisen din. Begge deler kan du endre selv.
+                      Timer per regelverk × antall regelverk i pakken × timeprisen din. Timene er
+                      satt til 1 time per kontrollpunkt i snitt som utgangspunkt — juster selv opp
+                      eller ned.
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
               </div>
               <p className="text-xs text-muted-foreground">
-                {advisoryCount} regelverk · ~{Math.round(avgControlPoints)} kontrollpunkter · 1 t per
-                kontrollpunkt
+                {advisoryCount} regelverk · {hoursPerFramework} t per regelverk
+                {hoursPerFwOverride === null && " (auto)"}
               </p>
             </div>
             <p className="text-lg font-semibold text-foreground tabular-nums shrink-0">
@@ -288,6 +289,29 @@ export function PartnerSalesPotentialCard({ currency }: { currency: string }) {
                   <Plus className="h-3 w-3" />
                 </Button>
               </div>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="text-[11px] text-muted-foreground">Timer pr. regelverk</span>
+              <Input
+                type="number"
+                min={0}
+                step={1}
+                value={hoursPerFramework}
+                onChange={(e) =>
+                  setHoursPerFwOverride(Math.max(0, Math.round(Number(e.target.value) || 0)))
+                }
+                className="h-7 w-16 text-xs tabular-nums"
+                aria-label="Timer per regelverk"
+              />
+              {hoursPerFwOverride !== null && (
+                <button
+                  type="button"
+                  onClick={() => setHoursPerFwOverride(null)}
+                  className="text-[11px] text-primary hover:underline"
+                >
+                  Nullstill
+                </button>
+              )}
             </div>
             <div className="flex items-center gap-1.5">
               <span className="text-[11px] text-muted-foreground">Timepris</span>
