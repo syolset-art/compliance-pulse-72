@@ -141,6 +141,31 @@ export function ProcessingActivitiesTab({
         {wizardButton}
       </div>
 
+      {/* Varsel om nye autogenererte utkast siden forrige besøk */}
+      {newDrafts.length > 0 && (
+        <div className="flex items-start gap-3 rounded-lg border border-primary/25 bg-primary/[0.04] px-4 py-3">
+          <LaraIcon size={22} className="mt-0.5 shrink-0" />
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-medium text-foreground">
+              {newDrafts.length === 1
+                ? "Lara har opprettet 1 ny behandlingsaktivitet siden forrige besøk"
+                : `Lara har opprettet ${newDrafts.length} nye behandlingsaktiviteter siden forrige besøk`}
+            </p>
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              {newDrafts.map((d) => `«${d.systems?.name ?? d.name}»`).join(", ")} — utkastene
+              venter på gjennomgang. Klikk på raden for å kontrollere og godkjenne.
+            </p>
+          </div>
+          <Button
+            size="sm"
+            className="h-7 shrink-0 text-xs"
+            onClick={() => openReview(newDrafts[0])}
+          >
+            Gå gjennom nå
+          </Button>
+        </div>
+      )}
+
       <div className="rounded-lg border border-border">
         <Table>
           <TableHeader>
