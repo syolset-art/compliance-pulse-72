@@ -9,7 +9,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Settings2, FileText } from "lucide-react";
-import { MSPServiceCatalogTab } from "@/components/msp/MSPServiceCatalogTab";
+import { useServiceDefaults } from "@/hooks/useServiceDefaults";
+import { PartnerSalesPotentialCard } from "@/components/msp/PartnerSalesPotentialCard";
+import { PartnerProductList } from "@/components/msp/PartnerProductList";
+import { MSPFrameworkHoursTab } from "@/components/msp/MSPFrameworkHoursTab";
 import { MSPServiceSettingsTab } from "@/components/msp/MSPServiceSettingsTab";
 import { MSPServiceHowItWorksTab } from "@/components/msp/MSPServiceHowItWorksTab";
 
@@ -17,12 +20,13 @@ type SecondaryView = "settings" | "how-it-works" | null;
 
 export default function MSPServiceCatalog() {
   const [secondary, setSecondary] = useState<SecondaryView>(null);
+  const { currency } = useServiceDefaults();
 
   return (
     <div className="flex min-h-screen w-full bg-background">
       <Sidebar />
       <main className="flex-1 overflow-auto pt-11">
-        <div className="container max-w-5xl mx-auto py-8 px-4 md:px-8 space-y-6">
+        <div className="container max-w-5xl mx-auto py-8 px-4 md:px-8 space-y-8">
           <header className="space-y-2">
             <div className="flex items-start justify-between gap-4">
               <h1 className="text-3xl font-bold text-foreground">Produkter og tjenester</h1>
@@ -32,7 +36,7 @@ export default function MSPServiceCatalog() {
                     variant="outline"
                     size="sm"
                     className="shrink-0 gap-2"
-                    aria-label="Innstillinger, tjenesteprofil og hjelp"
+                    aria-label="Innstillinger og hjelp"
                   >
                     <Settings2 className="h-4 w-4" />
                     <span className="hidden sm:inline">Innstillinger</span>
@@ -51,12 +55,26 @@ export default function MSPServiceCatalog() {
               </DropdownMenu>
             </div>
             <p className="text-base text-foreground/80 mt-1 leading-relaxed max-w-3xl">
-              Se hvilke regelverk og krav som er tilgjengelige, og bygg pakkede tjenester basert på
-              krav som gjelder for dine kunder.
+              Alt du kan selge til kundene dine — Mynder-produkter og egne rådgivningstimer. Sett
+              opp pakkene her, så ligger de klare når du lager tilbud.
             </p>
           </header>
 
-          <MSPServiceCatalogTab />
+          <PartnerSalesPotentialCard currency={currency} />
+
+          <PartnerProductList />
+
+          <section className="space-y-3">
+            <div>
+              <h2 className="text-lg font-semibold text-foreground">
+                Regelverk og rådgivningspakker
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                Aktiver regelverk og sett opp rådgivningspakken med AI-foreslåtte timer per krav.
+              </p>
+            </div>
+            <MSPFrameworkHoursTab />
+          </section>
         </div>
       </main>
 

@@ -2364,6 +2364,45 @@ export type Database = {
         }
         Relationships: []
       }
+      msp_framework_packages: {
+        Row: {
+          created_at: string
+          framework_id: string
+          framework_name: string | null
+          id: string
+          is_active: boolean
+          msp_user_id: string
+          state: Json
+          total_hours: number
+          total_price: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          framework_id: string
+          framework_name?: string | null
+          id?: string
+          is_active?: boolean
+          msp_user_id: string
+          state?: Json
+          total_hours?: number
+          total_price?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          framework_id?: string
+          framework_name?: string | null
+          id?: string
+          is_active?: boolean
+          msp_user_id?: string
+          state?: Json
+          total_hours?: number
+          total_price?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       msp_invoices: {
         Row: {
           amount: number

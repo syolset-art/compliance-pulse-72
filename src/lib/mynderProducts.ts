@@ -17,8 +17,9 @@ export const MYNDER_PRODUCTS: MynderProduct[] = [
     moduleKey: "core",
     name: "Core",
     commissionPct: 30,
-    fromPrice: CORE_TIERS[0].monthlyPriceKr,
-    tiers: CORE_TIERS.map((t) => ({ label: t.label, priceKr: t.monthlyPriceKr })),
+    // Core har ingen gratisversjon — fra-pris er første betalte nivå (995 kr/mnd).
+    fromPrice: CORE_TIERS.find((t) => !t.isFree)?.monthlyPriceKr ?? 0,
+    tiers: CORE_TIERS.filter((t) => !t.isFree).map((t) => ({ label: t.label, priceKr: t.monthlyPriceKr })),
   },
   {
     id: "vendors",
