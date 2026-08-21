@@ -40,6 +40,17 @@ export default function MSPServiceCatalog() {
           <header className="space-y-2">
             <div className="flex items-start justify-between gap-4">
               <h1 className="text-3xl font-bold text-foreground">Produkter og tjenester</h1>
+              <div className="flex items-center gap-2 shrink-0">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-2"
+                  onClick={openLaraDocked}
+                  aria-label={t("chatPanel.talkToLara")}
+                >
+                  <img src={laraButterfly} alt="" className="h-4 w-4" />
+                  <span className="hidden sm:inline">{t("chatPanel.talkToLara")}</span>
+                </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
