@@ -457,17 +457,7 @@ export function MSPFrameworkTaskPackageSheet({
         </div>
 
         <div className="sticky bottom-0 -mx-6 px-6 py-3 border-t border-border bg-background/95 backdrop-blur">
-          <div className="flex items-center justify-between gap-3 flex-wrap">
-            <p className="text-xs text-muted-foreground">
-              <span className="font-medium text-foreground">{totals.tasks} oppgaver</span> ·{" "}
-              {totals.hours.min} timer · {formatPriceRange(totals.price, currency)}
-              {licensePrice > 0 && (
-                <>
-                  {" "}+ {formatPriceRange({ min: licensePrice, max: licensePrice }, currency)}/mnd
-                  aktivering
-                </>
-              )}
-            </p>
+          <div className="flex items-center justify-end gap-3 flex-wrap">
             <div className="flex items-center gap-2">
               {onUseInOffer && (
                 <Button
