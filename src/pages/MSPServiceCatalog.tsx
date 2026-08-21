@@ -56,9 +56,7 @@ export default function MSPServiceCatalog() {
             </p>
           </header>
 
-          <MSPServiceCatalogTab
-            onOpenSecondary={(v) => setSecondary(v)}
-          />
+          <MSPServiceCatalogTab />
         </div>
       </main>
 
