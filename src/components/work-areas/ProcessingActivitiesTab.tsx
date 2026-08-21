@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Loader2, ChevronRight, Plus, Sparkles } from "lucide-react";
 import { ProcessingActivityWizardDialog } from "@/components/dialogs/ProcessingActivityWizardDialog";
+import { LaraIcon } from "@/components/agents/LaraIcon";
 import { dataClassLabel } from "@/lib/processingActivity";
 
 interface ProcessingActivitiesTabProps {
