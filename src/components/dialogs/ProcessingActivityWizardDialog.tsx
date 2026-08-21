@@ -252,6 +252,17 @@ export function ProcessingActivityWizardDialog({
       } as never);
       if (error) throw error;
 
+      // RoPA er knyttet til arbeidsområdet via systemet: sørg for at systemet
+      // ligger i arbeidsområdet (kun hvis det ikke allerede har et eierområde).
+      if (workAreaId) {
+        await supabase
+          .from("systems")
+          .update({ work_area_id: workAreaId } as never)
+          .eq("id", selectedSystemId)
+          .is("work_area_id", null);
+        queryClient.invalidateQueries({ queryKey: ["systems"] });
+      }
+
       queryClient.invalidateQueries({ queryKey: ["wa-processing-activities"] });
       queryClient.invalidateQueries({ queryKey: ["work-area-processes"] });
       queryClient.invalidateQueries({ queryKey: ["processes"] });
