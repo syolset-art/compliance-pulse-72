@@ -13,6 +13,8 @@ interface GlobalChatContextType {
   isChatOpen: boolean;
   setIsChatOpen: (open: boolean) => void;
   toggleChat: () => void;
+  isDocked: boolean;
+  setIsDocked: (docked: boolean) => void;
   openChatWithMessage: (message: string) => void;
   pendingMessage: string | null;
   clearPendingMessage: () => void;
@@ -31,6 +33,8 @@ export function useGlobalChat() {
       isChatOpen: false,
       setIsChatOpen: () => {},
       toggleChat: () => {},
+      isDocked: false,
+      setIsDocked: () => {},
       openChatWithMessage: () => {},
       pendingMessage: null,
       clearPendingMessage: () => {},
@@ -47,6 +51,10 @@ interface GlobalChatProviderProps {
 
 export function GlobalChatProvider({ children }: GlobalChatProviderProps) {
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [isDocked, setIsDockedState] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    return window.localStorage.getItem("lara-chat-docked") === "true";
+  });
   const [pendingMessage, setPendingMessage] = useState<string | null>(null);
   const [isAddAssetOpen, setIsAddAssetOpen] = useState(false);
   
