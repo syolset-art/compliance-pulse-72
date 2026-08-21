@@ -48,6 +48,7 @@ Analyser dokumentet og klassifiser det. Identifiser:
 2. Om dokumentet har en utløpsdato eller gyldighetsdato - og om det er utgått
 3. Hvilke regelverk dokumentet er relevant for (GDPR, ISO 27001, ISO 27701, SOC 2, NIS2, AI Act, DORA)
 4. Hvis det er en leverandørliste, ekstraher leverandørnavnene.
+5. Hvis dokumentet er en rapport, revisjon eller penetrasjonstest: vurder om den identifiserer svakheter, sårbarheter, hull eller avvik som må utbedres (hasFindings), og oppsummer funnene kort på norsk (findingsSummary). Et rent sertifikat eller en policy uten funn skal ha hasFindings = false.
 
 Dagens dato er ${new Date().toISOString().split('T')[0]}.`
           },
@@ -107,6 +108,14 @@ Dagens dato er ${new Date().toISOString().split('T')[0]}.`
                       },
                       required: ["regulation", "relevance", "reason"]
                     }
+                  },
+                  hasFindings: {
+                    type: "boolean",
+                    description: "True hvis dokumentet er en rapport/revisjon/pentest som identifiserer svakheter, sårbarheter eller avvik som må utbedres"
+                  },
+                  findingsSummary: {
+                    type: "string",
+                    description: "Kort oppsummering av svakhetene/funnene på norsk (1-2 setninger). Null hvis hasFindings er false."
                   },
                   extractedVendors: {
                     type: "array",

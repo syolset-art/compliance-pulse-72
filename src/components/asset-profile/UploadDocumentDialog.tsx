@@ -17,11 +17,17 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import {
   Upload, X, FileText, Sparkles, CheckCircle2, AlertTriangle, ArrowRight, Loader2,
-  Calendar, Shield, Clock, XCircle, TrendingUp, ExternalLink, ThumbsUp, ThumbsDown,
+  Calendar, Shield, Clock, XCircle, TrendingUp, ExternalLink, ThumbsUp, ThumbsDown, Info,
 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { calculateTPRMImpact, type TPRMLevel } from "@/lib/tprmUtils";
 import type { TPRMImpactData } from "@/components/ApprovalSuccessDialog";
+import {
+  analyseDocumentAcrossFrameworks,
+  coverageLabel,
+  type FrameworkCoverageMatches,
+} from "@/lib/laraDocumentCoverage";
+import { useRegisterVendorDeviation } from "@/hooks/useVendorDeviations";
 
 const DOC_TYPES = [
   { value: "policy", label: "Policy", labelNb: "Policy" },
@@ -86,6 +92,9 @@ interface AIClassification {
     reason: string;
   }>;
   extractedVendors: Array<{ name: string; description?: string }>;
+  /** True når rapporten/pentesten identifiserer svakheter som må utbedres. */
+  hasFindings?: boolean;
+  findingsSummary?: string | null;
 }
 
 interface ComplianceImpact {
@@ -115,6 +124,24 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
   const [complianceImpact, setComplianceImpact] = useState<ComplianceImpact | null>(null);
   const [tprmImpact, setTprmImpact] = useState<TPRMImpactData | null>(null);
   const [datesAreDefaults, setDatesAreDefaults] = useState(false);
+  /** Krav-treff per regelverk i scope — grunnlaget for scoreforklaringen. */
+  const [requirementHits, setRequirementHits] = useState<FrameworkCoverageMatches[]>([]);
+  const [deviationCreated, setDeviationCreated] = useState(false);
+
+  // Regelverk i scope — dokumentet må treffe krav her for å påvirke scoren
+  const { data: scopedFrameworks = [] } = useQuery({
+    queryKey: ["selected-frameworks-active"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("selected_frameworks")
+        .select("framework_id, framework_name")
+        .eq("is_selected", true);
+      if (error) return [];
+      return (data || []) as { framework_id: string; framework_name: string }[];
+    },
+  });
+
+  const registerDeviation = useRegisterVendorDeviation(assetId);
 
   // Fetch asset info for TPRM calculation
   const { data: assetInfoForTPRM } = useQuery({
@@ -155,6 +182,8 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
     setComplianceImpact(null);
     setTprmImpact(null);
     setDatesAreDefaults(false);
+    setRequirementHits([]);
+    setDeviationCreated(false);
     setDocType("");
     setCategory("Other");
     setDisplayName("");
@@ -425,6 +454,46 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
       );
       setTprmImpact(tprm);
 
+      // Laras krav-treff-analyse: hvilke krav i scope-regelverkene svarer
+      // dokumentet ut? Det er dette — ikke opplastingen i seg selv — som
+      // påvirker scoren (jf. Mynder Score Model v1, R5).
+      const hits = analyseDocumentAcrossFrameworks(scopedFrameworks, {
+        displayName: displayName || file.name,
+        fileName: file.name,
+        documentType: docType,
+      });
+      setRequirementHits(hits);
+
+      // Rapport/pentest med svakheter: scoren løftes ikke — i stedet
+      // registreres et avvik som genererer tiltak i arbeidslisten.
+      if (classification?.hasFindings) {
+        try {
+          const { data: userRes } = await supabase.auth.getUser();
+          const responsible =
+            (userRes?.user?.user_metadata?.full_name as string) ||
+            userRes?.user?.email ||
+            (isNb ? "Leverandøransvarlig" : "Vendor manager");
+          registerDeviation.mutate({
+            assetId,
+            title: isNb
+              ? `Funn i ${displayName || file.name}`
+              : `Findings in ${displayName || file.name}`,
+            description:
+              classification.findingsSummary || classification.summary || "",
+            category: "sikkerhet",
+            criticality: "high",
+            responsible,
+            discoveredAt: new Date(),
+            dueDate: null,
+            source: "document_analysis",
+            impacts: [],
+          });
+          setDeviationCreated(true);
+        } catch (err) {
+          console.error("Kunne ikke registrere avvik fra dokumentfunn:", err);
+        }
+      }
+
       setStep("saved");
     } catch {
       toast.error(isNb ? "Kunne ikke laste opp" : "Upload failed");
@@ -450,6 +519,7 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
   };
 
   const confidencePercent = classification ? Math.round((classification.confidence || 0) * 100) : 0;
+  const totalRequirementHits = requirementHits.reduce((n, g) => n + g.matches.length, 0);
   const confidenceColor = confidencePercent >= 80 ? "bg-status-closed" : confidencePercent >= 50 ? "bg-warning" : "bg-destructive";
   const confidenceTextColor = confidencePercent >= 80 ? "text-status-closed" : confidencePercent >= 50 ? "text-warning" : "text-destructive";
 
@@ -791,14 +861,82 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
               </div>
             </div>
 
-            {/* Compliance score impact */}
+            {/* Funn i rapport/pentest → tiltak, ikke score */}
+            {classification?.hasFindings && (
+              <div className="p-3 rounded-lg border border-warning/30 bg-warning/10 flex items-start gap-2.5">
+                <AlertTriangle className="h-4 w-4 text-warning mt-0.5 shrink-0" aria-hidden="true" />
+                <div className="space-y-1 min-w-0">
+                  <p className="text-sm font-medium text-foreground">
+                    {isNb ? "Rapporten viser svakheter som må utbedres" : "The report shows weaknesses that must be fixed"}
+                  </p>
+                  {classification.findingsSummary && (
+                    <p className="text-xs text-foreground/80">{classification.findingsSummary}</p>
+                  )}
+                  <p className="text-xs text-muted-foreground">
+                    {deviationCreated
+                      ? (isNb
+                          ? "Scoren påvirkes ikke av denne rapporten. Det er opprettet et avvik med tiltak i arbeidslisten — når tiltakene er gjennomført og sikkerheten er styrket, kan kravene dokumenteres på nytt."
+                          : "This report does not affect the score. A deviation with actions has been created in the work list — once the actions are completed and security is strengthened, the requirements can be documented again.")
+                      : (isNb
+                          ? "Scoren påvirkes ikke av denne rapporten — svakhetene må utbedres før kravene kan regnes som oppfylt."
+                          : "This report does not affect the score — the weaknesses must be fixed before the requirements can be considered met.")}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Slik påvirker dokumentet scoren */}
             <div className="p-4 rounded-lg border bg-muted/20 space-y-3">
               <div className="flex items-center gap-2">
                 <TrendingUp className="h-4 w-4 text-primary" />
-                <span className="text-sm font-medium">{isNb ? "Compliance-effekt på Trust Profile" : "Compliance Impact on Trust Profile"}</span>
+                <span className="text-sm font-medium">{isNb ? "Slik påvirker dokumentet scoren din" : "How this document affects your score"}</span>
               </div>
 
-              <div className="flex items-center justify-center gap-4">
+              {totalRequirementHits > 0 ? (
+                <div className="space-y-2.5">
+                  <p className="text-sm text-foreground">
+                    {isNb
+                      ? `Dokumentet svarer ut ${totalRequirementHits} krav i ${requirementHits.length} ${requirementHits.length === 1 ? "regelverk" : "regelverk"} i scope — derfor påvirkes scoren.`
+                      : `The document answers ${totalRequirementHits} ${totalRequirementHits === 1 ? "requirement" : "requirements"} across ${requirementHits.length} ${requirementHits.length === 1 ? "regulation" : "regulations"} in scope — that's why the score is affected.`}
+                  </p>
+                  {requirementHits.map((group) => (
+                    <div key={group.frameworkId} className="space-y-1">
+                      <p className="text-xs font-semibold text-foreground">{group.frameworkName}</p>
+                      {group.matches.map((m) => (
+                        <div key={m.requirementId} className="flex items-center gap-2 text-xs pl-1">
+                          <CheckCircle2 className="h-3.5 w-3.5 text-status-closed shrink-0" aria-hidden="true" />
+                          <span className="flex-1 min-w-0 truncate">{m.label}</span>
+                          <Badge variant="outline" className="text-[11px] font-normal shrink-0">
+                            {coverageLabel(m.coverageRatio, isNb)}
+                          </Badge>
+                        </div>
+                      ))}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="flex items-start gap-2.5">
+                  <Info className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" aria-hidden="true" />
+                  <div className="space-y-1">
+                    <p className="text-sm text-foreground">
+                      {isNb
+                        ? "Dokumentet ble ikke koblet til noen krav i regelverkene dere har i scope. Scoren endres derfor ikke — opplasting alene påvirker ikke scoren."
+                        : "The document was not linked to any requirements in the regulations you have in scope. The score therefore does not change — uploading alone does not affect the score."}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {classification?.expiryStatus === "expired"
+                        ? (isNb
+                            ? "Dokumentet er i tillegg utgått — utdatert dokumentasjon løfter ikke scoren."
+                            : "The document is also expired — outdated documentation does not lift the score.")
+                        : (isNb
+                            ? "For å påvirke scoren må dokumentet svare ut et konkret krav, f.eks. en DPA, DPIA eller et sertifikat som etterspørres av regelverket."
+                            : "To affect the score, the document must answer a specific requirement, e.g. a DPA, DPIA or a certificate requested by the regulation.")}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              <div className="flex items-center justify-center gap-4 pt-1">
                 <div className="text-center">
                   <p className="text-3xl font-bold text-muted-foreground">{complianceImpact.scoreBefore}%</p>
                   <p className="text-[13px] text-muted-foreground uppercase">{isNb ? "Før" : "Before"}</p>
@@ -824,6 +962,12 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
                 value={animatedScore}
                 className="h-2.5"
               />
+
+              <p className="text-[11px] text-muted-foreground">
+                {isNb
+                  ? "Scoren påvirkes bare når et dokument svarer ut konkrete krav i regelverk i scope — ikke av opplasting alene."
+                  : "The score is only affected when a document answers specific requirements in regulations in scope — not by uploading alone."}
+              </p>
             </div>
 
             {/* TPRM Impact */}

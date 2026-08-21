@@ -93,3 +93,34 @@ export function analyseDocumentCoverage(input: {
 export function coverageLabel(ratio: number, isNb: boolean): string {
   return coverageScaleLabel(toCoverageValue(ratio), isNb);
 }
+
+export interface FrameworkCoverageMatches {
+  frameworkId: string;
+  frameworkName: string;
+  matches: CoverageMatch[];
+}
+
+/**
+ * Normaliserer framework-id til nøkkelen som brukes i hint-katalogen
+ * («AI Act» → «aiact», «ISO 27001» → «iso27001»).
+ */
+function catalogKey(frameworkId: string): string {
+  return (frameworkId ?? "").toLowerCase().replace(/[^a-z0-9]/g, "");
+}
+
+/**
+ * Analyserer ett dokument mot alle regelverk i scope og returnerer
+ * krav-treff gruppert per regelverk (kun regelverk med minst ett treff).
+ */
+export function analyseDocumentAcrossFrameworks(
+  frameworks: { framework_id: string; framework_name: string }[],
+  input: { displayName: string; fileName?: string; documentType?: string },
+): FrameworkCoverageMatches[] {
+  return frameworks
+    .map((f) => ({
+      frameworkId: f.framework_id,
+      frameworkName: f.framework_name,
+      matches: analyseDocumentCoverage({ ...input, frameworkId: catalogKey(f.framework_id) }),
+    }))
+    .filter((g) => g.matches.length > 0);
+}
