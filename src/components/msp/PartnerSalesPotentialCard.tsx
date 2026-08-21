@@ -93,6 +93,10 @@ export function PartnerSalesPotentialCard({ currency }: { currency: string }) {
   useEffect(() => {
     localStorage.setItem(LS_ADVISORY_COUNT, JSON.stringify(advisoryCount));
   }, [advisoryCount]);
+  useEffect(() => {
+    if (hoursPerFwOverride === null) localStorage.removeItem(LS_HOURS_PER_FW);
+    else localStorage.setItem(LS_HOURS_PER_FW, JSON.stringify(hoursPerFwOverride));
+  }, [hoursPerFwOverride]);
 
   const selected = options.filter((o) => selectedIds.includes(o.id));
 
@@ -114,12 +118,14 @@ export function PartnerSalesPotentialCard({ currency }: { currency: string }) {
   const frameworkLicense = selected.reduce((sum, f) => sum + f.priceKr, 0);
   const licensePotential = productLicense + frameworkLicense;
 
-  // Rådgivning: 1 time per kontrollpunkt i snitt, per regelverk i pakken.
+  // Rådgivning: timer per regelverk (auto = 1 t per kontrollpunkt i snitt,
+  // kan overstyres) × antall regelverk i pakken × timepris.
   const avgControlPoints =
     selected.length > 0
       ? selected.reduce((sum, f) => sum + f.controlPoints, 0) / selected.length
       : 0;
-  const advisoryHours = Math.round(avgControlPoints * Math.max(0, advisoryCount));
+  const hoursPerFramework = hoursPerFwOverride ?? Math.round(avgControlPoints);
+  const advisoryHours = hoursPerFramework * Math.max(0, advisoryCount);
   const advisoryPotential = advisoryHours * (hourlyRate || 0);
 
   const selectedLabel =
