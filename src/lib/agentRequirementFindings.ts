@@ -1,23 +1,27 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 /**
- * Agent-leverte kravfunn: dokumentasjon funnet i kundens egen infrastruktur
- * av Sara (lokal agent) eller kundens egen agent via MCP. Selve dokumentet
- * forlater aldri kunden — kun dokument-ID, hash og kilde sendes til Mynder.
+ * Agent-leverte kravfunn (BYOA): dokumentasjon funnet i kundens egen
+ * infrastruktur av Sara (lokal agent) eller kundens egen agent via MCP.
+ * Selve dokumentet forlater aldri kunden — kun dokument-ID, hash og kilde
+ * sendes til Mynder.
+ *
+ * Godkjenning skjer ALLTID i Mynder-portalen: funn kommer inn som forslag
+ * etter innsending, og et navngitt menneske hos kunden må godkjenne dem
+ * eksplisitt før de teller som grunnlag eller påvirker skåren.
+ * Aldri automatisk — heller ikke for Sara-funn.
  *
  * Demodata + godkjenningsflyt. Beslutninger lagres i localStorage.
  */
 
 export type AgentChannel = "sara" | "mcp";
-export type AgentApproval = "pre_approved_at_source" | "awaiting_approval";
 export type AgentDecision = "approved" | "rejected";
 
-/** Løst status for et funn etter at brukerens beslutninger er lagt til. */
+/** Effektiv status for et funn etter at brukerens beslutninger er lagt til. */
 export type FindingStatus =
-  | "approved_source" // godkjent i kundens system før innsending
-  | "approved_mynder" // godkjent av brukeren i Mynder
-  | "awaiting" // venter på godkjenning
-  | "rejected"; // avvist av brukeren
+  | "approved_mynder" // godkjent av en navngitt person i Mynder-portalen
+  | "awaiting" // forslag — påvirker ikke skåren
+  | "rejected"; // avvist av en navngitt person
 
 export interface AgentRequirementFinding {
   requirementId: string;
@@ -31,14 +35,15 @@ export interface AgentRequirementFinding {
   agentVersion: string;
   /** Visningstekst for leveringstidspunkt */
   deliveredAt: string;
-  approval: AgentApproval;
-  /** Person / rolle som har verifisert funnet hos kunden */
-  verifiedBy: string;
+  /** Kort konklusjon fra agenten */
+  conclusionNb: string;
+  conclusionEn: string;
+  /** Begrunnelse / sammendrag av funnet */
   summaryNb: string;
   summaryEn: string;
 }
 
-/** Demofunn på EU AI Act som illustrerer begge godkjenningsstatusene. */
+/** Demofunn på EU AI Act — alle kommer inn som forslag som venter godkjenning. */
 export const AGENT_REQUIREMENT_FINDINGS: AgentRequirementFinding[] = [
   {
     requirementId: "AIACT-Art9",
@@ -49,12 +54,12 @@ export const AGENT_REQUIREMENT_FINDINGS: AgentRequirementFinding[] = [
     hash: "sha256:7c3d…a118",
     agentVersion: "0.9.2",
     deliveredAt: "I dag 08:47",
-    approval: "pre_approved_at_source",
-    verifiedBy: "Compliance-ansvarlig, Kunden AS",
+    conclusionNb: "Dokumentasjon funnet — kravet ser dekket ut",
+    conclusionEn: "Documentation found — the requirement appears covered",
     summaryNb:
-      "Vurdering av innvirkning på grunnleggende rettigheter er gjennomført for høyrisiko KI-systemene og bekreftet av ansvarlig hos kunden før innsending.",
+      "Vurdering av innvirkning på grunnleggende rettigheter er funnet for høyrisiko KI-systemene. Agenten har vurdert at innholdet svarer til kravene i artikkel 9, men funnet er ikke godkjent av en person ennå.",
     summaryEn:
-      "Fundamental rights impact assessment completed for the high-risk AI systems and confirmed by the responsible person at the customer before submission.",
+      "Fundamental rights impact assessment found for the high-risk AI systems. The agent has assessed that the content meets the requirements of Article 9, but the finding has not yet been approved by a person.",
   },
   {
     requirementId: "AIACT-Art11",
@@ -65,8 +70,8 @@ export const AGENT_REQUIREMENT_FINDINGS: AgentRequirementFinding[] = [
     hash: "sha256:b02e…6f4c",
     agentVersion: "1.4.0",
     deliveredAt: "I dag 07:15",
-    approval: "awaiting_approval",
-    verifiedBy: "Venter vurdering",
+    conclusionNb: "Teknisk dokumentasjon funnet — dekning ikke vurdert",
+    conclusionEn: "Technical documentation found — coverage not assessed",
     summaryNb:
       "Teknisk dokumentasjon funnet med beskrivelse av design, utvikling og testing. Dekningen er ikke vurdert av en person hos kunden ennå.",
     summaryEn:
@@ -81,8 +86,8 @@ export const AGENT_REQUIREMENT_FINDINGS: AgentRequirementFinding[] = [
     hash: "sha256:e8a1…93d0",
     agentVersion: "0.9.2",
     deliveredAt: "I går 15:58",
-    approval: "awaiting_approval",
-    verifiedBy: "Produkteier, Kunden AS",
+    conclusionNb: "Brukerinformasjon funnet — versjon ubekreftet",
+    conclusionEn: "User information found — version unconfirmed",
     summaryNb:
       "Brukerinformasjon og åpenhetsdokumentasjon funnet. Dokumentet er datert, men ikke bekreftet som gjeldende versjon av ansvarlig hos kunden.",
     summaryEn:
@@ -97,12 +102,12 @@ export const AGENT_REQUIREMENT_FINDINGS: AgentRequirementFinding[] = [
     hash: "sha256:44ac…0e71",
     agentVersion: "1.4.0",
     deliveredAt: "I går 11:02",
-    approval: "pre_approved_at_source",
-    verifiedBy: "Compliance-ansvarlig, Kunden AS",
+    conclusionNb: "Markedsovervåkingsplan funnet",
+    conclusionEn: "Post-market monitoring plan found",
     summaryNb:
-      "Plan for markedsovervåking etter utplassering er funnet og godkjent av compliance-ansvarlig hos kunden før innsending.",
+      "Plan for markedsovervåking etter utplassering er funnet i kundens SharePoint. Dokumentet er ikke gjennomgått av en person hos kunden ennå.",
     summaryEn:
-      "Post-market monitoring plan found and approved by the compliance lead at the customer before submission.",
+      "Post-market monitoring plan found in the customer's SharePoint. The document has not yet been reviewed by a person at the customer.",
   },
 ];
 
@@ -112,6 +117,8 @@ const EVENT = "mynder-agent-findings";
 export interface FindingDecision {
   decision: AgentDecision;
   at: string; // ISO
+  /** Navn på personen som tok beslutningen i Mynder-portalen */
+  by?: string;
 }
 
 export function readFindingDecisions(): Record<string, FindingDecision> {
@@ -125,9 +132,9 @@ export function readFindingDecisions(): Record<string, FindingDecision> {
   }
 }
 
-function writeFindingDecision(requirementId: string, decision: AgentDecision) {
+function writeFindingDecision(requirementId: string, decision: AgentDecision, by?: string) {
   const all = readFindingDecisions();
-  all[requirementId] = { decision, at: new Date().toISOString() };
+  all[requirementId] = { decision, at: new Date().toISOString(), by };
   try {
     localStorage.setItem(DECISIONS_KEY, JSON.stringify(all));
   } catch {
@@ -140,7 +147,11 @@ export function getFindingForRequirement(requirementId: string): AgentRequiremen
   return AGENT_REQUIREMENT_FINDINGS.find((f) => f.requirementId === requirementId);
 }
 
-/** Løser funnets effektive status ut fra opprinnelig godkjenning + brukerens beslutning. */
+/**
+ * Løser funnets effektive status. ALLE agent-funn (Sara og MCP) er forslag
+ * fram til en navngitt person godkjenner dem i Mynder-portalen — ingenting
+ * godkjennes automatisk, og ugodkjente funn påvirker ikke skåren.
+ */
 export function resolveFindingStatus(
   finding: AgentRequirementFinding,
   decisions: Record<string, FindingDecision>,
@@ -148,10 +159,7 @@ export function resolveFindingStatus(
   const d = decisions[finding.requirementId];
   if (d?.decision === "approved") return "approved_mynder";
   if (d?.decision === "rejected") return "rejected";
-  // Sara-funn er allerede verifisert i kundens egen infrastruktur av en ansvarlig person
-  // og trenger ikke ny godkjenning i Mynder.
-  if (finding.channel === "sara") return "approved_source";
-  return finding.approval === "pre_approved_at_source" ? "approved_source" : "awaiting";
+  return "awaiting";
 }
 
 export function useAgentFindings() {
@@ -172,8 +180,14 @@ export function useAgentFindings() {
     [],
   );
 
-  const approve = useCallback((requirementId: string) => writeFindingDecision(requirementId, "approved"), []);
-  const reject = useCallback((requirementId: string) => writeFindingDecision(requirementId, "rejected"), []);
+  const approve = useCallback(
+    (requirementId: string, by?: string) => writeFindingDecision(requirementId, "approved", by),
+    [],
+  );
+  const reject = useCallback(
+    (requirementId: string, by?: string) => writeFindingDecision(requirementId, "rejected", by),
+    [],
+  );
 
   return { decisions, byRequirement, approve, reject };
 }
