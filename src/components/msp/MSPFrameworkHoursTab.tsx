@@ -26,7 +26,7 @@ export function MSPFrameworkHoursTab({
   openFrameworkId = null,
   onOpenedFramework,
 }: {
-  onSaveAsService: (pkg: SavedFrameworkPackage) => void;
+  onSaveAsService?: (pkg: SavedFrameworkPackage) => void;
   openFrameworkId?: string | null;
   onOpenedFramework?: () => void;
 }) {

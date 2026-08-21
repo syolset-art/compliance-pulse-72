@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useState } from "react";
 import { Sidebar } from "@/components/Sidebar";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
@@ -8,7 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Settings2, Sparkles, FileText } from "lucide-react";
+import { Settings2, FileText } from "lucide-react";
 import { MSPServiceCatalogTab } from "@/components/msp/MSPServiceCatalogTab";
 import { MSPServiceSettingsTab } from "@/components/msp/MSPServiceSettingsTab";
 import { MSPServiceHowItWorksTab } from "@/components/msp/MSPServiceHowItWorksTab";
@@ -17,10 +17,6 @@ type SecondaryView = "settings" | "how-it-works" | null;
 
 export default function MSPServiceCatalog() {
   const [secondary, setSecondary] = useState<SecondaryView>(null);
-  const actionsRef = useRef<{ openWizard: () => void } | null>(null);
-  const registerActions = useCallback((actions: { openWizard: () => void }) => {
-    actionsRef.current = actions;
-  }, []);
 
   return (
     <div className="flex min-h-screen w-full bg-background">
@@ -47,10 +43,6 @@ export default function MSPServiceCatalog() {
                     <Settings2 className="h-4 w-4 mr-2" />
                     Innstillinger
                   </DropdownMenuItem>
-                  <DropdownMenuItem onSelect={() => actionsRef.current?.openWizard()}>
-                    <Sparkles className="h-4 w-4 mr-2" />
-                    Tjenesteprofil
-                  </DropdownMenuItem>
                   <DropdownMenuItem onSelect={() => setSecondary("how-it-works")}>
                     <FileText className="h-4 w-4 mr-2" />
                     Hvordan virker det
@@ -59,15 +51,12 @@ export default function MSPServiceCatalog() {
               </DropdownMenu>
             </div>
             <p className="text-base text-foreground/80 mt-1 leading-relaxed max-w-3xl">
-              Bygg din tjenestekatalog og se hvilke regelverk hver tjeneste dekker.
-              Videreselg Mynder-produkter til dine kunder og tjen provisjon på lisenser.
+              Se hvilke regelverk og krav som er tilgjengelige, og bygg pakkede tjenester basert på
+              krav som gjelder for dine kunder.
             </p>
           </header>
 
-          <MSPServiceCatalogTab
-            onOpenSecondary={(v) => setSecondary(v)}
-            onRegisterActions={registerActions}
-          />
+          <MSPServiceCatalogTab />
         </div>
       </main>
 

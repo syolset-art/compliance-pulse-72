@@ -60,7 +60,7 @@ interface Props {
   onOpenChange: (o: boolean) => void;
   hourlyRate: number;
   currency: string;
-  onSaveAsService: (pkg: SavedFrameworkPackage) => void;
+  onSaveAsService?: (pkg: SavedFrameworkPackage) => void;
   onUseInOffer?: (pkg: SavedFrameworkPackage) => void;
 }
 
@@ -407,17 +407,19 @@ export function MSPFrameworkTaskPackageSheet({
                   Bruk i tilbud
                 </Button>
               )}
-              <Button
-                size="sm"
-                className="h-8 text-xs"
-                disabled={totals.tasks === 0}
-                onClick={() => {
-                  onSaveAsService(buildPackage());
-                  onOpenChange(false);
-                }}
-              >
-                Lagre som tjeneste
-              </Button>
+              {onSaveAsService && (
+                <Button
+                  size="sm"
+                  className="h-8 text-xs"
+                  disabled={totals.tasks === 0}
+                  onClick={() => {
+                    onSaveAsService(buildPackage());
+                    onOpenChange(false);
+                  }}
+                >
+                  Lagre som tjeneste
+                </Button>
+              )}
             </div>
           </div>
         </div>
