@@ -29,6 +29,7 @@ interface Activity {
   legal_basis?: string | null;
   controller_name?: string | null;
   ai_suggested_fields?: Record<string, unknown> | null;
+  created_at?: string | null;
   systems?: { name: string } | null;
 }
 
