@@ -394,30 +394,6 @@ export function ServiceCoverageSearch({
         </p>
       )}
 
-      {mode === "framework" && (
-        <div className="max-w-sm">
-          <Select
-            value={framework?.id ?? ""}
-            onValueChange={(id) => setPickedFrameworkId(id)}
-          >
-            <SelectTrigger className="h-9 text-sm" aria-label="Velg regelverk">
-              <SelectValue placeholder="Velg regelverk…" />
-            </SelectTrigger>
-            <SelectContent>
-              {frameworkList.map((f) => (
-                <SelectItem key={f.id} value={f.id}>
-                  {f.name}
-                </SelectItem>
-              ))}
-              {frameworkList.length === 0 && (
-                <div className="px-2 py-1.5 text-xs text-muted-foreground">
-                  Ingen regelverk matcher søket.
-                </div>
-              )}
-            </SelectContent>
-          </Select>
-        </div>
-      )}
 
       {mode === "product" && (
         <div className="flex flex-wrap gap-1.5">
