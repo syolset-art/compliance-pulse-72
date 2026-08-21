@@ -1,5 +1,15 @@
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import { Separator } from "@/components/ui/separator";
 import {
   LayoutGrid,
   Truck,
@@ -7,6 +17,8 @@ import {
   Scale,
   AlertTriangle,
   Globe,
+  Settings2,
+  Handshake,
   type LucideIcon,
 } from "lucide-react";
 import { MYNDER_PRODUCTS, type MynderProduct } from "@/lib/mynderProducts";
@@ -69,9 +81,6 @@ function ProductRow({ product }: { product: MynderProduct }) {
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 flex-wrap">
           <p className="text-sm font-medium text-foreground">{product.name}</p>
-          <Badge variant="secondary" className="text-[10px] font-normal">
-            {product.commissionPct} % provisjon
-          </Badge>
           {isFrameworks && activeFrameworks > 0 && (
             <Badge variant="outline" className="text-[10px] font-normal">
               {activeFrameworks} regelverk aktivert
