@@ -60,7 +60,7 @@ interface Props {
   onOpenChange: (o: boolean) => void;
   hourlyRate: number;
   currency: string;
-  onSaveAsService: (pkg: SavedFrameworkPackage) => void;
+  onSaveAsService?: (pkg: SavedFrameworkPackage) => void;
   onUseInOffer?: (pkg: SavedFrameworkPackage) => void;
 }
 
