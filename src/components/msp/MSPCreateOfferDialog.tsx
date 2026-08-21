@@ -21,6 +21,7 @@ import { getRelatedControls } from "@/lib/controlCrosswalk";
 import { buildOfferCoverage, inactiveFrameworkPitch, FRAMEWORK_ACTIVATION_HOURS } from "@/lib/offerCoverage";
 import { OfferCoveragePanel } from "./OfferCoveragePanel";
 import { getFrameworkGap, getGapIdsForControls, severityDotClass, SEVERITY_LABEL, type GapItem } from "@/lib/gapData";
+import { useFrameworkPackages } from "@/hooks/useFrameworkPackages";
 import { getControlLabel } from "@/lib/serviceControlLabels";
 import { Link2, ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -235,10 +236,12 @@ export function MSPCreateOfferDialog({
     [coverageServiceLabels, activeFrameworks],
   );
 
+  const { packages: frameworkPackages } = useFrameworkPackages();
+
   const handleAddFramework = (fw: { id: string; label: string }) => {
     setAddedFrameworkIds((prev) => (prev.includes(fw.id) ? prev : [...prev, fw.id]));
-    setTasks((prev) => [
-      ...prev,
+    const savedPackage = frameworkPackages[fw.id];
+    const newTasks: EditableTask[] = [
       {
         label: `Aktiver ${fw.label} i Mynder`,
         hours: FRAMEWORK_ACTIVATION_HOURS,
@@ -246,8 +249,24 @@ export function MSPCreateOfferDialog({
         gapIds: [],
         note: "Gir kunden modenhetsscore og rapport for regelverket.",
       } as EditableTask,
-    ]);
-    toast.success(`${fw.label} lagt til i tilbudet`);
+    ];
+    // Har partneren satt opp en rådgivningspakke for regelverket under
+    // «Produkter og tjenester», legges den inn som ferdig forslag.
+    if (savedPackage?.is_active && savedPackage.total_hours > 0) {
+      newTasks.push({
+        label: `Rådgivningspakke: ${fw.label}`,
+        hours: savedPackage.total_hours,
+        owner: "Partner",
+        gapIds: [],
+        note: "Ferdig pakke fra Produkter og tjenester — dekker kravene partneren har valgt å jobbe med.",
+      } as EditableTask);
+    }
+    setTasks((prev) => [...prev, ...newTasks]);
+    toast.success(
+      savedPackage?.is_active
+        ? `${fw.label} lagt til med rådgivningspakke (${savedPackage.total_hours} t)`
+        : `${fw.label} lagt til i tilbudet`,
+    );
   };
 
 

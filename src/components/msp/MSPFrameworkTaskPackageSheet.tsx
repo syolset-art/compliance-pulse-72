@@ -21,6 +21,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Plus, RotateCcw, Sparkles, Trash2, Pencil, Check, X } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner";
 import { formatPriceRange } from "@/lib/documentDeliverables";
 import { baselineRequirementRows } from "@/lib/frameworkRequirementBaseline";
@@ -62,6 +64,13 @@ interface Props {
   currency: string;
   onSaveAsService?: (pkg: SavedFrameworkPackage) => void;
   onUseInOffer?: (pkg: SavedFrameworkPackage) => void;
+  /** Lagret pakke fra databasen — brukes i stedet for localStorage når den finnes. */
+  initialState?: FrameworkPackageState | null;
+  /** Om regelverket er aktivert i partnerens salgsportefølje. */
+  isActive?: boolean;
+  onToggleActive?: (isActive: boolean) => void;
+  /** Lagrer pakken (state + totalsummer) til databasen. */
+  onSavePackage?: (pkg: SavedFrameworkPackage, state: FrameworkPackageState) => void;
 }
 
 const KINDS: DeliverableKind[] = ["advisory", "technical", "ai-draft"];
@@ -75,6 +84,10 @@ export function MSPFrameworkTaskPackageSheet({
   currency,
   onSaveAsService,
   onUseInOffer,
+  initialState = null,
+  isActive = false,
+  onToggleActive,
+  onSavePackage,
 }: Props) {
   const [state, setState] = useState<FrameworkPackageState>(EMPTY_PACKAGE_STATE);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -87,9 +100,11 @@ export function MSPFrameworkTaskPackageSheet({
   const [adding, setAdding] = useState(false);
 
   useEffect(() => {
-    if (frameworkId) setState(loadPackageState(frameworkId));
+    if (frameworkId) setState(initialState ?? loadPackageState(frameworkId));
     setEditingId(null);
     setAdding(false);
+    // initialState lastes kun når sheetet åpnes for et nytt regelverk
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [frameworkId, open]);
 
   const persist = (next: FrameworkPackageState) => {
@@ -279,11 +294,45 @@ export function MSPFrameworkTaskPackageSheet({
         <SheetHeader>
           <SheetTitle>{frameworkName}</SheetTitle>
           <SheetDescription>
-            Alle oppgaver som må leveres for å dekke kravene. Juster timer, fjern det som ikke er
-            relevant, eller legg til egne oppgaver. Pris beregnes fra timeprisen din
-            ({hourlyRate.toLocaleString("nb-NO")} {currency}).
+            Alle krav med tilhørende oppgaver som må leveres. Juster timer, fjern det som ikke er
+            relevant, eller legg til egne oppgaver. Pris beregnes fra timeprisen din (
+            {hourlyRate.toLocaleString("nb-NO")} {currency}).
           </SheetDescription>
         </SheetHeader>
+
+        <div className="mt-3 space-y-2">
+          {onToggleActive && (
+            <div className="flex items-center justify-between gap-3 rounded-md border border-border bg-muted/30 px-3 py-2">
+              <div>
+                <Label htmlFor="fw-active" className="text-sm font-medium text-foreground">
+                  Aktivert i salgsporteføljen
+                </Label>
+                <p className="text-[11px] text-muted-foreground">
+                  Regelverket telles med i salgspotensialet og kan legges i tilbud.
+                </p>
+              </div>
+              <Switch
+                id="fw-active"
+                checked={isActive}
+                onCheckedChange={(v) => onToggleActive(v === true)}
+              />
+            </div>
+          )}
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Badge variant="outline" className="text-[10px] font-normal gap-1 cursor-help">
+                  <Sparkles className="h-2.5 w-2.5" /> Timer foreslått av Lara
+                </Badge>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="max-w-xs text-xs">
+                Timene per kontrollpunkt er et AI-forslag fra Lara, beregnet fra kravets omfang og
+                typisk dokumentasjonsbehov. Du kan endre alle timer og fjerne krav du ikke vil
+                jobbe med — forslaget er kun et utgangspunkt.
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
 
         <div className="mt-4 space-y-5 pb-32">
           {isLoading && <p className="text-sm text-muted-foreground">Henter krav…</p>}
@@ -405,6 +454,16 @@ export function MSPFrameworkTaskPackageSheet({
                   onClick={() => onUseInOffer(buildPackage())}
                 >
                   Bruk i tilbud
+                </Button>
+              )}
+              {onSavePackage && (
+                <Button
+                  size="sm"
+                  className="h-8 text-xs"
+                  disabled={totals.tasks === 0}
+                  onClick={() => onSavePackage(buildPackage(), state)}
+                >
+                  Lagre pakke
                 </Button>
               )}
               {onSaveAsService && (
