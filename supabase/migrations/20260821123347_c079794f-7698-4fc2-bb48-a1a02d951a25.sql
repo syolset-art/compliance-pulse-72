@@ -1,0 +1,1 @@
+UPDATE public.systems SET work_area_id = 'ea7b5a07-d56d-472e-b0c8-504fd18b67ea' WHERE id = 'c64bd98a-c70d-44fd-b9cf-a5ffbfc8938c' AND work_area_id IS NULL;
