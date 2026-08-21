@@ -307,17 +307,35 @@ export function MSPFrameworkTaskPackageSheet({
               />
             </div>
           )}
-          <div className="flex items-center justify-between gap-3 rounded-md border border-border px-3 py-2">
-            <div>
+          <div className="rounded-md border border-border px-3 py-2 space-y-1.5">
+            <div className="flex items-center justify-between gap-3">
               <p className="text-sm font-medium text-foreground">Aktiveringspris</p>
-              <p className="text-[11px] text-muted-foreground">
-                Månedlig lisens kunden betaler for å aktivere regelverket — inkludert i totalsummen
-                nederst.
+              <p className="text-sm font-semibold text-foreground shrink-0">
+                {formatPriceRange({ min: licensePrice, max: licensePrice }, currency)}/mnd
               </p>
             </div>
-            <p className="text-sm font-semibold text-foreground shrink-0">
-              {formatPriceRange({ min: licensePrice, max: licensePrice }, currency)}/mnd
-            </p>
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-sm font-medium text-foreground">Oppgaver og timer</p>
+              <p className="text-sm text-foreground shrink-0">
+                {totals.tasks} oppgaver ·{" "}
+                {totals.hours.min === totals.hours.max
+                  ? `${totals.hours.min} timer`
+                  : `${totals.hours.min}–${totals.hours.max} timer`}{" "}
+                · {formatPriceRange(totals.price, currency)}
+              </p>
+            </div>
+            <div className="flex items-center justify-between gap-3 border-t border-border pt-1.5">
+              <p className="text-sm font-medium text-foreground">Totalt</p>
+              <p className="text-sm font-semibold text-foreground shrink-0">
+                {formatPriceRange(totals.price, currency)}
+                {licensePrice > 0 && (
+                  <>
+                    {" "}+ {formatPriceRange({ min: licensePrice, max: licensePrice }, currency)}
+                    /mnd aktivering
+                  </>
+                )}
+              </p>
+            </div>
           </div>
           <TooltipProvider>
             <Tooltip>
