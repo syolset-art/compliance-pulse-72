@@ -701,33 +701,12 @@ export function MSPServiceCatalogTab({ onOpenSecondary, onRegisterActions }: { o
       />
 
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+      <MSPFrameworkHoursTab
+        onSaveAsService={saveFrameworkPackageAsService}
+        openFrameworkId={openFrameworkId}
+        onOpenedFramework={() => setOpenFrameworkId(null)}
+      />
 
-        <div className="flex items-center justify-between gap-2">
-          <TabsList>
-            <TabsTrigger value="regelverk">Regelverk</TabsTrigger>
-            <TabsTrigger value="mine">
-              Mine ({mineActiveCount + 3})
-            </TabsTrigger>
-            <TabsTrigger value="alle">
-              Alle ({availablePicks.length})
-            </TabsTrigger>
-          </TabsList>
-        </div>
-
-
-        <TabsContent value="regelverk" className="space-y-6 mt-4">
-          <MSPFrameworkHoursTab
-            onSaveAsService={saveFrameworkPackageAsService}
-            openFrameworkId={openFrameworkId}
-            onOpenedFramework={() => setOpenFrameworkId(null)}
-          />
-
-        </TabsContent>
-
-        <TabsContent value="alle" className="space-y-6 mt-4">
-      {/* Foreslåtte tjenester — vises øverst når brukeren kommer inn */}
-      <section className="space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">
             <div className="text-sm font-medium text-foreground">Velg tjenester til din katalog</div>
