@@ -144,7 +144,10 @@ export function GlobalChatProvider({ children }: GlobalChatProviderProps) {
         unregisterAssetAddedCallback
       }}
     >
-      {children}
+      {/* Squeeze page content when the chat is docked so both are visible side by side */}
+      <div className={`transition-[padding-right] duration-300 ${isDocked && isChatOpen && !isAuthPage ? "md:pr-[420px]" : ""}`}>
+        {children}
+      </div>
       
       {/* Hide Lara and Chat on Auth page */}
       {!isAuthPage && (
@@ -162,6 +165,8 @@ export function GlobalChatProvider({ children }: GlobalChatProviderProps) {
             onClose={() => setIsChatOpen(false)}
             onShowContent={handleShowContent}
             onBackToDashboard={handleBackToDashboard}
+            isDocked={isDocked}
+            onToggleDock={() => setIsDocked(!isDocked)}
           />
 
           {/* Global Add Asset Dialog - triggered from Lara onboarding */}
