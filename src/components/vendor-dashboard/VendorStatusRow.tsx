@@ -306,7 +306,7 @@ export function VendorStatusRow({
     >
       <div className="flex">
         {/* Vertikal tilstandsstripe */}
-        <div className={cn("relative w-7 shrink-0 flex items-center justify-center", status.stripeBg)}>
+        <div className={cn("relative w-2 sm:w-7 shrink-0 flex items-center justify-center", status.stripeBg)}>
           {status.hasActiveDot && (
             <span
               className="absolute top-1.5 left-1/2 -translate-x-1/2 h-1.5 w-1.5 rounded-full bg-success ring-2 ring-success/30"
@@ -314,7 +314,7 @@ export function VendorStatusRow({
             />
           )}
           <span
-            className={cn("absolute text-[11px] font-bold tracking-[0.18em] whitespace-nowrap", status.stripeText)}
+            className={cn("absolute hidden sm:block text-[11px] font-bold tracking-[0.18em] whitespace-nowrap", status.stripeText)}
             style={{ transform: "rotate(-90deg)" }}
           >
             {status.stripeLabel}
@@ -322,10 +322,10 @@ export function VendorStatusRow({
         </div>
 
         {/* Hovedinnhold */}
-        <div className="flex-1 min-w-0 p-4">
+        <div className="flex-1 min-w-0 p-3 sm:p-4">
           {/* Topp-rad: ikon + tittel + kritikalitet  ||  donut + label */}
-          <div className="flex items-start gap-4">
-            <div className="flex items-start gap-3 min-w-0 flex-1">
+          <div className="flex items-start gap-3 sm:gap-4">
+            <div className="flex items-start gap-2.5 sm:gap-3 min-w-0 flex-1">
               <div className="h-10 w-10 rounded-md bg-muted/60 border border-border flex items-center justify-center shrink-0">
                 <LayoutGrid className="h-4 w-4 text-muted-foreground" />
               </div>
