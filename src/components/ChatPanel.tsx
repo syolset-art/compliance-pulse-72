@@ -250,7 +250,7 @@ function MinimalHeader({ onClose, onShowDemo, pageName, isDocked, onToggleDock }
   );
 }
 
-function ChatPanelHeader({ onClose, onShowDemo, showDemoButton, pageName }: { onClose: () => void; onShowDemo: () => void; showDemoButton?: boolean; pageName?: string }) {
+function ChatPanelHeader({ onClose, onShowDemo, showDemoButton, pageName, isDocked, onToggleDock }: { onClose: () => void; onShowDemo: () => void; showDemoButton?: boolean; pageName?: string } & ChatHeaderExtras) {
   const { t } = useTranslation();
   return (
     <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-card">
