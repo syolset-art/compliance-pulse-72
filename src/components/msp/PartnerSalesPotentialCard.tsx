@@ -107,13 +107,11 @@ export function PartnerSalesPotentialCard({ currency }: { currency: string }) {
   const licensePotential = productLicense + frameworkLicense;
 
   // Rådgivning: timer per krav (auto = 1 t per krav, kan overstyres) × antall
-  // krav i regelverkene (snitt) × antall regelverk i pakken × timepris.
-  const avgControlPoints =
-    selected.length > 0
-      ? selected.reduce((sum, f) => sum + f.controlPoints, 0) / selected.length
-      : 0;
+  // krav i de aktiverte regelverkene × timepris. Antall regelverk følger
+  // alltid «Aktiverte produkter» — alle regelverk må aktiveres.
+  const totalControlPoints = selected.reduce((sum, f) => sum + f.controlPoints, 0);
   const hoursPerReq = hoursPerReqOverride ?? DEFAULT_HOURS_PER_REQ;
-  const advisoryHours = Math.round(avgControlPoints * hoursPerReq * Math.max(0, advisoryCount));
+  const advisoryHours = Math.round(totalControlPoints * hoursPerReq);
   const advisoryPotential = advisoryHours * (hourlyRate || 0);
 
   const selectedLabel =
@@ -239,15 +237,15 @@ export function PartnerSalesPotentialCard({ currency }: { currency: string }) {
                       <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
                     </TooltipTrigger>
                     <TooltipContent side="bottom" className="max-w-xs text-xs">
-                      Timer per krav × antall krav i regelverkene × antall regelverk i pakken ×
-                      timeprisen din. Utgangspunktet er 1 time per krav — juster selv opp eller
-                      ned.
+                      Timer per krav × antall krav i de aktiverte regelverkene × timeprisen din.
+                      Alle regelverk må aktiveres — antallet følger «Aktiverte produkter».
+                      Utgangspunktet er 1 time per krav — juster selv opp eller ned.
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
               </div>
               <p className="text-xs text-muted-foreground">
-                {advisoryCount} regelverk · {hoursPerReq} t per krav · totalt {advisoryHours} t
+                {selected.length} regelverk · {hoursPerReq} t per krav · totalt {advisoryHours} t
                 {hoursPerReqOverride === null && " (auto)"}
               </p>
             </div>
@@ -257,32 +255,6 @@ export function PartnerSalesPotentialCard({ currency }: { currency: string }) {
           </div>
 
           <div className="flex items-center gap-3 flex-wrap">
-            <div className="flex items-center gap-1.5">
-              <span className="text-[11px] text-muted-foreground">Regelverk i pakken</span>
-              <div className="flex items-center gap-1">
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="h-7 w-7"
-                  aria-label="Færre regelverk"
-                  onClick={() => setAdvisoryCount((c) => Math.max(0, c - 1))}
-                >
-                  <Minus className="h-3 w-3" />
-                </Button>
-                <span className="w-6 text-center text-sm font-medium tabular-nums">
-                  {advisoryCount}
-                </span>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="h-7 w-7"
-                  aria-label="Flere regelverk"
-                  onClick={() => setAdvisoryCount((c) => Math.min(options.length, c + 1))}
-                >
-                  <Plus className="h-3 w-3" />
-                </Button>
-              </div>
-            </div>
             <div className="flex items-center gap-1.5">
               <span className="text-[11px] text-muted-foreground">Timer pr. krav</span>
               <Input
