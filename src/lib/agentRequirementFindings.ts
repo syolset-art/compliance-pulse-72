@@ -32,6 +32,8 @@ export interface AgentRequirementFinding {
   /** Visningstekst for leveringstidspunkt */
   deliveredAt: string;
   approval: AgentApproval;
+  /** Person / rolle som har verifisert funnet hos kunden */
+  verifiedBy: string;
   summaryNb: string;
   summaryEn: string;
 }
@@ -48,6 +50,7 @@ export const AGENT_REQUIREMENT_FINDINGS: AgentRequirementFinding[] = [
     agentVersion: "0.9.2",
     deliveredAt: "I dag 08:47",
     approval: "pre_approved_at_source",
+    verifiedBy: "Compliance-ansvarlig, Kunden AS",
     summaryNb:
       "Vurdering av innvirkning på grunnleggende rettigheter er gjennomført for høyrisiko KI-systemene og bekreftet av ansvarlig hos kunden før innsending.",
     summaryEn:
@@ -63,6 +66,7 @@ export const AGENT_REQUIREMENT_FINDINGS: AgentRequirementFinding[] = [
     agentVersion: "1.4.0",
     deliveredAt: "I dag 07:15",
     approval: "awaiting_approval",
+    verifiedBy: "Venter vurdering",
     summaryNb:
       "Teknisk dokumentasjon funnet med beskrivelse av design, utvikling og testing. Dekningen er ikke vurdert av en person hos kunden ennå.",
     summaryEn:
@@ -78,6 +82,7 @@ export const AGENT_REQUIREMENT_FINDINGS: AgentRequirementFinding[] = [
     agentVersion: "0.9.2",
     deliveredAt: "I går 15:58",
     approval: "awaiting_approval",
+    verifiedBy: "Produkteier, Kunden AS",
     summaryNb:
       "Brukerinformasjon og åpenhetsdokumentasjon funnet. Dokumentet er datert, men ikke bekreftet som gjeldende versjon av ansvarlig hos kunden.",
     summaryEn:
@@ -93,6 +98,7 @@ export const AGENT_REQUIREMENT_FINDINGS: AgentRequirementFinding[] = [
     agentVersion: "1.4.0",
     deliveredAt: "I går 11:02",
     approval: "pre_approved_at_source",
+    verifiedBy: "Compliance-ansvarlig, Kunden AS",
     summaryNb:
       "Plan for markedsovervåking etter utplassering er funnet og godkjent av compliance-ansvarlig hos kunden før innsending.",
     summaryEn:
@@ -142,6 +148,9 @@ export function resolveFindingStatus(
   const d = decisions[finding.requirementId];
   if (d?.decision === "approved") return "approved_mynder";
   if (d?.decision === "rejected") return "rejected";
+  // Sara-funn er allerede verifisert i kundens egen infrastruktur av en ansvarlig person
+  // og trenger ikke ny godkjenning i Mynder.
+  if (finding.channel === "sara") return "approved_source";
   return finding.approval === "pre_approved_at_source" ? "approved_source" : "awaiting";
 }
 
