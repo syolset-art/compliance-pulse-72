@@ -276,6 +276,7 @@ function ChatPanelHeader({ onClose, onShowDemo, showDemoButton, pageName, isDock
         </div>
       </div>
       <div className="flex items-center gap-1">
+        <DockToggleButton isDocked={isDocked} onToggleDock={onToggleDock} />
         {showDemoButton && (
           <Button
             variant="ghost"
