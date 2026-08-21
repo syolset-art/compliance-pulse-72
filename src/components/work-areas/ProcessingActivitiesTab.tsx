@@ -213,6 +213,33 @@ export function ProcessingActivitiesTab({
         workAreaId={workAreaId}
         workAreaName={workAreaName}
       />
+
+      {/* Radklikk: åpne utkastet for gjennomgang og godkjenning */}
+      <ProcessingActivityWizardDialog
+        open={!!reviewing}
+        onOpenChange={(open) => {
+          if (!open) setReviewing(null);
+        }}
+        workAreaId={workAreaId}
+        workAreaName={workAreaName}
+        existingProcess={
+          reviewing
+            ? {
+                id: reviewing.id,
+                system_id: reviewing.system_id,
+                system_name: reviewing.systems?.name ?? null,
+                name: reviewing.name,
+                description: reviewing.description,
+                purpose: reviewing.purpose ?? null,
+                data_class: reviewing.data_class ?? null,
+                special_categories: reviewing.special_categories ?? null,
+                legal_basis: reviewing.legal_basis ?? null,
+                controller_name: reviewing.controller_name ?? null,
+                ai_suggested_fields: reviewing.ai_suggested_fields ?? null,
+              }
+            : undefined
+        }
+      />
     </div>
   );
 }
