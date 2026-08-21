@@ -1410,6 +1410,8 @@
     "talkToLara": "Snakk med Lara",
     "aiAssistant": "Be meg vurdere risiko, sjekke compliance eller iverksette tiltak.",
     "showDemoHelp": "Vis demo-hjelp",
+    "dock": "Fest chatten til høyre, slik at du ser den mens du jobber",
+    "undock": "Løsne chatten",
     "scenarios": {
       "addAsset": "Hjelp meg legge til en leverandør",
       "gdprGap": "Vis meg GDPR gap-analysen",

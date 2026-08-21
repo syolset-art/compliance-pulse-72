@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { X, Sparkles, HelpCircle, MessageCircle } from "lucide-react";
+import { X, Sparkles, HelpCircle, MessageCircle, Pin, PinOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ChatInterface } from "@/components/ChatInterface";
 import laraButterfly from "@/assets/lara-butterfly.png";
@@ -25,9 +25,11 @@ interface ChatPanelProps {
   onClose: () => void;
   onShowContent?: (contentType: string, filter?: string, options?: ContentViewOptions, explanation?: string) => void;
   onBackToDashboard?: () => void;
+  isDocked?: boolean;
+  onToggleDock?: () => void;
 }
 
-function ChatPanelContent({ isOpen, onClose, onShowContent, onBackToDashboard }: ChatPanelProps) {
+function ChatPanelContent({ isOpen, onClose, onShowContent, onBackToDashboard, isDocked = false, onToggleDock }: ChatPanelProps) {
   const { t } = useTranslation();
   const isMobile = useIsMobile();
   const [hasMessages, setHasMessages] = useState(false);
@@ -132,14 +134,23 @@ function ChatPanelContent({ isOpen, onClose, onShowContent, onBackToDashboard }:
       
       <div 
         className={cn(
-          "fixed right-4 bottom-4 w-[400px] bg-card border border-border rounded-2xl shadow-2xl z-40 transition-all duration-300 ease-out flex flex-col overflow-hidden",
-          isOpen ? "translate-y-0 opacity-100 scale-100" : "translate-y-4 opacity-0 scale-95 pointer-events-none",
-          hasMessages ? "h-[70vh] max-h-[800px]" : "h-[85vh] max-h-[900px]"
+          "fixed bg-card z-40 transition-all duration-300 ease-out flex flex-col overflow-hidden",
+          isDocked
+            ? "right-0 top-11 bottom-0 w-[420px] border-l border-border"
+            : cn(
+                "right-4 bottom-4 w-[400px] border border-border rounded-2xl shadow-2xl",
+                hasMessages ? "h-[70vh] max-h-[800px]" : "h-[85vh] max-h-[900px]"
+              ),
+          isOpen
+            ? "translate-x-0 translate-y-0 opacity-100 scale-100"
+            : isDocked
+              ? "translate-x-6 opacity-0 pointer-events-none"
+              : "translate-y-4 opacity-0 scale-95 pointer-events-none"
         )}
       >
         <div className="relative flex-1 flex flex-col overflow-hidden">
-          {hasMessages && <ChatPanelHeader onClose={onClose} onShowDemo={() => setShowDemoPanel(true)} showDemoButton pageName={pageContext.pageName} />}
-          {!hasMessages && <MinimalHeader onClose={onClose} onShowDemo={() => setShowDemoPanel(true)} pageName={pageContext.pageName} />}
+          {hasMessages && <ChatPanelHeader onClose={onClose} onShowDemo={() => setShowDemoPanel(true)} showDemoButton pageName={pageContext.pageName} isDocked={isDocked} onToggleDock={onToggleDock} />}
+          {!hasMessages && <MinimalHeader onClose={onClose} onShowDemo={() => setShowDemoPanel(true)} pageName={pageContext.pageName} isDocked={isDocked} onToggleDock={onToggleDock} />}
           <div className="flex-1 overflow-hidden">
             <ChatInterface 
               onShowContent={onShowContent}
@@ -182,7 +193,28 @@ export function ChatPanel(props: ChatPanelProps) {
   );
 }
 
-function MinimalHeader({ onClose, onShowDemo, pageName }: { onClose: () => void; onShowDemo: () => void; pageName?: string }) {
+interface ChatHeaderExtras {
+  isDocked?: boolean;
+  onToggleDock?: () => void;
+}
+
+function DockToggleButton({ isDocked, onToggleDock }: ChatHeaderExtras) {
+  const { t } = useTranslation();
+  if (!onToggleDock) return null;
+  return (
+    <Button
+      variant="ghost"
+      size="icon"
+      className="hidden md:inline-flex h-7 w-7 text-muted-foreground hover:text-primary"
+      onClick={onToggleDock}
+      title={isDocked ? t("chatPanel.undock") : t("chatPanel.dock")}
+    >
+      {isDocked ? <PinOff className="h-4 w-4" /> : <Pin className="h-4 w-4" />}
+    </Button>
+  );
+}
+
+function MinimalHeader({ onClose, onShowDemo, pageName, isDocked, onToggleDock }: { onClose: () => void; onShowDemo: () => void; pageName?: string } & ChatHeaderExtras) {
   const { t } = useTranslation();
   return (
     <div className="flex items-center justify-between px-4 py-2 border-b border-border/50">
@@ -195,6 +227,7 @@ function MinimalHeader({ onClose, onShowDemo, pageName }: { onClose: () => void;
         )}
       </div>
       <div className="flex items-center gap-1">
+        <DockToggleButton isDocked={isDocked} onToggleDock={onToggleDock} />
         <Button
           variant="ghost"
           size="icon"
@@ -217,7 +250,7 @@ function MinimalHeader({ onClose, onShowDemo, pageName }: { onClose: () => void;
   );
 }
 
-function ChatPanelHeader({ onClose, onShowDemo, showDemoButton, pageName }: { onClose: () => void; onShowDemo: () => void; showDemoButton?: boolean; pageName?: string }) {
+function ChatPanelHeader({ onClose, onShowDemo, showDemoButton, pageName, isDocked, onToggleDock }: { onClose: () => void; onShowDemo: () => void; showDemoButton?: boolean; pageName?: string } & ChatHeaderExtras) {
   const { t } = useTranslation();
   return (
     <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-card">
@@ -243,6 +276,7 @@ function ChatPanelHeader({ onClose, onShowDemo, showDemoButton, pageName }: { on
         </div>
       </div>
       <div className="flex items-center gap-1">
+        <DockToggleButton isDocked={isDocked} onToggleDock={onToggleDock} />
         {showDemoButton && (
           <Button
             variant="ghost"

@@ -1409,6 +1409,8 @@
     "talkToLara": "Talk to Lara",
     "aiAssistant": "Ask me to assess risk, check compliance or take action.",
     "showDemoHelp": "Show demo help",
+    "dock": "Pin the chat to the right so you can see it while you work",
+    "undock": "Undock the chat",
     "scenarios": {
       "addAsset": "Help me add an asset",
       "gdprGap": "Show me the GDPR gap analysis",

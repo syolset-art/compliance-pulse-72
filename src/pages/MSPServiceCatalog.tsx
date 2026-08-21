@@ -9,7 +9,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Settings2, FileText } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { useGlobalChat } from "@/components/GlobalChatProvider";
 import { useServiceDefaults } from "@/hooks/useServiceDefaults";
+import laraButterfly from "@/assets/lara-butterfly.png";
 import { PartnerSalesPotentialCard } from "@/components/msp/PartnerSalesPotentialCard";
 import { PartnerProductList } from "@/components/msp/PartnerProductList";
 import { MSPFrameworkHoursTab } from "@/components/msp/MSPFrameworkHoursTab";
@@ -21,6 +24,13 @@ type SecondaryView = "settings" | "how-it-works" | null;
 export default function MSPServiceCatalog() {
   const [secondary, setSecondary] = useState<SecondaryView>(null);
   const { currency } = useServiceDefaults();
+  const { t } = useTranslation();
+  const { setIsChatOpen, setIsDocked } = useGlobalChat();
+
+  const openLaraDocked = () => {
+    setIsDocked(true);
+    setIsChatOpen(true);
+  };
 
   return (
     <div className="flex min-h-screen w-full bg-background">
@@ -30,6 +40,17 @@ export default function MSPServiceCatalog() {
           <header className="space-y-2">
             <div className="flex items-start justify-between gap-4">
               <h1 className="text-3xl font-bold text-foreground">Produkter og tjenester</h1>
+              <div className="flex items-center gap-2 shrink-0">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-2"
+                  onClick={openLaraDocked}
+                  aria-label={t("chatPanel.talkToLara")}
+                >
+                  <img src={laraButterfly} alt="" className="h-4 w-4" />
+                  <span className="hidden sm:inline">{t("chatPanel.talkToLara")}</span>
+                </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
@@ -53,6 +74,7 @@ export default function MSPServiceCatalog() {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
+              </div>
             </div>
             <p className="text-base text-foreground/80 mt-1 leading-relaxed max-w-3xl">
               Alt du kan selge til kundene dine — Mynder-produkter og egne rådgivningstimer. Sett

@@ -13,6 +13,8 @@ interface GlobalChatContextType {
   isChatOpen: boolean;
   setIsChatOpen: (open: boolean) => void;
   toggleChat: () => void;
+  isDocked: boolean;
+  setIsDocked: (docked: boolean) => void;
   openChatWithMessage: (message: string) => void;
   pendingMessage: string | null;
   clearPendingMessage: () => void;
@@ -31,6 +33,8 @@ export function useGlobalChat() {
       isChatOpen: false,
       setIsChatOpen: () => {},
       toggleChat: () => {},
+      isDocked: false,
+      setIsDocked: () => {},
       openChatWithMessage: () => {},
       pendingMessage: null,
       clearPendingMessage: () => {},
@@ -47,6 +51,10 @@ interface GlobalChatProviderProps {
 
 export function GlobalChatProvider({ children }: GlobalChatProviderProps) {
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [isDocked, setIsDockedState] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    return window.localStorage.getItem("lara-chat-docked") === "true";
+  });
   const [pendingMessage, setPendingMessage] = useState<string | null>(null);
   const [isAddAssetOpen, setIsAddAssetOpen] = useState(false);
   
@@ -63,6 +71,15 @@ export function GlobalChatProvider({ children }: GlobalChatProviderProps) {
   });
 
   const toggleChat = () => setIsChatOpen(prev => !prev);
+
+  const setIsDocked = (docked: boolean) => {
+    setIsDockedState(docked);
+    try {
+      window.localStorage.setItem("lara-chat-docked", String(docked));
+    } catch {
+      // ignore storage errors
+    }
+  };
 
   const openChatWithMessage = (message: string) => {
     setPendingMessage(message);
@@ -118,6 +135,8 @@ export function GlobalChatProvider({ children }: GlobalChatProviderProps) {
         isChatOpen, 
         setIsChatOpen, 
         toggleChat, 
+        isDocked,
+        setIsDocked,
         openChatWithMessage,
         pendingMessage,
         clearPendingMessage,
@@ -125,7 +144,10 @@ export function GlobalChatProvider({ children }: GlobalChatProviderProps) {
         unregisterAssetAddedCallback
       }}
     >
-      {children}
+      {/* Squeeze page content when the chat is docked so both are visible side by side */}
+      <div className={`transition-[padding-right] duration-300 ${isDocked && isChatOpen && !isAuthPage ? "md:pr-[420px]" : ""}`}>
+        {children}
+      </div>
       
       {/* Hide Lara and Chat on Auth page */}
       {!isAuthPage && (
@@ -143,6 +165,8 @@ export function GlobalChatProvider({ children }: GlobalChatProviderProps) {
             onClose={() => setIsChatOpen(false)}
             onShowContent={handleShowContent}
             onBackToDashboard={handleBackToDashboard}
+            isDocked={isDocked}
+            onToggleDock={() => setIsDocked(!isDocked)}
           />
 
           {/* Global Add Asset Dialog - triggered from Lara onboarding */}
