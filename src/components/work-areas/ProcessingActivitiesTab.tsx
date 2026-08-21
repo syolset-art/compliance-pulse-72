@@ -12,8 +12,8 @@ import { dataClassLabel } from "@/lib/processingActivity";
 interface ProcessingActivitiesTabProps {
   workAreaId: string;
   workAreaName: string;
-  onSelectProcess: (processId: string | null) => void;
-  onSelectAsset: (asset: { id: string; type: "system" | "process" }) => void;
+  onSelectProcess?: (processId: string | null) => void;
+  onSelectAsset?: (asset: { id: string; type: "system" | "process" }) => void;
 }
 
 interface Activity {
@@ -122,7 +122,7 @@ export function ProcessingActivitiesTab({
               <TableRow
                 key={activity.id}
                 className="cursor-pointer hover:bg-muted/50"
-                onClick={() => onSelectProcess(activity.id)}
+                onClick={() => onSelectProcess?.(activity.id)}
               >
                 <TableCell>
                   <div className="flex items-center gap-1.5">
@@ -149,7 +149,7 @@ export function ProcessingActivitiesTab({
                     className="text-primary hover:underline"
                     onClick={(e) => {
                       e.stopPropagation();
-                      onSelectAsset({ id: activity.system_id, type: "system" });
+                      onSelectAsset?.({ id: activity.system_id, type: "system" });
                     }}
                   >
                     {activity.systems?.name}
