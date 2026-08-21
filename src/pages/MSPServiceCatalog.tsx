@@ -47,10 +47,6 @@ export default function MSPServiceCatalog() {
                     <Settings2 className="h-4 w-4 mr-2" />
                     Innstillinger
                   </DropdownMenuItem>
-                  <DropdownMenuItem onSelect={() => actionsRef.current?.openWizard()}>
-                    <Sparkles className="h-4 w-4 mr-2" />
-                    Tjenesteprofil
-                  </DropdownMenuItem>
                   <DropdownMenuItem onSelect={() => setSecondary("how-it-works")}>
                     <FileText className="h-4 w-4 mr-2" />
                     Hvordan virker det
