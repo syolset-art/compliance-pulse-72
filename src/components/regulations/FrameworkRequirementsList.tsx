@@ -243,7 +243,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
         const cur = next[f.requirementId];
         if (!cur) continue;
         const st = resolveFindingStatus(f, findingDecisions);
-        const approved = st === "approved_source" || st === "approved_mynder";
+        const approved = st === "approved_mynder";
         const target: ProgressStatus = approved ? "fulfilled" : "not_started";
         if (normalizeProgress(cur.progress) !== target) {
           next[f.requirementId] = {
@@ -1133,7 +1133,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                     {(() => {
                       const docs = getRecommendedDocs(req, isNb);
                       if (docs.length === 0) return null;
-                      const approved = agentFindingStatus === "approved_source" || agentFindingStatus === "approved_mynder";
+                      const approved = agentFindingStatus === "approved_mynder";
                       if (approved) return null;
                       const isOpen = showAllDocsIds.has(req.requirement_id);
                       return (
@@ -1191,7 +1191,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                     {(() => {
                       const isAuto = req.agent_capability === "full";
                       const overridden = readMoreIds.has(`__override_${req.requirement_id}`);
-                      const approved = agentFindingStatus === "approved_source" || agentFindingStatus === "approved_mynder";
+                      const approved = agentFindingStatus === "approved_mynder";
                       const awaiting = agentFindingStatus === "awaiting";
                       const rejected = agentFindingStatus === "rejected";
                       const manualOpen = showManualDocsIds.has(req.requirement_id);
