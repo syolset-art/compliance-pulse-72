@@ -412,7 +412,7 @@ export function MSPFrameworkTaskPackageSheet({
                   className="h-8 text-xs"
                   onClick={() => {
                     setEditingId(null);
-                    setDraft({ name: "", kind: "advisory", min: "", max: "" });
+                    setDraft({ name: "", kind: "advisory", hours: "" });
                     setAdding(true);
                   }}
                 >
