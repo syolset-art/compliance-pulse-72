@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { SaraIcon } from "@/components/agents/SaraIcon";
 import { LaraIcon } from "@/components/agents/LaraIcon";
-import { Check } from "lucide-react";
+import { Check, Pencil } from "lucide-react";
 import { SaraActivityLogDialog } from "@/components/agents/SaraActivityLogDialog";
 import { SaraSignalList } from "./SaraSignalList";
 import { VendorAccessTab } from "@/components/asset-profile/tabs/VendorAccessTab";
@@ -52,6 +52,7 @@ export const SaraMappedContextView = ({
 }: Props) => {
   const [logOpen, setLogOpen] = useState(false);
   const [draft, setDraft] = useState(purpose || (isNb ? mapping.usageTextNb : mapping.usageTextEn));
+  const [editingUsage, setEditingUsage] = useState(false);
 
   const labelOf = (f: SaraContextField, value: string) =>
     f.options.find((o) => o.value === value)?.label ?? value;
@@ -152,9 +153,9 @@ export const SaraMappedContextView = ({
 
         {/* Bruk (auto) */}
         <Card className="h-full">
-          <CardContent className="space-y-2.5 p-3">
-            <div className="flex items-center gap-2">
-              <span className="text-[13px] font-medium text-foreground">
+          <CardContent className="flex h-full flex-col gap-3 p-4">
+            <div className="flex flex-wrap items-center gap-2 border-b border-border pb-3">
+              <span className="text-sm font-medium text-foreground">
                 {isNb ? "Hva brukes leverandøren til?" : "What is this vendor used for?"}
               </span>
               <Tooltip>
@@ -176,38 +177,71 @@ export const SaraMappedContextView = ({
             </div>
 
 
-            <div className="flex flex-wrap gap-1">
-              {USAGE_TAGS.map((t) => {
-                const active = tags.includes(t.value) || (!tags.length && mapping.usageTags.includes(t.value));
-                return (
-                  <button
-                    key={t.value}
-                    type="button"
-                    onClick={() => onToggleTag(t.value)}
-                    className={cn(
-                      "rounded-full border px-2 py-0.5 text-[12px] transition-colors",
-                      active
-                        ? "border-primary/30 bg-primary/10 text-primary"
-                        : "border-border text-muted-foreground hover:bg-accent"
-                    )}
-                  >
-                    {isNb ? t.labelNb : t.labelEn}
-                  </button>
-                );
-              })}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-[12px] font-medium text-muted-foreground">
+                  {isNb ? "Bruksområder" : "Usage areas"}
+                </p>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 gap-1.5 px-2 text-[12px] text-primary"
+                  onClick={() => setEditingUsage((current) => !current)}
+                >
+                  <Pencil className="h-3 w-3" aria-hidden="true" />
+                  {editingUsage ? (isNb ? "Ferdig" : "Done") : (isNb ? "Endre" : "Edit")}
+                </Button>
+              </div>
+
+              <div className="flex flex-wrap gap-1.5">
+                {USAGE_TAGS.filter((t) => {
+                  const active = tags.includes(t.value) || (!tags.length && mapping.usageTags.includes(t.value));
+                  return editingUsage || active;
+                }).map((t) => {
+                  const active = tags.includes(t.value) || (!tags.length && mapping.usageTags.includes(t.value));
+                  return editingUsage ? (
+                    <Button
+                      key={t.value}
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => onToggleTag(t.value)}
+                      className={cn(
+                        "h-7 rounded-full px-2.5 text-[12px] font-normal",
+                        active && "border-primary/30 bg-primary/10 text-primary hover:bg-primary/10 hover:text-primary"
+                      )}
+                    >
+                      {active && <Check className="h-3 w-3" aria-hidden="true" />}
+                      {isNb ? t.labelNb : t.labelEn}
+                    </Button>
+                  ) : (
+                    <Badge key={t.value} variant="secondary" className="font-normal">
+                      {isNb ? t.labelNb : t.labelEn}
+                    </Badge>
+                  );
+                })}
+              </div>
             </div>
 
-            <Textarea
-              value={draft}
-              onChange={(e) => setDraft(e.target.value)}
-              onBlur={() => { if (draft !== purpose) onSavePurpose(draft); }}
-              rows={3}
-              className="min-h-[72px] text-[13px]"
-            />
-            <p className="text-[11px] text-muted-foreground">
+            <div className="space-y-2 border-t border-border pt-3">
+              <label htmlFor={`vendor-purpose-${assetId}`} className="text-[12px] font-medium text-muted-foreground">
+                {isNb ? "Beskrivelse" : "Description"}
+              </label>
+              <Textarea
+                id={`vendor-purpose-${assetId}`}
+                value={draft}
+                onChange={(e) => setDraft(e.target.value)}
+                onBlur={() => { if (draft !== purpose) onSavePurpose(draft); }}
+                rows={3}
+                className="min-h-[84px] resize-none text-[13px] leading-relaxed"
+              />
+            </div>
+
+            <p className="mt-auto border-t border-border pt-2 text-[11px] text-muted-foreground">
               {isNb
-                ? "Sammenstilt fra metadata Sara rapporterte. Du kan alltid endre teksten."
-                : "Compiled from metadata Sara reported. You can always edit the text."}
+                ? "Basert på signaler fra Sara. Bruksområder og tekst kan alltid endres."
+                : "Based on signals from Sara. Usage areas and text can always be changed."}
             </p>
           </CardContent>
         </Card>
