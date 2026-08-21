@@ -92,7 +92,6 @@ export function ServiceCoverageSearch({
   const [justAdded, setJustAdded] = useState(false);
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const [internalMode, setInternalMode] = useState<SearchKind>("framework");
-  const [pickedFrameworkId, setPickedFrameworkId] = useState<string | null>(null);
   const [pickedProductId, setPickedProductId] = useState<string | null>(null);
 
   const mode = externalMode ?? internalMode;
