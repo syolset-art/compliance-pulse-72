@@ -9,7 +9,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Settings2, FileText } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { useGlobalChat } from "@/components/GlobalChatProvider";
 import { useServiceDefaults } from "@/hooks/useServiceDefaults";
+import laraButterfly from "@/assets/lara-butterfly.png";
 import { PartnerSalesPotentialCard } from "@/components/msp/PartnerSalesPotentialCard";
 import { PartnerProductList } from "@/components/msp/PartnerProductList";
 import { MSPFrameworkHoursTab } from "@/components/msp/MSPFrameworkHoursTab";
