@@ -74,6 +74,7 @@ export default function MSPServiceCatalog() {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
+              </div>
             </div>
             <p className="text-base text-foreground/80 mt-1 leading-relaxed max-w-3xl">
               Alt du kan selge til kundene dine — Mynder-produkter og egne rådgivningstimer. Sett
