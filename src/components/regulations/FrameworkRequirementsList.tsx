@@ -32,6 +32,7 @@ import {
 } from "@/lib/agentRequirementFindings";
 
 import { AttachEvidenceDialog, type AttachEvidenceResult } from "@/components/regulations/AttachEvidenceDialog";
+import { useAuth } from "@/hooks/useAuth";
 import { MessageSquare, Save, Pencil } from "lucide-react";
 import {
   demoUiStateFor,
@@ -158,6 +159,12 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
     approve: approveFinding,
     reject: rejectFinding,
   } = useAgentFindings();
+  const { user } = useAuth();
+  const approverName =
+    (user?.user_metadata?.full_name as string | undefined) ||
+    (user?.user_metadata?.name as string | undefined) ||
+    user?.email ||
+    undefined;
 
   const [readMoreIds, setReadMoreIds] = useState<Set<string>>(new Set());
   const [showAllDocsIds, setShowAllDocsIds] = useState<Set<string>>(new Set());
@@ -1041,10 +1048,25 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                         </Tooltip>
                       </TooltipProvider>
                       {agentFindingStatus === "awaiting" && (
-                        <span className="inline-flex h-6 items-center gap-1 rounded-full border border-warning/40 bg-warning/5 px-2 text-[10px] font-semibold uppercase tracking-wide text-warning">
-                          <Clock className="h-3 w-3" />
-                          {isNb ? "Venter godkjenning" : "Awaiting approval"}
-                        </span>
+                        <TooltipProvider delayDuration={200}>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <span
+                                className="inline-flex h-6 cursor-help items-center gap-1 rounded-full border border-warning/40 bg-warning/5 px-2 text-[10px] font-semibold uppercase tracking-wide text-warning"
+                                onMouseEnter={(e) => { e.stopPropagation(); setCursorTip(null); }}
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <Clock className="h-3 w-3" />
+                                {isNb ? "Forslag" : "Proposal"}
+                              </span>
+                            </TooltipTrigger>
+                            <TooltipContent side="top" className="max-w-[260px] text-xs">
+                              {isNb
+                                ? "Forslag fra kundens egen agent — påvirker ikke skåren før en navngitt person godkjenner det."
+                                : "Proposal from the customer's own agent — does not affect the score until a named person approves it."}
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                       )}
                     </>
                   ) : (() => {
@@ -1109,9 +1131,10 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                         finding={agentFinding}
                         status={agentFindingStatus}
                         decidedAt={findingDecisions[agentFinding.requirementId]?.at}
+                        decidedBy={findingDecisions[agentFinding.requirementId]?.by}
                         isNb={isNb}
                         onApprove={() => {
-                          approveFinding(agentFinding.requirementId);
+                          approveFinding(agentFinding.requirementId, approverName);
                           toast.success(
                             isNb
                               ? "Funnet er godkjent og teller nå som dokumentasjon."
@@ -1119,7 +1142,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                           );
                         }}
                         onReject={() => {
-                          rejectFinding(agentFinding.requirementId);
+                          rejectFinding(agentFinding.requirementId, approverName);
                           toast(
                             isNb
                               ? "Funnet er avvist. Kravet må dokumenteres på nytt."
