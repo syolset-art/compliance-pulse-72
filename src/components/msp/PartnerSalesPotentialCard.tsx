@@ -132,7 +132,7 @@ export function PartnerSalesPotentialCard({ currency }: { currency: string }) {
             <h2 className="text-base font-semibold text-foreground">Salgspotensial per kunde</h2>
             <p className="text-xs text-muted-foreground mt-0.5 max-w-lg">
               Hva du kan selge til én kunde — fordelt på lisenser fra Mynder (minstepris) og dine
-              egne rådgivningstimer. Tilpass regelverk og timepris under.
+              egne rådgivningstimer. Tilpass regelverk og timepris nedenfor.
             </p>
           </div>
         </div>
@@ -253,46 +253,53 @@ export function PartnerSalesPotentialCard({ currency }: { currency: string }) {
               {fmt(advisoryPotential)} {currency}
             </p>
           </div>
+        </div>
+      </div>
 
-          <div className="flex items-center gap-3 flex-wrap">
-            <div className="flex items-center gap-1.5">
-              <span className="text-[11px] text-muted-foreground">Timer pr. krav</span>
-              <Input
-                type="number"
-                min={0}
-                step={0.5}
-                value={hoursPerReq}
-                onChange={(e) =>
-                  setHoursPerReqOverride(
-                    Math.max(0, Math.round((Number(e.target.value) || 0) * 10) / 10),
-                  )
-                }
-                className="h-7 w-16 text-xs tabular-nums"
-                aria-label="Timer per krav"
-              />
-              {hoursPerReqOverride !== null && (
-                <button
-                  type="button"
-                  onClick={() => setHoursPerReqOverride(null)}
-                  className="text-[11px] text-primary hover:underline"
-                >
-                  Nullstill
-                </button>
-              )}
-            </div>
-            <div className="flex items-center gap-1.5">
-              <span className="text-[11px] text-muted-foreground">Timepris</span>
-              <Input
-                type="number"
-                min={0}
-                step={50}
-                value={hourlyRate}
-                onChange={(e) => setHourlyRate(Math.max(0, Number(e.target.value) || 0))}
-                className="h-7 w-20 text-xs tabular-nums"
-                aria-label="Timepris"
-              />
-              <span className="text-[11px] text-muted-foreground">{currency}/t</span>
-            </div>
+      {/* ── Grunnlag for rådgivningstimer ── plassert nederst for bedre balanse i kortet */}
+      <div className="mt-4 rounded-md border border-border bg-background p-3 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+          <Clock className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
+          <span>Grunnlag for rådgivningstimer</span>
+        </div>
+        <div className="flex flex-wrap items-center gap-4">
+          <div className="flex items-center gap-1.5">
+            <span className="text-[11px] text-muted-foreground">Timer pr. krav</span>
+            <Input
+              type="number"
+              min={0}
+              step={0.5}
+              value={hoursPerReq}
+              onChange={(e) =>
+                setHoursPerReqOverride(
+                  Math.max(0, Math.round((Number(e.target.value) || 0) * 10) / 10),
+                )
+              }
+              className="h-7 w-16 text-xs tabular-nums"
+              aria-label="Timer per krav"
+            />
+            {hoursPerReqOverride !== null && (
+              <button
+                type="button"
+                onClick={() => setHoursPerReqOverride(null)}
+                className="text-[11px] text-primary hover:underline"
+              >
+                Nullstill
+              </button>
+            )}
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="text-[11px] text-muted-foreground">Timepris</span>
+            <Input
+              type="number"
+              min={0}
+              step={50}
+              value={hourlyRate}
+              onChange={(e) => setHourlyRate(Math.max(0, Number(e.target.value) || 0))}
+              className="h-7 w-20 text-xs tabular-nums"
+              aria-label="Timepris"
+            />
+            <span className="text-[11px] text-muted-foreground">{currency}/t</span>
           </div>
         </div>
       </div>
