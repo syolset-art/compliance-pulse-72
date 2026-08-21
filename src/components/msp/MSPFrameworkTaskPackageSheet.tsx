@@ -138,6 +138,7 @@ export function MSPFrameworkTaskPackageSheet({
     [baseTasks, state, hourlyRate],
   );
   const totals = useMemo(() => summarizePackage(tasks), [tasks]);
+  const licensePrice = frameworkId ? frameworkLicensePrice(frameworkId) : 0;
 
   const grouped = useMemo(() => {
     const map = new Map<string, ResolvedTask[]>();
@@ -306,6 +307,18 @@ export function MSPFrameworkTaskPackageSheet({
               />
             </div>
           )}
+          <div className="flex items-center justify-between gap-3 rounded-md border border-border px-3 py-2">
+            <div>
+              <p className="text-sm font-medium text-foreground">Aktiveringspris</p>
+              <p className="text-[11px] text-muted-foreground">
+                Månedlig lisens kunden betaler for å aktivere regelverket — inkludert i totalsummen
+                nederst.
+              </p>
+            </div>
+            <p className="text-sm font-semibold text-foreground shrink-0">
+              {formatPriceRange({ min: licensePrice, max: licensePrice }, currency)}/mnd
+            </p>
+          </div>
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -314,9 +327,8 @@ export function MSPFrameworkTaskPackageSheet({
                 </Badge>
               </TooltipTrigger>
               <TooltipContent side="bottom" className="max-w-xs text-xs">
-                Timene per kontrollpunkt er et AI-forslag fra Lara, beregnet fra kravets omfang og
-                typisk dokumentasjonsbehov. Du kan endre alle timer og fjerne krav du ikke vil
-                jobbe med — forslaget er kun et utgangspunkt.
+                Utgangspunktet er 1 time per kontrollpunkt. Juster timene opp eller ned selv, og
+                fjern krav du ikke vil jobbe med — forslaget er kun et utgangspunkt.
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
