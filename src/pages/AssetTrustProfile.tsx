@@ -342,12 +342,12 @@ const AssetTrustProfile = () => {
         <main className="flex-1 overflow-auto pt-11">
           <div className="container max-w-7xl mx-auto p-4 md:p-6 space-y-4 md:space-y-5">
             {/* Back button */}
-            <div className="flex items-center justify-between mb-1">
-              <Button variant="ghost" onClick={() => navigate(isVendor ? "/vendors" : "/assets")}>
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                {isVendor
+            <div className="flex flex-wrap items-center justify-between gap-2 mb-1">
+              <Button variant="ghost" className="px-2 sm:px-4 max-w-full" onClick={() => navigate(isVendor ? "/vendors" : "/assets")}>
+                <ArrowLeft className="h-4 w-4 mr-2 shrink-0" />
+                <span className="truncate">{isVendor
                   ? (isNb ? "Tilbake til leverandører" : "Back to vendors")
-                  : t("common.back")}
+                  : t("common.back")}</span>
               </Button>
               {isVendor && (
                 <div className="flex items-center gap-2">
@@ -749,7 +749,10 @@ const AssetTrustProfile = () => {
           open={activityDialogOpen}
           onOpenChange={setActivityDialogOpen}
           onSubmit={() => setActivityDialogOpen(false)}
+          hideTrigger
         />
+
+
       )}
     </SidebarProvider>
   );

@@ -140,11 +140,11 @@ export default function VendorDashboard() {
                 {vendors.length}
               </span>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
               <VendorPortfolioActions vendors={vendors} />
               <Button
                 onClick={requestAddVendor}
-                className="gap-2"
+                className="gap-2 flex-1 sm:flex-none min-w-0"
                 title={
                   capacity.atCap
                     ? `Grensen på ${capacity.limit} leverandører er nådd. Endre nivå for å legge til flere.`
@@ -155,6 +155,7 @@ export default function VendorDashboard() {
                 {t("vendorDashboard.addVendor", "Legg til")}
               </Button>
             </div>
+
           </div>
 
           {/* Kapasitetsbanner */}
@@ -170,27 +171,29 @@ export default function VendorDashboard() {
 
 
           <Tabs value={tabFromUrl} onValueChange={(v) => { const next = new URLSearchParams(searchParams); next.set("tab", v); setSearchParams(next, { replace: true }); }} className="space-y-4">
-            <div className="flex items-center justify-between motion-safe:animate-fade-in-up motion-safe:animate-delay-150">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 motion-safe:animate-fade-in-up motion-safe:animate-delay-150">
 
-              <TabsList className="h-10 p-0.5" aria-label={t("vendorDashboard.tabs.overview", "Oversikt") + " – navigasjon"}>
-                <TabsTrigger value="overview" className="text-sm px-3">{t("vendorDashboard.tabs.overview", "Oversikt")}</TabsTrigger>
-                <TabsTrigger value="frameworks" className="text-sm px-3">{t("vendorDashboard.tabs.frameworks", "Regelverk")}</TabsTrigger>
+              <div className="-mx-4 px-4 sm:mx-0 sm:px-0 overflow-x-auto scrollbar-none">
+                <TabsList className="h-10 p-0.5 w-max" aria-label={t("vendorDashboard.tabs.overview", "Oversikt") + " – navigasjon"}>
+                  <TabsTrigger value="overview" className="text-sm px-3">{t("vendorDashboard.tabs.overview", "Oversikt")}</TabsTrigger>
+                  <TabsTrigger value="frameworks" className="text-sm px-3">{t("vendorDashboard.tabs.frameworks", "Regelverk")}</TabsTrigger>
 
-                <TabsTrigger value="all" className="text-sm px-3 gap-1.5">
-                  {t("vendorDashboard.tabs.all")}
-                  <span className="inline-flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full bg-muted text-foreground text-xs font-semibold">
-                    {vendors.length}
-                  </span>
-                </TabsTrigger>
-                <TabsTrigger value="map" className="text-sm px-3">{t("vendorDashboard.tabs.map")}</TabsTrigger>
-                <TabsTrigger value="supplyChain" className="text-sm px-3">{t("vendorDashboard.tabs.supplyChain")}</TabsTrigger>
-                <TabsTrigger value="compare" className="text-sm px-3">{t("vendorDashboard.tabs.compare")}</TabsTrigger>
-              </TabsList>
+                  <TabsTrigger value="all" className="text-sm px-3 gap-1.5">
+                    {t("vendorDashboard.tabs.all")}
+                    <span className="inline-flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full bg-muted text-foreground text-xs font-semibold">
+                      {vendors.length}
+                    </span>
+                  </TabsTrigger>
+                  <TabsTrigger value="map" className="text-sm px-3">{t("vendorDashboard.tabs.map")}</TabsTrigger>
+                  <TabsTrigger value="supplyChain" className="text-sm px-3">{t("vendorDashboard.tabs.supplyChain")}</TabsTrigger>
+                  <TabsTrigger value="compare" className="text-sm px-3">{t("vendorDashboard.tabs.compare")}</TabsTrigger>
+                </TabsList>
+              </div>
 
               <Button
                 variant="ghost"
                 size="sm"
-                className="gap-1.5 text-muted-foreground hover:text-foreground"
+                className="gap-1.5 text-muted-foreground hover:text-foreground self-start sm:self-auto shrink-0"
                 onClick={() => {
                   const next = new URLSearchParams(searchParams);
                   next.set("tab", "frameworks");
@@ -203,6 +206,7 @@ export default function VendorDashboard() {
                 {t("vendorDashboard.tabs.settings", "Innstillinger")}
               </Button>
             </div>
+
 
             <TabsContent value="overview">
               <VendorOverviewTab

@@ -1,4 +1,6 @@
 import { useState, useMemo } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
+
 import { SENSITIVE_DATA_STATUS_OPTIONS, normalizeSensitiveDataStatus, sensitiveDataStatusLabel } from "@/lib/sensitiveData";
 import { VendorFrameworkScopeStrip } from "@/components/vendor-dashboard/VendorFrameworkScopeStrip";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -173,7 +175,10 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete, new
     },
   });
 
+  const isMobile = useIsMobile();
   const [viewMode, setViewMode] = useState<"card" | "table">("table");
+  const effectiveViewMode = isMobile ? "card" : viewMode;
+
   const [scoreDisplay, setScoreDisplay] = useState<ScoreDisplayMode>("percent");
   const [nameFilter, setNameFilter] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
@@ -296,7 +301,7 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete, new
       <VendorFrameworkScopeStrip />
       {/* Toolbar */}
 
-      <div className="flex items-center gap-2 motion-safe:animate-fade-in-up motion-safe:animate-delay-200">
+      <div className="flex flex-wrap items-center gap-2 motion-safe:animate-fade-in-up motion-safe:animate-delay-200">
 
         <Input
           placeholder={t("assets.filterByName")}
@@ -457,7 +462,7 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete, new
 
         <div className="ml-auto flex items-center gap-2">
           <span className="text-xs text-muted-foreground hidden sm:inline">{filtered.length} {t("nav.vendors", isNb ? "leverandører" : "vendors").toLowerCase()}</span>
-          <div className="flex border border-border rounded-lg">
+          <div className="hidden sm:flex border border-border rounded-lg">
             <Button
               variant={viewMode === "card" ? "secondary" : "ghost"}
               size="icon"
@@ -520,7 +525,7 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete, new
               : "Connect accounting or cloud sources and Lara finds the vendors you actually pay for."}
           />
         </div>
-      ) : viewMode === "table" ? (
+      ) : effectiveViewMode === "table" ? (
         <VendorTableView
           vendors={filtered as any}
           expiredCounts={expiredCounts}

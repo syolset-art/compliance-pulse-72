@@ -168,7 +168,7 @@ export function VendorStatusRow({
   const renderBanner = () => {
     if (status.key === "draft") {
       return (
-        <div className="mt-3 rounded-lg bg-muted/40 border border-border px-3 py-2.5 flex items-center justify-between gap-3">
+        <div className="mt-3 rounded-lg bg-muted/40 border border-border px-3 py-2.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3">
           <div className="flex items-center gap-2 min-w-0">
             <MessageSquare className="h-4 w-4 text-warning shrink-0" />
             <span className="text-[13px] text-foreground truncate">
@@ -195,7 +195,7 @@ export function VendorStatusRow({
       const sent = formatLongDate(md.invited_at) || formatLongDate(vendor.updated_at);
       const days = typeof md.invitation_days_left === "number" ? md.invitation_days_left : 5;
       return (
-        <div className="mt-3 rounded-lg bg-muted/40 border border-border px-3 py-2.5 flex items-center justify-between gap-3">
+        <div className="mt-3 rounded-lg bg-muted/40 border border-border px-3 py-2.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3">
           <div className="flex items-center gap-2 min-w-0">
             <Clock className="h-4 w-4 text-primary shrink-0" />
             <span className="text-[13px] text-foreground truncate">
@@ -257,7 +257,7 @@ export function VendorStatusRow({
       const created = formatShortDate(vendor.created_at);
       const sent = formatShortDate(md.invited_at) || formatShortDate(vendor.updated_at);
       return (
-        <div className="mt-3 pt-3 border-t border-border/60 flex items-center gap-3 text-[12px] text-muted-foreground">
+        <div className="mt-3 pt-3 border-t border-border/60 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-muted-foreground">
           {created && (<><span className="inline-flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full bg-success" /> Opprettet {created}</span><span>→</span></>)}
           <span className="inline-flex items-center gap-1.5 text-primary font-medium"><span className="h-1.5 w-1.5 rounded-full bg-primary" /> Invitasjon sendt {sent || "—"}</span>
           <span>→</span>
@@ -306,7 +306,7 @@ export function VendorStatusRow({
     >
       <div className="flex">
         {/* Vertikal tilstandsstripe */}
-        <div className={cn("relative w-7 shrink-0 flex items-center justify-center", status.stripeBg)}>
+        <div className={cn("relative w-2 sm:w-7 shrink-0 flex items-center justify-center", status.stripeBg)}>
           {status.hasActiveDot && (
             <span
               className="absolute top-1.5 left-1/2 -translate-x-1/2 h-1.5 w-1.5 rounded-full bg-success ring-2 ring-success/30"
@@ -314,7 +314,7 @@ export function VendorStatusRow({
             />
           )}
           <span
-            className={cn("absolute text-[11px] font-bold tracking-[0.18em] whitespace-nowrap", status.stripeText)}
+            className={cn("absolute hidden sm:block text-[11px] font-bold tracking-[0.18em] whitespace-nowrap", status.stripeText)}
             style={{ transform: "rotate(-90deg)" }}
           >
             {status.stripeLabel}
@@ -322,10 +322,10 @@ export function VendorStatusRow({
         </div>
 
         {/* Hovedinnhold */}
-        <div className="flex-1 min-w-0 p-4">
+        <div className="flex-1 min-w-0 p-3 sm:p-4">
           {/* Topp-rad: ikon + tittel + kritikalitet  ||  donut + label */}
-          <div className="flex items-start gap-4">
-            <div className="flex items-start gap-3 min-w-0 flex-1">
+          <div className="flex items-start gap-3 sm:gap-4">
+            <div className="flex items-start gap-2.5 sm:gap-3 min-w-0 flex-1">
               <div className="h-10 w-10 rounded-md bg-muted/60 border border-border flex items-center justify-center shrink-0">
                 <LayoutGrid className="h-4 w-4 text-muted-foreground" />
               </div>
