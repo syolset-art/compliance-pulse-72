@@ -161,6 +161,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
 
   const [readMoreIds, setReadMoreIds] = useState<Set<string>>(new Set());
   const [showAllDocsIds, setShowAllDocsIds] = useState<Set<string>>(new Set());
+  const [showManualDocsIds, setShowManualDocsIds] = useState<Set<string>>(new Set());
   const toggleSet = (setter: Dispatch<SetStateAction<Set<string>>>, id: string) =>
     setter((prev) => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
   const reqRefs = useRef<Record<string, HTMLDivElement | null>>({});
@@ -1184,113 +1185,160 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                       </>
                     )}
 
-                    {/* Manuell dokumentering — alltid for MANUELL, ved klikk for AUTO */}
-                    {(req.agent_capability !== "full" || readMoreIds.has(`__override_${req.requirement_id}`)) && (
-                    <div className="rounded-md border border-border/60 bg-card p-3 space-y-3">
+                    {/* Manuell dokumentering */}
+                    {(() => {
+                      const isAuto = req.agent_capability === "full";
+                      const overridden = readMoreIds.has(`__override_${req.requirement_id}`);
+                      const approved = agentFindingStatus === "approved_source" || agentFindingStatus === "approved_mynder";
+                      const awaiting = agentFindingStatus === "awaiting";
+                      const rejected = agentFindingStatus === "rejected";
+                      const manualOpen = showManualDocsIds.has(req.requirement_id);
 
-                      <div className="flex items-start gap-2">
-                        <div className="h-6 w-6 rounded-md bg-primary/10 flex items-center justify-center shrink-0">
-                          <Users className="h-3.5 w-3.5 text-primary" />
+                      // Vis fullt skjema når: manuelt krav, auto overstyrt, avvist funn, eller bruker åpnet manuell
+                      const showForm = (!agentFinding && (!isAuto || overridden)) || rejected || manualOpen;
+
+                      if (!showForm && (approved || awaiting)) {
+                        return (
+                          <div className="rounded-md border border-border/60 bg-card p-3">
+                            <div className="flex items-center justify-between gap-3">
+                              <div className="flex items-center gap-2 min-w-0">
+                                {approved ? (
+                                  <CheckCircle2 className="h-4 w-4 shrink-0 text-status-closed" aria-hidden="true" />
+                                ) : (
+                                  <Clock className="h-4 w-4 shrink-0 text-warning" aria-hidden="true" />
+                                )}
+                                <span className="text-sm font-medium text-foreground">
+                                  {approved
+                                    ? (isNb ? "Oppgaven er ferdig" : "Task complete")
+                                    : (isNb ? "Venter godkjenning" : "Awaiting approval")}
+                                </span>
+                              </div>
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                className="h-7 text-xs shrink-0"
+                                onClick={(e) => { e.stopPropagation(); toggleSet(setShowManualDocsIds, req.requirement_id); }}
+                              >
+                                {isNb ? "Legg til manuelt" : "Add manually"}
+                              </Button>
+                            </div>
+                            {approved && (
+                              <p className="mt-1.5 text-xs text-muted-foreground">
+                                {isNb
+                                  ? "Dokumentasjon fra Sara er godkjent. Du kan legge til mer hvis du ønsker."
+                                  : "Documentation from Sara is approved. You can add more if you want."}
+                              </p>
+                            )}
+                          </div>
+                        );
+                      }
+
+                      return (
+                        <div className="rounded-md border border-border/60 bg-card p-3 space-y-3">
+                          <div className="flex items-start gap-2">
+                            <div className="h-6 w-6 rounded-md bg-primary/10 flex items-center justify-center shrink-0">
+                              <Users className="h-3.5 w-3.5 text-primary" />
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <p className="text-sm font-medium text-foreground leading-tight">
+                                {isNb ? "Manuell dokumentering" : "Manual documentation"}
+                              </p>
+                              <p className="text-xs text-muted-foreground mt-0.5">
+                                {isNb ? "Bekreft status og legg til dokumentasjon." : "Confirm status and attach documentation."}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="space-y-1.5">
+                            <label className="text-xs font-medium text-foreground">
+                              {isNb ? "Status" : "Status"} <span className="text-destructive">*</span>
+                            </label>
+                            <select
+                              value={normalizeProgress(state.progress)}
+                              onChange={(e) => handleStatusChange(req.requirement_id, e.target.value as ProgressStatus)}
+                              onClick={(e) => e.stopPropagation()}
+                              className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                            >
+                              {(SELECTABLE_PROGRESS as ProgressStatus[]).map((s) => {
+                                const cfg = getProgressConfig(s);
+                                return (
+                                  <option key={s} value={s}>
+                                    {isNb ? cfg.labelNb : cfg.labelEn}
+                                  </option>
+                                );
+                              })}
+                            </select>
+                          </div>
+
+                          <div className="space-y-1.5">
+                            <div className="flex items-center gap-1.5">
+                              <label className="text-xs font-medium text-foreground">
+                                {isNb ? "Kommentar" : "Comment"}
+                              </label>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <button type="button" onClick={(e) => e.stopPropagation()} className="text-muted-foreground hover:text-foreground">
+                                    <HelpCircle className="h-3.5 w-3.5" />
+                                  </button>
+                                </TooltipTrigger>
+                                <TooltipContent side="top" className="max-w-[240px] text-xs">
+                                  {isNb
+                                    ? "Forklar kort hvordan kravet er oppfylt hos dere — f.eks. rutine, ansvarlig eller referanse. Dette gjør vurderingen sporbar ved revisjon."
+                                    : "Briefly explain how the requirement is met — e.g. routine, owner or reference. This makes the assessment auditable."}
+                                </TooltipContent>
+                              </Tooltip>
+                            </div>
+                            <Textarea
+                              value={reqNotes[req.requirement_id] ?? ""}
+                              onChange={(e) => setReqNotes((prev) => ({ ...prev, [req.requirement_id]: e.target.value }))}
+                              onClick={(e) => e.stopPropagation()}
+                              placeholder={isNb ? "Beskriv kort hvordan kravet oppfylles…" : "Briefly describe how the requirement is met…"}
+                              className="min-h-[70px] text-sm resize-none"
+                            />
+                          </div>
+
+                          <div className="flex items-center justify-between gap-2 pt-1">
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <Button
+                                type="button"
+                                variant={fulfillment.evidenceMandatory ? "default" : "outline"}
+                                size="sm"
+                                className="h-8 gap-1.5 text-xs"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setAttachDialog({
+                                    id: req.requirement_id,
+                                    name: isNb ? (req.name_no || req.name) : req.name,
+                                    description: `${isNb ? req.description_no : req.description}\n\n${getEvaluationCriteriaText(req)}`,
+                                    articles: getArticlesForRequirement(req),
+                                  });
+                                }}
+                              >
+                                <Paperclip className="h-3.5 w-3.5" />
+                                {fulfillment.evidenceMandatory
+                                  ? (isNb ? "Last opp dokumentasjon (påkrevd)" : "Upload documentation (required)")
+                                  : (isNb ? "Tilknytt dokument (valgfritt)" : "Attach document (optional)")}
+                              </Button>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <button type="button" onClick={(e) => e.stopPropagation()} className="text-muted-foreground hover:text-foreground">
+                                    <HelpCircle className="h-3.5 w-3.5" />
+                                  </button>
+                                </TooltipTrigger>
+                                <TooltipContent side="top" className="max-w-[260px] text-xs">
+                                  {fulfillment.evidenceMandatory
+                                    ? (isNb
+                                        ? "Dette kravet må dokumenteres med opplastet dokumentasjon (policy, avtale, sertifikat, rapport)."
+                                        : "This requirement must be documented with uploaded evidence (policy, agreement, certificate, report).")
+                                    : (isNb ? fulfillment.descriptionNo : fulfillment.descriptionEn)}
+                                </TooltipContent>
+                              </Tooltip>
+                            </div>
+                          </div>
                         </div>
-                        <div className="min-w-0 flex-1">
-                          <p className="text-sm font-medium text-foreground leading-tight">
-                            {isNb ? "Manuell dokumentering" : "Manual documentation"}
-                          </p>
-                          <p className="text-xs text-muted-foreground mt-0.5">
-                            {isNb ? "Bekreft status og legg til dokumentasjon." : "Confirm status and attach documentation."}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="space-y-1.5">
-                        <label className="text-xs font-medium text-foreground">
-                          {isNb ? "Status" : "Status"} <span className="text-destructive">*</span>
-                        </label>
-                        <select
-                          value={normalizeProgress(state.progress)}
-                          onChange={(e) => handleStatusChange(req.requirement_id, e.target.value as ProgressStatus)}
-                          onClick={(e) => e.stopPropagation()}
-                          className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-                        >
-                          {(SELECTABLE_PROGRESS as ProgressStatus[]).map((s) => {
-                            const cfg = getProgressConfig(s);
-                            return (
-                              <option key={s} value={s}>
-                                {isNb ? cfg.labelNb : cfg.labelEn}
-                              </option>
-                            );
-                          })}
-                        </select>
-                      </div>
-
-                      <div className="space-y-1.5">
-                        <div className="flex items-center gap-1.5">
-                          <label className="text-xs font-medium text-foreground">
-                            {isNb ? "Kommentar" : "Comment"}
-                          </label>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <button type="button" onClick={(e) => e.stopPropagation()} className="text-muted-foreground hover:text-foreground">
-                                <HelpCircle className="h-3.5 w-3.5" />
-                              </button>
-                            </TooltipTrigger>
-                            <TooltipContent side="top" className="max-w-[240px] text-xs">
-                              {isNb
-                                ? "Forklar kort hvordan kravet er oppfylt hos dere — f.eks. rutine, ansvarlig eller referanse. Dette gjør vurderingen sporbar ved revisjon."
-                                : "Briefly explain how the requirement is met — e.g. routine, owner or reference. This makes the assessment auditable."}
-                            </TooltipContent>
-                          </Tooltip>
-                        </div>
-                        <Textarea
-                          value={reqNotes[req.requirement_id] ?? ""}
-                          onChange={(e) => setReqNotes((prev) => ({ ...prev, [req.requirement_id]: e.target.value }))}
-                          onClick={(e) => e.stopPropagation()}
-                          placeholder={isNb ? "Beskriv kort hvordan kravet oppfylles…" : "Briefly describe how the requirement is met…"}
-                          className="min-h-[70px] text-sm resize-none"
-                        />
-                      </div>
-
-                      <div className="flex items-center justify-between gap-2 pt-1">
-                        <div className="flex items-center gap-1.5 flex-wrap">
-                          <Button
-                            type="button"
-                            variant={fulfillment.evidenceMandatory ? "default" : "outline"}
-                            size="sm"
-                            className="h-8 gap-1.5 text-xs"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setAttachDialog({
-                                id: req.requirement_id,
-                                name: isNb ? (req.name_no || req.name) : req.name,
-                                description: `${isNb ? req.description_no : req.description}\n\n${getEvaluationCriteriaText(req)}`,
-                                articles: getArticlesForRequirement(req),
-                              });
-                            }}
-                          >
-                            <Paperclip className="h-3.5 w-3.5" />
-                            {fulfillment.evidenceMandatory
-                              ? (isNb ? "Last opp dokumentasjon (påkrevd)" : "Upload documentation (required)")
-                              : (isNb ? "Tilknytt dokument (valgfritt)" : "Attach document (optional)")}
-                          </Button>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <button type="button" onClick={(e) => e.stopPropagation()} className="text-muted-foreground hover:text-foreground">
-                                <HelpCircle className="h-3.5 w-3.5" />
-                              </button>
-                            </TooltipTrigger>
-                            <TooltipContent side="top" className="max-w-[260px] text-xs">
-                              {fulfillment.evidenceMandatory
-                                ? (isNb
-                                    ? "Dette kravet må dokumenteres med opplastet dokumentasjon (policy, avtale, sertifikat, rapport)."
-                                    : "This requirement must be documented with uploaded evidence (policy, agreement, certificate, report).")
-                                : (isNb ? fulfillment.descriptionNo : fulfillment.descriptionEn)}
-                            </TooltipContent>
-                          </Tooltip>
-                        </div>
-                      </div>
-
-                    </div>
-                    )}
+                      );
+                    })()}
 
 
 
