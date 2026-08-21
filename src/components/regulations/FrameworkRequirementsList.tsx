@@ -1133,6 +1133,8 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                     {(() => {
                       const docs = getRecommendedDocs(req, isNb);
                       if (docs.length === 0) return null;
+                      const approved = agentFindingStatus === "approved_source" || agentFindingStatus === "approved_mynder";
+                      if (approved) return null;
                       const isOpen = showAllDocsIds.has(req.requirement_id);
                       return (
                         <div className="rounded-md border border-border/60 bg-card">
