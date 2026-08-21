@@ -749,7 +749,8 @@ const AssetTrustProfile = () => {
           open={activityDialogOpen}
           onOpenChange={setActivityDialogOpen}
           onSubmit={() => setActivityDialogOpen(false)}
-        />
+          hideTrigger
+
       )}
     </SidebarProvider>
   );
