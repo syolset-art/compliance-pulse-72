@@ -42,16 +42,16 @@ export const AGENT_REQUIREMENT_FINDINGS: AgentRequirementFinding[] = [
     requirementId: "AIACT-Art9",
     agentName: "Sara",
     channel: "sara",
-    source: "Notion / AI-styring / Risikostyringssystem for KI",
+    source: "Notion / AI-styring / Vurdering av grunnleggende rettigheter",
     documentId: "ntn-9a41f2",
     hash: "sha256:7c3d…a118",
     agentVersion: "0.9.2",
     deliveredAt: "I dag 08:47",
     approval: "pre_approved_at_source",
     summaryNb:
-      "Risikostyringssystemet er etablert og oppdatert. Funnene dekker identifisering, analyse og håndtering av risiko for høyrisiko KI-systemer.",
+      "Vurdering av innvirkning på grunnleggende rettigheter er gjennomført for høyrisiko KI-systemene og bekreftet av ansvarlig hos kunden før innsending.",
     summaryEn:
-      "The risk management system is established and up to date. The findings cover identification, analysis and handling of risk for high-risk AI systems.",
+      "Fundamental rights impact assessment completed for the high-risk AI systems and confirmed by the responsible person at the customer before submission.",
   },
   {
     requirementId: "AIACT-Art11",
