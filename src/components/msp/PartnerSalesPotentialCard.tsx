@@ -5,7 +5,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { TrendingUp, Package, Clock, Info, ChevronDown, Minus, Plus } from "lucide-react";
+import { TrendingUp, Package, Clock, Info, ChevronDown } from "lucide-react";
 import { MYNDER_PRODUCTS } from "@/lib/mynderProducts";
 import { frameworkLicensePrice } from "@/lib/planConstants";
 import { frameworks as FRAMEWORK_DEFS } from "@/lib/frameworkDefinitions";
@@ -16,7 +16,6 @@ const fmt = (n: number) => n.toLocaleString("nb-NO");
 
 const LS_FRAMEWORKS = "msp.salesPotential.frameworks";
 const LS_RATE = "msp.salesPotential.hourlyRate";
-const LS_ADVISORY_COUNT = "msp.salesPotential.advisoryCount";
 const LS_HOURS_PER_REQ = "msp.salesPotential.hoursPerRequirement";
 
 const DEFAULT_FRAMEWORKS = ["gdpr"];
@@ -47,7 +46,8 @@ function readJson<T>(key: string): T | null {
  * legge til flere selv).
  *
  * Rådgivningspotensial: timer per krav (standard 1, redigerbart) × antall krav
- * i regelverkene × antall regelverk i pakken × timepris (redigerbar).
+ * i de aktiverte regelverkene × timepris (redigerbar). Antall regelverk i
+ * rådgivningspakken følger alltid de aktiverte regelverkene over.
  */
 export function PartnerSalesPotentialCard({ currency }: { currency: string }) {
   const { defaultHourlyRate } = useServiceDefaults();
@@ -76,9 +76,6 @@ export function PartnerSalesPotentialCard({ currency }: { currency: string }) {
   const [hourlyRate, setHourlyRate] = useState<number>(
     () => readJson<number>(LS_RATE) ?? defaultHourlyRate ?? DEFAULT_HOURLY_RATE,
   );
-  const [advisoryCount, setAdvisoryCount] = useState<number>(
-    () => readJson<number>(LS_ADVISORY_COUNT) ?? DEFAULT_FRAMEWORKS.length,
-  );
   // null = auto (1 time per krav). Tall = brukerens eget anslag for timer per krav.
   const [hoursPerReqOverride, setHoursPerReqOverride] = useState<number | null>(() =>
     readJson<number>(LS_HOURS_PER_REQ),
@@ -91,9 +88,6 @@ export function PartnerSalesPotentialCard({ currency }: { currency: string }) {
     localStorage.setItem(LS_RATE, JSON.stringify(hourlyRate));
   }, [hourlyRate]);
   useEffect(() => {
-    localStorage.setItem(LS_ADVISORY_COUNT, JSON.stringify(advisoryCount));
-  }, [advisoryCount]);
-  useEffect(() => {
     if (hoursPerReqOverride === null) localStorage.removeItem(LS_HOURS_PER_REQ);
     else localStorage.setItem(LS_HOURS_PER_REQ, JSON.stringify(hoursPerReqOverride));
   }, [hoursPerReqOverride]);
@@ -101,13 +95,7 @@ export function PartnerSalesPotentialCard({ currency }: { currency: string }) {
   const selected = options.filter((o) => selectedIds.includes(o.id));
 
   const toggleFramework = (id: string, checked: boolean) => {
-    setSelectedIds((prev) => {
-      const next = checked ? [...prev, id] : prev.filter((f) => f !== id);
-      // Rådgivningspakken speiler antall valgte regelverk med mindre partneren
-      // har overstyrt antallet — da justerer vi diton.
-      setAdvisoryCount(next.length);
-      return next;
-    });
+    setSelectedIds((prev) => (checked ? [...prev, id] : prev.filter((f) => f !== id)));
   };
 
   // Lisens: minstepris på produktene + pris per valgt regelverk.
@@ -119,13 +107,11 @@ export function PartnerSalesPotentialCard({ currency }: { currency: string }) {
   const licensePotential = productLicense + frameworkLicense;
 
   // Rådgivning: timer per krav (auto = 1 t per krav, kan overstyres) × antall
-  // krav i regelverkene (snitt) × antall regelverk i pakken × timepris.
-  const avgControlPoints =
-    selected.length > 0
-      ? selected.reduce((sum, f) => sum + f.controlPoints, 0) / selected.length
-      : 0;
+  // krav i de aktiverte regelverkene × timepris. Antall regelverk følger
+  // alltid «Aktiverte produkter» — alle regelverk må aktiveres.
+  const totalControlPoints = selected.reduce((sum, f) => sum + f.controlPoints, 0);
   const hoursPerReq = hoursPerReqOverride ?? DEFAULT_HOURS_PER_REQ;
-  const advisoryHours = Math.round(avgControlPoints * hoursPerReq * Math.max(0, advisoryCount));
+  const advisoryHours = Math.round(totalControlPoints * hoursPerReq);
   const advisoryPotential = advisoryHours * (hourlyRate || 0);
 
   const selectedLabel =
@@ -251,15 +237,15 @@ export function PartnerSalesPotentialCard({ currency }: { currency: string }) {
                       <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
                     </TooltipTrigger>
                     <TooltipContent side="bottom" className="max-w-xs text-xs">
-                      Timer per krav × antall krav i regelverkene × antall regelverk i pakken ×
-                      timeprisen din. Utgangspunktet er 1 time per krav — juster selv opp eller
-                      ned.
+                      Timer per krav × antall krav i de aktiverte regelverkene × timeprisen din.
+                      Alle regelverk må aktiveres — antallet følger «Aktiverte produkter».
+                      Utgangspunktet er 1 time per krav — juster selv opp eller ned.
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
               </div>
               <p className="text-xs text-muted-foreground">
-                {advisoryCount} regelverk · {hoursPerReq} t per krav · totalt {advisoryHours} t
+                {selected.length} regelverk · {hoursPerReq} t per krav · totalt {advisoryHours} t
                 {hoursPerReqOverride === null && " (auto)"}
               </p>
             </div>
@@ -269,32 +255,6 @@ export function PartnerSalesPotentialCard({ currency }: { currency: string }) {
           </div>
 
           <div className="flex items-center gap-3 flex-wrap">
-            <div className="flex items-center gap-1.5">
-              <span className="text-[11px] text-muted-foreground">Regelverk i pakken</span>
-              <div className="flex items-center gap-1">
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="h-7 w-7"
-                  aria-label="Færre regelverk"
-                  onClick={() => setAdvisoryCount((c) => Math.max(0, c - 1))}
-                >
-                  <Minus className="h-3 w-3" />
-                </Button>
-                <span className="w-6 text-center text-sm font-medium tabular-nums">
-                  {advisoryCount}
-                </span>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="h-7 w-7"
-                  aria-label="Flere regelverk"
-                  onClick={() => setAdvisoryCount((c) => Math.min(options.length, c + 1))}
-                >
-                  <Plus className="h-3 w-3" />
-                </Button>
-              </div>
-            </div>
             <div className="flex items-center gap-1.5">
               <span className="text-[11px] text-muted-foreground">Timer pr. krav</span>
               <Input
