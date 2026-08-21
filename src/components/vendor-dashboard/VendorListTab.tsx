@@ -1,4 +1,6 @@
 import { useState, useMemo } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
+
 import { SENSITIVE_DATA_STATUS_OPTIONS, normalizeSensitiveDataStatus, sensitiveDataStatusLabel } from "@/lib/sensitiveData";
 import { VendorFrameworkScopeStrip } from "@/components/vendor-dashboard/VendorFrameworkScopeStrip";
 import { useNavigate, useSearchParams } from "react-router-dom";
