@@ -51,6 +51,7 @@ import { SelfProfileMetadataRow } from "./SelfProfileMetadataRow";
 import { HeaderMaturityIndicators } from "@/components/trust-controls/HeaderMaturityIndicators";
 import { InlineEditableField } from "./InlineEditableField";
 import { PriorityChip } from "@/components/PriorityChip";
+import { useVendorPriorityLabels } from "@/hooks/useVendorPriorityLabels";
 import { PriorityEditorPopover } from "./PriorityEditorPopover";
 
 interface TrustMetrics {
@@ -127,6 +128,8 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
   const [showCompanyInfo, setShowCompanyInfo] = useState(false);
   const logoInputRef = useRef<HTMLInputElement>(null);
   const isSelf = asset.asset_type === 'self';
+  // Egendefinerte prioritetsnavn gjelder kun leverandørmodulen.
+  const { labels: vendorPriorityLabels } = useVendorPriorityLabels();
 
   const { data: companyProfile } = useQuery({
     queryKey: ["company_profile_msp"],
@@ -643,6 +646,7 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
                     reason={(asset as { priority_reason?: string | null }).priority_reason ?? null}
                     updatedBy={(asset as { priority_updated_by?: string | null }).priority_updated_by ?? null}
                     updatedAt={(asset as { priority_updated_at?: string | null }).priority_updated_at ?? null}
+                    labelOverrides={asset.asset_type === "vendor" ? vendorPriorityLabels : undefined}
                   />
                 </button>
               }
