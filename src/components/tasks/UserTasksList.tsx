@@ -1,6 +1,7 @@
 import { format } from "date-fns";
 import { nb } from "date-fns/locale";
-import { Calendar, User, Trash2, CheckCircle2, Clock, CircleDot, Link2 } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Calendar, User, Trash2, CheckCircle2, Clock, CircleDot, Link2, ArrowRight } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -82,6 +83,14 @@ export function UserTasksList({ tasks, isLoading, onStatusChange, onDelete }: Us
                     </span>
                   )}
                 </div>
+                {task.process_id && task.status !== "fullført" && (
+                  <Button asChild variant="outline" size="sm" className="mt-2.5 h-8 text-xs gap-1">
+                    <Link to={`/processes/${task.process_id}`}>
+                      Gå gjennom og bekreft
+                      <ArrowRight className="h-3 w-3" />
+                    </Link>
+                  </Button>
+                )}
               </div>
 
               <div className="flex items-center gap-2 shrink-0">

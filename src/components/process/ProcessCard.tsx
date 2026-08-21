@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -19,8 +20,11 @@ import {
   Database,
   Workflow,
   Sparkles,
+  CheckCircle2,
+  Loader2,
 } from "lucide-react";
 import { dataClassLabel } from "@/lib/processingActivity";
+import { ProcessingActivityWizardDialog } from "@/components/dialogs/ProcessingActivityWizardDialog";
 import { ProcessAITab } from "./ProcessAITab";
 import { ProcessSystemsTab } from "./tabs/ProcessSystemsTab";
 import { ProcessDataTypesTab } from "./tabs/ProcessDataTypesTab";
@@ -37,6 +41,8 @@ interface ProcessCardProps {
 export const ProcessCard = ({ processId, workAreaId, onEdit }: ProcessCardProps) => {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState("systems");
+  const [editOpen, setEditOpen] = useState(false);
+  const queryClient = useQueryClient();
 
   // Fetch process details
   const { data: process, isLoading: processLoading } = useQuery({
@@ -64,6 +70,37 @@ export const ProcessCard = ({ processId, workAreaId, onEdit }: ProcessCardProps)
       if (error) throw error;
       return data;
     },
+  });
+
+  // Bekreft et utkast direkte: aktiverer aktiviteten og løser koblede oppgaver
+  const confirmDraft = useMutation({
+    mutationFn: async () => {
+      const { data: userResp } = await supabase.auth.getUser();
+      const who = userResp?.user?.email ?? userResp?.user?.id ?? null;
+      const { error } = await supabase
+        .from("system_processes")
+        .update({
+          status: "active",
+          ai_suggested_fields: {},
+          confirmed_by: who,
+          confirmed_at: new Date().toISOString(),
+        } as never)
+        .eq("id", processId);
+      if (error) throw error;
+      // Merk koblede oppgaver i oppgavekøen som fullført
+      await supabase
+        .from("user_tasks")
+        .update({ status: "fullført" } as never)
+        .eq("process_id", processId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["process-detail", processId] });
+      queryClient.invalidateQueries({ queryKey: ["process", processId] });
+      queryClient.invalidateQueries({ queryKey: ["wa-processing-activities"] });
+      queryClient.invalidateQueries({ queryKey: ["user-tasks"] });
+      toast.success("Behandlingsaktivitet bekreftet og aktivert");
+    },
+    onError: () => toast.error("Kunne ikke bekrefte utkastet"),
   });
 
   // Mock data for metrics - in a real app, these would come from the database
@@ -137,7 +174,7 @@ export const ProcessCard = ({ processId, workAreaId, onEdit }: ProcessCardProps)
               <FileText className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               <span>Prosesskort</span>
             </div>
-            <Button variant="outline" size="sm" onClick={onEdit} className="h-8 text-xs sm:text-sm">
+            <Button variant="outline" size="sm" onClick={() => (onEdit ? onEdit() : setEditOpen(true))} className="h-8 text-xs sm:text-sm">
               <Edit2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1" />
               Rediger
             </Button>
@@ -220,6 +257,25 @@ export const ProcessCard = ({ processId, workAreaId, onEdit }: ProcessCardProps)
                   {(process as { controller_name?: string | null }).controller_name}
                 </p>
               )}
+            </div>
+            <div className="flex flex-col gap-1.5 shrink-0 ml-auto">
+              <Button size="sm" className="h-8 text-xs" onClick={() => setEditOpen(true)}>
+                Gå gjennom og bekreft
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-8 text-xs gap-1"
+                disabled={confirmDraft.isPending}
+                onClick={() => confirmDraft.mutate()}
+              >
+                {confirmDraft.isPending ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <CheckCircle2 className="h-3.5 w-3.5" />
+                )}
+                Bekreft direkte
+              </Button>
             </div>
           </CardContent>
         </Card>
@@ -399,6 +455,33 @@ export const ProcessCard = ({ processId, workAreaId, onEdit }: ProcessCardProps)
           </Tabs>
         </CardContent>
       </Card>
+
+      {/* Gjennomgang/redigering av utkast i veiviseren */}
+      <ProcessingActivityWizardDialog
+        open={editOpen}
+        onOpenChange={setEditOpen}
+        existingProcess={{
+          id: process.id,
+          system_id: (process as { system_id?: string | null }).system_id ?? null,
+          system_name: (process.systems as { name?: string } | null)?.name ?? null,
+          name: process.name,
+          description: process.description,
+          purpose: (process as { purpose?: string | null }).purpose ?? null,
+          data_class: (process as { data_class?: string | null }).data_class ?? null,
+          special_categories:
+            (process as { special_categories?: string[] | null }).special_categories ?? null,
+          legal_basis: (process as { legal_basis?: string | null }).legal_basis ?? null,
+          controller_name: (process as { controller_name?: string | null }).controller_name ?? null,
+          ai_suggested_fields:
+            (process as { ai_suggested_fields?: Record<string, unknown> | null }).ai_suggested_fields ?? null,
+        }}
+        onSaved={() => {
+          queryClient.invalidateQueries({ queryKey: ["process-detail", processId] });
+          queryClient.invalidateQueries({ queryKey: ["process", processId] });
+          queryClient.invalidateQueries({ queryKey: ["wa-processing-activities"] });
+          queryClient.invalidateQueries({ queryKey: ["user-tasks"] });
+        }}
+      />
     </div>
   );
 };
