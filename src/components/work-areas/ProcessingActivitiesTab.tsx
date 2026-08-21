@@ -24,6 +24,8 @@ interface Activity {
   system_id: string;
   purpose?: string | null;
   data_class?: string | null;
+  special_categories?: string[] | null;
+  legal_basis?: string | null;
   controller_name?: string | null;
   ai_suggested_fields?: Record<string, unknown> | null;
   systems?: { name: string } | null;
@@ -36,10 +38,13 @@ const hasUnconfirmedAi = (p: Activity) =>
 export function ProcessingActivitiesTab({
   workAreaId,
   workAreaName,
-  onSelectProcess,
   onSelectAsset,
 }: ProcessingActivitiesTabProps) {
   const [wizardOpen, setWizardOpen] = useState(false);
+  /** Aktivitet som åpnes for gjennomgang/godkjenning (radklikk) */
+  const [reviewing, setReviewing] = useState<Activity | null>(null);
+
+  const openReview = (activity: Activity) => setReviewing(activity);
 
   const { data: activities = [], isLoading } = useQuery({
     queryKey: ["wa-processing-activities", workAreaId],
@@ -122,7 +127,7 @@ export function ProcessingActivitiesTab({
               <TableRow
                 key={activity.id}
                 className="cursor-pointer hover:bg-muted/50"
-                onClick={() => onSelectProcess?.(activity.id)}
+                onClick={() => openReview(activity)}
               >
                 <TableCell>
                   <div className="flex items-center gap-1.5">
@@ -179,7 +184,21 @@ export function ProcessingActivitiesTab({
                   </Badge>
                 </TableCell>
                 <TableCell>
-                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                  {hasUnconfirmedAi(activity) || activity.status === "draft" ? (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-7 text-xs"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openReview(activity);
+                      }}
+                    >
+                      Gå gjennom
+                    </Button>
+                  ) : (
+                    <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                  )}
                 </TableCell>
               </TableRow>
             ))}
@@ -192,6 +211,33 @@ export function ProcessingActivitiesTab({
         onOpenChange={setWizardOpen}
         workAreaId={workAreaId}
         workAreaName={workAreaName}
+      />
+
+      {/* Radklikk: åpne utkastet for gjennomgang og godkjenning */}
+      <ProcessingActivityWizardDialog
+        open={!!reviewing}
+        onOpenChange={(open) => {
+          if (!open) setReviewing(null);
+        }}
+        workAreaId={workAreaId}
+        workAreaName={workAreaName}
+        existingProcess={
+          reviewing
+            ? {
+                id: reviewing.id,
+                system_id: reviewing.system_id,
+                system_name: reviewing.systems?.name ?? null,
+                name: reviewing.name,
+                description: reviewing.description,
+                purpose: reviewing.purpose ?? null,
+                data_class: reviewing.data_class ?? null,
+                special_categories: reviewing.special_categories ?? null,
+                legal_basis: reviewing.legal_basis ?? null,
+                controller_name: reviewing.controller_name ?? null,
+                ai_suggested_fields: reviewing.ai_suggested_fields ?? null,
+              }
+            : undefined
+        }
       />
     </div>
   );
