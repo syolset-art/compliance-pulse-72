@@ -454,6 +454,46 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
       );
       setTprmImpact(tprm);
 
+      // Laras krav-treff-analyse: hvilke krav i scope-regelverkene svarer
+      // dokumentet ut? Det er dette — ikke opplastingen i seg selv — som
+      // påvirker scoren (jf. Mynder Score Model v1, R5).
+      const hits = analyseDocumentAcrossFrameworks(scopedFrameworks, {
+        displayName: displayName || file.name,
+        fileName: file.name,
+        documentType: docType,
+      });
+      setRequirementHits(hits);
+
+      // Rapport/pentest med svakheter: scoren løftes ikke — i stedet
+      // registreres et avvik som genererer tiltak i arbeidslisten.
+      if (classification?.hasFindings) {
+        try {
+          const { data: userRes } = await supabase.auth.getUser();
+          const responsible =
+            (userRes?.user?.user_metadata?.full_name as string) ||
+            userRes?.user?.email ||
+            (isNb ? "Leverandøransvarlig" : "Vendor manager");
+          registerDeviation.mutate({
+            assetId,
+            title: isNb
+              ? `Funn i ${displayName || file.name}`
+              : `Findings in ${displayName || file.name}`,
+            description:
+              classification.findingsSummary || classification.summary || "",
+            category: "sikkerhet",
+            criticality: "high",
+            responsible,
+            discoveredAt: new Date(),
+            dueDate: null,
+            source: "document_analysis",
+            impacts: [],
+          });
+          setDeviationCreated(true);
+        } catch (err) {
+          console.error("Kunne ikke registrere avvik fra dokumentfunn:", err);
+        }
+      }
+
       setStep("saved");
     } catch {
       toast.error(isNb ? "Kunne ikke laste opp" : "Upload failed");
