@@ -48,6 +48,18 @@ export function ProcessingActivitiesTab({
 
   const openReview = (activity: Activity) => setReviewing(activity);
 
+  /**
+   * «Sist sett»-sporing per arbeidsområde: når brukeren åpner fanen lagres
+   * tidspunktet, slik at aktiviteter Lara/agenten har generert i bakgrunnen
+   * siden forrige besøk kan markeres som nye ved neste visning.
+   */
+  const [lastSeen, setLastSeen] = useState<string | null>(null);
+  useEffect(() => {
+    const key = `ropa-last-seen:${workAreaId}`;
+    setLastSeen(localStorage.getItem(key));
+    localStorage.setItem(key, new Date().toISOString());
+  }, [workAreaId]);
+
   const { data: activities = [], isLoading } = useQuery({
     queryKey: ["wa-processing-activities", workAreaId],
     queryFn: async () => {
