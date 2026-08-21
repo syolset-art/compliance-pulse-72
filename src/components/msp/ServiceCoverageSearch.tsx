@@ -189,10 +189,7 @@ export function ServiceCoverageSearch({
 
   const matchedFramework = useMemo(() => matchFramework(debounced), [debounced]);
   const matchedProduct = useMemo(() => matchProduct(debounced), [debounced]);
-  const framework = useMemo(
-    () => (pickedFrameworkId ? getFrameworkById(pickedFrameworkId) ?? null : matchedFramework),
-    [pickedFrameworkId, matchedFramework],
-  );
+  const framework = matchedFramework;
   const product = useMemo(
     () =>
       pickedProductId
@@ -200,13 +197,6 @@ export function ServiceCoverageSearch({
         : matchedProduct,
     [pickedProductId, matchedProduct],
   );
-
-  const frameworkList = useMemo(() => {
-    const q = debounced.toLowerCase();
-    return frameworks.filter(
-      (f) => q.length < 2 || f.name.toLowerCase().includes(q) || f.id.includes(q),
-    );
-  }, [debounced]);
 
   const productList = useMemo(() => {
     const q = debounced.toLowerCase();
