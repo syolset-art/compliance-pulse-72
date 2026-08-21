@@ -58,7 +58,6 @@ export default function MSPServiceCatalog() {
 
           <MSPServiceCatalogTab
             onOpenSecondary={(v) => setSecondary(v)}
-            onRegisterActions={registerActions}
           />
         </div>
       </main>
