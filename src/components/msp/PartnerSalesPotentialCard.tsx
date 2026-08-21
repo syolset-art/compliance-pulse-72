@@ -5,7 +5,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { TrendingUp, Package, Clock, Info, ChevronDown, Minus, Plus } from "lucide-react";
+import { TrendingUp, Package, Clock, Info, ChevronDown } from "lucide-react";
 import { MYNDER_PRODUCTS } from "@/lib/mynderProducts";
 import { frameworkLicensePrice } from "@/lib/planConstants";
 import { frameworks as FRAMEWORK_DEFS } from "@/lib/frameworkDefinitions";
@@ -16,7 +16,6 @@ const fmt = (n: number) => n.toLocaleString("nb-NO");
 
 const LS_FRAMEWORKS = "msp.salesPotential.frameworks";
 const LS_RATE = "msp.salesPotential.hourlyRate";
-const LS_ADVISORY_COUNT = "msp.salesPotential.advisoryCount";
 const LS_HOURS_PER_REQ = "msp.salesPotential.hoursPerRequirement";
 
 const DEFAULT_FRAMEWORKS = ["gdpr"];
@@ -47,7 +46,8 @@ function readJson<T>(key: string): T | null {
  * legge til flere selv).
  *
  * Rådgivningspotensial: timer per krav (standard 1, redigerbart) × antall krav
- * i regelverkene × antall regelverk i pakken × timepris (redigerbar).
+ * i de aktiverte regelverkene × timepris (redigerbar). Antall regelverk i
+ * rådgivningspakken følger alltid de aktiverte regelverkene over.
  */
 export function PartnerSalesPotentialCard({ currency }: { currency: string }) {
   const { defaultHourlyRate } = useServiceDefaults();
@@ -76,9 +76,6 @@ export function PartnerSalesPotentialCard({ currency }: { currency: string }) {
   const [hourlyRate, setHourlyRate] = useState<number>(
     () => readJson<number>(LS_RATE) ?? defaultHourlyRate ?? DEFAULT_HOURLY_RATE,
   );
-  const [advisoryCount, setAdvisoryCount] = useState<number>(
-    () => readJson<number>(LS_ADVISORY_COUNT) ?? DEFAULT_FRAMEWORKS.length,
-  );
   // null = auto (1 time per krav). Tall = brukerens eget anslag for timer per krav.
   const [hoursPerReqOverride, setHoursPerReqOverride] = useState<number | null>(() =>
     readJson<number>(LS_HOURS_PER_REQ),
@@ -91,9 +88,6 @@ export function PartnerSalesPotentialCard({ currency }: { currency: string }) {
     localStorage.setItem(LS_RATE, JSON.stringify(hourlyRate));
   }, [hourlyRate]);
   useEffect(() => {
-    localStorage.setItem(LS_ADVISORY_COUNT, JSON.stringify(advisoryCount));
-  }, [advisoryCount]);
-  useEffect(() => {
     if (hoursPerReqOverride === null) localStorage.removeItem(LS_HOURS_PER_REQ);
     else localStorage.setItem(LS_HOURS_PER_REQ, JSON.stringify(hoursPerReqOverride));
   }, [hoursPerReqOverride]);
@@ -101,13 +95,7 @@ export function PartnerSalesPotentialCard({ currency }: { currency: string }) {
   const selected = options.filter((o) => selectedIds.includes(o.id));
 
   const toggleFramework = (id: string, checked: boolean) => {
-    setSelectedIds((prev) => {
-      const next = checked ? [...prev, id] : prev.filter((f) => f !== id);
-      // Rådgivningspakken speiler antall valgte regelverk med mindre partneren
-      // har overstyrt antallet — da justerer vi diton.
-      setAdvisoryCount(next.length);
-      return next;
-    });
+    setSelectedIds((prev) => (checked ? [...prev, id] : prev.filter((f) => f !== id)));
   };
 
   // Lisens: minstepris på produktene + pris per valgt regelverk.
