@@ -228,6 +228,35 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
     });
   }, [storedEvidence]);
 
+  /**
+   * Agent-leverte funn styrer status for de berørte kravene:
+   * godkjent funn = oppfylt, venter/avvist = ikke startet (teller ikke).
+   * Brukeren kan fortsatt overstyre manuelt via statusvelgeren i etterkant.
+   */
+  useEffect(() => {
+    if (findingsByReq.size === 0) return;
+    setUiStates((prev) => {
+      const next = { ...prev };
+      let changed = false;
+      for (const f of findingsByReq.values()) {
+        const cur = next[f.requirementId];
+        if (!cur) continue;
+        const st = resolveFindingStatus(f, findingDecisions);
+        const approved = st === "approved_source" || st === "approved_mynder";
+        const target: ProgressStatus = approved ? "fulfilled" : "not_started";
+        if (normalizeProgress(cur.progress) !== target) {
+          next[f.requirementId] = {
+            ...cur,
+            progress: target,
+            evidence: approved ? "attested" : cur.evidence,
+          };
+          changed = true;
+        }
+      }
+      return changed ? next : prev;
+    });
+  }, [findingsByReq, findingDecisions]);
+
 
   const counts = useMemo(() => {
     let met = 0, partial = 0, notMet = 0;
@@ -241,13 +270,13 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
     const manual = requirements.filter((r) => r.agent_capability !== "full").length;
     let waitingYou = 0, agentFollowUp = 0;
     for (const r of requirements) {
-      if (agentFollowedUp.has(r.requirement_id)) { agentFollowUp++; continue; }
       const b = bucketOf(uiStates[r.requirement_id]?.progress ?? "not_started");
+      if (agentFollowedUp.has(r.requirement_id) || (findingsByReq.has(r.requirement_id) && b === "met")) { agentFollowUp++; continue; }
       if (b === "met") continue;
       waitingYou++;
     }
     return { met, partial, notMet, auto, manual, waitingYou, agentFollowUp, total: requirements.length };
-  }, [uiStates, requirements, agentFollowedUp]);
+  }, [uiStates, requirements, agentFollowedUp, findingsByReq]);
 
   useEffect(() => {
     onCountsChange?.(counts);
@@ -268,8 +297,8 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
     let list = requirements;
     if (filter !== "all") {
       list = list.filter((r) => {
-        const isAgent = agentFollowedUp.has(r.requirement_id);
         const b = bucketOf(uiStates[r.requirement_id]?.progress ?? "not_started");
+        const isAgent = agentFollowedUp.has(r.requirement_id) || (findingsByReq.has(r.requirement_id) && b === "met");
         if (filter === "ok") return b === "met" && !isAgent;
         if (filter === "agent") return isAgent;
         return !isAgent && b !== "met";
@@ -278,6 +307,8 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
 
     if (docsOnly) {
       list = list.filter((r) => {
+        // Agent-levert funn teller som agent-dokumentasjon selv uten opplasting
+        if (findingsByReq.has(r.requirement_id) && docSourceFilter !== "shared") return true;
         const docs = uiStates[r.requirement_id]?.documents ?? [];
         if (docs.length === 0) return false;
         if (docSourceFilter !== "all") {
