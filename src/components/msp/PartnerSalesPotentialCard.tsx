@@ -150,17 +150,22 @@ export function PartnerSalesPotentialCard({ currency }: { currency: string }) {
             </p>
           </div>
         </div>
-        <div className="text-right">
+        <div className="text-right flex flex-col items-end gap-0.5">
           <p className="text-[11px] text-muted-foreground">Totalt potensial</p>
           <p className="text-2xl font-bold text-foreground tabular-nums">
             {fmt(licensePotential)} {currency}/mnd
             {advisoryPotential > 0 && (
               <span className="text-base font-semibold text-muted-foreground">
-                {" "}
-                + {fmt(advisoryPotential)} {currency}
+                {" "}+ {fmt(advisoryPotential)} {currency}
               </span>
             )}
           </p>
+          <div className="flex flex-col items-end text-xs text-muted-foreground mt-0.5">
+            <span>Lisenser: {fmt(licensePotential)} {currency}/mnd</span>
+            {advisoryPotential > 0 && (
+              <span>Rådgivningstimer: {fmt(advisoryPotential)} {currency}</span>
+            )}
+          </div>
         </div>
       </div>
 
