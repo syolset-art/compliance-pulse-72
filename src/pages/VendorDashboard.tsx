@@ -198,9 +198,6 @@ export default function VendorDashboard() {
               />
             </TabsContent>
 
-            <TabsContent value="frameworks">
-              <VendorFrameworkScopeTab />
-            </TabsContent>
 
 
             <TabsContent value="all">
