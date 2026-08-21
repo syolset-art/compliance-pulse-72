@@ -4707,6 +4707,30 @@ export type Database = {
         }
         Relationships: []
       }
+      vendor_module_settings: {
+        Row: {
+          created_at: string
+          id: string
+          priority_labels: Json
+          scope: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          priority_labels?: Json
+          scope?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          priority_labels?: Json
+          scope?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       work_area_documents: {
         Row: {
           ai_enabled: boolean | null

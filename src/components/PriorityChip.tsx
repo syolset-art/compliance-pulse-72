@@ -25,6 +25,8 @@ interface PriorityChipProps {
   className?: string;
   /** Vis kortnavn (f.eks. "Høy") i stedet for "P1 – Høy". */
   short?: boolean;
+  /** Overstyrte visningsnavn per nivå (brukes av leverandørmodulen). */
+  labelOverrides?: Partial<Record<PriorityKey, string>>;
 }
 
 export function PriorityChip({
@@ -38,6 +40,7 @@ export function PriorityChip({
   showIcon = true,
   className,
   short = false,
+  labelOverrides,
 }: PriorityChipProps) {
   const meta = getPriorityMeta(value);
   if (!meta) {
@@ -54,7 +57,14 @@ export function PriorityChip({
   }
 
   const deviation = isPriorityDeviation(value, suggested);
-  const label = short ? meta.shortNb : meta.labelNb;
+  const override = labelOverrides?.[meta.key];
+  const label = override
+    ? short
+      ? override
+      : `${meta.key} – ${override}`
+    : short
+      ? meta.shortNb
+      : meta.labelNb;
   const Icon = source === "manual" ? User : Sparkles;
 
   const chip = (
@@ -88,7 +98,7 @@ export function PriorityChip({
           <button type="button" className="inline-flex">{chip}</button>
         </TooltipTrigger>
         <TooltipContent className="max-w-xs space-y-1.5 text-xs">
-          <div className="font-semibold">{meta.labelNb}</div>
+          <div className="font-semibold">{label}</div>
           {suggested && (
             <div className="text-muted-foreground">
               Laras forslag: <span className="font-medium text-foreground">{priorityLabel(suggested)}</span>
