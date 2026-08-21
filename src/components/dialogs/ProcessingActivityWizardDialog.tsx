@@ -276,10 +276,9 @@ export function ProcessingActivityWizardDialog({
       const { data: userResp } = await supabase.auth.getUser();
       const who = userResp?.user?.email ?? userResp?.user?.id ?? null;
 
-      const { error } = await supabase.from("system_processes").insert({
+      const values = {
         name,
         description: description.trim() || null,
-        system_id: selectedSystemId,
         purpose: purpose.trim(),
         data_class: dataClass || null,
         special_categories: dataClass === "sensitive" ? specialCategories : null,
@@ -291,12 +290,33 @@ export function ProcessingActivityWizardDialog({
           : Object.fromEntries(Object.entries(aiSuggested).filter(([, v]) => v)),
         confirmed_by: confirm ? who : null,
         confirmed_at: confirm ? new Date().toISOString() : null,
-      } as never);
+      };
+
+      let error;
+      if (existingProcess) {
+        // Redigeringsmodus: oppdater eksisterende aktivitet (f.eks. bekreft et utkast)
+        ({ error } = await supabase
+          .from("system_processes")
+          .update(values as never)
+          .eq("id", existingProcess.id));
+        if (!error && confirm) {
+          // Løs koblede oppgaver i oppgavekøen
+          await supabase
+            .from("user_tasks")
+            .update({ status: "fullført" } as never)
+            .eq("process_id", existingProcess.id);
+        }
+      } else {
+        ({ error } = await supabase.from("system_processes").insert({
+          ...values,
+          system_id: selectedSystemId,
+        } as never));
+      }
       if (error) throw error;
 
       // RoPA er knyttet til arbeidsområdet via systemet: sørg for at systemet
       // ligger i arbeidsområdet (kun hvis det ikke allerede har et eierområde).
-      if (workAreaId) {
+      if (workAreaId && !existingProcess) {
         await supabase
           .from("systems")
           .update({ work_area_id: workAreaId } as never)
@@ -308,10 +328,13 @@ export function ProcessingActivityWizardDialog({
       queryClient.invalidateQueries({ queryKey: ["wa-processing-activities"] });
       queryClient.invalidateQueries({ queryKey: ["work-area-processes"] });
       queryClient.invalidateQueries({ queryKey: ["processes"] });
+      queryClient.invalidateQueries({ queryKey: ["user-tasks"] });
 
       toast({
         title: confirm
-          ? isNb ? "Behandlingsaktivitet opprettet" : "Processing activity created"
+          ? existingProcess
+            ? isNb ? "Behandlingsaktivitet bekreftet" : "Processing activity confirmed"
+            : isNb ? "Behandlingsaktivitet opprettet" : "Processing activity created"
           : isNb ? "Utkast lagret" : "Draft saved",
         description: confirm
           ? isNb
@@ -345,7 +368,9 @@ export function ProcessingActivityWizardDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <FileCheck2 className="h-5 w-5 text-primary" />
-            {isNb ? "Ny behandlingsaktivitet" : "New processing activity"}
+            {existingProcess
+              ? isNb ? "Gå gjennom behandlingsaktivitet" : "Review processing activity"
+              : isNb ? "Ny behandlingsaktivitet" : "New processing activity"}
             {selectedSystemName && (
               <span className="text-muted-foreground font-normal">– {selectedSystemName}</span>
             )}
@@ -384,7 +409,7 @@ export function ProcessingActivityWizardDialog({
         {/* STEG 0: Formål */}
         {step === 0 && (
           <div className="space-y-4">
-            {!initialSystemId && (
+            {!initialSystemId && !existingProcess && (
               <div className="space-y-2">
                 <Label>{isNb ? "System *" : "System *"}</Label>
                 <Select value={selectedSystemId} onValueChange={startWithSystem}>
@@ -694,7 +719,9 @@ export function ProcessingActivityWizardDialog({
                 ) : (
                   <Check className="h-4 w-4 mr-2" />
                 )}
-                {isNb ? "Bekreft og opprett" : "Confirm and create"}
+                {existingProcess
+                  ? isNb ? "Bekreft og aktiver" : "Confirm and activate"
+                  : isNb ? "Bekreft og opprett" : "Confirm and create"}
               </Button>
             </div>
             {hasUnconfirmed && (
