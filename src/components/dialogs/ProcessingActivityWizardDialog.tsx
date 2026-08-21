@@ -151,7 +151,8 @@ export function ProcessingActivityWizardDialog({
   }, [initialSystemName, existingProcess, systems, selectedSystemId]);
 
   const reset = () => {
-    setStep(0);
+    // Ved gjennomgang av eksisterende utkast: gå rett til oppsummering/godkjenning
+    setStep(existingProcess ? 2 : 0);
     setControllerName(null);
     // Redigeringsmodus: forhåndsutfyll fra eksisterende aktivitet og bygg et
     // syntetisk forslagsobjekt slik at AI-merkede felt kan godkjennes felt for felt.
