@@ -17,6 +17,7 @@ const fmt = (n: number) => n.toLocaleString("nb-NO");
 const LS_FRAMEWORKS = "msp.salesPotential.frameworks";
 const LS_RATE = "msp.salesPotential.hourlyRate";
 const LS_ADVISORY_COUNT = "msp.salesPotential.advisoryCount";
+const LS_HOURS_PER_FW = "msp.salesPotential.hoursPerFramework";
 
 const DEFAULT_FRAMEWORKS = ["gdpr"];
 const DEFAULT_HOURLY_RATE = 1500;
@@ -77,6 +78,11 @@ export function PartnerSalesPotentialCard({ currency }: { currency: string }) {
   const [advisoryCount, setAdvisoryCount] = useState<number>(
     () => readJson<number>(LS_ADVISORY_COUNT) ?? DEFAULT_FRAMEWORKS.length,
   );
+  // null = auto (snitt av kontrollpunkter i valgte regelverk). Tall = brukerens
+  // eget anslag for timer per regelverk.
+  const [hoursPerFwOverride, setHoursPerFwOverride] = useState<number | null>(() =>
+    readJson<number>(LS_HOURS_PER_FW),
+  );
 
   useEffect(() => {
     localStorage.setItem(LS_FRAMEWORKS, JSON.stringify(selectedIds));
@@ -87,6 +93,10 @@ export function PartnerSalesPotentialCard({ currency }: { currency: string }) {
   useEffect(() => {
     localStorage.setItem(LS_ADVISORY_COUNT, JSON.stringify(advisoryCount));
   }, [advisoryCount]);
+  useEffect(() => {
+    if (hoursPerFwOverride === null) localStorage.removeItem(LS_HOURS_PER_FW);
+    else localStorage.setItem(LS_HOURS_PER_FW, JSON.stringify(hoursPerFwOverride));
+  }, [hoursPerFwOverride]);
 
   const selected = options.filter((o) => selectedIds.includes(o.id));
 
@@ -108,12 +118,14 @@ export function PartnerSalesPotentialCard({ currency }: { currency: string }) {
   const frameworkLicense = selected.reduce((sum, f) => sum + f.priceKr, 0);
   const licensePotential = productLicense + frameworkLicense;
 
-  // Rådgivning: 1 time per kontrollpunkt i snitt, per regelverk i pakken.
+  // Rådgivning: timer per regelverk (auto = 1 t per kontrollpunkt i snitt,
+  // kan overstyres) × antall regelverk i pakken × timepris.
   const avgControlPoints =
     selected.length > 0
       ? selected.reduce((sum, f) => sum + f.controlPoints, 0) / selected.length
       : 0;
-  const advisoryHours = Math.round(avgControlPoints * Math.max(0, advisoryCount));
+  const hoursPerFramework = hoursPerFwOverride ?? Math.round(avgControlPoints);
+  const advisoryHours = hoursPerFramework * Math.max(0, advisoryCount);
   const advisoryPotential = advisoryHours * (hourlyRate || 0);
 
   const selectedLabel =
@@ -234,15 +246,16 @@ export function PartnerSalesPotentialCard({ currency }: { currency: string }) {
                       <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
                     </TooltipTrigger>
                     <TooltipContent side="bottom" className="max-w-xs text-xs">
-                      Beregnet med 1 time per kontrollpunkt i snitt, ganget med antall regelverk i
-                      rådgivningspakken og timeprisen din. Begge deler kan du endre selv.
+                      Timer per regelverk × antall regelverk i pakken × timeprisen din. Timene er
+                      satt til 1 time per kontrollpunkt i snitt som utgangspunkt — juster selv opp
+                      eller ned.
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
               </div>
               <p className="text-xs text-muted-foreground">
-                {advisoryCount} regelverk · ~{Math.round(avgControlPoints)} kontrollpunkter · 1 t per
-                kontrollpunkt
+                {advisoryCount} regelverk · {hoursPerFramework} t per regelverk
+                {hoursPerFwOverride === null && " (auto)"}
               </p>
             </div>
             <p className="text-lg font-semibold text-foreground tabular-nums shrink-0">
@@ -276,6 +289,29 @@ export function PartnerSalesPotentialCard({ currency }: { currency: string }) {
                   <Plus className="h-3 w-3" />
                 </Button>
               </div>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="text-[11px] text-muted-foreground">Timer pr. regelverk</span>
+              <Input
+                type="number"
+                min={0}
+                step={1}
+                value={hoursPerFramework}
+                onChange={(e) =>
+                  setHoursPerFwOverride(Math.max(0, Math.round(Number(e.target.value) || 0)))
+                }
+                className="h-7 w-16 text-xs tabular-nums"
+                aria-label="Timer per regelverk"
+              />
+              {hoursPerFwOverride !== null && (
+                <button
+                  type="button"
+                  onClick={() => setHoursPerFwOverride(null)}
+                  className="text-[11px] text-primary hover:underline"
+                >
+                  Nullstill
+                </button>
+              )}
             </div>
             <div className="flex items-center gap-1.5">
               <span className="text-[11px] text-muted-foreground">Timepris</span>
