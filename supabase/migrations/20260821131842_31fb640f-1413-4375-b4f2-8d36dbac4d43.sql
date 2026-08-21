@@ -1,0 +1,1 @@
+ALTER TABLE public.user_tasks ADD COLUMN IF NOT EXISTS process_id uuid REFERENCES public.system_processes(id) ON DELETE CASCADE; CREATE INDEX IF NOT EXISTS idx_user_tasks_process_id ON public.user_tasks(process_id);
