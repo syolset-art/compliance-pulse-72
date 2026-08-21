@@ -24,6 +24,8 @@ interface Activity {
   system_id: string;
   purpose?: string | null;
   data_class?: string | null;
+  special_categories?: string[] | null;
+  legal_basis?: string | null;
   controller_name?: string | null;
   ai_suggested_fields?: Record<string, unknown> | null;
   systems?: { name: string } | null;
