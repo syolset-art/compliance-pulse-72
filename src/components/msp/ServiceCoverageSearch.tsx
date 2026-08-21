@@ -352,7 +352,6 @@ export function ServiceCoverageSearch({
             value={query}
             onChange={(e) => {
               setQuery(e.target.value);
-              setPickedFrameworkId(null);
               setPickedProductId(null);
             }}
             placeholder={
