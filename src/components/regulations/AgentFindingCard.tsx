@@ -1,4 +1,3 @@
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Bot, CheckCircle2, Clock, FileText, ShieldCheck, XCircle } from "lucide-react";
 import { SaraIcon } from "@/components/agents/SaraIcon";
@@ -8,6 +7,8 @@ interface Props {
   finding: AgentRequirementFinding;
   status: FindingStatus;
   decidedAt?: string;
+  /** Navn på personen som godkjente/avviste funnet i Mynder-portalen */
+  decidedBy?: string;
   isNb: boolean;
   onApprove: () => void;
   onReject: () => void;
@@ -28,11 +29,14 @@ function formatDecisionDate(at: string | undefined, isNb: boolean): string {
 }
 
 /**
- * Viser dokumentasjon levert fra kundens egen infrastruktur — via Sara (lokal
- * agent) eller kundens egen agent (MCP) — med kilde (navn og sted) og
- * godkjenningsflyt. Funnet teller først som dokumentasjon når det er godkjent.
+ * Viser et funn levert fra kundens egen infrastruktur — via Sara (lokal
+ * agent) eller kundens egen agent (MCP/BYOA).
+ *
+ * Ansvarsgrensen er alltid synlig som tekst: funnet er vurdert av kundens
+ * egen agent, og dokumentet er ikke delt med Mynder. Funnet er et forslag
+ * som ikke påvirker skåren før en navngitt person godkjenner det i portalen.
  */
-export function AgentFindingCard({ finding, status, decidedAt, isNb, onApprove, onReject }: Props) {
+export function AgentFindingCard({ finding, status, decidedAt, decidedBy, isNb, onApprove, onReject }: Props) {
   const channelLabel =
     finding.channel === "sara"
       ? isNb
@@ -41,6 +45,9 @@ export function AgentFindingCard({ finding, status, decidedAt, isNb, onApprove, 
       : isNb
         ? "kundens agent via MCP"
         : "customer's agent via MCP";
+
+  const decidedDate = formatDecisionDate(decidedAt, isNb);
+  const decider = decidedBy || (isNb ? "deg" : "you");
 
   return (
     <div className="space-y-3 rounded-md border border-primary/25 bg-primary/[0.03] p-3">
@@ -62,10 +69,15 @@ export function AgentFindingCard({ finding, status, decidedAt, isNb, onApprove, 
             {isNb ? finding.summaryNb : finding.summaryEn}
           </p>
         </div>
-        <Badge variant="outline" className="h-5 shrink-0 px-1.5 text-[10px] font-semibold uppercase tracking-wide">
-          {finding.channel === "sara" ? "Sara" : "MCP"}
-        </Badge>
       </div>
+
+      {/* Ansvarsgrense (BYOA) — alltid synlig som tekst, aldri bare ikon/farge */}
+      <p className="flex items-start gap-1.5 rounded-sm border border-border/60 bg-muted/50 px-2 py-1.5 text-[11px] font-medium leading-snug text-foreground">
+        <ShieldCheck className="mt-px h-3.5 w-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
+        {isNb
+          ? "Vurdert av kundens egen agent — dokument ikke delt med Mynder"
+          : "Assessed by the customer's own agent — document not shared with Mynder"}
+      </p>
 
       {/* Kilde: navn og sted hos kunden */}
       <div className="rounded-md border border-border/60 bg-card px-3 py-2">
@@ -90,45 +102,19 @@ export function AgentFindingCard({ finding, status, decidedAt, isNb, onApprove, 
         </p>
       </div>
 
-      {/* Godkjenningsstatus */}
-      {status === "approved_source" && (
-        <div className="flex items-start gap-2 rounded-md border border-status-closed/30 bg-status-closed/5 px-3 py-2">
-          <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-status-closed" aria-hidden="true" />
-          <div>
-            <p className="text-xs font-medium text-foreground">
-              {finding.channel === "sara"
-                ? isNb
-                  ? `Godkjent funn (av ${finding.verifiedBy})`
-                  : `Approved finding (by ${finding.verifiedBy})`
-                : isNb
-                  ? "Godkjent i kundens system før innsending"
-                  : "Approved in the customer's system before submission"}
-            </p>
-            <p className="text-[11px] text-muted-foreground">
-              {finding.channel === "sara"
-                ? isNb
-                  ? "Funnet er verifisert av en ansvarlig person i kundens egen infrastruktur og levert av Sara. Det teller som dokumentasjon."
-                  : "The finding has been verified by a responsible person in the customer's own infrastructure and delivered by Sara. It counts as documentation."
-                : isNb
-                  ? "En navngitt person hos kunden har bekreftet funnet. Det teller som dokumentasjon."
-                  : "A named person at the customer has confirmed the finding. It counts as documentation."}
-            </p>
-          </div>
-        </div>
-      )}
-
+      {/* Godkjenningsstatus — alltid med tekstlabel */}
       {status === "awaiting" && (
         <div className="space-y-2 rounded-md border border-warning/40 bg-warning/5 px-3 py-2.5">
           <div className="flex items-start gap-2">
             <Clock className="mt-0.5 h-4 w-4 shrink-0 text-warning" aria-hidden="true" />
             <div>
               <p className="text-xs font-medium text-foreground">
-                {isNb ? "Venter på din godkjenning" : "Awaiting your approval"}
+                {isNb ? "Forslag — påvirker ikke skåren" : "Proposal — does not affect the score"}
               </p>
               <p className="text-[11px] text-muted-foreground">
                 {isNb
-                  ? "Funnet er ikke godkjent ennå og teller ikke som dokumentasjon før du godkjenner det."
-                  : "The finding is not approved yet and does not count as documentation until you approve it."}
+                  ? "Et navngitt menneske hos dere må godkjenne funnet før det teller som grunnlag for kravet."
+                  : "A named person in your organization must approve the finding before it counts as a basis for the requirement."}
               </p>
             </div>
           </div>
@@ -142,7 +128,7 @@ export function AgentFindingCard({ finding, status, decidedAt, isNb, onApprove, 
               }}
             >
               <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />
-              {isNb ? "Godkjenn funn" : "Approve finding"}
+              {isNb ? "Godkjenn" : "Approve"}
             </Button>
             <Button
               size="sm"
@@ -165,11 +151,11 @@ export function AgentFindingCard({ finding, status, decidedAt, isNb, onApprove, 
           <div>
             <p className="text-xs font-medium text-foreground">
               {isNb
-                ? `Godkjent av deg${formatDecisionDate(decidedAt, isNb) ? ` — ${formatDecisionDate(decidedAt, isNb)}` : ""}`
-                : `Approved by you${formatDecisionDate(decidedAt, isNb) ? ` — ${formatDecisionDate(decidedAt, isNb)}` : ""}`}
+                ? `Godkjent av ${decider}${decidedDate ? ` — ${decidedDate}` : ""}`
+                : `Approved by ${decider}${decidedDate ? ` — ${decidedDate}` : ""}`}
             </p>
             <p className="text-[11px] text-muted-foreground">
-              {isNb ? "Funnet teller som dokumentasjon." : "The finding counts as documentation."}
+              {isNb ? "Funnet teller som grunnlag for kravet." : "The finding counts as a basis for the requirement."}
             </p>
           </div>
         </div>
@@ -181,13 +167,13 @@ export function AgentFindingCard({ finding, status, decidedAt, isNb, onApprove, 
           <div>
             <p className="text-xs font-medium text-foreground">
               {isNb
-                ? `Avvist av deg${formatDecisionDate(decidedAt, isNb) ? ` — ${formatDecisionDate(decidedAt, isNb)}` : ""}`
-                : `Rejected by you${formatDecisionDate(decidedAt, isNb) ? ` — ${formatDecisionDate(decidedAt, isNb)}` : ""}`}
+                ? `Avvist av ${decider}${decidedDate ? ` — ${decidedDate}` : ""}`
+                : `Rejected by ${decider}${decidedDate ? ` — ${decidedDate}` : ""}`}
             </p>
             <p className="text-[11px] text-muted-foreground">
               {isNb
-                ? "Funnet teller ikke som dokumentasjon. Kravet må dokumenteres på nytt."
-                : "The finding does not count as documentation. The requirement must be documented again."}
+                ? "Funnet teller ikke som grunnlag. Kravet må dokumenteres på nytt."
+                : "The finding does not count as a basis. The requirement must be documented again."}
             </p>
           </div>
         </div>

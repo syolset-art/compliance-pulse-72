@@ -17,6 +17,7 @@ import { ActiveFrameworksSummary } from "@/components/regulations/ActiveFramewor
 import { FrameworkDetailCard } from "@/components/regulations/FrameworkDetailCard";
 import { ComplianceHistoryChart } from "@/components/regulations/ComplianceHistoryChart";
 import { FrameworkRequirementsList } from "@/components/regulations/FrameworkRequirementsList";
+import { AgentFindingsQueue } from "@/components/regulations/AgentFindingsQueue";
 import { EditActiveFrameworksDialog } from "@/components/regulations/EditActiveFrameworksDialog";
 import { RegulationsViewSwitch, rememberRegulationsView } from "@/components/regulations/RegulationsViewSwitch";
 
@@ -503,6 +504,7 @@ const Regulations = () => {
             <div className="mt-6 space-y-4">
               <FrameworkDetailCard framework={selectedFramework} counts={currentCounts} />
               <ComplianceHistoryChart frameworkId={selectedFramework.id} onEventClick={(reqId) => setHighlightReqId(reqId)} />
+              <AgentFindingsQueue frameworkId={selectedFramework.id} />
               <FrameworkRequirementsList
                 key={selectedFramework.id}
                 frameworkId={selectedFramework.id}
