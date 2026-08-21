@@ -17,10 +17,11 @@ const fmt = (n: number) => n.toLocaleString("nb-NO");
 const LS_FRAMEWORKS = "msp.salesPotential.frameworks";
 const LS_RATE = "msp.salesPotential.hourlyRate";
 const LS_ADVISORY_COUNT = "msp.salesPotential.advisoryCount";
-const LS_HOURS_PER_FW = "msp.salesPotential.hoursPerFramework";
+const LS_HOURS_PER_REQ = "msp.salesPotential.hoursPerRequirement";
 
 const DEFAULT_FRAMEWORKS = ["gdpr"];
 const DEFAULT_HOURLY_RATE = 1500;
+const DEFAULT_HOURS_PER_REQ = 1;
 
 interface FrameworkOption {
   id: string;
@@ -78,10 +79,9 @@ export function PartnerSalesPotentialCard({ currency }: { currency: string }) {
   const [advisoryCount, setAdvisoryCount] = useState<number>(
     () => readJson<number>(LS_ADVISORY_COUNT) ?? DEFAULT_FRAMEWORKS.length,
   );
-  // null = auto (snitt av kontrollpunkter i valgte regelverk). Tall = brukerens
-  // eget anslag for timer per regelverk.
-  const [hoursPerFwOverride, setHoursPerFwOverride] = useState<number | null>(() =>
-    readJson<number>(LS_HOURS_PER_FW),
+  // null = auto (1 time per krav). Tall = brukerens eget anslag for timer per krav.
+  const [hoursPerReqOverride, setHoursPerReqOverride] = useState<number | null>(() =>
+    readJson<number>(LS_HOURS_PER_REQ),
   );
 
   useEffect(() => {
@@ -94,9 +94,9 @@ export function PartnerSalesPotentialCard({ currency }: { currency: string }) {
     localStorage.setItem(LS_ADVISORY_COUNT, JSON.stringify(advisoryCount));
   }, [advisoryCount]);
   useEffect(() => {
-    if (hoursPerFwOverride === null) localStorage.removeItem(LS_HOURS_PER_FW);
-    else localStorage.setItem(LS_HOURS_PER_FW, JSON.stringify(hoursPerFwOverride));
-  }, [hoursPerFwOverride]);
+    if (hoursPerReqOverride === null) localStorage.removeItem(LS_HOURS_PER_REQ);
+    else localStorage.setItem(LS_HOURS_PER_REQ, JSON.stringify(hoursPerReqOverride));
+  }, [hoursPerReqOverride]);
 
   const selected = options.filter((o) => selectedIds.includes(o.id));
 
@@ -118,14 +118,14 @@ export function PartnerSalesPotentialCard({ currency }: { currency: string }) {
   const frameworkLicense = selected.reduce((sum, f) => sum + f.priceKr, 0);
   const licensePotential = productLicense + frameworkLicense;
 
-  // Rådgivning: timer per regelverk (auto = 1 t per kontrollpunkt i snitt,
-  // kan overstyres) × antall regelverk i pakken × timepris.
+  // Rådgivning: timer per krav (auto = 1 t per krav, kan overstyres) × antall
+  // krav i regelverkene (snitt) × antall regelverk i pakken × timepris.
   const avgControlPoints =
     selected.length > 0
       ? selected.reduce((sum, f) => sum + f.controlPoints, 0) / selected.length
       : 0;
-  const hoursPerFramework = hoursPerFwOverride ?? Math.round(avgControlPoints);
-  const advisoryHours = hoursPerFramework * Math.max(0, advisoryCount);
+  const hoursPerReq = hoursPerReqOverride ?? DEFAULT_HOURS_PER_REQ;
+  const advisoryHours = Math.round(avgControlPoints * hoursPerReq * Math.max(0, advisoryCount));
   const advisoryPotential = advisoryHours * (hourlyRate || 0);
 
   const selectedLabel =
