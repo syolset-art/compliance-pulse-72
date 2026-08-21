@@ -173,7 +173,10 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete, new
     },
   });
 
+  const isMobile = useIsMobile();
   const [viewMode, setViewMode] = useState<"card" | "table">("table");
+  const effectiveViewMode = isMobile ? "card" : viewMode;
+
   const [scoreDisplay, setScoreDisplay] = useState<ScoreDisplayMode>("percent");
   const [nameFilter, setNameFilter] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
