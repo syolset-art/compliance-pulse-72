@@ -101,9 +101,6 @@ export function MSPFrameworkHoursTab({
       .sort((a, b) => b.requirements - a.requirements);
   }, [rows, defaultHourlyRate, packages]);
 
-  const activeItems = items.filter((i) => i.saved?.is_active);
-  const totalAdvisory = activeItems.reduce((sum, i) => sum + i.advisoryPrice, 0);
-  const totalLicense = activeItems.length * EXTRA_FRAMEWORK_PRICE_KR;
 
   const activeItem = active ? items.find((i) => i.fw.id === active.id) : undefined;
 
