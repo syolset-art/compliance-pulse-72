@@ -15,6 +15,40 @@ import {
   type PriorityLabelMap,
 } from "@/hooks/useVendorPriorityLabels";
 
+type TemplateId = "standard" | "risk" | "custom";
+
+const TEMPLATES: {
+  id: Exclude<TemplateId, "custom">;
+  name: string;
+  description: string;
+  labels: PriorityLabelMap;
+}[] = [
+  {
+    id: "standard",
+    name: "Standard",
+    description: "Kritisk · Høy · Medium · Lav",
+    labels: DEFAULT_PRIORITY_LABELS,
+  },
+  {
+    id: "risk",
+    name: "Risikobasert",
+    description: "Uakseptabel · Vesentlig · Moderat · Ubetydelig",
+    labels: {
+      P0: "Uakseptabel risiko",
+      P1: "Vesentlig risiko",
+      P2: "Moderat risiko",
+      P3: "Ubetydelig risiko",
+    } as PriorityLabelMap,
+  },
+];
+
+function matchTemplate(labels: PriorityLabelMap): TemplateId {
+  const found = TEMPLATES.find((t) =>
+    PRIORITY_KEYS.every((k) => (labels[k] || "").trim() === t.labels[k]),
+  );
+  return found?.id ?? "custom";
+}
+
 /**
  * Egendefinerte visningsnavn for prioritetsskalaen P0–P3.
  * Gjelder kun visninger inne i leverandørmodulen.
@@ -23,15 +57,18 @@ export function VendorPrioritySettingsSection() {
   const queryClient = useQueryClient();
   const { labels, isLoading } = useVendorPriorityLabels();
   const [draft, setDraft] = useState<PriorityLabelMap>(DEFAULT_PRIORITY_LABELS);
+  const [template, setTemplate] = useState<TemplateId>("standard");
   const [initialised, setInitialised] = useState(false);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (!isLoading && !initialised) {
       setDraft(labels);
+      setTemplate(matchTemplate(labels));
       setInitialised(true);
     }
   }, [isLoading, initialised, labels]);
+
 
   const handleSave = async () => {
     setSaving(true);
