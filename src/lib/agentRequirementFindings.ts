@@ -32,6 +32,8 @@ export interface AgentRequirementFinding {
   /** Visningstekst for leveringstidspunkt */
   deliveredAt: string;
   approval: AgentApproval;
+  /** Person / rolle som har verifisert funnet hos kunden */
+  verifiedBy: string;
   summaryNb: string;
   summaryEn: string;
 }
