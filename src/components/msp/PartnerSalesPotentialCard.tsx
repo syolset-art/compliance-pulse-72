@@ -46,8 +46,8 @@ function readJson<T>(key: string): T | null {
  * (regelverk kan ha ulik pris — GDPR er standardutgangspunkt, partneren kan
  * legge til flere selv).
  *
- * Rådgivningspotensial: antall regelverk i rådgivningspakken × kontrollpunkter
- * (1 time per kontrollpunkt i snitt) × timepris (redigerbar).
+ * Rådgivningspotensial: timer per krav (standard 1, redigerbart) × antall krav
+ * i regelverkene × antall regelverk i pakken × timepris (redigerbar).
  */
 export function PartnerSalesPotentialCard({ currency }: { currency: string }) {
   const { defaultHourlyRate } = useServiceDefaults();
