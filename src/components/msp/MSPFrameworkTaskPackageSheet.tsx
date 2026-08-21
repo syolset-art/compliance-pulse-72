@@ -26,6 +26,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { toast } from "sonner";
 import { formatPriceRange } from "@/lib/documentDeliverables";
 import { baselineRequirementRows } from "@/lib/frameworkRequirementBaseline";
+import { frameworkLicensePrice } from "@/lib/planConstants";
 import {
   buildFrameworkTasks,
   resolveTasks,
