@@ -96,12 +96,22 @@ export function AgentFindingCard({ finding, status, decidedAt, isNb, onApprove, 
           <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-status-closed" aria-hidden="true" />
           <div>
             <p className="text-xs font-medium text-foreground">
-              {isNb ? "Godkjent i kundens system før innsending" : "Approved in the customer's system before submission"}
+              {finding.channel === "sara"
+                ? isNb
+                  ? `Godkjent funn (av ${finding.verifiedBy})`
+                  : `Approved finding (by ${finding.verifiedBy})`
+                : isNb
+                  ? "Godkjent i kundens system før innsending"
+                  : "Approved in the customer's system before submission"}
             </p>
             <p className="text-[11px] text-muted-foreground">
-              {isNb
-                ? "En navngitt person hos kunden har bekreftet funnet. Det teller som dokumentasjon."
-                : "A named person at the customer has confirmed the finding. It counts as documentation."}
+              {finding.channel === "sara"
+                ? isNb
+                  ? "Funnet er verifisert av en ansvarlig person i kundens egen infrastruktur og levert av Sara. Det teller som dokumentasjon."
+                  : "The finding has been verified by a responsible person in the customer's own infrastructure and delivered by Sara. It counts as documentation."
+                : isNb
+                  ? "En navngitt person hos kunden har bekreftet funnet. Det teller som dokumentasjon."
+                  : "A named person at the customer has confirmed the finding. It counts as documentation."}
             </p>
           </div>
         </div>
