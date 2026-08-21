@@ -72,6 +72,15 @@ export function GlobalChatProvider({ children }: GlobalChatProviderProps) {
 
   const toggleChat = () => setIsChatOpen(prev => !prev);
 
+  const setIsDocked = (docked: boolean) => {
+    setIsDockedState(docked);
+    try {
+      window.localStorage.setItem("lara-chat-docked", String(docked));
+    } catch {
+      // ignore storage errors
+    }
+  };
+
   const openChatWithMessage = (message: string) => {
     setPendingMessage(message);
     setIsChatOpen(true);
@@ -126,6 +135,8 @@ export function GlobalChatProvider({ children }: GlobalChatProviderProps) {
         isChatOpen, 
         setIsChatOpen, 
         toggleChat, 
+        isDocked,
+        setIsDocked,
         openChatWithMessage,
         pendingMessage,
         clearPendingMessage,
