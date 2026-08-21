@@ -17,11 +17,17 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import {
   Upload, X, FileText, Sparkles, CheckCircle2, AlertTriangle, ArrowRight, Loader2,
-  Calendar, Shield, Clock, XCircle, TrendingUp, ExternalLink, ThumbsUp, ThumbsDown,
+  Calendar, Shield, Clock, XCircle, TrendingUp, ExternalLink, ThumbsUp, ThumbsDown, Info,
 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { calculateTPRMImpact, type TPRMLevel } from "@/lib/tprmUtils";
 import type { TPRMImpactData } from "@/components/ApprovalSuccessDialog";
+import {
+  analyseDocumentAcrossFrameworks,
+  coverageLabel,
+  type FrameworkCoverageMatches,
+} from "@/lib/laraDocumentCoverage";
+import { useRegisterVendorDeviation } from "@/hooks/useVendorDeviations";
 
 const DOC_TYPES = [
   { value: "policy", label: "Policy", labelNb: "Policy" },
@@ -86,6 +92,9 @@ interface AIClassification {
     reason: string;
   }>;
   extractedVendors: Array<{ name: string; description?: string }>;
+  /** True når rapporten/pentesten identifiserer svakheter som må utbedres. */
+  hasFindings?: boolean;
+  findingsSummary?: string | null;
 }
 
 interface ComplianceImpact {
