@@ -152,6 +152,12 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
   const [saraOpen, setSaraOpen] = useState(false);
   const [saraLogOpen, setSaraLogOpen] = useState(false);
   const { installed: saraInstalled, newFindings: saraNewFindings } = useSaraAgent();
+  const {
+    decisions: findingDecisions,
+    byRequirement: findingsByReq,
+    approve: approveFinding,
+    reject: rejectFinding,
+  } = useAgentFindings();
 
   const [readMoreIds, setReadMoreIds] = useState<Set<string>>(new Set());
   const [showAllDocsIds, setShowAllDocsIds] = useState<Set<string>>(new Set());
