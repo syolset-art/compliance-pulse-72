@@ -128,7 +128,7 @@ export function ProcessingActivitiesTab({
               <TableRow
                 key={activity.id}
                 className="cursor-pointer hover:bg-muted/50"
-                onClick={() => onSelectProcess?.(activity.id)}
+                onClick={() => openReview(activity)}
               >
                 <TableCell>
                   <div className="flex items-center gap-1.5">
