@@ -315,10 +315,10 @@ export function VendorStatusBanner({ asset, accessMembers }: VendorStatusBannerP
     <Card variant="flat" className="relative overflow-hidden p-0">
       <div className="flex items-stretch">
         {/* Vertical stripe */}
-        <div className={cn("relative w-9 shrink-0", status.stripeBg)}>
+        <div className={cn("relative w-2.5 sm:w-9 shrink-0", status.stripeBg)}>
           <span
             className={cn(
-              "absolute inset-0 flex items-center justify-center text-[11px] font-bold uppercase tracking-[0.18em] whitespace-nowrap",
+              "absolute inset-0 hidden sm:flex items-center justify-center text-[11px] font-bold uppercase tracking-[0.18em] whitespace-nowrap",
               status.stripeText,
             )}
             style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}
@@ -328,9 +328,9 @@ export function VendorStatusBanner({ asset, accessMembers }: VendorStatusBannerP
         </div>
 
         {/* Body */}
-        <div className="flex-1 px-5 py-4 space-y-3 min-w-0">
+        <div className="flex-1 px-4 sm:px-5 py-4 space-y-3 min-w-0">
           {/* Top row: logo + name/meta + donut */}
-          <div className="flex items-start gap-4">
+          <div className="flex items-start gap-3 sm:gap-4">
             {/* Logo / icon */}
             <div className="shrink-0">
               {asset.logo_url ? (
@@ -437,10 +437,10 @@ export function VendorStatusBanner({ asset, accessMembers }: VendorStatusBannerP
               )}
             </div>
 
-            <div className="flex items-center gap-2 min-w-0">
+            <div className="flex items-center gap-2 min-w-0 w-full sm:w-auto">
               <span className="text-[12px] uppercase tracking-wider text-muted-foreground font-semibold shrink-0">Leverandøransvarlig:</span>
               <Select value={owner ?? "none"} onValueChange={(v) => { setOwner(v === "none" ? null : v); toast.success(v === "none" ? "Leverandøransvarlig fjernet" : `${v} satt som leverandøransvarlig`); }}>
-                <SelectTrigger className="h-7 w-[220px] border-none bg-transparent px-1 text-[13px] shadow-none focus:ring-0">
+                <SelectTrigger className="h-7 w-full max-w-[220px] border-none bg-transparent px-1 text-[13px] shadow-none focus:ring-0">
                   {owner ? (
                     <span className="inline-flex items-center gap-1.5 text-foreground/90 min-w-0">
                       <InitialAvatar name={owner} color="bg-primary/15 text-primary" />
