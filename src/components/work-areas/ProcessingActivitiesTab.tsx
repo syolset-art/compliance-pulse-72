@@ -82,6 +82,23 @@ export function ProcessingActivitiesTab({
     },
   });
 
+  /** Er aktiviteten opprettet etter forrige besøk på fanen? */
+  const isNewSinceLastVisit = (a: Activity) =>
+    !!lastSeen && !!a.created_at && new Date(a.created_at).getTime() > new Date(lastSeen).getTime();
+
+  /** Nye utkast generert av Lara/agenten i bakgrunnen siden forrige besøk */
+  const newDrafts = useMemo(
+    () => activities.filter((a) => a.status === "draft" && isNewSinceLastVisit(a)),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [activities, lastSeen],
+  );
+
+  // Nye utkast øverst, deretter resten i opprinnelig rekkefølge
+  const sortedActivities = useMemo(() => {
+    const fresh = new Set(newDrafts.map((a) => a.id));
+    return [...activities].sort((a, b) => Number(fresh.has(b.id)) - Number(fresh.has(a.id)));
+  }, [activities, newDrafts]);
+
   const wizardButton = (
     <Button size="sm" onClick={() => setWizardOpen(true)} className="gap-1.5">
       <Plus className="h-4 w-4" />
