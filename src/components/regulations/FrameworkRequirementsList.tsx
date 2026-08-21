@@ -24,6 +24,12 @@ import { SaraOnboardingDialog } from "@/components/agents/SaraOnboardingDialog";
 import { SaraActivityLogDialog } from "@/components/agents/SaraActivityLogDialog";
 import { SaraIcon } from "@/components/agents/SaraIcon";
 import { useSaraAgent } from "@/lib/saraAgent";
+import { AgentFindingCard } from "@/components/regulations/AgentFindingCard";
+import {
+  useAgentFindings,
+  resolveFindingStatus,
+  type FindingStatus,
+} from "@/lib/agentRequirementFindings";
 
 import { AttachEvidenceDialog, type AttachEvidenceResult } from "@/components/regulations/AttachEvidenceDialog";
 import { MessageSquare, Save, Pencil } from "lucide-react";
@@ -146,6 +152,12 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
   const [saraOpen, setSaraOpen] = useState(false);
   const [saraLogOpen, setSaraLogOpen] = useState(false);
   const { installed: saraInstalled, newFindings: saraNewFindings } = useSaraAgent();
+  const {
+    decisions: findingDecisions,
+    byRequirement: findingsByReq,
+    approve: approveFinding,
+    reject: rejectFinding,
+  } = useAgentFindings();
 
   const [readMoreIds, setReadMoreIds] = useState<Set<string>>(new Set());
   const [showAllDocsIds, setShowAllDocsIds] = useState<Set<string>>(new Set());
@@ -216,6 +228,35 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
     });
   }, [storedEvidence]);
 
+  /**
+   * Agent-leverte funn styrer status for de berørte kravene:
+   * godkjent funn = oppfylt, venter/avvist = ikke startet (teller ikke).
+   * Brukeren kan fortsatt overstyre manuelt via statusvelgeren i etterkant.
+   */
+  useEffect(() => {
+    if (findingsByReq.size === 0) return;
+    setUiStates((prev) => {
+      const next = { ...prev };
+      let changed = false;
+      for (const f of findingsByReq.values()) {
+        const cur = next[f.requirementId];
+        if (!cur) continue;
+        const st = resolveFindingStatus(f, findingDecisions);
+        const approved = st === "approved_source" || st === "approved_mynder";
+        const target: ProgressStatus = approved ? "fulfilled" : "not_started";
+        if (normalizeProgress(cur.progress) !== target) {
+          next[f.requirementId] = {
+            ...cur,
+            progress: target,
+            evidence: approved ? "attested" : cur.evidence,
+          };
+          changed = true;
+        }
+      }
+      return changed ? next : prev;
+    });
+  }, [findingsByReq, findingDecisions]);
+
 
   const counts = useMemo(() => {
     let met = 0, partial = 0, notMet = 0;
@@ -229,13 +270,13 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
     const manual = requirements.filter((r) => r.agent_capability !== "full").length;
     let waitingYou = 0, agentFollowUp = 0;
     for (const r of requirements) {
-      if (agentFollowedUp.has(r.requirement_id)) { agentFollowUp++; continue; }
       const b = bucketOf(uiStates[r.requirement_id]?.progress ?? "not_started");
+      if (agentFollowedUp.has(r.requirement_id) || (findingsByReq.has(r.requirement_id) && b === "met")) { agentFollowUp++; continue; }
       if (b === "met") continue;
       waitingYou++;
     }
     return { met, partial, notMet, auto, manual, waitingYou, agentFollowUp, total: requirements.length };
-  }, [uiStates, requirements, agentFollowedUp]);
+  }, [uiStates, requirements, agentFollowedUp, findingsByReq]);
 
   useEffect(() => {
     onCountsChange?.(counts);
@@ -256,8 +297,8 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
     let list = requirements;
     if (filter !== "all") {
       list = list.filter((r) => {
-        const isAgent = agentFollowedUp.has(r.requirement_id);
         const b = bucketOf(uiStates[r.requirement_id]?.progress ?? "not_started");
+        const isAgent = agentFollowedUp.has(r.requirement_id) || (findingsByReq.has(r.requirement_id) && b === "met");
         if (filter === "ok") return b === "met" && !isAgent;
         if (filter === "agent") return isAgent;
         return !isAgent && b !== "met";
@@ -266,6 +307,8 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
 
     if (docsOnly) {
       list = list.filter((r) => {
+        // Agent-levert funn teller som agent-dokumentasjon selv uten opplasting
+        if (findingsByReq.has(r.requirement_id) && docSourceFilter !== "shared") return true;
         const docs = uiStates[r.requirement_id]?.documents ?? [];
         if (docs.length === 0) return false;
         if (docSourceFilter !== "all") {
@@ -859,6 +902,10 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
           const isMuted = state.progress === "not_applicable" || state.evidence === "out_of_scope";
           const isVerifiedDue = normalizeProgress(state.progress) === "fulfilled" && state.evidence === "revalidation_due";
           const fulfillment = inferFulfillment(req);
+          const agentFinding = findingsByReq.get(req.requirement_id);
+          const agentFindingStatus: FindingStatus | null = agentFinding
+            ? resolveFindingStatus(agentFinding, findingDecisions)
+            : null;
 
 
           return (
@@ -968,7 +1015,39 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                     );
                   })()}
 
-                  {(() => {
+                  {agentFinding ? (
+                    <>
+                      <TooltipProvider delayDuration={200}>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Badge
+                              variant="outline"
+                              className="h-6 px-2 gap-1 text-[10px] font-semibold tracking-wide text-primary border-primary/30 bg-primary/5 cursor-help normal-case"
+                              onMouseEnter={(e) => { e.stopPropagation(); setCursorTip(null); }}
+                            >
+                              {agentFinding.channel === "sara" ? (
+                                <SaraIcon size={12} />
+                              ) : (
+                                <Bot className="h-3 w-3" />
+                              )}
+                              {agentFinding.agentName}
+                            </Badge>
+                          </TooltipTrigger>
+                          <TooltipContent side="top" className="text-xs max-w-[260px]">
+                            {isNb
+                              ? `Dokumentasjon levert fra kundens infrastruktur via ${agentFinding.channel === "sara" ? "Sara (lokal agent)" : "MCP"} — ${agentFinding.source}`
+                              : `Documentation delivered from the customer's infrastructure via ${agentFinding.channel === "sara" ? "Sara (local agent)" : "MCP"} — ${agentFinding.source}`}
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                      {agentFindingStatus === "awaiting" && (
+                        <span className="inline-flex h-6 items-center gap-1 rounded-full border border-warning/40 bg-warning/5 px-2 text-[10px] font-semibold uppercase tracking-wide text-warning">
+                          <Clock className="h-3 w-3" />
+                          {isNb ? "Venter godkjenning" : "Awaiting approval"}
+                        </span>
+                      )}
+                    </>
+                  ) : (() => {
                     const cap = req.agent_capability;
                     const isAuto = cap === "full";
                     return (
@@ -1024,8 +1103,31 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                     <Separator className="mb-4" />
                     <div className="space-y-3">
 
-
-
+                    {/* Dokumentasjon levert av agent (Sara / MCP) med godkjenningsflyt */}
+                    {agentFinding && agentFindingStatus && (
+                      <AgentFindingCard
+                        finding={agentFinding}
+                        status={agentFindingStatus}
+                        decidedAt={findingDecisions[agentFinding.requirementId]?.at}
+                        isNb={isNb}
+                        onApprove={() => {
+                          approveFinding(agentFinding.requirementId);
+                          toast.success(
+                            isNb
+                              ? "Funnet er godkjent og teller nå som dokumentasjon."
+                              : "Finding approved — it now counts as documentation.",
+                          );
+                        }}
+                        onReject={() => {
+                          rejectFinding(agentFinding.requirementId);
+                          toast(
+                            isNb
+                              ? "Funnet er avvist. Kravet må dokumenteres på nytt."
+                              : "Finding rejected — the requirement must be documented again.",
+                          );
+                        }}
+                      />
+                    )}
 
                     {/* Veiledning til dokumentasjon — skjult som standard */}
                     {(() => {
@@ -1063,13 +1165,15 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                     {/* Auto-vurdering: informasjon + overstyringsknapp */}
                     {req.agent_capability === "full" && !readMoreIds.has(`__override_${req.requirement_id}`) && (
                       <>
-                        <div className="rounded-md border border-border/60 bg-muted/20 px-3 py-2.5">
-                          <p className="text-xs text-muted-foreground leading-relaxed">
-                            {isNb
-                              ? "Mynder har ikke nok data til å automatisk vurdere dette kravet ennå. Registrer relevant data i portalen for å forbedre scoren."
-                              : "Mynder does not yet have enough data to automatically assess this requirement. Register relevant data in the portal to improve the score."}
-                          </p>
-                        </div>
+                        {!agentFinding && (
+                          <div className="rounded-md border border-border/60 bg-muted/20 px-3 py-2.5">
+                            <p className="text-xs text-muted-foreground leading-relaxed">
+                              {isNb
+                                ? "Mynder har ikke nok data til å automatisk vurdere dette kravet ennå. Registrer relevant data i portalen for å forbedre scoren."
+                                : "Mynder does not yet have enough data to automatically assess this requirement. Register relevant data in the portal to improve the score."}
+                            </p>
+                          </div>
+                        )}
                         <button
                           type="button"
                           onClick={(e) => { e.stopPropagation(); toggleSet(setReadMoreIds, `__override_${req.requirement_id}`); }}
