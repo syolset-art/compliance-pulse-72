@@ -134,14 +134,23 @@ function ChatPanelContent({ isOpen, onClose, onShowContent, onBackToDashboard, i
       
       <div 
         className={cn(
-          "fixed right-4 bottom-4 w-[400px] bg-card border border-border rounded-2xl shadow-2xl z-40 transition-all duration-300 ease-out flex flex-col overflow-hidden",
-          isOpen ? "translate-y-0 opacity-100 scale-100" : "translate-y-4 opacity-0 scale-95 pointer-events-none",
-          hasMessages ? "h-[70vh] max-h-[800px]" : "h-[85vh] max-h-[900px]"
+          "fixed bg-card z-40 transition-all duration-300 ease-out flex flex-col overflow-hidden",
+          isDocked
+            ? "right-0 top-11 bottom-0 w-[420px] border-l border-border"
+            : cn(
+                "right-4 bottom-4 w-[400px] border border-border rounded-2xl shadow-2xl",
+                hasMessages ? "h-[70vh] max-h-[800px]" : "h-[85vh] max-h-[900px]"
+              ),
+          isOpen
+            ? "translate-x-0 translate-y-0 opacity-100 scale-100"
+            : isDocked
+              ? "translate-x-6 opacity-0 pointer-events-none"
+              : "translate-y-4 opacity-0 scale-95 pointer-events-none"
         )}
       >
         <div className="relative flex-1 flex flex-col overflow-hidden">
-          {hasMessages && <ChatPanelHeader onClose={onClose} onShowDemo={() => setShowDemoPanel(true)} showDemoButton pageName={pageContext.pageName} />}
-          {!hasMessages && <MinimalHeader onClose={onClose} onShowDemo={() => setShowDemoPanel(true)} pageName={pageContext.pageName} />}
+          {hasMessages && <ChatPanelHeader onClose={onClose} onShowDemo={() => setShowDemoPanel(true)} showDemoButton pageName={pageContext.pageName} isDocked={isDocked} onToggleDock={onToggleDock} />}
+          {!hasMessages && <MinimalHeader onClose={onClose} onShowDemo={() => setShowDemoPanel(true)} pageName={pageContext.pageName} isDocked={isDocked} onToggleDock={onToggleDock} />}
           <div className="flex-1 overflow-hidden">
             <ChatInterface 
               onShowContent={onShowContent}
