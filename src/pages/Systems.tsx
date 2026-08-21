@@ -71,6 +71,7 @@ import { getCoreTier, formatKr, DEFAULT_CORE_TIER_ID, type CoreTierId } from "@/
 import { getModuleTier, setModuleTier } from "@/lib/moduleActivationState";
 import { SystemStatusRow } from "@/components/systems/SystemStatusRow";
 import { PriorityChip } from "@/components/PriorityChip";
+import { ProcessingActivityWizardDialog } from "@/components/dialogs/ProcessingActivityWizardDialog";
 
 
 interface System {
@@ -249,6 +250,13 @@ export default function Systems() {
     },
   });
 
+  const [ropaWizard, setRopaWizard] = useState<{
+    systemId: string;
+    systemName: string;
+    workAreaId: string;
+    workAreaName: string;
+  } | null>(null);
+
   const assignOwner = useMutation({
     mutationFn: async ({ id, workAreaId }: { id: string; workAreaId: string }) => {
       const workArea = workAreas.find((wa: WorkArea) => wa.id === workAreaId);
@@ -260,10 +268,27 @@ export default function Systems() {
         })
         .eq("id", id);
       if (error) throw error;
+      return { id, workAreaId };
     },
-    onSuccess: () => {
+    onSuccess: async ({ id, workAreaId }) => {
       queryClient.invalidateQueries({ queryKey: ["systems"] });
       toast.success("Eier satt");
+
+      // Tilby automatisk RoPA-utkast dersom systemet ikke har en behandlingsaktivitet fra før
+      const { count } = await supabase
+        .from("system_processes")
+        .select("id", { count: "exact", head: true })
+        .eq("system_id", id);
+      if (!count) {
+        const sys = systems.find((s: System) => s.id === id);
+        const wa = workAreas.find((w: WorkArea) => w.id === workAreaId);
+        setRopaWizard({
+          systemId: id,
+          systemName: sys?.name || "",
+          workAreaId,
+          workAreaName: wa?.name || "",
+        });
+      }
     },
   });
 
@@ -937,6 +962,18 @@ export default function Systems() {
           }
         }}
       />
+
+      {ropaWizard && (
+        <ProcessingActivityWizardDialog
+          open={!!ropaWizard}
+          onOpenChange={(open) => { if (!open) setRopaWizard(null); }}
+          systemId={ropaWizard.systemId}
+          systemName={ropaWizard.systemName}
+          workAreaId={ropaWizard.workAreaId}
+          workAreaName={ropaWizard.workAreaName}
+          onSaved={() => queryClient.invalidateQueries({ queryKey: ["wa-processing-activities"] })}
+        />
+      )}
 
       <ChangeCoreTierDialog
         open={changeCoreTierOpen}

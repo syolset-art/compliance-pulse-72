@@ -3482,28 +3482,52 @@ export type Database = {
       }
       system_processes: {
         Row: {
+          ai_suggested_fields: Json
+          confirmed_at: string | null
+          confirmed_by: string | null
+          controller_name: string | null
           created_at: string | null
+          data_class: string | null
           description: string | null
           id: string
+          legal_basis: string | null
           name: string
+          purpose: string | null
+          special_categories: string[] | null
           status: string | null
           system_id: string
           updated_at: string | null
         }
         Insert: {
+          ai_suggested_fields?: Json
+          confirmed_at?: string | null
+          confirmed_by?: string | null
+          controller_name?: string | null
           created_at?: string | null
+          data_class?: string | null
           description?: string | null
           id?: string
+          legal_basis?: string | null
           name: string
+          purpose?: string | null
+          special_categories?: string[] | null
           status?: string | null
           system_id: string
           updated_at?: string | null
         }
         Update: {
+          ai_suggested_fields?: Json
+          confirmed_at?: string | null
+          confirmed_by?: string | null
+          controller_name?: string | null
           created_at?: string | null
+          data_class?: string | null
           description?: string | null
           id?: string
+          legal_basis?: string | null
           name?: string
+          purpose?: string | null
+          special_categories?: string[] | null
           status?: string | null
           system_id?: string
           updated_at?: string | null
