@@ -179,7 +179,7 @@ export function ProcessingActivitiesTab({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {activities.map((activity) => (
+            {sortedActivities.map((activity) => (
               <TableRow
                 key={activity.id}
                 className="cursor-pointer hover:bg-muted/50"
@@ -188,6 +188,9 @@ export function ProcessingActivitiesTab({
                 <TableCell>
                   <div className="flex items-center gap-1.5">
                     <span className="font-medium">{activity.name}</span>
+                    {isNewSinceLastVisit(activity) && activity.status === "draft" && (
+                      <Badge className="text-[10px] px-1.5 py-0">Ny</Badge>
+                    )}
                     {hasUnconfirmedAi(activity) && (
                       <Tooltip>
                         <TooltipTrigger asChild>
