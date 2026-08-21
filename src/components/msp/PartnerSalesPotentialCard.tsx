@@ -17,6 +17,7 @@ const fmt = (n: number) => n.toLocaleString("nb-NO");
 const LS_FRAMEWORKS = "msp.salesPotential.frameworks";
 const LS_RATE = "msp.salesPotential.hourlyRate";
 const LS_ADVISORY_COUNT = "msp.salesPotential.advisoryCount";
+const LS_HOURS_PER_FW = "msp.salesPotential.hoursPerFramework";
 
 const DEFAULT_FRAMEWORKS = ["gdpr"];
 const DEFAULT_HOURLY_RATE = 1500;
@@ -76,6 +77,11 @@ export function PartnerSalesPotentialCard({ currency }: { currency: string }) {
   );
   const [advisoryCount, setAdvisoryCount] = useState<number>(
     () => readJson<number>(LS_ADVISORY_COUNT) ?? DEFAULT_FRAMEWORKS.length,
+  );
+  // null = auto (snitt av kontrollpunkter i valgte regelverk). Tall = brukerens
+  // eget anslag for timer per regelverk.
+  const [hoursPerFwOverride, setHoursPerFwOverride] = useState<number | null>(() =>
+    readJson<number>(LS_HOURS_PER_FW),
   );
 
   useEffect(() => {
