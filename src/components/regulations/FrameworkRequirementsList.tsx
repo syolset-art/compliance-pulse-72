@@ -24,6 +24,12 @@ import { SaraOnboardingDialog } from "@/components/agents/SaraOnboardingDialog";
 import { SaraActivityLogDialog } from "@/components/agents/SaraActivityLogDialog";
 import { SaraIcon } from "@/components/agents/SaraIcon";
 import { useSaraAgent } from "@/lib/saraAgent";
+import { AgentFindingCard } from "@/components/regulations/AgentFindingCard";
+import {
+  useAgentFindings,
+  resolveFindingStatus,
+  type FindingStatus,
+} from "@/lib/agentRequirementFindings";
 
 import { AttachEvidenceDialog, type AttachEvidenceResult } from "@/components/regulations/AttachEvidenceDialog";
 import { MessageSquare, Save, Pencil } from "lucide-react";
