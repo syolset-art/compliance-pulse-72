@@ -231,7 +231,7 @@ export function MSPFrameworkTaskPackageSheet({
   };
 
   const editor = (onSave: () => void, onCancel: () => void) => (
-    <div className="grid grid-cols-1 sm:grid-cols-[1fr_140px_80px_80px_auto] gap-2 items-end rounded-md border border-border p-2 bg-muted/30">
+    <div className="grid grid-cols-1 sm:grid-cols-[1fr_140px_90px_auto] gap-2 items-end rounded-md border border-border p-2 bg-muted/30">
       <div className="space-y-1">
         <Label className="text-[11px]">Navn</Label>
         <Input
@@ -256,22 +256,12 @@ export function MSPFrameworkTaskPackageSheet({
         </Select>
       </div>
       <div className="space-y-1">
-        <Label className="text-[11px]">Timer fra</Label>
+        <Label className="text-[11px]">Timer</Label>
         <Input
           type="number"
           min={0}
-          value={draft.min}
-          onChange={(e) => setDraft({ ...draft, min: e.target.value })}
-          className="h-8 text-sm"
-        />
-      </div>
-      <div className="space-y-1">
-        <Label className="text-[11px]">Til</Label>
-        <Input
-          type="number"
-          min={0}
-          value={draft.max}
-          onChange={(e) => setDraft({ ...draft, max: e.target.value })}
+          value={draft.hours}
+          onChange={(e) => setDraft({ ...draft, hours: e.target.value })}
           className="h-8 text-sm"
         />
       </div>
