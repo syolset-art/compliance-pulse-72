@@ -707,57 +707,6 @@ export function MSPServiceCatalogTab({ onOpenSecondary, onRegisterActions }: { o
         onOpenedFramework={() => setOpenFrameworkId(null)}
       />
 
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1.5">
-            <div className="text-sm font-medium text-foreground">Velg tjenester til din katalog</div>
-            <Popover>
-              <PopoverTrigger asChild>
-                <button
-                  type="button"
-                  className="inline-flex items-center justify-center text-muted-foreground/70 hover:text-foreground transition-colors"
-                  aria-label="Om katalogen"
-                >
-                  <Info className="h-4 w-4" />
-                </button>
-              </PopoverTrigger>
-              <PopoverContent side="top" className="max-w-sm p-3 space-y-2">
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  Bygg din egen tjenestekatalog fra Mynders bibliotek av sikkerhets- og compliance-tjenester. Hver tjeneste er koblet mot relevante regelverk og krav, slik at du raskt kan matche kundens behov med riktig tilbud. Du beholder full kontroll: velg, tilpass eller legg til egne tjenester og priser.
-                </p>
-                <div className="flex items-start gap-2 text-xs text-muted-foreground leading-relaxed">
-                  <Sparkles className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" />
-                  <p className="flex-1">
-                    Koblingen mellom tjenester og krav er foreslått av Lara — ikke verifisert av menneske. Forholdet er ikke 1:1.
-                  </p>
-                </div>
-                <div className="space-y-1.5 text-xs text-muted-foreground leading-relaxed">
-                  <p className="flex items-center gap-1.5 text-xs font-medium text-foreground">
-                    <Sparkles className="h-3.5 w-3.5 text-primary" />
-                    Slik er koblingene laget
-                  </p>
-                  <p>Lara (AI) foreslår hvilke krav og artikler en tjeneste dekker basert på beskrivelser, aktiviteter og nøkkelord.</p>
-                  <p>Forslagene er ikke verifisert av mennesker. Kvalitetssikre før du bruker dem i et tilbud eller en leveranse.</p>
-                  <p>Forholdet er ikke 1:1 — én tjeneste kan dekke flere krav, og ett krav kan kreve flere tiltak eller supplerende dokumentasjon.</p>
-                </div>
-              </PopoverContent>
-            </Popover>
-          </div>
-        </div>
-
-        <p className="flex items-start gap-1.5 text-xs text-muted-foreground leading-relaxed">
-          <Sparkles className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" aria-hidden="true" />
-          <span>
-            Tjenestene under er anbefalinger basert på tjenesteprofilen din — bransjen du opererer i, kundetypene og fagområdene du har oppgitt. Du kan endre profilen under{" "}
-            <button
-              type="button"
-              onClick={() => openWizard()}
-              className="underline underline-offset-2 hover:text-foreground"
-            >
-              Tjenesteprofil
-            </button>{" "}
-            i menyknappen (<Settings2 className="inline h-3 w-3 align-[-1px]" aria-hidden="true" />) ved siden av overskriften.
-          </span>
-        </p>
 
 
 
