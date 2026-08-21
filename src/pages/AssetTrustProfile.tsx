@@ -750,6 +750,8 @@ const AssetTrustProfile = () => {
           onOpenChange={setActivityDialogOpen}
           onSubmit={() => setActivityDialogOpen(false)}
           hideTrigger
+        />
+
 
       )}
     </SidebarProvider>
