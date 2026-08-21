@@ -1,23 +1,53 @@
-# Plan: RoPA — bakgrunns-autogenerering + oppgavekø (revidert) og utkast-bugfiks
+# Forklar compliance-effekt etter dokumentopplasting
 
-## 1) BUG: Manuelt opprettet behandlingsaktivitet blir stående som «Utkast»
-**Årsak:** `ProcessingActivityWizardDialog` lagrer `status: "draft"` når bruker velger «Lagre utkast» (eller når «Bekreft og opprett» er deaktivert pga. ubesvartha AI-forslag). Det finnes **ingen vei tilbake**: `ProcessCard` viser bare en utkast-banner uten bekreft-knapp, og `onEdit` i `ProcessProfile` er en tom funksjon. Utkast kan aldri bekreftes → henger på «Utkast» for alltid.
+## Mål
 
-**Fiks:**
-- `ProcessCard`: «Bekreft utkast»-knapp i utkast-banneret → setter `status=active`, tømmer `ai_suggested_fields`, setter `confirmed_by/confirmed_at`, og markerer koblede `user_tasks` som fullført.
-- `ProcessCard` «Rediger» åpner `ProcessingActivityWizardDialog` i **redigeringsmodus** (forhåndsutfylt, UPDATE i stedet for INSERT) slik at felt kan rettes før bekreftelse.
+Når brukeren lagrer et dokument, skal «Dokument lagret»-steget forklare **hvorfor** scoren endres — eller ikke endres. I dag vises bare et før/etter-tall uten begrunnelse.
 
-## 2) Endret retning: automatisk utkast i bakgrunnen + oppgavekø
-- Når et system tilordnes et arbeidsområde (`assignOwner` i `Systems.tsx`): IKKE åpne veiviser. Kall `suggest-processing-activity` i bakgrunnen, lagre komplett utkast i `system_processes` (status `draft`, AI-foreslåtte felt merket i `ai_suggested_fields`).
-- Opprett oppgave i eksisterende `user_tasks`-kø (vises på dashbordets «Neste handlinger» og Oppgaver): «Gå gjennom behandlingsaktivitet for «X»». Ny kolonne `user_tasks.process_id` kobler oppgaven til utkastet; `UserTasksList` får «Gå gjennom»-knapp → `/processes/:id`.
-- Behandlingsansvarlig = alltid virksomhetens juridiske navn (`company_profile.legal_name`), aldri en ansatt. Låst felt, som før.
-- AI-genererte felt er merket som forslag til menneske bekrefter — ingenting bekreftes automatisk.
-- Toast når utkastet er klart: «Lara har laget et utkast — se Oppgaver».
+## Styrende regel (Mynder Score Model v1, Notion — R1/R5)
 
-## Berørte filer
-- `supabase` migrasjon: `user_tasks.process_id` (FK → system_processes, ON DELETE CASCADE)
-- `src/lib/ropaAutoDraft.ts` (ny): bakgrunnsgenerering + oppgaveoppretting
-- `src/pages/Systems.tsx`: erstatt veiviser-auto-åpning med bakgrunnskall
-- `src/components/process/ProcessCard.tsx`: bekreft-knapp + redigeringsveiviser
-- `src/components/dialogs/ProcessingActivityWizardDialog.tsx`: redigeringsmodus
-- `src/hooks/useUserTasks.ts` + `src/components/tasks/UserTasksList.tsx`: process_id + «Gå gjennom»-CTA
+- Kontrollen/kravet er målepunktet. Score løftes **kun** når dokumentet svarer ut et konkret krav i et regelverk som er i scope.
+- Opplasting alene endrer ikke score: «Kontroll kan løftes først når dokumentet er klassifisert, koblet til riktig kontroll og har tilstrekkelig beviskvalitet.»
+- Ett dokument kan dekke flere krav i flere regelverk — alle skal telle.
+- Dokument som ikke svarer ut et krav (f.eks. pentest-rapport med mange hull) løfter ikke score — men skal generere **tiltak** i arbeidslisten. Dette må forklares i UI.
+
+## Endringer
+
+### 1. Krav-treff-analyse ved lagring (`UploadDocumentDialog.tsx`)
+
+Ved lagring kjøres Laras dekningsanalyse (`src/lib/laraDocumentCoverage.ts`) med dokumentets navn/type mot veiledende dokumentasjon per krav (`frameworkDocumentationCatalog`) for regelverkene som er i scope (`selected_frameworks`). Resultatet: liste over krav-treff per regelverk med dekningsgrad (0 / 0,5 / 1) og hvilke artikler som dekkes.
+
+### 2. Ny forklaringsseksjon i «Dokument lagret»-steget
+
+Erstatter dagens rene før/etter-tall med tre mulige utfall, alltid med klartekst:
+
+**A. Dokumentet svarer ut krav → score påvirkes**
+- Vis: «Dette dokumentet svarer ut X krav i Y regelverk» med liste: regelverk → kravnavn → artikler dekket.
+- Før/etter-score beholdes, men knyttes til kravene som faktisk ble dekket.
+
+**B. Dokumentet svarer ut krav i flere regelverk**
+- Samme visning som A, gruppert per regelverk — poengteres at alle treff teller.
+
+**C. Ingen krav-treff → score påvirkes ikke**
+- Tydelig forklaring i klartekst: «Dette dokumentet ble ikke koblet til noen krav i regelverkene dere har i scope. Scoren endres derfor ikke.»
+- Med mulige årsaker: dokumenttypen er ikke blant forventet dokumentasjon, dokumentet er utgått, eller regelverket er ikke i scope.
+
+### 3. Pentest/rapport med funn → tiltak, ikke score
+
+- Utvid `classify-document`-responsen (eller legg til lokal heuristikk på dokumenttype + sammendrag) til å flagge `has_findings` når dokumentet er en rapport/pentest med identifiserte svakheter.
+- Når `has_findings`: vis egen merknad: «Rapporten viser svakheter som må utbedres. Scoren påvirkes ikke — i stedet opprettes tiltak i arbeidslisten.» og opprett tiltak (avvik/oppgaver) koblet til assetet via eksisterende avviksflyt (`suggest-deviations` / avviksregister).
+- Tilsvarende for utgått dokument: forklar at utgått dokumentasjon ikke løfter score.
+
+### 4. Tekstjusteringer
+
+- Tittel på seksjonen endres fra «Compliance-effekt på Trust Profile» til noe som beskriver krav: f.eks. «Slik påvirker dokumentet scoren din».
+- All status med tekstlabel (ikke bare farge/ikon), klarspråk norsk/engelsk via eksisterende `isNb`-mønster.
+
+## Teknisk
+
+- `src/components/asset-profile/UploadDocumentDialog.tsx` — hovedendringen (saved-step + analyse ved lagring).
+- `src/lib/laraDocumentCoverage.ts` — gjenbrukes for krav-matching; ev. liten utvidelse for å returnere kravnavn.
+- `src/lib/requirementDocumentationHints.ts` — kilde for forventet dokumentasjon per krav (gjenbrukes).
+- `supabase/functions/classify-document/index.ts` — utvides med `has_findings`/`findings_summary` for rapporter/pentest.
+- Tiltak opprettes gjennom eksisterende avviks-/oppgaveflyt — ingen ny kø bygges.
+- Ingen endring i scoremodellen selv — dette er forklaring/presentasjon, i tråd med at compliance/coverage er presentasjonsvisning (jf. revisjon 04.08.2026).
