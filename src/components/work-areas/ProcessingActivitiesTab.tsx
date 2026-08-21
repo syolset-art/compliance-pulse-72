@@ -38,7 +38,6 @@ const hasUnconfirmedAi = (p: Activity) =>
 export function ProcessingActivitiesTab({
   workAreaId,
   workAreaName,
-  onSelectProcess,
   onSelectAsset,
 }: ProcessingActivitiesTabProps) {
   const [wizardOpen, setWizardOpen] = useState(false);
