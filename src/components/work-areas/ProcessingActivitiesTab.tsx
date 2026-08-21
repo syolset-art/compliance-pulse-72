@@ -42,6 +42,10 @@ export function ProcessingActivitiesTab({
   onSelectAsset,
 }: ProcessingActivitiesTabProps) {
   const [wizardOpen, setWizardOpen] = useState(false);
+  /** Aktivitet som åpnes for gjennomgang/godkjenning (radklikk) */
+  const [reviewing, setReviewing] = useState<Activity | null>(null);
+
+  const openReview = (activity: Activity) => setReviewing(activity);
 
   const { data: activities = [], isLoading } = useQuery({
     queryKey: ["wa-processing-activities", workAreaId],
