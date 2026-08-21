@@ -978,7 +978,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                       </Tooltip>
                     </TooltipProvider>
                   </div>
-                  <p className={cn("text-sm text-muted-foreground mt-1", !isExpanded && "line-clamp-2")}>
+                  <p className={cn("text-sm text-muted-foreground mt-1", !isExpanded && "truncate whitespace-nowrap")}>
                     {isExpanded ? getExtendedDescription(req, isNb ? "no" : "en") : (isNb ? req.description_no : req.description)}
                   </p>
                 </div>
