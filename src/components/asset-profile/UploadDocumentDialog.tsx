@@ -124,6 +124,24 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
   const [complianceImpact, setComplianceImpact] = useState<ComplianceImpact | null>(null);
   const [tprmImpact, setTprmImpact] = useState<TPRMImpactData | null>(null);
   const [datesAreDefaults, setDatesAreDefaults] = useState(false);
+  /** Krav-treff per regelverk i scope — grunnlaget for scoreforklaringen. */
+  const [requirementHits, setRequirementHits] = useState<FrameworkCoverageMatches[]>([]);
+  const [deviationCreated, setDeviationCreated] = useState(false);
+
+  // Regelverk i scope — dokumentet må treffe krav her for å påvirke scoren
+  const { data: scopedFrameworks = [] } = useQuery({
+    queryKey: ["selected-frameworks-active"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("selected_frameworks")
+        .select("framework_id, framework_name")
+        .eq("is_selected", true);
+      if (error) return [];
+      return (data || []) as { framework_id: string; framework_name: string }[];
+    },
+  });
+
+  const registerDeviation = useRegisterVendorDeviation(assetId);
 
   // Fetch asset info for TPRM calculation
   const { data: assetInfoForTPRM } = useQuery({
@@ -164,6 +182,8 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
     setComplianceImpact(null);
     setTprmImpact(null);
     setDatesAreDefaults(false);
+    setRequirementHits([]);
+    setDeviationCreated(false);
     setDocType("");
     setCategory("Other");
     setDisplayName("");
