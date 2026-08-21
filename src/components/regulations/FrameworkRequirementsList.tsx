@@ -942,7 +942,6 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                   <div className="flex items-center gap-2 flex-wrap">
                     <h4 className={cn(
                       "text-base font-semibold text-foreground leading-snug",
-                      isMuted && "line-through decoration-1",
                     )}>
                       {req.name_no}
                     </h4>

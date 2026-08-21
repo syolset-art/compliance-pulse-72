@@ -136,7 +136,7 @@ export function RequirementCard({
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-mono text-muted-foreground">{requirementId}</span>
-                    <span className={cn("text-sm font-medium truncate", isMuted && "line-through")}>
+                    <span className={cn("text-sm font-medium truncate")}>
                       {name}
                     </span>
                   </div>
