@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -12,7 +12,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { ArrowLeft, Building2, Mail, FileText, Save, Lock, TrendingUp, Wallet, ChevronRight } from "lucide-react";
+import { ArrowLeft, Building2, Mail, FileText, Save, Lock, TrendingUp, Wallet, ChevronRight, Upload, RotateCcw, Image as ImageIcon } from "lucide-react";
 import { Link } from "react-router-dom";
 import {
   customerLicenseSummary,
