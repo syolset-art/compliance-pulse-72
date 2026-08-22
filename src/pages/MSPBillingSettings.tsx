@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -12,7 +12,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { ArrowLeft, Building2, Mail, FileText, Save, Lock, TrendingUp, Wallet, ChevronRight } from "lucide-react";
+import { ArrowLeft, Building2, Mail, FileText, Save, Lock, TrendingUp, Wallet, ChevronRight, Upload, RotateCcw, Image as ImageIcon } from "lucide-react";
 import { Link } from "react-router-dom";
 import {
   customerLicenseSummary,
@@ -56,6 +56,8 @@ const defaults: BillingSettings = {
 };
 
 const fmt = (n: number) => n.toLocaleString("nb-NO");
+
+const MAX_LOGO_BYTES = 300 * 1024;
 
 function fixedPriceForCustomer(customerId: string): number {
   const offers = getOffersForCustomer(customerId).filter((o) => o.status === "delivered");
@@ -177,8 +179,26 @@ export default function MSPBillingSettings() {
     }
   }, [existing]);
 
-  const { branding } = usePartnerBranding();
+  const { branding, save: saveBranding, clearField: clearBrandingField } = usePartnerBranding();
   const tax = branding.tax;
+  const logoFileRef = useRef<HTMLInputElement>(null);
+
+  const handleLogoSelect = (file: File) => {
+    if (!file.type.startsWith("image/")) {
+      toast.error("Ugyldig filtype", { description: "Velg en PNG- eller JPG-fil." });
+      return;
+    }
+    if (file.size > MAX_LOGO_BYTES) {
+      toast.error("Logoen er for stor", { description: "Maks 300 KB. Komprimer bildet og prøv igjen." });
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      saveBranding({ logoDataUrl: String(reader.result) });
+      toast.success("Logo lagret", { description: "Logoen brukes på fakturagrunnlag og tilbud." });
+    };
+    reader.readAsDataURL(file);
+  };
 
   // Fetch all customers to show what Mynder will invoice the partner for.
   // Samme datakilde og query-nøkkel som Fakturagrunnlag, slik at tallene alltid er identiske.
@@ -290,6 +310,66 @@ export default function MSPBillingSettings() {
               <div className="space-y-2">
                 <Label className="text-muted-foreground">Organisasjonsnummer</Label>
                 <Input value={companyProfile?.org_number || "–"} disabled className="bg-muted/50" />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Logo på faktura og tilbud */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <ImageIcon className="h-5 w-5" />
+                Logo
+              </CardTitle>
+              <CardDescription>Vis på fakturagrunnlag og tilbud du sender til kundene dine</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center gap-4">
+                <div className="h-16 w-16 rounded-lg border border-border bg-muted/30 flex items-center justify-center overflow-hidden shrink-0">
+                  {branding.logoUrl ? (
+                    <img src={branding.logoUrl} alt="Firmalogo" className="h-full w-full object-contain p-1" />
+                  ) : (
+                    <ImageIcon className="h-5 w-5 text-muted-foreground" />
+                  )}
+                </div>
+                <div className="flex-1 min-w-0 space-y-1">
+                  <p className="text-sm text-foreground">
+                    {branding.isAutoLogo
+                      ? branding.autoLogoUrl
+                        ? "Hentet automatisk fra organisasjonsprofilen."
+                        : "Ingen logo lagt inn ennå."
+                      : "Egen logo lastet opp."}
+                  </p>
+                  <p className="text-xs text-muted-foreground">PNG eller JPG, maks 300 KB</p>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  {!branding.isAutoLogo && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="gap-1"
+                      onClick={() => { clearBrandingField("logoDataUrl"); toast.success("Tilbakestilt til automatisk logo"); }}
+                    >
+                      <RotateCcw className="h-3 w-3" /> Auto
+                    </Button>
+                  )}
+                  <Button type="button" variant="outline" size="sm" className="gap-2" onClick={() => logoFileRef.current?.click()}>
+                    <Upload className="h-4 w-4" />
+                    {branding.logoUrl ? "Bytt logo" : "Last opp logo"}
+                  </Button>
+                </div>
+                <input
+                  ref={logoFileRef}
+                  type="file"
+                  accept="image/png,image/jpeg"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) handleLogoSelect(file);
+                    e.target.value = "";
+                  }}
+                />
               </div>
             </CardContent>
           </Card>
