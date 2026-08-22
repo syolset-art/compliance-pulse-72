@@ -9,7 +9,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { ChevronDown, ChevronUp, Users, Bot, CheckCircle2, UserCheck, Paperclip, FileText as FileIcon, Download, ShieldCheck, Sparkles, Clock, Search, X, ArrowRight, HelpCircle, Upload, CircleDashed, SlidersHorizontal } from "lucide-react";
+import { ChevronDown, ChevronUp, Users, Bot, CheckCircle2, UserCheck, Paperclip, FileText as FileIcon, Download, Clock, Search, X, ArrowRight, HelpCircle, Upload, CircleDashed, SlidersHorizontal } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -644,8 +644,8 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
             labelEn: "Lara following up",
             count: counts.agentFollowUp,
             icon: Bot,
-            hintNb: "Lara henter data, leser dokumenter og oppdaterer disse kravene automatisk.",
-            hintEn: "Lara collects data, reads documents and updates these requirements automatically.",
+            hintNb: "Lara henter data, leser dokumenter og foreslår status for disse kravene — du godkjenner.",
+            hintEn: "Lara collects data, reads documents and suggests a status for these requirements — you approve.",
           },
           {
             key: "ok" as FilterKey,
@@ -686,55 +686,8 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                   <span className={cn("tabular-nums", active ? "opacity-90" : "text-muted-foreground")}>{chip.count}</span>
                 </button>
               </TooltipTrigger>
-              <TooltipContent side="bottom" className={cn("max-w-[16rem]", chip.key === "agent" && "max-w-[22rem] p-0 overflow-hidden")}>
-                {chip.key === "agent" ? (
-                  <div className="text-left">
-                    <div className="flex items-center gap-2 border-b border-border/50 px-3 py-2">
-                      <Bot className="h-4 w-4 text-primary shrink-0" />
-                      <span className="text-xs font-medium">
-                        {isNb ? "Slik jobber Lara med disse kravene" : "How Lara works on these requirements"}
-                      </span>
-                    </div>
-                    <div className="px-3 py-2 space-y-2">
-                      <div>
-                        <p className="text-[10px] uppercase tracking-wide text-muted-foreground mb-1">
-                          {isNb ? "Kilder" : "Sources"}
-                        </p>
-                        <ul className="space-y-1 text-xs leading-snug">
-                          <li className="flex gap-1.5">
-                            <FileIcon className="h-3 w-3 mt-0.5 shrink-0 text-muted-foreground" />
-                            <span>{isNb ? "Dokumenter lastet opp i organisasjonens profil i Mynder" : "Documents uploaded to your organisation profile in Mynder"}</span>
-                          </li>
-                          <li className="flex gap-1.5">
-                            <ShieldCheck className="h-3 w-3 mt-0.5 shrink-0 text-muted-foreground" />
-                            <span>{isNb ? "Data fra alle produkter dere har aktivert — også på tvers av regelverk" : "Data from every product you have activated — across all frameworks"}</span>
-                          </li>
-                          <li className="flex gap-1.5">
-                            <Sparkles className="h-3 w-3 mt-0.5 shrink-0 text-muted-foreground" />
-                            <span>{isNb ? "Dokumentasjon og svar dere allerede har registrert på andre krav" : "Evidence and answers already registered on other requirements"}</span>
-                          </li>
-                        </ul>
-                      </div>
-                      <div>
-                        <p className="text-[10px] uppercase tracking-wide text-muted-foreground mb-1">
-                          {isNb ? "Slik analyseres det" : "How it is analysed"}
-                        </p>
-                        <ol className="space-y-0.5 text-xs leading-snug list-decimal pl-4">
-                          <li>{isNb ? "Leser og tolker innholdet i dokumentene" : "Reads and interprets the document content"}</li>
-                          <li>{isNb ? "Mapper innholdet mot krav og artikler i aktiverte regelverk" : "Maps content to requirements and articles in activated frameworks"}</li>
-                          <li>{isNb ? "Foreslår status og dokumentasjon — du godkjenner" : "Suggests status and evidence — you approve"}</li>
-                        </ol>
-                      </div>
-                      <p className="text-[11px] text-muted-foreground border-t border-border/50 pt-2">
-                        {isNb
-                          ? "Gjenbruk gjør at ett dokument kan dekke krav i flere regelverk samtidig."
-                          : "Reuse means one document can cover requirements in several frameworks at once."}
-                      </p>
-                    </div>
-                  </div>
-                ) : (
-                  <p>{isNb ? chip.hintNb : chip.hintEn}</p>
-                )}
+              <TooltipContent side="bottom" className="max-w-[16rem]">
+                <p>{isNb ? chip.hintNb : chip.hintEn}</p>
               </TooltipContent>
             </Tooltip>
 
@@ -1040,10 +993,10 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                               {agentFinding.agentName}
                             </Badge>
                           </TooltipTrigger>
-                          <TooltipContent side="top" className="text-xs max-w-[280px]">
+                          <TooltipContent side="top" className="text-xs max-w-[240px]">
                             {isNb
-                              ? `Dokumentasjon levert av en AI-agent fra kundens egen infrastruktur via ${agentFinding.channel === "sara" ? "Sara (lokal agent)" : "MCP"}. Kun dokument-ID og hash er delt — selve dokumentet forlot aldri kundens miljø.`
-                              : `Documentation delivered by an AI agent from the customer's own infrastructure via ${agentFinding.channel === "sara" ? "Sara (local agent)" : "MCP"}. Only the document ID and hash are shared — the document itself never left the customer's environment.`}
+                              ? "Dokumentasjon levert av din agent — kun dokument-ID og hash er delt. Se forslagskøen over for godkjenning."
+                              : "Documentation delivered by your agent — only the document ID and hash are shared. See the proposals queue above for approval."}
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>

@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Bot, CheckCircle2, Clock, FileText, ShieldCheck, XCircle } from "lucide-react";
+import { Bot, CheckCircle2, ChevronDown, ChevronUp, Clock, ShieldCheck, XCircle } from "lucide-react";
 import { SaraIcon } from "@/components/agents/SaraIcon";
 import type { AgentRequirementFinding, FindingStatus } from "@/lib/agentRequirementFindings";
 
@@ -29,153 +30,130 @@ function formatDecisionDate(at: string | undefined, isNb: boolean): string {
 }
 
 /**
- * Viser et funn levert fra kundens egen infrastruktur — via Sara (lokal
- * agent) eller kundens egen agent (MCP/BYOA).
+ * Kompakt visning av et funn levert fra kundens egen infrastruktur — via
+ * Sara (lokal agent) eller kundens egen agent (MCP/BYOA).
  *
- * Ansvarsgrensen er alltid synlig som tekst: funnet er vurdert av kundens
- * egen agent, og dokumentet er ikke delt med Mynder. Funnet er et forslag
- * som ikke påvirker skåren før en navngitt person godkjenner det i portalen.
+ * Ansvarsgrensen er alltid synlig som kort tekst: funnet er vurdert av
+ * kundens egen agent, og dokumentet er ikke delt med Mynder. Funnet er et
+ * forslag som ikke påvirker skåren før en navngitt person godkjenner det.
+ * Tekniske detaljer (kilde, dok-ID, hash, versjon) ligger bak «Detaljer».
  */
 export function AgentFindingCard({ finding, status, decidedAt, decidedBy, isNb, onApprove, onReject }: Props) {
+  const [detailsOpen, setDetailsOpen] = useState(false);
+
   const channelLabel =
     finding.channel === "sara"
       ? isNb
-        ? "lokal compliance-agent"
-        : "local compliance agent"
-      : isNb
-        ? "kundens agent via MCP"
-        : "customer's agent via MCP";
+        ? "lokal agent"
+        : "local agent"
+      : "MCP";
 
   const decidedDate = formatDecisionDate(decidedAt, isNb);
   const decider = decidedBy || (isNb ? "deg" : "you");
 
   return (
-    <div className="space-y-3 rounded-md border border-primary/25 bg-primary/[0.03] p-3">
-      {/* Agent-header */}
-      <div className="flex items-start gap-2.5">
+    <div className="space-y-1.5 rounded-md border border-primary/25 bg-primary/[0.03] px-3 py-2.5">
+      {/* Linje 1: agent + konklusjon */}
+      <div className="flex items-start gap-2">
         {finding.channel === "sara" ? (
-          <SaraIcon size={26} className="mt-0.5 shrink-0" />
+          <SaraIcon size={18} className="mt-0.5 shrink-0" />
         ) : (
-          <div className="mt-0.5 flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-md bg-primary/10">
-            <Bot className="h-4 w-4 text-primary" aria-hidden="true" />
-          </div>
+          <Bot className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
         )}
-        <div className="min-w-0 flex-1">
-          <p className="text-sm font-medium text-foreground">
-            {finding.agentName}{" "}
-            <span className="font-normal text-muted-foreground">· {channelLabel}</span>
-          </p>
-          <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
-            {isNb ? finding.summaryNb : finding.summaryEn}
-          </p>
-        </div>
+        <p className="min-w-0 text-xs leading-snug text-foreground">
+          <span className="font-medium">{finding.agentName}</span>
+          <span className="text-muted-foreground"> · {channelLabel} — </span>
+          {isNb ? finding.summaryNb : finding.summaryEn}
+        </p>
       </div>
 
-      {/* Ansvarsgrense (BYOA) — alltid synlig som tekst, aldri bare ikon/farge */}
-      <p className="flex items-start gap-1.5 rounded-sm border border-border/60 bg-muted/50 px-2 py-1.5 text-[11px] font-medium leading-snug text-foreground">
-        <ShieldCheck className="mt-px h-3.5 w-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
+      {/* Linje 2: ansvarsgrense (BYOA) — alltid synlig som tekst */}
+      <p className="flex items-center gap-1.5 pl-6 text-[11px] text-muted-foreground">
+        <ShieldCheck className="h-3 w-3 shrink-0" aria-hidden="true" />
         {isNb
-          ? "Vurdert av kundens egen agent — dokument ikke delt med Mynder"
-          : "Assessed by the customer's own agent — document not shared with Mynder"}
+          ? "Vurdert av din agent — dokument ikke delt med Mynder"
+          : "Assessed by your agent — document not shared with Mynder"}
       </p>
 
-      {/* Kilde: navn og sted hos kunden */}
-      <div className="rounded-md border border-border/60 bg-card px-3 py-2">
-        <p className="flex items-center gap-1.5 text-xs font-medium text-foreground">
-          <FileText className="h-3.5 w-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
-          {finding.source}
-        </p>
-        <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-muted-foreground">
-          <span className="font-mono">
-            {isNb ? "Dok" : "Doc"} {finding.documentId}
-          </span>
-          <span className="font-mono">Hash {finding.hash}</span>
-          <span>
-            {isNb ? "Agent" : "Agent"} v{finding.agentVersion}
-          </span>
-          <span>{finding.deliveredAt}</span>
-        </div>
-        <p className="mt-1.5 text-[11px] text-muted-foreground">
-          {isNb
-            ? "Kun dokumentidentifikator og hash er delt — dokumentet forlot aldri kundens infrastruktur."
-            : "Only the document identifier and hash are shared — the document never left the customer's infrastructure."}
-        </p>
-      </div>
-
-      {/* Godkjenningsstatus — alltid med tekstlabel */}
+      {/* Linje 3: status og handling */}
       {status === "awaiting" && (
-        <div className="space-y-2 rounded-md border border-warning/40 bg-warning/5 px-3 py-2.5">
-          <div className="flex items-start gap-2">
-            <Clock className="mt-0.5 h-4 w-4 shrink-0 text-warning" aria-hidden="true" />
-            <div>
-              <p className="text-xs font-medium text-foreground">
-                {isNb ? "Forslag — påvirker ikke skåren" : "Proposal — does not affect the score"}
-              </p>
-              <p className="text-[11px] text-muted-foreground">
-                {isNb
-                  ? "Et navngitt menneske hos dere må godkjenne funnet før det teller som grunnlag for kravet."
-                  : "A named person in your organization must approve the finding before it counts as a basis for the requirement."}
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <Button
-              size="sm"
-              className="h-7 gap-1.5 text-xs"
-              onClick={(e) => {
-                e.stopPropagation();
-                onApprove();
-              }}
-            >
-              <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />
-              {isNb ? "Godkjenn" : "Approve"}
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              className="h-7 text-xs"
-              onClick={(e) => {
-                e.stopPropagation();
-                onReject();
-              }}
-            >
-              {isNb ? "Avvis" : "Reject"}
-            </Button>
-          </div>
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5 pl-6 pt-0.5">
+          <span className="inline-flex items-center gap-1 text-[11px] font-medium text-warning">
+            <Clock className="h-3 w-3" aria-hidden="true" />
+            {isNb ? "Forslag — teller ikke før godkjenning" : "Proposal — does not count until approved"}
+          </span>
+          <Button
+            size="sm"
+            className="h-6 gap-1 px-2 text-[11px]"
+            onClick={(e) => {
+              e.stopPropagation();
+              onApprove();
+            }}
+          >
+            <CheckCircle2 className="h-3 w-3" aria-hidden="true" />
+            {isNb ? "Godkjenn" : "Approve"}
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            className="h-6 px-2 text-[11px]"
+            onClick={(e) => {
+              e.stopPropagation();
+              onReject();
+            }}
+          >
+            {isNb ? "Avvis" : "Reject"}
+          </Button>
         </div>
       )}
 
       {status === "approved_mynder" && (
-        <div className="flex items-start gap-2 rounded-md border border-status-closed/30 bg-status-closed/5 px-3 py-2">
-          <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-status-closed" aria-hidden="true" />
-          <div>
-            <p className="text-xs font-medium text-foreground">
-              {isNb
-                ? `Godkjent av ${decider}${decidedDate ? ` — ${decidedDate}` : ""}`
-                : `Approved by ${decider}${decidedDate ? ` — ${decidedDate}` : ""}`}
-            </p>
-            <p className="text-[11px] text-muted-foreground">
-              {isNb ? "Funnet teller som grunnlag for kravet." : "The finding counts as a basis for the requirement."}
-            </p>
-          </div>
-        </div>
+        <p className="flex items-center gap-1.5 pl-6 text-[11px] font-medium text-status-closed">
+          <CheckCircle2 className="h-3 w-3 shrink-0" aria-hidden="true" />
+          {isNb
+            ? `Godkjent av ${decider}${decidedDate ? ` — ${decidedDate}` : ""}`
+            : `Approved by ${decider}${decidedDate ? ` — ${decidedDate}` : ""}`}
+        </p>
       )}
 
       {status === "rejected" && (
-        <div className="flex items-start gap-2 rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2">
-          <XCircle className="mt-0.5 h-4 w-4 shrink-0 text-destructive" aria-hidden="true" />
-          <div>
-            <p className="text-xs font-medium text-foreground">
-              {isNb
-                ? `Avvist av ${decider}${decidedDate ? ` — ${decidedDate}` : ""}`
-                : `Rejected by ${decider}${decidedDate ? ` — ${decidedDate}` : ""}`}
-            </p>
-            <p className="text-[11px] text-muted-foreground">
-              {isNb
-                ? "Funnet teller ikke som grunnlag. Kravet må dokumenteres på nytt."
-                : "The finding does not count as a basis. The requirement must be documented again."}
-            </p>
-          </div>
+        <p className="flex items-center gap-1.5 pl-6 text-[11px] font-medium text-destructive">
+          <XCircle className="h-3 w-3 shrink-0" aria-hidden="true" />
+          {isNb
+            ? `Avvist av ${decider}${decidedDate ? ` — ${decidedDate}` : ""} — kravet må dokumenteres på nytt`
+            : `Rejected by ${decider}${decidedDate ? ` — ${decidedDate}` : ""} — the requirement must be documented again`}
+        </p>
+      )}
+
+      {/* Detaljer — kilde, dok-ID, hash og versjon bak utvider */}
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          setDetailsOpen((v) => !v);
+        }}
+        aria-expanded={detailsOpen}
+        className="flex items-center gap-1 pl-6 text-[11px] text-muted-foreground transition-colors hover:text-foreground"
+      >
+        {detailsOpen ? (
+          <ChevronUp className="h-3 w-3" aria-hidden="true" />
+        ) : (
+          <ChevronDown className="h-3 w-3" aria-hidden="true" />
+        )}
+        {isNb ? "Detaljer" : "Details"}
+      </button>
+
+      {detailsOpen && (
+        <div className="ml-6 space-y-1 rounded-md border border-border/60 bg-muted/40 px-2.5 py-2 text-[11px] text-muted-foreground">
+          <p className="font-medium text-foreground">{finding.source}</p>
+          <p className="font-mono">
+            {isNb ? "Dok" : "Doc"} {finding.documentId} · Hash {finding.hash} · v{finding.agentVersion} · {finding.deliveredAt}
+          </p>
+          <p>
+            {isNb
+              ? "Kun dokumentidentifikator og hash er delt — dokumentet forlot aldri kundens infrastruktur."
+              : "Only the document identifier and hash are shared — the document never left the customer's infrastructure."}
+          </p>
         </div>
       )}
     </div>

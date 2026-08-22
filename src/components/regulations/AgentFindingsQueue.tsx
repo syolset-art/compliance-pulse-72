@@ -1,8 +1,7 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Inbox } from "lucide-react";
+import { ChevronDown, ChevronUp, Inbox } from "lucide-react";
 import { toast } from "sonner";
-import { Badge } from "@/components/ui/badge";
 import { AgentFindingCard } from "@/components/regulations/AgentFindingCard";
 import {
   AGENT_REQUIREMENT_FINDINGS,
@@ -28,18 +27,20 @@ interface QueueEntry {
 }
 
 /**
- * Forslagskø for agent-innsendte funn (BYOA) under Regelverk.
+ * Kompakt forslagskø for agent-innsendte funn (BYOA) under Regelverk.
  *
- * Alle funn fra kundens egen agent (Sara eller MCP) kommer inn som forslag
- * og påvirker ikke skåren før et navngitt menneske godkjenner dem her i
- * Mynder-portalen. Ansvarsgrensen «vurdert av kundens egen agent — dokument
- * ikke delt med Mynder» er alltid synlig som tekst på hvert funn.
+ * Vises som én smal stripe som utvider på klikk — ingen introtekst eller
+ * åpne kort som standard. Alle funn fra kundens egen agent (Sara eller MCP)
+ * kommer inn som forslag og påvirker ikke skåren før et navngitt menneske
+ * godkjenner dem her i Mynder-portalen.
  */
 export function AgentFindingsQueue({ frameworkId }: Props) {
   const { i18n } = useTranslation();
   const isNb = i18n.language !== "en";
   const { user } = useAuth();
   const { decisions, approve, reject } = useAgentFindings();
+  const [open, setOpen] = useState(false);
+  const [showDecided, setShowDecided] = useState(false);
 
   const approverName =
     (user?.user_metadata?.full_name as string | undefined) ||
@@ -65,81 +66,116 @@ export function AgentFindingsQueue({ frameworkId }: Props) {
         requirementName,
       });
     }
-    // Ventende forslag først, deretter avgjorte — stabil rekkefølge innad.
-    const rank = (s: FindingStatus) => (s === "awaiting" ? 0 : s === "approved_mynder" ? 1 : 2);
-    return list.sort((a, b) => rank(a.status) - rank(b.status));
+    return list;
   }, [frameworkId, decisions, isNb]);
 
   if (entries.length === 0) return null;
 
-  const pendingCount = entries.filter((e) => e.status === "awaiting").length;
+  const pending = entries.filter((e) => e.status === "awaiting");
+  const decided = entries.filter((e) => e.status !== "awaiting");
+
+  const handleApprove = (requirementId: string) => {
+    approve(requirementId, approverName);
+    toast.success(
+      isNb
+        ? "Funnet er godkjent og teller nå som grunnlag for kravet."
+        : "Finding approved — it now counts as a basis for the requirement.",
+    );
+  };
+
+  const handleReject = (requirementId: string) => {
+    reject(requirementId, approverName);
+    toast(
+      isNb
+        ? "Funnet er avvist. Kravet må dokumenteres på nytt."
+        : "Finding rejected — the requirement must be documented again.",
+    );
+  };
+
+  const renderEntry = ({ finding, status, decidedAt, decidedBy, requirementName }: QueueEntry) => (
+    <li key={finding.requirementId} className="space-y-1.5 px-3 py-2.5">
+      <p className="text-xs font-medium text-foreground">
+        {requirementName} <span className="font-mono font-normal text-muted-foreground">· {finding.requirementId}</span>
+      </p>
+      <AgentFindingCard
+        finding={finding}
+        status={status}
+        decidedAt={decidedAt}
+        decidedBy={decidedBy}
+        isNb={isNb}
+        onApprove={() => handleApprove(finding.requirementId)}
+        onReject={() => handleReject(finding.requirementId)}
+      />
+    </li>
+  );
 
   return (
     <section
       aria-labelledby="agent-findings-queue-heading"
       className="overflow-hidden rounded-lg border border-border bg-card"
     >
-      <header className="flex flex-wrap items-center justify-between gap-2 border-b border-border px-4 py-3">
-        <div className="flex items-center gap-2">
-          <Inbox className="h-4 w-4 text-primary" aria-hidden="true" />
-          <h3 id="agent-findings-queue-heading" className="text-sm font-semibold text-foreground">
-            {isNb ? "Forslag fra kundens agent" : "Proposals from the customer's agent"}
-          </h3>
-          {pendingCount > 0 && (
-            <Badge variant="secondary" className="text-xs">
-              {isNb
-                ? `${pendingCount} venter godkjenning`
-                : `${pendingCount} awaiting approval`}
-            </Badge>
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        className="flex w-full items-center gap-2 px-3 py-2 text-left transition-colors hover:bg-muted/40"
+      >
+        <Inbox className="h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+        <h3 id="agent-findings-queue-heading" className="min-w-0 flex-1 truncate text-xs font-medium text-foreground">
+          {pending.length > 0
+            ? isNb
+              ? `${pending.length} forslag fra din agent venter på godkjenning`
+              : `${pending.length} proposals from your agent await approval`
+            : isNb
+              ? "Alle agentfunn er behandlet"
+              : "All agent findings are processed"}
+        </h3>
+        <span className="shrink-0 text-xs font-medium text-primary">
+          {open
+            ? isNb
+              ? "Lukk"
+              : "Close"
+            : pending.length > 0
+              ? isNb
+                ? "Gå gjennom"
+                : "Review"
+              : isNb
+                ? "Vis"
+                : "Show"}
+        </span>
+        {open ? (
+          <ChevronUp className="h-3.5 w-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
+        ) : (
+          <ChevronDown className="h-3.5 w-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
+        )}
+      </button>
+
+      {open && (
+        <ul className="divide-y divide-border border-t border-border">
+          {pending.map(renderEntry)}
+
+          {decided.length > 0 && (
+            <li className="px-3 py-2">
+              <button
+                type="button"
+                onClick={() => setShowDecided((v) => !v)}
+                aria-expanded={showDecided}
+                className="text-[11px] text-muted-foreground transition-colors hover:text-foreground"
+              >
+                {showDecided
+                  ? isNb
+                    ? "Skjul avgjorte"
+                    : "Hide decided"
+                  : isNb
+                    ? `Vis avgjorte (${decided.length})`
+                    : `Show decided (${decided.length})`}
+              </button>
+            </li>
           )}
-        </div>
-      </header>
 
-      <p className="px-4 pt-3 text-xs leading-relaxed text-muted-foreground">
-        {isNb
-          ? "Funnene er vurdert av kundens egen agent (Sara eller MCP) — dokumentene er ikke delt med Mynder. Et navngitt menneske må godkjenne hvert funn før det teller som grunnlag eller påvirker skåren."
-          : "The findings are assessed by the customer's own agent (Sara or MCP) — the documents are not shared with Mynder. A named person must approve each finding before it counts as a basis or affects the score."}
-      </p>
-
-      <ul className="divide-y divide-border">
-        {entries.map(({ finding, status, decidedAt, decidedBy, requirementName }) => (
-          <li key={finding.requirementId} className="space-y-2 px-4 py-3">
-            {/* Kravreferanse + konklusjon */}
-            <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5">
-              <p className="text-sm font-medium text-foreground">{requirementName}</p>
-              <span className="font-mono text-xs text-muted-foreground">{finding.requirementId}</span>
-            </div>
-            <p className="text-xs text-muted-foreground">
-              <span className="font-medium text-foreground">{isNb ? "Konklusjon: " : "Conclusion: "}</span>
-              {isNb ? finding.conclusionNb : finding.conclusionEn}
-            </p>
-
-            <AgentFindingCard
-              finding={finding}
-              status={status}
-              decidedAt={decidedAt}
-              decidedBy={decidedBy}
-              isNb={isNb}
-              onApprove={() => {
-                approve(finding.requirementId, approverName);
-                toast.success(
-                  isNb
-                    ? "Funnet er godkjent og teller nå som grunnlag for kravet."
-                    : "Finding approved — it now counts as a basis for the requirement.",
-                );
-              }}
-              onReject={() => {
-                reject(finding.requirementId, approverName);
-                toast(
-                  isNb
-                    ? "Funnet er avvist. Kravet må dokumenteres på nytt."
-                    : "Finding rejected — the requirement must be documented again.",
-                );
-              }}
-            />
-          </li>
-        ))}
-      </ul>
+          {showDecided && decided.map(renderEntry)}
+        </ul>
+      )}
     </section>
   );
 }
