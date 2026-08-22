@@ -314,6 +314,66 @@ export default function MSPBillingSettings() {
             </CardContent>
           </Card>
 
+          {/* Logo på faktura og tilbud */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <ImageIcon className="h-5 w-5" />
+                Logo
+              </CardTitle>
+              <CardDescription>Vis på fakturagrunnlag og tilbud du sender til kundene dine</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center gap-4">
+                <div className="h-16 w-16 rounded-lg border border-border bg-muted/30 flex items-center justify-center overflow-hidden shrink-0">
+                  {branding.logoUrl ? (
+                    <img src={branding.logoUrl} alt="Firmalogo" className="h-full w-full object-contain p-1" />
+                  ) : (
+                    <ImageIcon className="h-5 w-5 text-muted-foreground" />
+                  )}
+                </div>
+                <div className="flex-1 min-w-0 space-y-1">
+                  <p className="text-sm text-foreground">
+                    {branding.isAutoLogo
+                      ? branding.autoLogoUrl
+                        ? "Hentet automatisk fra organisasjonsprofilen."
+                        : "Ingen logo lagt inn ennå."
+                      : "Egen logo lastet opp."}
+                  </p>
+                  <p className="text-xs text-muted-foreground">PNG eller JPG, maks 300 KB</p>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  {!branding.isAutoLogo && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="gap-1"
+                      onClick={() => { clearBrandingField("logoDataUrl"); toast.success("Tilbakestilt til automatisk logo"); }}
+                    >
+                      <RotateCcw className="h-3 w-3" /> Auto
+                    </Button>
+                  )}
+                  <Button type="button" variant="outline" size="sm" className="gap-2" onClick={() => logoFileRef.current?.click()}>
+                    <Upload className="h-4 w-4" />
+                    {branding.logoUrl ? "Bytt logo" : "Last opp logo"}
+                  </Button>
+                </div>
+                <input
+                  ref={logoFileRef}
+                  type="file"
+                  accept="image/png,image/jpeg"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) handleLogoSelect(file);
+                    e.target.value = "";
+                  }}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Billing address */}
           <Card>
             <CardHeader>
