@@ -57,6 +57,8 @@ const defaults: BillingSettings = {
 
 const fmt = (n: number) => n.toLocaleString("nb-NO");
 
+const MAX_LOGO_BYTES = 300 * 1024;
+
 function fixedPriceForCustomer(customerId: string): number {
   const offers = getOffersForCustomer(customerId).filter((o) => o.status === "delivered");
   let total = 0;
@@ -177,8 +179,26 @@ export default function MSPBillingSettings() {
     }
   }, [existing]);
 
-  const { branding } = usePartnerBranding();
+  const { branding, save: saveBranding, clearField: clearBrandingField } = usePartnerBranding();
   const tax = branding.tax;
+  const logoFileRef = useRef<HTMLInputElement>(null);
+
+  const handleLogoSelect = (file: File) => {
+    if (!file.type.startsWith("image/")) {
+      toast.error("Ugyldig filtype", { description: "Velg en PNG- eller JPG-fil." });
+      return;
+    }
+    if (file.size > MAX_LOGO_BYTES) {
+      toast.error("Logoen er for stor", { description: "Maks 300 KB. Komprimer bildet og prøv igjen." });
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      saveBranding({ logoDataUrl: String(reader.result) });
+      toast.success("Logo lagret", { description: "Logoen brukes på fakturagrunnlag og tilbud." });
+    };
+    reader.readAsDataURL(file);
+  };
 
   // Fetch all customers to show what Mynder will invoice the partner for.
   // Samme datakilde og query-nøkkel som Fakturagrunnlag, slik at tallene alltid er identiske.
