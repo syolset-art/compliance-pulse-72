@@ -23,6 +23,23 @@ export interface OfferSuggestion {
   moduleKey?: string;
   price?: number | null;
   confidence?: Confidence;
+  /** Kategori for regelverk-lignende forslag (lovpålagt / standard / retningslinje). */
+  category?: FrameworkCategory;
+  /** Partnerens lagrede pakke fra «Produkter og tjenester» som dekker dette regelverket. */
+  packageInfo?: { name: string; totalHours: number; totalPrice: number };
+  /** Forslaget ligger allerede i et tilbud (utkast eller sendt). */
+  offerStatus?: "draft" | "sent";
+}
+
+/** Normaliserer regelverks-IDer/labels slik at «EU AI Act», «ai-act» og «AI Act» matcher samme nøkkel. */
+export function normalizeFrameworkKey(input: string): string {
+  return String(input)
+    .trim()
+    .toLowerCase()
+    .replace(/æ/g, "ae")
+    .replace(/ø/g, "o")
+    .replace(/å/g, "a")
+    .replace(/[^a-z0-9]/g, "");
 }
 
 
@@ -120,17 +137,22 @@ export function deriveOfferSuggestions(c: any): OfferSuggestion[] {
 
   const out: OfferSuggestion[] = [];
 
-  // Regelverk som bør aktiveres
+  // Regelverk, standarder og retningslinjer som bør aktiveres.
+  // Match mot katalogen (MANUAL_FRAMEWORKS) gir riktig kategori, timer og pris —
+  // retningslinjer er ikke direkte aktiverbare, men selges som rådgivning/pakke.
   for (const f of recommended) {
+    const manual = MANUAL_FRAMEWORKS_BY_KEY.get(normalizeFrameworkKey(f));
+    const category = manual?.category;
     out.push({
-      id: `fw-${f}`,
-      label: f,
+      id: `fw-${manual?.id ?? f}`,
+      label: manual?.label ?? f,
       kind: "framework",
-      hours: 6,
-      activatable: true,
-      frameworkId: f,
-      price: 490,
+      hours: manual?.hours ?? 6,
+      activatable: category !== "guideline",
+      frameworkId: manual?.id ?? f,
+      price: category === "guideline" ? null : manual ? getManualFrameworkPrice(manual) : 490,
       confidence: confidenceMap.get(f),
+      category,
     });
   }
 
@@ -286,8 +308,17 @@ export function buildManualFrameworkSuggestion(id: string): OfferSuggestion | nu
     activatable: fw.category !== "guideline",
     frameworkId: fw.id,
     price: getManualFrameworkPrice(fw),
+    category: fw.category,
   };
 }
+
+/** Oppslag på normalisert nøkkel (både id og label) for hele regelverkskatalogen. */
+const MANUAL_FRAMEWORKS_BY_KEY = new Map<string, ManualFramework>(
+  MANUAL_FRAMEWORKS.flatMap((m) => [
+    [normalizeFrameworkKey(m.id), m],
+    [normalizeFrameworkKey(m.label), m],
+  ]),
+);
 
 /** Lager et forslag for et egendefinert regelverk/retningslinje (fritekst). */
 export function buildCustomFrameworkSuggestion(name: string): OfferSuggestion {
