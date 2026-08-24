@@ -241,10 +241,12 @@ export function MSPCreateOfferDialog({
   const handleAddFramework = (fw: { id: string; label: string }) => {
     setAddedFrameworkIds((prev) => (prev.includes(fw.id) ? prev : [...prev, fw.id]));
     const savedPackage = frameworkPackages[fw.id];
+    // Partnerens egne aktiveringstimer (fra produktinnstillingene) styrer forslaget.
+    const activationHours = getFrameworkActivationHours() || FRAMEWORK_ACTIVATION_HOURS;
     const newTasks: EditableTask[] = [
       {
         label: `Aktiver ${fw.label} i Mynder`,
-        hours: FRAMEWORK_ACTIVATION_HOURS,
+        hours: activationHours,
         owner: "Partner",
         gapIds: [],
         note: "Gir kunden modenhetsscore og rapport for regelverket.",

@@ -14,6 +14,8 @@ import { TermsAcceptRow } from "@/components/legal/TermsAcceptRow";
 import { useTerms } from "@/hooks/useTerms";
 import { cn } from "@/lib/utils";
 import { activateCustomerModule } from "@/lib/customerModuleState";
+import { getFrameworkActivationHours } from "@/lib/activationHours";
+import { useServiceDefaults } from "@/hooks/useServiceDefaults";
 import {
   CORE_TIERS,
   VENDOR_TIERS,
@@ -78,8 +80,13 @@ export function ActivateRecommendationsDialog({
   const [operatorRole, setOperatorRole] = useState(false);
   const [operatorScope, setOperatorScope] = useState<"customer" | "global">("customer");
   const [tierByModule, setTierByModule] = useState<Record<string, string>>({});
+  // Regelverk der partneren har fjernet rådgivningstimene for denne aktiveringen.
+  const [excludedActivation, setExcludedActivation] = useState<Record<string, boolean>>({});
   const { current: currentTerms, hasAcceptedCurrent, acceptTerms } = useTerms();
   const termsOk = termsChecked || hasAcceptedCurrent;
+  const { defaultHourlyRate } = useServiceDefaults();
+  const hourlyRate = defaultHourlyRate ?? 1500;
+  const activationHours = getFrameworkActivationHours();
 
   const activatable = useMemo(() => items.filter((i) => i.activatable), [items]);
   const serviceItems = useMemo(() => items.filter((i) => !i.activatable), [items]);
@@ -88,6 +95,7 @@ export function ActivateRecommendationsDialog({
     if (!open) return;
     setStep("select");
     setTermsChecked(false);
+    setExcludedActivation({});
     const defaults: Record<string, string> = {};
     for (const item of items) {
       const tiers = tiersFor(item.moduleKey);
