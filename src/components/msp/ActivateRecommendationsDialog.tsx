@@ -436,8 +436,8 @@ export function ActivateRecommendationsDialog({
               {oneOffTotal > 0 && (
                 <>
                   {" "}
-                  Rådgivning ved aktivering ({formatKr(oneOffTotal)} engangs) faktureres kunden som et
-                  engangsbeløp.
+                  Etablering og rådgivning ved aktivering ({formatKr(oneOffTotal)} engangs)
+                  faktureres kunden som et engangsbeløp.
                 </>
               )}
             </DialogDescription>
