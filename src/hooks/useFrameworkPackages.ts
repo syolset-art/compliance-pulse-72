@@ -85,7 +85,7 @@ export function useFrameworkPackages() {
     mutationFn: upsert,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEY });
-      toast.success("Pakken er lagret");
+      toast.success("Pakken er lagret og aktivert i salgsporteføljen");
     },
     onError: () => toast.error("Kunne ikke lagre pakken"),
   });

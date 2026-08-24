@@ -145,7 +145,12 @@ export function MSPFrameworkHoursTab({
             <div className="flex items-center gap-3">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5 flex-wrap">
-                  <span className="text-sm font-medium text-foreground">{fw.name}</span>
+                  <span className="text-sm font-medium text-foreground">
+                    {saved?.state?.customName?.trim() || fw.name}
+                  </span>
+                  {saved?.state?.customName?.trim() && (
+                    <span className="text-[11px] text-muted-foreground">({fw.name})</span>
+                  )}
                   {fw.isMandatory && (
                     <Badge variant="secondary" className="text-[10px] font-normal">
                       Obligatorisk
@@ -195,6 +200,7 @@ export function MSPFrameworkHoursTab({
         currency={currency}
         initialState={activeItem?.state ?? null}
         isActive={activeItem?.saved?.is_active ?? false}
+        isSaved={Boolean(activeItem?.saved)}
         onToggleActive={(isActive) => {
           if (!active || !activeItem) return;
           void setPackageActive({
@@ -213,6 +219,7 @@ export function MSPFrameworkHoursTab({
             state,
             totalHours: pkg.hours,
             totalPrice: pkg.price,
+            isActive: true,
           });
         }}
         onSaveAsService={onSaveAsService}
