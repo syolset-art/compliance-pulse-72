@@ -429,7 +429,7 @@ export function PartnerSalesPotentialCard({ currency }: { currency: string }) {
             {fmt(shownTotal)} {currency}
           </p>
           <div className="flex flex-col items-end text-xs text-muted-foreground mt-0.5">
-            <span>Lisenser: {fmt(shownLicense)} {currency}/mnd</span>
+            <span>Lisenser: {fmt(shownLicense * 12)} {currency}/år</span>
             {shownAdvisory > 0 && (
               <span>Rådgivningstimer: {fmt(shownAdvisory)} {currency} (engangs)</span>
             )}
@@ -453,7 +453,7 @@ export function PartnerSalesPotentialCard({ currency }: { currency: string }) {
                       </TooltipTrigger>
                       <TooltipContent side="bottom" className="max-w-xs text-xs">
                         Basert på minstepris for alle Mynder-produkter (moduler og regelverk)
-                        summert per måned. Rådgivningstimer regnes ut fra regelverkene du velger under.
+                        summert per år (12 × månedspris). Rådgivningstimer regnes ut fra regelverkene du velger under.
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
@@ -464,7 +464,7 @@ export function PartnerSalesPotentialCard({ currency }: { currency: string }) {
                 </p>
               </div>
               <p className="text-lg font-semibold text-foreground tabular-nums shrink-0">
-                {fmt(licensePotential)} {currency}/mnd
+                {fmt(licensePotential * 12)} {currency}/år
               </p>
             </div>
 
@@ -616,7 +616,7 @@ export function PartnerSalesPotentialCard({ currency }: { currency: string }) {
                 </p>
               </div>
               <p className="text-lg font-semibold text-foreground tabular-nums shrink-0">
-                {fmt(pkgLicense)} {currency}/mnd
+                {fmt(pkgLicense * 12)} {currency}/år
               </p>
             </div>
             <div className="rounded-md border border-border bg-background p-3 flex items-start gap-3">
@@ -642,7 +642,7 @@ export function PartnerSalesPotentialCard({ currency }: { currency: string }) {
                   {p.name}
                 </span>
                 <span className="text-[11px] text-muted-foreground tabular-nums shrink-0">
-                  Lisens {fmt(p.licenseKr)} {currency}/mnd
+                  Lisens {fmt(p.licenseKr * 12)} {currency}/år
                 </span>
                 <span className="text-[11px] text-muted-foreground tabular-nums shrink-0">
                   {p.total_hours || 0} t · {fmt(p.total_price || 0)} {currency}
