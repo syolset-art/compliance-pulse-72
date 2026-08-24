@@ -429,7 +429,7 @@ export function PartnerSalesPotentialCard({ currency }: { currency: string }) {
             {fmt(shownTotal)} {currency}
           </p>
           <div className="flex flex-col items-end text-xs text-muted-foreground mt-0.5">
-            <span>Lisenser: {fmt(shownLicense)} {currency}/mnd</span>
+            <span>Lisenser: {fmt(shownLicense * 12)} {currency}/år</span>
             {shownAdvisory > 0 && (
               <span>Rådgivningstimer: {fmt(shownAdvisory)} {currency} (engangs)</span>
             )}
