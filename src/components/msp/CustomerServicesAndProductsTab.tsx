@@ -553,38 +553,39 @@ export function CustomerServicesAndProductsTab({
             status={
               frameworksRetiring
                 ? "pending_cancellation"
-                : activeFrameworks.length > 0
+                : hasBillableFrameworks
                   ? "active"
                   : "inactive"
             }
-            price={activeFrameworks.length * FRAMEWORK_PRICE}
+            price={hasBillableFrameworks ? billableFrameworks.length * FRAMEWORK_PRICE : FRAMEWORK_PRICE}
+            priceUnit={hasBillableFrameworks ? undefined : "per regelverk / mnd"}
             priceLabel={
-              activeFrameworks.length > 0 ? `${activeFrameworks.length} aktive regelverk` : undefined
+              hasBillableFrameworks ? `${billableFrameworks.length} aktive regelverk` : undefined
             }
-            usage={String(activeFrameworks.length)}
-            usageLimit={String(ALL_FRAMEWORKS.length)}
-            usageSuffix="aktive"
+            usage={
+              !hasBillableFrameworks && gdprIncluded
+                ? "GDPR er inkludert som gratis baseline"
+                : undefined
+            }
             breakdown={
-              activeFrameworks.length > 0
-                ? activeFrameworks.map((f) => ({ label: f.name, priceKr: FRAMEWORK_PRICE }))
+              hasBillableFrameworks
+                ? billableFrameworks.map((f) => ({ label: f.name, priceKr: FRAMEWORK_PRICE }))
                 : undefined
             }
             cancelAtLabel={
               frameworksState.cancelAt ? formatPeriodEnd(frameworksState.cancelAt) : undefined
             }
             onDeactivate={
-              activeFrameworks.length > 0 ? () => setRetireFrameworksOpen(true) : undefined
+              hasBillableFrameworks ? () => setRetireFrameworksOpen(true) : undefined
             }
             onResume={() => undoRetire("frameworks")}
-            action={activeFrameworks.length > 0 ? "manage" : "activate"}
-            onClick={() => {
-              if (recommendedFrameworks.length > 0 && selectedFrameworks.length === 0) {
-                setSelectedFrameworks(recommendedFrameworks.map((f) => f.id));
-                return;
-              }
-              if (selectedFrameworks.length > 0) activateSelectedFrameworks();
-              else onUpdate?.();
-            }}
+            action="manage"
+            ctaOverride={
+              hasBillableFrameworks
+                ? { label: "Legg til", variant: "outline" }
+                : { label: "Legg til regelverk", variant: "default" }
+            }
+            onClick={() => setAddFrameworksOpen(true)}
             footer={frameworkFooter}
           />
 
