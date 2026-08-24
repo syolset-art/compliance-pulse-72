@@ -248,7 +248,7 @@ export function CustomerRecommendationsCard({ customer, onOffer, onActivate, onE
                     disabled={!onEnterCustomer}
                     title={`Jobb med ${target.label} hos kunden`}
                     className={cn(
-                      "inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-normal transition-colors",
+                      "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-normal transition-colors",
                       "bg-success/10 text-foreground border-success/30",
                       onEnterCustomer
                         ? "hover:bg-success/20 hover:border-success/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 cursor-pointer"
