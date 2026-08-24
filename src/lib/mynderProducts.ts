@@ -34,8 +34,8 @@ export const MYNDER_PRODUCTS: MynderProduct[] = [
     moduleKey: "assets",
     name: "Eiendeler",
     commissionPct: 25,
-    fromPrice: 490,
-    tiers: [{ label: "Standard", priceKr: 490 }],
+    fromPrice: 495,
+    tiers: [{ label: "Standard", priceKr: 495 }],
   },
   {
     id: "frameworks",
@@ -53,8 +53,8 @@ export const MYNDER_PRODUCTS: MynderProduct[] = [
     moduleKey: "deviations",
     name: "Avviksregister",
     commissionPct: 25,
-    fromPrice: 490,
-    tiers: [{ label: "Standard", priceKr: 490 }],
+    fromPrice: 495,
+    tiers: [{ label: "Standard", priceKr: 495 }],
   },
   {
     id: "trust",
