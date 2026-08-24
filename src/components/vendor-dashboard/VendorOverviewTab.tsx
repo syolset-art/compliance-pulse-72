@@ -244,8 +244,8 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
               {vendors.length} leverandører
             </Badge>
           </div>
-          <div className="flex items-center gap-6">
-            <div className="relative h-[180px] w-[180px] shrink-0" role="img"
+          <div className="flex flex-col sm:flex-row items-center gap-5 sm:gap-6">
+            <div className="relative h-[170px] w-[170px] sm:h-[180px] sm:w-[180px] shrink-0" role="img"
               aria-label={`Risikofordeling: ${riskDistribution
                 .map(d => `${({ low: "Lav", medium: "Middels", high: "Høy", unknown: "Ukjent" } as Record<string, string>)[d.name]} ${d.value}`)
                 .join(", ")}`}
