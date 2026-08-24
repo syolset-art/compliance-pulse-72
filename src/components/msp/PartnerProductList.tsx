@@ -301,6 +301,7 @@ function ProductEditSheet({
   product: MynderProduct | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  currency: string;
 }) {
   if (!product) return null;
   const meta = PRODUCT_META[product.id];
