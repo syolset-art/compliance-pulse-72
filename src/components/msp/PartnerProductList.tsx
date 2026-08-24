@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 import {
   Sheet,
   SheetContent,
@@ -27,20 +28,18 @@ import { MYNDER_PRODUCTS, type MynderProduct } from "@/lib/mynderProducts";
 import { useFrameworkPackages } from "@/hooks/useFrameworkPackages";
 import { useServiceDefaults } from "@/hooks/useServiceDefaults";
 import { EXTRA_FRAMEWORK_PRICE_KR } from "@/lib/planConstants";
+import {
+  readProductSetupHours,
+  defaultFrameworkActivationHours,
+} from "@/lib/activationHours";
 
 const fmt = (n: number) => n.toLocaleString("nb-NO");
 
 // Oppstartskost per produkt lagres som timer (multipliseres med partnerens timepris).
+// Nøkkelen deles med aktiveringsdialog og tilbud via src/lib/activationHours.ts.
 const LS_SETUP_HOURS = "msp.productSetupHours";
 
-function readSetupHours(): Record<string, number> {
-  try {
-    const raw = localStorage.getItem(LS_SETUP_HOURS);
-    return raw ? (JSON.parse(raw) as Record<string, number>) : {};
-  } catch {
-    return {};
-  }
-}
+const readSetupHours = readProductSetupHours;
 
 const PRODUCT_META: Record<string, { icon: LucideIcon; description: string }> = {
   core: {
