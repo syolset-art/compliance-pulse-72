@@ -33,6 +33,8 @@ export interface ActivatableItem {
   frameworkId?: string;
   moduleKey?: string;
   price?: number | null;
+  /** Partnerens lagrede regelverkspakke — styrer rådgivningstimer og visningsnavn ved aktivering. */
+  packageInfo?: { name: string; totalHours: number; totalPrice: number };
 }
 
 interface Props {
@@ -117,11 +119,17 @@ export function ActivateRecommendationsDialog({
     return item.price ?? 0;
   };
 
+  /** Rådgivningstimer ved aktivering — pakkenes timer vinner over standardinnstillingen. */
+  const advisoryHoursFor = (item: ActivatableItem) =>
+    item.packageInfo?.totalHours ?? activationHours;
+
   /** Engangsbeløp for rådgivning som følger med aktiveringen av et regelverk. */
-  const activationFeeFor = (item: ActivatableItem) =>
-    item.frameworkId && activationHours > 0 && !excludedActivation[item.id]
-      ? Math.round(activationHours * hourlyRate)
+  const activationFeeFor = (item: ActivatableItem) => {
+    const hours = advisoryHoursFor(item);
+    return item.frameworkId && hours > 0 && !excludedActivation[item.id]
+      ? Math.round(hours * hourlyRate)
       : 0;
+  };
 
   /**
    * Etableringspakken (partnerens fastpris) — vises kun ved FØRSTEGANGS
