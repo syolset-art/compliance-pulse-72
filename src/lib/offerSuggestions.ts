@@ -515,3 +515,110 @@ export function customerLicenseSummary(c: any): LicenseSummary {
 
   return { monthly, lines, billedToDate: monthly * months, months };
 }
+
+// ===== Partnerens regelverkspakker og tilbudsstatus =====
+
+/** Minimumsform av en rad fra msp_framework_packages (unngår sirkulær import fra hooken). */
+export interface FrameworkPackageLike {
+  framework_id: string;
+  framework_name: string | null;
+  state?: { customName?: string };
+  total_hours: number;
+  total_price: number;
+  is_active: boolean;
+}
+
+/** Visningsnavnet partneren har gitt pakken (egendefinert navn, ellers regelverksnavnet). */
+export function packageDisplayName(pkg: FrameworkPackageLike): string {
+  const custom = pkg.state?.customName?.trim();
+  return custom || pkg.framework_name || pkg.framework_id;
+}
+
+/**
+ * Beriker forslag med partnerens lagrede pakker: et regelverk med aktiv pakke
+ * vises med pakkens navn, timer og pris i stedet for rått regelverksnavn.
+ */
+export function withPackageInfo(
+  suggestions: OfferSuggestion[],
+  packages: Record<string, FrameworkPackageLike>,
+): OfferSuggestion[] {
+  const active = Object.values(packages ?? {}).filter((p) => p?.is_active);
+  if (active.length === 0) return suggestions;
+  const byKey = new Map<string, FrameworkPackageLike>();
+  for (const pkg of active) byKey.set(normalizeFrameworkKey(pkg.framework_id), pkg);
+
+  const match = (s: OfferSuggestion): FrameworkPackageLike | undefined => {
+    const candidates = [s.frameworkId, s.label].filter(Boolean).map((v) => normalizeFrameworkKey(v as string));
+    for (const key of candidates) {
+      const direct = byKey.get(key);
+      if (direct) return direct;
+    }
+    // Fuzzy fallback: «EU AI Act» (euaiact) skal matche pakken «ai-act» (aiact).
+    for (const [k, pkg] of byKey) {
+      if (k.length < 4) continue;
+      if (candidates.some((key) => key.includes(k) || k.includes(key))) return pkg;
+    }
+    return undefined;
+  };
+
+  return suggestions.map((s) => {
+    if (s.kind !== "framework") return s;
+    const pkg = match(s);
+    if (!pkg) return s;
+    return {
+      ...s,
+      packageInfo: {
+        name: packageDisplayName(pkg),
+        totalHours: pkg.total_hours,
+        totalPrice: pkg.total_price,
+      },
+    };
+  });
+}
+
+/**
+ * Beriker forslag med tilbudsstatus: regelverk/tjenester som allerede ligger i
+ * et tilbud (utkast eller sendt) merkes slik at prosessflyten
+ * Anbefalt → I tilbud → Aktivert kan vises.
+ */
+export function withOfferStatus(suggestions: OfferSuggestion[], customerId: string): OfferSuggestion[] {
+  if (!customerId) return suggestions;
+  const offers = getOffersForCustomer(customerId).filter(
+    (o) => !o.status || o.status === "draft" || o.status === "sent",
+  );
+  if (offers.length === 0) return suggestions;
+
+  const fwStatus = new Map<string, "draft" | "sent">();
+  const svcStatus = new Map<string, "draft" | "sent">();
+  for (const o of offers) {
+    const st: "draft" | "sent" = o.status === "sent" ? "sent" : "draft";
+    for (const fid of o.frameworkIds ?? []) {
+      const k = normalizeFrameworkKey(String(fid));
+      if (fwStatus.get(k) !== "sent") fwStatus.set(k, st);
+    }
+    for (const tid of o.templateIds ?? []) {
+      const tpl = SERVICE_LIBRARY.find((t) => t.id === tid);
+      if (tpl && svcStatus.get(normalizeServiceKey(tpl.name)) !== "sent") {
+        svcStatus.set(normalizeServiceKey(tpl.name), st);
+      }
+    }
+    for (const sk of o.serviceKeys ?? []) {
+      const k = normalizeServiceKey(sk);
+      if (svcStatus.get(k) !== "sent") svcStatus.set(k, st);
+    }
+  }
+
+  return suggestions.map((s) => {
+    if (s.kind === "framework") {
+      const st =
+        (s.frameworkId ? fwStatus.get(normalizeFrameworkKey(s.frameworkId)) : undefined) ??
+        fwStatus.get(normalizeFrameworkKey(s.label));
+      return st ? { ...s, offerStatus: st } : s;
+    }
+    if (s.kind === "service") {
+      const st = svcStatus.get(normalizeServiceKey(s.label));
+      return st ? { ...s, offerStatus: st } : s;
+    }
+    return s;
+  });
+}
