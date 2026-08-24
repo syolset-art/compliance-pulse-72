@@ -642,7 +642,7 @@ export function PartnerSalesPotentialCard({ currency }: { currency: string }) {
                   {p.name}
                 </span>
                 <span className="text-[11px] text-muted-foreground tabular-nums shrink-0">
-                  Lisens {fmt(p.licenseKr)} {currency}/mnd
+                  Lisens {fmt(p.licenseKr * 12)} {currency}/år
                 </span>
                 <span className="text-[11px] text-muted-foreground tabular-nums shrink-0">
                   {p.total_hours || 0} t · {fmt(p.total_price || 0)} {currency}
