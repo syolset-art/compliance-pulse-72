@@ -556,6 +556,23 @@ export default function MSPDashboard() {
     });
   };
 
+  /**
+   * Kundens anbefalinger beriket med:
+   * - partnerens manuelt valgte regelverk/retningslinjer
+   * - lagrede pakker fra «Produkter og tjenester» (pakkens navn + timer)
+   * - tilbudsstatus (Anbefalt → I tilbud → Aktivert)
+   */
+  const suggestionsFor = (c: any): OfferSuggestion[] => {
+    const extras = manualExtras[c.id] || [];
+    const base = deriveOfferSuggestions(c).filter((b) => !extras.some((e) => e.id === b.id));
+    return withOfferStatus(withPackageInfo([...base, ...extras], frameworkPackages), c.id);
+  };
+
+  // Pakker som kan velges direkte i «Legg til»-velgeren (vises med partnerens eget navn).
+  const packagePickerItems = Object.values(frameworkPackages)
+    .filter((p) => p?.is_active)
+    .map((p) => ({ frameworkId: p.framework_id, name: packageDisplayName(p), totalHours: p.total_hours }));
+
   const [view, setView] = useState<ViewMode>("table");
   const [search, setSearch] = useState("");
   const [industryFilter, setIndustryFilter] = useState<string[]>([]);
@@ -1154,7 +1171,7 @@ export default function MSPDashboard() {
                               <TableCell onClick={(e) => e.stopPropagation()} className="align-top max-w-[300px]">
 
                                 <RecommendationCell
-                                  suggestions={deriveOfferSuggestions(c)}
+                                  suggestions={suggestionsFor(c)}
                                   picked={offerSelection[c.id] || []}
                                   onToggle={(id) => toggleSuggestion(c.id, id)}
                                   onOffer={() => setOfferFor(c)}
@@ -1162,6 +1179,7 @@ export default function MSPDashboard() {
                                   onPreselectActivatable={(ids) =>
                                     setOfferSelection((prev) => ({ ...prev, [c.id]: ids }))
                                   }
+                                  onAddClick={() => setAddFrameworkFor(c)}
                                 />
                               </TableCell>
                             )}
