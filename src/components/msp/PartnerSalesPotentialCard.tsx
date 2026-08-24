@@ -459,8 +459,8 @@ export function PartnerSalesPotentialCard({ currency }: { currency: string }) {
                   </TooltipProvider>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Minstepris moduler {fmt(productLicense)} {currency} + {selected.length} regelverk{" "}
-                  {fmt(frameworkLicense)} {currency}
+                  Alle Mynder-produkter — minstepris moduler {fmt(productLicense)} {currency} +{" "}
+                  {options.length} regelverk {fmt(allFrameworkLicense)} {currency}
                 </p>
               </div>
               <p className="text-lg font-semibold text-foreground tabular-nums shrink-0">
