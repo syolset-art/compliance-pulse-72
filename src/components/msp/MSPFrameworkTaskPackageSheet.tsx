@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -20,8 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, RotateCcw, Sparkles, Trash2, Pencil, Check, X } from "lucide-react";
-import { Switch } from "@/components/ui/switch";
+import { Plus, RotateCcw, Sparkles, Trash2, Pencil, Check, X, CheckCircle2 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner";
 import { formatPriceRange } from "@/lib/documentDeliverables";
@@ -69,8 +69,11 @@ interface Props {
   initialState?: FrameworkPackageState | null;
   /** Om regelverket er aktivert i partnerens salgsportefølje. */
   isActive?: boolean;
+  /** Om det finnes en lagret pakke for regelverket. */
+  isSaved?: boolean;
+  /** Brukes kun for å fjerne pakken fra salgsporteføljen (deaktivere). */
   onToggleActive?: (isActive: boolean) => void;
-  /** Lagrer pakken (state + totalsummer) til databasen. */
+  /** Lagrer pakken (state + totalsummer) til databasen — aktiverer den i salgsporteføljen. */
   onSavePackage?: (pkg: SavedFrameworkPackage, state: FrameworkPackageState) => void;
 }
 
@@ -87,6 +90,7 @@ export function MSPFrameworkTaskPackageSheet({
   onUseInOffer,
   initialState = null,
   isActive = false,
+  isSaved = false,
   onToggleActive,
   onSavePackage,
 }: Props) {
@@ -216,7 +220,7 @@ export function MSPFrameworkTaskPackageSheet({
   const buildPackage = (): SavedFrameworkPackage => ({
     frameworkId: frameworkId ?? "",
     frameworkName,
-    name: `${frameworkName} — full leveranse`,
+    name: (state.customName ?? "").trim() || frameworkName,
     hours: packageHours(totals),
     price: packagePrice(totals),
     tasks: tasks
@@ -289,38 +293,65 @@ export function MSPFrameworkTaskPackageSheet({
           </SheetDescription>
         </SheetHeader>
 
-        <div className="mt-3 space-y-2">
-          {onToggleActive && (
-            <div
-              className={`flex items-center justify-between gap-3 rounded-md border px-3 py-2 ${
-                isActive ? "border-success/40 bg-success/5" : "border-border bg-muted/30"
-              }`}
-            >
-              <div className="space-y-1">
-                <Label htmlFor="fw-active" className="text-sm font-medium text-foreground">
-                  Aktivert i salgsporteføljen
-                </Label>
-                <p className="text-[11px] text-muted-foreground">
-                  Når aktivert inngår regelverket med oppgaver, timer og pris i salgspotensialet ditt, og kan
-                  legges i tilbud til kunder.
-                </p>
-                {isActive && (
-                  <p className="text-[11px] font-medium text-success">
-                    Aktivert — {totals.tasks} oppgaver ·{" "}
-                    {totals.hours.min === totals.hours.max
-                      ? `${totals.hours.min} timer`
-                      : `${totals.hours.min}–${totals.hours.max} timer`}{" "}
-                    · {formatPriceRange(totals.price, currency)} telles nå med i salgspotensialet.
-                  </p>
-                )}
-              </div>
-              <Switch
-                id="fw-active"
-                checked={isActive}
-                onCheckedChange={(v) => onToggleActive(v === true)}
+        <div className="sticky top-0 z-10 -mx-6 -mt-6 px-6 py-3 border-b border-border bg-background/95 backdrop-blur space-y-1.5">
+          <div className="flex items-end gap-3">
+            <div className="flex-1 min-w-0 space-y-1">
+              <Label htmlFor="pkg-name" className="text-[11px]">
+                Pakkens navn i salgsporteføljen
+              </Label>
+              <Input
+                id="pkg-name"
+                value={state.customName ?? frameworkName}
+                onChange={(e) => persist({ ...state, customName: e.target.value })}
+                className="h-9 text-sm font-medium"
               />
             </div>
-          )}
+            {onSavePackage && (
+              <Button
+                size="sm"
+                className="h-9 shrink-0"
+                disabled={totals.tasks === 0}
+                onClick={() => onSavePackage(buildPackage(), state)}
+              >
+                Lagre pakke
+              </Button>
+            )}
+          </div>
+          <div className="flex items-center justify-between gap-2">
+            <p className="text-[11px] text-muted-foreground">
+              Koblet til aktivering av {frameworkName}. Når du lagrer, aktiveres pakken i
+              salgsporteføljen og kan legges i tilbud til kunder.
+            </p>
+            <div className="flex items-center gap-2 shrink-0">
+              {isActive ? (
+                <>
+                  <Badge className="text-[10px] font-normal gap-1">
+                    <CheckCircle2 className="h-2.5 w-2.5" /> Aktivert i salgsporteføljen
+                  </Badge>
+                  {onToggleActive && (
+                    <button
+                      type="button"
+                      className="text-[11px] text-muted-foreground hover:text-foreground underline underline-offset-2"
+                      onClick={() => onToggleActive(false)}
+                    >
+                      Fjern fra salgsporteføljen
+                    </button>
+                  )}
+                </>
+              ) : isSaved ? (
+                <Badge variant="outline" className="text-[10px] font-normal">
+                  Pakke lagret
+                </Badge>
+              ) : (
+                <Badge variant="secondary" className="text-[10px] font-normal">
+                  Ikke lagret
+                </Badge>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-3 space-y-2">
           <div className="rounded-md border border-border px-3 py-2 space-y-1.5">
             <div className="flex items-center justify-between gap-3">
               <p className="text-sm font-medium text-foreground">Aktiveringspris</p>
@@ -482,16 +513,6 @@ export function MSPFrameworkTaskPackageSheet({
                   onClick={() => onUseInOffer(buildPackage())}
                 >
                   Bruk i tilbud
-                </Button>
-              )}
-              {onSavePackage && (
-                <Button
-                  size="sm"
-                  className="h-8 text-xs"
-                  disabled={totals.tasks === 0}
-                  onClick={() => onSavePackage(buildPackage(), state)}
-                >
-                  Lagre pakke
                 </Button>
               )}
               {onSaveAsService && (

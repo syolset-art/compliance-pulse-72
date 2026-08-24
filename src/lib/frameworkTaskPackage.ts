@@ -54,6 +54,8 @@ export interface TaskOverride {
 export interface FrameworkPackageState {
   overrides: Record<string, TaskOverride>;
   custom: FrameworkTask[];
+  /** Egendefinert pakkenavn valgt av partneren (visningsnavn i salgsporteføljen). */
+  customName?: string;
 }
 
 export const EMPTY_PACKAGE_STATE: FrameworkPackageState = { overrides: {}, custom: [] };
@@ -211,7 +213,9 @@ function readStore(): Store {
 
 export function loadPackageState(frameworkId: string): FrameworkPackageState {
   const s = readStore()[frameworkId];
-  return s ? { overrides: s.overrides ?? {}, custom: s.custom ?? [] } : { ...EMPTY_PACKAGE_STATE };
+  return s
+    ? { overrides: s.overrides ?? {}, custom: s.custom ?? [], customName: s.customName }
+    : { ...EMPTY_PACKAGE_STATE };
 }
 
 export function savePackageState(frameworkId: string, state: FrameworkPackageState): void {
