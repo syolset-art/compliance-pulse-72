@@ -113,7 +113,14 @@ export function ActivateRecommendationsDialog({
     return item.price ?? 0;
   };
 
+  /** Engangsbeløp for rådgivning som følger med aktiveringen av et regelverk. */
+  const activationFeeFor = (item: ActivatableItem) =>
+    item.frameworkId && activationHours > 0 && !excludedActivation[item.id]
+      ? Math.round(activationHours * hourlyRate)
+      : 0;
+
   const monthlyTotal = activatable.reduce((sum, i) => sum + priceFor(i), 0);
+  const oneOffTotal = activatable.reduce((sum, i) => sum + activationFeeFor(i), 0);
 
   const handleActivate = async () => {
     if (activatable.length === 0) return;
