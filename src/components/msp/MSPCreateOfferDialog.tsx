@@ -164,6 +164,7 @@ export function MSPCreateOfferDialog({
   customerName,
   offeredTemplateIds,
   offeredServiceNames,
+  offeredFrameworkIds,
   activeFrameworks,
 }: CreateOfferDialogProps) {
   const { branding } = usePartnerBranding();
@@ -714,6 +715,8 @@ export function MSPCreateOfferDialog({
       customerName,
       templateIds: offeredTemplateIds ?? [],
       serviceKeys: offeredServiceNames ?? (serviceTitle ? [serviceTitle] : [offerName]),
+      // Knytter tilbudet til regelverkene det dekker — gir «I tilbud»-status i kundeoversikten.
+      frameworkIds: offeredFrameworkIds && offeredFrameworkIds.length > 0 ? offeredFrameworkIds : undefined,
     });
     setSavedAt(new Date().toLocaleString("nb-NO", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }));
     setView("saved");
