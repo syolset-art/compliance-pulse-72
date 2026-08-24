@@ -368,12 +368,12 @@ const COLUMN_LABELS: Record<ColumnKey, string> = {
   customer: "Kunde",
   country: "Land",
   industry: "Bransje",
-  recommendations: "Anbefalte produkter og tjenester",
-  activated: "Aktivert",
-  potential: "Salgspotensial",
-  revenueYtd: "Inntekter så langt",
-  licenseAnnual: "Lisensinntekter/år",
-  advisoryYtd: "Rådgivningstimer (så langt)",
+  recommendations: "Anbefalt løsning",
+  activated: "Aktiv",
+  potential: "Potensial",
+  revenueYtd: "Inntekt hittil",
+  licenseAnnual: "Lisens/år",
+  advisoryYtd: "Timer hittil",
   score: "Modenhet",
 };
 
@@ -959,7 +959,7 @@ export default function MSPDashboard() {
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <span className="inline-flex h-8 items-center gap-1.5 text-sm font-medium cursor-help">
-                                  Anbefalte produkter og tjenester <Info className="h-3.5 w-3.5 text-foreground/50" />
+                                  Anbefalt løsning <Info className="h-3.5 w-3.5 text-foreground/50" />
                                 </span>
                               </TooltipTrigger>
                               <TooltipContent side="top" className="max-w-[260px]">
@@ -973,7 +973,7 @@ export default function MSPDashboard() {
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <span className="inline-flex h-8 items-center gap-1.5 text-sm font-medium cursor-help">
-                                  Aktivert <Info className="h-3.5 w-3.5 text-foreground/50" />
+                                  Aktiv <Info className="h-3.5 w-3.5 text-foreground/50" />
                                 </span>
                               </TooltipTrigger>
                               <TooltipContent side="top" className="max-w-[240px]">
@@ -987,7 +987,7 @@ export default function MSPDashboard() {
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <span className="inline-flex h-8 items-center gap-1.5 text-sm font-medium cursor-help">
-                                  Salgspotensial <Info className="h-3.5 w-3.5 text-foreground/50" />
+                                  Potensial <Info className="h-3.5 w-3.5 text-foreground/50" />
                                 </span>
                               </TooltipTrigger>
                               <TooltipContent side="top" className="max-w-[260px]">
@@ -1001,7 +1001,7 @@ export default function MSPDashboard() {
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <span className="inline-flex h-8 items-center gap-1.5 text-sm font-medium cursor-help">
-                                  Inntekter så langt <Info className="h-3.5 w-3.5 text-foreground/50" />
+                                  Inntekt hittil <Info className="h-3.5 w-3.5 text-foreground/50" />
                                 </span>
                               </TooltipTrigger>
                               <TooltipContent side="top" className="max-w-[260px]">
@@ -1015,7 +1015,7 @@ export default function MSPDashboard() {
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <span className="inline-flex h-8 items-center gap-1.5 text-sm font-medium cursor-help">
-                                  Lisensinntekter/år <Info className="h-3.5 w-3.5 text-foreground/50" />
+                                  Lisens/år <Info className="h-3.5 w-3.5 text-foreground/50" />
                                 </span>
                               </TooltipTrigger>
                               <TooltipContent side="top" className="max-w-[240px]">
@@ -1029,7 +1029,7 @@ export default function MSPDashboard() {
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <span className="inline-flex h-8 items-center gap-1.5 text-sm font-medium cursor-help">
-                                  Rådgivningstimer (så langt) <Info className="h-3.5 w-3.5 text-foreground/50" />
+                                  Timer hittil <Info className="h-3.5 w-3.5 text-foreground/50" />
                                 </span>
                               </TooltipTrigger>
                               <TooltipContent side="top" className="max-w-[240px]">
