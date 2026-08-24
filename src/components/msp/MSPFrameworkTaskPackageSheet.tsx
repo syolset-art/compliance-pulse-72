@@ -198,6 +198,22 @@ export function MSPFrameworkTaskPackageSheet({
           estimateNote: e.rationale,
         };
       });
+      // Rydd bort foreldrede rene estimat-overrides som ikke lenger
+      // matcher en oppgave (f.eks. fra estimering mot fallback-oppgaver).
+      const taskIds = new Set(baseTasks.map((t) => t.id));
+      Object.keys(next).forEach((id) => {
+        const o = next[id];
+        if (
+          o?.estimated &&
+          !taskIds.has(id) &&
+          !o.removed &&
+          !o.disabled &&
+          !o.name &&
+          o.priceOverride == null
+        ) {
+          delete next[id];
+        }
+      });
       persist({ ...state, overrides: next });
       toast.success("Lara har estimert timer per kontrollpunkt");
     } catch (e) {
@@ -211,14 +227,16 @@ export function MSPFrameworkTaskPackageSheet({
   // Kjør estimering automatisk første gang sheetet åpnes for et regelverk
   // som verken har estimater eller manuelle timer fra før.
   useEffect(() => {
-    if (!open || !frameworkId || baseTasks.length === 0) return;
+    // Vent til kravradene er lastet slik at estimeringen kjøres mot de
+    // faktiske oppgavene — ikke fallback-oppgavene.
+    if (!open || !frameworkId || isLoading || baseTasks.length === 0) return;
     if (estimateRanFor.current === frameworkId) return;
     const hasHours = Object.values(state.overrides).some((o) => o.hoursMin != null);
     if (hasHours) return;
     estimateRanFor.current = frameworkId;
     void runEstimation(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, frameworkId, baseTasks]);
+  }, [open, frameworkId, baseTasks, isLoading]);
 
   const toggle = (id: string, enabled: boolean) =>
     persist({
