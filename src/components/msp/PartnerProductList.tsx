@@ -24,7 +24,9 @@ import {
   Globe,
   Settings2,
   Handshake,
-  Pencil,
+  ChevronRight,
+  ArrowDown,
+  PackageOpen,
   type LucideIcon,
 } from "lucide-react";
 import { MYNDER_PRODUCTS, type MynderProduct } from "@/lib/mynderProducts";
@@ -97,10 +99,11 @@ interface ProductRowProps {
   product: MynderProduct;
   frameworkHours: number;
   hourlyRate: number;
-  onEdit: (product: MynderProduct) => void;
+  onOpen: (product: MynderProduct) => void;
 }
 
-function ProductRow({ product, frameworkHours, hourlyRate, onEdit }: ProductRowProps) {
+/** Hele raden er klikkbar — åpner etableringspris, eller info om rådgivningspakker for Regelverk. */
+function ProductRow({ product, frameworkHours, hourlyRate, onOpen }: ProductRowProps) {
   const { packages } = useFrameworkPackages();
   const setupFee = useProductSetupFee(product.id, hourlyRate);
   const meta = PRODUCT_META[product.id];
@@ -120,25 +123,22 @@ function ProductRow({ product, frameworkHours, hourlyRate, onEdit }: ProductRowP
       : `fra ${fmt(product.fromPrice)} kr/mnd`;
 
   return (
-    <div className="flex items-start gap-3 px-4 py-3 hover:bg-muted/40 transition-colors">
+    <button
+      type="button"
+      onClick={() => onOpen(product)}
+      className="flex w-full items-start gap-3 px-4 py-3 text-left hover:bg-muted/40 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
+      aria-label={
+        isFrameworks
+          ? `Åpne informasjon om ${product.name} og rådgivningspakker`
+          : `Rediger etableringspris for ${product.name}`
+      }
+    >
       <div className="rounded-md bg-primary/10 p-2 shrink-0">
         <Icon className="h-4 w-4 text-primary" />
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 flex-wrap">
-          {/* Produktnavnet åpner redigering (etableringskostnad m.m.) */}
-          <button
-            type="button"
-            onClick={() => onEdit(product)}
-            className="group inline-flex items-center gap-1.5 text-sm font-medium text-foreground hover:text-primary transition-colors"
-            aria-label={`Rediger ${product.name}`}
-          >
-            {product.name}
-            <Pencil
-              className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity"
-              aria-hidden="true"
-            />
-          </button>
+          <span className="text-sm font-medium text-foreground">{product.name}</span>
           {isFrameworks && activeFrameworks > 0 && (
             <Badge variant="outline" className="text-[10px] font-normal">
               {activeFrameworks} regelverk aktivert
@@ -149,7 +149,7 @@ function ProductRow({ product, frameworkHours, hourlyRate, onEdit }: ProductRowP
               + {frameworkHours} t rådgivning ved aktivering
             </Badge>
           )}
-          {setupFee && (
+          {!isFrameworks && setupFee && (
             <Badge variant="outline" className="text-[10px] font-normal">
               Etablering {fmt(setupFee.amountKr)} kr
             </Badge>
@@ -159,13 +159,17 @@ function ProductRow({ product, frameworkHours, hourlyRate, onEdit }: ProductRowP
       </div>
       <div className="text-right shrink-0 pt-1">
         <p className="text-sm font-semibold text-foreground tabular-nums">{priceLabel}</p>
-        {setupFee && (
+        {!isFrameworks && setupFee && (
           <p className="text-[11px] text-muted-foreground tabular-nums">
             + {fmt(setupFee.amountKr)} kr engangs
           </p>
         )}
       </div>
-    </div>
+      <ChevronRight
+        className="h-4 w-4 text-muted-foreground shrink-0 self-center"
+        aria-hidden="true"
+      />
+    </button>
   );
 }
 
@@ -256,30 +260,52 @@ function SetupFeeEditor({
   );
 }
 
-/** Redigering av ett produkt — lisenspris, etableringskostnad og (regelverk) rådgivning. */
+/** Lisenspris (fast fra Mynder) — skrivebeskyttet oversikt over nivåene. */
+function LicensePriceSection({
+  product,
+  currency,
+}: {
+  product: MynderProduct;
+  currency: string;
+}) {
+  return (
+    <div className="space-y-2">
+      <p className="text-sm font-medium text-foreground">Lisenspris</p>
+      <div className="rounded-md border border-border divide-y divide-border">
+        {product.tiers.map((t) => (
+          <div key={t.label} className="flex items-center justify-between px-3 py-2">
+            <span className="text-xs text-foreground">{t.label}</span>
+            <span className="text-xs font-medium text-foreground tabular-nums">
+              {t.isFree || t.priceKr === 0
+                ? "Inkludert"
+                : `${fmt(t.priceKr)} ${currency}/mnd`}
+            </span>
+          </div>
+        ))}
+      </div>
+      <p className="text-[11px] text-muted-foreground">
+        Lisensprisen settes av Mynder og kan ikke endres. Du får fast provisjon på alt du
+        selger.
+      </p>
+    </div>
+  );
+}
+
+/** Redigering av et vanlig produkt — lisenspris og etableringskostnad. */
 function ProductEditSheet({
   product,
   open,
   onOpenChange,
-  frameworkHours,
-  onFrameworkHoursChange,
-  hourlyRate,
   currency,
 }: {
   product: MynderProduct | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  frameworkHours: number;
-  onFrameworkHoursChange: (hours: number) => void;
-  hourlyRate: number;
   currency: string;
 }) {
   if (!product) return null;
   const meta = PRODUCT_META[product.id];
   const Icon = meta?.icon ?? LayoutGrid;
-  const isFrameworks = product.id === "frameworks";
-  const advisoryFee =
-    isFrameworks && frameworkHours > 0 ? Math.round(frameworkHours * hourlyRate) : 0;
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -295,95 +321,154 @@ function ProductEditSheet({
         </SheetHeader>
 
         <div className="mt-6 space-y-6">
-          {/* Lisenspris — fast fra Mynder */}
-          <div className="space-y-2">
-            <p className="text-sm font-medium text-foreground">Lisenspris</p>
-            <div className="rounded-md border border-border divide-y divide-border">
-              {product.tiers.map((t) => (
-                <div key={t.label} className="flex items-center justify-between px-3 py-2">
-                  <span className="text-xs text-foreground">{t.label}</span>
-                  <span className="text-xs font-medium text-foreground tabular-nums">
-                    {t.isFree || t.priceKr === 0
-                      ? "Inkludert"
-                      : `${fmt(t.priceKr)} ${currency}/mnd`}
-                  </span>
-                </div>
-              ))}
-            </div>
-            <p className="text-[11px] text-muted-foreground">
-              Lisensprisen settes av Mynder og kan ikke endres. Du får fast provisjon på alt du
-              selger.
-            </p>
-          </div>
+          <LicensePriceSection product={product} currency={currency} />
 
           <Separator />
 
-          {/* Etableringskostnad — gjelder alle produkter */}
           <SetupFeeEditor
             key={product.id}
             productId={product.id}
             productName={product.name}
             currency={currency}
           />
+        </div>
+      </SheetContent>
+    </Sheet>
+  );
+}
 
-          {isFrameworks && (
-            <>
-              <Separator />
-              {/* Rådgivning ved aktivering — timer som følger med når et regelverk slås på */}
-              <div className="space-y-3">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <p className="text-sm font-medium text-foreground">
-                      Rådgivning ved aktivering
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      Legg til rådgivningstimer når du aktiverer et regelverk
-                    </p>
-                  </div>
-                  <Switch
-                    checked={frameworkHours > 0}
-                    onCheckedChange={(on) =>
-                      onFrameworkHoursChange(on ? defaultFrameworkActivationHours() : 0)
-                    }
-                    aria-label="Legg til rådgivningstimer når du aktiverer et regelverk"
-                  />
-                </div>
-                {frameworkHours > 0 && (
-                  <>
-                    <div className="flex items-center gap-2">
-                      <Input
-                        type="number"
-                        min={0}
-                        step={0.5}
-                        value={frameworkHours}
-                        onChange={(e) =>
-                          onFrameworkHoursChange(
-                            Math.max(0, Math.round((Number(e.target.value) || 0) * 10) / 10),
-                          )
-                        }
-                        className="h-8 w-20 text-sm tabular-nums"
-                        aria-label="Rådgivningstimer per aktivering"
-                      />
-                      <span className="text-xs text-muted-foreground">
-                        timer × {fmt(hourlyRate)} {currency}/t
-                      </span>
-                    </div>
-                    <div className="rounded-md bg-muted/50 px-3 py-2 flex items-center justify-between">
-                      <span className="text-xs text-muted-foreground">Per aktivering</span>
-                      <span className="text-sm font-semibold text-foreground tabular-nums">
-                        {fmt(advisoryFee)} {currency} (engangs)
-                      </span>
-                    </div>
-                    <p className="text-[11px] text-muted-foreground">
-                      Timene følger automatisk med når regelverket slås på hos kunden, og kan tas
-                      med i tilbudet. Du fakturerer dem som et engangsbeløp. Timeprisen endres
-                      under Innstillinger.
-                    </p>
-                  </>
-                )}
+/**
+ * Info-sheet for Regelverk — ingen fast etableringspris her. Brukeren lager
+ * egne rådgivningspakker per regelverk i avsnittet «Regelverk og
+ * rådgivningspakker» lenger ned på siden.
+ */
+function FrameworkAdvisorySheet({
+  product,
+  open,
+  onOpenChange,
+  frameworkHours,
+  onFrameworkHoursChange,
+  hourlyRate,
+  currency,
+}: {
+  product: MynderProduct;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  frameworkHours: number;
+  onFrameworkHoursChange: (hours: number) => void;
+  hourlyRate: number;
+  currency: string;
+}) {
+  const advisoryFee = frameworkHours > 0 ? Math.round(frameworkHours * hourlyRate) : 0;
+
+  const scrollToPackages = () => {
+    onOpenChange(false);
+    // Vent til sheeten er lukket før vi scroller til avsnittet under.
+    window.setTimeout(() => {
+      document
+        .getElementById("regelverk-pakker")
+        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 200);
+  };
+
+  return (
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto">
+        <SheetHeader>
+          <SheetTitle className="flex items-center gap-2">
+            <span className="rounded-md bg-primary/10 p-1.5">
+              <Scale className="h-4 w-4 text-primary" />
+            </span>
+            {product.name}
+          </SheetTitle>
+          <SheetDescription>{PRODUCT_META.frameworks.description}</SheetDescription>
+        </SheetHeader>
+
+        <div className="mt-6 space-y-6">
+          <LicensePriceSection product={product} currency={currency} />
+
+          <Separator />
+
+          {/* Rådgivningspakker — lages i avsnittet under, ingen fast etableringspris */}
+          <Card className="p-4 space-y-3">
+            <div className="flex items-center gap-3">
+              <div className="rounded-md bg-primary/10 p-2 shrink-0">
+                <PackageOpen className="h-4 w-4 text-primary" />
               </div>
-            </>
-          )}
+              <p className="text-sm font-medium text-foreground">
+                Lag egne rådgivningspakker
+              </p>
+            </div>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              Regelverk har ingen fast etableringspris. I stedet lager du dine egne
+              rådgivningspakker per regelverk — med pakkens navn, AI-foreslåtte timer per
+              krav og aktiveringspris. Det gjør du i avsnittet{" "}
+              <span className="font-medium text-foreground">
+                «Regelverk og rådgivningspakker»
+              </span>{" "}
+              lenger ned på siden.
+            </p>
+            <Button onClick={scrollToPackages} className="w-full gap-2">
+              <ArrowDown className="h-4 w-4" />
+              Gå til rådgivningspakker
+            </Button>
+          </Card>
+
+          <Separator />
+
+          {/* Rådgivning ved aktivering — timer som følger med når et regelverk slås på */}
+          <div className="space-y-3">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-sm font-medium text-foreground">
+                  Rådgivning ved aktivering
+                </p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Legg til rådgivningstimer når du aktiverer et regelverk
+                </p>
+              </div>
+              <Switch
+                checked={frameworkHours > 0}
+                onCheckedChange={(on) =>
+                  onFrameworkHoursChange(on ? defaultFrameworkActivationHours() : 0)
+                }
+                aria-label="Legg til rådgivningstimer når du aktiverer et regelverk"
+              />
+            </div>
+            {frameworkHours > 0 && (
+              <>
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="number"
+                    min={0}
+                    step={0.5}
+                    value={frameworkHours}
+                    onChange={(e) =>
+                      onFrameworkHoursChange(
+                        Math.max(0, Math.round((Number(e.target.value) || 0) * 10) / 10),
+                      )
+                    }
+                    className="h-8 w-20 text-sm tabular-nums"
+                    aria-label="Rådgivningstimer per aktivering"
+                  />
+                  <span className="text-xs text-muted-foreground">
+                    timer × {fmt(hourlyRate)} {currency}/t
+                  </span>
+                </div>
+                <div className="rounded-md bg-muted/50 px-3 py-2 flex items-center justify-between">
+                  <span className="text-xs text-muted-foreground">Per aktivering</span>
+                  <span className="text-sm font-semibold text-foreground tabular-nums">
+                    {fmt(advisoryFee)} {currency} (engangs)
+                  </span>
+                </div>
+                <p className="text-[11px] text-muted-foreground">
+                  Timene følger automatisk med når regelverket slås på hos kunden, og kan tas
+                  med i tilbudet. Du fakturerer dem som et engangsbeløp. Timeprisen endres
+                  under Innstillinger.
+                </p>
+              </>
+            )}
+          </div>
         </div>
       </SheetContent>
     </Sheet>
@@ -427,7 +512,7 @@ function ProductSettingsSheet({
               <li>Provisjonen gjelder alle produkter i listen — også regelverk du aktiverer.</li>
               <li>Utbetales månedlig, basert på aktive abonnement hos kundene dine.</li>
               <li>
-                Du kan legge til etableringskostnad per produkt — klikk på produktnavnet i
+                Du kan legge til etableringskostnad per produkt — klikk på produktet i
                 listen.
               </li>
             </ul>
@@ -440,12 +525,14 @@ function ProductSettingsSheet({
 
 /**
  * Alle Mynder-produkter partneren kan selge — samme produkter som under
- * «Min organisasjon», med pris. Klikk på et produktnavn for å legge til
- * etableringskostnad (fast engangspris med beskrivelse).
+ * «Min organisasjon», med pris. Klikk på et produkt for å legge til
+ * etableringskostnad (fast engangspris med beskrivelse). Regelverk åpner
+ * i stedet info om rådgivningspakkene i avsnittet under.
  */
 export function PartnerProductList() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [editing, setEditing] = useState<MynderProduct | null>(null);
+  const [frameworkInfoOpen, setFrameworkInfoOpen] = useState(false);
   const [frameworkHours, setFrameworkHours] = useState<number>(readFrameworkHours);
   const { defaultHourlyRate, currency } = useServiceDefaults();
   const hourlyRate = defaultHourlyRate ?? 1500;
@@ -454,14 +541,28 @@ export function PartnerProductList() {
     writeFrameworkHours(frameworkHours);
   }, [frameworkHours]);
 
+  // Regelverk skal ikke ha etableringspris — rydd bort eventuell eldre verdi.
+  useEffect(() => {
+    writeProductSetupFee("frameworks", null);
+  }, []);
+
+  const handleOpen = (product: MynderProduct) => {
+    if (product.id === "frameworks") {
+      setFrameworkInfoOpen(true);
+    } else {
+      setEditing(product);
+    }
+  };
+
   return (
     <section className="space-y-3">
       <div className="flex items-start justify-between gap-4">
         <div>
           <h2 className="text-lg font-semibold text-foreground">Produkter fra Mynder</h2>
           <p className="text-sm text-muted-foreground">
-            Alt du kan selge videre til kundene dine, med fast provisjon. Klikk på et produkt for
-            å legge til etableringskostnad.
+            Alt du kan selge videre til kundene dine, med fast provisjon. Klikk på et produkt
+            for å legge til etableringskostnad — for regelverk lager du rådgivningspakker i
+            avsnittet under.
           </p>
         </div>
         <Button
@@ -482,7 +583,7 @@ export function PartnerProductList() {
             product={p}
             frameworkHours={frameworkHours}
             hourlyRate={hourlyRate}
-            onEdit={setEditing}
+            onOpen={handleOpen}
           />
         ))}
       </Card>
@@ -491,11 +592,19 @@ export function PartnerProductList() {
         product={editing}
         open={editing !== null}
         onOpenChange={(open) => !open && setEditing(null)}
-        frameworkHours={frameworkHours}
-        onFrameworkHoursChange={setFrameworkHours}
-        hourlyRate={hourlyRate}
         currency={currency}
       />
+      {MYNDER_PRODUCTS.find((p) => p.id === "frameworks") && (
+        <FrameworkAdvisorySheet
+          product={MYNDER_PRODUCTS.find((p) => p.id === "frameworks")!}
+          open={frameworkInfoOpen}
+          onOpenChange={setFrameworkInfoOpen}
+          frameworkHours={frameworkHours}
+          onFrameworkHoursChange={setFrameworkHours}
+          hourlyRate={hourlyRate}
+          currency={currency}
+        />
+      )}
     </section>
   );
 }
