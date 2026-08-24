@@ -1,17 +1,35 @@
 import { useEffect, useMemo, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { TrendingUp, Package, Clock, Info, ChevronDown, CheckCircle2, ArrowDown } from "lucide-react";
+import {
+  TrendingUp,
+  Package,
+  Clock,
+  Info,
+  ChevronDown,
+  CheckCircle2,
+  ArrowDown,
+  Settings2,
+  Sparkles,
+  Loader2,
+} from "lucide-react";
 import { MYNDER_PRODUCTS } from "@/lib/mynderProducts";
 import { frameworkLicensePrice } from "@/lib/planConstants";
 import { frameworks as FRAMEWORK_DEFS } from "@/lib/frameworkDefinitions";
 import { baselineRequirementRows } from "@/lib/frameworkRequirementBaseline";
 import { useServiceDefaults } from "@/hooks/useServiceDefaults";
 import { useFrameworkPackages } from "@/hooks/useFrameworkPackages";
+import {
+  estimateRequirementHours,
+  readRequirementHoursCache,
+  type FrameworkHoursEstimate,
+} from "@/lib/laraRequirementHoursEstimate";
 import { cn } from "@/lib/utils";
 
 const fmt = (n: number) => n.toLocaleString("nb-NO");
@@ -20,12 +38,14 @@ const LS_FRAMEWORKS = "msp.salesPotential.frameworks";
 const LS_RATE = "msp.salesPotential.hourlyRate";
 const LS_HOURS_PER_REQ = "msp.salesPotential.hoursPerRequirement";
 const LS_VIEW = "msp.salesPotential.view";
+const LS_HOURS_MODE = "msp.salesPotential.hoursMode";
 
 const DEFAULT_FRAMEWORKS = ["gdpr"];
 const DEFAULT_HOURLY_RATE = 1500;
 const DEFAULT_HOURS_PER_REQ = 1;
 
 type ViewMode = "estimate" | "packages";
+type HoursMode = "fixed" | "lara";
 
 interface FrameworkOption {
   id: string;
@@ -54,10 +74,13 @@ function scrollToPackagesSection() {
  *
  * To visninger:
  * - «Estimert potensial»: generelt anslag basert på minstepris på produktene,
- *   valgte regelverk og timer pr. krav × timepris.
+ *   valgte regelverk og rådgivningstimer (fast timeantall eller Lara-estimat).
  * - «Mine aktiverte pakker»: basert på partnerens egne lagrede og aktiverte
  *   regelverkpakker (msp_framework_packages) — reelle timer og priser partneren
  *   selv har satt opp.
+ *
+ * Estimatsinnstillingene (timepris, metode) ligger i tannhjul-popoveren for å
+ * holde kortet kompakt.
  */
 export function PartnerSalesPotentialCard({ currency }: { currency: string }) {
   const { defaultHourlyRate } = useServiceDefaults();
@@ -66,6 +89,14 @@ export function PartnerSalesPotentialCard({ currency }: { currency: string }) {
   const [view, setView] = useState<ViewMode>(
     () => readJson<ViewMode>(LS_VIEW) ?? "estimate",
   );
+  const [hoursMode, setHoursMode] = useState<HoursMode>(
+    () => readJson<HoursMode>(LS_HOURS_MODE) ?? "fixed",
+  );
+  const [aiEstimates, setAiEstimates] = useState<Record<string, FrameworkHoursEstimate>>(
+    () => readRequirementHoursCache(),
+  );
+  const [estimating, setEstimating] = useState(false);
+  const [estimateError, setEstimateError] = useState<string | null>(null);
 
   // Tilgjengelige regelverk med kontrollpunkter (dedupe — noen er definert to ganger).
   const options = useMemo<FrameworkOption[]>(() => {
@@ -109,6 +140,9 @@ export function PartnerSalesPotentialCard({ currency }: { currency: string }) {
   useEffect(() => {
     localStorage.setItem(LS_VIEW, JSON.stringify(view));
   }, [view]);
+  useEffect(() => {
+    localStorage.setItem(LS_HOURS_MODE, JSON.stringify(hoursMode));
+  }, [hoursMode]);
 
   const selected = options.filter((o) => selectedIds.includes(o.id));
 
@@ -126,8 +160,55 @@ export function PartnerSalesPotentialCard({ currency }: { currency: string }) {
 
   const totalControlPoints = selected.reduce((sum, f) => sum + f.controlPoints, 0);
   const hoursPerReq = hoursPerReqOverride ?? DEFAULT_HOURS_PER_REQ;
-  const advisoryHours = Math.round(totalControlPoints * hoursPerReq);
+
+  // Gyldige Lara-estimater for valgte regelverk (kravtall må stemme).
+  const validAiEstimates = useMemo(() => {
+    const map = new Map<string, FrameworkHoursEstimate>();
+    for (const fw of selected) {
+      const est = aiEstimates[fw.id];
+      if (est && est.requirementCount === fw.controlPoints) map.set(fw.id, est);
+    }
+    return map;
+  }, [selected, aiEstimates]);
+
+  const missingAiEstimates = selected.filter((fw) => !validAiEstimates.has(fw.id));
+  const aiHoursTotal = selected.reduce(
+    (sum, fw) => sum + (validAiEstimates.get(fw.id)?.totalHours ?? 0),
+    0,
+  );
+
+  const isLara = hoursMode === "lara";
+  // I Lara-modus: AI-timer der estimat finnes, fast snitt som fallback for resten.
+  const advisoryHours = isLara
+    ? Math.round(
+        aiHoursTotal +
+          missingAiEstimates.reduce((sum, fw) => sum + fw.controlPoints, 0) * DEFAULT_HOURS_PER_REQ,
+      )
+    : Math.round(totalControlPoints * hoursPerReq);
   const advisoryPotential = advisoryHours * (hourlyRate || 0);
+  const laraComplete = isLara && missingAiEstimates.length === 0 && selected.length > 0;
+
+  const runLaraEstimate = async () => {
+    const targets = selected.filter((fw) => !validAiEstimates.has(fw.id));
+    const toRun = targets.length > 0 ? targets : selected;
+    if (toRun.length === 0) return;
+    setEstimating(true);
+    setEstimateError(null);
+    try {
+      for (const fw of toRun) {
+        const rows = baselineRequirementRows(fw.id).map((r) => ({
+          id: r.requirement_id,
+          name: r.name_no ?? r.requirement_id,
+        }));
+        const result = await estimateRequirementHours(fw.id, fw.name, rows);
+        setAiEstimates((prev) => ({ ...prev, [fw.id]: result }));
+      }
+    } catch (e) {
+      setEstimateError(e instanceof Error ? e.message : "Estimeringen feilet. Prøv igjen.");
+    } finally {
+      setEstimating(false);
+    }
+  };
 
   const selectedLabel =
     selected.length === 0
@@ -152,8 +233,6 @@ export function PartnerSalesPotentialCard({ currency }: { currency: string }) {
   const pkgAdvisory = activePackages.reduce((sum, p) => sum + (p.total_price || 0), 0);
   const pkgHours = activePackages.reduce((sum, p) => sum + (p.total_hours || 0), 0);
 
-
-
   const isEstimate = view === "estimate";
   const shownLicense = isEstimate ? licensePotential : pkgLicense;
   const shownAdvisory = isEstimate ? advisoryPotential : pkgAdvisory;
@@ -169,7 +248,7 @@ export function PartnerSalesPotentialCard({ currency }: { currency: string }) {
             <TrendingUp className="h-5 w-5 text-primary" />
           </div>
           <div>
-            <div className="flex items-center gap-3 flex-wrap">
+            <div className="flex items-center gap-2 flex-wrap">
               <h2 className="text-base font-semibold text-foreground">Salgspotensial per kunde</h2>
               {/* Visningsvelger: estimat vs. partnerens egne pakker */}
               <div
@@ -200,11 +279,132 @@ export function PartnerSalesPotentialCard({ currency }: { currency: string }) {
                   </button>
                 ))}
               </div>
+              {/* Estimatsinnstillinger (kun relevant i estimat-visningen) */}
+              {isEstimate && (
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6"
+                      aria-label="Estimatsinnstillinger"
+                    >
+                      <Settings2 className="h-3.5 w-3.5 text-muted-foreground" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent align="start" className="w-80 p-3 space-y-3">
+                    <p className="text-xs font-medium text-foreground">Estimatsinnstillinger</p>
+
+                    <RadioGroup
+                      value={hoursMode}
+                      onValueChange={(v) => setHoursMode(v as HoursMode)}
+                      className="space-y-2"
+                    >
+                      <label className="flex items-start gap-2 cursor-pointer">
+                        <RadioGroupItem value="fixed" className="mt-0.5" />
+                        <span className="flex-1">
+                          <span className="block text-xs font-medium text-foreground">
+                            Fast timeantall per krav
+                          </span>
+                          <span className="block text-[11px] text-muted-foreground">
+                            Samme antall timer for alle krav — enkelt og forutsigbart.
+                          </span>
+                        </span>
+                      </label>
+                      {hoursMode === "fixed" && (
+                        <div className="flex items-center gap-1.5 pl-6">
+                          <span className="text-[11px] text-muted-foreground">Timer pr. krav</span>
+                          <Input
+                            type="number"
+                            min={0}
+                            step={0.5}
+                            value={hoursPerReq}
+                            onChange={(e) =>
+                              setHoursPerReqOverride(
+                                Math.max(0, Math.round((Number(e.target.value) || 0) * 10) / 10),
+                              )
+                            }
+                            className="h-7 w-16 text-xs tabular-nums"
+                            aria-label="Timer per krav"
+                          />
+                          {hoursPerReqOverride !== null && (
+                            <button
+                              type="button"
+                              onClick={() => setHoursPerReqOverride(null)}
+                              className="text-[11px] text-primary hover:underline"
+                            >
+                              Nullstill
+                            </button>
+                          )}
+                        </div>
+                      )}
+
+                      <label className="flex items-start gap-2 cursor-pointer">
+                        <RadioGroupItem value="lara" className="mt-0.5" />
+                        <span className="flex-1">
+                          <span className="block text-xs font-medium text-foreground">
+                            Lara-estimat (AI)
+                          </span>
+                          <span className="block text-[11px] text-muted-foreground">
+                            Lara anslår hvor lang tid hvert krav typisk tar å implementere.
+                            Veiledende — juster gjerne selv etterpå.
+                          </span>
+                        </span>
+                      </label>
+                      {hoursMode === "lara" && (
+                        <div className="pl-6 space-y-1.5">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-7 gap-1.5 text-xs"
+                            onClick={runLaraEstimate}
+                            disabled={estimating || selected.length === 0}
+                          >
+                            {estimating ? (
+                              <Loader2 className="h-3 w-3 animate-spin" />
+                            ) : (
+                              <Sparkles className="h-3 w-3 text-primary" />
+                            )}
+                            {estimating
+                              ? "Lara estimerer…"
+                              : missingAiEstimates.length > 0
+                                ? "Generer estimat"
+                                : "Regenerer estimat"}
+                          </Button>
+                          {laraComplete && (
+                            <p className="text-[11px] text-muted-foreground">
+                              Estimert for {validAiEstimates.size} regelverk —{" "}
+                              {fmt(Math.round(aiHoursTotal))} t totalt.
+                            </p>
+                          )}
+                          {estimateError && (
+                            <p className="text-[11px] text-destructive">{estimateError}</p>
+                          )}
+                        </div>
+                      )}
+                    </RadioGroup>
+
+                    <div className="flex items-center gap-1.5 pt-1 border-t border-border">
+                      <span className="text-[11px] text-muted-foreground">Timepris</span>
+                      <Input
+                        type="number"
+                        min={0}
+                        step={50}
+                        value={hourlyRate}
+                        onChange={(e) => setHourlyRate(Math.max(0, Number(e.target.value) || 0))}
+                        className="h-7 w-20 text-xs tabular-nums"
+                        aria-label="Timepris"
+                      />
+                      <span className="text-[11px] text-muted-foreground">{currency}/t</span>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              )}
             </div>
             <p className="text-xs text-muted-foreground mt-0.5 max-w-lg">
               {isEstimate
-                ? "Hva du kan selge til én kunde — fordelt på lisenser fra Mynder (minstepris) og dine egne rådgivningstimer. Tilpass regelverk og timepris nedenfor."
-                : "Basert på regelverkpakkene du selv har aktivert og satt opp — med dine egne timer og priser, ikke estimater."}
+                ? "Lisenser fra Mynder (minstepris) + dine rådgivningstimer per kunde."
+                : "Basert på dine egne aktiverte regelverkpakker — ikke estimater."}
             </p>
           </div>
         </div>
@@ -236,156 +436,153 @@ export function PartnerSalesPotentialCard({ currency }: { currency: string }) {
       </div>
 
       {isEstimate ? (
-        <>
-          <div className="grid gap-3 sm:grid-cols-2 mt-4">
-            {/* ── Aktiverte produkter (lisenser) ── */}
-            <div className="rounded-md border border-border bg-background p-3 flex flex-col gap-2.5">
-              <div className="flex items-start gap-3">
-                <Package className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-1.5">
-                    <p className="text-sm font-medium text-foreground">Aktiverte produkter</p>
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
-                        </TooltipTrigger>
-                        <TooltipContent side="bottom" className="max-w-xs text-xs">
-                          Basert på minstepris for hvert Mynder-produkt, pluss månedspris for regelverkene
-                          du velger. Regelverk kan ha ulik pris — GDPR er standard startpunkt.
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    Minstepris moduler {fmt(productLicense)} {currency} + {selected.length} regelverk{" "}
-                    {fmt(frameworkLicense)} {currency}
-                  </p>
+        <div className="grid gap-3 sm:grid-cols-2 mt-4">
+          {/* ── Aktiverte produkter (lisenser) ── */}
+          <div className="rounded-md border border-border bg-background p-3 flex flex-col gap-2.5">
+            <div className="flex items-start gap-3">
+              <Package className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <p className="text-sm font-medium text-foreground">Aktiverte produkter</p>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent side="bottom" className="max-w-xs text-xs">
+                        Basert på minstepris for hvert Mynder-produkt, pluss månedspris for regelverkene
+                        du velger. Regelverk kan ha ulik pris — GDPR er standard startpunkt.
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </div>
-                <p className="text-lg font-semibold text-foreground tabular-nums shrink-0">
-                  {fmt(licensePotential)} {currency}/mnd
+                <p className="text-xs text-muted-foreground">
+                  Minstepris moduler {fmt(productLicense)} {currency} + {selected.length} regelverk{" "}
+                  {fmt(frameworkLicense)} {currency}
                 </p>
               </div>
-
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="w-full justify-between text-xs font-normal"
-                  >
-                    <span className="truncate">Regelverk i potensialet: {selectedLabel}</span>
-                    <ChevronDown className="h-3.5 w-3.5 shrink-0 opacity-60" />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent align="start" className="w-72 p-2">
-                  <p className="text-[11px] text-muted-foreground px-2 pb-1.5">
-                    Velg hvilke regelverk kunden aktiverer
-                  </p>
-                  <div className="max-h-64 overflow-y-auto space-y-0.5">
-                    {options.map((o) => {
-                      const checked = selectedIds.includes(o.id);
-                      return (
-                        <label
-                          key={o.id}
-                          className="flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-muted/60 cursor-pointer"
-                        >
-                          <Checkbox
-                            checked={checked}
-                            onCheckedChange={(c) => toggleFramework(o.id, c === true)}
-                          />
-                          <span className="flex-1 text-xs text-foreground truncate">{o.name}</span>
-                          <span className="text-[11px] text-muted-foreground tabular-nums shrink-0">
-                            {fmt(o.priceKr)} {currency}/mnd
-                          </span>
-                        </label>
-                      );
-                    })}
-                  </div>
-                </PopoverContent>
-              </Popover>
+              <p className="text-lg font-semibold text-foreground tabular-nums shrink-0">
+                {fmt(licensePotential)} {currency}/mnd
+              </p>
             </div>
 
-            {/* ── Rådgivningstimer ── */}
-            <div className="rounded-md border border-border bg-background p-3 flex flex-col gap-2.5">
-              <div className="flex items-start gap-3">
-                <Clock className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-1.5">
-                    <p className="text-sm font-medium text-foreground">Rådgivningstimer</p>
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
-                        </TooltipTrigger>
-                        <TooltipContent side="bottom" className="max-w-xs text-xs">
-                          Timer per krav × antall krav i de aktiverte regelverkene × timeprisen din.
-                          Alle regelverk må aktiveres — antallet følger «Aktiverte produkter».
-                          Utgangspunktet er 1 time per krav — juster selv opp eller ned.
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    {selected.length} regelverk · {hoursPerReq} t per krav · totalt {advisoryHours} t
-                    {hoursPerReqOverride === null && " (auto)"}
-                  </p>
-                </div>
-                <p className="text-lg font-semibold text-foreground tabular-nums shrink-0">
-                  {fmt(advisoryPotential)} {currency}
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full justify-between text-xs font-normal"
+                >
+                  <span className="truncate">Regelverk i potensialet: {selectedLabel}</span>
+                  <ChevronDown className="h-3.5 w-3.5 shrink-0 opacity-60" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent align="start" className="w-72 p-2">
+                <p className="text-[11px] text-muted-foreground px-2 pb-1.5">
+                  Velg hvilke regelverk kunden aktiverer
                 </p>
-              </div>
-            </div>
+                <div className="max-h-64 overflow-y-auto space-y-0.5">
+                  {options.map((o) => {
+                    const checked = selectedIds.includes(o.id);
+                    return (
+                      <label
+                        key={o.id}
+                        className="flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-muted/60 cursor-pointer"
+                      >
+                        <Checkbox
+                          checked={checked}
+                          onCheckedChange={(c) => toggleFramework(o.id, c === true)}
+                        />
+                        <span className="flex-1 text-xs text-foreground truncate">{o.name}</span>
+                        <span className="text-[11px] text-muted-foreground tabular-nums shrink-0">
+                          {fmt(o.priceKr)} {currency}/mnd
+                        </span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </PopoverContent>
+            </Popover>
           </div>
 
-          {/* ── Grunnlag for rådgivningstimer ── plassert nederst for bedre balanse i kortet */}
-          <div className="mt-4 rounded-md border border-border bg-background p-3 flex flex-wrap items-center justify-between gap-3">
-            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <Clock className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
-              <span>Grunnlag for rådgivningstimer</span>
+          {/* ── Rådgivningstimer ── */}
+          <div className="rounded-md border border-border bg-background p-3 flex flex-col gap-2.5">
+            <div className="flex items-start gap-3">
+              <Clock className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <p className="text-sm font-medium text-foreground">Rådgivningstimer</p>
+                  {isLara && laraComplete && (
+                    <Badge
+                      variant="secondary"
+                      className="gap-1 text-[10px] px-1.5 py-0 h-4 font-medium"
+                    >
+                      <Sparkles className="h-2.5 w-2.5" />
+                      Estimert av Lara
+                    </Badge>
+                  )}
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent side="bottom" className="max-w-xs text-xs">
+                        {isLara ? (
+                          laraComplete ? (
+                            <span className="block space-y-1">
+                              <span className="block">
+                                Lara har anslått tid per krav ut fra typisk gjennomføringstid:
+                              </span>
+                              {selected.map((fw) => (
+                                <span key={fw.id} className="block tabular-nums">
+                                  {fw.name}: {fmt(Math.round(validAiEstimates.get(fw.id)?.totalHours ?? 0))} t
+                                </span>
+                              ))}
+                            </span>
+                          ) : (
+                            "Lara anslår tid per krav. Noen regelverk mangler estimat ennå — de regnes med 1 t per krav inntil du genererer estimatet."
+                          )
+                        ) : (
+                          "Timer per krav × antall krav i de valgte regelverkene × timeprisen din. Utgangspunktet er 1 time per krav — juster i estimatsinnstillingene (tannhjulet)."
+                        )}
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {isLara
+                    ? laraComplete
+                      ? `${selected.length} regelverk · totalt ${fmt(advisoryHours)} t`
+                      : `${validAiEstimates.size} av ${selected.length} regelverk estimert · totalt ${fmt(advisoryHours)} t`
+                    : `${selected.length} regelverk · ${hoursPerReq} t per krav · totalt ${advisoryHours} t${hoursPerReqOverride === null ? " (auto)" : ""}`}
+                </p>
+              </div>
+              <p className="text-lg font-semibold text-foreground tabular-nums shrink-0">
+                {fmt(advisoryPotential)} {currency}
+              </p>
             </div>
-            <div className="flex flex-wrap items-center gap-4">
-              <div className="flex items-center gap-1.5">
-                <span className="text-[11px] text-muted-foreground">Timer pr. krav</span>
-                <Input
-                  type="number"
-                  min={0}
-                  step={0.5}
-                  value={hoursPerReq}
-                  onChange={(e) =>
-                    setHoursPerReqOverride(
-                      Math.max(0, Math.round((Number(e.target.value) || 0) * 10) / 10),
-                    )
-                  }
-                  className="h-7 w-16 text-xs tabular-nums"
-                  aria-label="Timer per krav"
-                />
-                {hoursPerReqOverride !== null && (
-                  <button
-                    type="button"
-                    onClick={() => setHoursPerReqOverride(null)}
-                    className="text-[11px] text-primary hover:underline"
-                  >
-                    Nullstill
-                  </button>
+
+            {isLara && !laraComplete && selected.length > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full gap-1.5 text-xs"
+                onClick={runLaraEstimate}
+                disabled={estimating}
+              >
+                {estimating ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <Sparkles className="h-3.5 w-3.5 text-primary" />
                 )}
-              </div>
-              <div className="flex items-center gap-1.5">
-                <span className="text-[11px] text-muted-foreground">Timepris</span>
-                <Input
-                  type="number"
-                  min={0}
-                  step={50}
-                  value={hourlyRate}
-                  onChange={(e) => setHourlyRate(Math.max(0, Number(e.target.value) || 0))}
-                  className="h-7 w-20 text-xs tabular-nums"
-                  aria-label="Timepris"
-                />
-                <span className="text-[11px] text-muted-foreground">{currency}/t</span>
-              </div>
-            </div>
+                {estimating ? "Lara estimerer…" : "Estimer med Lara"}
+              </Button>
+            )}
+            {estimateError && !estimating && (
+              <p className="text-[11px] text-destructive">{estimateError}</p>
+            )}
           </div>
-        </>
+        </div>
       ) : activePackages.length === 0 ? (
         /* ── Tom tilstand: ingen aktiverte pakker ── */
         <div className="mt-4 rounded-md border border-dashed border-border bg-background p-6 flex flex-col items-center text-center gap-2">
