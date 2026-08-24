@@ -80,6 +80,8 @@ interface Props {
 
 const KINDS: DeliverableKind[] = ["advisory", "technical", "ai-draft"];
 
+const fmtH = (h: number) => h.toLocaleString("nb-NO", { maximumFractionDigits: 1 });
+
 export function MSPFrameworkTaskPackageSheet({
   frameworkId,
   frameworkName,
@@ -103,6 +105,8 @@ export function MSPFrameworkTaskPackageSheet({
     hours: "",
   });
   const [adding, setAdding] = useState(false);
+  const [estimating, setEstimating] = useState(false);
+  const estimateRanFor = useRef<string | null>(null);
 
   useEffect(() => {
     if (frameworkId) setState(initialState ?? loadPackageState(frameworkId));
