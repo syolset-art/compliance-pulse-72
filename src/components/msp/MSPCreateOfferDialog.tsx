@@ -463,10 +463,11 @@ export function MSPCreateOfferDialog({
     doc.setTextColor(30);
     tasks.forEach(t => {
       const hours = Number(t.hours) || 0;
-      const price = hours * editableHourlyRate;
+      const isFixed = (t.fixedPriceKr ?? 0) > 0;
+      const price = isFixed ? (t.fixedPriceKr as number) : hours * editableHourlyRate;
       const labelLines = doc.splitTextToSize(t.label, pageWidth - margin * 2 - 200);
       doc.text(labelLines, margin, y);
-      doc.text(String(hours), pageWidth - margin - 90, y, { align: "right" });
+      doc.text(isFixed ? "Fastpris" : String(hours), pageWidth - margin - 90, y, { align: "right" });
       doc.text(`${price.toLocaleString("nb-NO")} kr`, pageWidth - margin, y, { align: "right" });
       y += labelLines.length * 14 + 4;
       if (t.note) {
@@ -823,12 +824,18 @@ export function MSPCreateOfferDialog({
                           </Popover>
                         )}
                       </div>
-                      <Input
-                        type="number"
-                        value={t.hours}
-                        onChange={e => updateTask(i, { hours: Number(e.target.value) })}
-                        className="h-8 text-sm text-right tabular-nums"
-                      />
+                      {(t.fixedPriceKr ?? 0) > 0 ? (
+                        <span className="h-8 flex items-center justify-end text-xs tabular-nums text-muted-foreground">
+                          Fastpris {(t.fixedPriceKr as number).toLocaleString("nb-NO")} kr
+                        </span>
+                      ) : (
+                        <Input
+                          type="number"
+                          value={t.hours}
+                          onChange={e => updateTask(i, { hours: Number(e.target.value) })}
+                          className="h-8 text-sm text-right tabular-nums"
+                        />
+                      )}
 
                       <button
                         type="button"
