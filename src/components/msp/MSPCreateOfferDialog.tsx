@@ -894,7 +894,10 @@ export function MSPCreateOfferDialog({
                   <div className="flex items-baseline justify-between">
                     <div className="text-sm text-foreground">
                       <span className="font-medium">{showTax && tax.mode === "exclusive" ? `Sum eks. ${tax.label}` : "Totalt"}</span>
-                      <span className="text-muted-foreground"> · {totalHours} timer × {editableHourlyRate.toLocaleString("nb-NO")} kr</span>
+                      <span className="text-muted-foreground">
+                        {" "}· {totalHours} timer × {editableHourlyRate.toLocaleString("nb-NO")} kr
+                        {fixedTotal > 0 && ` + ${fixedTotal.toLocaleString("nb-NO")} kr engangs`}
+                      </span>
                     </div>
                     <span className={cn("tabular-nums", showTax && tax.mode === "exclusive" ? "text-sm text-foreground" : "text-lg font-bold text-foreground")}>
                       {fmtKr(showTax && tax.mode === "inclusive" ? taxBreakdown.net : totalPrice)}
@@ -1188,14 +1191,15 @@ export function MSPCreateOfferDialog({
                   </div>
                   {tasks.map((t, i) => {
                     const hrs = Number(t.hours) || 0;
+                    const isFixed = (t.fixedPriceKr ?? 0) > 0;
                     return (
                       <div key={i} className="grid grid-cols-[1fr_70px_100px] gap-3 text-sm py-1.5 border-b border-border/50">
                         <div>
                           <p className="text-foreground">{t.label}</p>
                           {t.note && <p className="text-xs text-muted-foreground">{t.note}</p>}
                         </div>
-                        <span className="text-right tabular-nums text-foreground">{hrs}</span>
-                        <span className="text-right tabular-nums text-foreground">{(hrs * editableHourlyRate).toLocaleString("nb-NO")} kr</span>
+                        <span className="text-right tabular-nums text-foreground">{isFixed ? "Fastpris" : hrs}</span>
+                        <span className="text-right tabular-nums text-foreground">{(isFixed ? (t.fixedPriceKr as number) : hrs * editableHourlyRate).toLocaleString("nb-NO")} kr</span>
                       </div>
                     );
                   })}
