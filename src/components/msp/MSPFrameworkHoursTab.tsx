@@ -39,6 +39,7 @@ export function MSPFrameworkHoursTab({
   const { defaultHourlyRate, currency } = useServiceDefaults();
   const { packages, savePackage, setActive: setPackageActive } = useFrameworkPackages();
   const [active, setActive] = useState<{ id: string; name: string } | null>(null);
+  const [showHowItWorks, setShowHowItWorks] = useState(false);
 
   useEffect(() => {
     if (!openFrameworkId) return;
