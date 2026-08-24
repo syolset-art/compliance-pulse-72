@@ -99,6 +99,7 @@ export function ActivateRecommendationsDialog({
     setStep("select");
     setTermsChecked(false);
     setExcludedActivation({});
+    setExcludedSetup({});
     const defaults: Record<string, string> = {};
     for (const item of items) {
       const tiers = tiersFor(item.moduleKey);
