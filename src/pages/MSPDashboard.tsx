@@ -1385,13 +1385,36 @@ export default function MSPDashboard() {
                 .map((s) => s.frameworkId as string)}
               activeFrameworks={(offerFor.active_frameworks || []).map((f: any) => (typeof f === "string" ? f : (f?.label ?? f?.frameworkId ?? ""))).filter(Boolean)}
               defaultTasks={items.map((s) => ({
-                label: s.label,
-                hours: s.hours,
+                // Har regelverket en lagret pakke brukes pakkens navn og rådgivningstimer.
+                label: s.packageInfo?.name ?? s.label,
+                hours: s.packageInfo?.totalHours ?? s.hours,
                 owner: "Partner" as const,
               }))}
             />
           );
         })()}
+
+        {/* «Legg til» i Anbefalt løsning: partnerens pakker øverst, deretter regelverk og retningslinjer */}
+        <AddFrameworkDialog
+          open={!!addFrameworkFor}
+          onOpenChange={(o) => !o && setAddFrameworkFor(null)}
+          activatedLabels={addFrameworkFor ? deriveActivatedFrameworks(addFrameworkFor) : []}
+          existingIds={addFrameworkFor ? suggestionsFor(addFrameworkFor).map((s) => s.id) : []}
+          packages={packagePickerItems}
+          onAdd={(item) => {
+            const target = addFrameworkFor;
+            if (!target) return;
+            setManualExtras((prev) => {
+              const cur = prev[target.id] || [];
+              return cur.some((e) => e.id === item.id) ? prev : { ...prev, [target.id]: [...cur, item] };
+            });
+            // Manuelt valgte regelverk/tjenester legges rett i tilbudsutvalget.
+            setOfferSelection((prev) => {
+              const cur = prev[target.id] || [];
+              return cur.includes(item.id) ? prev : { ...prev, [target.id]: [...cur, item.id] };
+            });
+          }}
+        />
 
       </main>
     </div>
