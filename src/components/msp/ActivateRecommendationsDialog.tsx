@@ -221,18 +221,26 @@ export function ActivateRecommendationsDialog({
                 const tiers = tiersFor(item.moduleKey);
                 if (!tiers || !item.moduleKey) {
                   const fee = activationFeeFor(item);
+                  const advisoryHours = advisoryHoursFor(item);
                   const excluded = !!excludedActivation[item.id];
                   return (
                     <div key={item.id} className="rounded-lg border p-3 space-y-1.5">
                       <div className="flex items-center justify-between gap-3">
-                        <span className="text-sm font-medium text-foreground">{item.label}</span>
+                        <span className="text-sm font-medium text-foreground">
+                          {item.packageInfo?.name ?? item.label}
+                        </span>
                         <span className="text-sm font-semibold tabular-nums text-foreground">
                           {item.price
                             ? <>{formatKr(item.price)} <span className="text-xs font-normal text-muted-foreground">/mnd</span></>
                             : <span className="text-xs font-normal text-muted-foreground">Inkludert</span>}
                         </span>
                       </div>
-                      {item.frameworkId && activationHours > 0 && (
+                      {item.packageInfo && (
+                        <p className="text-[11px] text-muted-foreground">
+                          Din pakke fra Produkter og tjenester — aktiverer {item.label} med lisens og rådgivning.
+                        </p>
+                      )}
+                      {item.frameworkId && advisoryHours > 0 && (
                         <div className="flex items-center justify-between gap-3">
                           {excluded ? (
                             <span className="text-xs text-muted-foreground">
@@ -240,7 +248,7 @@ export function ActivateRecommendationsDialog({
                             </span>
                           ) : (
                             <span className="text-xs text-muted-foreground">
-                              Inkluderer {activationHours} t rådgivning ved aktivering ·{" "}
+                              Inkluderer {advisoryHours} t rådgivning ved aktivering ·{" "}
                               <span className="text-foreground font-medium tabular-nums">
                                 {formatKr(fee)} engangs
                               </span>
