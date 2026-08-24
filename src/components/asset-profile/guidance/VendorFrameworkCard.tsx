@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Card } from "@/components/ui/card";
-import { Sparkles, Plus, X } from "lucide-react";
+import { Sparkles, Plus, X, Info } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { frameworks as allFrameworkDefs } from "@/lib/frameworkDefinitions";
@@ -102,18 +102,27 @@ export function VendorFrameworkCard({ frameworks, onAdd, onRemove }: Props) {
 
   return (
     <Card className="p-5 flex flex-col h-full">
-      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+<div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
         <div className="min-w-0">
-          <h3 className="text-sm font-semibold text-foreground">
+          <h3 className="text-sm font-semibold text-foreground inline-flex items-center gap-1.5">
             {isNb
               ? "Regelverk, standarder og retningslinjer"
               : "Regulations, standards and guidelines"}
+            <TooltipProvider delayDuration={150}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="inline-flex cursor-help text-muted-foreground hover:text-foreground">
+                    <Info className="h-3.5 w-3.5" />
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent side="top" className="max-w-[300px] text-xs leading-relaxed">
+                  {isNb
+                    ? "Velg regelverk, standarder og retningslinjer leverandøren skal etterleve."
+                    : "Select the regulations, standards and guidelines the vendor should comply with."}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </h3>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            {isNb
-              ? "Velg regelverk, standarder og retningslinjer leverandøren skal etterleve."
-              : "Select the regulations, standards and guidelines the vendor should comply with."}
-          </p>
         </div>
         <TooltipProvider delayDuration={150}>
           <Tooltip>
