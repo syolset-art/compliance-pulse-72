@@ -11,6 +11,8 @@ export interface ModuleCardProps {
   status: ModuleStatus;
   price: number;
   priceLabel?: string;
+  /** Overstyrer «per måned» under prisen, f.eks. «per regelverk / mnd». */
+  priceUnit?: string;
   usage?: string;
   usageSuffix?: string;
   usageLimit?: string;
