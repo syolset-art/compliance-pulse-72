@@ -20,6 +20,7 @@ import { getFrameworkTheme } from "@/lib/serviceFrameworkTheme";
 import { getRelatedControls } from "@/lib/controlCrosswalk";
 import { buildOfferCoverage, inactiveFrameworkPitch, FRAMEWORK_ACTIVATION_HOURS } from "@/lib/offerCoverage";
 import { getFrameworkActivationHours } from "@/lib/activationHours";
+import { getProductSetupFee } from "@/lib/productSetupFees";
 import { OfferCoveragePanel } from "./OfferCoveragePanel";
 import { getFrameworkGap, getGapIdsForControls, severityDotClass, SEVERITY_LABEL, type GapItem } from "@/lib/gapData";
 import { useFrameworkPackages } from "@/hooks/useFrameworkPackages";
@@ -134,6 +135,8 @@ interface EditableTask extends TaskEstimate {
   owner: TaskOwner;
   /** Gap fra gap-analysen som denne oppgaven lukker. */
   gapIds: string[];
+  /** Fast engangspris (f.eks. etableringspakke) — overstyring av timer × timepris. */
+  fixedPriceKr?: number;
 }
 
 
