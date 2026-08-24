@@ -273,18 +273,18 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
                 </span>
               </div>
             </div>
-            <div className="flex-1 space-y-2.5 min-w-0">
+            <div className="flex-1 w-full space-y-2.5 min-w-0">
               {riskDistribution.map(d => {
                 const pct = vendors.length > 0 ? Math.round((d.value / vendors.length) * 100) : 0;
                 const label = ({ low: "Lav", medium: "Middels", high: "Høy", unknown: "Ukjent" } as Record<string, string>)[d.name];
                 return (
                   <div key={d.name}>
-                    <div className="flex items-center justify-between text-xs mb-1">
-                      <span className="flex items-center gap-1.5 text-muted-foreground">
-                        <span className="h-2 w-2 rounded-full" style={{ backgroundColor: d.fill }} />
-                        {label}
+                    <div className="flex items-center justify-between gap-3 text-xs mb-1">
+                      <span className="flex items-center gap-1.5 text-muted-foreground min-w-0">
+                        <span className="h-2 w-2 rounded-full shrink-0" style={{ backgroundColor: d.fill }} />
+                        <span className="truncate">{label}</span>
                       </span>
-                      <span className="font-medium text-foreground tabular-nums">
+                      <span className="font-medium text-foreground tabular-nums whitespace-nowrap shrink-0">
                         {d.value} <span className="text-muted-foreground font-normal">· {pct}%</span>
                       </span>
                     </div>
@@ -319,9 +319,9 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
                     {c.country.slice(0, 2)}
                   </span>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between text-xs mb-1">
+                    <div className="flex items-center justify-between gap-3 text-xs mb-1">
                       <span className="text-foreground font-medium truncate">{c.country}</span>
-                      <span className="text-muted-foreground tabular-nums">
+                      <span className="text-muted-foreground tabular-nums whitespace-nowrap shrink-0">
                         {c.count} <span className="opacity-60">· {pct}%</span>
                       </span>
                     </div>
