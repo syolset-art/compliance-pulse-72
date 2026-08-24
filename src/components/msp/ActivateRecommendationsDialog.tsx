@@ -123,8 +123,32 @@ export function ActivateRecommendationsDialog({
       ? Math.round(activationHours * hourlyRate)
       : 0;
 
+  /**
+   * Etableringspakken (partnerens fastpris) — vises kun ved FØRSTEGANGS
+   * aktivering av produktet hos kunden, aldri ved nivåendring eller når et
+   * ekstra regelverk legges til. For regelverk vises den én gang (på det
+   * første regelverket i listen).
+   */
+  const setupInfoFor = (item: ActivatableItem) => {
+    const productId = item.moduleKey ?? (item.frameworkId ? "frameworks" : undefined);
+    if (!productId) return null;
+    if (item.moduleKey && activeModules.includes(item.moduleKey)) return null;
+    if (item.frameworkId && activeFrameworks.length > 0) return null;
+    if (!item.moduleKey) {
+      const firstFramework = activatable.find((i) => i.frameworkId);
+      if (firstFramework?.id !== item.id) return null;
+    }
+    const fee = getProductSetupFee(productId, hourlyRate);
+    return fee ? { productId, fee } : null;
+  };
+
   const monthlyTotal = activatable.reduce((sum, i) => sum + priceFor(i), 0);
-  const oneOffTotal = activatable.reduce((sum, i) => sum + activationFeeFor(i), 0);
+  const setupTotal = activatable.reduce((sum, i) => {
+    const info = setupInfoFor(i);
+    return info && !excludedSetup[info.productId] ? sum + info.fee.amountKr : sum;
+  }, 0);
+  const oneOffTotal =
+    activatable.reduce((sum, i) => sum + activationFeeFor(i), 0) + setupTotal;
 
   const handleActivate = async () => {
     if (activatable.length === 0) return;
