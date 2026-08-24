@@ -533,6 +533,11 @@ export default function MSPDashboard() {
   const [offerSelection, setOfferSelection] = useState<Record<string, string[]>>({});
   const [offerFor, setOfferFor] = useState<any | null>(null);
   const [activateFor, setActivateFor] = useState<any | null>(null);
+  // Regelverk/retningslinjer partneren har lagt til manuelt per kunde (via «Legg til» i cellen).
+  const [manualExtras, setManualExtras] = useState<Record<string, OfferSuggestion[]>>({});
+  const [addFrameworkFor, setAddFrameworkFor] = useState<any | null>(null);
+  // Partnerens lagrede regelverkspakker fra «Produkter og tjenester» (ett oppslag for hele tabellen).
+  const { packages: frameworkPackages } = useFrameworkPackages();
   const { promptOrToast } = usePostActivationPrompt();
   const [enterCustomer, setEnterCustomer] = useState<{
     id: string;
