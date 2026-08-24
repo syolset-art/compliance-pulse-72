@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -21,12 +21,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, RotateCcw, Sparkles, Trash2, Pencil, Check, X, CheckCircle2 } from "lucide-react";
+import { Plus, RotateCcw, Sparkles, Trash2, Pencil, Check, X, CheckCircle2, Loader2, RefreshCw } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner";
 import { formatPriceRange } from "@/lib/documentDeliverables";
 import { baselineRequirementRows } from "@/lib/frameworkRequirementBaseline";
 import { frameworkLicensePrice } from "@/lib/planConstants";
+import { estimatePackageHours } from "@/lib/laraPackageHoursEstimate";
 import {
   buildFrameworkTasks,
   resolveTasks,
@@ -79,6 +80,8 @@ interface Props {
 
 const KINDS: DeliverableKind[] = ["advisory", "technical", "ai-draft"];
 
+const fmtH = (h: number) => h.toLocaleString("nb-NO", { maximumFractionDigits: 1 });
+
 export function MSPFrameworkTaskPackageSheet({
   frameworkId,
   frameworkName,
@@ -102,6 +105,8 @@ export function MSPFrameworkTaskPackageSheet({
     hours: "",
   });
   const [adding, setAdding] = useState(false);
+  const [estimating, setEstimating] = useState(false);
+  const estimateRanFor = useRef<string | null>(null);
 
   useEffect(() => {
     if (frameworkId) setState(initialState ?? loadPackageState(frameworkId));
@@ -154,6 +159,67 @@ export function MSPFrameworkTaskPackageSheet({
     return Array.from(map.entries());
   }, [tasks]);
 
+  /**
+   * Lar Lara lage et grovt timeestimat per oppgave.
+   * onlyUnedited=true bevarer timer partneren har justert manuelt.
+   */
+  const runEstimation = async (onlyUnedited: boolean) => {
+    if (!frameworkId || estimating || baseTasks.length === 0) return;
+    setEstimating(true);
+    try {
+      const targets = baseTasks.filter((t) => {
+        const o = state.overrides[t.id];
+        if (o?.removed) return false;
+        if (onlyUnedited && o && o.hoursMin != null && !o.estimated) return false;
+        return true;
+      });
+      if (targets.length === 0) return;
+      const estimates = await estimatePackageHours(
+        frameworkName,
+        targets.map((t) => ({
+          id: t.id,
+          name: t.name,
+          kind: t.kind,
+          category: t.category,
+          requirementCount: t.requirements.length,
+        })),
+      );
+      if (estimates.length === 0) {
+        toast.error("Lara klarte ikke å lage estimater — 1 time per oppgave brukes som utgangspunkt.");
+        return;
+      }
+      const next = { ...state.overrides };
+      estimates.forEach((e) => {
+        next[e.taskId] = {
+          ...next[e.taskId],
+          hoursMin: e.hoursMin,
+          hoursMax: e.hoursMax,
+          estimated: true,
+          estimateNote: e.rationale,
+        };
+      });
+      persist({ ...state, overrides: next });
+      toast.success("Lara har estimert timer per kontrollpunkt");
+    } catch (e) {
+      console.error("Lara-estimering feilet:", e);
+      toast.error("Kunne ikke hente estimater fra Lara akkurat nå.");
+    } finally {
+      setEstimating(false);
+    }
+  };
+
+  // Kjør estimering automatisk første gang sheetet åpnes for et regelverk
+  // som verken har estimater eller manuelle timer fra før.
+  useEffect(() => {
+    if (!open || !frameworkId || baseTasks.length === 0) return;
+    if (estimateRanFor.current === frameworkId) return;
+    const hasHours = Object.values(state.overrides).some((o) => o.hoursMin != null);
+    if (hasHours) return;
+    estimateRanFor.current = frameworkId;
+    void runEstimation(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, frameworkId, baseTasks]);
+
   const toggle = (id: string, enabled: boolean) =>
     persist({
       ...state,
@@ -185,6 +251,9 @@ export function MSPFrameworkTaskPackageSheet({
           kind: draft.kind,
           hoursMin: hours,
           hoursMax: hours,
+          // Manuelle justeringer erstatter Laras estimat
+          estimated: false,
+          estimateNote: undefined,
         },
       },
     });
@@ -364,8 +433,8 @@ export function MSPFrameworkTaskPackageSheet({
               <p className="text-sm text-foreground shrink-0">
                 {totals.tasks} oppgaver ·{" "}
                 {totals.hours.min === totals.hours.max
-                  ? `${totals.hours.min} timer`
-                  : `${totals.hours.min}–${totals.hours.max} timer`}{" "}
+                  ? `${fmtH(totals.hours.min)} timer`
+                  : `${fmtH(totals.hours.min)}–${fmtH(totals.hours.max)} timer`}{" "}
                 · {formatPriceRange(totals.price, currency)}
               </p>
             </div>
@@ -382,19 +451,35 @@ export function MSPFrameworkTaskPackageSheet({
               </p>
             </div>
           </div>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Badge variant="outline" className="text-[10px] font-normal gap-1 cursor-help">
-                  <Sparkles className="h-2.5 w-2.5" /> Timer foreslått av Lara
-                </Badge>
-              </TooltipTrigger>
-              <TooltipContent side="bottom" className="max-w-xs text-xs">
-                Utgangspunktet er 1 time per kontrollpunkt. Juster timene opp eller ned selv, og
-                fjern krav du ikke vil jobbe med — forslaget er kun et utgangspunkt.
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          <div className="flex items-center gap-3 flex-wrap">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Badge variant="outline" className="text-[10px] font-normal gap-1 cursor-help">
+                    <Sparkles className="h-2.5 w-2.5" /> Timer foreslått av Lara
+                  </Badge>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="max-w-xs text-xs">
+                  Lara lager et grovt estimat per kontrollpunkt basert på type leveranse og hvor
+                  mange krav som dekkes. Tallene er et utgangspunkt — juster dem etter egen
+                  erfaring, og fjern oppgaver du ikke vil levere.
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            {estimating ? (
+              <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
+                <Loader2 className="h-3 w-3 animate-spin" /> Lara estimerer timer…
+              </span>
+            ) : (
+              <button
+                type="button"
+                onClick={() => void runEstimation(true)}
+                className="flex items-center gap-1 text-[11px] text-primary hover:underline underline-offset-2"
+              >
+                <RefreshCw className="h-3 w-3" /> Estimer på nytt
+              </button>
+            )}
+          </div>
         </div>
 
         <div className="mt-4 space-y-5 pb-32">
@@ -454,9 +539,27 @@ export function MSPFrameworkTaskPackageSheet({
                         </p>
                       </div>
                       <div className="text-right shrink-0">
-                        <p className="text-xs font-medium text-foreground">
-                          {t.hours.min === t.hours.max ? `${t.hours.min} t` : `${t.hours.min}–${t.hours.max} t`}
-                        </p>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <p className="text-xs font-medium text-foreground cursor-default">
+                                {t.hours.min === t.hours.max
+                                  ? `${fmtH(t.hours.min)} t`
+                                  : `${fmtH(t.hours.min)}–${fmtH(t.hours.max)} t`}
+                                {t.estimated && !t.edited && (
+                                  <span className="ml-1 inline-flex items-center rounded border border-primary/20 bg-primary/5 px-1 text-[9px] font-normal text-primary align-middle">
+                                    Lara
+                                  </span>
+                                )}
+                              </p>
+                            </TooltipTrigger>
+                            {t.estimated && t.estimateNote && (
+                              <TooltipContent side="left" className="max-w-xs text-xs">
+                                Laras estimat: {t.estimateNote}
+                              </TooltipContent>
+                            )}
+                          </Tooltip>
+                        </TooltipProvider>
                         <p className="text-[11px] text-muted-foreground">
                           {formatPriceRange(t.price, currency)}
                         </p>

@@ -49,6 +49,10 @@ export interface TaskOverride {
   hoursMin?: number;
   hoursMax?: number;
   priceOverride?: number;
+  /** True når timene kommer fra et grovt Lara-estimat (ikke manuelt endret). */
+  estimated?: boolean;
+  /** Laras korte begrunnelse for estimatet. */
+  estimateNote?: string;
 }
 
 export interface FrameworkPackageState {
@@ -104,7 +108,8 @@ export function buildFrameworkTasks(rows: RequirementRow[]): FrameworkTask[] {
         id,
         name: docName,
         kind: profile.kind,
-        // Standard: 1 time per kontrollpunkt — partneren justerer selv opp/ned.
+        // Nødfallback: 1 time per kontrollpunkt inntil Lara har estimert
+        // (estimate-package-hours) eller partneren justerer selv.
         hours: { min: 1, max: 1 },
         note: profile.note,
         laraDraft: profile.laraDraft,
@@ -122,6 +127,10 @@ export function buildFrameworkTasks(rows: RequirementRow[]): FrameworkTask[] {
 export interface ResolvedTask extends FrameworkTask {
   enabled: boolean;
   edited: boolean;
+  /** True når timene er et grovt Lara-estimat som ikke er manuelt endret. */
+  estimated: boolean;
+  /** Laras korte begrunnelse for estimatet. */
+  estimateNote?: string;
   price: { min: number; max: number };
 }
 
@@ -147,6 +156,9 @@ export function resolveTasks(
               min: Math.round((hours.min * hourlyRate) / 100) * 100,
               max: Math.round((hours.max * hourlyRate) / 100) * 100,
             };
+      // Manuelle timeendringer nuller ut estimated-flagget — rene Lara-estimater
+      // skal ikke markeres som «endret av partneren».
+      const manualHours = !o.estimated && (o.hoursMin != null || o.hoursMax != null);
       return {
         ...t,
         name,
@@ -154,9 +166,9 @@ export function resolveTasks(
         hours,
         price,
         enabled: o.disabled !== true,
-        edited: Boolean(
-          o.name || o.kind || o.hoursMin != null || o.hoursMax != null || o.priceOverride != null,
-        ),
+        edited: Boolean(o.name || o.kind || o.priceOverride != null || manualHours),
+        estimated: o.estimated === true,
+        estimateNote: o.estimateNote,
       };
     });
 }
