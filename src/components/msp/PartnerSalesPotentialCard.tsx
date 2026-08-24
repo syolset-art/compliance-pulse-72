@@ -453,7 +453,7 @@ export function PartnerSalesPotentialCard({ currency }: { currency: string }) {
                       </TooltipTrigger>
                       <TooltipContent side="bottom" className="max-w-xs text-xs">
                         Basert på minstepris for alle Mynder-produkter (moduler og regelverk)
-                        summert per måned. Rådgivningstimer regnes ut fra regelverkene du velger under.
+                        summert per år (12 × månedspris). Rådgivningstimer regnes ut fra regelverkene du velger under.
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
