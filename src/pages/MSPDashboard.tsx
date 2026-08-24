@@ -32,7 +32,7 @@ import { toast } from "sonner";
 import { getOffersForCustomer, normalizeServiceKey } from "@/lib/customerOffers";
 import { SERVICE_LIBRARY } from "@/lib/serviceLibrary";
 import { CUSTOMER_MODULES_EVENT } from "@/lib/customerModuleState";
-import { deriveOfferSuggestions, deriveActivatedItems, deriveNeededServices, deriveActiveServices, type OfferSuggestion } from "@/lib/offerSuggestions";
+import { deriveOfferSuggestions, deriveActivatedItems, deriveNeededServices, deriveActiveServices, customerLicenseSummary, type OfferSuggestion } from "@/lib/offerSuggestions";
 import { usePostActivationPrompt } from "@/hooks/usePostActivationPrompt";
 
 type ViewMode = "cards" | "table";
@@ -314,8 +314,54 @@ function customerSalesPotential(c: any): { total: number; services: number; recu
   return { total: services + recurring, services, recurring };
 }
 
+// ===== Inntekter så langt i år =====
+
+/** Lisensinntekter fakturert i inneværende år (månedlig lisens × antall måneder i år). */
+function licenseRevenueYtd(c: any): number {
+  const { monthly } = customerLicenseSummary(c);
+  if (monthly <= 0) return 0;
+  const now = new Date();
+  const year = now.getFullYear();
+  const started = c?.created_at ? new Date(c.created_at) : null;
+  let monthsYtd = now.getMonth() + 1; // jan til og med inneværende måned
+  if (started && !Number.isNaN(started.getTime()) && started.getFullYear() === year) {
+    monthsYtd = now.getMonth() - started.getMonth() + 1;
+    if (now.getDate() < started.getDate()) monthsYtd -= 1;
+    monthsYtd = Math.max(1, monthsYtd);
+  }
+  return monthly * monthsYtd;
+}
+
+/** Årsrate for lisenser: månedlig lisens × 12. */
+function licenseRevenueAnnual(c: any): number {
+  return customerLicenseSummary(c).monthly * 12;
+}
+
+/** Rådgivningsinntekter i inneværende år: sendte/leverte tilbud med engangs- eller timebaserte tjenester. */
+function advisoryRevenueYtd(customerId: string): number {
+  const year = new Date().getFullYear();
+  const offers = getOffersForCustomer(customerId).filter((o) => {
+    if (o.status !== "sent" && o.status !== "delivered") return false;
+    const d = new Date(o.deliveredAt ?? o.sentAt ?? o.createdAt);
+    return !Number.isNaN(d.getTime()) && d.getFullYear() === year;
+  });
+  let total = 0;
+  for (const offer of offers) {
+    const keys = new Set([...(offer.templateIds || []), ...(offer.serviceKeys || [])]);
+    for (const t of SERVICE_LIBRARY) {
+      const match = keys.has(t.id) || keys.has(normalizeServiceKey(t.name));
+      if (!match) continue;
+      const model = t.recommendedPrice.model;
+      if (model === "fixed" || model === "quote") total += t.recommendedPrice.min;
+      else if (model === "monthly") continue; // løpende tjenester telles som lisens/recurring
+      else if (t.estimatedHours) total += t.estimatedHours.min * DEFAULT_HOURLY_RATE;
+    }
+  }
+  return total;
+}
+
 // ===== Responsive column config =====
-type ColumnKey = "customer" | "country" | "industry" | "recommendations" | "activated" | "potential" | "score";
+type ColumnKey = "customer" | "country" | "industry" | "recommendations" | "activated" | "potential" | "revenueYtd" | "licenseAnnual" | "advisoryYtd" | "score";
 
 
 const COLUMN_LABELS: Record<ColumnKey, string> = {
@@ -325,13 +371,16 @@ const COLUMN_LABELS: Record<ColumnKey, string> = {
   recommendations: "Anbefalte produkter og tjenester",
   activated: "Aktivert",
   potential: "Salgspotensial",
+  revenueYtd: "Inntekter så langt",
+  licenseAnnual: "Lisensinntekter/år",
+  advisoryYtd: "Rådgivningstimer (så langt)",
   score: "Modenhet",
 };
 
-const COLUMN_ORDER: ColumnKey[] = ["customer", "country", "industry", "recommendations", "activated", "potential", "score"];
+const COLUMN_ORDER: ColumnKey[] = ["customer", "country", "industry", "recommendations", "activated", "potential", "revenueYtd", "licenseAnnual", "advisoryYtd", "score"];
 
 // Min Tailwind breakpoint (in px) where each column becomes visible by default.
-// 0 = always shown; 640=sm, 768=md, 1024=lg, 1280=xl
+// 0 = always shown; 640=sm, 768=md, 1024=lg, 1280=xl; 99999 = kun via Kolonner-menyen
 const COLUMN_MIN_BP: Record<ColumnKey, number> = {
   customer: 0,
   potential: 0,
@@ -339,12 +388,15 @@ const COLUMN_MIN_BP: Record<ColumnKey, number> = {
   recommendations: 1024,
   activated: 1024,
   industry: 1024,
+  revenueYtd: 1024,
   country: 1280,
+  licenseAnnual: 99999,
+  advisoryYtd: 99999,
 };
 
 
 
-const COLUMN_STORAGE_KEY = "msp_dashboard_columns_v6";
+const COLUMN_STORAGE_KEY = "msp_dashboard_columns_v7";
 
 
 
@@ -944,6 +996,48 @@ export default function MSPDashboard() {
                             </Tooltip>
                           </TableHead>
                         )}
+                        {isVisible("revenueYtd") && (
+                          <TableHead className="w-[130px] text-right text-foreground/80 align-middle">
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <span className="inline-flex h-8 items-center gap-1.5 text-sm font-medium cursor-help">
+                                  Inntekter så langt <Info className="h-3.5 w-3.5 text-foreground/50" />
+                                </span>
+                              </TooltipTrigger>
+                              <TooltipContent side="top" className="max-w-[260px]">
+                                <p>Lisenser og rådgivningstimer solgt og fakturert i inneværende år, eks. mva.</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TableHead>
+                        )}
+                        {isVisible("licenseAnnual") && (
+                          <TableHead className="w-[130px] text-right text-foreground/80 align-middle">
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <span className="inline-flex h-8 items-center gap-1.5 text-sm font-medium cursor-help">
+                                  Lisensinntekter/år <Info className="h-3.5 w-3.5 text-foreground/50" />
+                                </span>
+                              </TooltipTrigger>
+                              <TooltipContent side="top" className="max-w-[240px]">
+                                <p>Månedlig lisens kunden betaler i dag × 12 (årsrate), eks. mva.</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TableHead>
+                        )}
+                        {isVisible("advisoryYtd") && (
+                          <TableHead className="w-[150px] text-right text-foreground/80 align-middle">
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <span className="inline-flex h-8 items-center gap-1.5 text-sm font-medium cursor-help">
+                                  Rådgivningstimer (så langt) <Info className="h-3.5 w-3.5 text-foreground/50" />
+                                </span>
+                              </TooltipTrigger>
+                              <TooltipContent side="top" className="max-w-[240px]">
+                                <p>Fakturerte rådgivningstimer og fastprisleveranser i inneværende år, eks. mva.</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TableHead>
+                        )}
 
 
                         {isVisible("score") && (
@@ -1059,6 +1153,49 @@ export default function MSPDashboard() {
                                       </TooltipContent>
                                     </Tooltip>
                                   );
+                                })()}
+                              </TableCell>
+                            )}
+
+                            {isVisible("revenueYtd") && (
+                              <TableCell className="text-right align-top">
+                                {(() => {
+                                  const lic = licenseRevenueYtd(c);
+                                  const adv = advisoryRevenueYtd(c.id);
+                                  const total = lic + adv;
+                                  if (total <= 0) return <span className="text-muted-foreground text-sm">—</span>;
+                                  return (
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <span className="text-sm font-medium tabular-nums text-foreground cursor-help">
+                                          {formatKr(total)}
+                                        </span>
+                                      </TooltipTrigger>
+                                      <TooltipContent side="top" className="max-w-[240px] text-xs">
+                                        <p>Fakturert i {new Date().getFullYear()}, eks. mva.</p>
+                                        <p className="mt-1">Lisenser: {formatKr(lic)}</p>
+                                        <p>Rådgivningstimer: {formatKr(adv)}</p>
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  );
+                                })()}
+                              </TableCell>
+                            )}
+                            {isVisible("licenseAnnual") && (
+                              <TableCell className="text-right align-top">
+                                {(() => {
+                                  const annual = licenseRevenueAnnual(c);
+                                  if (annual <= 0) return <span className="text-muted-foreground text-sm">—</span>;
+                                  return <span className="text-sm font-medium tabular-nums text-foreground">{formatKr(annual)}</span>;
+                                })()}
+                              </TableCell>
+                            )}
+                            {isVisible("advisoryYtd") && (
+                              <TableCell className="text-right align-top">
+                                {(() => {
+                                  const adv = advisoryRevenueYtd(c.id);
+                                  if (adv <= 0) return <span className="text-muted-foreground text-sm">—</span>;
+                                  return <span className="text-sm font-medium tabular-nums text-foreground">{formatKr(adv)}</span>;
                                 })()}
                               </TableCell>
                             )}
