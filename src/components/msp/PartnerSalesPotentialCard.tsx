@@ -155,8 +155,10 @@ export function PartnerSalesPotentialCard({ currency }: { currency: string }) {
     (sum, p) => sum + p.fromPrice,
     0,
   );
-  const frameworkLicense = selected.reduce((sum, f) => sum + f.priceKr, 0);
-  const licensePotential = productLicense + frameworkLicense;
+  // Alle produkter fra Mynder inngår i lisenssummen — minstepris (fra-pris) summert,
+  // uavhengig av hvilke regelverk som er valgt for rådgivningstimer.
+  const allFrameworkLicense = options.reduce((sum, f) => sum + f.priceKr, 0);
+  const licensePotential = productLicense + allFrameworkLicense;
 
   const totalControlPoints = selected.reduce((sum, f) => sum + f.controlPoints, 0);
   const hoursPerReq = hoursPerReqOverride ?? DEFAULT_HOURS_PER_REQ;
