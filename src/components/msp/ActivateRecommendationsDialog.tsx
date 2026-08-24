@@ -369,7 +369,9 @@ export function ActivateRecommendationsDialog({
                 {saving
                   ? "Aktiverer…"
                   : monthlyTotal > 0
-                    ? `Aktiver for ${formatKr(monthlyTotal)}/mnd eks. mva.`
+                    ? oneOffTotal > 0
+                      ? `Aktiver for ${formatKr(monthlyTotal)}/mnd + ${formatKr(oneOffTotal)} engangs eks. mva.`
+                      : `Aktiver for ${formatKr(monthlyTotal)}/mnd eks. mva.`
                     : "Aktiver"}
               </Button>
             </DialogFooter>
