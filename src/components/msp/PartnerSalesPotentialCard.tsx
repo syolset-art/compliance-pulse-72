@@ -151,7 +151,8 @@ export function PartnerSalesPotentialCard({ currency }: { currency: string }) {
   const pkgLicense = activePackages.reduce((sum, p) => sum + p.licenseKr, 0);
   const pkgAdvisory = activePackages.reduce((sum, p) => sum + (p.total_price || 0), 0);
   const pkgHours = activePackages.reduce((sum, p) => sum + (p.total_hours || 0), 0);
-  const pkgTotal = pkgLicense + pkgAdvisory;
+
+
 
   const isEstimate = view === "estimate";
   const shownLicense = isEstimate ? licensePotential : pkgLicense;
