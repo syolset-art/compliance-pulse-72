@@ -107,20 +107,33 @@ export function MSPFrameworkHoursTab({
 
   return (
     <div className="space-y-4">
-      <Card className="p-4 bg-muted/30 border-dashed">
-        <div className="flex items-start gap-2.5">
-          <Scale className="h-4 w-4 text-primary mt-0.5" />
-          <div>
-            <p className="text-sm font-medium text-foreground">Slik fungerer det</p>
-            <p className="text-xs text-muted-foreground mt-0.5 max-w-xl">
-              Åpne et regelverk for å aktivere det og sette opp rådgivningspakken: alle krav med
-              AI-foreslåtte timer fra Lara. Fjern krav du ikke vil jobbe med, juster timer og
-              lagre pakken. Pakken dukker opp som ferdig forslag når du lager tilbud til kunder.
-              Timepris hentes fra innstillingene ({fmt(defaultHourlyRate)} {currency}/time).
-            </p>
+      <button
+        type="button"
+        onClick={() => setShowHowItWorks((v) => !v)}
+        className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+      >
+        <ChevronDown
+          className={`h-3.5 w-3.5 transition-transform ${showHowItWorks ? "rotate-180" : ""}`}
+        />
+        Slik fungerer det
+      </button>
+
+      {showHowItWorks && (
+        <Card className="p-4 bg-muted/30 border-dashed">
+          <div className="flex items-start gap-2.5">
+            <Scale className="h-4 w-4 text-primary mt-0.5" />
+            <div>
+              <p className="text-sm font-medium text-foreground">Slik fungerer det</p>
+              <p className="text-xs text-muted-foreground mt-0.5 max-w-xl">
+                Åpne et regelverk for å aktivere det og sette opp rådgivningspakken: alle krav med
+                AI-foreslåtte timer fra Lara. Fjern krav du ikke vil jobbe med, juster timer og
+                lagre pakken. Pakken dukker opp som ferdig forslag når du lager tilbud til kunder.
+                Timepris hentes fra innstillingene ({fmt(defaultHourlyRate)} {currency}/time).
+              </p>
+            </div>
           </div>
-        </div>
-      </Card>
+        </Card>
+      )}
 
       <div className="grid gap-2">
         {items.map(({ fw, requirements, totals, saved, advisoryPrice }) => (
