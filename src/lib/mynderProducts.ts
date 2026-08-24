@@ -53,8 +53,8 @@ export const MYNDER_PRODUCTS: MynderProduct[] = [
     moduleKey: "deviations",
     name: "Avviksregister",
     commissionPct: 25,
-    fromPrice: 0,
-    tiers: [{ label: "Standard", priceKr: 0, isFree: true }],
+    fromPrice: 490,
+    tiers: [{ label: "Standard", priceKr: 490 }],
   },
   {
     id: "trust",
