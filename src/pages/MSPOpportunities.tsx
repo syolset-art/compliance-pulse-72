@@ -17,7 +17,7 @@ import {
   SCOPE_LABEL,
   allFrameworks,
   allIndustries,
-  customerPotential,
+  customerLicensePotential,
   formatPotential,
   servicesForCustomer,
   sortedTasks,
@@ -145,7 +145,10 @@ export default function MSPOpportunities() {
                   <th scope="col" className="p-3 font-semibold text-foreground">Aktiverte produkter</th>
                   <th scope="col" className="p-3 font-semibold text-foreground">Mulige oppgaver</th>
                   <th scope="col" className="p-3 font-semibold text-foreground">
-                    Salgspotensial (KI-estimat)
+                    Lisenspotensial
+                    <span className="block text-xs font-normal text-muted-foreground">
+                      kr/mnd · eks. konsulenttimer
+                    </span>
                   </th>
                   <th scope="col" className="p-3 font-semibold text-foreground">Tjenester som dekker</th>
                   <th scope="col" className="p-3 font-semibold text-foreground">Handling</th>
@@ -192,9 +195,9 @@ export default function MSPOpportunities() {
                         </td>
                         <td className="p-3 text-foreground tabular-nums">{c.tasks.length}</td>
                         <td className="p-3 text-foreground tabular-nums">
-                          {formatPotential(customerPotential(c, defaultHourlyRate), currency)}
+                          {formatPotential(customerLicensePotential(c), currency)}/mnd
                           <span className="block text-xs font-normal text-muted-foreground">
-                            KI-estimat, eks. mva
+                            Lisenser, eks. konsulenttimer og mva
                           </span>
                         </td>
                         <td className="p-3 text-muted-foreground">{servicesForCustomer(c).join(", ")}</td>
@@ -226,7 +229,7 @@ export default function MSPOpportunities() {
                                     <div className="mt-1 flex flex-wrap items-center gap-1.5">
                                       <Badge variant="outline" className="font-normal">{SCOPE_LABEL[t.scope]}</Badge>
                                       <Badge variant="outline" className="font-normal tabular-nums">
-                                        {formatPotential(taskPotential(t, defaultHourlyRate), currency)} (KI-estimat)
+                                        {formatPotential(taskPotential(t, defaultHourlyRate), currency)} rådgivning (KI-estimat)
                                       </Badge>
                                       {t.aiSuggested && (
                                         <Badge variant="secondary" className="font-normal">Forslag fra Lara (KI)</Badge>
