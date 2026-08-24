@@ -184,17 +184,43 @@ export function ActivateRecommendationsDialog({
               {activatable.map((item) => {
                 const tiers = tiersFor(item.moduleKey);
                 if (!tiers || !item.moduleKey) {
+                  const fee = activationFeeFor(item);
+                  const excluded = !!excludedActivation[item.id];
                   return (
-                    <div
-                      key={item.id}
-                      className="flex items-center justify-between gap-3 rounded-lg border p-3"
-                    >
-                      <span className="text-sm font-medium text-foreground">{item.label}</span>
-                      <span className="text-sm font-semibold tabular-nums text-foreground">
-                        {item.price
-                          ? <>{formatKr(item.price)} <span className="text-xs font-normal text-muted-foreground">/mnd</span></>
-                          : <span className="text-xs font-normal text-muted-foreground">Inkludert</span>}
-                      </span>
+                    <div key={item.id} className="rounded-lg border p-3 space-y-1.5">
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="text-sm font-medium text-foreground">{item.label}</span>
+                        <span className="text-sm font-semibold tabular-nums text-foreground">
+                          {item.price
+                            ? <>{formatKr(item.price)} <span className="text-xs font-normal text-muted-foreground">/mnd</span></>
+                            : <span className="text-xs font-normal text-muted-foreground">Inkludert</span>}
+                        </span>
+                      </div>
+                      {item.frameworkId && activationHours > 0 && (
+                        <div className="flex items-center justify-between gap-3">
+                          {excluded ? (
+                            <span className="text-xs text-muted-foreground">
+                              Rådgivning ved aktivering er fjernet for denne gangen
+                            </span>
+                          ) : (
+                            <span className="text-xs text-muted-foreground">
+                              Inkluderer {activationHours} t rådgivning ved aktivering ·{" "}
+                              <span className="text-foreground font-medium tabular-nums">
+                                {formatKr(fee)} engangs
+                              </span>
+                            </span>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setExcludedActivation((prev) => ({ ...prev, [item.id]: !excluded }))
+                            }
+                            className="text-xs font-medium text-primary hover:underline shrink-0"
+                          >
+                            {excluded ? "Legg til igjen" : "Fjern"}
+                          </button>
+                        </div>
+                      )}
                     </div>
                   );
                 }
@@ -274,6 +300,19 @@ export function ActivateRecommendationsDialog({
                   </button>
                 </div>
               )}
+
+              {activationHours > 0 && activatable.some((i) => i.frameworkId) && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    onOpenChange(false);
+                    onMoveToOffer();
+                  }}
+                  className="text-xs font-medium text-primary hover:underline"
+                >
+                  Lag tilbud med rådgivningstimer i stedet
+                </button>
+              )}
             </div>
 
             <DialogFooter className="pt-2">
@@ -298,6 +337,13 @@ export function ActivateRecommendationsDialog({
             <DialogDescription className="text-sm text-muted-foreground leading-relaxed">
               Tjenesten aktiveres umiddelbart hos {customerName}, og faktureres på neste faktura. Alle priser er
               eks. mva.
+              {oneOffTotal > 0 && (
+                <>
+                  {" "}
+                  Rådgivning ved aktivering ({formatKr(oneOffTotal)} engangs) faktureres kunden som et
+                  engangsbeløp.
+                </>
+              )}
             </DialogDescription>
 
 
