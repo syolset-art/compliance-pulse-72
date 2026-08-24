@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 import {
   Sheet,
   SheetContent,
@@ -27,20 +28,18 @@ import { MYNDER_PRODUCTS, type MynderProduct } from "@/lib/mynderProducts";
 import { useFrameworkPackages } from "@/hooks/useFrameworkPackages";
 import { useServiceDefaults } from "@/hooks/useServiceDefaults";
 import { EXTRA_FRAMEWORK_PRICE_KR } from "@/lib/planConstants";
+import {
+  readProductSetupHours,
+  defaultFrameworkActivationHours,
+} from "@/lib/activationHours";
 
 const fmt = (n: number) => n.toLocaleString("nb-NO");
 
 // Oppstartskost per produkt lagres som timer (multipliseres med partnerens timepris).
+// Nøkkelen deles med aktiveringsdialog og tilbud via src/lib/activationHours.ts.
 const LS_SETUP_HOURS = "msp.productSetupHours";
 
-function readSetupHours(): Record<string, number> {
-  try {
-    const raw = localStorage.getItem(LS_SETUP_HOURS);
-    return raw ? (JSON.parse(raw) as Record<string, number>) : {};
-  } catch {
-    return {};
-  }
-}
+const readSetupHours = readProductSetupHours;
 
 const PRODUCT_META: Record<string, { icon: LucideIcon; description: string }> = {
   core: {
@@ -124,7 +123,9 @@ function ProductRow({ product, setupHours, hourlyRate, onEdit }: ProductRowProps
           )}
           {setupFee > 0 && (
             <Badge variant="outline" className="text-[10px] font-normal">
-              Oppstart {fmt(setupFee)} kr
+              {isFrameworks
+                ? `+ ${setupHours} t rådgivning ved aktivering`
+                : `Oppstart ${fmt(setupFee)} kr`}
             </Badge>
           )}
         </div>
@@ -202,41 +203,93 @@ function ProductEditSheet({
 
           <Separator />
 
-          {/* Oppstartskost — partnerens eget engangsbeløp */}
-          <div className="space-y-3">
-            <div>
-              <p className="text-sm font-medium text-foreground">Oppstartskost</p>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Engangsbeløp du fakturerer kunden for å komme i gang med {product.name}. Settes
-                som timer og prises med timeprisen din.
+          {product.id === "frameworks" ? (
+            /* Rådgivning ved aktivering — timer som følger med når et regelverk slås på */
+            <div className="space-y-3">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-sm font-medium text-foreground">Rådgivning ved aktivering</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Legg til rådgivningstimer når du aktiverer et regelverk
+                  </p>
+                </div>
+                <Switch
+                  checked={setupHours > 0}
+                  onCheckedChange={(on) =>
+                    onSetupHoursChange(on ? defaultFrameworkActivationHours() : 0)
+                  }
+                  aria-label="Legg til rådgivningstimer når du aktiverer et regelverk"
+                />
+              </div>
+              {setupHours > 0 && (
+                <>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      type="number"
+                      min={0}
+                      step={0.5}
+                      value={setupHours}
+                      onChange={(e) =>
+                        onSetupHoursChange(Math.max(0, Math.round((Number(e.target.value) || 0) * 10) / 10))
+                      }
+                      className="h-8 w-20 text-sm tabular-nums"
+                      aria-label="Rådgivningstimer per aktivering"
+                    />
+                    <span className="text-xs text-muted-foreground">
+                      timer × {fmt(hourlyRate)} {currency}/t
+                    </span>
+                  </div>
+                  <div className="rounded-md bg-muted/50 px-3 py-2 flex items-center justify-between">
+                    <span className="text-xs text-muted-foreground">Per aktivering</span>
+                    <span className="text-sm font-semibold text-foreground tabular-nums">
+                      {fmt(setupFee)} {currency} (engangs)
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-muted-foreground">
+                    Timene følger automatisk med når regelverket slås på hos kunden, og kan tas med
+                    i tilbudet. Du fakturerer dem som et engangsbeløp. Timeprisen endres under
+                    Innstillinger.
+                  </p>
+                </>
+              )}
+            </div>
+          ) : (
+            /* Oppstartskost — partnerens eget engangsbeløp */
+            <div className="space-y-3">
+              <div>
+                <p className="text-sm font-medium text-foreground">Oppstartskost</p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Engangsbeløp du fakturerer kunden for å komme i gang med {product.name}. Settes
+                  som timer og prises med timeprisen din.
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <Input
+                  type="number"
+                  min={0}
+                  step={0.5}
+                  value={setupHours}
+                  onChange={(e) =>
+                    onSetupHoursChange(Math.max(0, Math.round((Number(e.target.value) || 0) * 10) / 10))
+                  }
+                  className="h-8 w-20 text-sm tabular-nums"
+                  aria-label="Oppstartskost i timer"
+                />
+                <span className="text-xs text-muted-foreground">
+                  timer × {fmt(hourlyRate)} {currency}/t
+                </span>
+              </div>
+              <div className="rounded-md bg-muted/50 px-3 py-2 flex items-center justify-between">
+                <span className="text-xs text-muted-foreground">Oppstartskost per kunde</span>
+                <span className="text-sm font-semibold text-foreground tabular-nums">
+                  {setupFee > 0 ? `${fmt(setupFee)} ${currency} (engangs)` : "Ingen"}
+                </span>
+              </div>
+              <p className="text-[11px] text-muted-foreground">
+                Sett til 0 timer for å fjerne oppstartskost. Timeprisen endres under Innstillinger.
               </p>
             </div>
-            <div className="flex items-center gap-2">
-              <Input
-                type="number"
-                min={0}
-                step={0.5}
-                value={setupHours}
-                onChange={(e) =>
-                  onSetupHoursChange(Math.max(0, Math.round((Number(e.target.value) || 0) * 10) / 10))
-                }
-                className="h-8 w-20 text-sm tabular-nums"
-                aria-label="Oppstartskost i timer"
-              />
-              <span className="text-xs text-muted-foreground">
-                timer × {fmt(hourlyRate)} {currency}/t
-              </span>
-            </div>
-            <div className="rounded-md bg-muted/50 px-3 py-2 flex items-center justify-between">
-              <span className="text-xs text-muted-foreground">Oppstartskost per kunde</span>
-              <span className="text-sm font-semibold text-foreground tabular-nums">
-                {setupFee > 0 ? `${fmt(setupFee)} ${currency} (engangs)` : "Ingen"}
-              </span>
-            </div>
-            <p className="text-[11px] text-muted-foreground">
-              Sett til 0 timer for å fjerne oppstartskost. Timeprisen endres under Innstillinger.
-            </p>
-          </div>
+          )}
         </div>
       </SheetContent>
     </Sheet>

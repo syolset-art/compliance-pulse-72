@@ -19,6 +19,7 @@ import { usePartnerBranding } from "@/hooks/usePartnerBranding";
 import { getFrameworkTheme } from "@/lib/serviceFrameworkTheme";
 import { getRelatedControls } from "@/lib/controlCrosswalk";
 import { buildOfferCoverage, inactiveFrameworkPitch, FRAMEWORK_ACTIVATION_HOURS } from "@/lib/offerCoverage";
+import { getFrameworkActivationHours } from "@/lib/activationHours";
 import { OfferCoveragePanel } from "./OfferCoveragePanel";
 import { getFrameworkGap, getGapIdsForControls, severityDotClass, SEVERITY_LABEL, type GapItem } from "@/lib/gapData";
 import { useFrameworkPackages } from "@/hooks/useFrameworkPackages";
@@ -241,10 +242,12 @@ export function MSPCreateOfferDialog({
   const handleAddFramework = (fw: { id: string; label: string }) => {
     setAddedFrameworkIds((prev) => (prev.includes(fw.id) ? prev : [...prev, fw.id]));
     const savedPackage = frameworkPackages[fw.id];
+    // Partnerens egne aktiveringstimer (fra produktinnstillingene) styrer forslaget.
+    const activationHours = getFrameworkActivationHours() || FRAMEWORK_ACTIVATION_HOURS;
     const newTasks: EditableTask[] = [
       {
         label: `Aktiver ${fw.label} i Mynder`,
-        hours: FRAMEWORK_ACTIVATION_HOURS,
+        hours: activationHours,
         owner: "Partner",
         gapIds: [],
         note: "Gir kunden modenhetsscore og rapport for regelverket.",
