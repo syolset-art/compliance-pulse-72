@@ -19,6 +19,15 @@ import {
 } from "@/lib/offerSuggestions";
 import { formatKr } from "@/lib/planConstants";
 
+/** Partnerens lagrede regelverkspakker (fra «Produkter og tjenester») som kan velges direkte. */
+export interface PackagePickerItem {
+  frameworkId: string;
+  /** Pakkens visningsnavn (partnerens egendefinerte navn). */
+  name: string;
+  /** Rådgivningstimer som inngår i pakken. */
+  totalHours: number;
+}
+
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -29,6 +38,8 @@ interface Props {
   onAdd: (item: OfferSuggestion) => void;
   /** Skjul pris (f.eks. i leverandørmodulen der regelverk kun styrer dokumentasjonskrav). */
   hidePrice?: boolean;
+  /** Partnerens egne pakker — vises øverst med pakkens navn (lisens + timer er pakket inn). */
+  packages?: PackagePickerItem[];
 }
 
 const CATEGORY_ICON: Record<FrameworkCategory, typeof Scale> = {
@@ -50,6 +61,7 @@ export function AddFrameworkDialog({
   existingIds,
   onAdd,
   hidePrice = false,
+  packages = [],
 }: Props) {
   const [query, setQuery] = useState("");
   const activated = useMemo(() => new Set(activatedLabels), [activatedLabels]);
@@ -60,6 +72,22 @@ export function AddFrameworkDialog({
     onAdd(item);
     setQuery("");
     onOpenChange(false);
+  };
+
+  /** Velger en av partnerens pakker — regelverket arver pakkens navn, lisens og timer. */
+  const pickPackage = (p: PackagePickerItem) => {
+    const fromCatalog = buildManualFrameworkSuggestion(p.frameworkId);
+    pick(
+      fromCatalog ?? {
+        id: `fw-${p.frameworkId}`,
+        label: p.name,
+        kind: "framework",
+        hours: p.totalHours > 0 ? p.totalHours : 8,
+        activatable: true,
+        frameworkId: p.frameworkId,
+        price: null,
+      },
+    );
   };
 
   const trimmed = query.trim();
