@@ -151,12 +151,15 @@ export function PartnerSalesPotentialCard({ currency }: { currency: string }) {
   const pkgLicense = activePackages.reduce((sum, p) => sum + p.licenseKr, 0);
   const pkgAdvisory = activePackages.reduce((sum, p) => sum + (p.total_price || 0), 0);
   const pkgHours = activePackages.reduce((sum, p) => sum + (p.total_hours || 0), 0);
-  const pkgTotal = pkgLicense + pkgAdvisory;
+
+
 
   const isEstimate = view === "estimate";
-  const shownTotal = isEstimate ? licensePotential + advisoryPotential : pkgTotal;
   const shownLicense = isEstimate ? licensePotential : pkgLicense;
   const shownAdvisory = isEstimate ? advisoryPotential : pkgAdvisory;
+  // Årlig potensial: 12 × månedlige lisenser + engangs rådgivningstimer.
+  // Lisenser og timer kan ikke summeres per måned — derfor årlig total.
+  const shownTotal = shownLicense * 12 + shownAdvisory;
 
   return (
     <Card className="p-5 border-primary/20 bg-primary/[0.03]">
@@ -206,14 +209,27 @@ export function PartnerSalesPotentialCard({ currency }: { currency: string }) {
           </div>
         </div>
         <div className="text-right flex flex-col items-end gap-0.5">
-          <p className="text-[11px] text-muted-foreground">Totalt potensial</p>
+          <div className="flex items-center gap-1">
+            <p className="text-[11px] text-muted-foreground">Årlig salgspotensial</p>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Info className="h-3 w-3 text-muted-foreground cursor-help" />
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="max-w-xs text-xs">
+                  Lisenser er løpende (12 × månedspris), rådgivningstimer er engangsinntekter.
+                  Derfor vises totalen som årlig potensial — fordelingen ser du under.
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
           <p className="text-2xl font-bold text-foreground tabular-nums">
-            {fmt(shownTotal)} {currency}/mnd
+            {fmt(shownTotal)} {currency}
           </p>
           <div className="flex flex-col items-end text-xs text-muted-foreground mt-0.5">
             <span>Lisenser: {fmt(shownLicense)} {currency}/mnd</span>
             {shownAdvisory > 0 && (
-              <span>Rådgivningstimer: {fmt(shownAdvisory)} {currency}/mnd</span>
+              <span>Rådgivningstimer: {fmt(shownAdvisory)} {currency} (engangs)</span>
             )}
           </div>
         </div>
@@ -416,7 +432,7 @@ export function PartnerSalesPotentialCard({ currency }: { currency: string }) {
                 </p>
               </div>
               <p className="text-lg font-semibold text-foreground tabular-nums shrink-0">
-                {fmt(pkgAdvisory)} {currency}/mnd
+                {fmt(pkgAdvisory)} {currency}
               </p>
             </div>
           </div>
@@ -433,7 +449,7 @@ export function PartnerSalesPotentialCard({ currency }: { currency: string }) {
                   Lisens {fmt(p.licenseKr)} {currency}/mnd
                 </span>
                 <span className="text-[11px] text-muted-foreground tabular-nums shrink-0">
-                  {p.total_hours || 0} t · {fmt(p.total_price || 0)} {currency}/mnd
+                  {p.total_hours || 0} t · {fmt(p.total_price || 0)} {currency}
                 </span>
               </div>
             ))}
