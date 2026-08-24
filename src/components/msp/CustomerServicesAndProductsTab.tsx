@@ -720,6 +720,27 @@ export function CustomerServicesAndProductsTab({
         </CollapsibleContent>
       </Collapsible>
 
+      <AddFrameworksDialog
+        open={addFrameworksOpen}
+        onOpenChange={setAddFrameworksOpen}
+        customerName={customerName}
+        activeIds={activeFrameworkIds}
+        pricePerFramework={FRAMEWORK_PRICE}
+        onConfirm={(ids) => {
+          setAddFrameworksOpen(false);
+          setActivateItems(
+            ids.map((id) => ({
+              id,
+              label: ALL_FRAMEWORKS.find((f) => f.id === id)?.name || id,
+              kind: "framework" as const,
+              activatable: true,
+              frameworkId: id,
+              price: FRAMEWORK_PRICE,
+            })),
+          );
+        }}
+      />
+
       {activateItems && (
         <ActivateRecommendationsDialog
           open={!!activateItems}
@@ -833,7 +854,7 @@ export function CustomerServicesAndProductsTab({
         open={retireFrameworksOpen}
         onOpenChange={setRetireFrameworksOpen}
         customerName={customerName}
-        frameworks={activeFrameworks}
+        frameworks={billableFrameworks}
         pricePerFramework={FRAMEWORK_PRICE}
         onConfirm={(ids) => {
           setRetireFrameworksOpen(false);
