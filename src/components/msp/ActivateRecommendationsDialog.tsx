@@ -337,6 +337,40 @@ export function ActivateRecommendationsDialog({
                         </button>
                       );
                     })}
+                    {(() => {
+                      const info = setupInfoFor(item);
+                      if (!info) return null;
+                      const excluded = !!excludedSetup[info.productId];
+                      return (
+                        <div className="rounded-lg border border-dashed p-3 flex items-center justify-between gap-3">
+                          {excluded ? (
+                            <span className="text-xs text-muted-foreground">
+                              Etableringspakken er fjernet for denne gangen
+                            </span>
+                          ) : (
+                            <span className="text-xs text-muted-foreground">
+                              Etableringspakke
+                              {info.fee.description ? ` — ${info.fee.description}` : ""} ·{" "}
+                              <span className="text-foreground font-medium tabular-nums">
+                                {formatKr(info.fee.amountKr)} engangs
+                              </span>
+                            </span>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setExcludedSetup((prev) => ({
+                                ...prev,
+                                [info.productId]: !excluded,
+                              }))
+                            }
+                            className="text-xs font-medium text-primary hover:underline shrink-0"
+                          >
+                            {excluded ? "Legg til igjen" : "Fjern"}
+                          </button>
+                        </div>
+                      );
+                    })()}
                   </div>
                 );
               })}
