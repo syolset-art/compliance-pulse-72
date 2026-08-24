@@ -159,6 +159,67 @@ export function MSPFrameworkTaskPackageSheet({
     return Array.from(map.entries());
   }, [tasks]);
 
+  /**
+   * Lar Lara lage et grovt timeestimat per oppgave.
+   * onlyUnedited=true bevarer timer partneren har justert manuelt.
+   */
+  const runEstimation = async (onlyUnedited: boolean) => {
+    if (!frameworkId || estimating || baseTasks.length === 0) return;
+    setEstimating(true);
+    try {
+      const targets = baseTasks.filter((t) => {
+        const o = state.overrides[t.id];
+        if (o?.removed) return false;
+        if (onlyUnedited && o && o.hoursMin != null && !o.estimated) return false;
+        return true;
+      });
+      if (targets.length === 0) return;
+      const estimates = await estimatePackageHours(
+        frameworkName,
+        targets.map((t) => ({
+          id: t.id,
+          name: t.name,
+          kind: t.kind,
+          category: t.category,
+          requirementCount: t.requirements.length,
+        })),
+      );
+      if (estimates.length === 0) {
+        toast.error("Lara klarte ikke å lage estimater — 1 time per oppgave brukes som utgangspunkt.");
+        return;
+      }
+      const next = { ...state.overrides };
+      estimates.forEach((e) => {
+        next[e.taskId] = {
+          ...next[e.taskId],
+          hoursMin: e.hoursMin,
+          hoursMax: e.hoursMax,
+          estimated: true,
+          estimateNote: e.rationale,
+        };
+      });
+      persist({ ...state, overrides: next });
+      toast.success("Lara har estimert timer per kontrollpunkt");
+    } catch (e) {
+      console.error("Lara-estimering feilet:", e);
+      toast.error("Kunne ikke hente estimater fra Lara akkurat nå.");
+    } finally {
+      setEstimating(false);
+    }
+  };
+
+  // Kjør estimering automatisk første gang sheetet åpnes for et regelverk
+  // som verken har estimater eller manuelle timer fra før.
+  useEffect(() => {
+    if (!open || !frameworkId || baseTasks.length === 0) return;
+    if (estimateRanFor.current === frameworkId) return;
+    const hasHours = Object.values(state.overrides).some((o) => o.hoursMin != null);
+    if (hasHours) return;
+    estimateRanFor.current = frameworkId;
+    void runEstimation(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, frameworkId, baseTasks]);
+
   const toggle = (id: string, enabled: boolean) =>
     persist({
       ...state,
@@ -190,6 +251,9 @@ export function MSPFrameworkTaskPackageSheet({
           kind: draft.kind,
           hoursMin: hours,
           hoursMax: hours,
+          // Manuelle justeringer erstatter Laras estimat
+          estimated: false,
+          estimateNote: undefined,
         },
       },
     });
