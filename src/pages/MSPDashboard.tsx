@@ -996,6 +996,48 @@ export default function MSPDashboard() {
                             </Tooltip>
                           </TableHead>
                         )}
+                        {isVisible("revenueYtd") && (
+                          <TableHead className="w-[130px] text-right text-foreground/80 align-middle">
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <span className="inline-flex h-8 items-center gap-1.5 text-sm font-medium cursor-help">
+                                  Inntekter så langt <Info className="h-3.5 w-3.5 text-foreground/50" />
+                                </span>
+                              </TooltipTrigger>
+                              <TooltipContent side="top" className="max-w-[260px]">
+                                <p>Lisenser og rådgivningstimer solgt og fakturert i inneværende år, eks. mva.</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TableHead>
+                        )}
+                        {isVisible("licenseAnnual") && (
+                          <TableHead className="w-[130px] text-right text-foreground/80 align-middle">
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <span className="inline-flex h-8 items-center gap-1.5 text-sm font-medium cursor-help">
+                                  Lisensinntekter/år <Info className="h-3.5 w-3.5 text-foreground/50" />
+                                </span>
+                              </TooltipTrigger>
+                              <TooltipContent side="top" className="max-w-[240px]">
+                                <p>Månedlig lisens kunden betaler i dag × 12 (årsrate), eks. mva.</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TableHead>
+                        )}
+                        {isVisible("advisoryYtd") && (
+                          <TableHead className="w-[150px] text-right text-foreground/80 align-middle">
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <span className="inline-flex h-8 items-center gap-1.5 text-sm font-medium cursor-help">
+                                  Rådgivningstimer (så langt) <Info className="h-3.5 w-3.5 text-foreground/50" />
+                                </span>
+                              </TooltipTrigger>
+                              <TooltipContent side="top" className="max-w-[240px]">
+                                <p>Fakturerte rådgivningstimer og fastprisleveranser i inneværende år, eks. mva.</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TableHead>
+                        )}
 
 
                         {isVisible("score") && (
