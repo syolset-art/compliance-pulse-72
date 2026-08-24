@@ -50,6 +50,7 @@ export function ModuleCard({
   status,
   price,
   priceLabel,
+  priceUnit,
   usage,
   usageSuffix,
   usageLimit,
@@ -183,7 +184,7 @@ export function ModuleCard({
           ) : (
             <div className="min-w-0">
               <div className="text-base font-bold text-foreground leading-tight">{formattedPrice} kr</div>
-              <div className="text-[11px] text-muted-foreground">per måned</div>
+              <div className="text-[11px] text-muted-foreground">{priceUnit ?? "per måned"}</div>
             </div>
           )}
 
