@@ -126,7 +126,7 @@ export function CustomerRecommendationsCard({ customer, onOffer, onActivate, onE
                           ? "Kan aktiveres direkte"
                           : "Tjeneste – leveres som oppdrag"
                     }
-                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-recommend focus-visible:ring-offset-1"
+                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-recommend focus-visible:ring-offset-1"
                   >
                     {s.activatable && <Zap className="h-2.5 w-2.5 shrink-0" />}
                     {s.label}
