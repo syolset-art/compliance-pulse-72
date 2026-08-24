@@ -1157,6 +1157,49 @@ export default function MSPDashboard() {
                               </TableCell>
                             )}
 
+                            {isVisible("revenueYtd") && (
+                              <TableCell className="text-right align-top">
+                                {(() => {
+                                  const lic = licenseRevenueYtd(c);
+                                  const adv = advisoryRevenueYtd(c.id);
+                                  const total = lic + adv;
+                                  if (total <= 0) return <span className="text-muted-foreground text-sm">—</span>;
+                                  return (
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <span className="text-sm font-medium tabular-nums text-foreground cursor-help">
+                                          {formatKr(total)}
+                                        </span>
+                                      </TooltipTrigger>
+                                      <TooltipContent side="top" className="max-w-[240px] text-xs">
+                                        <p>Fakturert i {new Date().getFullYear()}, eks. mva.</p>
+                                        <p className="mt-1">Lisenser: {formatKr(lic)}</p>
+                                        <p>Rådgivningstimer: {formatKr(adv)}</p>
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  );
+                                })()}
+                              </TableCell>
+                            )}
+                            {isVisible("licenseAnnual") && (
+                              <TableCell className="text-right align-top">
+                                {(() => {
+                                  const annual = licenseRevenueAnnual(c);
+                                  if (annual <= 0) return <span className="text-muted-foreground text-sm">—</span>;
+                                  return <span className="text-sm font-medium tabular-nums text-foreground">{formatKr(annual)}</span>;
+                                })()}
+                              </TableCell>
+                            )}
+                            {isVisible("advisoryYtd") && (
+                              <TableCell className="text-right align-top">
+                                {(() => {
+                                  const adv = advisoryRevenueYtd(c.id);
+                                  if (adv <= 0) return <span className="text-muted-foreground text-sm">—</span>;
+                                  return <span className="text-sm font-medium tabular-nums text-foreground">{formatKr(adv)}</span>;
+                                })()}
+                              </TableCell>
+                            )}
+
 
                             {isVisible("score") && (
                               <TableCell className="text-right">
