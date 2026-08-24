@@ -96,7 +96,7 @@ export function CustomerRecommendationsCard({ customer, onOffer, onActivate, onE
         {suggestions.length === 0 ? (
           <p className="text-sm text-muted-foreground">Ingen nye anbefalinger akkurat nå.</p>
         ) : (
-          <div className="flex flex-wrap items-center gap-1.5">
+          <div className="flex flex-wrap items-center gap-1">
             {suggestions.map((s) => {
               const on = picked.includes(s.id);
               const isManual = manualIds.has(s.id);
@@ -126,7 +126,7 @@ export function CustomerRecommendationsCard({ customer, onOffer, onActivate, onE
                           ? "Kan aktiveres direkte"
                           : "Tjeneste – leveres som oppdrag"
                     }
-                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-recommend focus-visible:ring-offset-1"
+                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-recommend focus-visible:ring-offset-1"
                   >
                     {s.activatable && <Zap className="h-2.5 w-2.5 shrink-0" />}
                     {s.label}
@@ -236,7 +236,7 @@ export function CustomerRecommendationsCard({ customer, onOffer, onActivate, onE
                 </button>
               )}
             </div>
-            <div className="flex flex-wrap items-center gap-1.5 mt-2">
+            <div className="flex flex-wrap items-center gap-1 mt-2">
               {activated.length === 0 ? (
                 <span className="text-sm text-muted-foreground">Ingenting aktivert ennå</span>
               ) : (
@@ -248,7 +248,7 @@ export function CustomerRecommendationsCard({ customer, onOffer, onActivate, onE
                     disabled={!onEnterCustomer}
                     title={`Jobb med ${target.label} hos kunden`}
                     className={cn(
-                      "inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-normal transition-colors",
+                      "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-normal transition-colors",
                       "bg-success/10 text-foreground border-success/30",
                       onEnterCustomer
                         ? "hover:bg-success/20 hover:border-success/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 cursor-pointer"
