@@ -267,7 +267,27 @@ export function MSPCreateOfferDialog({
         note: "Ferdig pakke fra Produkter og tjenester — dekker kravene partneren har valgt å jobbe med.",
       } as EditableTask);
     }
-    setTasks((prev) => [...prev, ...newTasks]);
+    // Partnerens etableringspakke (fast engangspris) legges inn én gang per tilbud.
+    const setupFee = getProductSetupFee("frameworks");
+    setTasks((prev) => {
+      const hasSetup = prev.some((t) => (t.fixedPriceKr ?? 0) > 0);
+      const setupTask: EditableTask[] =
+        setupFee && !hasSetup
+          ? [
+              {
+                label: "Etableringspakke – regelverk",
+                hours: 0,
+                fixedPriceKr: setupFee.amountKr,
+                owner: "Partner",
+                gapIds: [],
+                note:
+                  setupFee.description ||
+                  "Fast engangspris for etablering (partnerens egen produktpakke).",
+              } as EditableTask,
+            ]
+          : [];
+      return [...prev, ...setupTask, ...newTasks];
+    });
     toast.success(
       savedPackage?.is_active
         ? `${fw.label} lagt til med rådgivningspakke (${savedPackage.total_hours} t)`
@@ -278,7 +298,8 @@ export function MSPCreateOfferDialog({
 
 
   const totalHours = tasks.reduce((s, t) => s + (Number(t.hours) || 0), 0);
-  const totalPrice = totalHours * editableHourlyRate;
+  const fixedTotal = tasks.reduce((s, t) => s + (t.fixedPriceKr ?? 0), 0);
+  const totalPrice = totalHours * editableHourlyRate + fixedTotal;
   const tax = branding.tax;
   const taxBreakdown = computeTaxBreakdown(totalPrice, tax);
   const showTax = tax.enabled && tax.rate > 0;
