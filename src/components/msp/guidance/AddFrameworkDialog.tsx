@@ -7,7 +7,7 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-import { Check, Plus, Scale, ShieldCheck, BookOpen } from "lucide-react";
+import { Check, Plus, Scale, ShieldCheck, BookOpen, Package } from "lucide-react";
 import {
   MANUAL_FRAMEWORKS,
   FRAMEWORK_CATEGORY_LABELS,
@@ -109,6 +109,33 @@ export function AddFrameworkDialog({
             Velg hvilke regelverk leverandøren skal måles på. Valget styrer hvilken dokumentasjon
             du trenger fra leverandøren.
           </div>
+        )}
+
+        {packages.length > 0 && (
+          <CommandGroup heading="Mine pakker">
+            {packages.map((p) => {
+              const isAdded = existing.has(`fw-${p.frameworkId}`);
+              return (
+                <CommandItem
+                  key={p.frameworkId}
+                  value={`pakke-${p.name}-${p.frameworkId}`}
+                  disabled={isAdded}
+                  onSelect={() => pickPackage(p)}
+                  className="gap-2"
+                >
+                  <Package className="h-3.5 w-3.5 text-primary shrink-0" />
+                  <span className="flex-1 truncate">{p.name}</span>
+                  {isAdded ? (
+                    <span className="text-[11px] text-muted-foreground">Allerede i listen</span>
+                  ) : (
+                    <span className="text-[11px] text-muted-foreground tabular-nums">
+                      Lisens + {p.totalHours} t rådgivning
+                    </span>
+                  )}
+                </CommandItem>
+              );
+            })}
+          </CommandGroup>
         )}
 
         {CATEGORY_ORDER.map((cat) => {
