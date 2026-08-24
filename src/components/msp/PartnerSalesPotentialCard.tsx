@@ -452,8 +452,8 @@ export function PartnerSalesPotentialCard({ currency }: { currency: string }) {
                         <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
                       </TooltipTrigger>
                       <TooltipContent side="bottom" className="max-w-xs text-xs">
-                        Basert på minstepris for hvert Mynder-produkt, pluss månedspris for regelverkene
-                        du velger. Regelverk kan ha ulik pris — GDPR er standard startpunkt.
+                        Basert på minstepris for alle Mynder-produkter (moduler og regelverk)
+                        summert per måned. Rådgivningstimer regnes ut fra regelverkene du velger under.
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
