@@ -173,21 +173,30 @@ export default function VendorDashboard() {
 
           <Tabs value={tabFromUrl} onValueChange={(v) => { const next = new URLSearchParams(searchParams); next.set("tab", v); setSearchParams(next, { replace: true }); }} className="space-y-4">
             <div className="flex items-center justify-between gap-2 motion-safe:animate-fade-in-up motion-safe:animate-delay-150">
-              <div className="-mx-4 px-4 sm:mx-0 sm:px-0 overflow-x-auto scrollbar-none">
-              <TabsList className="h-10 p-0.5 w-max" aria-label={t("vendorDashboard.tabs.overview", "Oversikt") + " – navigasjon"}>
-                <TabsTrigger value="overview" className="text-sm px-3">{t("vendorDashboard.tabs.overview", "Oversikt")}</TabsTrigger>
-                <TabsTrigger value="all" className="text-sm px-3 gap-1.5">
-                  {t("vendorDashboard.tabs.all")}
-                  <span className="inline-flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full bg-muted text-foreground text-xs font-semibold">
-                    {vendors.length}
-                  </span>
-                </TabsTrigger>
-                <TabsTrigger value="map" className="text-sm px-3">{t("vendorDashboard.tabs.map")}</TabsTrigger>
-                <TabsTrigger value="supplyChain" className="text-sm px-3">{t("vendorDashboard.tabs.supplyChain")}</TabsTrigger>
-                <TabsTrigger value="compare" className="text-sm px-3">{t("vendorDashboard.tabs.compare")}</TabsTrigger>
-              </TabsList>
+              <div className="relative flex-1 min-w-0 -mx-4 sm:mx-0">
+                <div className="overflow-x-auto scrollbar-none px-4 sm:px-0">
+                <TabsList className="h-10 p-0.5 w-max" aria-label={t("vendorDashboard.tabs.overview", "Oversikt") + " – navigasjon"}>
+                  <TabsTrigger value="overview" className="text-[13px] sm:text-sm px-2.5 sm:px-3">{t("vendorDashboard.tabs.overview", "Oversikt")}</TabsTrigger>
+                  <TabsTrigger value="all" className="text-[13px] sm:text-sm px-2.5 sm:px-3 gap-1.5">
+                    {t("vendorDashboard.tabs.all")}
+                    <span className="inline-flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full bg-muted text-foreground text-xs font-semibold">
+                      {vendors.length}
+                    </span>
+                  </TabsTrigger>
+                  <TabsTrigger value="map" className="text-[13px] sm:text-sm px-2.5 sm:px-3">{t("vendorDashboard.tabs.map")}</TabsTrigger>
+                  <TabsTrigger value="supplyChain" className="text-[13px] sm:text-sm px-2.5 sm:px-3">{t("vendorDashboard.tabs.supplyChain")}</TabsTrigger>
+                  <TabsTrigger value="compare" className="text-[13px] sm:text-sm px-2.5 sm:px-3">{t("vendorDashboard.tabs.compare")}</TabsTrigger>
+                </TabsList>
+                </div>
+                {/* Scroll-affordance på mobil: falmet kant viser at det finnes flere faner */}
+                <div
+                  className="pointer-events-none absolute inset-y-0 right-0 w-10 bg-gradient-to-l from-background to-transparent sm:hidden"
+                  aria-hidden="true"
+                />
               </div>
-              <VendorModuleSettingsSheet />
+              <div className="shrink-0">
+                <VendorModuleSettingsSheet />
+              </div>
             </div>
 
 
