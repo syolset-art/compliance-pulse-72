@@ -539,9 +539,27 @@ export function MSPFrameworkTaskPackageSheet({
                         </p>
                       </div>
                       <div className="text-right shrink-0">
-                        <p className="text-xs font-medium text-foreground">
-                          {t.hours.min === t.hours.max ? `${t.hours.min} t` : `${t.hours.min}–${t.hours.max} t`}
-                        </p>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <p className="text-xs font-medium text-foreground cursor-default">
+                                {t.hours.min === t.hours.max
+                                  ? `${fmtH(t.hours.min)} t`
+                                  : `${fmtH(t.hours.min)}–${fmtH(t.hours.max)} t`}
+                                {t.estimated && !t.edited && (
+                                  <span className="ml-1 inline-flex items-center rounded border border-primary/20 bg-primary/5 px-1 text-[9px] font-normal text-primary align-middle">
+                                    Lara
+                                  </span>
+                                )}
+                              </p>
+                            </TooltipTrigger>
+                            {t.estimated && t.estimateNote && (
+                              <TooltipContent side="left" className="max-w-xs text-xs">
+                                Laras estimat: {t.estimateNote}
+                              </TooltipContent>
+                            )}
+                          </Tooltip>
+                        </TooltipProvider>
                         <p className="text-[11px] text-muted-foreground">
                           {formatPriceRange(t.price, currency)}
                         </p>
