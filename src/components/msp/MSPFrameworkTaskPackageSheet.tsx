@@ -433,8 +433,8 @@ export function MSPFrameworkTaskPackageSheet({
               <p className="text-sm text-foreground shrink-0">
                 {totals.tasks} oppgaver ·{" "}
                 {totals.hours.min === totals.hours.max
-                  ? `${totals.hours.min} timer`
-                  : `${totals.hours.min}–${totals.hours.max} timer`}{" "}
+                  ? `${fmtH(totals.hours.min)} timer`
+                  : `${fmtH(totals.hours.min)}–${fmtH(totals.hours.max)} timer`}{" "}
                 · {formatPriceRange(totals.price, currency)}
               </p>
             </div>
@@ -451,19 +451,35 @@ export function MSPFrameworkTaskPackageSheet({
               </p>
             </div>
           </div>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Badge variant="outline" className="text-[10px] font-normal gap-1 cursor-help">
-                  <Sparkles className="h-2.5 w-2.5" /> Timer foreslått av Lara
-                </Badge>
-              </TooltipTrigger>
-              <TooltipContent side="bottom" className="max-w-xs text-xs">
-                Utgangspunktet er 1 time per kontrollpunkt. Juster timene opp eller ned selv, og
-                fjern krav du ikke vil jobbe med — forslaget er kun et utgangspunkt.
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          <div className="flex items-center gap-3 flex-wrap">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Badge variant="outline" className="text-[10px] font-normal gap-1 cursor-help">
+                    <Sparkles className="h-2.5 w-2.5" /> Timer foreslått av Lara
+                  </Badge>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="max-w-xs text-xs">
+                  Lara lager et grovt estimat per kontrollpunkt basert på type leveranse og hvor
+                  mange krav som dekkes. Tallene er et utgangspunkt — juster dem etter egen
+                  erfaring, og fjern oppgaver du ikke vil levere.
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            {estimating ? (
+              <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
+                <Loader2 className="h-3 w-3 animate-spin" /> Lara estimerer timer…
+              </span>
+            ) : (
+              <button
+                type="button"
+                onClick={() => void runEstimation(true)}
+                className="flex items-center gap-1 text-[11px] text-primary hover:underline underline-offset-2"
+              >
+                <RefreshCw className="h-3 w-3" /> Estimer på nytt
+              </button>
+            )}
+          </div>
         </div>
 
         <div className="mt-4 space-y-5 pb-32">
