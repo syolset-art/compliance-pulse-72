@@ -96,7 +96,7 @@ export function CustomerRecommendationsCard({ customer, onOffer, onActivate, onE
         {suggestions.length === 0 ? (
           <p className="text-sm text-muted-foreground">Ingen nye anbefalinger akkurat nå.</p>
         ) : (
-          <div className="flex flex-wrap items-center gap-1.5">
+          <div className="flex flex-wrap items-center gap-1">
             {suggestions.map((s) => {
               const on = picked.includes(s.id);
               const isManual = manualIds.has(s.id);
