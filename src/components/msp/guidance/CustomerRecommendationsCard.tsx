@@ -236,7 +236,7 @@ export function CustomerRecommendationsCard({ customer, onOffer, onActivate, onE
                 </button>
               )}
             </div>
-            <div className="flex flex-wrap items-center gap-1.5 mt-2">
+            <div className="flex flex-wrap items-center gap-1 mt-2">
               {activated.length === 0 ? (
                 <span className="text-sm text-muted-foreground">Ingenting aktivert ennå</span>
               ) : (
