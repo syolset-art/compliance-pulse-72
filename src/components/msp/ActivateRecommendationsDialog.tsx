@@ -15,6 +15,7 @@ import { useTerms } from "@/hooks/useTerms";
 import { cn } from "@/lib/utils";
 import { activateCustomerModule } from "@/lib/customerModuleState";
 import { getFrameworkActivationHours } from "@/lib/activationHours";
+import { getProductSetupFee } from "@/lib/productSetupFees";
 import { useServiceDefaults } from "@/hooks/useServiceDefaults";
 import {
   CORE_TIERS,
@@ -82,6 +83,8 @@ export function ActivateRecommendationsDialog({
   const [tierByModule, setTierByModule] = useState<Record<string, string>>({});
   // Regelverk der partneren har fjernet rådgivningstimene for denne aktiveringen.
   const [excludedActivation, setExcludedActivation] = useState<Record<string, boolean>>({});
+  // Produkter (nøkkel = produkt-id) der partneren har fjernet etableringspakken for denne aktiveringen.
+  const [excludedSetup, setExcludedSetup] = useState<Record<string, boolean>>({});
   const { current: currentTerms, hasAcceptedCurrent, acceptTerms } = useTerms();
   const termsOk = termsChecked || hasAcceptedCurrent;
   const { defaultHourlyRate } = useServiceDefaults();
@@ -96,6 +99,7 @@ export function ActivateRecommendationsDialog({
     setStep("select");
     setTermsChecked(false);
     setExcludedActivation({});
+    setExcludedSetup({});
     const defaults: Record<string, string> = {};
     for (const item of items) {
       const tiers = tiersFor(item.moduleKey);
@@ -119,8 +123,32 @@ export function ActivateRecommendationsDialog({
       ? Math.round(activationHours * hourlyRate)
       : 0;
 
+  /**
+   * Etableringspakken (partnerens fastpris) — vises kun ved FØRSTEGANGS
+   * aktivering av produktet hos kunden, aldri ved nivåendring eller når et
+   * ekstra regelverk legges til. For regelverk vises den én gang (på det
+   * første regelverket i listen).
+   */
+  const setupInfoFor = (item: ActivatableItem) => {
+    const productId = item.moduleKey ?? (item.frameworkId ? "frameworks" : undefined);
+    if (!productId) return null;
+    if (item.moduleKey && activeModules.includes(item.moduleKey)) return null;
+    if (item.frameworkId && activeFrameworks.length > 0) return null;
+    if (!item.moduleKey) {
+      const firstFramework = activatable.find((i) => i.frameworkId);
+      if (firstFramework?.id !== item.id) return null;
+    }
+    const fee = getProductSetupFee(productId, hourlyRate);
+    return fee ? { productId, fee } : null;
+  };
+
   const monthlyTotal = activatable.reduce((sum, i) => sum + priceFor(i), 0);
-  const oneOffTotal = activatable.reduce((sum, i) => sum + activationFeeFor(i), 0);
+  const setupTotal = activatable.reduce((sum, i) => {
+    const info = setupInfoFor(i);
+    return info && !excludedSetup[info.productId] ? sum + info.fee.amountKr : sum;
+  }, 0);
+  const oneOffTotal =
+    activatable.reduce((sum, i) => sum + activationFeeFor(i), 0) + setupTotal;
 
   const handleActivate = async () => {
     if (activatable.length === 0) return;
@@ -221,6 +249,40 @@ export function ActivateRecommendationsDialog({
                           </button>
                         </div>
                       )}
+                      {(() => {
+                        const info = setupInfoFor(item);
+                        if (!info) return null;
+                        const excluded = !!excludedSetup[info.productId];
+                        return (
+                          <div className="flex items-center justify-between gap-3">
+                            {excluded ? (
+                              <span className="text-xs text-muted-foreground">
+                                Etableringspakken er fjernet for denne gangen
+                              </span>
+                            ) : (
+                              <span className="text-xs text-muted-foreground">
+                                Etableringspakke
+                                {info.fee.description ? ` — ${info.fee.description}` : ""} ·{" "}
+                                <span className="text-foreground font-medium tabular-nums">
+                                  {formatKr(info.fee.amountKr)} engangs
+                                </span>
+                              </span>
+                            )}
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setExcludedSetup((prev) => ({
+                                  ...prev,
+                                  [info.productId]: !excluded,
+                                }))
+                              }
+                              className="text-xs font-medium text-primary hover:underline shrink-0"
+                            >
+                              {excluded ? "Legg til igjen" : "Fjern"}
+                            </button>
+                          </div>
+                        );
+                      })()}
                     </div>
                   );
                 }
@@ -275,6 +337,40 @@ export function ActivateRecommendationsDialog({
                         </button>
                       );
                     })}
+                    {(() => {
+                      const info = setupInfoFor(item);
+                      if (!info) return null;
+                      const excluded = !!excludedSetup[info.productId];
+                      return (
+                        <div className="rounded-lg border border-dashed p-3 flex items-center justify-between gap-3">
+                          {excluded ? (
+                            <span className="text-xs text-muted-foreground">
+                              Etableringspakken er fjernet for denne gangen
+                            </span>
+                          ) : (
+                            <span className="text-xs text-muted-foreground">
+                              Etableringspakke
+                              {info.fee.description ? ` — ${info.fee.description}` : ""} ·{" "}
+                              <span className="text-foreground font-medium tabular-nums">
+                                {formatKr(info.fee.amountKr)} engangs
+                              </span>
+                            </span>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setExcludedSetup((prev) => ({
+                                ...prev,
+                                [info.productId]: !excluded,
+                              }))
+                            }
+                            className="text-xs font-medium text-primary hover:underline shrink-0"
+                          >
+                            {excluded ? "Legg til igjen" : "Fjern"}
+                          </button>
+                        </div>
+                      );
+                    })()}
                   </div>
                 );
               })}
@@ -340,8 +436,8 @@ export function ActivateRecommendationsDialog({
               {oneOffTotal > 0 && (
                 <>
                   {" "}
-                  Rådgivning ved aktivering ({formatKr(oneOffTotal)} engangs) faktureres kunden som et
-                  engangsbeløp.
+                  Etablering og rådgivning ved aktivering ({formatKr(oneOffTotal)} engangs)
+                  faktureres kunden som et engangsbeløp.
                 </>
               )}
             </DialogDescription>

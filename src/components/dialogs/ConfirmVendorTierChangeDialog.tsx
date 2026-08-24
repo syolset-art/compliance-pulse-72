@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { TermsAcceptRow } from "@/components/legal/TermsAcceptRow";
 import { useTerms } from "@/hooks/useTerms";
 import { formatKr, getVendorTier, type VendorTierId } from "@/lib/planConstants";
+import { getProductSetupFee } from "@/lib/productSetupFees";
 
 interface Props {
   open: boolean;
@@ -85,6 +86,30 @@ export function ConfirmVendorTierChangeDialog({ open, onOpenChange, currentTierI
           )}
         </p>
 
+        {/* Etableringspakken (partnerens fastpris) vises kun ved førstegangs aktivering. */}
+        {mode === "activate" &&
+          (() => {
+            const setupFee = getProductSetupFee("vendors");
+            if (!setupFee) return null;
+            return (
+              <div className="rounded-lg border border-dashed p-3 space-y-0.5">
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-xs font-medium text-foreground">
+                    Etableringspakke – Leverandørmodulen
+                  </span>
+                  <span className="text-xs font-semibold tabular-nums text-foreground">
+                    {formatKr(setupFee.amountKr)} engangs
+                  </span>
+                </div>
+                {setupFee.description && (
+                  <p className="text-xs text-muted-foreground">{setupFee.description}</p>
+                )}
+                <p className="text-xs text-muted-foreground">
+                  Faktureres som et engangsbeløp. Vises ikke ved senere nivåendring.
+                </p>
+              </div>
+            );
+          })()}
 
         <TermsAcceptRow
           id="terms-vendor-tier"

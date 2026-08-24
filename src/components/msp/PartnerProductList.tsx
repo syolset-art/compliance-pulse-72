@@ -1,8 +1,11 @@
+// ============= Full file contents =============
+
 import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import {
   Sheet,
@@ -28,18 +31,39 @@ import { MYNDER_PRODUCTS, type MynderProduct } from "@/lib/mynderProducts";
 import { useFrameworkPackages } from "@/hooks/useFrameworkPackages";
 import { useServiceDefaults } from "@/hooks/useServiceDefaults";
 import { EXTRA_FRAMEWORK_PRICE_KR } from "@/lib/planConstants";
+import { defaultFrameworkActivationHours } from "@/lib/activationHours";
 import {
-  readProductSetupHours,
-  defaultFrameworkActivationHours,
-} from "@/lib/activationHours";
+  getProductSetupFee,
+  writeProductSetupFee,
+  useProductSetupFee,
+} from "@/lib/productSetupFees";
 
 const fmt = (n: number) => n.toLocaleString("nb-NO");
 
-// Oppstartskost per produkt lagres som timer (multipliseres med partnerens timepris).
-// Nøkkelen deles med aktiveringsdialog og tilbud via src/lib/activationHours.ts.
+// Rådgivningstimer ved regelverksaktivering deles med aktiveringsdialog og
+// tilbud via src/lib/activationHours.ts (nøkkel msp.productSetupHours, id "frameworks").
 const LS_SETUP_HOURS = "msp.productSetupHours";
 
-const readSetupHours = readProductSetupHours;
+function readFrameworkHours(): number {
+  try {
+    const raw = localStorage.getItem(LS_SETUP_HOURS);
+    const map = raw ? (JSON.parse(raw) as Record<string, number>) : {};
+    return map["frameworks"] ?? 0;
+  } catch {
+    return 0;
+  }
+}
+
+function writeFrameworkHours(hours: number) {
+  try {
+    const raw = localStorage.getItem(LS_SETUP_HOURS);
+    const map = raw ? (JSON.parse(raw) as Record<string, number>) : {};
+    map["frameworks"] = hours;
+    localStorage.setItem(LS_SETUP_HOURS, JSON.stringify(map));
+  } catch {
+    /* noop */
+  }
+}
 
 const PRODUCT_META: Record<string, { icon: LucideIcon; description: string }> = {
   core: {
@@ -71,13 +95,14 @@ const PRODUCT_META: Record<string, { icon: LucideIcon; description: string }> = 
 
 interface ProductRowProps {
   product: MynderProduct;
-  setupHours: number;
+  frameworkHours: number;
   hourlyRate: number;
   onEdit: (product: MynderProduct) => void;
 }
 
-function ProductRow({ product, setupHours, hourlyRate, onEdit }: ProductRowProps) {
+function ProductRow({ product, frameworkHours, hourlyRate, onEdit }: ProductRowProps) {
   const { packages } = useFrameworkPackages();
+  const setupFee = useProductSetupFee(product.id, hourlyRate);
   const meta = PRODUCT_META[product.id];
   const Icon = meta?.icon ?? LayoutGrid;
 
@@ -94,8 +119,6 @@ function ProductRow({ product, setupHours, hourlyRate, onEdit }: ProductRowProps
       ? "Inkludert"
       : `fra ${fmt(product.fromPrice)} kr/mnd`;
 
-  const setupFee = setupHours > 0 ? setupHours * hourlyRate : 0;
-
   return (
     <div className="flex items-start gap-3 px-4 py-3 hover:bg-muted/40 transition-colors">
       <div className="rounded-md bg-primary/10 p-2 shrink-0">
@@ -103,7 +126,7 @@ function ProductRow({ product, setupHours, hourlyRate, onEdit }: ProductRowProps
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 flex-wrap">
-          {/* Produktnavnet åpner redigering (oppstartskost m.m.) */}
+          {/* Produktnavnet åpner redigering (etableringskostnad m.m.) */}
           <button
             type="button"
             onClick={() => onEdit(product)}
@@ -121,11 +144,14 @@ function ProductRow({ product, setupHours, hourlyRate, onEdit }: ProductRowProps
               {activeFrameworks} regelverk aktivert
             </Badge>
           )}
-          {setupFee > 0 && (
+          {isFrameworks && frameworkHours > 0 && (
             <Badge variant="outline" className="text-[10px] font-normal">
-              {isFrameworks
-                ? `+ ${setupHours} t rådgivning ved aktivering`
-                : `Oppstart ${fmt(setupFee)} kr`}
+              + {frameworkHours} t rådgivning ved aktivering
+            </Badge>
+          )}
+          {setupFee && (
+            <Badge variant="outline" className="text-[10px] font-normal">
+              Etablering {fmt(setupFee.amountKr)} kr
             </Badge>
           )}
         </div>
@@ -133,9 +159,9 @@ function ProductRow({ product, setupHours, hourlyRate, onEdit }: ProductRowProps
       </div>
       <div className="text-right shrink-0 pt-1">
         <p className="text-sm font-semibold text-foreground tabular-nums">{priceLabel}</p>
-        {setupFee > 0 && (
+        {setupFee && (
           <p className="text-[11px] text-muted-foreground tabular-nums">
-            + {fmt(setupFee)} kr engangs
+            + {fmt(setupFee.amountKr)} kr engangs
           </p>
         )}
       </div>
@@ -143,28 +169,117 @@ function ProductRow({ product, setupHours, hourlyRate, onEdit }: ProductRowProps
   );
 }
 
-/** Redigering av ett produkt — oppstartskost som timer × partnerens timepris. */
+/**
+ * Etableringskostnad — partnerens faste engangspris med beskrivelse av hva
+ * den dekker. Pakken vises ved førstegangs aktivering av produktet hos en
+ * kunde, aldri ved nivåendring.
+ */
+function SetupFeeEditor({
+  productId,
+  productName,
+  currency,
+}: {
+  productId: string;
+  productName: string;
+  currency: string;
+}) {
+  const existing = getProductSetupFee(productId);
+  const [amount, setAmount] = useState(existing ? String(existing.amountKr) : "");
+  const [description, setDescription] = useState(existing?.description ?? "");
+
+  const parsed = (() => {
+    const n = Number(amount.trim().replace(/\s/g, "").replace(",", "."));
+    return Number.isFinite(n) && n > 0 ? Math.round(n) : 0;
+  })();
+
+  // Lagre fortløpende — localStorage er kilden, ingen egen lagreknapp.
+  useEffect(() => {
+    if (parsed > 0) {
+      writeProductSetupFee(productId, { amountKr: parsed, description });
+    } else if (existing) {
+      writeProductSetupFee(productId, null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [parsed, description, productId]);
+
+  return (
+    <div className="space-y-3">
+      <div>
+        <p className="text-sm font-medium text-foreground">Etableringskostnad</p>
+        <p className="text-xs text-muted-foreground mt-0.5">
+          Fast engangspris du fakturerer kunden for å komme i gang med {productName}. Pakken
+          vises første gang du aktiverer produktet hos en kunde — ikke når du endrer nivå
+          (f.eks. flere systemer eller leverandører).
+        </p>
+      </div>
+      <div className="flex items-center gap-2">
+        <Input
+          type="text"
+          inputMode="numeric"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          placeholder="0"
+          className="h-8 w-28 text-sm tabular-nums"
+          aria-label="Etableringskostnad i kroner"
+        />
+        <span className="text-xs text-muted-foreground">{currency} (engangs, eks. mva)</span>
+      </div>
+      {parsed > 0 && (
+        <div className="space-y-1.5">
+          <label
+            htmlFor={`setup-desc-${productId}`}
+            className="text-xs font-medium text-foreground"
+          >
+            Hva dekker etableringen? (valgfritt)
+          </label>
+          <Textarea
+            id={`setup-desc-${productId}`}
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="F.eks. oppsett, import av data og opplæring av teamet"
+            rows={2}
+            maxLength={500}
+            className="text-sm"
+          />
+        </div>
+      )}
+      <div className="rounded-md bg-muted/50 px-3 py-2 flex items-center justify-between">
+        <span className="text-xs text-muted-foreground">Etableringskostnad per kunde</span>
+        <span className="text-sm font-semibold text-foreground tabular-nums">
+          {parsed > 0 ? `${fmt(parsed)} ${currency} (engangs)` : "Ingen"}
+        </span>
+      </div>
+      <p className="text-[11px] text-muted-foreground">
+        La beløpet stå tomt for å fjerne etableringskostnaden.
+      </p>
+    </div>
+  );
+}
+
+/** Redigering av ett produkt — lisenspris, etableringskostnad og (regelverk) rådgivning. */
 function ProductEditSheet({
   product,
   open,
   onOpenChange,
-  setupHours,
-  onSetupHoursChange,
+  frameworkHours,
+  onFrameworkHoursChange,
   hourlyRate,
   currency,
 }: {
   product: MynderProduct | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  setupHours: number;
-  onSetupHoursChange: (hours: number) => void;
+  frameworkHours: number;
+  onFrameworkHoursChange: (hours: number) => void;
   hourlyRate: number;
   currency: string;
 }) {
   if (!product) return null;
   const meta = PRODUCT_META[product.id];
   const Icon = meta?.icon ?? LayoutGrid;
-  const setupFee = setupHours > 0 ? Math.round(setupHours * hourlyRate) : 0;
+  const isFrameworks = product.id === "frameworks";
+  const advisoryFee =
+    isFrameworks && frameworkHours > 0 ? Math.round(frameworkHours * hourlyRate) : 0;
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -203,92 +318,71 @@ function ProductEditSheet({
 
           <Separator />
 
-          {product.id === "frameworks" ? (
-            /* Rådgivning ved aktivering — timer som følger med når et regelverk slås på */
-            <div className="space-y-3">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="text-sm font-medium text-foreground">Rådgivning ved aktivering</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    Legg til rådgivningstimer når du aktiverer et regelverk
-                  </p>
+          {/* Etableringskostnad — gjelder alle produkter */}
+          <SetupFeeEditor
+            key={product.id}
+            productId={product.id}
+            productName={product.name}
+            currency={currency}
+          />
+
+          {isFrameworks && (
+            <>
+              <Separator />
+              {/* Rådgivning ved aktivering — timer som følger med når et regelverk slås på */}
+              <div className="space-y-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-medium text-foreground">
+                      Rådgivning ved aktivering
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Legg til rådgivningstimer når du aktiverer et regelverk
+                    </p>
+                  </div>
+                  <Switch
+                    checked={frameworkHours > 0}
+                    onCheckedChange={(on) =>
+                      onFrameworkHoursChange(on ? defaultFrameworkActivationHours() : 0)
+                    }
+                    aria-label="Legg til rådgivningstimer når du aktiverer et regelverk"
+                  />
                 </div>
-                <Switch
-                  checked={setupHours > 0}
-                  onCheckedChange={(on) =>
-                    onSetupHoursChange(on ? defaultFrameworkActivationHours() : 0)
-                  }
-                  aria-label="Legg til rådgivningstimer når du aktiverer et regelverk"
-                />
+                {frameworkHours > 0 && (
+                  <>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        type="number"
+                        min={0}
+                        step={0.5}
+                        value={frameworkHours}
+                        onChange={(e) =>
+                          onFrameworkHoursChange(
+                            Math.max(0, Math.round((Number(e.target.value) || 0) * 10) / 10),
+                          )
+                        }
+                        className="h-8 w-20 text-sm tabular-nums"
+                        aria-label="Rådgivningstimer per aktivering"
+                      />
+                      <span className="text-xs text-muted-foreground">
+                        timer × {fmt(hourlyRate)} {currency}/t
+                      </span>
+                    </div>
+                    <div className="rounded-md bg-muted/50 px-3 py-2 flex items-center justify-between">
+                      <span className="text-xs text-muted-foreground">Per aktivering</span>
+                      <span className="text-sm font-semibold text-foreground tabular-nums">
+                        {fmt(advisoryFee)} {currency} (engangs)
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground">
+                      Timene følger automatisk med når regelverket slås på hos kunden, og kan tas
+                      med i tilbudet. Du fakturerer dem som et engangsbeløp. Timeprisen endres
+                      under Innstillinger.
+                    </p>
+                  </>
+                )}
               </div>
-              {setupHours > 0 && (
-                <>
-                  <div className="flex items-center gap-2">
-                    <Input
-                      type="number"
-                      min={0}
-                      step={0.5}
-                      value={setupHours}
-                      onChange={(e) =>
-                        onSetupHoursChange(Math.max(0, Math.round((Number(e.target.value) || 0) * 10) / 10))
-                      }
-                      className="h-8 w-20 text-sm tabular-nums"
-                      aria-label="Rådgivningstimer per aktivering"
-                    />
-                    <span className="text-xs text-muted-foreground">
-                      timer × {fmt(hourlyRate)} {currency}/t
-                    </span>
-                  </div>
-                  <div className="rounded-md bg-muted/50 px-3 py-2 flex items-center justify-between">
-                    <span className="text-xs text-muted-foreground">Per aktivering</span>
-                    <span className="text-sm font-semibold text-foreground tabular-nums">
-                      {fmt(setupFee)} {currency} (engangs)
-                    </span>
-                  </div>
-                  <p className="text-[11px] text-muted-foreground">
-                    Timene følger automatisk med når regelverket slås på hos kunden, og kan tas med
-                    i tilbudet. Du fakturerer dem som et engangsbeløp. Timeprisen endres under
-                    Innstillinger.
-                  </p>
-                </>
-              )}
-            </div>
-          ) : (
-            /* Oppstartskost — partnerens eget engangsbeløp */
-            <div className="space-y-3">
-              <div>
-                <p className="text-sm font-medium text-foreground">Oppstartskost</p>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  Engangsbeløp du fakturerer kunden for å komme i gang med {product.name}. Settes
-                  som timer og prises med timeprisen din.
-                </p>
-              </div>
-              <div className="flex items-center gap-2">
-                <Input
-                  type="number"
-                  min={0}
-                  step={0.5}
-                  value={setupHours}
-                  onChange={(e) =>
-                    onSetupHoursChange(Math.max(0, Math.round((Number(e.target.value) || 0) * 10) / 10))
-                  }
-                  className="h-8 w-20 text-sm tabular-nums"
-                  aria-label="Oppstartskost i timer"
-                />
-                <span className="text-xs text-muted-foreground">
-                  timer × {fmt(hourlyRate)} {currency}/t
-                </span>
-              </div>
-              <div className="rounded-md bg-muted/50 px-3 py-2 flex items-center justify-between">
-                <span className="text-xs text-muted-foreground">Oppstartskost per kunde</span>
-                <span className="text-sm font-semibold text-foreground tabular-nums">
-                  {setupFee > 0 ? `${fmt(setupFee)} ${currency} (engangs)` : "Ingen"}
-                </span>
-              </div>
-              <p className="text-[11px] text-muted-foreground">
-                Sett til 0 timer for å fjerne oppstartskost. Timeprisen endres under Innstillinger.
-              </p>
-            </div>
+            </>
           )}
         </div>
       </SheetContent>
@@ -332,7 +426,10 @@ function ProductSettingsSheet({
             <ul className="text-xs text-muted-foreground space-y-1.5 list-disc pl-4">
               <li>Provisjonen gjelder alle produkter i listen — også regelverk du aktiverer.</li>
               <li>Utbetales månedlig, basert på aktive abonnement hos kundene dine.</li>
-              <li>Du kan legge til oppstartskost per produkt — klikk på produktnavnet i listen.</li>
+              <li>
+                Du kan legge til etableringskostnad per produkt — klikk på produktnavnet i
+                listen.
+              </li>
             </ul>
           </Card>
         </div>
@@ -344,21 +441,18 @@ function ProductSettingsSheet({
 /**
  * Alle Mynder-produkter partneren kan selge — samme produkter som under
  * «Min organisasjon», med pris. Klikk på et produktnavn for å legge til
- * oppstartskost (timer × timepris).
+ * etableringskostnad (fast engangspris med beskrivelse).
  */
 export function PartnerProductList() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [editing, setEditing] = useState<MynderProduct | null>(null);
-  const [setupHoursMap, setSetupHoursMap] = useState<Record<string, number>>(readSetupHours);
+  const [frameworkHours, setFrameworkHours] = useState<number>(readFrameworkHours);
   const { defaultHourlyRate, currency } = useServiceDefaults();
   const hourlyRate = defaultHourlyRate ?? 1500;
 
   useEffect(() => {
-    localStorage.setItem(LS_SETUP_HOURS, JSON.stringify(setupHoursMap));
-  }, [setupHoursMap]);
-
-  const setProductHours = (productId: string, hours: number) =>
-    setSetupHoursMap((prev) => ({ ...prev, [productId]: hours }));
+    writeFrameworkHours(frameworkHours);
+  }, [frameworkHours]);
 
   return (
     <section className="space-y-3">
@@ -366,8 +460,8 @@ export function PartnerProductList() {
         <div>
           <h2 className="text-lg font-semibold text-foreground">Produkter fra Mynder</h2>
           <p className="text-sm text-muted-foreground">
-            Alt du kan selge videre til kundene dine, med fast provisjon. Klikk på et produkt for å
-            legge til oppstartskost.
+            Alt du kan selge videre til kundene dine, med fast provisjon. Klikk på et produkt for
+            å legge til etableringskostnad.
           </p>
         </div>
         <Button
@@ -386,7 +480,7 @@ export function PartnerProductList() {
           <ProductRow
             key={p.id}
             product={p}
-            setupHours={setupHoursMap[p.id] ?? 0}
+            frameworkHours={frameworkHours}
             hourlyRate={hourlyRate}
             onEdit={setEditing}
           />
@@ -397,8 +491,8 @@ export function PartnerProductList() {
         product={editing}
         open={editing !== null}
         onOpenChange={(open) => !open && setEditing(null)}
-        setupHours={editing ? (setupHoursMap[editing.id] ?? 0) : 0}
-        onSetupHoursChange={(hours) => editing && setProductHours(editing.id, hours)}
+        frameworkHours={frameworkHours}
+        onFrameworkHoursChange={setFrameworkHours}
         hourlyRate={hourlyRate}
         currency={currency}
       />

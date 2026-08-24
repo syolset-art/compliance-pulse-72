@@ -20,6 +20,7 @@ import { getFrameworkTheme } from "@/lib/serviceFrameworkTheme";
 import { getRelatedControls } from "@/lib/controlCrosswalk";
 import { buildOfferCoverage, inactiveFrameworkPitch, FRAMEWORK_ACTIVATION_HOURS } from "@/lib/offerCoverage";
 import { getFrameworkActivationHours } from "@/lib/activationHours";
+import { getProductSetupFee } from "@/lib/productSetupFees";
 import { OfferCoveragePanel } from "./OfferCoveragePanel";
 import { getFrameworkGap, getGapIdsForControls, severityDotClass, SEVERITY_LABEL, type GapItem } from "@/lib/gapData";
 import { useFrameworkPackages } from "@/hooks/useFrameworkPackages";
@@ -134,6 +135,8 @@ interface EditableTask extends TaskEstimate {
   owner: TaskOwner;
   /** Gap fra gap-analysen som denne oppgaven lukker. */
   gapIds: string[];
+  /** Fast engangspris (f.eks. etableringspakke) — overstyring av timer × timepris. */
+  fixedPriceKr?: number;
 }
 
 
@@ -264,7 +267,27 @@ export function MSPCreateOfferDialog({
         note: "Ferdig pakke fra Produkter og tjenester — dekker kravene partneren har valgt å jobbe med.",
       } as EditableTask);
     }
-    setTasks((prev) => [...prev, ...newTasks]);
+    // Partnerens etableringspakke (fast engangspris) legges inn én gang per tilbud.
+    const setupFee = getProductSetupFee("frameworks");
+    setTasks((prev) => {
+      const hasSetup = prev.some((t) => (t.fixedPriceKr ?? 0) > 0);
+      const setupTask: EditableTask[] =
+        setupFee && !hasSetup
+          ? [
+              {
+                label: "Etableringspakke – regelverk",
+                hours: 0,
+                fixedPriceKr: setupFee.amountKr,
+                owner: "Partner",
+                gapIds: [],
+                note:
+                  setupFee.description ||
+                  "Fast engangspris for etablering (partnerens egen produktpakke).",
+              } as EditableTask,
+            ]
+          : [];
+      return [...prev, ...setupTask, ...newTasks];
+    });
     toast.success(
       savedPackage?.is_active
         ? `${fw.label} lagt til med rådgivningspakke (${savedPackage.total_hours} t)`
@@ -275,7 +298,8 @@ export function MSPCreateOfferDialog({
 
 
   const totalHours = tasks.reduce((s, t) => s + (Number(t.hours) || 0), 0);
-  const totalPrice = totalHours * editableHourlyRate;
+  const fixedTotal = tasks.reduce((s, t) => s + (t.fixedPriceKr ?? 0), 0);
+  const totalPrice = totalHours * editableHourlyRate + fixedTotal;
   const tax = branding.tax;
   const taxBreakdown = computeTaxBreakdown(totalPrice, tax);
   const showTax = tax.enabled && tax.rate > 0;
@@ -439,10 +463,11 @@ export function MSPCreateOfferDialog({
     doc.setTextColor(30);
     tasks.forEach(t => {
       const hours = Number(t.hours) || 0;
-      const price = hours * editableHourlyRate;
+      const isFixed = (t.fixedPriceKr ?? 0) > 0;
+      const price = isFixed ? (t.fixedPriceKr as number) : hours * editableHourlyRate;
       const labelLines = doc.splitTextToSize(t.label, pageWidth - margin * 2 - 200);
       doc.text(labelLines, margin, y);
-      doc.text(String(hours), pageWidth - margin - 90, y, { align: "right" });
+      doc.text(isFixed ? "Fastpris" : String(hours), pageWidth - margin - 90, y, { align: "right" });
       doc.text(`${price.toLocaleString("nb-NO")} kr`, pageWidth - margin, y, { align: "right" });
       y += labelLines.length * 14 + 4;
       if (t.note) {
@@ -799,12 +824,18 @@ export function MSPCreateOfferDialog({
                           </Popover>
                         )}
                       </div>
-                      <Input
-                        type="number"
-                        value={t.hours}
-                        onChange={e => updateTask(i, { hours: Number(e.target.value) })}
-                        className="h-8 text-sm text-right tabular-nums"
-                      />
+                      {(t.fixedPriceKr ?? 0) > 0 ? (
+                        <span className="h-8 flex items-center justify-end text-xs tabular-nums text-muted-foreground">
+                          Fastpris {(t.fixedPriceKr as number).toLocaleString("nb-NO")} kr
+                        </span>
+                      ) : (
+                        <Input
+                          type="number"
+                          value={t.hours}
+                          onChange={e => updateTask(i, { hours: Number(e.target.value) })}
+                          className="h-8 text-sm text-right tabular-nums"
+                        />
+                      )}
 
                       <button
                         type="button"
@@ -863,7 +894,10 @@ export function MSPCreateOfferDialog({
                   <div className="flex items-baseline justify-between">
                     <div className="text-sm text-foreground">
                       <span className="font-medium">{showTax && tax.mode === "exclusive" ? `Sum eks. ${tax.label}` : "Totalt"}</span>
-                      <span className="text-muted-foreground"> · {totalHours} timer × {editableHourlyRate.toLocaleString("nb-NO")} kr</span>
+                      <span className="text-muted-foreground">
+                        {" "}· {totalHours} timer × {editableHourlyRate.toLocaleString("nb-NO")} kr
+                        {fixedTotal > 0 && ` + ${fixedTotal.toLocaleString("nb-NO")} kr engangs`}
+                      </span>
                     </div>
                     <span className={cn("tabular-nums", showTax && tax.mode === "exclusive" ? "text-sm text-foreground" : "text-lg font-bold text-foreground")}>
                       {fmtKr(showTax && tax.mode === "inclusive" ? taxBreakdown.net : totalPrice)}
@@ -1157,14 +1191,15 @@ export function MSPCreateOfferDialog({
                   </div>
                   {tasks.map((t, i) => {
                     const hrs = Number(t.hours) || 0;
+                    const isFixed = (t.fixedPriceKr ?? 0) > 0;
                     return (
                       <div key={i} className="grid grid-cols-[1fr_70px_100px] gap-3 text-sm py-1.5 border-b border-border/50">
                         <div>
                           <p className="text-foreground">{t.label}</p>
                           {t.note && <p className="text-xs text-muted-foreground">{t.note}</p>}
                         </div>
-                        <span className="text-right tabular-nums text-foreground">{hrs}</span>
-                        <span className="text-right tabular-nums text-foreground">{(hrs * editableHourlyRate).toLocaleString("nb-NO")} kr</span>
+                        <span className="text-right tabular-nums text-foreground">{isFixed ? "Fastpris" : hrs}</span>
+                        <span className="text-right tabular-nums text-foreground">{(isFixed ? (t.fixedPriceKr as number) : hrs * editableHourlyRate).toLocaleString("nb-NO")} kr</span>
                       </div>
                     );
                   })}
@@ -1179,6 +1214,12 @@ export function MSPCreateOfferDialog({
                     <span>Sum timer</span>
                     <span className="tabular-nums">{totalHours} t</span>
                   </div>
+                  {fixedTotal > 0 && (
+                    <div className="flex items-baseline justify-between text-sm text-muted-foreground">
+                      <span>Etablering (engangs)</span>
+                      <span className="tabular-nums">{fixedTotal.toLocaleString("nb-NO")} kr</span>
+                    </div>
+                  )}
                   <div className="flex items-baseline justify-between pt-1.5 border-t border-border">
                     <span className={cn(showTax && tax.mode === "exclusive" ? "text-sm text-muted-foreground" : "text-base font-bold text-foreground")}>
                       {showTax && tax.mode === "exclusive" ? `Sum eks. ${tax.label}` : "Totalsum"}
