@@ -464,7 +464,7 @@ export function PartnerSalesPotentialCard({ currency }: { currency: string }) {
                 </p>
               </div>
               <p className="text-lg font-semibold text-foreground tabular-nums shrink-0">
-                {fmt(licensePotential)} {currency}/mnd
+                {fmt(licensePotential * 12)} {currency}/år
               </p>
             </div>
 
