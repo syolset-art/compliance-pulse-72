@@ -1298,7 +1298,7 @@ export default function MSPDashboard() {
         <NeedsAnalysisWizardDialog open={gapOpen} onOpenChange={setGapOpen} customers={filtered} />
         {activateFor && (() => {
           const picked = offerSelection[activateFor.id] || [];
-          const items = deriveOfferSuggestions(activateFor).filter((s) => picked.includes(s.id));
+          const items = suggestionsFor(activateFor).filter((s) => picked.includes(s.id));
           return (
             <ActivateRecommendationsDialog
               open={!!activateFor}
@@ -1312,6 +1312,13 @@ export default function MSPDashboard() {
                 setOfferSelection((prev) => ({
                   ...prev,
                   [activateFor.id]: picked.filter((id) => !items.some((s) => s.id === id && s.activatable)),
+                }));
+                // Fjern manuelt lagt til regelverk som nå er aktivert — de flyttes til «Aktiv».
+                setManualExtras((prev) => ({
+                  ...prev,
+                  [activateFor.id]: (prev[activateFor.id] || []).filter(
+                    (e) => !items.some((s) => s.id === e.id && s.activatable),
+                  ),
                 }));
                 setActivateFor(null);
                 refetch();
@@ -1362,7 +1369,7 @@ export default function MSPDashboard() {
 
         {offerFor && (() => {
           const picked = offerSelection[offerFor.id] || [];
-          const items = deriveOfferSuggestions(offerFor).filter((s) => picked.includes(s.id));
+          const items = suggestionsFor(offerFor).filter((s) => picked.includes(s.id));
           return (
             <MSPCreateOfferDialog
               open={!!offerFor}
@@ -1373,6 +1380,9 @@ export default function MSPDashboard() {
               /* v1.1: partneren er i gang med å lage tilbudet — ikke lenger en anbefalingsliste */
               serviceTitle={`Tilbudsutkast til ${offerFor.customer_name}`}
               offeredServiceNames={items.map((s) => s.label)}
+              offeredFrameworkIds={items
+                .filter((s) => s.kind === "framework" && s.frameworkId)
+                .map((s) => s.frameworkId as string)}
               activeFrameworks={(offerFor.active_frameworks || []).map((f: any) => (typeof f === "string" ? f : (f?.label ?? f?.frameworkId ?? ""))).filter(Boolean)}
               defaultTasks={items.map((s) => ({
                 label: s.label,
