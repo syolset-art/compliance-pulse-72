@@ -858,18 +858,18 @@ export function CustomerServicesAndProductsTab({
         pricePerFramework={FRAMEWORK_PRICE}
         onConfirm={(ids) => {
           setRetireFrameworksOpen(false);
-          const names = activeFrameworks
+          const names = billableFrameworks
             .filter((f) => ids.includes(f.id))
             .map((f) => f.name);
           setRetireTarget({
             stateKey: "frameworks",
             moduleId: "frameworks",
-            title: ids.length === activeFrameworks.length ? "Regelverk" : names.join(", "),
+            title: ids.length === billableFrameworks.length ? "Regelverk" : names.join(", "),
             price: ids.length * FRAMEWORK_PRICE,
             scopeLabel:
-              ids.length === activeFrameworks.length
+              ids.length === billableFrameworks.length
                 ? "Alle regelverk"
-                : `${ids.length} av ${activeFrameworks.length} regelverk`,
+                : `${ids.length} av ${billableFrameworks.length} regelverk`,
             frameworkIds: ids,
           });
         }}
