@@ -475,7 +475,7 @@ export function PartnerSalesPotentialCard({ currency }: { currency: string }) {
                   size="sm"
                   className="w-full justify-between text-xs font-normal"
                 >
-                  <span className="truncate">Regelverk i potensialet: {selectedLabel}</span>
+                  <span className="truncate">Regelverk for rådgivningstimer: {selectedLabel}</span>
                   <ChevronDown className="h-3.5 w-3.5 shrink-0 opacity-60" />
                 </Button>
               </PopoverTrigger>
