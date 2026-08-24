@@ -127,6 +127,8 @@ export interface CreateOfferDialogProps {
   /** Kilde-nøkler for tjenester som inngår i tilbudet — brukes til å låse dem i tjenestekatalogen. */
   offeredTemplateIds?: string[];
   offeredServiceNames?: string[];
+  /** Regelverks-IDer tilbudet dekker — brukes til å vise «I tilbud» i kundeoversiktens prosessflyt. */
+  offeredFrameworkIds?: string[];
   /** Regelverk kunden har aktivert (id eller label) — styrer dekningsvisningen. */
   activeFrameworks?: string[];
 }
