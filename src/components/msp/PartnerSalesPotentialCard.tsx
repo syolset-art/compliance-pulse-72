@@ -481,7 +481,7 @@ export function PartnerSalesPotentialCard({ currency }: { currency: string }) {
               </PopoverTrigger>
               <PopoverContent align="start" className="w-72 p-2">
                 <p className="text-[11px] text-muted-foreground px-2 pb-1.5">
-                  Velg hvilke regelverk kunden aktiverer
+                  Velg hvilke regelverk som inngår i rådgivningstimer-estimatet
                 </p>
                 <div className="max-h-64 overflow-y-auto space-y-0.5">
                   {options.map((o) => {
@@ -496,9 +496,6 @@ export function PartnerSalesPotentialCard({ currency }: { currency: string }) {
                           onCheckedChange={(c) => toggleFramework(o.id, c === true)}
                         />
                         <span className="flex-1 text-xs text-foreground truncate">{o.name}</span>
-                        <span className="text-[11px] text-muted-foreground tabular-nums shrink-0">
-                          {fmt(o.priceKr)} {currency}/mnd
-                        </span>
                       </label>
                     );
                   })}
