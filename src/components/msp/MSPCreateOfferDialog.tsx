@@ -1214,6 +1214,12 @@ export function MSPCreateOfferDialog({
                     <span>Sum timer</span>
                     <span className="tabular-nums">{totalHours} t</span>
                   </div>
+                  {fixedTotal > 0 && (
+                    <div className="flex items-baseline justify-between text-sm text-muted-foreground">
+                      <span>Etablering (engangs)</span>
+                      <span className="tabular-nums">{fixedTotal.toLocaleString("nb-NO")} kr</span>
+                    </div>
+                  )}
                   <div className="flex items-baseline justify-between pt-1.5 border-t border-border">
                     <span className={cn(showTax && tax.mode === "exclusive" ? "text-sm text-muted-foreground" : "text-base font-bold text-foreground")}>
                       {showTax && tax.mode === "exclusive" ? `Sum eks. ${tax.label}` : "Totalsum"}
