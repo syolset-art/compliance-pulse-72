@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Scale, Clock, ChevronRight, CheckCircle2 } from "lucide-react";
+import { Scale, Clock, ChevronRight, CheckCircle2, ChevronDown } from "lucide-react";
 import { frameworks as FRAMEWORK_DEFS } from "@/lib/frameworkDefinitions";
 import { baselineRequirementRows } from "@/lib/frameworkRequirementBaseline";
 import { useServiceDefaults } from "@/hooks/useServiceDefaults";
