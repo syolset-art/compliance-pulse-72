@@ -32,8 +32,10 @@ import { toast } from "sonner";
 import { getOffersForCustomer, normalizeServiceKey } from "@/lib/customerOffers";
 import { SERVICE_LIBRARY } from "@/lib/serviceLibrary";
 import { CUSTOMER_MODULES_EVENT } from "@/lib/customerModuleState";
-import { deriveOfferSuggestions, deriveActivatedItems, deriveNeededServices, deriveActiveServices, customerLicenseSummary, type OfferSuggestion } from "@/lib/offerSuggestions";
+import { deriveOfferSuggestions, deriveActivatedItems, deriveActivatedFrameworks, deriveNeededServices, deriveActiveServices, customerLicenseSummary, withPackageInfo, withOfferStatus, packageDisplayName, type OfferSuggestion } from "@/lib/offerSuggestions";
 import { usePostActivationPrompt } from "@/hooks/usePostActivationPrompt";
+import { useFrameworkPackages } from "@/hooks/useFrameworkPackages";
+import { AddFrameworkDialog } from "@/components/msp/guidance/AddFrameworkDialog";
 
 type ViewMode = "cards" | "table";
 
@@ -214,6 +216,7 @@ function RecommendationCell({
   onOffer,
   onActivate,
   onPreselectActivatable,
+  onAddClick,
 }: {
   suggestions: OfferSuggestion[];
   picked: string[];
@@ -221,9 +224,9 @@ function RecommendationCell({
   onOffer: () => void;
   onActivate: () => void;
   onPreselectActivatable: (ids: string[]) => void;
+  onAddClick: () => void;
 }) {
   const [expanded, setExpanded] = useState(false);
-  if (suggestions.length === 0) return <span className="text-muted-foreground text-sm">—</span>;
 
   const shown = expanded ? suggestions : suggestions.slice(0, 4);
   const hidden = suggestions.length - shown.length;
@@ -232,26 +235,69 @@ function RecommendationCell({
 
   return (
     <div className="flex flex-wrap items-center gap-1 max-w-[284px]">
+      {suggestions.length === 0 && <span className="text-muted-foreground text-sm">—</span>}
       {shown.map((s) => {
         const on = picked.includes(s.id);
+        const displayLabel = s.packageInfo?.name ?? s.label;
+        const stage: "anbefalt" | "tilbud" = s.offerStatus ? "tilbud" : "anbefalt";
         return (
-          <button
-            key={s.id}
-            type="button"
-            onClick={() => onToggle(s.id)}
-            title={s.activatable ? "Kan aktiveres direkte" : "Tjeneste – leveres som oppdrag"}
-            className={cn(
-              "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-recommend focus-visible:ring-offset-1",
-              on
-                ? "border-recommend bg-recommend text-recommend-foreground"
-                : s.activatable
-                  ? "border-recommend/60 bg-recommend/15 text-recommend dark:text-recommend hover:bg-recommend/25 hover:border-recommend"
-                  : "border-dashed border-recommend/50 bg-transparent text-recommend/90 hover:bg-recommend/10",
-            )}
-          >
-            {s.activatable && <Zap className="h-2.5 w-2.5 shrink-0" />}
-            {s.label}
-          </button>
+          <Tooltip key={s.id}>
+            <TooltipTrigger asChild>
+              <button
+                type="button"
+                onClick={() => onToggle(s.id)}
+                className={cn(
+                  "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-recommend focus-visible:ring-offset-1",
+                  on
+                    ? "border-recommend bg-recommend text-recommend-foreground"
+                    : s.offerStatus
+                      ? "border-warning/50 bg-warning/10 text-foreground hover:bg-warning/20 hover:border-warning/70"
+                      : s.activatable
+                        ? "border-recommend/60 bg-recommend/15 text-recommend dark:text-recommend hover:bg-recommend/25 hover:border-recommend"
+                        : "border-dashed border-recommend/50 bg-transparent text-recommend/90 hover:bg-recommend/10",
+                )}
+              >
+                {s.activatable && <Zap className="h-2.5 w-2.5 shrink-0" />}
+                {displayLabel}
+                {s.offerStatus && (
+                  <span
+                    className={cn(
+                      "rounded-full px-1 text-[9px] font-semibold uppercase tracking-wide",
+                      on ? "bg-recommend-foreground/20 text-recommend-foreground" : "bg-warning/20 text-warning",
+                    )}
+                  >
+                    I tilbud
+                  </span>
+                )}
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="top" className="max-w-[260px] text-xs">
+              {s.packageInfo ? (
+                <>
+                  <p className="font-medium text-foreground">{s.packageInfo.name}</p>
+                  <p className="text-muted-foreground">
+                    Din pakke fra Produkter og tjenester — inneholder {s.label} med lisens og{" "}
+                    {s.packageInfo.totalHours} t rådgivning.
+                  </p>
+                </>
+              ) : (
+                <p>
+                  {s.category === "guideline"
+                    ? "Retningslinje — selges som rådgivning eller pakke."
+                    : s.activatable
+                      ? "Kan aktiveres direkte hos kunden."
+                      : "Tjeneste — leveres som oppdrag."}
+                </p>
+              )}
+              <p className="mt-1.5 flex items-center gap-1 text-muted-foreground">
+                <span className={stage === "anbefalt" ? "font-semibold text-foreground" : ""}>Anbefalt</span>
+                <ArrowRight className="h-3 w-3 shrink-0" />
+                <span className={stage === "tilbud" ? "font-semibold text-foreground" : ""}>I tilbud</span>
+                <ArrowRight className="h-3 w-3 shrink-0" />
+                <span>Aktivert</span>
+              </p>
+            </TooltipContent>
+          </Tooltip>
         );
       })}
       {hidden > 0 && (
@@ -292,6 +338,14 @@ function RecommendationCell({
           Aktiver direkte
         </button>
       )}
+      <button
+        type="button"
+        onClick={onAddClick}
+        className="inline-flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground underline underline-offset-2 transition-colors"
+      >
+        <Plus className="h-3 w-3" />
+        Legg til
+      </button>
     </div>
   );
 }
@@ -479,6 +533,11 @@ export default function MSPDashboard() {
   const [offerSelection, setOfferSelection] = useState<Record<string, string[]>>({});
   const [offerFor, setOfferFor] = useState<any | null>(null);
   const [activateFor, setActivateFor] = useState<any | null>(null);
+  // Regelverk/retningslinjer partneren har lagt til manuelt per kunde (via «Legg til» i cellen).
+  const [manualExtras, setManualExtras] = useState<Record<string, OfferSuggestion[]>>({});
+  const [addFrameworkFor, setAddFrameworkFor] = useState<any | null>(null);
+  // Partnerens lagrede regelverkspakker fra «Produkter og tjenester» (ett oppslag for hele tabellen).
+  const { packages: frameworkPackages } = useFrameworkPackages();
   const { promptOrToast } = usePostActivationPrompt();
   const [enterCustomer, setEnterCustomer] = useState<{
     id: string;
@@ -496,6 +555,23 @@ export default function MSPDashboard() {
       };
     });
   };
+
+  /**
+   * Kundens anbefalinger beriket med:
+   * - partnerens manuelt valgte regelverk/retningslinjer
+   * - lagrede pakker fra «Produkter og tjenester» (pakkens navn + timer)
+   * - tilbudsstatus (Anbefalt → I tilbud → Aktivert)
+   */
+  const suggestionsFor = (c: any): OfferSuggestion[] => {
+    const extras = manualExtras[c.id] || [];
+    const base = deriveOfferSuggestions(c).filter((b) => !extras.some((e) => e.id === b.id));
+    return withOfferStatus(withPackageInfo([...base, ...extras], frameworkPackages), c.id);
+  };
+
+  // Pakker som kan velges direkte i «Legg til»-velgeren (vises med partnerens eget navn).
+  const packagePickerItems = Object.values(frameworkPackages)
+    .filter((p) => p?.is_active)
+    .map((p) => ({ frameworkId: p.framework_id, name: packageDisplayName(p), totalHours: p.total_hours }));
 
   const [view, setView] = useState<ViewMode>("table");
   const [search, setSearch] = useState("");
@@ -1095,7 +1171,7 @@ export default function MSPDashboard() {
                               <TableCell onClick={(e) => e.stopPropagation()} className="align-top max-w-[300px]">
 
                                 <RecommendationCell
-                                  suggestions={deriveOfferSuggestions(c)}
+                                  suggestions={suggestionsFor(c)}
                                   picked={offerSelection[c.id] || []}
                                   onToggle={(id) => toggleSuggestion(c.id, id)}
                                   onOffer={() => setOfferFor(c)}
@@ -1103,6 +1179,7 @@ export default function MSPDashboard() {
                                   onPreselectActivatable={(ids) =>
                                     setOfferSelection((prev) => ({ ...prev, [c.id]: ids }))
                                   }
+                                  onAddClick={() => setAddFrameworkFor(c)}
                                 />
                               </TableCell>
                             )}
@@ -1221,7 +1298,7 @@ export default function MSPDashboard() {
         <NeedsAnalysisWizardDialog open={gapOpen} onOpenChange={setGapOpen} customers={filtered} />
         {activateFor && (() => {
           const picked = offerSelection[activateFor.id] || [];
-          const items = deriveOfferSuggestions(activateFor).filter((s) => picked.includes(s.id));
+          const items = suggestionsFor(activateFor).filter((s) => picked.includes(s.id));
           return (
             <ActivateRecommendationsDialog
               open={!!activateFor}
@@ -1235,6 +1312,13 @@ export default function MSPDashboard() {
                 setOfferSelection((prev) => ({
                   ...prev,
                   [activateFor.id]: picked.filter((id) => !items.some((s) => s.id === id && s.activatable)),
+                }));
+                // Fjern manuelt lagt til regelverk som nå er aktivert — de flyttes til «Aktiv».
+                setManualExtras((prev) => ({
+                  ...prev,
+                  [activateFor.id]: (prev[activateFor.id] || []).filter(
+                    (e) => !items.some((s) => s.id === e.id && s.activatable),
+                  ),
                 }));
                 setActivateFor(null);
                 refetch();
@@ -1285,7 +1369,7 @@ export default function MSPDashboard() {
 
         {offerFor && (() => {
           const picked = offerSelection[offerFor.id] || [];
-          const items = deriveOfferSuggestions(offerFor).filter((s) => picked.includes(s.id));
+          const items = suggestionsFor(offerFor).filter((s) => picked.includes(s.id));
           return (
             <MSPCreateOfferDialog
               open={!!offerFor}
@@ -1296,15 +1380,41 @@ export default function MSPDashboard() {
               /* v1.1: partneren er i gang med å lage tilbudet — ikke lenger en anbefalingsliste */
               serviceTitle={`Tilbudsutkast til ${offerFor.customer_name}`}
               offeredServiceNames={items.map((s) => s.label)}
+              offeredFrameworkIds={items
+                .filter((s) => s.kind === "framework" && s.frameworkId)
+                .map((s) => s.frameworkId as string)}
               activeFrameworks={(offerFor.active_frameworks || []).map((f: any) => (typeof f === "string" ? f : (f?.label ?? f?.frameworkId ?? ""))).filter(Boolean)}
               defaultTasks={items.map((s) => ({
-                label: s.label,
-                hours: s.hours,
+                // Har regelverket en lagret pakke brukes pakkens navn og rådgivningstimer.
+                label: s.packageInfo?.name ?? s.label,
+                hours: s.packageInfo?.totalHours ?? s.hours,
                 owner: "Partner" as const,
               }))}
             />
           );
         })()}
+
+        {/* «Legg til» i Anbefalt løsning: partnerens pakker øverst, deretter regelverk og retningslinjer */}
+        <AddFrameworkDialog
+          open={!!addFrameworkFor}
+          onOpenChange={(o) => !o && setAddFrameworkFor(null)}
+          activatedLabels={addFrameworkFor ? deriveActivatedFrameworks(addFrameworkFor) : []}
+          existingIds={addFrameworkFor ? suggestionsFor(addFrameworkFor).map((s) => s.id) : []}
+          packages={packagePickerItems}
+          onAdd={(item) => {
+            const target = addFrameworkFor;
+            if (!target) return;
+            setManualExtras((prev) => {
+              const cur = prev[target.id] || [];
+              return cur.some((e) => e.id === item.id) ? prev : { ...prev, [target.id]: [...cur, item] };
+            });
+            // Manuelt valgte regelverk/tjenester legges rett i tilbudsutvalget.
+            setOfferSelection((prev) => {
+              const cur = prev[target.id] || [];
+              return cur.includes(item.id) ? prev : { ...prev, [target.id]: [...cur, item.id] };
+            });
+          }}
+        />
 
       </main>
     </div>

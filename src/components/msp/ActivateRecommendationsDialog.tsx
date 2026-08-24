@@ -33,6 +33,8 @@ export interface ActivatableItem {
   frameworkId?: string;
   moduleKey?: string;
   price?: number | null;
+  /** Partnerens lagrede regelverkspakke — styrer rådgivningstimer og visningsnavn ved aktivering. */
+  packageInfo?: { name: string; totalHours: number; totalPrice: number };
 }
 
 interface Props {
@@ -117,11 +119,17 @@ export function ActivateRecommendationsDialog({
     return item.price ?? 0;
   };
 
+  /** Rådgivningstimer ved aktivering — pakkenes timer vinner over standardinnstillingen. */
+  const advisoryHoursFor = (item: ActivatableItem) =>
+    item.packageInfo?.totalHours ?? activationHours;
+
   /** Engangsbeløp for rådgivning som følger med aktiveringen av et regelverk. */
-  const activationFeeFor = (item: ActivatableItem) =>
-    item.frameworkId && activationHours > 0 && !excludedActivation[item.id]
-      ? Math.round(activationHours * hourlyRate)
+  const activationFeeFor = (item: ActivatableItem) => {
+    const hours = advisoryHoursFor(item);
+    return item.frameworkId && hours > 0 && !excludedActivation[item.id]
+      ? Math.round(hours * hourlyRate)
       : 0;
+  };
 
   /**
    * Etableringspakken (partnerens fastpris) — vises kun ved FØRSTEGANGS
@@ -213,18 +221,26 @@ export function ActivateRecommendationsDialog({
                 const tiers = tiersFor(item.moduleKey);
                 if (!tiers || !item.moduleKey) {
                   const fee = activationFeeFor(item);
+                  const advisoryHours = advisoryHoursFor(item);
                   const excluded = !!excludedActivation[item.id];
                   return (
                     <div key={item.id} className="rounded-lg border p-3 space-y-1.5">
                       <div className="flex items-center justify-between gap-3">
-                        <span className="text-sm font-medium text-foreground">{item.label}</span>
+                        <span className="text-sm font-medium text-foreground">
+                          {item.packageInfo?.name ?? item.label}
+                        </span>
                         <span className="text-sm font-semibold tabular-nums text-foreground">
                           {item.price
                             ? <>{formatKr(item.price)} <span className="text-xs font-normal text-muted-foreground">/mnd</span></>
                             : <span className="text-xs font-normal text-muted-foreground">Inkludert</span>}
                         </span>
                       </div>
-                      {item.frameworkId && activationHours > 0 && (
+                      {item.packageInfo && (
+                        <p className="text-[11px] text-muted-foreground">
+                          Din pakke fra Produkter og tjenester — aktiverer {item.label} med lisens og rådgivning.
+                        </p>
+                      )}
+                      {item.frameworkId && advisoryHours > 0 && (
                         <div className="flex items-center justify-between gap-3">
                           {excluded ? (
                             <span className="text-xs text-muted-foreground">
@@ -232,7 +248,7 @@ export function ActivateRecommendationsDialog({
                             </span>
                           ) : (
                             <span className="text-xs text-muted-foreground">
-                              Inkluderer {activationHours} t rådgivning ved aktivering ·{" "}
+                              Inkluderer {advisoryHours} t rådgivning ved aktivering ·{" "}
                               <span className="text-foreground font-medium tabular-nums">
                                 {formatKr(fee)} engangs
                               </span>
