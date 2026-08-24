@@ -15,6 +15,7 @@ import { useTerms } from "@/hooks/useTerms";
 import { cn } from "@/lib/utils";
 import { activateCustomerModule } from "@/lib/customerModuleState";
 import { getFrameworkActivationHours } from "@/lib/activationHours";
+import { getProductSetupFee } from "@/lib/productSetupFees";
 import { useServiceDefaults } from "@/hooks/useServiceDefaults";
 import {
   CORE_TIERS,
@@ -82,6 +83,8 @@ export function ActivateRecommendationsDialog({
   const [tierByModule, setTierByModule] = useState<Record<string, string>>({});
   // Regelverk der partneren har fjernet rådgivningstimene for denne aktiveringen.
   const [excludedActivation, setExcludedActivation] = useState<Record<string, boolean>>({});
+  // Produkter (nøkkel = produkt-id) der partneren har fjernet etableringspakken for denne aktiveringen.
+  const [excludedSetup, setExcludedSetup] = useState<Record<string, boolean>>({});
   const { current: currentTerms, hasAcceptedCurrent, acceptTerms } = useTerms();
   const termsOk = termsChecked || hasAcceptedCurrent;
   const { defaultHourlyRate } = useServiceDefaults();
