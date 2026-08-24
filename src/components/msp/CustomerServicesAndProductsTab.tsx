@@ -53,6 +53,7 @@ import {
 } from "@/components/subscriptions/ModuleChangeReceiptSheet";
 import type { FrameworkRecommendation } from "@/lib/regulationRecommender";
 import { ModuleCard } from "@/components/subscriptions/ModuleCard";
+import { AddFrameworksDialog } from "./AddFrameworksDialog";
 import {
   ActivateRecommendationsDialog,
   type ActivatableItem,
@@ -166,6 +167,7 @@ export function CustomerServicesAndProductsTab({
   const { promptOrToast } = usePostActivationPrompt();
   const [showAll, setShowAll] = useState(false);
   const [selectedFrameworks, setSelectedFrameworks] = useState<string[]>([]);
+  const [addFrameworksOpen, setAddFrameworksOpen] = useState(false);
   const [activateItems, setActivateItems] = useState<ActivatableItem[] | null>(null);
   const [enterItems, setEnterItems] = useState<CustomerEntryTarget[] | null>(null);
   const [offerItems, setOfferItems] = useState<{ label: string; hours: number }[] | null>(null);
@@ -291,6 +293,14 @@ export function CustomerServicesAndProductsTab({
       })),
     [activeFrameworkIds],
   );
+
+  // GDPR er gratis baseline og faktureres aldri — kun øvrige regelverk telles som aktive.
+  const gdprIncluded = activeFrameworks.some((f) => f.id === "gdpr");
+  const billableFrameworks = useMemo(
+    () => activeFrameworks.filter((f) => f.id !== "gdpr"),
+    [activeFrameworks],
+  );
+  const hasBillableFrameworks = billableFrameworks.length > 0;
 
   const recommendedFrameworks = useMemo(() => {
     const seen = new Set<string>();
@@ -531,7 +541,7 @@ export function CustomerServicesAndProductsTab({
           <Package className="h-4 w-4 text-primary" />
           <h2 className="text-sm font-semibold text-foreground">Produkter og regelverk</h2>
           <span className="text-xs text-muted-foreground">
-            {activeProductCount + (activeFrameworks.length > 0 ? 1 : 0)} av {products.length + 1} aktivert
+            {activeProductCount + (hasBillableFrameworks ? 1 : 0)} av {products.length + 1} aktivert
           </span>
         </div>
 
@@ -543,38 +553,39 @@ export function CustomerServicesAndProductsTab({
             status={
               frameworksRetiring
                 ? "pending_cancellation"
-                : activeFrameworks.length > 0
+                : hasBillableFrameworks
                   ? "active"
                   : "inactive"
             }
-            price={activeFrameworks.length * FRAMEWORK_PRICE}
+            price={hasBillableFrameworks ? billableFrameworks.length * FRAMEWORK_PRICE : FRAMEWORK_PRICE}
+            priceUnit={hasBillableFrameworks ? undefined : "per regelverk / mnd"}
             priceLabel={
-              activeFrameworks.length > 0 ? `${activeFrameworks.length} aktive regelverk` : undefined
+              hasBillableFrameworks ? `${billableFrameworks.length} aktive regelverk` : undefined
             }
-            usage={String(activeFrameworks.length)}
-            usageLimit={String(ALL_FRAMEWORKS.length)}
-            usageSuffix="aktive"
+            usage={
+              !hasBillableFrameworks && gdprIncluded
+                ? "GDPR er inkludert som gratis baseline"
+                : undefined
+            }
             breakdown={
-              activeFrameworks.length > 0
-                ? activeFrameworks.map((f) => ({ label: f.name, priceKr: FRAMEWORK_PRICE }))
+              hasBillableFrameworks
+                ? billableFrameworks.map((f) => ({ label: f.name, priceKr: FRAMEWORK_PRICE }))
                 : undefined
             }
             cancelAtLabel={
               frameworksState.cancelAt ? formatPeriodEnd(frameworksState.cancelAt) : undefined
             }
             onDeactivate={
-              activeFrameworks.length > 0 ? () => setRetireFrameworksOpen(true) : undefined
+              hasBillableFrameworks ? () => setRetireFrameworksOpen(true) : undefined
             }
             onResume={() => undoRetire("frameworks")}
-            action={activeFrameworks.length > 0 ? "manage" : "activate"}
-            onClick={() => {
-              if (recommendedFrameworks.length > 0 && selectedFrameworks.length === 0) {
-                setSelectedFrameworks(recommendedFrameworks.map((f) => f.id));
-                return;
-              }
-              if (selectedFrameworks.length > 0) activateSelectedFrameworks();
-              else onUpdate?.();
-            }}
+            action="manage"
+            ctaOverride={
+              hasBillableFrameworks
+                ? { label: "Legg til", variant: "outline" }
+                : { label: "Legg til regelverk", variant: "default" }
+            }
+            onClick={() => setAddFrameworksOpen(true)}
             footer={frameworkFooter}
           />
 
@@ -709,6 +720,27 @@ export function CustomerServicesAndProductsTab({
         </CollapsibleContent>
       </Collapsible>
 
+      <AddFrameworksDialog
+        open={addFrameworksOpen}
+        onOpenChange={setAddFrameworksOpen}
+        customerName={customerName}
+        activeIds={activeFrameworkIds}
+        pricePerFramework={FRAMEWORK_PRICE}
+        onConfirm={(ids) => {
+          setAddFrameworksOpen(false);
+          setActivateItems(
+            ids.map((id) => ({
+              id,
+              label: ALL_FRAMEWORKS.find((f) => f.id === id)?.name || id,
+              kind: "framework" as const,
+              activatable: true,
+              frameworkId: id,
+              price: FRAMEWORK_PRICE,
+            })),
+          );
+        }}
+      />
+
       {activateItems && (
         <ActivateRecommendationsDialog
           open={!!activateItems}
@@ -822,22 +854,22 @@ export function CustomerServicesAndProductsTab({
         open={retireFrameworksOpen}
         onOpenChange={setRetireFrameworksOpen}
         customerName={customerName}
-        frameworks={activeFrameworks}
+        frameworks={billableFrameworks}
         pricePerFramework={FRAMEWORK_PRICE}
         onConfirm={(ids) => {
           setRetireFrameworksOpen(false);
-          const names = activeFrameworks
+          const names = billableFrameworks
             .filter((f) => ids.includes(f.id))
             .map((f) => f.name);
           setRetireTarget({
             stateKey: "frameworks",
             moduleId: "frameworks",
-            title: ids.length === activeFrameworks.length ? "Regelverk" : names.join(", "),
+            title: ids.length === billableFrameworks.length ? "Regelverk" : names.join(", "),
             price: ids.length * FRAMEWORK_PRICE,
             scopeLabel:
-              ids.length === activeFrameworks.length
+              ids.length === billableFrameworks.length
                 ? "Alle regelverk"
-                : `${ids.length} av ${activeFrameworks.length} regelverk`,
+                : `${ids.length} av ${billableFrameworks.length} regelverk`,
             frameworkIds: ids,
           });
         }}

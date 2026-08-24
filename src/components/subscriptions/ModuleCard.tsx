@@ -11,6 +11,8 @@ export interface ModuleCardProps {
   status: ModuleStatus;
   price: number;
   priceLabel?: string;
+  /** Overstyrer «per måned» under prisen, f.eks. «per regelverk / mnd». */
+  priceUnit?: string;
   usage?: string;
   usageSuffix?: string;
   usageLimit?: string;
@@ -48,6 +50,7 @@ export function ModuleCard({
   status,
   price,
   priceLabel,
+  priceUnit,
   usage,
   usageSuffix,
   usageLimit,
@@ -181,7 +184,7 @@ export function ModuleCard({
           ) : (
             <div className="min-w-0">
               <div className="text-base font-bold text-foreground leading-tight">{formattedPrice} kr</div>
-              <div className="text-[11px] text-muted-foreground">per måned</div>
+              <div className="text-[11px] text-muted-foreground">{priceUnit ?? "per måned"}</div>
             </div>
           )}
 
