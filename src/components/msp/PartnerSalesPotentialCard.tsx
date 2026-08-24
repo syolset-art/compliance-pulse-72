@@ -155,8 +155,10 @@ export function PartnerSalesPotentialCard({ currency }: { currency: string }) {
     (sum, p) => sum + p.fromPrice,
     0,
   );
-  const frameworkLicense = selected.reduce((sum, f) => sum + f.priceKr, 0);
-  const licensePotential = productLicense + frameworkLicense;
+  // Alle produkter fra Mynder inngår i lisenssummen — minstepris (fra-pris) summert,
+  // uavhengig av hvilke regelverk som er valgt for rådgivningstimer.
+  const allFrameworkLicense = options.reduce((sum, f) => sum + f.priceKr, 0);
+  const licensePotential = productLicense + allFrameworkLicense;
 
   const totalControlPoints = selected.reduce((sum, f) => sum + f.controlPoints, 0);
   const hoursPerReq = hoursPerReqOverride ?? DEFAULT_HOURS_PER_REQ;
@@ -450,15 +452,15 @@ export function PartnerSalesPotentialCard({ currency }: { currency: string }) {
                         <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
                       </TooltipTrigger>
                       <TooltipContent side="bottom" className="max-w-xs text-xs">
-                        Basert på minstepris for hvert Mynder-produkt, pluss månedspris for regelverkene
-                        du velger. Regelverk kan ha ulik pris — GDPR er standard startpunkt.
+                        Basert på minstepris for alle Mynder-produkter (moduler og regelverk)
+                        summert per måned. Rådgivningstimer regnes ut fra regelverkene du velger under.
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Minstepris moduler {fmt(productLicense)} {currency} + {selected.length} regelverk{" "}
-                  {fmt(frameworkLicense)} {currency}
+                  Alle Mynder-produkter — minstepris moduler {fmt(productLicense)} {currency} +{" "}
+                  {options.length} regelverk {fmt(allFrameworkLicense)} {currency}
                 </p>
               </div>
               <p className="text-lg font-semibold text-foreground tabular-nums shrink-0">
@@ -473,13 +475,13 @@ export function PartnerSalesPotentialCard({ currency }: { currency: string }) {
                   size="sm"
                   className="w-full justify-between text-xs font-normal"
                 >
-                  <span className="truncate">Regelverk i potensialet: {selectedLabel}</span>
+                  <span className="truncate">Regelverk for rådgivningstimer: {selectedLabel}</span>
                   <ChevronDown className="h-3.5 w-3.5 shrink-0 opacity-60" />
                 </Button>
               </PopoverTrigger>
               <PopoverContent align="start" className="w-72 p-2">
                 <p className="text-[11px] text-muted-foreground px-2 pb-1.5">
-                  Velg hvilke regelverk kunden aktiverer
+                  Velg hvilke regelverk som inngår i rådgivningstimer-estimatet
                 </p>
                 <div className="max-h-64 overflow-y-auto space-y-0.5">
                   {options.map((o) => {
@@ -494,9 +496,6 @@ export function PartnerSalesPotentialCard({ currency }: { currency: string }) {
                           onCheckedChange={(c) => toggleFramework(o.id, c === true)}
                         />
                         <span className="flex-1 text-xs text-foreground truncate">{o.name}</span>
-                        <span className="text-[11px] text-muted-foreground tabular-nums shrink-0">
-                          {fmt(o.priceKr)} {currency}/mnd
-                        </span>
                       </label>
                     );
                   })}
