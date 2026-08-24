@@ -4,6 +4,8 @@
  * fra timeestimat ganget med partnerens egen timepris.
  */
 
+import { EXTRA_FRAMEWORK_PRICE_KR } from "@/lib/planConstants";
+
 export type OpportunityScope = "liten" | "middels" | "stor";
 
 export const SCOPE_LABEL: Record<OpportunityScope, string> = {
@@ -244,6 +246,17 @@ export function taskPotential(task: OpportunityTask, hourlyRate: number): number
 /** Samlet salgspotensial for én kunde. */
 export function customerPotential(c: OpportunityCustomer, hourlyRate: number): number {
   return c.tasks.reduce((sum, t) => sum + taskPotential(t, hourlyRate), 0);
+}
+
+/**
+ * Månedlig lisenspotensial for én kunde — kun lisenser på foreslåtte regelverk
+ * som ikke er aktivert ennå. Konsulenttimer er ikke inkludert.
+ */
+export function customerLicensePotential(c: OpportunityCustomer): number {
+  const newFrameworks = c.suggestedFrameworks.filter(
+    (f) => !c.activatedFrameworks.includes(f),
+  );
+  return newFrameworks.length * EXTRA_FRAMEWORK_PRICE_KR;
 }
 
 /** Samlet salgspotensial på tvers av kundene. */
