@@ -16,6 +16,7 @@ import {
   estimateDocumentPrice,
   type DeliverableKind,
 } from "./documentDeliverables";
+import { toCanonicalArea, type ControlAreaKey } from "./controlAreas";
 
 export interface RequirementRow {
   framework_id: string;
@@ -23,6 +24,7 @@ export interface RequirementRow {
   name?: string | null;
   name_no?: string | null;
   category?: string | null;
+  sla_category?: string | null;
 }
 
 export interface FrameworkTask {
@@ -35,11 +37,29 @@ export interface FrameworkTask {
   laraDraft: boolean;
   /** Kontrollområde / kategori oppgaven hører til. */
   category: string;
+  /** Mynders fem kontrollområder oppgaven treffer (kan være flere). */
+  controlAreas: ControlAreaKey[];
   /** Kravene oppgaven dekker, f.eks. ["A.5.1", "A.5.4"]. */
   requirements: string[];
   /** True når partneren selv har lagt til oppgaven. */
   custom?: boolean;
 }
+
+/** Fallback fra ISO-kategori til kontrollområde når `sla_category` mangler. */
+const CATEGORY_AREA_FALLBACK: Record<string, ControlAreaKey> = {
+  organizational: "governance",
+  legal: "governance",
+  governance: "governance",
+  technological: "operations",
+  physical: "operations",
+  people: "identityAccess",
+};
+
+export function requirementControlArea(row: RequirementRow): ControlAreaKey {
+  if (row.sla_category) return toCanonicalArea(row.sla_category);
+  return CATEGORY_AREA_FALLBACK[row.category ?? ""] ?? "governance";
+}
+
 
 export interface TaskOverride {
   removed?: boolean;
