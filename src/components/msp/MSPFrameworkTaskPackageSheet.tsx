@@ -421,7 +421,7 @@ export function MSPFrameworkTaskPackageSheet({
               salgsporteføljen og kan legges i tilbud til kunder.
             </p>
             <div className="flex items-center gap-2 shrink-0">
-              {isActive ? (
+              {isActive && (
                 <>
                   <Badge className="text-[10px] font-normal gap-1">
                     <CheckCircle2 className="h-2.5 w-2.5" /> Aktivert i salgsporteføljen
@@ -436,13 +436,10 @@ export function MSPFrameworkTaskPackageSheet({
                     </button>
                   )}
                 </>
-              ) : isSaved ? (
+              )}
+              {isSaved && !isActive && (
                 <Badge variant="outline" className="text-[10px] font-normal">
                   Pakke lagret
-                </Badge>
-              ) : (
-                <Badge variant="secondary" className="text-[10px] font-normal">
-                  Ikke lagret
                 </Badge>
               )}
             </div>
