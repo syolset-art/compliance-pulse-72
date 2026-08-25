@@ -23,6 +23,7 @@ type SecondaryView = "settings" | "how-it-works" | null;
 
 export default function MSPServiceCatalog() {
   const [secondary, setSecondary] = useState<SecondaryView>(null);
+  const [showFrameworkPackages, setShowFrameworkPackages] = useState(false);
   const { currency } = useServiceDefaults();
   const { t } = useTranslation();
   const { setIsChatOpen, setIsDocked } = useGlobalChat();
