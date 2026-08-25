@@ -303,10 +303,12 @@ export function MSPFrameworkTaskPackageSheet({
     setDraft({ name: "", kind: "advisory", hours: "" });
   };
 
+  const effectiveName = (state.customName ?? "").trim() || `${frameworkName} rådgivning`;
+
   const buildPackage = (): SavedFrameworkPackage => ({
     frameworkId: frameworkId ?? "",
     frameworkName,
-    name: (state.customName ?? "").trim() || frameworkName,
+    name: effectiveName,
     hours: packageHours(totals),
     price: packagePrice(totals),
     tasks: tasks
