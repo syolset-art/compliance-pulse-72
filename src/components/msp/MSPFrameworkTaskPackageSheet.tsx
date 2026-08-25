@@ -711,6 +711,12 @@ export function MSPFrameworkTaskPackageSheet({
             </div>
           )}
 
+          {!isLoading && tasks.length > 0 && grouped.length === 0 && (
+            <p className="text-xs text-muted-foreground">
+              Ingen aktiviteter i valgte kontrollområder.
+            </p>
+          )}
+
           {grouped.map(([category, items]) => (
             <Collapsible
               key={category}
