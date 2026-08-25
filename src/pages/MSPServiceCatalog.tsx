@@ -9,10 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Settings2, FileText, ChevronDown, ChevronUp } from "lucide-react";
-import { useTranslation } from "react-i18next";
-import { useGlobalChat } from "@/components/GlobalChatProvider";
 import { useServiceDefaults } from "@/hooks/useServiceDefaults";
-import laraButterfly from "@/assets/lara-butterfly.png";
 import { PartnerSalesPotentialCard } from "@/components/msp/PartnerSalesPotentialCard";
 import { PartnerProductList } from "@/components/msp/PartnerProductList";
 import { MSPFrameworkHoursTab } from "@/components/msp/MSPFrameworkHoursTab";
@@ -25,13 +22,6 @@ export default function MSPServiceCatalog() {
   const [secondary, setSecondary] = useState<SecondaryView>(null);
   const [showFrameworkPackages, setShowFrameworkPackages] = useState(false);
   const { currency } = useServiceDefaults();
-  const { t } = useTranslation();
-  const { setIsChatOpen, setIsDocked } = useGlobalChat();
-
-  const openLaraDocked = () => {
-    setIsDocked(true);
-    setIsChatOpen(true);
-  };
 
   return (
     <div className="flex min-h-screen w-full bg-background">
