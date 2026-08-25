@@ -559,42 +559,42 @@ export function PartnerProductList() {
 
   return (
     <section className="space-y-3">
-      <div className="flex items-start justify-between gap-4">
-        <button
-          type="button"
-          onClick={() => setExpanded((v) => !v)}
-          className="text-left group"
-          aria-expanded={expanded}
-          aria-controls="product-list"
-        >
-          <div className="flex items-center gap-2">
-            <h2 className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors">
-              Lisensprodukter
-            </h2>
-            {expanded ? (
-              <ChevronUp className="h-4 w-4 text-muted-foreground" />
-            ) : (
-              <ChevronDown className="h-4 w-4 text-muted-foreground" />
-            )}
-          </div>
-          <p className="text-sm text-muted-foreground">
-            Fast lisensinntekt per kunde. Klikk på et produkt for å legge til etableringskostnad.
-            Regelverk og rådgivningspakker setter du opp i avsnittet under.
-          </p>
-        </button>
-        <Button
-          variant="outline"
-          size="sm"
-          className="shrink-0 gap-2"
-          onClick={() => setSettingsOpen(true)}
-          aria-label="Innstillinger for produkter fra Mynder"
-        >
-          <Settings2 className="h-4 w-4" />
-          <span className="hidden sm:inline">Innstillinger</span>
-        </Button>
-      </div>
+      <button
+        type="button"
+        onClick={() => setExpanded((v) => !v)}
+        className="text-left group w-full"
+        aria-expanded={expanded}
+        aria-controls="product-list"
+      >
+        <div className="flex items-center gap-2">
+          <h2 className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors">
+            Lisensprodukter
+          </h2>
+          {expanded ? (
+            <ChevronUp className="h-4 w-4 text-muted-foreground" />
+          ) : (
+            <ChevronDown className="h-4 w-4 text-muted-foreground" />
+          )}
+        </div>
+        <p className="text-sm text-muted-foreground">
+          Fast lisensinntekt per kunde. Klikk på et produkt for å legge til etableringskostnad.
+          Regelverk og rådgivningspakker setter du opp i avsnittet under.
+        </p>
+      </button>
       {expanded && (
         <>
+          <div className="flex justify-end">
+            <Button
+              variant="outline"
+              size="sm"
+              className="shrink-0 gap-2"
+              onClick={() => setSettingsOpen(true)}
+              aria-label="Innstillinger for produkter fra Mynder"
+            >
+              <Settings2 className="h-4 w-4" />
+              <span className="hidden sm:inline">Innstillinger</span>
+            </Button>
+          </div>
           <Card id="product-list" className="divide-y divide-border overflow-hidden">
             {MYNDER_PRODUCTS.map((p) => (
               <ProductRow
