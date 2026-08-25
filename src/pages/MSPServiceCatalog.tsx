@@ -87,16 +87,39 @@ export default function MSPServiceCatalog() {
           <PartnerProductList />
 
           <section id="regelverk-pakker" className="space-y-3 scroll-mt-20">
-            <div>
-              <h2 className="text-lg font-semibold text-foreground">
-                Regelverk og rådgivningspakker
-              </h2>
-              <p className="text-sm text-muted-foreground">
-                Aktiver regelverk og sett opp rådgivningspakken med AI-foreslåtte timer per krav.
-              </p>
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h2 className="text-lg font-semibold text-foreground">
+                  Regelverk og rådgivningspakker
+                </h2>
+                <p className="text-sm text-muted-foreground max-w-2xl">
+                  Pakker du kan lage basert på timer du kan levere per regelverk. Pakker du
+                  aktiverer blir synlige under «Aktiverte pakker» over.
+                </p>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                className="shrink-0 gap-2"
+                onClick={() => setShowFrameworkPackages((v) => !v)}
+                aria-expanded={showFrameworkPackages}
+              >
+                {showFrameworkPackages ? (
+                  <>
+                    <ChevronUp className="h-4 w-4" />
+                    Skjul
+                  </>
+                ) : (
+                  <>
+                    <ChevronDown className="h-4 w-4" />
+                    Se pakker
+                  </>
+                )}
+              </Button>
             </div>
-            <MSPFrameworkHoursTab />
+            {showFrameworkPackages && <MSPFrameworkHoursTab />}
           </section>
+
         </div>
       </main>
 
