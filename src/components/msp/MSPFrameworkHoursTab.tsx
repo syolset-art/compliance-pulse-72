@@ -4,7 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Scale, Clock, ChevronRight, CheckCircle2, ChevronDown } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Scale, Clock, ChevronRight, CheckCircle2, ChevronDown, Search } from "lucide-react";
 import { frameworks as FRAMEWORK_DEFS } from "@/lib/frameworkDefinitions";
 import { baselineRequirementRows } from "@/lib/frameworkRequirementBaseline";
 import { useServiceDefaults } from "@/hooks/useServiceDefaults";
@@ -40,6 +41,7 @@ export function MSPFrameworkHoursTab({
   const { packages, savePackage, setActive: setPackageActive } = useFrameworkPackages();
   const [active, setActive] = useState<{ id: string; name: string } | null>(null);
   const [showHowItWorks, setShowHowItWorks] = useState(false);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     if (!openFrameworkId) return;
@@ -105,6 +107,15 @@ export function MSPFrameworkHoursTab({
 
   const activeItem = active ? items.find((i) => i.fw.id === active.id) : undefined;
 
+  const query = search.trim().toLowerCase();
+  const visibleItems = query
+    ? items.filter(
+        ({ fw, saved }) =>
+          fw.name.toLowerCase().includes(query) ||
+          (saved?.state?.customName ?? "").toLowerCase().includes(query),
+      )
+    : items;
+
   return (
     <div className="space-y-4">
       <button
@@ -135,8 +146,42 @@ export function MSPFrameworkHoursTab({
         </Card>
       )}
 
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          const first = visibleItems[0];
+          if (first) setActive({ id: first.fw.id, name: first.fw.name });
+        }}
+        className="flex items-center gap-2"
+      >
+        <div className="relative flex-1">
+          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+          <Input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Søk etter regelverk – f.eks. ISO 27001, DORA"
+            className="h-9 pl-8 text-sm"
+            aria-label="Søk etter regelverk"
+          />
+        </div>
+        <Button
+          type="submit"
+          size="sm"
+          variant="outline"
+          className="h-9 shrink-0"
+          disabled={visibleItems.length === 0}
+        >
+          Opprett tjenestepakke
+        </Button>
+      </form>
+
+      {query && visibleItems.length === 0 && (
+        <p className="text-xs text-muted-foreground">Fant ingen regelverk som matcher «{search}».</p>
+      )}
+
       <div className="grid gap-2">
-        {items.map(({ fw, requirements, totals, saved, advisoryPrice }) => (
+
+        {visibleItems.map(({ fw, requirements, totals, saved, advisoryPrice }) => (
           <Card
             key={fw.id}
             className="p-3.5 hover:border-primary/40 transition-colors cursor-pointer"
