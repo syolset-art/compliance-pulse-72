@@ -25,6 +25,8 @@ import {
   Settings2,
   Handshake,
   ChevronRight,
+  ChevronDown,
+  ChevronUp,
   ArrowDown,
   PackageOpen,
   type LucideIcon,
