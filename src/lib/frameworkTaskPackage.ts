@@ -132,7 +132,7 @@ export function buildFrameworkTasks(rows: RequirementRow[]): FrameworkTask[] {
         kind: profile.kind,
         // Nødfallback: 1 time per kontrollpunkt inntil Lara har estimert
         // (estimate-package-hours) eller partneren justerer selv.
-        hours: { min: 1, max: 1 },
+        hours: 1,
         note: profile.note,
         laraDraft: profile.laraDraft,
         category,
@@ -155,7 +155,7 @@ export interface ResolvedTask extends FrameworkTask {
   estimated: boolean;
   /** Laras korte begrunnelse for estimatet. */
   estimateNote?: string;
-  price: { min: number; max: number };
+  price: number;
 }
 
 export function resolveTasks(
@@ -168,21 +168,15 @@ export function resolveTasks(
     .filter((t) => !state.overrides[t.id]?.removed)
     .map((t) => {
       const o = state.overrides[t.id] ?? {};
-      const hours = {
-        min: o.hoursMin ?? t.hours.min,
-        max: o.hoursMax ?? t.hours.max,
-      };
+      const hours = o.hours ?? t.hours;
       const name = o.name ?? t.name;
       const price =
         o.priceOverride != null
-          ? { min: o.priceOverride, max: o.priceOverride }
-          : {
-              min: Math.round((hours.min * hourlyRate) / 100) * 100,
-              max: Math.round((hours.max * hourlyRate) / 100) * 100,
-            };
+          ? o.priceOverride
+          : Math.round((hours * hourlyRate) / 100) * 100;
       // Manuelle timeendringer nuller ut estimated-flagget — rene Lara-estimater
       // skal ikke markeres som «endret av partneren».
-      const manualHours = !o.estimated && (o.hoursMin != null || o.hoursMax != null);
+      const manualHours = !o.estimated && o.hours != null;
       return {
         ...t,
         name,
@@ -199,8 +193,8 @@ export function resolveTasks(
 
 export interface PackageTotals {
   tasks: number;
-  hours: { min: number; max: number };
-  price: { min: number; max: number };
+  hours: number;
+  price: number;
 }
 
 export function summarizePackage(tasks: ResolvedTask[]): PackageTotals {
@@ -209,10 +203,10 @@ export function summarizePackage(tasks: ResolvedTask[]): PackageTotals {
     .reduce<PackageTotals>(
       (acc, t) => ({
         tasks: acc.tasks + 1,
-        hours: { min: acc.hours.min + t.hours.min, max: acc.hours.max + t.hours.max },
-        price: { min: acc.price.min + t.price.min, max: acc.price.max + t.price.max },
+        hours: acc.hours + t.hours,
+        price: acc.price + t.price,
       }),
-      { tasks: 0, hours: { min: 0, max: 0 }, price: { min: 0, max: 0 } },
+      { tasks: 0, hours: 0, price: 0 },
     );
 }
 
@@ -226,11 +220,36 @@ export type { DeliverableKind };
 
 /** Foreslått pris for hele pakken, brukt når den lagres som tjeneste. */
 export function packagePrice(totals: PackageTotals): number {
-  return Math.round((totals.price.min + totals.price.max) / 2);
+  return Math.round(totals.price);
 }
 
 export function packageHours(totals: PackageTotals): number {
-  return Math.round((totals.hours.min + totals.hours.max) / 2);
+  return Math.round(totals.hours);
+}
+
+/** Slår et gammelt timespenn sammen til ett tall, avrundet til nærmeste halvtime. */
+export function toSingleHours(min: number, max: number): number {
+  return Math.max(0.5, Math.round(((min + max) / 2) * 2) / 2);
+}
+
+/** Migrerer lagret tilstand fra gamle fra–til-timer til ett timetall. */
+function migrateState(s: FrameworkPackageState): FrameworkPackageState {
+  const overrides: Record<string, TaskOverride> = {};
+  for (const [id, o] of Object.entries(s.overrides ?? {})) {
+    const legacy = o as TaskOverride & { hoursMin?: number; hoursMax?: number };
+    const { hoursMin, hoursMax, ...rest } = legacy;
+    overrides[id] =
+      legacy.hours == null && (hoursMin != null || hoursMax != null)
+        ? { ...rest, hours: toSingleHours(hoursMin ?? hoursMax ?? 1, hoursMax ?? hoursMin ?? 1) }
+        : (rest as TaskOverride);
+  }
+  const custom = (s.custom ?? []).map((t) => {
+    const h = t.hours as unknown;
+    if (typeof h === "number") return t;
+    const range = (h ?? { min: 1, max: 1 }) as { min: number; max: number };
+    return { ...t, hours: toSingleHours(range.min, range.max) };
+  });
+  return { overrides, custom, customName: s.customName };
 }
 
 // ── Lagring ──────────────────────────────────────────────────────────────
@@ -249,9 +268,7 @@ function readStore(): Store {
 
 export function loadPackageState(frameworkId: string): FrameworkPackageState {
   const s = readStore()[frameworkId];
-  return s
-    ? { overrides: s.overrides ?? {}, custom: s.custom ?? [], customName: s.customName }
-    : { ...EMPTY_PACKAGE_STATE };
+  return s ? migrateState(s) : { ...EMPTY_PACKAGE_STATE };
 }
 
 export function savePackageState(frameworkId: string, state: FrameworkPackageState): void {

@@ -15,8 +15,8 @@ export interface TaskEstimateInput {
 
 export interface TaskHoursEstimate {
   taskId: string;
-  hoursMin: number;
-  hoursMax: number;
+  /** Ett timetall — spenn fra modellen slås sammen før det brukes. */
+  hours: number;
   rationale: string;
 }
 
@@ -28,5 +28,22 @@ export async function estimatePackageHours(
     body: { framework_name: frameworkName, tasks },
   });
   if (error) throw error;
-  return (data?.estimates ?? []) as TaskHoursEstimate[];
+  const raw = (data?.estimates ?? []) as {
+    taskId: string;
+    hours?: number;
+    hoursMin?: number;
+    hoursMax?: number;
+    rationale?: string;
+  }[];
+  return raw.map((e) => ({
+    taskId: e.taskId,
+    hours:
+      e.hours != null
+        ? Math.max(0.5, Math.round(e.hours * 2) / 2)
+        : Math.max(
+            0.5,
+            Math.round((((e.hoursMin ?? 1) + (e.hoursMax ?? e.hoursMin ?? 1)) / 2) * 2) / 2,
+          ),
+    rationale: e.rationale ?? "",
+  }));
 }
