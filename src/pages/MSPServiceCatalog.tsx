@@ -44,7 +44,6 @@ export default function MSPServiceCatalog() {
               <div className="flex items-center gap-2 shrink-0">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                <DropdownMenuTrigger asChild>
                   <Button
                     variant="outline"
                     size="sm"
