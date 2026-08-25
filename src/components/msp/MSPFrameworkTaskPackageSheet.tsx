@@ -394,14 +394,25 @@ export function MSPFrameworkTaskPackageSheet({
               />
             </div>
             {onSavePackage && (
-              <Button
-                size="sm"
-                className="h-9 shrink-0"
-                disabled={totals.tasks === 0}
-                onClick={() => onSavePackage(buildPackage(), state)}
-              >
-                Lagre pakke
-              </Button>
+              <TooltipProvider delayDuration={150}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      size="sm"
+                      className="h-9 shrink-0"
+                      disabled={totals.tasks === 0}
+                      onClick={() => onSavePackage(buildPackage(), state)}
+                    >
+                      Lagre pakke
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom" className="max-w-xs">
+                    <p>
+                      Pakken lagres med navn, timer og pris, og aktiveres i salgsporteføljen. Deretter kan du legge den til i tilbud til kunder.
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             )}
           </div>
           <div className="flex items-center justify-between gap-2">
