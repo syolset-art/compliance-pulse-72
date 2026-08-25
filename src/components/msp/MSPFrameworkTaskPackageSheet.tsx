@@ -622,6 +622,84 @@ export function MSPFrameworkTaskPackageSheet({
             </div>
           )}
 
+          {!isLoading && tasks.length > 0 && (
+            <div className="rounded-md border border-border bg-muted/40 px-3 py-2.5 space-y-2">
+              <div className="flex items-center gap-1.5">
+                <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                  Filtrer på kontrollområde
+                </span>
+                <TooltipProvider delayDuration={150}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button type="button" aria-label="Om filteret">
+                        <Info className="h-3.5 w-3.5 text-muted-foreground" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="max-w-xs">
+                      <p>
+                        Filteret endrer bare hva som vises — sluttsummen påvirkes ikke. Det er
+                        hakene på kravene som styrer summen. Egne aktiviteter vises alltid.
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => setAreaFilter(new Set())}
+                  className={cn(
+                    "inline-flex items-center rounded-full border px-2.5 py-1 text-[11px] font-medium transition-colors",
+                    areaFilter.size === 0
+                      ? "bg-primary/10 border-primary/40 text-foreground"
+                      : "bg-background border-border text-muted-foreground hover:border-primary/30",
+                  )}
+                >
+                  Alle
+                </button>
+                {CONTROL_AREAS.map((area) => {
+                  const Icon = area.icon;
+                  const active = areaFilter.has(area.key);
+                  const count = areaCounts.get(area.key) ?? 0;
+                  return (
+                    <button
+                      key={area.key}
+                      type="button"
+                      disabled={count === 0}
+                      onClick={() =>
+                        setAreaFilter((prev) => {
+                          const next = new Set(prev);
+                          if (next.has(area.key)) next.delete(area.key);
+                          else next.add(area.key);
+                          return next;
+                        })
+                      }
+                      title={area.descriptionNb}
+                      className={cn(
+                        "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-medium transition-colors",
+                        active
+                          ? "bg-primary/10 border-primary/40 text-foreground"
+                          : "bg-background border-border text-muted-foreground hover:border-primary/30 hover:text-foreground",
+                        count === 0 && "opacity-40 cursor-not-allowed",
+                      )}
+                    >
+                      <Icon
+                        className={cn(
+                          "h-3 w-3",
+                          active ? area.accentClass : "text-muted-foreground",
+                        )}
+                      />
+                      {area.labelNb}
+                      <span className="text-muted-foreground">({count})</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+
+
           {!isLoading && tasks.length === 0 && (
             <div className="rounded-md border border-dashed border-border p-6 text-center space-y-2">
               <p className="text-sm text-muted-foreground">
