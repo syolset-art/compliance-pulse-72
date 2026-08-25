@@ -545,6 +545,41 @@ export function PartnerSalesPotentialCard({ currency }: { currency: string }) {
             {estimateError && !estimating && (
               <p className="text-[11px] text-destructive">{estimateError}</p>
             )}
+
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full justify-between text-xs font-normal"
+                >
+                  <span className="truncate">Regelverk for rådgivningstimer: {selectedLabel}</span>
+                  <ChevronDown className="h-3.5 w-3.5 shrink-0 opacity-60" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent align="start" className="w-72 p-2">
+                <p className="text-[11px] text-muted-foreground px-2 pb-1.5">
+                  Velg hvilke regelverk som inngår i rådgivningstimer-estimatet
+                </p>
+                <div className="max-h-64 overflow-y-auto space-y-0.5">
+                  {options.map((o) => {
+                    const checked = selectedIds.includes(o.id);
+                    return (
+                      <label
+                        key={o.id}
+                        className="flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-muted/60 cursor-pointer"
+                      >
+                        <Checkbox
+                          checked={checked}
+                          onCheckedChange={(c) => toggleFramework(o.id, c === true)}
+                        />
+                        <span className="flex-1 text-xs text-foreground truncate">{o.name}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </PopoverContent>
+            </Popover>
           </div>
         </div>
       ) : activePackages.length === 0 ? (
