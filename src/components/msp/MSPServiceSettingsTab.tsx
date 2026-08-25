@@ -2,7 +2,9 @@ import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Clock, FileText, Pencil, Receipt } from "lucide-react";
+import { Clock, FileText, Info, Pencil, Receipt } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+
 import { toast } from "sonner";
 import { useServiceDefaults, SUPPORTED_CURRENCIES } from "@/hooks/useServiceDefaults";
 import { PartnerBrandingCard } from "./PartnerBrandingCard";
