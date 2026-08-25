@@ -98,10 +98,16 @@ export function MSPFrameworkTaskPackageSheet({
 }: Props) {
   const [state, setState] = useState<FrameworkPackageState>(EMPTY_PACKAGE_STATE);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [draft, setDraft] = useState<{ name: string; kind: DeliverableKind; hours: string }>({
+  const [draft, setDraft] = useState<{
+    name: string;
+    kind: DeliverableKind;
+    hours: string;
+    price: string;
+  }>({
     name: "",
     kind: "advisory",
     hours: "",
+    price: "",
   });
   const [adding, setAdding] = useState(false);
   const [estimating, setEstimating] = useState(false);
@@ -252,12 +258,21 @@ export function MSPFrameworkTaskPackageSheet({
   const startEdit = (t: ResolvedTask) => {
     setAdding(false);
     setEditingId(t.id);
-    setDraft({ name: t.name, kind: t.kind, hours: String(t.hours.min) });
+    setDraft({
+      name: t.name,
+      kind: t.kind,
+      hours: String(t.hours.min),
+      price:
+        state.overrides[t.id]?.priceOverride != null
+          ? String(state.overrides[t.id]!.priceOverride)
+          : "",
+    });
   };
 
   const saveEdit = () => {
     if (!editingId) return;
     const hours = Math.max(0, Number(draft.hours) || 0);
+    const priceValue = draft.price.trim() === "" ? null : Math.max(0, Number(draft.price) || 0);
     persist({
       ...state,
       overrides: {
@@ -268,6 +283,7 @@ export function MSPFrameworkTaskPackageSheet({
           kind: draft.kind,
           hoursMin: hours,
           hoursMax: hours,
+          priceOverride: priceValue ?? undefined,
           // Manuelle justeringer erstatter Laras estimat
           estimated: false,
           estimateNote: undefined,
@@ -281,9 +297,14 @@ export function MSPFrameworkTaskPackageSheet({
     const name = draft.name.trim();
     if (!name) return;
     const hours = Math.max(0, Number(draft.hours) || 1);
+    const priceValue = draft.price.trim() === "" ? null : Math.max(0, Number(draft.price) || 0);
     const id = `custom-${slugifyTaskName(name)}-${Date.now()}`;
     persist({
       ...state,
+      overrides:
+        priceValue != null
+          ? { ...state.overrides, [id]: { ...state.overrides[id], priceOverride: priceValue } }
+          : state.overrides,
       custom: [
         ...state.custom,
         {
@@ -291,17 +312,18 @@ export function MSPFrameworkTaskPackageSheet({
           name,
           kind: draft.kind,
           hours: { min: hours, max: hours },
-          note: "Egendefinert oppgave.",
-          laraDraft: draft.kind === "advisory",
-          category: "Egendefinerte oppgaver",
+          note: "Egendefinert aktivitet.",
+          laraDraft: false,
+          category: "Egne aktiviteter",
           requirements: [],
           custom: true,
         },
       ],
     });
     setAdding(false);
-    setDraft({ name: "", kind: "advisory", hours: "" });
+    setDraft({ name: "", kind: "advisory", hours: "", price: "" });
   };
+
 
   const effectiveName = (state.customName ?? "").trim() || `${frameworkName} rådgivning`;
 
@@ -324,7 +346,7 @@ export function MSPFrameworkTaskPackageSheet({
   };
 
   const editor = (onSave: () => void, onCancel: () => void) => (
-    <div className="grid grid-cols-1 sm:grid-cols-[1fr_140px_90px_auto] gap-2 items-end rounded-md border border-border p-2 bg-muted/30">
+    <div className="grid grid-cols-1 sm:grid-cols-[1fr_140px_80px_110px_auto] gap-2 items-end rounded-md border border-border p-2 bg-muted/30">
       <div className="space-y-1">
         <Label className="text-[11px]">Navn</Label>
         <Input
@@ -358,6 +380,17 @@ export function MSPFrameworkTaskPackageSheet({
           className="h-8 text-sm"
         />
       </div>
+      <div className="space-y-1">
+        <Label className="text-[11px]">Fastpris</Label>
+        <Input
+          type="number"
+          min={0}
+          value={draft.price}
+          onChange={(e) => setDraft({ ...draft, price: e.target.value })}
+          placeholder="Fra timer"
+          className="h-8 text-sm"
+        />
+      </div>
       <div className="flex items-center gap-1">
         <Button size="sm" className="h-8" onClick={onSave}>
           <Check className="h-3.5 w-3.5" />
@@ -375,29 +408,37 @@ export function MSPFrameworkTaskPackageSheet({
         <SheetHeader>
           <div className="flex items-start gap-2">
             <div className="flex-1 min-w-0 space-y-1">
-              <Input
-                id="pkg-name"
-                value={effectiveName}
-                onChange={(e) => persist({ ...state, customName: e.target.value })}
-                className="h-10 text-lg font-semibold border-0 px-0 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent"
-                placeholder={`${frameworkName} rådgivning`}
-              />
-              <p className="text-xs text-muted-foreground">Rådgivningspakke · {frameworkName}</p>
+              <SheetTitle className="text-lg">Opprett tjenestepakke</SheetTitle>
+              <p className="text-xs text-muted-foreground">Regelverk: {frameworkName}</p>
             </div>
             <TooltipProvider delayDuration={150}>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <button className="mt-2.5 text-muted-foreground hover:text-foreground transition-colors shrink-0">
+                  <button className="mt-1 text-muted-foreground hover:text-foreground transition-colors shrink-0">
                     <Info className="h-4 w-4" />
                   </button>
                 </TooltipTrigger>
                 <TooltipContent side="right" className="max-w-xs">
                   <p>
-                    Gå gjennom krav og tilhørende oppgaver, juster antall timer, fjern det som ikke er relevant, eller legg til egne oppgaver.
+                    Gå gjennom krav og tilhørende oppgaver, juster antall timer, fjern det som ikke
+                    er relevant, legg til egne aktiviteter og sett pris. Sluttsummen oppdateres
+                    automatisk.
                   </p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
+          </div>
+          <div className="mt-3 space-y-1">
+            <Label htmlFor="pkg-name" className="text-[11px]">
+              Lag ditt eget produktnavn på denne tjenestepakken
+            </Label>
+            <Input
+              id="pkg-name"
+              value={effectiveName}
+              onChange={(e) => persist({ ...state, customName: e.target.value })}
+              className="h-9 text-sm"
+              placeholder={`${frameworkName} rådgivning`}
+            />
           </div>
         </SheetHeader>
 
@@ -475,7 +516,7 @@ export function MSPFrameworkTaskPackageSheet({
               </p>
             </div>
             <div className="flex items-center justify-between gap-3 border-t border-border pt-1.5">
-              <p className="text-sm font-medium text-foreground">Totalt</p>
+              <p className="text-sm font-medium text-foreground">Sluttsum</p>
               <p className="text-sm font-semibold text-foreground shrink-0">
                 {formatPriceRange(totals.price, currency)}
                 {licensePrice > 0 && (
@@ -522,13 +563,33 @@ export function MSPFrameworkTaskPackageSheet({
         <div className="mt-4 space-y-5 pb-32">
           {isLoading && <p className="text-sm text-muted-foreground">Henter krav…</p>}
 
+          {!isLoading && tasks.length > 0 && (
+            <div className="flex items-center justify-between gap-3 flex-wrap">
+              <p className="text-xs text-muted-foreground">
+                Fjern haken på krav du ikke vil levere på — de tas ikke med i sluttsummen.
+              </p>
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-8 text-xs shrink-0"
+                onClick={() => {
+                  setEditingId(null);
+                  setDraft({ name: "", kind: "advisory", hours: "", price: "" });
+                  setAdding(true);
+                }}
+              >
+                <Plus className="h-3.5 w-3.5 mr-1" /> Legg til aktivitet
+              </Button>
+            </div>
+          )}
+
           {!isLoading && tasks.length === 0 && (
             <div className="rounded-md border border-dashed border-border p-6 text-center space-y-2">
               <p className="text-sm text-muted-foreground">
                 Vi har ingen krav registrert for dette regelverket ennå.
               </p>
               <Button size="sm" variant="outline" onClick={() => setAdding(true)}>
-                <Plus className="h-3.5 w-3.5 mr-1" /> Legg til egen oppgave
+                <Plus className="h-3.5 w-3.5 mr-1" /> Legg til aktivitet
               </Button>
             </div>
           )}
@@ -627,11 +688,11 @@ export function MSPFrameworkTaskPackageSheet({
                   className="h-8 text-xs"
                   onClick={() => {
                     setEditingId(null);
-                    setDraft({ name: "", kind: "advisory", hours: "" });
+                    setDraft({ name: "", kind: "advisory", hours: "", price: "" });
                     setAdding(true);
                   }}
                 >
-                  <Plus className="h-3.5 w-3.5 mr-1" /> Legg til egen oppgave
+                  <Plus className="h-3.5 w-3.5 mr-1" /> Legg til aktivitet
                 </Button>
                 <Button size="sm" variant="ghost" className="h-8 text-xs" onClick={reset}>
                   <RotateCcw className="h-3.5 w-3.5 mr-1" /> Nullstill til forslag
