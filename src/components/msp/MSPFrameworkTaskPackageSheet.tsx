@@ -29,6 +29,7 @@ import { formatPriceRange } from "@/lib/documentDeliverables";
 import { baselineRequirementRows } from "@/lib/frameworkRequirementBaseline";
 import { frameworkLicensePrice } from "@/lib/planConstants";
 import { estimatePackageHours } from "@/lib/laraPackageHoursEstimate";
+import { CONTROL_AREAS, type ControlAreaKey } from "@/lib/controlAreas";
 import {
   buildFrameworkTasks,
   resolveTasks,
