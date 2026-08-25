@@ -253,21 +253,32 @@ export function PartnerSalesPotentialCard({ currency }: { currency: string }) {
             <div className="flex items-center gap-2 flex-wrap">
               <h2 className="text-base font-semibold text-foreground">Salgspotensial per kunde</h2>
               {/* Visningsvelger: estimat vs. partnerens egne pakker */}
-              <div
-                className="inline-flex rounded-md border border-border bg-background p-0.5"
-                role="tablist"
-                aria-label="Velg visning"
-              >
-                <button
-                  type="button"
-                  role="tab"
-                  aria-selected={true}
-                  onClick={() => setView(view === "estimate" ? "packages" : "estimate")}
-                  className="rounded px-2.5 py-1 text-[11px] font-medium transition-colors bg-primary text-primary-foreground"
-                >
-                  {view === "estimate" ? "Estimert potensial" : "Mine aktiverte pakker"}
-                </button>
-              </div>
+              <TooltipProvider delayDuration={150}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div
+                      className="inline-flex rounded-md border border-border bg-background p-0.5"
+                      role="tablist"
+                      aria-label="Velg visning"
+                    >
+                      <button
+                        type="button"
+                        role="tab"
+                        aria-selected={true}
+                        onClick={() => setView(view === "estimate" ? "packages" : "estimate")}
+                        className="rounded px-2.5 py-1 text-[11px] font-medium transition-colors bg-primary text-primary-foreground"
+                      >
+                        {view === "estimate" ? "Estimert potensial" : "Mine aktiverte pakker"}
+                      </button>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom" className="max-w-xs">
+                    <p>
+                      Klikk for å bytte mellom estimert potensial basert på Lara-beregninger og dine egne aktiverte pakker.
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
               {/* Estimatsinnstillinger (kun relevant i estimat-visningen) */}
               {isEstimate && (
                 <Popover>
