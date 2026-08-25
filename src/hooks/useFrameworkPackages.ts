@@ -83,9 +83,16 @@ export function useFrameworkPackages() {
 
   const saveMutation = useMutation({
     mutationFn: upsert,
-    onSuccess: () => {
+    onSuccess: (_row, input) => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEY });
-      toast.success("Pakken er lagret og aktivert i salgsporteføljen");
+      const hours = input.totalHours ?? 0;
+      const price = input.totalPrice ?? 0;
+      toast.success(
+        `${input.frameworkName} er lagret og aktivert i salgsporteføljen`,
+        {
+          description: `Pakken inneholder ${hours.toLocaleString("nb-NO")} rådgivningstimer (${price.toLocaleString("nb-NO")} kr) og kan nå brukes i tilbud til kunder.`,
+        }
+      );
     },
     onError: () => toast.error("Kunne ikke lagre pakken"),
   });
