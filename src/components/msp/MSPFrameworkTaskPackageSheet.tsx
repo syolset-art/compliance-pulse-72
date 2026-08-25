@@ -384,7 +384,7 @@ export function MSPFrameworkTaskPackageSheet({
           <div className="flex items-end gap-3">
             <div className="flex-1 min-w-0 space-y-1">
               <Label htmlFor="pkg-name" className="text-[11px]">
-                Pakkens navn i salgsporteføljen
+                Lag ditt eget produktnavn på denne tjenestepakken
               </Label>
               <Input
                 id="pkg-name"
