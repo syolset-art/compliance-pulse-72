@@ -25,6 +25,8 @@ import {
   Settings2,
   Handshake,
   ChevronRight,
+  ChevronDown,
+  ChevronUp,
   ArrowDown,
   PackageOpen,
   type LucideIcon,
@@ -534,7 +536,7 @@ export function PartnerProductList() {
   const [editing, setEditing] = useState<MynderProduct | null>(null);
   const [frameworkInfoOpen, setFrameworkInfoOpen] = useState(false);
   const [frameworkHours, setFrameworkHours] = useState<number>(readFrameworkHours);
-  const [showAll, setShowAll] = useState(false);
+  const [expanded, setExpanded] = useState(false);
   const { defaultHourlyRate, currency } = useServiceDefaults();
   const hourlyRate = defaultHourlyRate ?? 1500;
 
@@ -555,20 +557,31 @@ export function PartnerProductList() {
     }
   };
 
-  const visibleProducts = showAll
-    ? MYNDER_PRODUCTS
-    : MYNDER_PRODUCTS.filter((p) => p.id !== "frameworks");
-
   return (
     <section className="space-y-3">
       <div className="flex items-start justify-between gap-4">
-        <div>
-          <h2 className="text-lg font-semibold text-foreground">Lisensprodukter</h2>
+        <button
+          type="button"
+          onClick={() => setExpanded((v) => !v)}
+          className="text-left group"
+          aria-expanded={expanded}
+          aria-controls="product-list"
+        >
+          <div className="flex items-center gap-2">
+            <h2 className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors">
+              Lisensprodukter
+            </h2>
+            {expanded ? (
+              <ChevronUp className="h-4 w-4 text-muted-foreground" />
+            ) : (
+              <ChevronDown className="h-4 w-4 text-muted-foreground" />
+            )}
+          </div>
           <p className="text-sm text-muted-foreground">
             Fast lisensinntekt per kunde. Klikk på et produkt for å legge til etableringskostnad.
             Regelverk og rådgivningspakker setter du opp i avsnittet under.
           </p>
-        </div>
+        </button>
         <Button
           variant="outline"
           size="sm"
@@ -580,27 +593,21 @@ export function PartnerProductList() {
           <span className="hidden sm:inline">Innstillinger</span>
         </Button>
       </div>
-      <Card className="divide-y divide-border overflow-hidden">
-        {visibleProducts.map((p) => (
-          <ProductRow
-            key={p.id}
-            product={p}
-            frameworkHours={frameworkHours}
-            hourlyRate={hourlyRate}
-            onOpen={handleOpen}
-          />
-        ))}
-      </Card>
-      <div className="flex justify-end">
-        <Button
-          variant="ghost"
-          size="sm"
-          className="text-xs"
-          onClick={() => setShowAll((s) => !s)}
-        >
-          {showAll ? "Vis færre" : "Se alle"}
-        </Button>
-      </div>
+      {expanded && (
+        <>
+          <Card id="product-list" className="divide-y divide-border overflow-hidden">
+            {MYNDER_PRODUCTS.map((p) => (
+              <ProductRow
+                key={p.id}
+                product={p}
+                frameworkHours={frameworkHours}
+                hourlyRate={hourlyRate}
+                onOpen={handleOpen}
+              />
+            ))}
+          </Card>
+        </>
+      )}
       <ProductSettingsSheet open={settingsOpen} onOpenChange={setSettingsOpen} />
       <ProductEditSheet
         product={editing}
