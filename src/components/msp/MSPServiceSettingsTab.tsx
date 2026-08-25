@@ -2,7 +2,9 @@ import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Clock, FileText, Pencil, Receipt } from "lucide-react";
+import { Clock, FileText, Info, Pencil, Receipt } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+
 import { toast } from "sonner";
 import { useServiceDefaults, SUPPORTED_CURRENCIES } from "@/hooks/useServiceDefaults";
 import { PartnerBrandingCard } from "./PartnerBrandingCard";
@@ -183,9 +185,29 @@ export function MSPServiceSettingsTab() {
               <FileText className="h-4 w-4" />
             </div>
             <div className="min-w-0 text-left">
-              <h3 className="text-base font-semibold text-foreground">Tilbudsmal</h3>
+              <div className="flex items-center gap-1.5">
+                <h3 className="text-base font-semibold text-foreground">Tilbudsmal</h3>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span
+                      role="button"
+                      tabIndex={0}
+                      onClick={(e) => e.stopPropagation()}
+                      className="text-muted-foreground hover:text-foreground"
+                    >
+                      <Info className="h-3.5 w-3.5" />
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-xs">
+                    Navn, organisasjonsnummer, webadresse og logo hentes automatisk fra
+                    organisasjonsprofilen. Du kan overstyre feltene og laste opp en egen logo
+                    som bare brukes i tilbud.
+                  </TooltipContent>
+                </Tooltip>
+              </div>
               <p className="text-sm text-muted-foreground truncate">{brandingSummary}</p>
             </div>
+
           </div>
         </AccordionTrigger>
         <AccordionContent className="pb-4">

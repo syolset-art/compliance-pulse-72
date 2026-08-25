@@ -81,6 +81,43 @@ export function PartnerBrandingCard() {
 
             <div className="space-y-1.5">
               <Label className="text-base uppercase tracking-wide text-muted-foreground font-semibold">
+                Logo
+              </Label>
+              <div className="flex items-center gap-3">
+                <div className="h-12 w-12 rounded-md border border-border bg-muted flex items-center justify-center overflow-hidden shrink-0">
+                  {branding.logoUrl ? (
+                    <img src={branding.logoUrl} alt="Partnerlogo" className="h-full w-full object-contain" />
+                  ) : (
+                    <ImageIcon className="h-4 w-4 text-muted-foreground" />
+                  )}
+                </div>
+                <input
+                  ref={fileRef}
+                  type="file"
+                  accept="image/png,image/jpeg,image/svg+xml"
+                  className="hidden"
+                  onChange={(e) => {
+                    const f = e.target.files?.[0];
+                    if (f) handleLogoSelect(f);
+                    e.target.value = "";
+                  }}
+                />
+                <Button type="button" variant="outline" size="sm" className="h-9 text-sm gap-1.5"
+                  onClick={() => fileRef.current?.click()}>
+                  <Upload className="h-3.5 w-3.5" />
+                  {branding.logoUrl ? "Bytt logo" : "Legg ved logo"}
+                </Button>
+                {!branding.isAutoLogo && (
+                  <Button type="button" variant="ghost" size="sm" className="h-9 text-sm gap-1"
+                    onClick={() => { clearField("logoDataUrl"); toast.success("Tilbakestilt til organisasjonens logo"); }}>
+                    <RotateCcw className="h-3 w-3" /> Auto
+                  </Button>
+                )}
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="text-base uppercase tracking-wide text-muted-foreground font-semibold">
                 Partnernavn
               </Label>
               <div className="flex gap-2">
@@ -97,13 +134,6 @@ export function PartnerBrandingCard() {
                   </Button>
                 )}
               </div>
-              <p className="text-sm text-muted-foreground">
-                {branding.isAutoName
-                  ? (branding.autoName
-                      ? "Hentet automatisk fra organisasjonsprofilen."
-                      : "Mangler — fyll inn juridisk navn i organisasjonsprofilen.")
-                  : "Overstyrt manuelt."}
-              </p>
             </div>
 
             <div className="space-y-1.5">
@@ -124,11 +154,6 @@ export function PartnerBrandingCard() {
                   </Button>
                 )}
               </div>
-              <p className="text-sm text-muted-foreground">
-                {branding.isAutoOrg
-                  ? (branding.autoOrgNumber ? "Hentet automatisk fra organisasjonsprofilen." : "Mangler — fyll inn i organisasjonsprofilen.")
-                  : "Overstyrt manuelt."}
-              </p>
             </div>
 
             <div className="space-y-1.5">
@@ -149,11 +174,6 @@ export function PartnerBrandingCard() {
                   </Button>
                 )}
               </div>
-              <p className="text-sm text-muted-foreground">
-                {branding.isAutoDomain
-                  ? (branding.autoDomain ? "Hentet automatisk fra organisasjonsprofilen." : "Valgfritt — kan fylles inn i organisasjonsprofilen.")
-                  : "Overstyrt manuelt."}
-              </p>
             </div>
 
             <div className="pt-1">
@@ -169,25 +189,31 @@ export function PartnerBrandingCard() {
               Slik vises det i tilbudet
             </Label>
             <div className="rounded-md border border-border bg-background p-4 shadow-sm">
-              <div className="min-w-0 space-y-0.5">
-                <p className="text-sm font-semibold text-foreground truncate">
-                  {previewName || "Mangler navn"}
-                </p>
-                {previewOrg && (
-                  <p className="text-sm text-muted-foreground tabular-nums">
-                    Org.nr {previewOrg}
-                  </p>
+              <div className="flex items-start gap-3">
+                {branding.logoUrl && (
+                  <img src={branding.logoUrl} alt="" className="h-10 w-10 object-contain shrink-0" />
                 )}
-                {previewDomain && (
-                  <p className="text-sm text-muted-foreground truncate">
-                    {previewDomain}
+                <div className="min-w-0 space-y-0.5">
+                  <p className="text-sm font-semibold text-foreground truncate">
+                    {previewName || "Mangler navn"}
                   </p>
-                )}
+                  {previewOrg && (
+                    <p className="text-sm text-muted-foreground tabular-nums">
+                      Org.nr {previewOrg}
+                    </p>
+                  )}
+                  {previewDomain && (
+                    <p className="text-sm text-muted-foreground truncate">
+                      {previewDomain}
+                    </p>
+                  )}
+                </div>
               </div>
             </div>
           </div>
         </div>
       )}
+
     </Card>
   );
 }
