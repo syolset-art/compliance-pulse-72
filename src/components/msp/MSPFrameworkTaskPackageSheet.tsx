@@ -157,15 +157,31 @@ export function MSPFrameworkTaskPackageSheet({
   const totals = useMemo(() => summarizePackage(tasks), [tasks]);
   const licensePrice = frameworkId ? frameworkLicensePrice(frameworkId) : 0;
 
+  const areaCounts = useMemo(() => {
+    const counts = new Map<ControlAreaKey, number>();
+    tasks.forEach((t) => {
+      t.controlAreas.forEach((a) => counts.set(a, (counts.get(a) ?? 0) + 1));
+    });
+    return counts;
+  }, [tasks]);
+
+  const visibleTasks = useMemo(() => {
+    if (areaFilter.size === 0) return tasks;
+    return tasks.filter(
+      (t) => t.custom || t.controlAreas.some((a) => areaFilter.has(a)),
+    );
+  }, [tasks, areaFilter]);
+
   const grouped = useMemo(() => {
     const map = new Map<string, ResolvedTask[]>();
-    tasks.forEach((t) => {
+    visibleTasks.forEach((t) => {
       const list = map.get(t.category) ?? [];
       list.push(t);
       map.set(t.category, list);
     });
     return Array.from(map.entries());
-  }, [tasks]);
+  }, [visibleTasks]);
+
 
   /**
    * Lar Lara lage et grovt timeestimat per oppgave.
