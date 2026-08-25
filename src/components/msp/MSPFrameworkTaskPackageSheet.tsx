@@ -374,9 +374,11 @@ export function MSPFrameworkTaskPackageSheet({
         <SheetHeader>
           <SheetTitle>{frameworkName}</SheetTitle>
           <SheetDescription>
-            Alle krav med tilhørende oppgaver som må leveres. Juster timer, fjern det som ikke er
-            relevant, eller legg til egne oppgaver. Pris beregnes fra timeprisen din (
-            {hourlyRate.toLocaleString("nb-NO")} {currency}).
+            Her setter du opp en rådgivningspakke for {frameworkName}. Gå gjennom krav og
+            tilhørende oppgaver, juster antall timer, fjern det som ikke er relevant, eller legg til
+            egne oppgaver. Prisen beregnes automatisk fra timeprisen din (
+            {hourlyRate.toLocaleString("nb-NO")} {currency}). Når du er fornøyd, lagrer du pakken i
+            salgsporteføljen.
           </SheetDescription>
         </SheetHeader>
 
