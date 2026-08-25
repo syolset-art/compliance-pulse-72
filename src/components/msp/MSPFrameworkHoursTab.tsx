@@ -9,7 +9,7 @@ import { Scale, Clock, ChevronRight, CheckCircle2, ChevronDown, Search } from "l
 import { frameworks as FRAMEWORK_DEFS } from "@/lib/frameworkDefinitions";
 import { baselineRequirementRows } from "@/lib/frameworkRequirementBaseline";
 import { useServiceDefaults } from "@/hooks/useServiceDefaults";
-import { formatPriceRange } from "@/lib/documentDeliverables";
+import { formatMoney } from "@/lib/documentDeliverables";
 import { EXTRA_FRAMEWORK_PRICE_KR } from "@/lib/planConstants";
 import { useFrameworkPackages } from "@/hooks/useFrameworkPackages";
 import {
@@ -223,7 +223,7 @@ export function MSPFrameworkHoursTab({
                   Rådgivning {fmt(advisoryPrice)} {currency}
                 </p>
                 <p className="text-[11px] text-muted-foreground">
-                  {formatPriceRange(totals.price, currency)} (estimat)
+                  {formatMoney(totals.price, currency)} (estimat)
                 </p>
               </div>
               <Button size="sm" variant="ghost" className="h-8 px-2" aria-label={`Åpne ${fw.name}`}>
