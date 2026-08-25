@@ -98,10 +98,16 @@ export function MSPFrameworkTaskPackageSheet({
 }: Props) {
   const [state, setState] = useState<FrameworkPackageState>(EMPTY_PACKAGE_STATE);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [draft, setDraft] = useState<{ name: string; kind: DeliverableKind; hours: string }>({
+  const [draft, setDraft] = useState<{
+    name: string;
+    kind: DeliverableKind;
+    hours: string;
+    price: string;
+  }>({
     name: "",
     kind: "advisory",
     hours: "",
+    price: "",
   });
   const [adding, setAdding] = useState(false);
   const [estimating, setEstimating] = useState(false);
