@@ -31,7 +31,8 @@ export interface FrameworkTask {
   id: string;
   name: string;
   kind: DeliverableKind;
-  hours: { min: number; max: number };
+  /** Foreslåtte timer — ett tall, aldri et spenn. */
+  hours: number;
   note: string;
   /** Kan Lara lage et førsteutkast? */
   laraDraft: boolean;
@@ -66,8 +67,7 @@ export interface TaskOverride {
   disabled?: boolean;
   name?: string;
   kind?: DeliverableKind;
-  hoursMin?: number;
-  hoursMax?: number;
+  hours?: number;
   priceOverride?: number;
   /** True når timene kommer fra et grovt Lara-estimat (ikke manuelt endret). */
   estimated?: boolean;
