@@ -571,18 +571,30 @@ export function MSPFrameworkTaskPackageSheet({
               <p className="text-xs text-muted-foreground">
                 Fjern haken på krav du ikke vil levere på — de tas ikke med i sluttsummen.
               </p>
-              <Button
-                size="sm"
-                variant="outline"
-                className="h-8 text-xs shrink-0"
-                onClick={() => {
-                  setEditingId(null);
-                  setDraft({ name: "", kind: "advisory", hours: "", price: "" });
-                  setAdding(true);
-                }}
-              >
-                <Plus className="h-3.5 w-3.5 mr-1" /> Legg til aktivitet
-              </Button>
+              <TooltipProvider delayDuration={150}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-8 text-xs shrink-0"
+                      onClick={() => {
+                        setEditingId(null);
+                        setDraft({ name: "", kind: "advisory", hours: "", price: "" });
+                        setAdding(true);
+                      }}
+                    >
+                      <Plus className="h-3.5 w-3.5 mr-1" /> Legg til aktivitet
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom" className="max-w-xs">
+                    <p>
+                      Legger til en egendefinert aktivitet med navn, type, timer og fastpris. Når du
+                      lagrer, oppdateres sluttsummen automatisk.
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </div>
           )}
 
