@@ -113,6 +113,7 @@ export function MSPFrameworkTaskPackageSheet({
   });
   const [adding, setAdding] = useState(false);
   const [openCategories, setOpenCategories] = useState<Set<string>>(new Set());
+  const [areaFilter, setAreaFilter] = useState<Set<ControlAreaKey>>(new Set());
   const [estimating, setEstimating] = useState(false);
   const estimateRanFor = useRef<string | null>(null);
 
