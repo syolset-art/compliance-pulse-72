@@ -310,7 +310,9 @@ export function MSPFrameworkTaskPackageSheet({
       note: "Egendefinert aktivitet.",
       laraDraft: false,
       category: "Egne aktiviteter",
+      controlAreas: [],
       requirements: [],
+
       custom: true,
     };
     const nextOverrides =
