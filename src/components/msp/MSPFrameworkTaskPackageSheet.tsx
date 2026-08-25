@@ -325,6 +325,7 @@ export function MSPFrameworkTaskPackageSheet({
     });
     setAdding(false);
     setDraft({ name: "", kind: "advisory", hours: "", price: "" });
+    toast.success(`Aktivitet «${name}» lagt til. Sluttsum oppdatert til ${formatPriceRange(totals.price, currency)}.`);
   };
 
 
