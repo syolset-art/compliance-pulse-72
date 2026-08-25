@@ -258,12 +258,21 @@ export function MSPFrameworkTaskPackageSheet({
   const startEdit = (t: ResolvedTask) => {
     setAdding(false);
     setEditingId(t.id);
-    setDraft({ name: t.name, kind: t.kind, hours: String(t.hours.min) });
+    setDraft({
+      name: t.name,
+      kind: t.kind,
+      hours: String(t.hours.min),
+      price:
+        state.overrides[t.id]?.priceOverride != null
+          ? String(state.overrides[t.id]!.priceOverride)
+          : "",
+    });
   };
 
   const saveEdit = () => {
     if (!editingId) return;
     const hours = Math.max(0, Number(draft.hours) || 0);
+    const priceValue = draft.price.trim() === "" ? null : Math.max(0, Number(draft.price) || 0);
     persist({
       ...state,
       overrides: {
@@ -274,6 +283,7 @@ export function MSPFrameworkTaskPackageSheet({
           kind: draft.kind,
           hoursMin: hours,
           hoursMax: hours,
+          priceOverride: priceValue ?? undefined,
           // Manuelle justeringer erstatter Laras estimat
           estimated: false,
           estimateNote: undefined,
@@ -287,9 +297,14 @@ export function MSPFrameworkTaskPackageSheet({
     const name = draft.name.trim();
     if (!name) return;
     const hours = Math.max(0, Number(draft.hours) || 1);
+    const priceValue = draft.price.trim() === "" ? null : Math.max(0, Number(draft.price) || 0);
     const id = `custom-${slugifyTaskName(name)}-${Date.now()}`;
     persist({
       ...state,
+      overrides:
+        priceValue != null
+          ? { ...state.overrides, [id]: { ...state.overrides[id], priceOverride: priceValue } }
+          : state.overrides,
       custom: [
         ...state.custom,
         {
@@ -297,17 +312,18 @@ export function MSPFrameworkTaskPackageSheet({
           name,
           kind: draft.kind,
           hours: { min: hours, max: hours },
-          note: "Egendefinert oppgave.",
-          laraDraft: draft.kind === "advisory",
-          category: "Egendefinerte oppgaver",
+          note: "Egendefinert aktivitet.",
+          laraDraft: false,
+          category: "Egne aktiviteter",
           requirements: [],
           custom: true,
         },
       ],
     });
     setAdding(false);
-    setDraft({ name: "", kind: "advisory", hours: "" });
+    setDraft({ name: "", kind: "advisory", hours: "", price: "" });
   };
+
 
   const effectiveName = (state.customName ?? "").trim() || `${frameworkName} rådgivning`;
 
