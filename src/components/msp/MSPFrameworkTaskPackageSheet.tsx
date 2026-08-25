@@ -449,8 +449,8 @@ export function MSPFrameworkTaskPackageSheet({
           </div>
         </div>
 
-        <div className="mt-3 space-y-2">
-          <div className="rounded-md border border-border px-3 py-2 space-y-1.5">
+        <div className="mt-3 space-y-2 rounded-md border border-border bg-muted/50 p-3">
+          <div className="space-y-2">
             <div className="flex items-center justify-between gap-3">
               <p className="text-sm font-medium text-foreground">Aktiveringspris</p>
               <p className="text-sm font-semibold text-foreground shrink-0">
@@ -488,6 +488,7 @@ export function MSPFrameworkTaskPackageSheet({
                     <Sparkles className="h-2.5 w-2.5" /> Timer foreslått av Lara
                   </Badge>
                 </TooltipTrigger>
+
                 <TooltipContent side="bottom" className="max-w-xs text-xs">
                   Lara lager et grovt estimat per kontrollpunkt basert på type leveranse og hvor
                   mange krav som dekkes. Tallene er et utgangspunkt — juster dem etter egen
