@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -20,9 +21,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, RotateCcw, Sparkles, Trash2, Pencil, Check, X, CheckCircle2, Loader2, RefreshCw, Info } from "lucide-react";
+import { Plus, RotateCcw, Sparkles, Trash2, Pencil, Check, X, CheckCircle2, Loader2, RefreshCw, Info, ChevronDown } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 import { formatPriceRange } from "@/lib/documentDeliverables";
 import { baselineRequirementRows } from "@/lib/frameworkRequirementBaseline";
 import { frameworkLicensePrice } from "@/lib/planConstants";
@@ -110,6 +112,7 @@ export function MSPFrameworkTaskPackageSheet({
     price: "",
   });
   const [adding, setAdding] = useState(false);
+  const [openCategories, setOpenCategories] = useState<Set<string>>(new Set());
   const [estimating, setEstimating] = useState(false);
   const estimateRanFor = useRef<string | null>(null);
 
@@ -595,11 +598,36 @@ export function MSPFrameworkTaskPackageSheet({
           )}
 
           {grouped.map(([category, items]) => (
-            <div key={category} className="space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                {category}
-              </p>
-              <div className="space-y-1.5">
+            <Collapsible
+              key={category}
+              open={openCategories.has(category)}
+              onOpenChange={(isOpen) => {
+                setOpenCategories((prev) => {
+                  const next = new Set(prev);
+                  if (isOpen) next.add(category);
+                  else next.delete(category);
+                  return next;
+                });
+              }}
+              className="space-y-2"
+            >
+              <CollapsibleTrigger asChild>
+                <button
+                  type="button"
+                  className="flex w-full items-center justify-between gap-2 rounded-md border border-transparent px-1 py-1 text-left hover:bg-muted/40 transition-colors"
+                >
+                  <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    {category}
+                  </span>
+                  <ChevronDown
+                    className={cn(
+                      "h-4 w-4 text-muted-foreground transition-transform duration-200",
+                      openCategories.has(category) && "rotate-180",
+                    )}
+                  />
+                </button>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="space-y-1.5 data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down">
                 {items.map((t) =>
                   editingId === t.id ? (
                     <div key={t.id}>{editor(saveEdit, () => setEditingId(null))}</div>
@@ -673,8 +701,8 @@ export function MSPFrameworkTaskPackageSheet({
                     </div>
                   ),
                 )}
-              </div>
-            </div>
+              </CollapsibleContent>
+            </Collapsible>
           ))}
 
           {adding ? (
