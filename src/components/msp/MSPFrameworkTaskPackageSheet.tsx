@@ -516,7 +516,7 @@ export function MSPFrameworkTaskPackageSheet({
               </p>
             </div>
             <div className="flex items-center justify-between gap-3 border-t border-border pt-1.5">
-              <p className="text-sm font-medium text-foreground">Totalt</p>
+              <p className="text-sm font-medium text-foreground">Sluttsum</p>
               <p className="text-sm font-semibold text-foreground shrink-0">
                 {formatPriceRange(totals.price, currency)}
                 {licensePrice > 0 && (
