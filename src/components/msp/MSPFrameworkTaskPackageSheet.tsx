@@ -21,7 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, RotateCcw, Sparkles, Trash2, Pencil, Check, X, CheckCircle2, Loader2, RefreshCw } from "lucide-react";
+import { Plus, RotateCcw, Sparkles, Trash2, Pencil, Check, X, CheckCircle2, Loader2, RefreshCw, Info } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner";
 import { formatPriceRange } from "@/lib/documentDeliverables";
@@ -372,13 +372,27 @@ export function MSPFrameworkTaskPackageSheet({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="right" className="w-full sm:max-w-2xl overflow-y-auto">
         <SheetHeader>
-          <SheetTitle>{frameworkName}</SheetTitle>
+          <div className="flex items-center gap-2">
+            <SheetTitle>{frameworkName}</SheetTitle>
+            <TooltipProvider delayDuration={150}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button className="text-muted-foreground hover:text-foreground transition-colors">
+                    <Info className="h-4 w-4" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="right" className="max-w-xs">
+                  <p>
+                    Prisen beregnes automatisk fra timeprisen din ({hourlyRate.toLocaleString("nb-NO")} {currency}).
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
           <SheetDescription>
             Her setter du opp en rådgivningspakke for {frameworkName}. Gå gjennom krav og
             tilhørende oppgaver, juster antall timer, fjern det som ikke er relevant, eller legg til
-            egne oppgaver. Prisen beregnes automatisk fra timeprisen din (
-            {hourlyRate.toLocaleString("nb-NO")} {currency}). Når du er fornøyd, lagrer du pakken i
-            salgsporteføljen.
+            egne oppgaver. Når du er fornøyd, lagrer du pakken i salgsporteføljen.
           </SheetDescription>
         </SheetHeader>
 
