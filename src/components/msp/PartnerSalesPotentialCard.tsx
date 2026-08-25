@@ -258,28 +258,15 @@ export function PartnerSalesPotentialCard({ currency }: { currency: string }) {
                 role="tablist"
                 aria-label="Velg visning"
               >
-                {(
-                  [
-                    { id: "estimate", label: "Estimert potensial" },
-                    { id: "packages", label: "Mine aktiverte pakker" },
-                  ] as const
-                ).map((opt) => (
-                  <button
-                    key={opt.id}
-                    type="button"
-                    role="tab"
-                    aria-selected={view === opt.id}
-                    onClick={() => setView(opt.id)}
-                    className={cn(
-                      "rounded px-2.5 py-1 text-[11px] font-medium transition-colors",
-                      view === opt.id
-                        ? "bg-primary text-primary-foreground"
-                        : "text-muted-foreground hover:text-foreground",
-                    )}
-                  >
-                    {opt.label}
-                  </button>
-                ))}
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={true}
+                  onClick={() => setView(view === "estimate" ? "packages" : "estimate")}
+                  className="rounded px-2.5 py-1 text-[11px] font-medium transition-colors bg-primary text-primary-foreground"
+                >
+                  {view === "estimate" ? "Estimert potensial" : "Mine aktiverte pakker"}
+                </button>
               </div>
               {/* Estimatsinnstillinger (kun relevant i estimat-visningen) */}
               {isEstimate && (
