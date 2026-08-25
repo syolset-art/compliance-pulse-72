@@ -25,7 +25,7 @@ import { Plus, RotateCcw, Sparkles, Trash2, Pencil, Check, X, CheckCircle2, Load
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { formatPriceRange } from "@/lib/documentDeliverables";
+import { formatMoney } from "@/lib/documentDeliverables";
 import { baselineRequirementRows } from "@/lib/frameworkRequirementBaseline";
 import { frameworkLicensePrice } from "@/lib/planConstants";
 import { estimatePackageHours } from "@/lib/laraPackageHoursEstimate";
@@ -196,7 +196,7 @@ export function MSPFrameworkTaskPackageSheet({
       const targets = baseTasks.filter((t) => {
         const o = state.overrides[t.id];
         if (o?.removed) return false;
-        if (onlyUnedited && o && o.hoursMin != null && !o.estimated) return false;
+        if (onlyUnedited && o && o.hours != null && !o.estimated) return false;
         return true;
       });
       if (targets.length === 0) return;
@@ -218,8 +218,7 @@ export function MSPFrameworkTaskPackageSheet({
       estimates.forEach((e) => {
         next[e.taskId] = {
           ...next[e.taskId],
-          hoursMin: e.hoursMin,
-          hoursMax: e.hoursMax,
+          hours: e.hours,
           estimated: true,
           estimateNote: e.rationale,
         };
@@ -257,7 +256,7 @@ export function MSPFrameworkTaskPackageSheet({
     // faktiske oppgavene — ikke fallback-oppgavene.
     if (!open || !frameworkId || isLoading || baseTasks.length === 0) return;
     if (estimateRanFor.current === frameworkId) return;
-    const hasHours = Object.values(state.overrides).some((o) => o.hoursMin != null);
+    const hasHours = Object.values(state.overrides).some((o) => o.hours != null);
     if (hasHours) return;
     estimateRanFor.current = frameworkId;
     void runEstimation(true);
@@ -282,7 +281,7 @@ export function MSPFrameworkTaskPackageSheet({
     setDraft({
       name: t.name,
       kind: t.kind,
-      hours: String(t.hours.min),
+      hours: String(t.hours),
       price:
         state.overrides[t.id]?.priceOverride != null
           ? String(state.overrides[t.id]!.priceOverride)
@@ -302,8 +301,7 @@ export function MSPFrameworkTaskPackageSheet({
           ...state.overrides[editingId],
           name: draft.name.trim() || undefined,
           kind: draft.kind,
-          hoursMin: hours,
-          hoursMax: hours,
+          hours,
           priceOverride: priceValue ?? undefined,
           // Manuelle justeringer erstatter Laras estimat
           estimated: false,
@@ -324,7 +322,7 @@ export function MSPFrameworkTaskPackageSheet({
       id,
       name,
       kind: draft.kind,
-      hours: { min: hours, max: hours },
+      hours,
       note: "Egendefinert aktivitet.",
       laraDraft: false,
       category: "Egne aktiviteter",
@@ -347,7 +345,7 @@ export function MSPFrameworkTaskPackageSheet({
     setAdding(false);
     setDraft({ name: "", kind: "advisory", hours: "", price: "" });
     toast.success(
-      `Aktivitet «${name}» lagt til. Sluttsum oppdatert til ${formatPriceRange(nextTotal.price, currency)}.`,
+      `Aktivitet «${name}» lagt til. Sluttsum oppdatert til ${formatMoney(nextTotal.price, currency)}.`,
     );
   };
 
@@ -362,7 +360,7 @@ export function MSPFrameworkTaskPackageSheet({
     price: packagePrice(totals),
     tasks: tasks
       .filter((t) => t.enabled)
-      .map((t) => ({ label: t.name, hours: Math.round((t.hours.min + t.hours.max) / 2) })),
+      .map((t) => ({ label: t.name, hours: t.hours })),
     requirementIds: Array.from(new Set(tasks.filter((t) => t.enabled).flatMap((t) => t.requirements))),
   });
 
@@ -529,26 +527,23 @@ export function MSPFrameworkTaskPackageSheet({
             <div className="flex items-center justify-between gap-3">
               <p className="text-sm font-medium text-foreground">Aktiveringspris</p>
               <p className="text-sm font-semibold text-foreground shrink-0">
-                {formatPriceRange({ min: licensePrice, max: licensePrice }, currency)}/mnd
+                {formatMoney(licensePrice, currency)}/mnd
               </p>
             </div>
             <div className="flex items-center justify-between gap-3">
               <p className="text-sm font-medium text-foreground">Oppgaver og timer</p>
               <p className="text-sm text-foreground shrink-0">
                 {totals.tasks} oppgaver ·{" "}
-                {totals.hours.min === totals.hours.max
-                  ? `${fmtH(totals.hours.min)} timer`
-                  : `${fmtH(totals.hours.min)}–${fmtH(totals.hours.max)} timer`}{" "}
-                · {formatPriceRange(totals.price, currency)}
+                {fmtH(totals.hours)} timer · {formatMoney(totals.price, currency)}
               </p>
             </div>
             <div className="flex items-center justify-between gap-3 border-t border-border pt-1.5">
               <p className="text-sm font-medium text-foreground">Sluttsum</p>
               <p className="text-sm font-semibold text-foreground shrink-0">
-                {formatPriceRange(totals.price, currency)}
+                {formatMoney(totals.price, currency)}
                 {licensePrice > 0 && (
                   <>
-                    {" "}+ {formatPriceRange({ min: licensePrice, max: licensePrice }, currency)}
+                    {" "}+ {formatMoney(licensePrice, currency)}
                     /mnd aktivering
                   </>
                 )}
@@ -789,9 +784,7 @@ export function MSPFrameworkTaskPackageSheet({
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <p className="text-xs font-medium text-foreground cursor-default">
-                                {t.hours.min === t.hours.max
-                                  ? `${fmtH(t.hours.min)} t`
-                                  : `${fmtH(t.hours.min)}–${fmtH(t.hours.max)} t`}
+                                {fmtH(t.hours)} t
                                 {t.estimated && !t.edited && (
                                   <span className="ml-1 inline-flex items-center rounded border border-primary/20 bg-primary/5 px-1 text-[9px] font-normal text-primary align-middle">
                                     Lara
@@ -807,7 +800,7 @@ export function MSPFrameworkTaskPackageSheet({
                           </Tooltip>
                         </TooltipProvider>
                         <p className="text-[11px] text-muted-foreground">
-                          {formatPriceRange(t.price, currency)}
+                          {formatMoney(t.price, currency)}
                         </p>
                       </div>
                       <div className="flex items-center gap-0.5 shrink-0">

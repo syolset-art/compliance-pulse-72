@@ -198,3 +198,9 @@ export const DELIVERABLE_KIND_LABEL: Record<DeliverableKind, string> = {
   advisory: "Rådgivning",
   technical: "Teknisk leveranse",
 };
+
+/** "3 000 kr" — ett beløp, eks. mva, med partnerens valuta. */
+export function formatMoney(value: number, currency: string): string {
+  const symbol = currency === "NOK" || currency === "SEK" || currency === "DKK" ? "kr" : currency;
+  return `${Math.round(value).toLocaleString("nb-NO")} ${symbol}`;
+}
