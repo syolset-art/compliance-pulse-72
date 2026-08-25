@@ -589,7 +589,7 @@ export function MSPFrameworkTaskPackageSheet({
                 Vi har ingen krav registrert for dette regelverket ennå.
               </p>
               <Button size="sm" variant="outline" onClick={() => setAdding(true)}>
-                <Plus className="h-3.5 w-3.5 mr-1" /> Legg til egen oppgave
+                <Plus className="h-3.5 w-3.5 mr-1" /> Legg til aktivitet
               </Button>
             </div>
           )}
@@ -692,7 +692,7 @@ export function MSPFrameworkTaskPackageSheet({
                     setAdding(true);
                   }}
                 >
-                  <Plus className="h-3.5 w-3.5 mr-1" /> Legg til egen oppgave
+                  <Plus className="h-3.5 w-3.5 mr-1" /> Legg til aktivitet
                 </Button>
                 <Button size="sm" variant="ghost" className="h-8 text-xs" onClick={reset}>
                   <RotateCcw className="h-3.5 w-3.5 mr-1" /> Nullstill til forslag
