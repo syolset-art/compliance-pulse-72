@@ -563,6 +563,26 @@ export function MSPFrameworkTaskPackageSheet({
         <div className="mt-4 space-y-5 pb-32">
           {isLoading && <p className="text-sm text-muted-foreground">Henter krav…</p>}
 
+          {!isLoading && tasks.length > 0 && (
+            <div className="flex items-center justify-between gap-3 flex-wrap">
+              <p className="text-xs text-muted-foreground">
+                Fjern haken på krav du ikke vil levere på — de tas ikke med i sluttsummen.
+              </p>
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-8 text-xs shrink-0"
+                onClick={() => {
+                  setEditingId(null);
+                  setDraft({ name: "", kind: "advisory", hours: "", price: "" });
+                  setAdding(true);
+                }}
+              >
+                <Plus className="h-3.5 w-3.5 mr-1" /> Legg til aktivitet
+              </Button>
+            </div>
+          )}
+
           {!isLoading && tasks.length === 0 && (
             <div className="rounded-md border border-dashed border-border p-6 text-center space-y-2">
               <p className="text-sm text-muted-foreground">
