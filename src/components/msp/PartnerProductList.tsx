@@ -558,7 +558,7 @@ export function PartnerProductList() {
   };
 
   return (
-    <section className="space-y-3">
+    <section className="rounded-md border border-border bg-card p-4 space-y-3">
       <button
         type="button"
         onClick={() => setExpanded((v) => !v)}
