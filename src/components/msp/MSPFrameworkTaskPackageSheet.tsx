@@ -445,7 +445,7 @@ export function MSPFrameworkTaskPackageSheet({
           </div>
         </SheetHeader>
 
-        <div className="sticky top-0 z-10 -mx-6 -mt-6 px-6 py-3 border-b border-border bg-background/95 backdrop-blur space-y-1.5">
+        <div className="sticky top-0 z-10 -mx-6 mt-0 px-6 py-3 border-b border-border bg-background/95 backdrop-blur space-y-1.5">
           <div className="flex items-end justify-between gap-3">
             {onSavePackage && (
               <TooltipProvider delayDuration={150}>
