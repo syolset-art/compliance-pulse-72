@@ -8,7 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Settings2, FileText } from "lucide-react";
+import { Settings2, FileText, ChevronDown, ChevronUp } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useGlobalChat } from "@/components/GlobalChatProvider";
 import { useServiceDefaults } from "@/hooks/useServiceDefaults";
