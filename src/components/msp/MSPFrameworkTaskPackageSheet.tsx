@@ -302,29 +302,33 @@ export function MSPFrameworkTaskPackageSheet({
     const hours = Math.max(0, Number(draft.hours) || 1);
     const priceValue = draft.price.trim() === "" ? null : Math.max(0, Number(draft.price) || 0);
     const id = `custom-${slugifyTaskName(name)}-${Date.now()}`;
-    persist({
+    const nextCustom = {
+      id,
+      name,
+      kind: draft.kind,
+      hours: { min: hours, max: hours },
+      note: "Egendefinert aktivitet.",
+      laraDraft: false,
+      category: "Egne aktiviteter",
+      requirements: [],
+      custom: true,
+    };
+    const nextOverrides =
+      priceValue != null
+        ? { ...state.overrides, [id]: { ...state.overrides[id], priceOverride: priceValue } }
+        : state.overrides;
+    const nextState = {
       ...state,
-      overrides:
-        priceValue != null
-          ? { ...state.overrides, [id]: { ...state.overrides[id], priceOverride: priceValue } }
-          : state.overrides,
-      custom: [
-        ...state.custom,
-        {
-          id,
-          name,
-          kind: draft.kind,
-          hours: { min: hours, max: hours },
-          note: "Egendefinert aktivitet.",
-          laraDraft: false,
-          category: "Egne aktiviteter",
-          requirements: [],
-          custom: true,
-        },
-      ],
-    });
+      overrides: nextOverrides,
+      custom: [...state.custom, nextCustom],
+    };
+    const nextTotal = summarizePackage(resolveTasks(baseTasks, nextState, hourlyRate));
+    persist(nextState);
     setAdding(false);
     setDraft({ name: "", kind: "advisory", hours: "", price: "" });
+    toast.success(
+      `Aktivitet «${name}» lagt til. Sluttsum oppdatert til ${formatPriceRange(nextTotal.price, currency)}.`,
+    );
   };
 
 
@@ -571,18 +575,30 @@ export function MSPFrameworkTaskPackageSheet({
               <p className="text-xs text-muted-foreground">
                 Fjern haken på krav du ikke vil levere på — de tas ikke med i sluttsummen.
               </p>
-              <Button
-                size="sm"
-                variant="outline"
-                className="h-8 text-xs shrink-0"
-                onClick={() => {
-                  setEditingId(null);
-                  setDraft({ name: "", kind: "advisory", hours: "", price: "" });
-                  setAdding(true);
-                }}
-              >
-                <Plus className="h-3.5 w-3.5 mr-1" /> Legg til aktivitet
-              </Button>
+              <TooltipProvider delayDuration={150}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-8 text-xs shrink-0"
+                      onClick={() => {
+                        setEditingId(null);
+                        setDraft({ name: "", kind: "advisory", hours: "", price: "" });
+                        setAdding(true);
+                      }}
+                    >
+                      <Plus className="h-3.5 w-3.5 mr-1" /> Legg til aktivitet
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom" className="max-w-xs">
+                    <p>
+                      Legger til en egendefinert aktivitet med navn, type, timer og fastpris. Når du
+                      lagrer, oppdateres sluttsummen automatisk.
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </div>
           )}
 
