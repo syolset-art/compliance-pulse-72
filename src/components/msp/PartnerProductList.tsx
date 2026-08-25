@@ -536,7 +536,7 @@ export function PartnerProductList() {
   const [editing, setEditing] = useState<MynderProduct | null>(null);
   const [frameworkInfoOpen, setFrameworkInfoOpen] = useState(false);
   const [frameworkHours, setFrameworkHours] = useState<number>(readFrameworkHours);
-  const [showAll, setShowAll] = useState(false);
+  const [expanded, setExpanded] = useState(false);
   const { defaultHourlyRate, currency } = useServiceDefaults();
   const hourlyRate = defaultHourlyRate ?? 1500;
 
@@ -556,10 +556,6 @@ export function PartnerProductList() {
       setEditing(product);
     }
   };
-
-  const visibleProducts = showAll
-    ? MYNDER_PRODUCTS
-    : MYNDER_PRODUCTS.filter((p) => p.id !== "frameworks");
 
   return (
     <section className="space-y-3">
