@@ -88,37 +88,33 @@ export default function MSPServiceCatalog() {
           <PartnerProductList />
 
           <section id="regelverk-pakker" className="space-y-3 scroll-mt-20">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <h2 className="text-lg font-semibold text-foreground">
+            <button
+              type="button"
+              onClick={() => setShowFrameworkPackages((v) => !v)}
+              className="text-left group w-full"
+              aria-expanded={showFrameworkPackages}
+              aria-controls="framework-packages-list"
+            >
+              <div className="flex items-center gap-2">
+                <h2 className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors">
                   Regelverk og rådgivningspakker
                 </h2>
-                <p className="text-sm text-muted-foreground max-w-2xl">
-                  Pakker du kan lage basert på timer du kan levere per regelverk. Pakker du
-                  aktiverer blir synlige under «Aktiverte pakker» over.
-                </p>
-              </div>
-              <Button
-                variant="outline"
-                size="sm"
-                className="shrink-0 gap-2"
-                onClick={() => setShowFrameworkPackages((v) => !v)}
-                aria-expanded={showFrameworkPackages}
-              >
                 {showFrameworkPackages ? (
-                  <>
-                    <ChevronUp className="h-4 w-4" />
-                    Skjul
-                  </>
+                  <ChevronUp className="h-4 w-4 text-muted-foreground" />
                 ) : (
-                  <>
-                    <ChevronDown className="h-4 w-4" />
-                    Se pakker
-                  </>
+                  <ChevronDown className="h-4 w-4 text-muted-foreground" />
                 )}
-              </Button>
-            </div>
-            {showFrameworkPackages && <MSPFrameworkHoursTab />}
+              </div>
+              <p className="text-sm text-muted-foreground max-w-2xl">
+                Pakker du kan lage basert på timer du kan levere per regelverk. Pakker du
+                aktiverer blir synlige under «Aktiverte pakker» over.
+              </p>
+            </button>
+            {showFrameworkPackages && (
+              <div id="framework-packages-list">
+                <MSPFrameworkHoursTab />
+              </div>
+            )}
           </section>
 
         </div>
