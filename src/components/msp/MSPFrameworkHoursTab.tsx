@@ -41,6 +41,7 @@ export function MSPFrameworkHoursTab({
   const { packages, savePackage, setActive: setPackageActive } = useFrameworkPackages();
   const [active, setActive] = useState<{ id: string; name: string } | null>(null);
   const [showHowItWorks, setShowHowItWorks] = useState(false);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     if (!openFrameworkId) return;
