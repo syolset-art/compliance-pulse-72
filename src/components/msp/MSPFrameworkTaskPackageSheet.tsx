@@ -303,10 +303,12 @@ export function MSPFrameworkTaskPackageSheet({
     setDraft({ name: "", kind: "advisory", hours: "" });
   };
 
+  const effectiveName = (state.customName ?? "").trim() || `${frameworkName} rådgivning`;
+
   const buildPackage = (): SavedFrameworkPackage => ({
     frameworkId: frameworkId ?? "",
     frameworkName,
-    name: (state.customName ?? "").trim() || frameworkName,
+    name: effectiveName,
     hours: packageHours(totals),
     price: packagePrice(totals),
     tasks: tasks
@@ -371,12 +373,21 @@ export function MSPFrameworkTaskPackageSheet({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="right" className="w-full sm:max-w-2xl overflow-y-auto">
         <SheetHeader>
-          <div className="flex items-center gap-2">
-            <SheetTitle>{frameworkName}</SheetTitle>
+          <div className="flex items-start gap-2">
+            <div className="flex-1 min-w-0 space-y-1">
+              <Input
+                id="pkg-name"
+                value={effectiveName}
+                onChange={(e) => persist({ ...state, customName: e.target.value })}
+                className="h-10 text-lg font-semibold border-0 px-0 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent"
+                placeholder={`${frameworkName} rådgivning`}
+              />
+              <p className="text-xs text-muted-foreground">Rådgivningspakke · {frameworkName}</p>
+            </div>
             <TooltipProvider delayDuration={150}>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <button className="text-muted-foreground hover:text-foreground transition-colors">
+                  <button className="mt-2.5 text-muted-foreground hover:text-foreground transition-colors shrink-0">
                     <Info className="h-4 w-4" />
                   </button>
                 </TooltipTrigger>
@@ -391,18 +402,7 @@ export function MSPFrameworkTaskPackageSheet({
         </SheetHeader>
 
         <div className="sticky top-0 z-10 -mx-6 -mt-6 px-6 py-3 border-b border-border bg-background/95 backdrop-blur space-y-1.5">
-          <div className="flex items-end gap-3">
-            <div className="flex-1 min-w-0 space-y-1">
-              <Label htmlFor="pkg-name" className="text-[11px]">
-                Lag ditt eget produktnavn på denne tjenestepakken
-              </Label>
-              <Input
-                id="pkg-name"
-                value={state.customName ?? frameworkName}
-                onChange={(e) => persist({ ...state, customName: e.target.value })}
-                className="h-9 text-sm font-medium"
-              />
-            </div>
+          <div className="flex items-end justify-between gap-3">
             {onSavePackage && (
               <TooltipProvider delayDuration={150}>
                 <Tooltip>
