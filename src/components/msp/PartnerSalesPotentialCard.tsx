@@ -419,8 +419,10 @@ export function PartnerSalesPotentialCard({ currency }: { currency: string }) {
                   <Info className="h-3 w-3 text-muted-foreground cursor-help" />
                 </TooltipTrigger>
                 <TooltipContent side="bottom" className="max-w-xs text-xs">
-                  Lisenser er løpende (12 × månedspris), rådgivningstimer er engangsinntekter.
-                  Derfor vises totalen som årlig potensial — fordelingen ser du under.
+                  Totalen er årlig potensial: lisenser er løpende (12 × månedspris), mens
+                  rådgivningstimer er engangsinntekter. Beløpet påvirkes også av pakkene du selv
+                  lager og eventuelle etableringskostnader per produkt. For regelverk kan du i
+                  tillegg selge rådgivningstimer på alle kontrollpunktene. Fordelingen ser du under.
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
