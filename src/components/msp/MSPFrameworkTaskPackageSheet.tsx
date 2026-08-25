@@ -112,6 +112,7 @@ export function MSPFrameworkTaskPackageSheet({
     price: "",
   });
   const [adding, setAdding] = useState(false);
+  const [openCategories, setOpenCategories] = useState<Set<string>>(new Set());
   const [estimating, setEstimating] = useState(false);
   const estimateRanFor = useRef<string | null>(null);
 
