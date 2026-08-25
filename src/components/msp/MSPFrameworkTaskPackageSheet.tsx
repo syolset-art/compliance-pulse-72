@@ -135,7 +135,7 @@ export function MSPFrameworkTaskPackageSheet({
     queryFn: async () => {
       const { data, error } = await supabase
         .from("compliance_requirements")
-        .select("framework_id, requirement_id, name_no, category")
+        .select("framework_id, requirement_id, name_no, category, sla_category")
         .eq("framework_id", frameworkId as string);
       if (error) return [] as RequirementRow[];
       return (data ?? []) as unknown as RequirementRow[];
