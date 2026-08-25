@@ -408,29 +408,37 @@ export function MSPFrameworkTaskPackageSheet({
         <SheetHeader>
           <div className="flex items-start gap-2">
             <div className="flex-1 min-w-0 space-y-1">
-              <Input
-                id="pkg-name"
-                value={effectiveName}
-                onChange={(e) => persist({ ...state, customName: e.target.value })}
-                className="h-10 text-lg font-semibold border-0 px-0 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent"
-                placeholder={`${frameworkName} rådgivning`}
-              />
-              <p className="text-xs text-muted-foreground">Rådgivningspakke · {frameworkName}</p>
+              <SheetTitle className="text-lg">Opprett tjenestepakke</SheetTitle>
+              <p className="text-xs text-muted-foreground">Regelverk: {frameworkName}</p>
             </div>
             <TooltipProvider delayDuration={150}>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <button className="mt-2.5 text-muted-foreground hover:text-foreground transition-colors shrink-0">
+                  <button className="mt-1 text-muted-foreground hover:text-foreground transition-colors shrink-0">
                     <Info className="h-4 w-4" />
                   </button>
                 </TooltipTrigger>
                 <TooltipContent side="right" className="max-w-xs">
                   <p>
-                    Gå gjennom krav og tilhørende oppgaver, juster antall timer, fjern det som ikke er relevant, eller legg til egne oppgaver.
+                    Gå gjennom krav og tilhørende oppgaver, juster antall timer, fjern det som ikke
+                    er relevant, legg til egne aktiviteter og sett pris. Sluttsummen oppdateres
+                    automatisk.
                   </p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
+          </div>
+          <div className="mt-3 space-y-1">
+            <Label htmlFor="pkg-name" className="text-[11px]">
+              Lag ditt eget produktnavn på denne tjenestepakken
+            </Label>
+            <Input
+              id="pkg-name"
+              value={effectiveName}
+              onChange={(e) => persist({ ...state, customName: e.target.value })}
+              className="h-9 text-sm"
+              placeholder={`${frameworkName} rådgivning`}
+            />
           </div>
         </SheetHeader>
 
