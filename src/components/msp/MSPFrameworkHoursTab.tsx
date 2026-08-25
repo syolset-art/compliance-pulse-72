@@ -181,7 +181,7 @@ export function MSPFrameworkHoursTab({
 
       <div className="grid gap-2">
 
-        {items.map(({ fw, requirements, totals, saved, advisoryPrice }) => (
+        {visibleItems.map(({ fw, requirements, totals, saved, advisoryPrice }) => (
           <Card
             key={fw.id}
             className="p-3.5 hover:border-primary/40 transition-colors cursor-pointer"
