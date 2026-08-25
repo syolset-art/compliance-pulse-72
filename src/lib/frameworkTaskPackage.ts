@@ -115,12 +115,14 @@ export function buildFrameworkTasks(rows: RequirementRow[]): FrameworkTask[] {
     const reqId = (row.requirement_id ?? "").trim();
     const hint = getTypicalDocumentation(reqId, row.framework_id);
     const category = categoryLabel(row.category ?? "");
+    const area = requirementControlArea(row);
 
     for (const docName of hint.typicalDocs) {
       const id = slugifyTaskName(docName);
       const existing = byName.get(id);
       if (existing) {
         if (reqId && !existing.requirements.includes(reqId)) existing.requirements.push(reqId);
+        if (!existing.controlAreas.includes(area)) existing.controlAreas.push(area);
         continue;
       }
       const profile = getDeliverableProfile(docName);
@@ -134,10 +136,12 @@ export function buildFrameworkTasks(rows: RequirementRow[]): FrameworkTask[] {
         note: profile.note,
         laraDraft: profile.laraDraft,
         category,
+        controlAreas: [area],
         requirements: reqId ? [reqId] : [],
       });
     }
   }
+
 
   return Array.from(byName.values()).sort(
     (a, b) => a.category.localeCompare(b.category, "nb") || a.name.localeCompare(b.name, "nb"),
