@@ -346,7 +346,7 @@ export function MSPFrameworkTaskPackageSheet({
   };
 
   const editor = (onSave: () => void, onCancel: () => void) => (
-    <div className="grid grid-cols-1 sm:grid-cols-[1fr_140px_90px_auto] gap-2 items-end rounded-md border border-border p-2 bg-muted/30">
+    <div className="grid grid-cols-1 sm:grid-cols-[1fr_140px_80px_110px_auto] gap-2 items-end rounded-md border border-border p-2 bg-muted/30">
       <div className="space-y-1">
         <Label className="text-[11px]">Navn</Label>
         <Input
@@ -377,6 +377,17 @@ export function MSPFrameworkTaskPackageSheet({
           min={0}
           value={draft.hours}
           onChange={(e) => setDraft({ ...draft, hours: e.target.value })}
+          className="h-8 text-sm"
+        />
+      </div>
+      <div className="space-y-1">
+        <Label className="text-[11px]">Fastpris</Label>
+        <Input
+          type="number"
+          min={0}
+          value={draft.price}
+          onChange={(e) => setDraft({ ...draft, price: e.target.value })}
+          placeholder="Fra timer"
           className="h-8 text-sm"
         />
       </div>
