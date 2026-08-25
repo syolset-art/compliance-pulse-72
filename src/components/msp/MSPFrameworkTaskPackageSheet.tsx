@@ -5,7 +5,6 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   Sheet,
   SheetContent,
-  SheetDescription,
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
@@ -383,17 +382,12 @@ export function MSPFrameworkTaskPackageSheet({
                 </TooltipTrigger>
                 <TooltipContent side="right" className="max-w-xs">
                   <p>
-                    Prisen beregnes automatisk fra timeprisen din ({hourlyRate.toLocaleString("nb-NO")} {currency}).
+                    Gå gjennom krav og tilhørende oppgaver, juster antall timer, fjern det som ikke er relevant, eller legg til egne oppgaver.
                   </p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
           </div>
-          <SheetDescription>
-            Her setter du opp en rådgivningspakke for {frameworkName}. Gå gjennom krav og
-            tilhørende oppgaver, juster antall timer, fjern det som ikke er relevant, eller legg til
-            egne oppgaver. Når du er fornøyd, lagrer du pakken i salgsporteføljen.
-          </SheetDescription>
         </SheetHeader>
 
         <div className="sticky top-0 z-10 -mx-6 -mt-6 px-6 py-3 border-b border-border bg-background/95 backdrop-blur space-y-1.5">
