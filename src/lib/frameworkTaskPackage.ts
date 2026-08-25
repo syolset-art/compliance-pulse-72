@@ -16,6 +16,7 @@ import {
   estimateDocumentPrice,
   type DeliverableKind,
 } from "./documentDeliverables";
+import { toCanonicalArea, type ControlAreaKey } from "./controlAreas";
 
 export interface RequirementRow {
   framework_id: string;
@@ -23,6 +24,7 @@ export interface RequirementRow {
   name?: string | null;
   name_no?: string | null;
   category?: string | null;
+  sla_category?: string | null;
 }
 
 export interface FrameworkTask {
@@ -35,11 +37,29 @@ export interface FrameworkTask {
   laraDraft: boolean;
   /** Kontrollområde / kategori oppgaven hører til. */
   category: string;
+  /** Mynders fem kontrollområder oppgaven treffer (kan være flere). */
+  controlAreas: ControlAreaKey[];
   /** Kravene oppgaven dekker, f.eks. ["A.5.1", "A.5.4"]. */
   requirements: string[];
   /** True når partneren selv har lagt til oppgaven. */
   custom?: boolean;
 }
+
+/** Fallback fra ISO-kategori til kontrollområde når `sla_category` mangler. */
+const CATEGORY_AREA_FALLBACK: Record<string, ControlAreaKey> = {
+  organizational: "governance",
+  legal: "governance",
+  governance: "governance",
+  technological: "operations",
+  physical: "operations",
+  people: "identityAccess",
+};
+
+export function requirementControlArea(row: RequirementRow): ControlAreaKey {
+  if (row.sla_category) return toCanonicalArea(row.sla_category);
+  return CATEGORY_AREA_FALLBACK[row.category ?? ""] ?? "governance";
+}
+
 
 export interface TaskOverride {
   removed?: boolean;
@@ -95,12 +115,14 @@ export function buildFrameworkTasks(rows: RequirementRow[]): FrameworkTask[] {
     const reqId = (row.requirement_id ?? "").trim();
     const hint = getTypicalDocumentation(reqId, row.framework_id);
     const category = categoryLabel(row.category ?? "");
+    const area = requirementControlArea(row);
 
     for (const docName of hint.typicalDocs) {
       const id = slugifyTaskName(docName);
       const existing = byName.get(id);
       if (existing) {
         if (reqId && !existing.requirements.includes(reqId)) existing.requirements.push(reqId);
+        if (!existing.controlAreas.includes(area)) existing.controlAreas.push(area);
         continue;
       }
       const profile = getDeliverableProfile(docName);
@@ -114,10 +136,12 @@ export function buildFrameworkTasks(rows: RequirementRow[]): FrameworkTask[] {
         note: profile.note,
         laraDraft: profile.laraDraft,
         category,
+        controlAreas: [area],
         requirements: reqId ? [reqId] : [],
       });
     }
   }
+
 
   return Array.from(byName.values()).sort(
     (a, b) => a.category.localeCompare(b.category, "nb") || a.name.localeCompare(b.name, "nb"),
