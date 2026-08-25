@@ -67,7 +67,7 @@ export default function MSPServiceCatalog() {
 
           <PartnerProductList />
 
-          <section id="regelverk-pakker" className="space-y-3 scroll-mt-20">
+          <section id="regelverk-pakker" className="rounded-md border border-border bg-card p-4 space-y-3 scroll-mt-20">
             <button
               type="button"
               onClick={() => setShowFrameworkPackages((v) => !v)}
