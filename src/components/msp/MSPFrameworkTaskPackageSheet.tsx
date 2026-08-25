@@ -302,30 +302,33 @@ export function MSPFrameworkTaskPackageSheet({
     const hours = Math.max(0, Number(draft.hours) || 1);
     const priceValue = draft.price.trim() === "" ? null : Math.max(0, Number(draft.price) || 0);
     const id = `custom-${slugifyTaskName(name)}-${Date.now()}`;
-    persist({
+    const nextCustom = {
+      id,
+      name,
+      kind: draft.kind,
+      hours: { min: hours, max: hours },
+      note: "Egendefinert aktivitet.",
+      laraDraft: false,
+      category: "Egne aktiviteter",
+      requirements: [],
+      custom: true,
+    };
+    const nextOverrides =
+      priceValue != null
+        ? { ...state.overrides, [id]: { ...state.overrides[id], priceOverride: priceValue } }
+        : state.overrides;
+    const nextState = {
       ...state,
-      overrides:
-        priceValue != null
-          ? { ...state.overrides, [id]: { ...state.overrides[id], priceOverride: priceValue } }
-          : state.overrides,
-      custom: [
-        ...state.custom,
-        {
-          id,
-          name,
-          kind: draft.kind,
-          hours: { min: hours, max: hours },
-          note: "Egendefinert aktivitet.",
-          laraDraft: false,
-          category: "Egne aktiviteter",
-          requirements: [],
-          custom: true,
-        },
-      ],
-    });
+      overrides: nextOverrides,
+      custom: [...state.custom, nextCustom],
+    };
+    const nextTotal = summarizePackage(resolveTasks(baseTasks, nextState, hourlyRate));
+    persist(nextState);
     setAdding(false);
     setDraft({ name: "", kind: "advisory", hours: "", price: "" });
-    toast.success(`Aktivitet «${name}» lagt til. Sluttsum oppdatert til ${formatPriceRange(totals.price, currency)}.`);
+    toast.success(
+      `Aktivitet «${name}» lagt til. Sluttsum oppdatert til ${formatPriceRange(nextTotal.price, currency)}.`,
+    );
   };
 
 
