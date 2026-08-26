@@ -6,6 +6,8 @@ import { AgentStatusBadge } from "./AgentStatusBadge";
 import { MacfLevelBadge } from "./MacfLevelBadge";
 import { AgentTrustBar } from "./AgentTrustBar";
 import { Sparkles, Plug } from "lucide-react";
+import { PinBadge } from "@/components/pin/PinBadge";
+import { getMockPin } from "@/lib/pin";
 
 interface Props {
   title: string;
@@ -35,13 +37,14 @@ export function AgentTable({ title, icon, agents }: Props) {
               <th className="px-4 py-2.5 font-medium">Status</th>
               <th className="px-4 py-2.5 font-medium">MACF-nivå</th>
               <th className="px-4 py-2.5 font-medium">Tillit-score</th>
+              <th className="px-4 py-2.5 font-medium">Pin</th>
               <th className="px-4 py-2.5 font-medium text-right">Handling</th>
             </tr>
           </thead>
           <tbody className="divide-y">
             {agents.length === 0 ? (
               <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground text-sm">
+                <td colSpan={7} className="px-4 py-8 text-center text-muted-foreground text-sm">
                   Ingen agenter registrert her ennå.
                 </td>
               </tr>
@@ -58,6 +61,7 @@ export function AgentTable({ title, icon, agents }: Props) {
                     <td className="px-4 py-3"><AgentStatusBadge status={a.status} /></td>
                     <td className="px-4 py-3"><MacfLevelBadge level={a.macf_level} /></td>
                     <td className="px-4 py-3"><AgentTrustBar score={a.trust_score} /></td>
+                    <td className="px-4 py-3"><PinBadge pin={getMockPin(a.id + a.name)} /></td>
                     <td className="px-4 py-3 text-right">
                       <Button
                         size="sm"
