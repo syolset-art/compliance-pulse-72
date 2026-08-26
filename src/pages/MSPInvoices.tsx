@@ -330,6 +330,51 @@ export default function MSPInvoices() {
                   <div className="text-sm text-muted-foreground">Ingen aktive produkter</div>
                 )}
               </Card>
+              <Card className="p-4">
+                <div className="text-[12px] uppercase tracking-wide text-muted-foreground mb-2">
+                  Fordeling bransje
+                </div>
+                <div className="h-40">
+                  {industryCounts.length > 0 ? (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={industryCounts}
+                          dataKey="value"
+                          nameKey="name"
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={40}
+                          outerRadius={65}
+                          paddingAngle={2}
+                        >
+                          {industryCounts.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.fill} />
+                          ))}
+                        </Pie>
+                        <RechartsTooltip
+                          formatter={(value: number, _name, props: any) => [
+                            `${value} kunder`,
+                            props?.payload?.name,
+                          ]}
+                          contentStyle={{ borderRadius: 8, fontSize: 12 }}
+                        />
+                        <Legend
+                          verticalAlign="middle"
+                          align="right"
+                          layout="vertical"
+                          iconType="circle"
+                          wrapperStyle={{ fontSize: 11, paddingLeft: 8 }}
+                        />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  ) : (
+                    <div className="h-full flex items-center justify-center text-sm text-muted-foreground">
+                      Ingen bransjedata
+                    </div>
+                  )}
+                </div>
+              </Card>
             </div>
 
 
