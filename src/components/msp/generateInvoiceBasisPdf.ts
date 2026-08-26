@@ -232,7 +232,7 @@ export async function generateInvoiceBasisPdf(input: InvoiceBasisExportInput) {
   // Totalrad
   const monthlyTotal = rows.reduce((s, r) => s + r.monthly, 0);
   const oneTimeTotal = rows.reduce((s, r) => s + r.oneTime, 0);
-  const tb = computeTaxBreakdown(monthlyTotal + oneTimeTotal, tax);
+  const tb = computeTaxBreakdown(monthlyTotal + oneTimeTotal, { ...tax, mode: "exclusive" });
 
   if (y + 12 > pageHeight - 22) {
     doc.addPage();
