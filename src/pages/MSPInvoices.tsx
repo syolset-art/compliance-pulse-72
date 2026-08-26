@@ -176,6 +176,8 @@ export default function MSPInvoices() {
   const taxLabel = tax.enabled && tax.rate > 0 ? `${tax.label} (${tax.rate} %)` : tax.label;
 
   const [exportOpen, setExportOpen] = useState(false);
+  const [subPeriod, setSubPeriod] = useState<"month" | "year">("month");
+  const subTotal = subPeriod === "month" ? monthlyTotal : monthlyTotal * 12;
   const periodLabel = new Date().toLocaleDateString("nb-NO", { month: "long", year: "numeric" });
   const exportRows = rows.map((r) => ({
     name: r.name,
@@ -218,24 +220,43 @@ export default function MSPInvoices() {
             </div>
 
             {/* Toppsammendrag */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <Card className="p-4">
                 <div className="text-[12px] uppercase tracking-wide text-muted-foreground">Kunder med abonnement</div>
                 <div className="text-2xl font-semibold text-foreground tabular-nums mt-1">{payingCount}</div>
-                <div className="text-xs text-muted-foreground mt-0.5">av {rows.length} kunder</div>
               </Card>
               <Card className="p-4">
-                <div className="text-[12px] uppercase tracking-wide text-muted-foreground">Abonnement per måned</div>
-                <div className="text-2xl font-semibold text-foreground tabular-nums mt-1">{fmt(monthlyTotal)} kr</div>
+                <div className="flex items-start justify-between gap-3">
+                  <div className="text-[12px] uppercase tracking-wide text-muted-foreground">
+                    {subPeriod === "month" ? "Abonnement per måned" : "Abonnement per år"}
+                  </div>
+                  <div className="flex rounded-md border border-border p-0.5">
+                    {([
+                      { value: "month" as const, label: "Mnd" },
+                      { value: "year" as const, label: "År" },
+                    ]).map((opt) => (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => setSubPeriod(opt.value)}
+                        aria-pressed={subPeriod === opt.value}
+                        className={cn(
+                          "rounded px-2 py-0.5 text-[11px] font-medium transition-colors",
+                          subPeriod === opt.value
+                            ? "bg-primary text-primary-foreground"
+                            : "text-muted-foreground hover:text-foreground"
+                        )}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="text-2xl font-semibold text-foreground tabular-nums mt-1">{fmt(subTotal)} kr</div>
                 <div className="text-xs text-muted-foreground mt-0.5">moduler og betalte regelverk</div>
               </Card>
-              <Card className="p-4">
-                <div className="text-[12px] uppercase tracking-wide text-muted-foreground">Engangsbeløp</div>
-                <div className="text-2xl font-semibold text-foreground tabular-nums mt-1">{fmt(oneTimeTotal)} kr</div>
-                <div className="text-xs text-muted-foreground mt-0.5">fastpris og etablering</div>
-              </Card>
-
             </div>
+
 
             {/* Desktop: tabell */}
             <Card className="hidden md:block overflow-hidden">
