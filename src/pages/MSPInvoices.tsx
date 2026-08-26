@@ -436,6 +436,21 @@ export default function MSPInvoices() {
                             {r.name}
                           </Link>
                           <div className="text-xs text-muted-foreground">{r.meta || "—"}</div>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <button
+                                type="button"
+                                onClick={() => setHistoryId(r.id)}
+                                className="mt-1 inline-flex items-center gap-1 text-[11px] font-normal text-muted-foreground hover:text-primary hover:underline underline-offset-2"
+                              >
+                                <History className="h-3 w-3" />
+                                Fakturahistorikk
+                              </button>
+                            </TooltipTrigger>
+                            <TooltipContent side="bottom" className="max-w-[240px] text-xs">
+                              Se fakturagrunnlaget per måned for denne kunden.
+                            </TooltipContent>
+                          </Tooltip>
                         </TableCell>
                         <TableCell>
                           <Pills items={r.activated} retiring={r.retiring} empty="Ingen aktive abonnement" />
