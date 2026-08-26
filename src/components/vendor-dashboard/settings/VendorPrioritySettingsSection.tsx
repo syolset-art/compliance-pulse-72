@@ -62,7 +62,12 @@ export function VendorPrioritySettingsSection() {
       const { error } = await supabase
         .from("vendor_module_settings")
         .upsert(
-          { scope: "global", priority_labels: payload, disabled_priority_levels: draftDisabled },
+          {
+            scope: "global",
+            priority_labels: payload,
+            disabled_priority_levels: draftDisabled,
+            priority_scale_enabled: draftEnabled,
+          },
           { onConflict: "scope" },
         );
       if (error) throw error;
@@ -95,71 +100,99 @@ export function VendorPrioritySettingsSection() {
       <p className="text-sm text-muted-foreground">
         Prioritetsskalaen sier hva virksomheten skal ha fokus på og prioritere nå — fra
         prioritet 1 til 4. Det betyr ikke nødvendigvis at leverandøren er kritisk, men at
-        den er høyest opp på listen. Du kan beholde standardnavnene, eller velge A–D eller
-        egne navn. Haker du av for «Ikke aktuelt» skjules nivået i leverandørmodulen.
-        Gjelder kun i leverandørmodulen.
+        den er høyest opp på listen. Skalaen er valgfri: er den slått av, vises ikke
+        prioritet i leverandørmodulen.
       </p>
 
-      <div className="flex flex-wrap items-center gap-2">
-        <span className="text-xs text-muted-foreground">Forslag:</span>
-        <Button variant="outline" size="sm" onClick={() => applyPreset("default")}>
-          Standard
-        </Button>
-        <Button variant="outline" size="sm" onClick={() => applyPreset("letters")}>
-          A–D
-        </Button>
-        <Button variant="outline" size="sm" onClick={() => applyPreset("numbers")}>
-          1–4
-        </Button>
-      </div>
-
       <Card>
-        <CardContent className="p-4 space-y-3">
-          <div className="flex items-center gap-3 text-xs font-medium text-muted-foreground">
-            <span className="shrink-0 min-w-8">Nivå</span>
-            <span className="flex-1">Standard</span>
-            <span className="shrink-0 w-24 text-right">Ikke aktuelt</span>
+        <CardContent className="p-4 flex items-start justify-between gap-4">
+          <div className="min-w-0">
+            <Label htmlFor="priority-scale-enabled" className="text-sm font-medium">
+              Bruk prioriteringsskala
+            </Label>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Slå på for å prioritere leverandører fra P-0 til P-4.
+            </p>
           </div>
-          {PRIORITY_KEYS.map((key) => {
-            const meta = PRIORITY_META[key];
-            const isDisabled = draftDisabled.includes(key);
-            return (
-              <div key={key} className="flex items-center gap-3">
-                <span
-                  className={`inline-flex items-center justify-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold shrink-0 min-w-8 ${meta.pillClass} ${isDisabled ? "opacity-40" : ""}`}
-                >
-                  {PRIORITY_LABELS[key]}
-                </span>
-                <div className="flex-1 min-w-0">
-                  <Label htmlFor={`priority-${key}`} className="sr-only">
-                    Visningsnavn for nivå {PRIORITY_LABELS[key]}
-                  </Label>
-                  <Input
-                    id={`priority-${key}`}
-                    value={draft[key] ?? ""}
-                    placeholder={DEFAULT_PRIORITY_LABELS[key]}
-                    disabled={isDisabled}
-                    onChange={(e) => setDraft((prev) => ({ ...prev, [key]: e.target.value }))}
-                  />
-                </div>
-                <div className="shrink-0 w-24 flex justify-end">
-                  <Checkbox
-                    id={`priority-disabled-${key}`}
-                    aria-label={`Merk nivå ${PRIORITY_LABELS[key]} som ikke aktuelt`}
-                    checked={isDisabled}
-                    onCheckedChange={(checked) =>
-                      setDraftDisabled((prev) =>
-                        checked ? [...prev, key] : prev.filter((k) => k !== key),
-                      )
-                    }
-                  />
-                </div>
-              </div>
-            );
-          })}
+          <Switch
+            id="priority-scale-enabled"
+            checked={draftEnabled}
+            onCheckedChange={setDraftEnabled}
+          />
         </CardContent>
       </Card>
 
+      {draftEnabled && (
+        <>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-xs text-muted-foreground">Forslag:</span>
+            <Button variant="outline" size="sm" onClick={() => applyPreset("default")}>
+              Standard
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => applyPreset("letters")}>
+              A–D
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => applyPreset("numbers")}>
+              1–4
+            </Button>
+          </div>
+
+          <Card>
+            <CardContent className="p-4 space-y-3">
+              <div className="flex items-center gap-3 text-xs font-medium text-muted-foreground">
+                <span className="shrink-0 min-w-8">Nivå</span>
+                <span className="flex-1">Standard</span>
+                <span className="shrink-0 w-24 text-right">Ikke aktuelt</span>
+              </div>
+              {PRIORITY_KEYS.map((key) => {
+                const meta = PRIORITY_META[key];
+                const optional = OPTIONAL_PRIORITY_KEYS.includes(key);
+                const isDisabled = optional && draftDisabled.includes(key);
+                return (
+                  <div key={key} className="flex items-center gap-3">
+                    <span
+                      className={`inline-flex items-center justify-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold shrink-0 min-w-8 ${meta.pillClass} ${isDisabled ? "opacity-40" : ""}`}
+                    >
+                      {PRIORITY_LABELS[key]}
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <Label htmlFor={`priority-${key}`} className="sr-only">
+                        Visningsnavn for nivå {PRIORITY_LABELS[key]}
+                      </Label>
+                      <Input
+                        id={`priority-${key}`}
+                        value={draft[key] ?? ""}
+                        placeholder={DEFAULT_PRIORITY_LABELS[key]}
+                        disabled={isDisabled}
+                        onChange={(e) => setDraft((prev) => ({ ...prev, [key]: e.target.value }))}
+                      />
+                    </div>
+                    <div className="shrink-0 w-24 flex justify-end">
+                      {optional ? (
+                        <Checkbox
+                          id={`priority-disabled-${key}`}
+                          aria-label={`Merk nivå ${PRIORITY_LABELS[key]} som ikke aktuelt`}
+                          checked={isDisabled}
+                          onCheckedChange={(checked) =>
+                            setDraftDisabled((prev) =>
+                              checked ? [...prev, key] : prev.filter((k) => k !== key),
+                            )
+                          }
+                        />
+                      ) : (
+                        <span className="text-xs text-muted-foreground/60">—</span>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+              <p className="text-xs text-muted-foreground">
+                Kun P-3 og P-4 kan markeres som ikke aktuelt. P-0 til P-2 er alltid med.
+              </p>
+            </CardContent>
+          </Card>
+        </>
+      )}
 
       <div className="flex items-center justify-between gap-2">
         <Button
@@ -174,6 +207,7 @@ export function VendorPrioritySettingsSection() {
           <RotateCcw className="h-4 w-4" />
           Tilbakestill
         </Button>
+
 
         <Button onClick={handleSave} disabled={saving || isLoading}>
           {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
