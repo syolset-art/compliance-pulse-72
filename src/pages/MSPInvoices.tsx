@@ -176,6 +176,8 @@ export default function MSPInvoices() {
   const taxLabel = tax.enabled && tax.rate > 0 ? `${tax.label} (${tax.rate} %)` : tax.label;
 
   const [exportOpen, setExportOpen] = useState(false);
+  const [subPeriod, setSubPeriod] = useState<"month" | "year">("month");
+  const subTotal = subPeriod === "month" ? monthlyTotal : monthlyTotal * 12;
   const periodLabel = new Date().toLocaleDateString("nb-NO", { month: "long", year: "numeric" });
   const exportRows = rows.map((r) => ({
     name: r.name,
