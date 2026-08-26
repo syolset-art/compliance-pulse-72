@@ -65,6 +65,8 @@ import MSPBillingSettings from "./pages/MSPBillingSettings";
 import MSPPartnerSettings from "./pages/MSPPartnerSettings";
 import MSPLicenses from "./pages/MSPLicenses";
 import MSPInvoices from "./pages/MSPInvoices";
+import MSPInvoiceReports from "./pages/MSPInvoiceReports";
+
 import MSPMessages from "./pages/MSPMessages";
 import MSPROICalculator from "./pages/MSPROICalculator";
 import MSPServiceCatalog from "./pages/MSPServiceCatalog";
@@ -194,6 +196,8 @@ const App = () => (
                   <Route path="/msp-dashboard/:customerId/portal" element={<MSPCustomerPortal />} />
                   <Route path="/msp-licenses" element={<MSPLicenses />} />
                   <Route path="/msp-invoices" element={<MSPInvoices />} />
+                  <Route path="/msp-invoices/reports" element={<MSPInvoiceReports />} />
+
                   <Route path="/msp-messages" element={<MSPMessages />} />
                   <Route path="/msp-services" element={<MSPServiceCatalog />} />
                   <Route path="/msp-customer-view" element={<MSPCustomerView />} />

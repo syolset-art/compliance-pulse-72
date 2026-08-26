@@ -1,76 +1,22 @@
-import { useEffect, useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { useState } from "react";
 import { Sidebar } from "@/components/Sidebar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Settings, Download, Info, History } from "lucide-react";
-import { toast } from "sonner";
+import { Settings, Download, Info, History, BarChart3 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import {
-  PieChart,
-  Pie,
-  Cell,
-  ResponsiveContainer,
-  Tooltip as RechartsTooltip,
-  Legend,
-} from "recharts";
-import {
-  customerLicenseSummary,
-  deriveActivatedFrameworks,
-  deriveActivatedProducts,
-  moduleKeyForActivatedLabel,
-} from "@/lib/offerSuggestions";
-import { getOffersForCustomer, normalizeServiceKey } from "@/lib/customerOffers";
-import { SERVICE_LIBRARY } from "@/lib/serviceLibrary";
-import { CUSTOMER_MODULES_EVENT, getCustomerRetiringModules } from "@/lib/customerModuleState";
 import { formatPeriodEnd } from "@/lib/moduleActivationState";
+import { useMSPInvoiceBasis, type InvoiceBasisRow } from "@/hooks/useMSPInvoiceBasis";
 import { computeTaxBreakdown } from "@/lib/partnerTax";
-import { usePartnerBranding } from "@/hooks/usePartnerBranding";
 import { ExportInvoiceBasisDialog } from "@/components/msp/ExportInvoiceBasisDialog";
 import { CustomerInvoiceHistorySheet } from "@/components/msp/CustomerInvoiceHistorySheet";
 
-
 const fmt = (n: number) => n.toLocaleString("nb-NO");
 
-/** Fastprisleveranser: leverte tilbud med tjenester som prises som engangsbeløp. */
-function fixedPriceForCustomer(customerId: string): { total: number; count: number } {
-  const offers = getOffersForCustomer(customerId).filter((o) => o.status === "delivered");
-  let total = 0;
-  let count = 0;
-  for (const offer of offers) {
-    const keys = new Set([...(offer.templateIds || []), ...(offer.serviceKeys || [])]);
-    for (const t of SERVICE_LIBRARY) {
-      const match = keys.has(t.id) || keys.has(normalizeServiceKey(t.name));
-      if (!match) continue;
-      if (t.recommendedPrice.model !== "fixed") continue;
-      total += t.recommendedPrice.min;
-      count += 1;
-    }
-  }
-  return { total, count };
-}
-
-interface Row {
-  id: string;
-  name: string;
-  meta: string;
-  activated: string[];
-  monthly: number;
-  fixed: number;
-  fixedCount: number;
-  /** Engangs etableringsgebyr — ikke alle kunder har dette. */
-  setup: number;
-  /** Avsluttede linjer: etikett → dato de faller bort. */
-  retiring: Record<string, string>;
-  createdAt?: string | null;
-}
-
-
+type Row = InvoiceBasisRow;
 
 function Pills({
   items,
@@ -110,135 +56,31 @@ function Pills({
 }
 
 export default function MSPInvoices() {
-  const { branding } = usePartnerBranding();
-  const tax = branding.tax;
-
-  const { data: customers = [], refetch } = useQuery({
-    queryKey: ["msp-customers-invoices"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("msp_customers" as any)
-        .select("*")
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-      return data as any[];
-    },
-  });
-
-  // Oppdater når partneren aktiverer eller endrer nivå på en modul.
-  const [, setTick] = useState(0);
-  useEffect(() => {
-    const refresh = () => {
-      setTick((n) => n + 1);
-      refetch();
-    };
-    window.addEventListener(CUSTOMER_MODULES_EVENT, refresh);
-    window.addEventListener("modules:changed", refresh);
-    return () => {
-      window.removeEventListener(CUSTOMER_MODULES_EVENT, refresh);
-      window.removeEventListener("modules:changed", refresh);
-    };
-  }, [refetch]);
-
-  const rows: Row[] = useMemo(() => {
-    return customers
-      .map((c: any) => {
-        const { monthly } = customerLicenseSummary(c);
-        const fixed = fixedPriceForCustomer(c.id);
-        const retiringModules = getCustomerRetiringModules(c.id);
-        const products = deriveActivatedProducts(c);
-        const frameworkLabels = deriveActivatedFrameworks(c);
-        const retiring: Record<string, string> = {};
-        for (const label of products) {
-          const key = moduleKeyForActivatedLabel(label);
-          if (key && retiringModules[key]) retiring[label] = retiringModules[key];
-        }
-        if (retiringModules.frameworks) {
-          for (const label of frameworkLabels) retiring[label] = retiringModules.frameworks;
-        }
-        return {
-          id: c.id,
-          name: c.customer_name || "Uten navn",
-          meta: [c.country_code || "NO", c.industry].filter(Boolean).join(" · "),
-          activated: [...products, ...frameworkLabels],
-          retiring,
-          monthly,
-          fixed: fixed.total,
-          fixedCount: fixed.count,
-          setup: Number(c.setup_fee) > 0 ? Number(c.setup_fee) : 0,
-          createdAt: c.created_at ?? null,
-        };
-      })
-      .sort((a, b) => b.monthly - a.monthly || a.name.localeCompare(b.name, "nb-NO"));
-  }, [customers]);
-
-  const monthlyTotal = rows.reduce((s, r) => s + r.monthly, 0);
-  const fixedTotal = rows.reduce((s, r) => s + r.fixed, 0);
-  const setupTotal = rows.reduce((s, r) => s + r.setup, 0);
-  const payingCount = rows.filter((r) => r.monthly > 0).length;
-  const oneTimeTotal = fixedTotal + setupTotal;
-
-  const productCounts = useMemo(() => {
-    const counts: Record<string, number> = {};
-    for (const r of rows) {
-      for (const label of r.activated) {
-        counts[label] = (counts[label] || 0) + 1;
-      }
-    }
-    return Object.entries(counts)
-      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "nb-NO"))
-      .slice(0, 3);
-  }, [rows]);
-
-  const industryCounts = useMemo(() => {
-    const counts: Record<string, number> = {};
-    for (const c of customers) {
-      const industry = c.industry || "Ukjent bransje";
-      counts[industry] = (counts[industry] || 0) + 1;
-    }
-    const palette = [
-      "hsl(var(--primary))",
-      "#5A3184",
-      "#8E8C85",
-      "#0F7A5A",
-      "#E08A0B",
-      "#2B6CB0",
-      "#C53030",
-      "#805AD5",
-    ];
-    return Object.entries(counts)
-      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "nb-NO"))
-      .slice(0, 5)
-      .map(([name, value], i) => ({ name, value, fill: palette[i % palette.length] }));
-  }, [customers]);
+  const {
+    branding,
+    tax,
+    invoiceTax,
+    taxLabel,
+    rows,
+    monthlyTotal,
+    oneTimeTotal,
+    payingCount,
+    totalBreakdown,
+    exportRows,
+    periodLabel,
+  } = useMSPInvoiceBasis();
 
   const oneTimeFor = (r: Row) => r.fixed + r.setup;
   const netFor = (r: Row) => r.monthly + r.fixed + r.setup;
-
-  /** Fakturagrunnlag viser alltid beløp eks. mva og legger mva til i totalen. */
-  const invoiceTax = useMemo(() => ({ ...tax, mode: "exclusive" as const }), [tax]);
-
   const taxFor = (r: Row) => computeTaxBreakdown(netFor(r), invoiceTax).taxAmount;
   const grossFor = (r: Row) => computeTaxBreakdown(netFor(r), invoiceTax).gross;
-  const netTotal = monthlyTotal + fixedTotal + setupTotal;
-  const totalBreakdown = computeTaxBreakdown(netTotal, invoiceTax);
-  const taxLabel = tax.enabled && tax.rate > 0 ? `${tax.label} (${tax.rate} %)` : tax.label;
 
   const [exportOpen, setExportOpen] = useState(false);
   const [historyId, setHistoryId] = useState<string | null>(null);
   const historyCustomer = rows.find((r) => r.id === historyId) ?? null;
   const [subPeriod, setSubPeriod] = useState<"month" | "year">("year");
   const subTotal = subPeriod === "month" ? monthlyTotal : monthlyTotal * 12;
-  const periodLabel = new Date().toLocaleDateString("nb-NO", { month: "long", year: "numeric" });
-  const exportRows = rows.map((r) => ({
-    name: r.name,
-    meta: r.meta,
-    activated: r.activated,
-    monthly: r.monthly,
-    oneTime: r.fixed + r.setup,
-    fixed: r.fixed,
-    setup: r.setup,
-  }));
+
 
 
 
@@ -258,6 +100,13 @@ export default function MSPInvoices() {
                 </p>
               </div>
               <div className="flex gap-2 flex-wrap">
+                <Link to="/msp-invoices/reports">
+                  <Button variant="outline" size="sm" className="gap-2">
+                    <BarChart3 className="h-4 w-4" />
+                    Rapporter
+                  </Button>
+                </Link>
+
                 <Button variant="outline" size="sm" className="gap-2" onClick={() => setExportOpen(true)}>
                   <Download className="h-4 w-4" />
                   Eksporter
@@ -273,7 +122,8 @@ export default function MSPInvoices() {
             </div>
 
             {/* Toppsammendrag */}
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+
               <Card className="p-4">
                 <div className="text-[12px] uppercase tracking-wide text-muted-foreground">Kunder med abonnement</div>
                 <div className="text-2xl font-semibold text-foreground tabular-nums mt-1">{payingCount}</div>
@@ -311,78 +161,8 @@ export default function MSPInvoices() {
                 </div>
                 <div className="text-xs text-muted-foreground mt-0.5">moduler og betalte regelverk</div>
               </Card>
-              <Card className="p-4">
-                <div className="text-[12px] uppercase tracking-wide text-muted-foreground mb-3">Topp 3 produkter</div>
-                {productCounts.length > 0 ? (
-                  <div className="space-y-2">
-                    {productCounts.map(([label, count], i) => (
-                      <div key={label} className="flex items-center gap-3">
-                        <div className="w-5 text-xs font-medium text-muted-foreground">{i + 1}</div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between text-sm">
-                            <span className="truncate text-foreground">{label}</span>
-                            <span className="text-xs tabular-nums text-muted-foreground ml-2">{count} kunder</span>
-                          </div>
-                          <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden mt-1">
-                            <div
-                              className="h-full bg-primary rounded-full"
-                              style={{ width: `${(count / productCounts[0][1]) * 100}%` }}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-sm text-muted-foreground">Ingen aktive produkter</div>
-                )}
-              </Card>
-              <Card className="p-4">
-                <div className="text-[12px] uppercase tracking-wide text-muted-foreground mb-2">
-                  Fordeling bransje
-                </div>
-                <div className="h-40">
-                  {industryCounts.length > 0 ? (
-                    <ResponsiveContainer width="100%" height="100%">
-                      <PieChart>
-                        <Pie
-                          data={industryCounts}
-                          dataKey="value"
-                          nameKey="name"
-                          cx="50%"
-                          cy="50%"
-                          innerRadius={40}
-                          outerRadius={65}
-                          paddingAngle={2}
-                        >
-                          {industryCounts.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={entry.fill} />
-                          ))}
-                        </Pie>
-                        <RechartsTooltip
-                          formatter={(value: number, _name, props: any) => [
-                            `${value} kunder`,
-                            props?.payload?.name,
-                          ]}
-                          contentStyle={{ borderRadius: 8, fontSize: 12 }}
-                        />
-                        <Legend
-                          verticalAlign="middle"
-                          align="right"
-                          layout="vertical"
-                          iconType="circle"
-                          wrapperStyle={{ fontSize: 11, paddingLeft: 8 }}
-                        />
-                      </PieChart>
-                    </ResponsiveContainer>
-                  ) : (
-                    <div className="h-full flex items-center justify-center text-sm text-muted-foreground">
-                      Ingen bransjedata
-                    </div>
-                  )}
-                </div>
-              </Card>
             </div>
+
 
 
             {/* Desktop: tabell */}
