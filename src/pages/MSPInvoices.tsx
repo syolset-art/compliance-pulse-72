@@ -181,10 +181,13 @@ export default function MSPInvoices() {
   const oneTimeFor = (r: Row) => r.fixed + r.setup;
   const netFor = (r: Row) => r.monthly + r.fixed + r.setup;
 
-  const taxFor = (r: Row) => computeTaxBreakdown(netFor(r), tax).taxAmount;
-  const grossFor = (r: Row) => computeTaxBreakdown(netFor(r), tax).gross;
+  /** Fakturagrunnlag viser alltid beløp eks. mva og legger mva til i totalen. */
+  const invoiceTax = useMemo(() => ({ ...tax, mode: "exclusive" as const }), [tax]);
+
+  const taxFor = (r: Row) => computeTaxBreakdown(netFor(r), invoiceTax).taxAmount;
+  const grossFor = (r: Row) => computeTaxBreakdown(netFor(r), invoiceTax).gross;
   const netTotal = monthlyTotal + fixedTotal + setupTotal;
-  const totalBreakdown = computeTaxBreakdown(netTotal, tax);
+  const totalBreakdown = computeTaxBreakdown(netTotal, invoiceTax);
   const taxLabel = tax.enabled && tax.rate > 0 ? `${tax.label} (${tax.rate} %)` : tax.label;
 
   const [exportOpen, setExportOpen] = useState(false);
@@ -485,7 +488,7 @@ export default function MSPInvoices() {
               onOpenChange={setExportOpen}
               rows={exportRows}
               branding={branding}
-              tax={tax}
+              tax={invoiceTax}
               periodLabel={periodLabel}
             />
           </div>
