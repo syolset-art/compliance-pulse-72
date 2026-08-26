@@ -166,6 +166,18 @@ export default function MSPInvoices() {
   const payingCount = rows.filter((r) => r.monthly > 0).length;
   const oneTimeTotal = fixedTotal + setupTotal;
 
+  const productCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const r of rows) {
+      for (const label of r.activated) {
+        counts[label] = (counts[label] || 0) + 1;
+      }
+    }
+    return Object.entries(counts)
+      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "nb-NO"))
+      .slice(0, 3);
+  }, [rows]);
+
   const oneTimeFor = (r: Row) => r.fixed + r.setup;
   const netFor = (r: Row) => r.monthly + r.fixed + r.setup;
 
@@ -220,7 +232,7 @@ export default function MSPInvoices() {
             </div>
 
             {/* Toppsammendrag */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               <Card className="p-4">
                 <div className="text-[12px] uppercase tracking-wide text-muted-foreground">Kunder med abonnement</div>
                 <div className="text-2xl font-semibold text-foreground tabular-nums mt-1">{payingCount}</div>
@@ -254,6 +266,32 @@ export default function MSPInvoices() {
                 </div>
                 <div className="text-2xl font-semibold text-foreground tabular-nums mt-1">{fmt(subTotal)} kr</div>
                 <div className="text-xs text-muted-foreground mt-0.5">moduler og betalte regelverk</div>
+              </Card>
+              <Card className="p-4">
+                <div className="text-[12px] uppercase tracking-wide text-muted-foreground mb-3">Topp 3 produkter</div>
+                {productCounts.length > 0 ? (
+                  <div className="space-y-2">
+                    {productCounts.map(([label, count], i) => (
+                      <div key={label} className="flex items-center gap-3">
+                        <div className="w-5 text-xs font-medium text-muted-foreground">{i + 1}</div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="truncate text-foreground">{label}</span>
+                            <span className="text-xs tabular-nums text-muted-foreground ml-2">{count} kunder</span>
+                          </div>
+                          <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden mt-1">
+                            <div
+                              className="h-full bg-primary rounded-full"
+                              style={{ width: `${(count / productCounts[0][1]) * 100}%` }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-sm text-muted-foreground">Ingen aktive produkter</div>
+                )}
               </Card>
             </div>
 
