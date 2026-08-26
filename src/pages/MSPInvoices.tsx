@@ -585,6 +585,13 @@ export default function MSPInvoices() {
               )}
             </div>
 
+            <CustomerInvoiceHistorySheet
+              open={historyId !== null}
+              onOpenChange={(o) => !o && setHistoryId(null)}
+              customer={historyCustomer}
+              tax={invoiceTax}
+            />
+
             <ExportInvoiceBasisDialog
               open={exportOpen}
               onOpenChange={setExportOpen}
