@@ -320,7 +320,7 @@ export default function MSPInvoices() {
                             </span>
                           </TooltipTrigger>
                           <TooltipContent side="top" className="max-w-[260px] text-xs">
-                            Engangsbeløp: leverte fastprisprosjekter og eventuelt etableringsgebyr. Tom når kunden ikke
+                            Tallene er oppgitt eks. {tax.label}. Engangsbeløp: leverte fastprisprosjekter og eventuelt etableringsgebyr. Tom når kunden ikke
                             har noen av delene.
                           </TooltipContent>
                         </Tooltip>
