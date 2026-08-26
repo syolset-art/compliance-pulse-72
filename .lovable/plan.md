@@ -1,45 +1,26 @@
-# PinBadge — gjenbrukbart kvalitetsmerke
+# Faktureringsrapporter som egen underside
 
-Et lite, fylt rosett-ikon uten tekst som settes på regelverk og AI-agenter. Ved hover, tastaturfokus eller trykk (touch) åpnes en boks med tre faste opplysninger: kilde, sist verifisert og verifisert av.
+## Mål
+Flytte analysedelen (Topp 3 produkter og Fordeling bransje) ut av Fakturagrunnlag og over til en egen rapportside der partneren kan hente ut rapporter knyttet til fakturering av kunder.
 
-## Oppførsel
+## Vurdering: egen side eller underside?
+Anbefaling: **underside av Fakturagrunnlag**, på ruten `/msp-invoices/reports`. Grunnen er at innholdet bygger på samme datagrunnlag (aktiverte produkter, abonnement, kunder) og hører faglig sammen med fakturagrunnlaget. Den får derfor ikke eget punkt i hovedmenyen, men nås via en «Rapporter»-knapp øverst på Fakturagrunnlag, med tilbakelenke motsatt vei (samme mønster som Innstillinger-siden bruker i dag).
 
-- Komponenten regner aldri ut nivå selv — `level` mottas ferdig beregnet.
-- Farger: menneske `#0F7A5A`, agent `#5EC4A0`, ingen `#8E8C85`. Er `drift` satt til true, overstyres fargen til `#E08A0B` uansett nivå.
-- Ikonet er en fylt 12-takket rosett (viewBox `0 0 24 24`) med en «i» i flatens bakgrunnsfarge (ikke hardkodet hvit) — ingen kontur, hul midte eller ramme.
-- Standard størrelse 19 px, minimum 16 px.
+## Hva den nye siden inneholder
+- Tittel «Faktureringsrapporter», undertittel som presiserer at alle tall er eks. mva.
+- Nøkkeltall: kunder med abonnement og abonnementssum (måned/år-veksler) — beholdes øverst som kontekst for rapportene.
+- Topp 3 produkter (flyttes hit).
+- Fordeling bransje, topp 5 (flyttes hit).
+- Eksport: samme eksportdialog for fakturagrunnlag som i dag, plassert som primærhandling på rapportsiden.
+- Liste over kunder med snarvei til «Fakturahistorikk» (eksisterende sidepanel), slik at rapportuttak per kunde skjer her.
 
-## Hover-boks
-
-- Åpnes på hover og på tastaturfokus, lukkes ved blur/mouse leave.
-- 330 px bred, plassert under merket og høyrejustert mot det.
-- Tre linjer i fast rekkefølge, feltnavn inline i dempet tekst foran verdien:
-  Kilde / Sist verifisert / Verifisert av.
-- Verdier brytes over flere linjer ved behov — ingen truncate, ellipsis eller skjult overflyt.
-
-## Tilgjengelighet
-
-- `tabIndex={0}`, `role="button"`, synlig fokusring.
-- `aria-label` beskriver tilstanden i ord, f.eks. «Pin for GDPR. Verifisert av menneske.» — farge er aldri eneste informasjonsbærer.
-- Escape lukker boksen.
-
-## Mobil
-
-- På touch åpner trykk på merket samme boks; trykk utenfor lukker den.
-- På detaljsider brukes en åpen variant der de tre feltene ligger synlig i stedet for bak et merke.
-
-## Plassering i lister
-
-Merket står til høyre i raden, etter navnet — aldri først, siden venstre kant leses som kontrollposisjon.
-
-## Demo-side
-
-Ny side med fire regelverk-rader som viser alle fire tilstandene (menneske, agent, drift, ingen), pluss et eksempel på den synlige detaljside-varianten.
+## Hva som endres på Fakturagrunnlag
+- De to analysekortene fjernes; nøkkeltallkortene (kunder, abonnementssum) blir stående.
+- Ny knapp «Rapporter» ved siden av Eksporter/Innstillinger.
+- Tabellen med aktiverte produkter per kunde blir uendret.
 
 ## Teknisk
-
-- Ny fil `src/components/pin/PinBadge.tsx` med `PinBadge` (merke + boks) og `PinDetails` (synlig felt-liste for detaljsider). Props: `level`, `drift`, `kilde`, `sistVerifisert`, `verifisertAv`, `size`, `label` (for aria-teksten).
-- Inline SVG med de oppgitte polygon-punktene; `fill`/`stroke` = `currentColor`, `strokeWidth 1.4`, `strokeLinejoin="round"`. «i»-en tegnes med `circle` + `rect` og fyllfarge fra en `bgClassName`-prop (default flatens `bg-background`-token via `fill="hsl(var(--background))"`).
-- De fire hex-fargene defineres som konstanter i komponenten (spesifisert merke-palett, ikke temafarger); resten av UI-et bruker semantiske tokens.
-- Boksen er egen absolutt-posisjonert div (ikke Radix Tooltip) slik at hover, fokus og touch deler samme åpen-tilstand; lukking utenfor via `pointerdown`-lytter.
-- Demo-side `src/pages/PinBadgeDemo.tsx` og rute `/pin-badge-demo` i `src/App.tsx`.
+- Ny fil `src/pages/MSPInvoiceReports.tsx`, rute lagt til i `src/App.tsx` under `/msp-invoices/reports`.
+- Beregningslogikken for rader, abonnementssum, produkt- og bransjetelling flyttes til en delt hook, f.eks. `src/hooks/useMSPInvoiceBasis.ts`, som både `MSPInvoices.tsx` og den nye siden bruker. Ingen duplisering av datauttrekk.
+- Gjenbruker `ExportInvoiceBasisDialog` og `CustomerInvoiceHistorySheet` uendret.
+- Ingen databaseendringer.
