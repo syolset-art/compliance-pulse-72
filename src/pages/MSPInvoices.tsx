@@ -213,7 +213,9 @@ export default function MSPInvoices() {
               <div>
                 <h1 className="text-xl md:text-2xl font-semibold text-foreground">Fakturagrunnlag</h1>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Aktiverte produkter og tjenester per kunde — grunnlaget Mynder fakturerer deg. Alle beløp eks. mva.
+                  Aktiverte produkter og tjenester per kunde — grunnlaget Mynder fakturerer deg. Alle priser er
+                  oppgitt <span className="font-medium text-foreground">eks. {tax.label}</span>; {tax.label} beregnes i
+                  egen kolonne.
                 </p>
               </div>
               <div className="flex gap-2 flex-wrap">
