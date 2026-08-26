@@ -422,10 +422,6 @@ export default function MSPInvoices() {
               {rows.length > 0 && (
                 <Card className="p-4 bg-muted/30 space-y-1">
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Engangsbeløp</span>
-                    <span className="text-foreground tabular-nums">{oneTimeTotal > 0 ? `${fmt(oneTimeTotal)} kr` : "—"}</span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
                     <span className="text-muted-foreground">Totalt per mnd</span>
                     <span className="text-foreground tabular-nums">{fmt(monthlyTotal)} kr</span>
                   </div>
