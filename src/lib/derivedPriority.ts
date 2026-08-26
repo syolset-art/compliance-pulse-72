@@ -1,13 +1,13 @@
-// Prioritet på system/leverandør (P0–P3).
+// Prioritet på system/leverandør (P0–P4).
 // Lara foreslår basert på risiko + kritikalitet, eier kan overstyre.
 import type { CriticalityKey } from "./criticality";
 import type { RiskGrade } from "./derivedRisk";
 
-export type PriorityKey = "P0" | "P1" | "P2" | "P3";
+export type PriorityKey = "P0" | "P1" | "P2" | "P3" | "P4";
 
 export interface PriorityMeta {
   key: PriorityKey;
-  rank: 0 | 1 | 2 | 3;
+  rank: 0 | 1 | 2 | 3 | 4;
   labelNb: string;
   labelEn: string;
   shortNb: string;
@@ -45,13 +45,20 @@ export const PRIORITY_META: Record<PriorityKey, PriorityMeta> = {
     pillClass: "bg-muted text-muted-foreground border-border",
     dotClass: "bg-muted-foreground/40",
   },
+  P4: {
+    key: "P4", rank: 4,
+    labelNb: "P4 – Minimale", labelEn: "P4 – Minimal",
+    shortNb: "Minimale", shortEn: "Minimal",
+    pillClass: "bg-muted/60 text-muted-foreground border-border",
+    dotClass: "bg-muted-foreground/30",
+  },
 };
 
-export const PRIORITY_KEYS: PriorityKey[] = ["P0", "P1", "P2", "P3"];
+export const PRIORITY_KEYS: PriorityKey[] = ["P0", "P1", "P2", "P3", "P4"];
 
 /**
  * Foreslår prioritet basert på risiko og kritikalitet.
- * Risiko (3 nivå) × Kritikalitet (4 nivå) → P0–P3.
+ * Risiko (3 nivå) × Kritikalitet (4 nivå) → P0–P4.
  * Hvis risiko ikke finnes, utledes en proxy fra kritikalitet.
  */
 export function suggestPriority(
@@ -65,7 +72,7 @@ export function suggestPriority(
 
   // Matrise: rader = risiko, kolonner = kritikalitet
   const matrix: Record<RiskGrade, Record<CriticalityKey, PriorityKey>> = {
-    low:    { low: "P3", medium: "P3", high: "P2", critical: "P1" },
+    low:    { low: "P4", medium: "P3", high: "P2", critical: "P1" },
     medium: { low: "P3", medium: "P2", high: "P1", critical: "P0" },
     high:   { low: "P2", medium: "P1", high: "P0", critical: "P0" },
   };

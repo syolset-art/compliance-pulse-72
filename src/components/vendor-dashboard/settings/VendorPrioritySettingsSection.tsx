@@ -15,16 +15,17 @@ import {
   type PriorityLabelMap,
 } from "@/hooks/useVendorPriorityLabels";
 
-/** Prioritetsskalaen i leverandørmodulen vises som bokstavene A–D. */
-const PRIORITY_LETTERS: Record<PriorityKey, string> = {
-  P0: "A",
-  P1: "B",
-  P2: "C",
-  P3: "D",
+/** Visningsnavn for prioritetsskalaen P-0 – P-4. */
+const PRIORITY_LABELS: Record<PriorityKey, string> = {
+  P0: "P-0",
+  P1: "P-1",
+  P2: "P-2",
+  P3: "P-3",
+  P4: "P-4",
 };
 
 /**
- * Egendefinerte visningsnavn for prioritetsskalaen A–D.
+ * Egendefinerte visningsnavn for prioritetsskalaen P-0 – P-4.
  * Brukeren kan endre forslaget per nivå. Gjelder kun visninger
  * inne i leverandørmodulen.
  */
@@ -67,7 +68,7 @@ export function VendorPrioritySettingsSection() {
   return (
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">
-        Leverandører prioriteres på skalaen <strong>A–D</strong>, der A er høyeste prioritet.
+        Leverandører prioriteres på skalaen <strong>P-0 – P-4</strong>, der P-0 er høyeste prioritet.
         Du kan endre forslaget til navn på hvert nivå — dette gjelder kun i leverandørmodulen,
         resten av plattformen viser standardnavnene.
       </p>
@@ -81,11 +82,11 @@ export function VendorPrioritySettingsSection() {
                 <span
                   className={`inline-flex items-center justify-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold shrink-0 min-w-8 ${meta.pillClass}`}
                 >
-                  {PRIORITY_LETTERS[key]}
+                  {PRIORITY_LABELS[key]}
                 </span>
                 <div className="flex-1 min-w-0">
                   <Label htmlFor={`priority-${key}`} className="sr-only">
-                    Visningsnavn for nivå {PRIORITY_LETTERS[key]}
+                    Visningsnavn for nivå {PRIORITY_LABELS[key]}
                   </Label>
                   <Input
                     id={`priority-${key}`}
