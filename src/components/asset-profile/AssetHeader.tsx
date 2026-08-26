@@ -129,7 +129,7 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
   const logoInputRef = useRef<HTMLInputElement>(null);
   const isSelf = asset.asset_type === 'self';
   // Egendefinerte prioritetsnavn gjelder kun leverandørmodulen.
-  const { labels: vendorPriorityLabels } = useVendorPriorityLabels();
+  const { labels: vendorPriorityLabels, disabled: vendorDisabledLevels } = useVendorPriorityLabels();
 
   const { data: companyProfile } = useQuery({
     queryKey: ["company_profile_msp"],
@@ -636,6 +636,8 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
               currentSource={((asset as { priority_source?: string | null }).priority_source ?? null) as "lara" | "manual" | null}
               currentSuggested={(asset as { priority_suggested?: string | null }).priority_suggested ?? null}
               criticality={(asset as { criticality?: string | null; risk_level?: string | null }).criticality ?? (asset as { risk_level?: string | null }).risk_level ?? null}
+              labelOverrides={asset.asset_type === "vendor" ? vendorPriorityLabels : undefined}
+              hiddenLevels={asset.asset_type === "vendor" ? vendorDisabledLevels : undefined}
               onSaved={() => queryClient.invalidateQueries({ queryKey: ["asset", asset.id] })}
               trigger={
                 <button type="button" className="inline-flex">

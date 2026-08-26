@@ -1,0 +1,1 @@
+ALTER TABLE public.vendor_module_settings ADD COLUMN IF NOT EXISTS disabled_priority_levels jsonb NOT NULL DEFAULT '[]'::jsonb;

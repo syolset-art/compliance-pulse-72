@@ -33,6 +33,10 @@ interface PriorityEditorPopoverProps {
   riskGrade?: "low" | "medium" | "high" | null;
   onSaved?: () => void;
   trigger: React.ReactNode;
+  /** Overstyrte visningsnavn per nivå (brukes av leverandørmodulen). */
+  labelOverrides?: Partial<Record<PriorityKey, string>>;
+  /** Nivåer markert som «Ikke aktuelt» — skjules i velgeren. */
+  hiddenLevels?: PriorityKey[];
 }
 
 export function PriorityEditorPopover({
@@ -45,6 +49,8 @@ export function PriorityEditorPopover({
   riskGrade,
   onSaved,
   trigger,
+  labelOverrides,
+  hiddenLevels,
 }: PriorityEditorPopoverProps) {
   const [open, setOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
@@ -135,8 +141,9 @@ export function PriorityEditorPopover({
           </div>
 
           <div className="grid grid-cols-2 gap-1.5">
-            {PRIORITY_KEYS.map((p) => {
+            {PRIORITY_KEYS.filter((p) => !hiddenLevels?.includes(p)).map((p) => {
               const meta = PRIORITY_META[p];
+              const displayLabel = labelOverrides?.[p] ? `${p} – ${labelOverrides[p]}` : meta.labelNb;
               const isSel = selected === p;
               const isSuggested = p === suggested;
               return (
@@ -152,7 +159,7 @@ export function PriorityEditorPopover({
                   )}
                 >
                   <span className={cn("h-2 w-2 rounded-full", meta.dotClass)} aria-hidden />
-                  <span className="font-medium">{meta.labelNb}</span>
+                  <span className="font-medium">{displayLabel}</span>
                   {isSuggested && (
                     <Sparkles className="ml-auto h-3 w-3 text-primary opacity-70" aria-label="Laras forslag" />
                   )}

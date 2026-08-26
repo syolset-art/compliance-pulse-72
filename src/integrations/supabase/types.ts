@@ -4783,6 +4783,7 @@ export type Database = {
       vendor_module_settings: {
         Row: {
           created_at: string
+          disabled_priority_levels: Json
           id: string
           priority_labels: Json
           scope: string
@@ -4790,6 +4791,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          disabled_priority_levels?: Json
           id?: string
           priority_labels?: Json
           scope?: string
@@ -4797,6 +4799,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          disabled_priority_levels?: Json
           id?: string
           priority_labels?: Json
           scope?: string
