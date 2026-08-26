@@ -208,6 +208,7 @@ export default function MSPInvoices() {
     ];
     return Object.entries(counts)
       .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "nb-NO"))
+      .slice(0, 5)
       .map(([name, value], i) => ({ name, value, fill: palette[i % palette.length] }));
   }, [customers]);
 
