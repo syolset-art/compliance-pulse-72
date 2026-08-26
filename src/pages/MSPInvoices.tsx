@@ -100,6 +100,13 @@ export default function MSPInvoices() {
                 </p>
               </div>
               <div className="flex gap-2 flex-wrap">
+                <Link to="/msp-invoices/reports">
+                  <Button variant="outline" size="sm" className="gap-2">
+                    <BarChart3 className="h-4 w-4" />
+                    Rapporter
+                  </Button>
+                </Link>
+
                 <Button variant="outline" size="sm" className="gap-2" onClick={() => setExportOpen(true)}>
                   <Download className="h-4 w-4" />
                   Eksporter
@@ -115,7 +122,8 @@ export default function MSPInvoices() {
             </div>
 
             {/* Toppsammendrag */}
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+
               <Card className="p-4">
                 <div className="text-[12px] uppercase tracking-wide text-muted-foreground">Kunder med abonnement</div>
                 <div className="text-2xl font-semibold text-foreground tabular-nums mt-1">{payingCount}</div>
