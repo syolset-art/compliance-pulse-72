@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Settings, Download, Info } from "lucide-react";
+import { Settings, Download, Info, History } from "lucide-react";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -32,6 +32,7 @@ import { formatPeriodEnd } from "@/lib/moduleActivationState";
 import { computeTaxBreakdown } from "@/lib/partnerTax";
 import { usePartnerBranding } from "@/hooks/usePartnerBranding";
 import { ExportInvoiceBasisDialog } from "@/components/msp/ExportInvoiceBasisDialog";
+import { CustomerInvoiceHistorySheet } from "@/components/msp/CustomerInvoiceHistorySheet";
 
 
 const fmt = (n: number) => n.toLocaleString("nb-NO");
@@ -66,7 +67,9 @@ interface Row {
   setup: number;
   /** Avsluttede linjer: etikett → dato de faller bort. */
   retiring: Record<string, string>;
+  createdAt?: string | null;
 }
+
 
 
 function Pills({
@@ -163,6 +166,7 @@ export default function MSPInvoices() {
           fixed: fixed.total,
           fixedCount: fixed.count,
           setup: Number(c.setup_fee) > 0 ? Number(c.setup_fee) : 0,
+          createdAt: c.created_at ?? null,
         };
       })
       .sort((a, b) => b.monthly - a.monthly || a.name.localeCompare(b.name, "nb-NO"));
@@ -220,6 +224,8 @@ export default function MSPInvoices() {
   const taxLabel = tax.enabled && tax.rate > 0 ? `${tax.label} (${tax.rate} %)` : tax.label;
 
   const [exportOpen, setExportOpen] = useState(false);
+  const [historyId, setHistoryId] = useState<string | null>(null);
+  const historyCustomer = rows.find((r) => r.id === historyId) ?? null;
   const [subPeriod, setSubPeriod] = useState<"month" | "year">("year");
   const subTotal = subPeriod === "month" ? monthlyTotal : monthlyTotal * 12;
   const periodLabel = new Date().toLocaleDateString("nb-NO", { month: "long", year: "numeric" });
@@ -430,6 +436,21 @@ export default function MSPInvoices() {
                             {r.name}
                           </Link>
                           <div className="text-xs text-muted-foreground">{r.meta || "—"}</div>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <button
+                                type="button"
+                                onClick={() => setHistoryId(r.id)}
+                                className="mt-1 inline-flex items-center gap-1 text-[11px] font-normal text-muted-foreground hover:text-primary hover:underline underline-offset-2"
+                              >
+                                <History className="h-3 w-3" />
+                                Fakturahistorikk
+                              </button>
+                            </TooltipTrigger>
+                            <TooltipContent side="bottom" className="max-w-[240px] text-xs">
+                              Se fakturagrunnlaget per måned for denne kunden.
+                            </TooltipContent>
+                          </Tooltip>
                         </TableCell>
                         <TableCell>
                           <Pills items={r.activated} retiring={r.retiring} empty="Ingen aktive abonnement" />
@@ -536,7 +557,14 @@ export default function MSPInvoices() {
                       <span className="text-foreground tabular-nums">{fmt(grossFor(r))} kr</span>
                     </div>
                   </div>
-
+                  <button
+                    type="button"
+                    onClick={() => setHistoryId(r.id)}
+                    className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary"
+                  >
+                    <History className="h-3.5 w-3.5" />
+                    Se fakturahistorikk
+                  </button>
                 </Card>
               ))}
               {rows.length > 0 && (
@@ -556,6 +584,13 @@ export default function MSPInvoices() {
                 <Card className="p-10 text-center text-sm text-muted-foreground">Ingen kunder ennå</Card>
               )}
             </div>
+
+            <CustomerInvoiceHistorySheet
+              open={historyId !== null}
+              onOpenChange={(o) => !o && setHistoryId(null)}
+              customer={historyCustomer}
+              tax={invoiceTax}
+            />
 
             <ExportInvoiceBasisDialog
               open={exportOpen}
