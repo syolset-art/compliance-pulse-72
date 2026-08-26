@@ -12,6 +12,14 @@ import { toast } from "sonner";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import {
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+  Tooltip as RechartsTooltip,
+  Legend,
+} from "recharts";
+import {
   customerLicenseSummary,
   deriveActivatedFrameworks,
   deriveActivatedProducts,
@@ -178,6 +186,27 @@ export default function MSPInvoices() {
       .slice(0, 3);
   }, [rows]);
 
+  const industryCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const c of customers) {
+      const industry = c.industry || "Ukjent bransje";
+      counts[industry] = (counts[industry] || 0) + 1;
+    }
+    const palette = [
+      "hsl(var(--primary))",
+      "#5A3184",
+      "#8E8C85",
+      "#0F7A5A",
+      "#E08A0B",
+      "#2B6CB0",
+      "#C53030",
+      "#805AD5",
+    ];
+    return Object.entries(counts)
+      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "nb-NO"))
+      .map(([name, value], i) => ({ name, value, fill: palette[i % palette.length] }));
+  }, [customers]);
+
   const oneTimeFor = (r: Row) => r.fixed + r.setup;
   const netFor = (r: Row) => r.monthly + r.fixed + r.setup;
 
@@ -237,7 +266,7 @@ export default function MSPInvoices() {
             </div>
 
             {/* Toppsammendrag */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
               <Card className="p-4">
                 <div className="text-[12px] uppercase tracking-wide text-muted-foreground">Kunder med abonnement</div>
                 <div className="text-2xl font-semibold text-foreground tabular-nums mt-1">{payingCount}</div>
@@ -300,6 +329,51 @@ export default function MSPInvoices() {
                 ) : (
                   <div className="text-sm text-muted-foreground">Ingen aktive produkter</div>
                 )}
+              </Card>
+              <Card className="p-4">
+                <div className="text-[12px] uppercase tracking-wide text-muted-foreground mb-2">
+                  Fordeling bransje
+                </div>
+                <div className="h-40">
+                  {industryCounts.length > 0 ? (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={industryCounts}
+                          dataKey="value"
+                          nameKey="name"
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={40}
+                          outerRadius={65}
+                          paddingAngle={2}
+                        >
+                          {industryCounts.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.fill} />
+                          ))}
+                        </Pie>
+                        <RechartsTooltip
+                          formatter={(value: number, _name, props: any) => [
+                            `${value} kunder`,
+                            props?.payload?.name,
+                          ]}
+                          contentStyle={{ borderRadius: 8, fontSize: 12 }}
+                        />
+                        <Legend
+                          verticalAlign="middle"
+                          align="right"
+                          layout="vertical"
+                          iconType="circle"
+                          wrapperStyle={{ fontSize: 11, paddingLeft: 8 }}
+                        />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  ) : (
+                    <div className="h-full flex items-center justify-center text-sm text-muted-foreground">
+                      Ingen bransjedata
+                    </div>
+                  )}
+                </div>
               </Card>
             </div>
 
