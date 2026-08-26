@@ -153,78 +153,8 @@ export default function MSPInvoices() {
                 </div>
                 <div className="text-xs text-muted-foreground mt-0.5">moduler og betalte regelverk</div>
               </Card>
-              <Card className="p-4">
-                <div className="text-[12px] uppercase tracking-wide text-muted-foreground mb-3">Topp 3 produkter</div>
-                {productCounts.length > 0 ? (
-                  <div className="space-y-2">
-                    {productCounts.map(([label, count], i) => (
-                      <div key={label} className="flex items-center gap-3">
-                        <div className="w-5 text-xs font-medium text-muted-foreground">{i + 1}</div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between text-sm">
-                            <span className="truncate text-foreground">{label}</span>
-                            <span className="text-xs tabular-nums text-muted-foreground ml-2">{count} kunder</span>
-                          </div>
-                          <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden mt-1">
-                            <div
-                              className="h-full bg-primary rounded-full"
-                              style={{ width: `${(count / productCounts[0][1]) * 100}%` }}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-sm text-muted-foreground">Ingen aktive produkter</div>
-                )}
-              </Card>
-              <Card className="p-4">
-                <div className="text-[12px] uppercase tracking-wide text-muted-foreground mb-2">
-                  Fordeling bransje
-                </div>
-                <div className="h-40">
-                  {industryCounts.length > 0 ? (
-                    <ResponsiveContainer width="100%" height="100%">
-                      <PieChart>
-                        <Pie
-                          data={industryCounts}
-                          dataKey="value"
-                          nameKey="name"
-                          cx="50%"
-                          cy="50%"
-                          innerRadius={40}
-                          outerRadius={65}
-                          paddingAngle={2}
-                        >
-                          {industryCounts.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={entry.fill} />
-                          ))}
-                        </Pie>
-                        <RechartsTooltip
-                          formatter={(value: number, _name, props: any) => [
-                            `${value} kunder`,
-                            props?.payload?.name,
-                          ]}
-                          contentStyle={{ borderRadius: 8, fontSize: 12 }}
-                        />
-                        <Legend
-                          verticalAlign="middle"
-                          align="right"
-                          layout="vertical"
-                          iconType="circle"
-                          wrapperStyle={{ fontSize: 11, paddingLeft: 8 }}
-                        />
-                      </PieChart>
-                    </ResponsiveContainer>
-                  ) : (
-                    <div className="h-full flex items-center justify-center text-sm text-muted-foreground">
-                      Ingen bransjedata
-                    </div>
-                  )}
-                </div>
-              </Card>
             </div>
+
 
 
             {/* Desktop: tabell */}
