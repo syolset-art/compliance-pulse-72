@@ -12,6 +12,14 @@ import { toast } from "sonner";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import {
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+  Tooltip as RechartsTooltip,
+  Legend,
+} from "recharts";
+import {
   customerLicenseSummary,
   deriveActivatedFrameworks,
   deriveActivatedProducts,
