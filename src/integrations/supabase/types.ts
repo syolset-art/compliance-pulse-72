@@ -4786,6 +4786,7 @@ export type Database = {
           disabled_priority_levels: Json
           id: string
           priority_labels: Json
+          priority_scale_enabled: boolean
           scope: string
           updated_at: string
         }
@@ -4794,6 +4795,7 @@ export type Database = {
           disabled_priority_levels?: Json
           id?: string
           priority_labels?: Json
+          priority_scale_enabled?: boolean
           scope?: string
           updated_at?: string
         }
@@ -4802,6 +4804,7 @@ export type Database = {
           disabled_priority_levels?: Json
           id?: string
           priority_labels?: Json
+          priority_scale_enabled?: boolean
           scope?: string
           updated_at?: string
         }
