@@ -112,13 +112,15 @@ export function VendorPrioritySettingsSection() {
           <div className="flex items-center gap-3 text-xs font-medium text-muted-foreground">
             <span className="shrink-0 min-w-8">Nivå</span>
             <span className="flex-1">Standard</span>
+            <span className="shrink-0 w-24 text-right">Ikke aktuelt</span>
           </div>
           {PRIORITY_KEYS.map((key) => {
             const meta = PRIORITY_META[key];
+            const isDisabled = draftDisabled.includes(key);
             return (
               <div key={key} className="flex items-center gap-3">
                 <span
-                  className={`inline-flex items-center justify-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold shrink-0 min-w-8 ${meta.pillClass}`}
+                  className={`inline-flex items-center justify-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold shrink-0 min-w-8 ${meta.pillClass} ${isDisabled ? "opacity-40" : ""}`}
                 >
                   {PRIORITY_LABELS[key]}
                 </span>
@@ -130,7 +132,20 @@ export function VendorPrioritySettingsSection() {
                     id={`priority-${key}`}
                     value={draft[key] ?? ""}
                     placeholder={DEFAULT_PRIORITY_LABELS[key]}
+                    disabled={isDisabled}
                     onChange={(e) => setDraft((prev) => ({ ...prev, [key]: e.target.value }))}
+                  />
+                </div>
+                <div className="shrink-0 w-24 flex justify-end">
+                  <Checkbox
+                    id={`priority-disabled-${key}`}
+                    aria-label={`Merk nivå ${PRIORITY_LABELS[key]} som ikke aktuelt`}
+                    checked={isDisabled}
+                    onCheckedChange={(checked) =>
+                      setDraftDisabled((prev) =>
+                        checked ? [...prev, key] : prev.filter((k) => k !== key),
+                      )
+                    }
                   />
                 </div>
               </div>
