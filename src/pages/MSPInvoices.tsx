@@ -166,6 +166,7 @@ export default function MSPInvoices() {
           fixed: fixed.total,
           fixedCount: fixed.count,
           setup: Number(c.setup_fee) > 0 ? Number(c.setup_fee) : 0,
+          createdAt: c.created_at ?? null,
         };
       })
       .sort((a, b) => b.monthly - a.monthly || a.name.localeCompare(b.name, "nb-NO"));
