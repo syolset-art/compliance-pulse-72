@@ -426,7 +426,7 @@ export default function MSPInvoices() {
                       <div className="text-sm font-semibold text-foreground tabular-nums">
                         {r.monthly > 0 ? `${fmt(r.monthly)} kr` : "—"}
                       </div>
-                      <div className="text-[11px] text-muted-foreground">per mnd</div>
+                      <div className="text-[11px] text-muted-foreground">per mnd eks. {tax.label}</div>
                     </div>
                   </div>
                   <Pills items={r.activated} retiring={r.retiring} empty="Ingen aktive abonnement" />
@@ -434,7 +434,7 @@ export default function MSPInvoices() {
                     {oneTimeFor(r) > 0 && (
                       <div className="flex items-center justify-between">
                         <span className="text-muted-foreground">
-                          Fastpris og etablering
+                          Fastpris og etablering (eks. {tax.label})
                           {r.fixed > 0 && r.setup > 0 && (
                             <span className="block text-[11px]">
                               fastpris {fmt(r.fixed)} · etablering {fmt(r.setup)}
@@ -445,7 +445,7 @@ export default function MSPInvoices() {
                       </div>
                     )}
                     <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground">Abonnement/mnd</span>
+                      <span className="text-muted-foreground">Abonnement/mnd (eks. {tax.label})</span>
                       <span className="text-foreground tabular-nums">{r.monthly > 0 ? `${fmt(r.monthly)} kr` : "—"}</span>
                     </div>
                     <div className="flex items-center justify-between">
