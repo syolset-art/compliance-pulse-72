@@ -61,13 +61,13 @@ export function buildInvoiceBasisCsv({ rows, tax }: InvoiceBasisExportInput): st
   const lines = [head.map(esc).join(";")];
   for (const r of rows) {
     const net = r.monthly + r.oneTime;
-    const b = computeTaxBreakdown(net, tax);
+    const b = computeTaxBreakdown(net, { ...tax, mode: "exclusive" });
     lines.push(
       [r.name, r.activated.join(", "), r.oneTime, r.monthly, b.taxAmount, b.gross].map(esc).join(";"),
     );
   }
   const netTotal = rows.reduce((s, r) => s + r.monthly + r.oneTime, 0);
-  const tb = computeTaxBreakdown(netTotal, tax);
+  const tb = computeTaxBreakdown(netTotal, { ...tax, mode: "exclusive" });
   lines.push(
     [
       "Totalt",
