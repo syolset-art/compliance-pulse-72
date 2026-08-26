@@ -82,11 +82,11 @@ export function VendorPrioritySettingsSection() {
                 <span
                   className={`inline-flex items-center justify-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold shrink-0 min-w-8 ${meta.pillClass}`}
                 >
-                  {PRIORITY_LETTERS[key]}
+                  {PRIORITY_LABELS[key]}
                 </span>
                 <div className="flex-1 min-w-0">
                   <Label htmlFor={`priority-${key}`} className="sr-only">
-                    Visningsnavn for nivå {PRIORITY_LETTERS[key]}
+                    Visningsnavn for nivå {PRIORITY_LABELS[key]}
                   </Label>
                   <Input
                     id={`priority-${key}`}
