@@ -166,6 +166,18 @@ export default function MSPInvoices() {
   const payingCount = rows.filter((r) => r.monthly > 0).length;
   const oneTimeTotal = fixedTotal + setupTotal;
 
+  const productCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const r of rows) {
+      for (const label of r.activated) {
+        counts[label] = (counts[label] || 0) + 1;
+      }
+    }
+    return Object.entries(counts)
+      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "nb-NO"))
+      .slice(0, 3);
+  }, [rows]);
+
   const oneTimeFor = (r: Row) => r.fixed + r.setup;
   const netFor = (r: Row) => r.monthly + r.fixed + r.setup;
 
