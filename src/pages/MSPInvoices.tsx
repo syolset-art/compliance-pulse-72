@@ -557,7 +557,14 @@ export default function MSPInvoices() {
                       <span className="text-foreground tabular-nums">{fmt(grossFor(r))} kr</span>
                     </div>
                   </div>
-
+                  <button
+                    type="button"
+                    onClick={() => setHistoryId(r.id)}
+                    className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary"
+                  >
+                    <History className="h-3.5 w-3.5" />
+                    Se fakturahistorikk
+                  </button>
                 </Card>
               ))}
               {rows.length > 0 && (
