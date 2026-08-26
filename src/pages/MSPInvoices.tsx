@@ -32,6 +32,7 @@ import { formatPeriodEnd } from "@/lib/moduleActivationState";
 import { computeTaxBreakdown } from "@/lib/partnerTax";
 import { usePartnerBranding } from "@/hooks/usePartnerBranding";
 import { ExportInvoiceBasisDialog } from "@/components/msp/ExportInvoiceBasisDialog";
+import { CustomerInvoiceHistorySheet } from "@/components/msp/CustomerInvoiceHistorySheet";
 
 
 const fmt = (n: number) => n.toLocaleString("nb-NO");
