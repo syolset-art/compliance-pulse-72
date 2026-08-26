@@ -317,11 +317,11 @@ export default function MSPInvoices() {
                           </TooltipContent>
                         </Tooltip>
                       </TableHead>
-                      <TableHead className="w-[140px] text-right text-foreground/80">
+                      <TableHead className="w-[160px] text-right text-foreground/80">
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <span className="inline-flex items-center gap-1.5 cursor-help">
-                              Abonnement/mnd <Info className="h-3.5 w-3.5 text-foreground/50" />
+                            <span className="inline-flex items-center gap-1.5 cursor-help whitespace-nowrap">
+                              Abonnement/mnd (eks. {tax.label}) <Info className="h-3.5 w-3.5 text-foreground/50" />
                             </span>
                           </TooltipTrigger>
                           <TooltipContent side="top" className="max-w-[260px] text-xs">
