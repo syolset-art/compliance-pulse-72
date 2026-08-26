@@ -186,6 +186,27 @@ export default function MSPInvoices() {
       .slice(0, 3);
   }, [rows]);
 
+  const industryCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const c of customers) {
+      const industry = c.industry || "Ukjent bransje";
+      counts[industry] = (counts[industry] || 0) + 1;
+    }
+    const palette = [
+      "hsl(var(--primary))",
+      "#5A3184",
+      "#8E8C85",
+      "#0F7A5A",
+      "#E08A0B",
+      "#2B6CB0",
+      "#C53030",
+      "#805AD5",
+    ];
+    return Object.entries(counts)
+      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "nb-NO"))
+      .map(([name, value], i) => ({ name, value, fill: palette[i % palette.length] }));
+  }, [customers]);
+
   const oneTimeFor = (r: Row) => r.fixed + r.setup;
   const netFor = (r: Row) => r.monthly + r.fixed + r.setup;
 
