@@ -198,7 +198,7 @@ export async function generateInvoiceBasisPdf(input: InvoiceBasisExportInput) {
     }
 
     const net = r.monthly + r.oneTime;
-    const b = computeTaxBreakdown(net, tax);
+    const b = computeTaxBreakdown(net, { ...tax, mode: "exclusive" });
 
     doc.setFontSize(9);
     doc.setTextColor(30, 30, 30);
