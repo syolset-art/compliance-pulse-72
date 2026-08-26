@@ -631,6 +631,7 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
                 {isNb ? "Partner og forhandler av Mynder" : "Mynder partner & reseller"}
               </Badge>
             )}
+            {showPriority && (
             <PriorityEditorPopover
               assetId={asset.id}
               currentPriority={(asset as { priority?: string | null }).priority ?? null}
@@ -638,8 +639,8 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
               currentSource={((asset as { priority_source?: string | null }).priority_source ?? null) as "lara" | "manual" | null}
               currentSuggested={(asset as { priority_suggested?: string | null }).priority_suggested ?? null}
               criticality={(asset as { criticality?: string | null; risk_level?: string | null }).criticality ?? (asset as { risk_level?: string | null }).risk_level ?? null}
-              labelOverrides={asset.asset_type === "vendor" ? vendorPriorityLabels : undefined}
-              hiddenLevels={asset.asset_type === "vendor" ? vendorDisabledLevels : undefined}
+              labelOverrides={isVendorAsset ? vendorPriorityLabels : undefined}
+              hiddenLevels={isVendorAsset ? vendorDisabledLevels : undefined}
               onSaved={() => queryClient.invalidateQueries({ queryKey: ["asset", asset.id] })}
               trigger={
                 <button type="button" className="inline-flex">
@@ -650,11 +651,13 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
                     reason={(asset as { priority_reason?: string | null }).priority_reason ?? null}
                     updatedBy={(asset as { priority_updated_by?: string | null }).priority_updated_by ?? null}
                     updatedAt={(asset as { priority_updated_at?: string | null }).priority_updated_at ?? null}
-                    labelOverrides={asset.asset_type === "vendor" ? vendorPriorityLabels : undefined}
+                    labelOverrides={isVendorAsset ? vendorPriorityLabels : undefined}
                   />
                 </button>
               }
             />
+            )}
+
           </div>
 
           {/* TPRM status line for vendors */}
