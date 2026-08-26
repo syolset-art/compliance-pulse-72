@@ -264,7 +264,10 @@ export default function MSPInvoices() {
                     ))}
                   </div>
                 </div>
-                <div className="text-2xl font-semibold text-foreground tabular-nums mt-1">{fmt(subTotal)} kr</div>
+                <div className="flex items-baseline gap-2 mt-1">
+                  <span className="text-2xl font-semibold text-foreground tabular-nums">{fmt(subTotal)} kr</span>
+                  <span className="text-[11px] font-medium text-muted-foreground">eks. {tax.label}</span>
+                </div>
                 <div className="text-xs text-muted-foreground mt-0.5">moduler og betalte regelverk</div>
               </Card>
               <Card className="p-4">
