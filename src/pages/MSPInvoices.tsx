@@ -121,47 +121,43 @@ export default function MSPInvoices() {
               </div>
             </div>
 
-            {/* Toppsammendrag */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-
-              <Card className="p-4">
-                <div className="text-[12px] uppercase tracking-wide text-muted-foreground">Kunder med abonnement</div>
-                <div className="text-2xl font-semibold text-foreground tabular-nums mt-1">{payingCount}</div>
-              </Card>
-              <Card className="p-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="text-[12px] uppercase tracking-wide text-muted-foreground">
-                    {subPeriod === "month" ? "Abonnement per måned" : "Abonnement per år"}
-                  </div>
-                  <div className="flex rounded-md border border-border p-0.5">
-                    {([
-                      { value: "month" as const, label: "Mnd" },
-                      { value: "year" as const, label: "År" },
-                    ]).map((opt) => (
-                      <button
-                        key={opt.value}
-                        type="button"
-                        onClick={() => setSubPeriod(opt.value)}
-                        aria-pressed={subPeriod === opt.value}
-                        className={cn(
-                          "rounded px-2 py-0.5 text-[11px] font-medium transition-colors",
-                          subPeriod === opt.value
-                            ? "bg-primary text-primary-foreground"
-                            : "text-muted-foreground hover:text-foreground"
-                        )}
-                      >
-                        {opt.label}
-                      </button>
-                    ))}
-                  </div>
+            {/* Toppsammendrag — kompakt */}
+            <Card className="px-4 py-3">
+              <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+                <div className="flex items-baseline gap-1.5">
+                  <span className="text-lg font-semibold text-foreground tabular-nums">{payingCount}</span>
+                  <span className="text-xs text-muted-foreground">kunder med abonnement</span>
                 </div>
-                <div className="flex items-baseline gap-2 mt-1">
-                  <span className="text-2xl font-semibold text-foreground tabular-nums">{fmt(subTotal)} kr</span>
-                  <span className="text-[11px] font-medium text-muted-foreground">eks. {tax.label}</span>
+                <div className="h-4 w-px bg-border hidden sm:block" />
+                <div className="flex items-baseline gap-1.5">
+                  <span className="text-lg font-semibold text-foreground tabular-nums">{fmt(subTotal)} kr</span>
+                  <span className="text-xs text-muted-foreground">
+                    {subPeriod === "month" ? "per måned" : "per år"} eks. {tax.label}
+                  </span>
                 </div>
-                <div className="text-xs text-muted-foreground mt-0.5">moduler og betalte regelverk</div>
-              </Card>
-            </div>
+                <div className="ml-auto flex rounded-md border border-border p-0.5">
+                  {([
+                    { value: "month" as const, label: "Mnd" },
+                    { value: "year" as const, label: "År" },
+                  ]).map((opt) => (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() => setSubPeriod(opt.value)}
+                      aria-pressed={subPeriod === opt.value}
+                      className={cn(
+                        "rounded px-2 py-0.5 text-[11px] font-medium transition-colors",
+                        subPeriod === opt.value
+                          ? "bg-primary text-primary-foreground"
+                          : "text-muted-foreground hover:text-foreground"
+                      )}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </Card>
 
 
 
