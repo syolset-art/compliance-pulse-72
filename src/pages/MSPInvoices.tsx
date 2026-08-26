@@ -220,7 +220,6 @@ export default function MSPInvoices() {
             </div>
 
             {/* Toppsammendrag */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <Card className="p-4">
                 <div className="text-[12px] uppercase tracking-wide text-muted-foreground">Kunder med abonnement</div>
