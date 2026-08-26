@@ -18,6 +18,9 @@ export const DEFAULT_PRIORITY_LABELS: PriorityLabelMap = PRIORITY_KEYS.reduce(
 /** Nivåer som er markert som «Ikke aktuelt» skjules i leverandørmodulen. */
 export type DisabledPriorityLevels = PriorityKey[];
 
+/** Kun de laveste nivåene kan markeres som «ikke aktuelt». */
+export const OPTIONAL_PRIORITY_KEYS: PriorityKey[] = ["P3", "P4"];
+
 /**
  * Visningsnavn for P0–P4 som KUN gjelder inne i leverandørmodulen.
  * Faller tilbake til standardnavnene når ingen overstyring er lagret.
@@ -25,16 +28,21 @@ export type DisabledPriorityLevels = PriorityKey[];
 export function useVendorPriorityLabels() {
   const query = useQuery({
     queryKey: VENDOR_MODULE_SETTINGS_KEY,
-    queryFn: async (): Promise<{ labels: Record<string, string>; disabled: DisabledPriorityLevels }> => {
+    queryFn: async (): Promise<{
+      labels: Record<string, string>;
+      disabled: DisabledPriorityLevels;
+      enabled: boolean;
+    }> => {
       const { data, error } = await supabase
         .from("vendor_module_settings")
-        .select("priority_labels, disabled_priority_levels")
+        .select("priority_labels, disabled_priority_levels, priority_scale_enabled")
         .eq("scope", "global")
         .maybeSingle();
       if (error) throw error;
       return {
         labels: (data?.priority_labels as Record<string, string> | null) || {},
         disabled: ((data?.disabled_priority_levels as string[] | null) || []) as DisabledPriorityLevels,
+        enabled: Boolean(data?.priority_scale_enabled),
       };
     },
   });
@@ -46,9 +54,20 @@ export function useVendorPriorityLabels() {
     return acc;
   }, {} as PriorityLabelMap);
 
-  const disabled = (query.data?.disabled || []).filter((k) => PRIORITY_KEYS.includes(k));
+  const enabled = query.data?.enabled ?? false;
+  const disabled = (query.data?.disabled || []).filter(
+    (k) => OPTIONAL_PRIORITY_KEYS.includes(k),
+  );
   /** Aktive nivåer (ikke markert som «ikke aktuelt»). */
   const activeKeys = PRIORITY_KEYS.filter((k) => !disabled.includes(k));
 
-  return { ...query, labels, disabled, activeKeys, hasOverride: Object.keys(saved).length > 0 || disabled.length > 0 };
+  return {
+    ...query,
+    labels,
+    disabled,
+    activeKeys,
+    enabled,
+    hasOverride: Object.keys(saved).length > 0 || disabled.length > 0,
+  };
 }
+
