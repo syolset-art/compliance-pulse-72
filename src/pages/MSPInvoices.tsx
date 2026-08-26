@@ -308,7 +308,7 @@ export default function MSPInvoices() {
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <span className="inline-flex items-center gap-1.5 cursor-help">
-                              Annet <Info className="h-3.5 w-3.5 text-foreground/50" />
+                              Annet (eks. {tax.label}) <Info className="h-3.5 w-3.5 text-foreground/50" />
                             </span>
                           </TooltipTrigger>
                           <TooltipContent side="top" className="max-w-[260px] text-xs">
