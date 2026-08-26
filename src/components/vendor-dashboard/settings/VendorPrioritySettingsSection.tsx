@@ -32,17 +32,19 @@ const PRIORITY_LABELS: Record<PriorityKey, string> = {
  */
 export function VendorPrioritySettingsSection() {
   const queryClient = useQueryClient();
-  const { labels, isLoading } = useVendorPriorityLabels();
+  const { labels, disabled, isLoading } = useVendorPriorityLabels();
   const [draft, setDraft] = useState<PriorityLabelMap>(DEFAULT_PRIORITY_LABELS);
+  const [draftDisabled, setDraftDisabled] = useState<PriorityKey[]>([]);
   const [initialised, setInitialised] = useState(false);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (!isLoading && !initialised) {
       setDraft(labels);
+      setDraftDisabled(disabled);
       setInitialised(true);
     }
-  }, [isLoading, initialised, labels]);
+  }, [isLoading, initialised, labels, disabled]);
 
   const handleSave = async () => {
     setSaving(true);
@@ -54,7 +56,10 @@ export function VendorPrioritySettingsSection() {
 
       const { error } = await supabase
         .from("vendor_module_settings")
-        .upsert({ scope: "global", priority_labels: payload }, { onConflict: "scope" });
+        .upsert(
+          { scope: "global", priority_labels: payload, disabled_priority_levels: draftDisabled },
+          { onConflict: "scope" },
+        );
       if (error) throw error;
 
       await queryClient.invalidateQueries({ queryKey: VENDOR_MODULE_SETTINGS_KEY });
