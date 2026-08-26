@@ -129,7 +129,9 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
   const logoInputRef = useRef<HTMLInputElement>(null);
   const isSelf = asset.asset_type === 'self';
   // Egendefinerte prioritetsnavn gjelder kun leverandørmodulen.
-  const { labels: vendorPriorityLabels, disabled: vendorDisabledLevels } = useVendorPriorityLabels();
+  const { labels: vendorPriorityLabels, disabled: vendorDisabledLevels, enabled: vendorPriorityEnabled } = useVendorPriorityLabels();
+  const isVendorAsset = asset.asset_type === "vendor";
+  const showPriority = !isVendorAsset || vendorPriorityEnabled;
 
   const { data: companyProfile } = useQuery({
     queryKey: ["company_profile_msp"],
