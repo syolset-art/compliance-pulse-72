@@ -15,30 +15,40 @@ export const DEFAULT_PRIORITY_LABELS: PriorityLabelMap = PRIORITY_KEYS.reduce(
   {} as PriorityLabelMap,
 );
 
+/** Nivåer som er markert som «Ikke aktuelt» skjules i leverandørmodulen. */
+export type DisabledPriorityLevels = PriorityKey[];
+
 /**
- * Visningsnavn for P0–P3 som KUN gjelder inne i leverandørmodulen.
+ * Visningsnavn for P0–P4 som KUN gjelder inne i leverandørmodulen.
  * Faller tilbake til standardnavnene når ingen overstyring er lagret.
  */
 export function useVendorPriorityLabels() {
   const query = useQuery({
     queryKey: VENDOR_MODULE_SETTINGS_KEY,
-    queryFn: async (): Promise<Record<string, string>> => {
+    queryFn: async (): Promise<{ labels: Record<string, string>; disabled: DisabledPriorityLevels }> => {
       const { data, error } = await supabase
         .from("vendor_module_settings")
-        .select("priority_labels")
+        .select("priority_labels, disabled_priority_levels")
         .eq("scope", "global")
         .maybeSingle();
       if (error) throw error;
-      return (data?.priority_labels as Record<string, string> | null) || {};
+      return {
+        labels: (data?.priority_labels as Record<string, string> | null) || {},
+        disabled: ((data?.disabled_priority_levels as string[] | null) || []) as DisabledPriorityLevels,
+      };
     },
   });
 
-  const saved = query.data || {};
+  const saved = query.data?.labels || {};
   const labels = PRIORITY_KEYS.reduce((acc, key) => {
     const value = saved[key];
     acc[key] = typeof value === "string" && value.trim() ? value.trim() : DEFAULT_PRIORITY_LABELS[key];
     return acc;
   }, {} as PriorityLabelMap);
 
-  return { ...query, labels, hasOverride: Object.keys(saved).length > 0 };
+  const disabled = (query.data?.disabled || []).filter((k) => PRIORITY_KEYS.includes(k));
+  /** Aktive nivåer (ikke markert som «ikke aktuelt»). */
+  const activeKeys = PRIORITY_KEYS.filter((k) => !disabled.includes(k));
+
+  return { ...query, labels, disabled, activeKeys, hasOverride: Object.keys(saved).length > 0 || disabled.length > 0 };
 }
