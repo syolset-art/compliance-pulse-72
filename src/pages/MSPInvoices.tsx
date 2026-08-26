@@ -213,7 +213,9 @@ export default function MSPInvoices() {
               <div>
                 <h1 className="text-xl md:text-2xl font-semibold text-foreground">Fakturagrunnlag</h1>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Aktiverte produkter og tjenester per kunde — grunnlaget Mynder fakturerer deg. Alle beløp eks. mva.
+                  Aktiverte produkter og tjenester per kunde — grunnlaget Mynder fakturerer deg. Alle priser er
+                  oppgitt <span className="font-medium text-foreground">eks. {tax.label}</span>; {tax.label} beregnes i
+                  egen kolonne.
                 </p>
               </div>
               <div className="flex gap-2 flex-wrap">
@@ -264,7 +266,10 @@ export default function MSPInvoices() {
                     ))}
                   </div>
                 </div>
-                <div className="text-2xl font-semibold text-foreground tabular-nums mt-1">{fmt(subTotal)} kr</div>
+                <div className="flex items-baseline gap-2 mt-1">
+                  <span className="text-2xl font-semibold text-foreground tabular-nums">{fmt(subTotal)} kr</span>
+                  <span className="text-[11px] font-medium text-muted-foreground">eks. {tax.label}</span>
+                </div>
                 <div className="text-xs text-muted-foreground mt-0.5">moduler og betalte regelverk</div>
               </Card>
               <Card className="p-4">
@@ -308,7 +313,7 @@ export default function MSPInvoices() {
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <span className="inline-flex items-center gap-1.5 cursor-help">
-                              Annet <Info className="h-3.5 w-3.5 text-foreground/50" />
+                              Annet (eks. {tax.label}) <Info className="h-3.5 w-3.5 text-foreground/50" />
                             </span>
                           </TooltipTrigger>
                           <TooltipContent side="top" className="max-w-[260px] text-xs">
@@ -317,11 +322,11 @@ export default function MSPInvoices() {
                           </TooltipContent>
                         </Tooltip>
                       </TableHead>
-                      <TableHead className="w-[140px] text-right text-foreground/80">
+                      <TableHead className="w-[160px] text-right text-foreground/80">
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <span className="inline-flex items-center gap-1.5 cursor-help">
-                              Abonnement/mnd <Info className="h-3.5 w-3.5 text-foreground/50" />
+                            <span className="inline-flex items-center gap-1.5 cursor-help whitespace-nowrap">
+                              Abonnement/mnd (eks. {tax.label}) <Info className="h-3.5 w-3.5 text-foreground/50" />
                             </span>
                           </TooltipTrigger>
                           <TooltipContent side="top" className="max-w-[260px] text-xs">
@@ -423,7 +428,7 @@ export default function MSPInvoices() {
                       <div className="text-sm font-semibold text-foreground tabular-nums">
                         {r.monthly > 0 ? `${fmt(r.monthly)} kr` : "—"}
                       </div>
-                      <div className="text-[11px] text-muted-foreground">per mnd</div>
+                      <div className="text-[11px] text-muted-foreground">per mnd eks. {tax.label}</div>
                     </div>
                   </div>
                   <Pills items={r.activated} retiring={r.retiring} empty="Ingen aktive abonnement" />
@@ -431,7 +436,7 @@ export default function MSPInvoices() {
                     {oneTimeFor(r) > 0 && (
                       <div className="flex items-center justify-between">
                         <span className="text-muted-foreground">
-                          Fastpris og etablering
+                          Fastpris og etablering (eks. {tax.label})
                           {r.fixed > 0 && r.setup > 0 && (
                             <span className="block text-[11px]">
                               fastpris {fmt(r.fixed)} · etablering {fmt(r.setup)}
@@ -442,7 +447,7 @@ export default function MSPInvoices() {
                       </div>
                     )}
                     <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground">Abonnement/mnd</span>
+                      <span className="text-muted-foreground">Abonnement/mnd (eks. {tax.label})</span>
                       <span className="text-foreground tabular-nums">{r.monthly > 0 ? `${fmt(r.monthly)} kr` : "—"}</span>
                     </div>
                     <div className="flex items-center justify-between">
