@@ -65,16 +65,48 @@ export function VendorPrioritySettingsSection() {
     }
   };
 
+  const applyPreset = (preset: "default" | "letters" | "numbers") => {
+    setDraft(
+      PRIORITY_KEYS.reduce((acc, key, i) => {
+        acc[key] =
+          preset === "default"
+            ? DEFAULT_PRIORITY_LABELS[key]
+            : preset === "letters"
+              ? ["A", "B", "C", "D", "E"][i]
+              : `${i + 1}`;
+        return acc;
+      }, {} as PriorityLabelMap),
+    );
+  };
+
   return (
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">
-        Leverandører prioriteres på skalaen <strong>P-0 – P-4</strong>, der P-0 er høyeste prioritet.
-        Du kan endre forslaget til navn på hvert nivå — dette gjelder kun i leverandørmodulen,
-        resten av plattformen viser standardnavnene.
+        Prioritetsskalaen sier hva virksomheten skal ha fokus på og prioritere nå — fra
+        prioritet 1 til 4. Det betyr ikke nødvendigvis at leverandøren er kritisk, men at
+        den er høyest opp på listen. Du kan beholde standardnavnene, eller velge A–D eller
+        egne navn. Gjelder kun i leverandørmodulen.
       </p>
 
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="text-xs text-muted-foreground">Forslag:</span>
+        <Button variant="outline" size="sm" onClick={() => applyPreset("default")}>
+          Standard
+        </Button>
+        <Button variant="outline" size="sm" onClick={() => applyPreset("letters")}>
+          A–D
+        </Button>
+        <Button variant="outline" size="sm" onClick={() => applyPreset("numbers")}>
+          1–4
+        </Button>
+      </div>
+
       <Card>
-        <CardContent className="p-4 space-y-4">
+        <CardContent className="p-4 space-y-3">
+          <div className="flex items-center gap-3 text-xs font-medium text-muted-foreground">
+            <span className="shrink-0 min-w-8">Nivå</span>
+            <span className="flex-1">Standard</span>
+          </div>
           {PRIORITY_KEYS.map((key) => {
             const meta = PRIORITY_META[key];
             return (
@@ -95,14 +127,12 @@ export function VendorPrioritySettingsSection() {
                     onChange={(e) => setDraft((prev) => ({ ...prev, [key]: e.target.value }))}
                   />
                 </div>
-                <span className="hidden sm:block text-xs text-muted-foreground shrink-0 w-20 text-right">
-                  Standard: {meta.shortNb}
-                </span>
               </div>
             );
           })}
         </CardContent>
       </Card>
+
 
       <div className="flex items-center justify-between gap-2">
         <Button
