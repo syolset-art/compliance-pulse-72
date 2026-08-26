@@ -1,13 +1,13 @@
-// Prioritet på system/leverandør (P0–P3).
+// Prioritet på system/leverandør (P0–P4).
 // Lara foreslår basert på risiko + kritikalitet, eier kan overstyre.
 import type { CriticalityKey } from "./criticality";
 import type { RiskGrade } from "./derivedRisk";
 
-export type PriorityKey = "P0" | "P1" | "P2" | "P3";
+export type PriorityKey = "P0" | "P1" | "P2" | "P3" | "P4";
 
 export interface PriorityMeta {
   key: PriorityKey;
-  rank: 0 | 1 | 2 | 3;
+  rank: 0 | 1 | 2 | 3 | 4;
   labelNb: string;
   labelEn: string;
   shortNb: string;
@@ -45,9 +45,16 @@ export const PRIORITY_META: Record<PriorityKey, PriorityMeta> = {
     pillClass: "bg-muted text-muted-foreground border-border",
     dotClass: "bg-muted-foreground/40",
   },
+  P4: {
+    key: "P4", rank: 4,
+    labelNb: "P4 – Minimale", labelEn: "P4 – Minimal",
+    shortNb: "Minimale", shortEn: "Minimal",
+    pillClass: "bg-muted/60 text-muted-foreground border-border",
+    dotClass: "bg-muted-foreground/30",
+  },
 };
 
-export const PRIORITY_KEYS: PriorityKey[] = ["P0", "P1", "P2", "P3"];
+export const PRIORITY_KEYS: PriorityKey[] = ["P0", "P1", "P2", "P3", "P4"];
 
 /**
  * Foreslår prioritet basert på risiko og kritikalitet.
