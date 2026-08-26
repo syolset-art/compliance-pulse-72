@@ -91,7 +91,8 @@ export function VendorPrioritySettingsSection() {
         Prioritetsskalaen sier hva virksomheten skal ha fokus på og prioritere nå — fra
         prioritet 1 til 4. Det betyr ikke nødvendigvis at leverandøren er kritisk, men at
         den er høyest opp på listen. Du kan beholde standardnavnene, eller velge A–D eller
-        egne navn. Gjelder kun i leverandørmodulen.
+        egne navn. Haker du av for «Ikke aktuelt» skjules nivået i leverandørmodulen.
+        Gjelder kun i leverandørmodulen.
       </p>
 
       <div className="flex flex-wrap items-center gap-2">
@@ -160,7 +161,10 @@ export function VendorPrioritySettingsSection() {
           variant="ghost"
           size="sm"
           className="gap-1.5"
-          onClick={() => setDraft(DEFAULT_PRIORITY_LABELS)}
+          onClick={() => {
+            setDraft(DEFAULT_PRIORITY_LABELS);
+            setDraftDisabled([]);
+          }}
         >
           <RotateCcw className="h-4 w-4" />
           Tilbakestill
