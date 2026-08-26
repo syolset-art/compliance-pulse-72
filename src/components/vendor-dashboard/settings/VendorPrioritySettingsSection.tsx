@@ -6,11 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { Card, CardContent } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { PRIORITY_KEYS, PRIORITY_META, type PriorityKey } from "@/lib/derivedPriority";
 import {
   DEFAULT_PRIORITY_LABELS,
+  OPTIONAL_PRIORITY_KEYS,
   useVendorPriorityLabels,
   VENDOR_MODULE_SETTINGS_KEY,
   type PriorityLabelMap,
@@ -26,15 +28,16 @@ const PRIORITY_LABELS: Record<PriorityKey, string> = {
 };
 
 /**
- * Egendefinerte visningsnavn for prioritetsskalaen P-0 – P-4.
- * Brukeren kan endre forslaget per nivå. Gjelder kun visninger
- * inne i leverandørmodulen.
+ * Prioriteringsskalaen er valgfri. Når den er aktivert kan brukeren endre
+ * visningsnavn per nivå, og markere de laveste nivåene (P-3 og P-4) som
+ * «ikke aktuelt». Gjelder kun visninger inne i leverandørmodulen.
  */
 export function VendorPrioritySettingsSection() {
   const queryClient = useQueryClient();
-  const { labels, disabled, isLoading } = useVendorPriorityLabels();
+  const { labels, disabled, enabled, isLoading } = useVendorPriorityLabels();
   const [draft, setDraft] = useState<PriorityLabelMap>(DEFAULT_PRIORITY_LABELS);
   const [draftDisabled, setDraftDisabled] = useState<PriorityKey[]>([]);
+  const [draftEnabled, setDraftEnabled] = useState(false);
   const [initialised, setInitialised] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -42,9 +45,11 @@ export function VendorPrioritySettingsSection() {
     if (!isLoading && !initialised) {
       setDraft(labels);
       setDraftDisabled(disabled);
+      setDraftEnabled(enabled);
       setInitialised(true);
     }
-  }, [isLoading, initialised, labels, disabled]);
+  }, [isLoading, initialised, labels, disabled, enabled]);
+
 
   const handleSave = async () => {
     setSaving(true);
