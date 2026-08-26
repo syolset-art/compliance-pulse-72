@@ -65,6 +65,8 @@ import MSPBillingSettings from "./pages/MSPBillingSettings";
 import MSPPartnerSettings from "./pages/MSPPartnerSettings";
 import MSPLicenses from "./pages/MSPLicenses";
 import MSPInvoices from "./pages/MSPInvoices";
+import MSPInvoiceReports from "./pages/MSPInvoiceReports";
+
 import MSPMessages from "./pages/MSPMessages";
 import MSPROICalculator from "./pages/MSPROICalculator";
 import MSPServiceCatalog from "./pages/MSPServiceCatalog";
