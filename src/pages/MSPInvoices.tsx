@@ -67,7 +67,9 @@ interface Row {
   setup: number;
   /** Avsluttede linjer: etikett → dato de faller bort. */
   retiring: Record<string, string>;
+  createdAt?: string | null;
 }
+
 
 
 function Pills({
