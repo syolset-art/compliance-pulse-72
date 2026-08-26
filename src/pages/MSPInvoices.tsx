@@ -488,7 +488,7 @@ export default function MSPInvoices() {
               onOpenChange={setExportOpen}
               rows={exportRows}
               branding={branding}
-              tax={tax}
+              tax={invoiceTax}
               periodLabel={periodLabel}
             />
           </div>
