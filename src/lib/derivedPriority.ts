@@ -58,7 +58,7 @@ export const PRIORITY_KEYS: PriorityKey[] = ["P0", "P1", "P2", "P3", "P4"];
 
 /**
  * Foreslår prioritet basert på risiko og kritikalitet.
- * Risiko (3 nivå) × Kritikalitet (4 nivå) → P0–P3.
+ * Risiko (3 nivå) × Kritikalitet (4 nivå) → P0–P4.
  * Hvis risiko ikke finnes, utledes en proxy fra kritikalitet.
  */
 export function suggestPriority(
@@ -72,7 +72,7 @@ export function suggestPriority(
 
   // Matrise: rader = risiko, kolonner = kritikalitet
   const matrix: Record<RiskGrade, Record<CriticalityKey, PriorityKey>> = {
-    low:    { low: "P3", medium: "P3", high: "P2", critical: "P1" },
+    low:    { low: "P4", medium: "P3", high: "P2", critical: "P1" },
     medium: { low: "P3", medium: "P2", high: "P1", critical: "P0" },
     high:   { low: "P2", medium: "P1", high: "P0", critical: "P0" },
   };
