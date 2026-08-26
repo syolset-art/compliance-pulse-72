@@ -142,8 +142,8 @@ export function formatPinDate(value?: string): string {
 export type PinTone = "good" | "caution" | "poor" | "neutral";
 
 export const PIN_TONE_CLASS: Record<PinTone, string> = {
-  good: "border-success/40 bg-success/10 text-success-foreground",
-  caution: "border-warning/40 bg-warning/10 text-warning-foreground",
+  good: "border-success/40 bg-success/10 text-success",
+  caution: "border-warning/40 bg-warning/10 text-warning",
   poor: "border-destructive/40 bg-destructive/10 text-destructive",
   neutral: "border-border bg-muted text-muted-foreground",
 };
