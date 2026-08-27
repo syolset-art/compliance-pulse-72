@@ -4,11 +4,15 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { cn } from "@/lib/utils";
 import {
   ATTESTATION_LABEL,
-  AUTHORITY_LABEL,
+  FRESHNESS_LABEL,
   SOURCE_CLASS_LABEL,
+  UNKNOWN_TEXT,
+  formatPinDate,
+  isHumanVerified,
   type Pin,
 } from "@/lib/pin";
 import { PinDetails } from "./PinDetails";
+
 
 interface PinBadgeProps {
   pin?: Pin;
