@@ -181,6 +181,11 @@ export function useMSPInvoiceBasis() {
   const totalBreakdown = computeTaxBreakdown(netTotal, invoiceTax);
   const taxLabel = tax.enabled && tax.rate > 0 ? `${tax.label} (${tax.rate} %)` : tax.label;
 
+  /** Mynder fakturerer kun abonnementet, minus partnerandelen. Engangsleveranser er partnerens egne. */
+  const partnerShareFor = (monthly: number) => Math.round((monthly * partnerSharePct) / 100);
+  const partnerShareTotal = partnerShareFor(monthlyTotal);
+  const mynderMonthlyTotal = monthlyTotal - partnerShareTotal;
+
   const exportRows = rows.map((r) => ({
     name: r.name,
     meta: r.meta,
@@ -189,6 +194,8 @@ export function useMSPInvoiceBasis() {
     oneTime: r.fixed + r.setup,
     fixed: r.fixed,
     setup: r.setup,
+    partnerShare: partnerShareFor(r.monthly),
+    mynderMonthly: r.monthly - partnerShareFor(r.monthly),
   }));
 
   const periodLabel = new Date().toLocaleDateString("nb-NO", { month: "long", year: "numeric" });
@@ -211,6 +218,12 @@ export function useMSPInvoiceBasis() {
     industryCounts,
     exportRows,
     periodLabel,
+    partnerSharePct,
+    partnerShareFor,
+    partnerShareTotal,
+    mynderMonthlyTotal,
+    agreementStart: agreement?.agreement_start ?? null,
     refetch,
+
   };
 }
