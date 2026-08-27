@@ -166,6 +166,37 @@ export default function MSPInvoices() {
               </div>
             </div>
 
+            {/* Perspektivbytte */}
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="flex rounded-md border border-border p-0.5">
+                {([
+                  { value: "customers" as const, label: "Til dine kunder" },
+                  { value: "mynder" as const, label: "Fra Mynder" },
+                ]).map((opt) => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => setView(opt.value)}
+                    aria-pressed={view === opt.value}
+                    className={cn(
+                      "rounded px-3 py-1 text-xs font-medium transition-colors",
+                      view === opt.value
+                        ? "bg-primary text-primary-foreground"
+                        : "text-muted-foreground hover:text-foreground",
+                    )}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+              <Link
+                to="/msp-billing"
+                className="text-xs text-muted-foreground hover:text-primary hover:underline underline-offset-2"
+              >
+                {partnerSharePct} % partnerandel · Partneravtale
+              </Link>
+            </div>
+
             {/* Toppsammendrag — kompakt */}
             <Card className="px-4 py-3">
               <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
@@ -177,9 +208,27 @@ export default function MSPInvoices() {
                 <div className="flex items-baseline gap-1.5">
                   <span className="text-lg font-semibold text-foreground tabular-nums">{fmt(subTotal)} kr</span>
                   <span className="text-xs text-muted-foreground">
-                    {subPeriod === "month" ? "per måned" : "per år"} eks. {tax.label}
+                    abonnement {subPeriod === "month" ? "per måned" : "per år"} eks. {tax.label}
                   </span>
                 </div>
+                {isMynder && (
+                  <>
+                    <div className="h-4 w-px bg-border hidden sm:block" />
+                    <div className="flex items-baseline gap-1.5">
+                      <span className="text-lg font-semibold text-foreground tabular-nums">
+                        {fmt(shareSubTotal)} kr
+                      </span>
+                      <span className="text-xs text-muted-foreground">din andel ({partnerSharePct} %)</span>
+                    </div>
+                    <div className="h-4 w-px bg-border hidden sm:block" />
+                    <div className="flex items-baseline gap-1.5">
+                      <span className="text-lg font-semibold text-foreground tabular-nums">
+                        {fmt(mynderSubTotal)} kr
+                      </span>
+                      <span className="text-xs text-muted-foreground">Mynder fakturerer deg</span>
+                    </div>
+                  </>
+                )}
                 <div className="ml-auto flex rounded-md border border-border p-0.5">
                   {([
                     { value: "month" as const, label: "Mnd" },
@@ -203,6 +252,7 @@ export default function MSPInvoices() {
                 </div>
               </div>
             </Card>
+
 
 
 
