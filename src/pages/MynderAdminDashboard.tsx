@@ -2,11 +2,14 @@ import { Sidebar } from "@/components/Sidebar";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MetricCard } from "@/components/widgets/MetricCard";
-import { Building2, Coins, Download, Handshake, Receipt, ShieldCheck, Users } from "lucide-react";
+import { Briefcase, Building2, Coins, Download, Handshake, Receipt, ShieldCheck, Users } from "lucide-react";
 import { AdminRouteGuard } from "@/components/mynder-admin/AdminRouteGuard";
 import { PartnerChannelView } from "@/components/mynder-admin/PartnerChannelView";
 import { DirectSalesView } from "@/components/mynder-admin/DirectSalesView";
 import { InvoiceBasisView } from "@/components/mynder-admin/InvoiceBasisView";
+import { PartnersView } from "@/components/mynder-admin/PartnersView";
+import { PartnerInvoicesView } from "@/components/mynder-admin/PartnerInvoicesView";
+import { MynderProjectsView } from "@/components/mynder-admin/MynderProjectsView";
 import { PARTNERS, CUSTOMERS } from "@/components/mynder-admin/adminDemoData";
 
 export default function MynderAdminDashboard() {
@@ -48,29 +51,50 @@ export default function MynderAdminDashboard() {
             </div>
 
             {/* Tabs */}
-            <Tabs defaultValue="partner" className="w-full">
+            <Tabs defaultValue="partners" className="w-full">
               <TabsList className="flex-wrap h-auto">
-                <TabsTrigger value="partner" className="gap-2">
+                <TabsTrigger value="partners" className="gap-2">
                   <Handshake className="h-4 w-4" />
+                  Partnere ({partnerCount})
+                </TabsTrigger>
+                <TabsTrigger value="partner" className="gap-2">
+                  <Users className="h-4 w-4" />
                   Partnerkanal ({partnerCustomers.length})
                 </TabsTrigger>
                 <TabsTrigger value="direct" className="gap-2">
                   <Building2 className="h-4 w-4" />
-                  Direktesalg ({directCustomers.length})
+                  Direktekunder ({directCustomers.length})
+                </TabsTrigger>
+                <TabsTrigger value="partner-invoices" className="gap-2">
+                  <Receipt className="h-4 w-4" />
+                  Fakturaer til partnere
                 </TabsTrigger>
                 <TabsTrigger value="invoice" className="gap-2">
-                  <Receipt className="h-4 w-4" />
+                  <Coins className="h-4 w-4" />
                   Fakturagrunnlag
                 </TabsTrigger>
+                <TabsTrigger value="projects" className="gap-2">
+                  <Briefcase className="h-4 w-4" />
+                  Prosjekter
+                </TabsTrigger>
               </TabsList>
+              <TabsContent value="partners" className="mt-4">
+                <PartnersView />
+              </TabsContent>
               <TabsContent value="partner" className="mt-4">
                 <PartnerChannelView />
               </TabsContent>
               <TabsContent value="direct" className="mt-4">
                 <DirectSalesView />
               </TabsContent>
+              <TabsContent value="partner-invoices" className="mt-4">
+                <PartnerInvoicesView />
+              </TabsContent>
               <TabsContent value="invoice" className="mt-4">
                 <InvoiceBasisView />
+              </TabsContent>
+              <TabsContent value="projects" className="mt-4">
+                <MynderProjectsView />
               </TabsContent>
             </Tabs>
           </div>

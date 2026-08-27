@@ -4,7 +4,7 @@ import { MetricCard } from "@/components/widgets/MetricCard";
 import { Building2, Coins, TrendingUp, Server, Truck, AlertCircle, CheckCircle2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
-import { CUSTOMERS, PLAN_META, countryFlag, BillingStatus } from "./adminDemoData";
+import { CUSTOMERS, PLAN_META, countryFlag, BillingStatus, CUSTOMER_MCP, MCP_PRODUCTS } from "./adminDemoData";
 
 const billingMeta: Record<BillingStatus, { label: string; className: string; icon: typeof CheckCircle2 }> = {
   ok: { label: "OK", className: "bg-success/10 text-success border-success/20", icon: CheckCircle2 },
@@ -107,6 +107,7 @@ export function DirectSalesView() {
                 <th className="text-left font-medium px-4 py-2.5">Plan</th>
                 <th className="text-left font-medium px-4 py-2.5">Moduler</th>
                 <th className="text-left font-medium px-4 py-2.5">Regelverk</th>
+                <th className="text-left font-medium px-4 py-2.5">MCP-produkter</th>
                 <th className="text-right font-medium px-3 py-2.5" title="Systemer"><Server className="h-3.5 w-3.5 inline" /></th>
                 <th className="text-right font-medium px-3 py-2.5" title="Leverandører"><Truck className="h-3.5 w-3.5 inline" /></th>
                 <th className="text-right font-medium px-3 py-2.5">Brukere</th>
@@ -143,6 +144,32 @@ export function DirectSalesView() {
                           <span key={f} className="text-[12px] px-1.5 py-0.5 rounded bg-primary/10 text-primary">{f}</span>
                         ))}
                       </div>
+                    </td>
+                    <td className="px-4 py-2.5">
+                      {(CUSTOMER_MCP[c.id] ?? []).length === 0 ? (
+                        <span className="text-xs text-muted-foreground">—</span>
+                      ) : (
+                        <div className="flex flex-wrap gap-1">
+                          {(CUSTOMER_MCP[c.id] ?? []).map((m) => {
+                            const meta = MCP_PRODUCTS[m.key];
+                            return (
+                              <span
+                                key={m.key}
+                                title={`${meta.description} · koblet ${new Date(m.since).toLocaleDateString("nb-NO")}`}
+                                className={cn(
+                                  "text-[12px] px-1.5 py-0.5 rounded border",
+                                  meta.status === "live"
+                                    ? "bg-success/10 text-success border-success/20"
+                                    : "bg-muted text-muted-foreground border-border"
+                                )}
+                              >
+                                {meta.label}
+                                {meta.status === "coming" ? " · kommer" : ""}
+                              </span>
+                            );
+                          })}
+                        </div>
+                      )}
                     </td>
                     <td className="px-3 py-2.5 text-right tabular-nums text-foreground">{c.systems}</td>
                     <td className="px-3 py-2.5 text-right tabular-nums text-foreground">{c.vendors}</td>
