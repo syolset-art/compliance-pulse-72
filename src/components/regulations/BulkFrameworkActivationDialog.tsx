@@ -13,6 +13,8 @@ import { TermsAcceptRow } from "@/components/legal/TermsAcceptRow";
 import { useTerms } from "@/hooks/useTerms";
 import type { Framework } from "@/lib/frameworkDefinitions";
 import { isFrameworkFree, getFrameworkYearlyPrice, formatKr } from "@/lib/planConstants";
+import { PinBadge } from "@/components/pin/PinBadge";
+import { getFrameworkPin } from "@/lib/pin";
 
 interface Props {
   open: boolean;
@@ -77,7 +79,10 @@ export function BulkFrameworkActivationDialog({
                 key={fw.id}
                 className="flex items-center justify-between gap-3 rounded-lg border border-border p-2.5 text-sm"
               >
-                <span className="min-w-0 truncate text-foreground">{fw.name}</span>
+                <span className="flex min-w-0 items-center gap-1.5 text-foreground">
+                  <span className="truncate">{fw.name}</span>
+                  <PinBadge pin={getFrameworkPin(fw.id)} size="xs" />
+                </span>
                 <span className="shrink-0 text-muted-foreground">
                   {isFrameworkFree(fw.id) || monthly === 0
                     ? L("Inkludert", "Included")
