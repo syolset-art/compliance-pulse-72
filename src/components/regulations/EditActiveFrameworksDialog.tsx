@@ -8,6 +8,8 @@ import { Search, X, ChevronDown, SlidersHorizontal, Sparkles, Eye } from "lucide
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { frameworks, categories, type Framework } from "@/lib/frameworkDefinitions";
+import { PinBadge } from "@/components/pin/PinBadge";
+import { getFrameworkPin } from "@/lib/pin";
 import {
   Tooltip,
   TooltipContent,
@@ -176,6 +178,11 @@ export const EditActiveFrameworksDialog = ({
             </Button>
           )}
         </div>
+        <p className="mt-2 flex items-center gap-1.5 text-[11px] text-muted-foreground">
+          <PinBadge pin={getFrameworkPin("gdpr")} size="xs" interactive={false} />
+          Pin viser kilde og kvalitet på regelverksdataene — klikk merket for detaljer.
+        </p>
+
         {q && (
           <p className="text-xs text-muted-foreground mt-2">
             {totalMatches} treff for «{search}»
@@ -393,6 +400,8 @@ export const EditActiveFrameworksDialog = ({
                             <span className={`font-medium text-sm`}>
                               {fw.name}
                             </span>
+                            <PinBadge pin={getFrameworkPin(fw.id)} size="xs" />
+
                             {recommendations?.has(fw.id) && !isActive && (
                               <Tooltip>
                                 <TooltipTrigger asChild>

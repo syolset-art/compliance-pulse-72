@@ -4,7 +4,7 @@ import { staggerEntranceClass } from "@/lib/animation";
 import { getCategoryById, type Framework } from "@/lib/frameworkDefinitions";
 import type { FrameworkAgentStats } from "@/lib/regulationsApprovalQueue";
 import { PinBadge } from "@/components/pin/PinBadge";
-import { getMockPin } from "@/lib/pin";
+import { getFrameworkPin } from "@/lib/pin";
 
 interface Props {
   frameworks: Framework[];
@@ -47,7 +47,7 @@ export function FrameworkOverviewList({ frameworks, getStats, selectedId, onSele
               <span className="flex min-w-0 items-center gap-2">
                 <span className="truncate text-sm font-medium text-foreground">{fw.name}</span>
                 {/* Pin vises som ren visning her (raden er en knapp) */}
-                <PinBadge pin={getMockPin(fw.id)} interactive={false} className="shrink-0" />
+                <PinBadge pin={getFrameworkPin(fw.id)} interactive={false} className="shrink-0" />
               </span>
               <span className="mt-1 flex items-center gap-2">
                 <span className="h-1.5 w-24 overflow-hidden rounded-full bg-muted">
