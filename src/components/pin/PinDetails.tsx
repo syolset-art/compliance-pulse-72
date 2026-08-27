@@ -5,7 +5,6 @@ import {
   CalendarClock,
   CircleHelp,
   FileSearch,
-  Gauge,
   Link2,
   ShieldCheck,
   UserCheck,
@@ -13,15 +12,12 @@ import {
 import { cn } from "@/lib/utils";
 import {
   ATTESTATION_LABEL,
-  AUTHORITY_DESCRIPTION,
-  AUTHORITY_LABEL,
   FETCH_METHOD_LABEL,
   FRESHNESS_LABEL,
   PIN_TONE_CLASS,
   SOURCE_CLASS_LABEL,
   UNKNOWN_TEXT,
   attestationTone,
-  authorityTone,
   formatPinDate,
   freshnessTone,
   sourceTone,
@@ -56,11 +52,7 @@ function Dimension({
           PIN_TONE_CLASS[tone],
         )}
       >
-        {tone === "poor" ? (
-          <AlertTriangle className="h-3 w-3" aria-hidden="true" />
-        ) : tone === "caution" ? (
-          <CircleHelp className="h-3 w-3" aria-hidden="true" />
-        ) : tone === "good" ? (
+        {tone === "good" ? (
           <BadgeCheck className="h-3 w-3" aria-hidden="true" />
         ) : (
           <CircleHelp className="h-3 w-3" aria-hidden="true" />
@@ -88,8 +80,8 @@ function Dimension({
 }
 
 /**
- * Full visning av Pinens fire dimensjoner — vist rått, uten samlet score.
- * Kun intern Canvas-visning (ikke synlig i connectoren i v1).
+ * Full proveniensvisning: kilde, verifikasjon og sist kontrollert.
+ * Pin sier ingenting om brukbarhet, compliance eller hva en agent får gjøre.
  */
 export function PinDetails({ pin, className }: { pin: Pin; className?: string }) {
   return (
@@ -100,23 +92,34 @@ export function PinDetails({ pin, className }: { pin: Pin; className?: string })
           Pin {pin.pin_id}
         </p>
         {pin.fallen && (
-          <p className="flex items-start gap-1.5 rounded-md border border-destructive/40 bg-destructive/10 px-2 py-1.5 text-[11px] font-medium text-destructive">
+          <p className="flex items-start gap-1.5 rounded-md border border-warning/40 bg-warning/10 px-2 py-1.5 text-[11px] font-medium text-warning">
             <AlertTriangle className="mt-px h-3 w-3 shrink-0" aria-hidden="true" />
-            Pin falt — innholdet er endret etter pinning. Merket er ikke gyldig og må
-            fornyes mot ny innholdsversjon.
+            Pin falt — innholdsversjonen er endret etter verifikasjon. Merket gjelder
+            ikke denne versjonen, men innholdet kan fortsatt brukes.
           </p>
         )}
         <p className="font-mono text-[10px] leading-relaxed text-muted-foreground">
           {pin.content_hash} · {pin.unit_version} · pinnet {formatPinDate(pin.pinned_at)}
         </p>
         <p className="text-[10px] text-muted-foreground">
-          Pin er knyttet til innholdsversjonen, ikke til enheten.
+          Merket gjelder denne innholdsversjonen, ikke enheten.
         </p>
       </header>
 
       <Dimension
+        icon={UserCheck}
+        title="Status"
+        tone={attestationTone(pin.attestation)}
+        headline={ATTESTATION_LABEL[pin.attestation.level]}
+        rows={[
+          { label: "Verifisert av", value: pin.attestation.attestedBy || UNKNOWN_TEXT },
+          { label: "Dato", value: formatPinDate(pin.attestation.attestedAt) },
+        ]}
+      />
+
+      <Dimension
         icon={Link2}
-        title="1. Kilde"
+        title="Kilde"
         tone={sourceTone(pin.source)}
         headline={SOURCE_CLASS_LABEL[pin.source.sourceClass]}
         rows={[
@@ -131,48 +134,23 @@ export function PinDetails({ pin, className }: { pin: Pin; className?: string })
       />
 
       <Dimension
-        icon={UserCheck}
-        title="2. Attestering"
-        tone={attestationTone(pin.attestation)}
-        headline={ATTESTATION_LABEL[pin.attestation.level]}
-        rows={[
-          { label: "Attestert av", value: pin.attestation.attestedBy || UNKNOWN_TEXT },
-          { label: "Dato", value: formatPinDate(pin.attestation.attestedAt) },
-          { label: "Regel", value: "Kun mennesker kan attestere — aldri agenter." },
-        ]}
-      />
-
-      <Dimension
         icon={CalendarClock}
-        title="3. Ferskhet"
+        title="Sist kontrollert"
         tone={freshnessTone(pin.freshness)}
-        headline={
-          pin.freshness.drifting
-            ? "Drift oppdaget"
-            : FRESHNESS_LABEL[pin.freshness.flag]
-        }
+        headline={FRESHNESS_LABEL[pin.freshness.flag]}
         rows={[
-          { label: "Sist sjekket", value: formatPinDate(pin.freshness.checkedAt) },
-          { label: "Flagg", value: FRESHNESS_LABEL[pin.freshness.flag] },
-          { label: "Drift", value: pin.freshness.drifting ? "Ja — innholdet driver fra kilden" : "Nei" },
-        ]}
-      />
-
-      <Dimension
-        icon={Gauge}
-        title="4. Bruksgrense"
-        tone={authorityTone(pin.authority)}
-        headline={`Agenten kan: ${AUTHORITY_LABEL[pin.authority.level]}`}
-        rows={[
-          { label: "Betyr", value: AUTHORITY_DESCRIPTION[pin.authority.level] },
-          { label: "Begrunnelse", value: pin.authority.rationale || UNKNOWN_TEXT },
+          { label: "Sist kontrollert", value: formatPinDate(pin.freshness.checkedAt) },
+          {
+            label: "Kildeavvik",
+            value: pin.freshness.drifting ? "Innholdet avviker fra kilden" : "Ingen avvik registrert",
+          },
         ]}
       />
 
       <p className="flex items-start gap-1.5 border-t border-border pt-2 text-[10px] text-muted-foreground">
         <FileSearch className="mt-px h-3 w-3 shrink-0" aria-hidden="true" />
-        Pin er en deklarasjon, ikke en port. Alt innhold kan aktiveres — kvaliteten
-        avgjør hva en agent får lov til å gjøre.
+        Pin viser kun hvor innholdet kommer fra og om et menneske har verifisert det.
+        Pin begrenser ikke bruk og sier ingenting om samsvar.
       </p>
     </div>
   );
