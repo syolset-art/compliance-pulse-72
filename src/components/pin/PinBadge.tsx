@@ -65,28 +65,37 @@ function pinVisual(pin?: Pin) {
     return {
       colorClass: "text-muted-foreground",
       label: "Ingen Pin",
-      hint: "Innholdet er ikke pinnet — kilden er ikke deklarert.",
+      status: "Kilden er ikke deklarert.",
     };
   }
-  const human = pin.attestation.level === "human_verified" || pin.attestation.level === "human_reviewed";
   if (pin.fallen) {
     return {
-      colorClass: "text-destructive",
+      colorClass: "text-warning",
       label: "Pin falt",
-      hint: "Pin er ikke gyldig fordi innholdet er endret etter pinning.",
+      status: "Innholdsversjonen er endret etter verifikasjon.",
     };
   }
+  const human = isHumanVerified(pin);
   return {
     colorClass: human ? "text-success" : "text-warning",
-    label: human ? "Validert av menneske" : "Ikke validert av menneske",
-    hint: `${SOURCE_CLASS_LABEL[pin.source.sourceClass]} · ${ATTESTATION_LABEL[pin.attestation.level]}`,
+    label: ATTESTATION_LABEL[pin.attestation.level],
+    status: ATTESTATION_LABEL[pin.attestation.level],
   };
 }
 
 export function PinBadge({ pin, interactive = true, size = "sm", className }: PinBadgeProps) {
-  const { colorClass, label, hint } = pinVisual(pin);
-  const authority = pin ? AUTHORITY_LABEL[pin.authority.level] : "—";
-  const a11yLabel = `${label}. ${hint} Bruksgrense: ${authority}.`;
+  const { colorClass, label, status } = pinVisual(pin);
+  const verifiedBy = pin?.attestation.attestedBy;
+  const verifiedAt = pin?.attestation.attestedAt;
+  const sourceText = pin
+    ? pin.source.sourceRef || SOURCE_CLASS_LABEL[pin.source.sourceClass]
+    : UNKNOWN_TEXT;
+  const checkedText = pin
+    ? pin.freshness.checkedAt
+      ? formatPinDate(pin.freshness.checkedAt)
+      : FRESHNESS_LABEL[pin.freshness.flag]
+    : UNKNOWN_TEXT;
+  const a11yLabel = `${label}. Kilde: ${sourceText}. Sist kontrollert: ${checkedText}.`;
   const iconSize = size === "xs" ? 14 : 16;
 
   const visual = (
@@ -102,25 +111,40 @@ export function PinBadge({ pin, interactive = true, size = "sm", className }: Pi
     </span>
   );
 
+  const hoverCard = (
+    <>
+      <p className={cn("text-xs font-medium", colorClass)}>{status}</p>
+      {verifiedBy && (
+        <p className="text-[11px] text-muted-foreground">
+          Verifisert av {verifiedBy}
+          {verifiedAt ? ` · ${formatPinDate(verifiedAt)}` : ""}
+        </p>
+      )}
+      <p className="text-[11px] text-muted-foreground">Kilde: {sourceText}</p>
+      <p className="text-[11px] text-muted-foreground">Sist kontrollert: {checkedText}</p>
+      {pin?.fallen && (
+        <p className="flex items-start gap-1 text-[11px] text-warning">
+          <AlertTriangle className="mt-px h-3 w-3 shrink-0" aria-hidden="true" />
+          Pin falt — merket gjelder ikke denne innholdsversjonen.
+        </p>
+      )}
+      <p className="text-[10px] text-muted-foreground">
+        Merket gjelder denne innholdsversjonen og sier ingenting om samsvar.
+      </p>
+    </>
+  );
+
   if (!interactive || !pin) {
     return (
       <Tooltip>
         <TooltipTrigger asChild>
           <span aria-label={a11yLabel}>{visual}</span>
         </TooltipTrigger>
-        <TooltipContent className="max-w-[280px] space-y-1">
-          <p className="text-xs">{hint}</p>
-          {pin?.fallen && (
-            <p className="flex items-start gap-1 text-[11px] text-destructive">
-              <AlertTriangle className="mt-px h-3 w-3 shrink-0" aria-hidden="true" />
-              Pin falt — innholdet er endret etter pinning.
-            </p>
-          )}
-          <p className="text-[11px] text-muted-foreground">Bruksgrense: {authority}</p>
-        </TooltipContent>
+        <TooltipContent className="max-w-[280px] space-y-1">{hoverCard}</TooltipContent>
       </Tooltip>
     );
   }
+
 
   return (
     <Popover>
