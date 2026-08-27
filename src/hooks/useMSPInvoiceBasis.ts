@@ -18,6 +18,8 @@ export interface InvoiceBasisRow {
   name: string;
   meta: string;
   activated: string[];
+  /** Abonnementslinjer med pris — brukes i fakturaforhåndsvisning. */
+  lines: { label: string; price: number }[];
   monthly: number;
   fixed: number;
   fixedCount: number;
