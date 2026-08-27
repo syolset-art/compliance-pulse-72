@@ -82,6 +82,10 @@ export default function MSPInvoices() {
     totalBreakdown,
     exportRows,
     periodLabel,
+    partnerSharePct,
+    partnerShareFor,
+    partnerShareTotal,
+    mynderMonthlyTotal,
   } = useMSPInvoiceBasis();
 
   const oneTimeFor = (r: Row) => r.fixed + r.setup;
@@ -96,6 +100,12 @@ export default function MSPInvoices() {
   const previewCustomer = rows.find((r) => r.id === previewId) ?? null;
   const [subPeriod, setSubPeriod] = useState<"month" | "year">("year");
   const subTotal = subPeriod === "month" ? monthlyTotal : monthlyTotal * 12;
+  /** Perspektiv: hva partneren fakturerer sine kunder, eller hva Mynder fakturerer partneren. */
+  const [view, setView] = useState<"customers" | "mynder">("customers");
+  const isMynder = view === "mynder";
+  const mynderSubTotal = subPeriod === "month" ? mynderMonthlyTotal : mynderMonthlyTotal * 12;
+  const shareSubTotal = subPeriod === "month" ? partnerShareTotal : partnerShareTotal * 12;
+
 
 
 
@@ -110,11 +120,22 @@ export default function MSPInvoices() {
               <div>
                 <h1 className="text-xl md:text-2xl font-semibold text-foreground">Fakturagrunnlag</h1>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Aktiverte produkter og tjenester per kunde — grunnlaget Mynder fakturerer deg. Alle priser er
-                  oppgitt <span className="font-medium text-foreground">eks. {tax.label}</span>; {tax.label} beregnes i
-                  egen kolonne.
+                  {isMynder ? (
+                    <>
+                      Grunnlaget Mynder fakturerer deg: abonnementet på aktiverte produkter minus partnerandelen din
+                      på <span className="font-medium text-foreground">{partnerSharePct} %</span>. Engangsleveranser du
+                      selv utfører er ikke med. Alle priser eks. {tax.label}.
+                    </>
+                  ) : (
+                    <>
+                      Aktiverte produkter og regelverk per kunde — grunnlaget du kan fakturere kundene dine for. Alle
+                      priser er oppgitt <span className="font-medium text-foreground">eks. {tax.label}</span>;{" "}
+                      {tax.label} beregnes i egen kolonne.
+                    </>
+                  )}
                 </p>
               </div>
+
               <div className="flex gap-2 flex-wrap">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -145,6 +166,37 @@ export default function MSPInvoices() {
               </div>
             </div>
 
+            {/* Perspektivbytte */}
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="flex rounded-md border border-border p-0.5">
+                {([
+                  { value: "customers" as const, label: "Til dine kunder" },
+                  { value: "mynder" as const, label: "Fra Mynder" },
+                ]).map((opt) => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => setView(opt.value)}
+                    aria-pressed={view === opt.value}
+                    className={cn(
+                      "rounded px-3 py-1 text-xs font-medium transition-colors",
+                      view === opt.value
+                        ? "bg-primary text-primary-foreground"
+                        : "text-muted-foreground hover:text-foreground",
+                    )}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+              <Link
+                to="/msp-billing"
+                className="text-xs text-muted-foreground hover:text-primary hover:underline underline-offset-2"
+              >
+                {partnerSharePct} % partnerandel · Partneravtale
+              </Link>
+            </div>
+
             {/* Toppsammendrag — kompakt */}
             <Card className="px-4 py-3">
               <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
@@ -156,9 +208,27 @@ export default function MSPInvoices() {
                 <div className="flex items-baseline gap-1.5">
                   <span className="text-lg font-semibold text-foreground tabular-nums">{fmt(subTotal)} kr</span>
                   <span className="text-xs text-muted-foreground">
-                    {subPeriod === "month" ? "per måned" : "per år"} eks. {tax.label}
+                    abonnement {subPeriod === "month" ? "per måned" : "per år"} eks. {tax.label}
                   </span>
                 </div>
+                {isMynder && (
+                  <>
+                    <div className="h-4 w-px bg-border hidden sm:block" />
+                    <div className="flex items-baseline gap-1.5">
+                      <span className="text-lg font-semibold text-foreground tabular-nums">
+                        {fmt(shareSubTotal)} kr
+                      </span>
+                      <span className="text-xs text-muted-foreground">din andel ({partnerSharePct} %)</span>
+                    </div>
+                    <div className="h-4 w-px bg-border hidden sm:block" />
+                    <div className="flex items-baseline gap-1.5">
+                      <span className="text-lg font-semibold text-foreground tabular-nums">
+                        {fmt(mynderSubTotal)} kr
+                      </span>
+                      <span className="text-xs text-muted-foreground">Mynder fakturerer deg</span>
+                    </div>
+                  </>
+                )}
                 <div className="ml-auto flex rounded-md border border-border p-0.5">
                   {([
                     { value: "month" as const, label: "Mnd" },
@@ -185,6 +255,7 @@ export default function MSPInvoices() {
 
 
 
+
             {/* Desktop: tabell */}
             <Card className="hidden md:block overflow-hidden">
               <div className="overflow-x-auto">
@@ -193,22 +264,25 @@ export default function MSPInvoices() {
                     <TableRow>
                       <TableHead className="w-[200px] text-foreground/80">Kunde</TableHead>
                       <TableHead className="text-foreground/80">Aktiverte produkter og regelverk</TableHead>
-                      <TableHead className="w-[170px] text-right text-foreground/80">
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <span className="inline-flex flex-col items-end gap-0 cursor-help leading-tight">
-                              <span className="inline-flex items-center gap-1.5">
-                                Annet <Info className="h-3.5 w-3.5 text-foreground/50" />
+                      {!isMynder && (
+                        <TableHead className="w-[170px] text-right text-foreground/80">
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <span className="inline-flex flex-col items-end gap-0 cursor-help leading-tight">
+                                <span className="inline-flex items-center gap-1.5">
+                                  Annet <Info className="h-3.5 w-3.5 text-foreground/50" />
+                                </span>
+                                <span className="text-xs text-foreground/60">eks. {tax.label}</span>
                               </span>
-                              <span className="text-xs text-foreground/60">eks. {tax.label}</span>
-                            </span>
-                          </TooltipTrigger>
-                          <TooltipContent side="top" className="max-w-[260px] text-xs">
-                            Tallene er oppgitt eks. {tax.label}. Engangsbeløp: leverte fastprisprosjekter og eventuelt etableringsgebyr. Tom når kunden ikke
-                            har noen av delene.
-                          </TooltipContent>
-                        </Tooltip>
-                      </TableHead>
+                            </TooltipTrigger>
+                            <TooltipContent side="top" className="max-w-[260px] text-xs">
+                              Tallene er oppgitt eks. {tax.label}. Engangsbeløp: leverte fastprisprosjekter og eventuelt etableringsgebyr. Tom når kunden ikke
+                              har noen av delene.
+                            </TooltipContent>
+                          </Tooltip>
+                        </TableHead>
+                      )}
+
                       <TableHead className="w-[160px] text-right text-foreground/80">
                         <Tooltip>
                           <TooltipTrigger asChild>
@@ -221,15 +295,39 @@ export default function MSPInvoices() {
                           </TooltipContent>
                         </Tooltip>
                       </TableHead>
-                      <TableHead className="w-[120px] text-right text-foreground/80 whitespace-nowrap">
-                        {taxLabel}
-                      </TableHead>
-                      <TableHead className="w-[140px] text-right text-foreground/80">
-                        <div className="flex flex-col items-end leading-tight">
-                          <span>Total</span>
-                          <span className="text-xs text-foreground/60">inkl. {tax.label}</span>
-                        </div>
-                      </TableHead>
+                      {isMynder ? (
+                        <>
+                          <TableHead className="w-[150px] text-right text-foreground/80 whitespace-nowrap">
+                            Din andel ({partnerSharePct} %)
+                          </TableHead>
+                          <TableHead className="w-[160px] text-right text-foreground/80">
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <span className="inline-flex items-center gap-1.5 cursor-help whitespace-nowrap">
+                                  Mynder fakturerer <Info className="h-3.5 w-3.5 text-foreground/50" />
+                                </span>
+                              </TooltipTrigger>
+                              <TooltipContent side="top" className="max-w-[260px] text-xs">
+                                Abonnementet minus partnerandelen din. Engangsleveranser du selv utfører faktureres
+                                ikke av Mynder.
+                              </TooltipContent>
+                            </Tooltip>
+                          </TableHead>
+                        </>
+                      ) : (
+                        <>
+                          <TableHead className="w-[120px] text-right text-foreground/80 whitespace-nowrap">
+                            {taxLabel}
+                          </TableHead>
+                          <TableHead className="w-[140px] text-right text-foreground/80">
+                            <div className="flex flex-col items-end leading-tight">
+                              <span>Total</span>
+                              <span className="text-xs text-foreground/60">inkl. {tax.label}</span>
+                            </div>
+                          </TableHead>
+                        </>
+                      )}
+
                       <TableHead className="w-[80px] text-right text-foreground/80">
                         <span className="sr-only">Handlinger</span>
                       </TableHead>
@@ -250,33 +348,49 @@ export default function MSPInvoices() {
                         <TableCell>
                           <Pills items={r.activated} retiring={r.retiring} empty="Ingen aktive abonnement" />
                         </TableCell>
-                        <TableCell className="text-right text-foreground tabular-nums">
-                          {oneTimeFor(r) > 0 ? (
-                            r.fixed > 0 && r.setup > 0 ? (
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <span className="cursor-help whitespace-nowrap">{fmt(oneTimeFor(r))} kr</span>
-                                </TooltipTrigger>
-                                <TooltipContent side="top" className="text-xs">
-                                  Fastpris {fmt(r.fixed)} kr · etablering {fmt(r.setup)} kr
-                                </TooltipContent>
-                              </Tooltip>
+                        {!isMynder && (
+                          <TableCell className="text-right text-foreground tabular-nums">
+                            {oneTimeFor(r) > 0 ? (
+                              r.fixed > 0 && r.setup > 0 ? (
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <span className="cursor-help whitespace-nowrap">{fmt(oneTimeFor(r))} kr</span>
+                                  </TooltipTrigger>
+                                  <TooltipContent side="top" className="text-xs">
+                                    Fastpris {fmt(r.fixed)} kr · etablering {fmt(r.setup)} kr
+                                  </TooltipContent>
+                                </Tooltip>
+                              ) : (
+                                `${fmt(oneTimeFor(r))} kr`
+                              )
                             ) : (
-                              `${fmt(oneTimeFor(r))} kr`
-                            )
-                          ) : (
-                            "—"
-                          )}
-                        </TableCell>
+                              "—"
+                            )}
+                          </TableCell>
+                        )}
                         <TableCell className="text-right font-semibold text-foreground tabular-nums">
                           {r.monthly > 0 ? `${fmt(r.monthly)} kr` : "—"}
                         </TableCell>
-                        <TableCell className="text-right text-muted-foreground tabular-nums">
-                          {netFor(r) > 0 ? `${fmt(taxFor(r))} kr` : "—"}
-                        </TableCell>
-                        <TableCell className="text-right font-semibold text-foreground tabular-nums">
-                          {netFor(r) > 0 ? `${fmt(grossFor(r))} kr` : "—"}
-                        </TableCell>
+                        {isMynder ? (
+                          <>
+                            <TableCell className="text-right text-muted-foreground tabular-nums">
+                              {r.monthly > 0 ? `${fmt(partnerShareFor(r.monthly))} kr` : "—"}
+                            </TableCell>
+                            <TableCell className="text-right font-semibold text-foreground tabular-nums">
+                              {r.monthly > 0 ? `${fmt(r.monthly - partnerShareFor(r.monthly))} kr` : "—"}
+                            </TableCell>
+                          </>
+                        ) : (
+                          <>
+                            <TableCell className="text-right text-muted-foreground tabular-nums">
+                              {netFor(r) > 0 ? `${fmt(taxFor(r))} kr` : "—"}
+                            </TableCell>
+                            <TableCell className="text-right font-semibold text-foreground tabular-nums">
+                              {netFor(r) > 0 ? `${fmt(grossFor(r))} kr` : "—"}
+                            </TableCell>
+                          </>
+                        )}
+
                         <TableCell className="text-right whitespace-nowrap">
                           <div className="flex items-center justify-end gap-0.5">
                             <Tooltip>
@@ -320,18 +434,34 @@ export default function MSPInvoices() {
                         <TableCell colSpan={2} className="text-sm font-medium text-foreground">
                           Totalt
                         </TableCell>
-                        <TableCell className="text-right font-semibold text-foreground tabular-nums">
-                          {oneTimeTotal > 0 ? `${fmt(oneTimeTotal)} kr` : "—"}
-                        </TableCell>
+                        {!isMynder && (
+                          <TableCell className="text-right font-semibold text-foreground tabular-nums">
+                            {oneTimeTotal > 0 ? `${fmt(oneTimeTotal)} kr` : "—"}
+                          </TableCell>
+                        )}
                         <TableCell className="text-right font-semibold text-foreground tabular-nums">
                           {fmt(monthlyTotal)} kr
                         </TableCell>
-                        <TableCell className="text-right font-semibold text-foreground tabular-nums">
-                          {fmt(totalBreakdown.taxAmount)} kr
-                        </TableCell>
-                        <TableCell className="text-right font-semibold text-foreground tabular-nums">
-                          {fmt(totalBreakdown.gross)} kr
-                        </TableCell>
+                        {isMynder ? (
+                          <>
+                            <TableCell className="text-right font-semibold text-foreground tabular-nums">
+                              {fmt(partnerShareTotal)} kr
+                            </TableCell>
+                            <TableCell className="text-right font-semibold text-foreground tabular-nums">
+                              {fmt(mynderMonthlyTotal)} kr
+                            </TableCell>
+                          </>
+                        ) : (
+                          <>
+                            <TableCell className="text-right font-semibold text-foreground tabular-nums">
+                              {fmt(totalBreakdown.taxAmount)} kr
+                            </TableCell>
+                            <TableCell className="text-right font-semibold text-foreground tabular-nums">
+                              {fmt(totalBreakdown.gross)} kr
+                            </TableCell>
+                          </>
+                        )}
+
                         <TableCell />
                       </TableRow>
                     )}
@@ -367,7 +497,7 @@ export default function MSPInvoices() {
                   </div>
                   <Pills items={r.activated} retiring={r.retiring} empty="Ingen aktive abonnement" />
                   <div className="pt-2 border-t border-border space-y-1 text-sm">
-                    {oneTimeFor(r) > 0 && (
+                    {!isMynder && oneTimeFor(r) > 0 && (
                       <div className="flex items-center justify-between">
                         <span className="text-muted-foreground">
                           Fastpris og etablering (eks. {tax.label})
@@ -384,15 +514,33 @@ export default function MSPInvoices() {
                       <span className="text-muted-foreground">Abonnement/mnd (eks. {tax.label})</span>
                       <span className="text-foreground tabular-nums">{r.monthly > 0 ? `${fmt(r.monthly)} kr` : "—"}</span>
                     </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground">{taxLabel}</span>
-                      <span className="text-foreground tabular-nums">{fmt(taxFor(r))} kr</span>
-                    </div>
-                    <div className="flex items-center justify-between font-semibold">
-                      <span className="text-foreground">Total inkl. {tax.label}</span>
-                      <span className="text-foreground tabular-nums">{fmt(grossFor(r))} kr</span>
-                    </div>
+                    {isMynder ? (
+                      <>
+                        <div className="flex items-center justify-between">
+                          <span className="text-muted-foreground">Din andel ({partnerSharePct} %)</span>
+                          <span className="text-foreground tabular-nums">{fmt(partnerShareFor(r.monthly))} kr</span>
+                        </div>
+                        <div className="flex items-center justify-between font-semibold">
+                          <span className="text-foreground">Mynder fakturerer deg</span>
+                          <span className="text-foreground tabular-nums">
+                            {fmt(r.monthly - partnerShareFor(r.monthly))} kr
+                          </span>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="flex items-center justify-between">
+                          <span className="text-muted-foreground">{taxLabel}</span>
+                          <span className="text-foreground tabular-nums">{fmt(taxFor(r))} kr</span>
+                        </div>
+                        <div className="flex items-center justify-between font-semibold">
+                          <span className="text-foreground">Total inkl. {tax.label}</span>
+                          <span className="text-foreground tabular-nums">{fmt(grossFor(r))} kr</span>
+                        </div>
+                      </>
+                    )}
                   </div>
+
                   <button
                     type="button"
                     onClick={() => setHistoryId(r.id)}

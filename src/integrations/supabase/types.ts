@@ -2168,6 +2168,8 @@ export type Database = {
         Row: {
           address_line1: string | null
           address_line2: string | null
+          agreement_note: string | null
+          agreement_start: string | null
           city: string | null
           company_name: string | null
           contact_email: string | null
@@ -2180,6 +2182,7 @@ export type Database = {
           msp_user_id: string
           notes: string | null
           org_number: string | null
+          partner_share_pct: number
           payment_method: string | null
           postal_code: string | null
           stripe_customer_id: string | null
@@ -2189,6 +2192,8 @@ export type Database = {
         Insert: {
           address_line1?: string | null
           address_line2?: string | null
+          agreement_note?: string | null
+          agreement_start?: string | null
           city?: string | null
           company_name?: string | null
           contact_email?: string | null
@@ -2201,6 +2206,7 @@ export type Database = {
           msp_user_id: string
           notes?: string | null
           org_number?: string | null
+          partner_share_pct?: number
           payment_method?: string | null
           postal_code?: string | null
           stripe_customer_id?: string | null
@@ -2210,6 +2216,8 @@ export type Database = {
         Update: {
           address_line1?: string | null
           address_line2?: string | null
+          agreement_note?: string | null
+          agreement_start?: string | null
           city?: string | null
           company_name?: string | null
           contact_email?: string | null
@@ -2222,6 +2230,7 @@ export type Database = {
           msp_user_id?: string
           notes?: string | null
           org_number?: string | null
+          partner_share_pct?: number
           payment_method?: string | null
           postal_code?: string | null
           stripe_customer_id?: string | null

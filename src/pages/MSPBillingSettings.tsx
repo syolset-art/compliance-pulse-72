@@ -12,7 +12,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { ArrowLeft, Building2, Mail, FileText, Save, Lock, TrendingUp, Wallet, ChevronRight, Upload, RotateCcw, Image as ImageIcon } from "lucide-react";
+import { ArrowLeft, Building2, Mail, FileText, Save, Lock, TrendingUp, Wallet, ChevronRight, Upload, RotateCcw, Percent, Image as ImageIcon } from "lucide-react";
 import { Link } from "react-router-dom";
 import {
   customerLicenseSummary,
@@ -38,6 +38,9 @@ interface BillingSettings {
   payment_method: string;
   ehf_enabled: boolean;
   notes: string;
+  partner_share_pct: number;
+  agreement_start: string;
+  agreement_note: string;
 }
 
 const defaults: BillingSettings = {
@@ -53,7 +56,11 @@ const defaults: BillingSettings = {
   payment_method: "invoice",
   ehf_enabled: false,
   notes: "",
+  partner_share_pct: 30,
+  agreement_start: "",
+  agreement_note: "",
 };
+
 
 const fmt = (n: number) => n.toLocaleString("nb-NO");
 
@@ -175,7 +182,14 @@ export default function MSPBillingSettings() {
         payment_method: existing.payment_method || "invoice",
         ehf_enabled: existing.ehf_enabled || false,
         notes: existing.notes || "",
+        partner_share_pct:
+          existing.partner_share_pct === null || existing.partner_share_pct === undefined
+            ? 30
+            : Number(existing.partner_share_pct),
+        agreement_start: existing.agreement_start || "",
+        agreement_note: existing.agreement_note || "",
       });
+
     }
   }, [existing]);
 
@@ -472,6 +486,79 @@ export default function MSPBillingSettings() {
               )}
             </CardContent>
           </Card>
+
+          {/* Partneravtale: prosentsats som avgjør hva Mynder fakturerer partneren */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Percent className="h-5 w-5" />
+                Partneravtale
+              </CardTitle>
+              <CardDescription>
+                Andelen av abonnementsinntekten du beholder. Resten er grunnlaget Mynder fakturerer deg.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Partnerandel</Label>
+                  <div className="relative">
+                    <Input
+                      type="number"
+                      min={0}
+                      max={100}
+                      value={form.partner_share_pct}
+                      onChange={(e) =>
+                        update("partner_share_pct", Math.min(100, Math.max(0, Number(e.target.value) || 0)))
+                      }
+                      className="pr-8"
+                    />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">%</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Andelen brukes til å beregne hva Mynder fakturerer deg. Endringer avtales med Mynder.
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <Label>Gjelder fra</Label>
+                  <Input
+                    type="date"
+                    value={form.agreement_start}
+                    onChange={(e) => update("agreement_start", e.target.value)}
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label>Avtalereferanse eller notat</Label>
+                <Textarea
+                  value={form.agreement_note}
+                  onChange={(e) => update("agreement_note", e.target.value)}
+                  placeholder="F.eks. avtalenummer eller særskilte vilkår"
+                  rows={2}
+                />
+              </div>
+              <div className="rounded-lg border bg-muted/30 p-3 text-sm">
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Abonnement per måned (til kundene)</span>
+                  <span className="tabular-nums">{fmt(summary.monthly)} kr</span>
+                </div>
+                <div className="flex items-center justify-between mt-1">
+                  <span className="text-muted-foreground">Din andel ({form.partner_share_pct} %)</span>
+                  <span className="tabular-nums">
+                    {fmt(Math.round((summary.monthly * form.partner_share_pct) / 100))} kr
+                  </span>
+                </div>
+                <div className="flex items-center justify-between mt-2 pt-2 border-t font-medium">
+                  <span>Mynder fakturerer deg</span>
+                  <span className="tabular-nums">
+                    {fmt(summary.monthly - Math.round((summary.monthly * form.partner_share_pct) / 100))} kr/mnd
+                  </span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+
 
           {/* Activated products and costs: what Mynder will invoice the partner for */}
           <Card>
