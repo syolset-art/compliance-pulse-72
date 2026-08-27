@@ -187,8 +187,11 @@ export default function MSPInvoices() {
                       <TableHead className="w-[170px] text-right text-foreground/80">
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <span className="inline-flex items-center gap-1.5 cursor-help">
-                              Annet (eks. {tax.label}) <Info className="h-3.5 w-3.5 text-foreground/50" />
+                            <span className="inline-flex flex-col items-end gap-0 cursor-help leading-tight">
+                              <span>Annet</span>
+                              <span className="inline-flex items-center gap-1 text-xs text-foreground/60">
+                                eks. {tax.label} <Info className="h-3.5 w-3.5 text-foreground/50" />
+                              </span>
                             </span>
                           </TooltipTrigger>
                           <TooltipContent side="top" className="max-w-[260px] text-xs">
