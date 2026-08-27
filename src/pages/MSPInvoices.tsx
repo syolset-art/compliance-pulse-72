@@ -120,11 +120,22 @@ export default function MSPInvoices() {
               <div>
                 <h1 className="text-xl md:text-2xl font-semibold text-foreground">Fakturagrunnlag</h1>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Aktiverte produkter og tjenester per kunde — grunnlaget Mynder fakturerer deg. Alle priser er
-                  oppgitt <span className="font-medium text-foreground">eks. {tax.label}</span>; {tax.label} beregnes i
-                  egen kolonne.
+                  {isMynder ? (
+                    <>
+                      Grunnlaget Mynder fakturerer deg: abonnementet på aktiverte produkter minus partnerandelen din
+                      på <span className="font-medium text-foreground">{partnerSharePct} %</span>. Engangsleveranser du
+                      selv utfører er ikke med. Alle priser eks. {tax.label}.
+                    </>
+                  ) : (
+                    <>
+                      Aktiverte produkter og regelverk per kunde — grunnlaget du kan fakturere kundene dine for. Alle
+                      priser er oppgitt <span className="font-medium text-foreground">eks. {tax.label}</span>;{" "}
+                      {tax.label} beregnes i egen kolonne.
+                    </>
+                  )}
                 </p>
               </div>
+
               <div className="flex gap-2 flex-wrap">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
