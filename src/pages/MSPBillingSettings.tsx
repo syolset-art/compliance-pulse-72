@@ -244,8 +244,10 @@ export default function MSPBillingSettings() {
 
   const mutation = useMutation({
     mutationFn: async (data: BillingSettings) => {
+      // Partneravtalen (andel, virkningsdato, notat) forvaltes av Mynder — partneren kan ikke endre den her.
+      const { partner_share_pct, agreement_start, agreement_note, ...editable } = data as any;
       const payload = {
-        ...data,
+        ...editable,
         company_name: companyProfile?.name || "",
         org_number: companyProfile?.org_number || "",
         msp_user_id: user!.id,
@@ -495,48 +497,34 @@ export default function MSPBillingSettings() {
                 Partneravtale
               </CardTitle>
               <CardDescription>
-                Andelen av abonnementsinntekten du beholder. Resten er grunnlaget Mynder fakturerer deg.
+                Andelen av abonnementsinntekten du beholder. Vilkårene forvaltes av Mynder og kan ikke endres her.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Partnerandel</Label>
-                  <div className="relative">
-                    <Input
-                      type="number"
-                      min={0}
-                      max={100}
-                      value={form.partner_share_pct}
-                      onChange={(e) =>
-                        update("partner_share_pct", Math.min(100, Math.max(0, Number(e.target.value) || 0)))
-                      }
-                      className="pr-8"
-                    />
-                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">%</span>
+                <div className="space-y-1">
+                  <Label className="text-xs text-muted-foreground">Partnerandel</Label>
+                  <div className="text-lg font-semibold tabular-nums">{form.partner_share_pct} %</div>
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs text-muted-foreground">Gjelder fra</Label>
+                  <div className="text-lg font-semibold tabular-nums">
+                    {form.agreement_start
+                      ? new Date(form.agreement_start).toLocaleDateString("nb-NO")
+                      : "Ikke registrert"}
                   </div>
-                  <p className="text-xs text-muted-foreground">
-                    Andelen brukes til å beregne hva Mynder fakturerer deg. Endringer avtales med Mynder.
-                  </p>
-                </div>
-                <div className="space-y-2">
-                  <Label>Gjelder fra</Label>
-                  <Input
-                    type="date"
-                    value={form.agreement_start}
-                    onChange={(e) => update("agreement_start", e.target.value)}
-                  />
                 </div>
               </div>
-              <div className="space-y-2">
-                <Label>Avtalereferanse eller notat</Label>
-                <Textarea
-                  value={form.agreement_note}
-                  onChange={(e) => update("agreement_note", e.target.value)}
-                  placeholder="F.eks. avtalenummer eller særskilte vilkår"
-                  rows={2}
-                />
-              </div>
+              {form.agreement_note && (
+                <div className="space-y-1">
+                  <Label className="text-xs text-muted-foreground">Avtalereferanse</Label>
+                  <p className="text-sm text-foreground">{form.agreement_note}</p>
+                </div>
+              )}
+              <p className="text-xs text-muted-foreground">
+                Ønsker du å endre partnerandelen? Ta kontakt med Mynder — endringer registreres i partneravtalen og
+                logges med virkningsdato.
+              </p>
               <div className="rounded-lg border bg-muted/30 p-3 text-sm">
                 <div className="flex items-center justify-between">
                   <span className="text-muted-foreground">Abonnement per måned (til kundene)</span>

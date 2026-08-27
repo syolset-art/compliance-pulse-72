@@ -76,3 +76,29 @@ export const PARTNER_TYPE_COLOR: Record<PartnerType, string> = {
 
 export const countryFlag = (cc: string) =>
   cc.toUpperCase().replace(/./g, (c) => String.fromCodePoint(127397 + c.charCodeAt(0)));
+
+/** MCP-produkter kunder kan koble seg til direkte hos Mynder. */
+export type McpProductKey = "mynder-regulation" | "canvas-regulation";
+
+export const MCP_PRODUCTS: Record<McpProductKey, { label: string; status: "live" | "coming"; description: string }> = {
+  "mynder-regulation": {
+    label: "Mynder Regulation",
+    status: "live",
+    description: "MCP-produkt som gir kundens egne agenter tilgang til regelverk og krav i Mynder.",
+  },
+  "canvas-regulation": {
+    label: "Canvas Regulation",
+    status: "coming",
+    description: "MCP for kontinuerlig compliance innenfor aktiverte produkter. Under utvikling.",
+  },
+};
+
+/** Demo: hvilke direktekunder som har koblet seg til hvilke MCP-produkter, og når. */
+export const CUSTOMER_MCP: Record<string, { key: McpProductKey; since: string }[]> = {
+  d1: [{ key: "mynder-regulation", since: "2025-11-04" }],
+  d2: [
+    { key: "mynder-regulation", since: "2025-09-18" },
+    { key: "canvas-regulation", since: "2026-06-02" },
+  ],
+  d5: [{ key: "mynder-regulation", since: "2026-01-22" }],
+};

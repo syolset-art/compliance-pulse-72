@@ -2595,6 +2595,54 @@ export type Database = {
         }
         Relationships: []
       }
+      mynder_projects: {
+        Row: {
+          agreement_ref: string | null
+          created_at: string
+          customer_name: string
+          end_date: string | null
+          id: string
+          note: string | null
+          owner_name: string | null
+          partner_key: string | null
+          price: number
+          project_name: string
+          start_date: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          agreement_ref?: string | null
+          created_at?: string
+          customer_name: string
+          end_date?: string | null
+          id?: string
+          note?: string | null
+          owner_name?: string | null
+          partner_key?: string | null
+          price?: number
+          project_name: string
+          start_date?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          agreement_ref?: string | null
+          created_at?: string
+          customer_name?: string
+          end_date?: string | null
+          id?: string
+          note?: string | null
+          owner_name?: string | null
+          partner_key?: string | null
+          price?: number
+          project_name?: string
+          start_date?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       network_connections: {
         Row: {
           accepted_at: string | null
@@ -2688,6 +2736,104 @@ export type Database = {
           systems_added?: boolean | null
           updated_at?: string | null
           work_areas_defined?: boolean | null
+        }
+        Relationships: []
+      }
+      partner_agreement_events: {
+        Row: {
+          agreement_id: string
+          changed_by: string | null
+          changed_by_name: string | null
+          created_at: string
+          effective_from: string | null
+          event_type: string
+          id: string
+          new_share_pct: number | null
+          note: string | null
+          old_share_pct: number | null
+        }
+        Insert: {
+          agreement_id: string
+          changed_by?: string | null
+          changed_by_name?: string | null
+          created_at?: string
+          effective_from?: string | null
+          event_type?: string
+          id?: string
+          new_share_pct?: number | null
+          note?: string | null
+          old_share_pct?: number | null
+        }
+        Update: {
+          agreement_id?: string
+          changed_by?: string | null
+          changed_by_name?: string | null
+          created_at?: string
+          effective_from?: string | null
+          event_type?: string
+          id?: string
+          new_share_pct?: number | null
+          note?: string | null
+          old_share_pct?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_agreement_events_agreement_id_fkey"
+            columns: ["agreement_id"]
+            isOneToOne: false
+            referencedRelation: "partner_agreements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      partner_agreements: {
+        Row: {
+          agent_verified: boolean
+          agent_verified_at: string | null
+          agent_verified_by: string | null
+          agreement_url: string | null
+          created_at: string
+          id: string
+          note: string | null
+          partner_key: string
+          partner_name: string
+          partner_user_id: string | null
+          share_pct: number
+          updated_at: string
+          valid_from: string | null
+          valid_to: string | null
+        }
+        Insert: {
+          agent_verified?: boolean
+          agent_verified_at?: string | null
+          agent_verified_by?: string | null
+          agreement_url?: string | null
+          created_at?: string
+          id?: string
+          note?: string | null
+          partner_key: string
+          partner_name: string
+          partner_user_id?: string | null
+          share_pct?: number
+          updated_at?: string
+          valid_from?: string | null
+          valid_to?: string | null
+        }
+        Update: {
+          agent_verified?: boolean
+          agent_verified_at?: string | null
+          agent_verified_by?: string | null
+          agreement_url?: string | null
+          created_at?: string
+          id?: string
+          note?: string | null
+          partner_key?: string
+          partner_name?: string
+          partner_user_id?: string | null
+          share_pct?: number
+          updated_at?: string
+          valid_from?: string | null
+          valid_to?: string | null
         }
         Relationships: []
       }
