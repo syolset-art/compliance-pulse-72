@@ -97,7 +97,7 @@ export function useMSPInvoiceBasis() {
   const rows: InvoiceBasisRow[] = useMemo(() => {
     return customers
       .map((c: any) => {
-        const { monthly } = customerLicenseSummary(c);
+        const { monthly, lines } = customerLicenseSummary(c);
         const fixed = fixedPriceForCustomer(c.id);
         const retiringModules = getCustomerRetiringModules(c.id);
         const products = deriveActivatedProducts(c);
@@ -115,6 +115,7 @@ export function useMSPInvoiceBasis() {
           name: c.customer_name || "Uten navn",
           meta: [c.country_code || "NO", c.industry].filter(Boolean).join(" · "),
           activated: [...products, ...frameworkLabels],
+          lines,
           retiring,
           monthly,
           fixed: fixed.total,
