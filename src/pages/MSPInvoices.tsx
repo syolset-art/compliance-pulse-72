@@ -434,18 +434,34 @@ export default function MSPInvoices() {
                         <TableCell colSpan={2} className="text-sm font-medium text-foreground">
                           Totalt
                         </TableCell>
-                        <TableCell className="text-right font-semibold text-foreground tabular-nums">
-                          {oneTimeTotal > 0 ? `${fmt(oneTimeTotal)} kr` : "—"}
-                        </TableCell>
+                        {!isMynder && (
+                          <TableCell className="text-right font-semibold text-foreground tabular-nums">
+                            {oneTimeTotal > 0 ? `${fmt(oneTimeTotal)} kr` : "—"}
+                          </TableCell>
+                        )}
                         <TableCell className="text-right font-semibold text-foreground tabular-nums">
                           {fmt(monthlyTotal)} kr
                         </TableCell>
-                        <TableCell className="text-right font-semibold text-foreground tabular-nums">
-                          {fmt(totalBreakdown.taxAmount)} kr
-                        </TableCell>
-                        <TableCell className="text-right font-semibold text-foreground tabular-nums">
-                          {fmt(totalBreakdown.gross)} kr
-                        </TableCell>
+                        {isMynder ? (
+                          <>
+                            <TableCell className="text-right font-semibold text-foreground tabular-nums">
+                              {fmt(partnerShareTotal)} kr
+                            </TableCell>
+                            <TableCell className="text-right font-semibold text-foreground tabular-nums">
+                              {fmt(mynderMonthlyTotal)} kr
+                            </TableCell>
+                          </>
+                        ) : (
+                          <>
+                            <TableCell className="text-right font-semibold text-foreground tabular-nums">
+                              {fmt(totalBreakdown.taxAmount)} kr
+                            </TableCell>
+                            <TableCell className="text-right font-semibold text-foreground tabular-nums">
+                              {fmt(totalBreakdown.gross)} kr
+                            </TableCell>
+                          </>
+                        )}
+
                         <TableCell />
                       </TableRow>
                     )}
