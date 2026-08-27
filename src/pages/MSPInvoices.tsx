@@ -497,7 +497,7 @@ export default function MSPInvoices() {
                   </div>
                   <Pills items={r.activated} retiring={r.retiring} empty="Ingen aktive abonnement" />
                   <div className="pt-2 border-t border-border space-y-1 text-sm">
-                    {oneTimeFor(r) > 0 && (
+                    {!isMynder && oneTimeFor(r) > 0 && (
                       <div className="flex items-center justify-between">
                         <span className="text-muted-foreground">
                           Fastpris og etablering (eks. {tax.label})
@@ -514,15 +514,33 @@ export default function MSPInvoices() {
                       <span className="text-muted-foreground">Abonnement/mnd (eks. {tax.label})</span>
                       <span className="text-foreground tabular-nums">{r.monthly > 0 ? `${fmt(r.monthly)} kr` : "—"}</span>
                     </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground">{taxLabel}</span>
-                      <span className="text-foreground tabular-nums">{fmt(taxFor(r))} kr</span>
-                    </div>
-                    <div className="flex items-center justify-between font-semibold">
-                      <span className="text-foreground">Total inkl. {tax.label}</span>
-                      <span className="text-foreground tabular-nums">{fmt(grossFor(r))} kr</span>
-                    </div>
+                    {isMynder ? (
+                      <>
+                        <div className="flex items-center justify-between">
+                          <span className="text-muted-foreground">Din andel ({partnerSharePct} %)</span>
+                          <span className="text-foreground tabular-nums">{fmt(partnerShareFor(r.monthly))} kr</span>
+                        </div>
+                        <div className="flex items-center justify-between font-semibold">
+                          <span className="text-foreground">Mynder fakturerer deg</span>
+                          <span className="text-foreground tabular-nums">
+                            {fmt(r.monthly - partnerShareFor(r.monthly))} kr
+                          </span>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="flex items-center justify-between">
+                          <span className="text-muted-foreground">{taxLabel}</span>
+                          <span className="text-foreground tabular-nums">{fmt(taxFor(r))} kr</span>
+                        </div>
+                        <div className="flex items-center justify-between font-semibold">
+                          <span className="text-foreground">Total inkl. {tax.label}</span>
+                          <span className="text-foreground tabular-nums">{fmt(grossFor(r))} kr</span>
+                        </div>
+                      </>
+                    )}
                   </div>
+
                   <button
                     type="button"
                     onClick={() => setHistoryId(r.id)}
