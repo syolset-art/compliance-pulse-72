@@ -20,7 +20,7 @@ export interface InvoiceHistoryCustomer {
   createdAt?: string | null;
 }
 
-interface Period {
+export interface Period {
   key: string;
   label: string;
   subscription: number;
@@ -34,7 +34,7 @@ function monthLabel(d: Date) {
 }
 
 /** Fakturaperioder fra kunden ble opprettet til inneværende måned (maks 12). */
-function buildPeriods(customer: InvoiceHistoryCustomer): Period[] {
+export function buildPeriods(customer: InvoiceHistoryCustomer): Period[] {
   const now = new Date();
   const start = customer.createdAt ? new Date(customer.createdAt) : now;
   const months: Period[] = [];
