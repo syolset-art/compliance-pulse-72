@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { Link } from "react-router-dom";
 import { Sidebar } from "@/components/Sidebar";
 import { Button } from "@/components/ui/button";
@@ -207,8 +207,8 @@ export default function MSPInvoiceReports() {
                     const hasHistory = periods.length > 0;
                     const expanded = expandedId === r.id;
                     return (
-                      <>
-                        <TableRow key={r.id} className={cn(expanded && "bg-muted/40")}>
+                      <Fragment key={r.id}>
+                        <TableRow className={cn(expanded && "bg-muted/40")}>
                           <TableCell className="pr-0">
                             {hasHistory ? (
                               <Button
@@ -260,7 +260,7 @@ export default function MSPInvoiceReports() {
                           </TableCell>
                         </TableRow>
                         {expanded && (
-                          <TableRow key={`${r.id}-history`} className="bg-muted/20 hover:bg-muted/20">
+                          <TableRow className="bg-muted/20 hover:bg-muted/20">
                             <TableCell />
                             <TableCell colSpan={4} className="py-3">
                               <div className="space-y-1">
@@ -292,7 +292,7 @@ export default function MSPInvoiceReports() {
                             </TableCell>
                           </TableRow>
                         )}
-                      </>
+                      </Fragment>
                     );
                   })}
                   {rows.length === 0 && (
