@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { ShieldOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useUserRole, AppRole } from "@/hooks/useUserRole";
+import { useWorkspaceMode } from "@/contexts/WorkspaceModeContext";
+
 
 const ALLOWED: AppRole[] = ["super_admin", "daglig_leder"];
 
@@ -14,11 +16,13 @@ export function isMynderAdmin(roles: AppRole[]) {
 
 export function AdminRouteGuard({ children }: { children: ReactNode }) {
   const { allRoles, isLoading } = useUserRole();
+  const { availableModes } = useWorkspaceMode();
   const navigate = useNavigate();
 
   if (isLoading) return null;
 
-  if (!isMynderAdmin(allRoles)) {
+  if (!isMynderAdmin(allRoles) && !availableModes.includes("admin")) {
+
     return (
       <div className="flex min-h-screen w-full bg-background">
         <Sidebar />
