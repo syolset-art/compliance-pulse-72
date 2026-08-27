@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { ShieldOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useUserRole, AppRole } from "@/hooks/useUserRole";
+import { useWorkspaceMode } from "@/contexts/WorkspaceModeContext";
+
 
 const ALLOWED: AppRole[] = ["super_admin", "daglig_leder"];
 
