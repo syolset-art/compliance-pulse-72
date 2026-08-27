@@ -348,33 +348,49 @@ export default function MSPInvoices() {
                         <TableCell>
                           <Pills items={r.activated} retiring={r.retiring} empty="Ingen aktive abonnement" />
                         </TableCell>
-                        <TableCell className="text-right text-foreground tabular-nums">
-                          {oneTimeFor(r) > 0 ? (
-                            r.fixed > 0 && r.setup > 0 ? (
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <span className="cursor-help whitespace-nowrap">{fmt(oneTimeFor(r))} kr</span>
-                                </TooltipTrigger>
-                                <TooltipContent side="top" className="text-xs">
-                                  Fastpris {fmt(r.fixed)} kr · etablering {fmt(r.setup)} kr
-                                </TooltipContent>
-                              </Tooltip>
+                        {!isMynder && (
+                          <TableCell className="text-right text-foreground tabular-nums">
+                            {oneTimeFor(r) > 0 ? (
+                              r.fixed > 0 && r.setup > 0 ? (
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <span className="cursor-help whitespace-nowrap">{fmt(oneTimeFor(r))} kr</span>
+                                  </TooltipTrigger>
+                                  <TooltipContent side="top" className="text-xs">
+                                    Fastpris {fmt(r.fixed)} kr · etablering {fmt(r.setup)} kr
+                                  </TooltipContent>
+                                </Tooltip>
+                              ) : (
+                                `${fmt(oneTimeFor(r))} kr`
+                              )
                             ) : (
-                              `${fmt(oneTimeFor(r))} kr`
-                            )
-                          ) : (
-                            "—"
-                          )}
-                        </TableCell>
+                              "—"
+                            )}
+                          </TableCell>
+                        )}
                         <TableCell className="text-right font-semibold text-foreground tabular-nums">
                           {r.monthly > 0 ? `${fmt(r.monthly)} kr` : "—"}
                         </TableCell>
-                        <TableCell className="text-right text-muted-foreground tabular-nums">
-                          {netFor(r) > 0 ? `${fmt(taxFor(r))} kr` : "—"}
-                        </TableCell>
-                        <TableCell className="text-right font-semibold text-foreground tabular-nums">
-                          {netFor(r) > 0 ? `${fmt(grossFor(r))} kr` : "—"}
-                        </TableCell>
+                        {isMynder ? (
+                          <>
+                            <TableCell className="text-right text-muted-foreground tabular-nums">
+                              {r.monthly > 0 ? `${fmt(partnerShareFor(r.monthly))} kr` : "—"}
+                            </TableCell>
+                            <TableCell className="text-right font-semibold text-foreground tabular-nums">
+                              {r.monthly > 0 ? `${fmt(r.monthly - partnerShareFor(r.monthly))} kr` : "—"}
+                            </TableCell>
+                          </>
+                        ) : (
+                          <>
+                            <TableCell className="text-right text-muted-foreground tabular-nums">
+                              {netFor(r) > 0 ? `${fmt(taxFor(r))} kr` : "—"}
+                            </TableCell>
+                            <TableCell className="text-right font-semibold text-foreground tabular-nums">
+                              {netFor(r) > 0 ? `${fmt(grossFor(r))} kr` : "—"}
+                            </TableCell>
+                          </>
+                        )}
+
                         <TableCell className="text-right whitespace-nowrap">
                           <div className="flex items-center justify-end gap-0.5">
                             <Tooltip>
