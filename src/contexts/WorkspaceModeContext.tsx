@@ -1,9 +1,16 @@
 import React, { createContext, useContext, useEffect, useState, useCallback, useMemo } from "react";
 import { useUserRole } from "@/hooks/useUserRole";
+import { useAuth } from "@/hooks/useAuth";
+import { useActiveOrganization } from "@/contexts/ActiveOrganizationContext";
 
 export type WorkspaceMode = "compliance" | "partner" | "admin";
 
 const ADMIN_ROLES = ["super_admin", "daglig_leder"] as const;
+/** Mynder-eide organisasjoner / e-postdomener som alltid har admin-modus. */
+const MYNDER_EMAIL_DOMAINS = ["mynder.no", "mynder.ai", "mynder.com"];
+const isMynderOrgName = (name?: string | null) =>
+  !!name && /(^|\s)mynder(\s|$|\sas\b)/i.test(name.trim());
+
 
 interface WorkspaceModeContextType {
   mode: WorkspaceMode;
