@@ -40,7 +40,17 @@ export const useWorkspaceMode = () => useContext(WorkspaceModeContext);
 
 export function WorkspaceModeProvider({ children }: { children: React.ReactNode }) {
   const { allRoles, isLoading } = useUserRole();
-  const isAdminUser = !isLoading && allRoles.some((r) => ADMIN_ROLES.includes(r as any));
+  const { user } = useAuth();
+  const { activeOrg, organizations } = useActiveOrganization();
+
+  const hasAdminRole = !isLoading && allRoles.some((r) => ADMIN_ROLES.includes(r as any));
+  const email = user?.email?.toLowerCase() ?? "";
+  const isMynderEmail = MYNDER_EMAIL_DOMAINS.some((d) => email.endsWith(`@${d}`));
+  const isMynderOrg =
+    isMynderOrgName(activeOrg?.name) ||
+    organizations.some((o) => o.type === "own" && isMynderOrgName(o.name));
+
+  const isAdminUser = hasAdminRole || isMynderEmail || isMynderOrg;
 
   // Demo: a flag in localStorage can simulate a "partner only" user.
   const partnerOnly = typeof window !== "undefined" && localStorage.getItem(PARTNER_ONLY_KEY) === "1";
@@ -50,6 +60,7 @@ export function WorkspaceModeProvider({ children }: { children: React.ReactNode 
     if (isAdminUser) modes.push("admin");
     return modes;
   }, [partnerOnly, isAdminUser]);
+
 
   const [mode, setModeState] = useState<WorkspaceMode>(() => {
     if (typeof window === "undefined") return "compliance";
