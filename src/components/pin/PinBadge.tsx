@@ -112,26 +112,39 @@ export function PinBadge({ pin, interactive = true, size = "sm", className }: Pi
   );
 
   const hoverCard = (
-    <>
-      <p className={cn("text-xs font-medium", colorClass)}>{status}</p>
-      {verifiedBy && (
-        <p className="text-[11px] text-muted-foreground">
-          Verifisert av {verifiedBy}
-          {verifiedAt ? ` · ${formatPinDate(verifiedAt)}` : ""}
-        </p>
-      )}
-      <p className="text-[11px] text-muted-foreground">Kilde: {sourceText}</p>
-      <p className="text-[11px] text-muted-foreground">Sist kontrollert: {checkedText}</p>
+    <div className="space-y-2">
+      <header className="space-y-0.5">
+        <p className={cn("text-xs font-medium", colorClass)}>{status}</p>
+        {verifiedBy && (
+          <p className="text-[11px] text-muted-foreground">
+            Verifisert av {verifiedBy}
+            {verifiedAt ? ` · ${formatPinDate(verifiedAt)}` : ""}
+          </p>
+        )}
+      </header>
+
+      <dl className="space-y-0.5">
+        <div className="flex items-baseline gap-2 text-[11px]">
+          <dt className="shrink-0 text-muted-foreground">Kilde</dt>
+          <dd className="min-w-0 flex-1 truncate text-foreground" title={sourceText}>{sourceText}</dd>
+        </div>
+        <div className="flex items-baseline gap-2 text-[11px]">
+          <dt className="shrink-0 text-muted-foreground">Sist kontrollert</dt>
+          <dd className="min-w-0 flex-1 truncate text-foreground" title={checkedText}>{checkedText}</dd>
+        </div>
+      </dl>
+
       {pin?.fallen && (
         <p className="flex items-start gap-1 text-[11px] text-warning">
           <AlertTriangle className="mt-px h-3 w-3 shrink-0" aria-hidden="true" />
           Pin falt — merket gjelder ikke denne innholdsversjonen.
         </p>
       )}
+
       <p className="text-[10px] text-muted-foreground">
         Merket gjelder denne innholdsversjonen og sier ingenting om samsvar.
       </p>
-    </>
+    </div>
   );
 
   if (!interactive || !pin) {
