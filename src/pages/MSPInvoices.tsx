@@ -208,7 +208,7 @@ export default function MSPInvoices() {
                             </span>
                           </TooltipTrigger>
                           <TooltipContent side="top" className="max-w-[260px] text-xs">
-                            Sum av aktive moduler og betalte regelverk hos kunden. Faktureres deg av Mynder hver måned.
+                            Sum av aktive moduler og betalte regelverk hos kunden. Dette er det du skal fakturere kunden hver måned.
                           </TooltipContent>
                         </Tooltip>
                       </TableHead>
