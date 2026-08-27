@@ -14,11 +14,13 @@ export function isMynderAdmin(roles: AppRole[]) {
 
 export function AdminRouteGuard({ children }: { children: ReactNode }) {
   const { allRoles, isLoading } = useUserRole();
+  const { availableModes } = useWorkspaceMode();
   const navigate = useNavigate();
 
   if (isLoading) return null;
 
-  if (!isMynderAdmin(allRoles)) {
+  if (!isMynderAdmin(allRoles) && !availableModes.includes("admin")) {
+
     return (
       <div className="flex min-h-screen w-full bg-background">
         <Sidebar />
