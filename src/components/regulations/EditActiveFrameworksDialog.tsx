@@ -8,6 +8,8 @@ import { Search, X, ChevronDown, SlidersHorizontal, Sparkles, Eye } from "lucide
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { frameworks, categories, type Framework } from "@/lib/frameworkDefinitions";
+import { PinBadge } from "@/components/pin/PinBadge";
+import { getFrameworkPin } from "@/lib/pin";
 import {
   Tooltip,
   TooltipContent,
