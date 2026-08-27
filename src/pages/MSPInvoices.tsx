@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Settings, Download, Info, History, BarChart3 } from "lucide-react";
+import { Settings, Download, Info, History, BarChart3, Receipt } from "lucide-react";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { formatPeriodEnd } from "@/lib/moduleActivationState";
@@ -13,6 +13,7 @@ import { useMSPInvoiceBasis, type InvoiceBasisRow } from "@/hooks/useMSPInvoiceB
 import { computeTaxBreakdown } from "@/lib/partnerTax";
 import { ExportInvoiceBasisDialog } from "@/components/msp/ExportInvoiceBasisDialog";
 import { CustomerInvoiceHistorySheet } from "@/components/msp/CustomerInvoiceHistorySheet";
+import { CustomerInvoicePreviewDialog } from "@/components/msp/CustomerInvoicePreviewDialog";
 
 const fmt = (n: number) => n.toLocaleString("nb-NO");
 
@@ -31,26 +32,38 @@ function Pills({
   if (items.length === 0) {
     return <span className="text-xs text-muted-foreground">{empty ?? "—"}</span>;
   }
+  const [first, ...rest] = items;
+  const endsAt = retiring[first];
   return (
-    <div className="flex flex-wrap gap-1">
-      {items.map((label) => {
-        const endsAt = retiring[label];
-        return (
-          <Badge
-            key={label}
-            variant="outline"
-            className={cn(
-              "text-[11px] font-normal",
-              endsAt
-                ? "border-dashed border-border bg-transparent text-muted-foreground"
-                : "bg-muted/60 text-foreground/80",
-            )}
-          >
-            <span className={endsAt ? "line-through" : undefined}>{label}</span>
-            {endsAt && <span className="ml-1">til {formatPeriodEnd(endsAt)}</span>}
-          </Badge>
-        );
-      })}
+    <div className="flex items-center gap-1 min-w-0">
+      <Badge
+        variant="outline"
+        className={cn(
+          "text-[11px] font-normal max-w-[160px] truncate",
+          endsAt
+            ? "border-dashed border-border bg-transparent text-muted-foreground"
+            : "bg-muted/60 text-foreground/80",
+        )}
+      >
+        <span className={cn("truncate", endsAt && "line-through")}>{first}</span>
+        {endsAt && <span className="ml-1 shrink-0">til {formatPeriodEnd(endsAt)}</span>}
+      </Badge>
+      {rest.length > 0 && (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <span className="cursor-help text-[11px] text-muted-foreground whitespace-nowrap">
+              +{rest.length}
+            </span>
+          </TooltipTrigger>
+          <TooltipContent side="top" className="max-w-[280px] text-xs">
+            <div className="font-medium mb-1">Øvrige aktiverte</div>
+            <div>{rest.join(", ")}</div>
+            <div className="mt-1.5 text-muted-foreground">
+              Alle linjer listes ut på fakturaen når den sendes kunden.
+            </div>
+          </TooltipContent>
+        </Tooltip>
+      )}
     </div>
   );
 }
@@ -78,6 +91,8 @@ export default function MSPInvoices() {
   const [exportOpen, setExportOpen] = useState(false);
   const [historyId, setHistoryId] = useState<string | null>(null);
   const historyCustomer = rows.find((r) => r.id === historyId) ?? null;
+  const [previewId, setPreviewId] = useState<string | null>(null);
+  const previewCustomer = rows.find((r) => r.id === previewId) ?? null;
   const [subPeriod, setSubPeriod] = useState<"month" | "year">("year");
   const subTotal = subPeriod === "month" ? monthlyTotal : monthlyTotal * 12;
 
@@ -200,48 +215,40 @@ export default function MSPInvoices() {
                       <TableHead className="w-[140px] text-right text-foreground/80 whitespace-nowrap">
                         Total inkl. {tax.label}
                       </TableHead>
+                      <TableHead className="w-[80px] text-right text-foreground/80">
+                        <span className="sr-only">Handlinger</span>
+                      </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {rows.map((r) => (
-                      <TableRow key={r.id} className={cn("align-top", r.monthly === 0 && "opacity-70")}>
+                      <TableRow key={r.id} className={cn("align-middle", r.monthly === 0 && "opacity-70")}>
                         <TableCell className="font-medium">
                           <Link
                             to={`/msp-dashboard/${r.id}`}
-                            className="text-foreground hover:text-primary hover:underline underline-offset-2"
+                            className="text-foreground hover:text-primary hover:underline underline-offset-2 block truncate"
                           >
                             {r.name}
                           </Link>
-                          <div className="text-xs text-muted-foreground">{r.meta || "—"}</div>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <button
-                                type="button"
-                                onClick={() => setHistoryId(r.id)}
-                                className="mt-1 inline-flex items-center gap-1 text-[11px] font-normal text-muted-foreground hover:text-primary hover:underline underline-offset-2"
-                              >
-                                <History className="h-3 w-3" />
-                                Fakturahistorikk
-                              </button>
-                            </TooltipTrigger>
-                            <TooltipContent side="bottom" className="max-w-[240px] text-xs">
-                              Se fakturagrunnlaget per måned for denne kunden.
-                            </TooltipContent>
-                          </Tooltip>
+                          <div className="text-xs text-muted-foreground truncate">{r.meta || "—"}</div>
                         </TableCell>
                         <TableCell>
                           <Pills items={r.activated} retiring={r.retiring} empty="Ingen aktive abonnement" />
                         </TableCell>
                         <TableCell className="text-right text-foreground tabular-nums">
                           {oneTimeFor(r) > 0 ? (
-                            <>
-                              <div>{fmt(oneTimeFor(r))} kr</div>
-                              {r.fixed > 0 && r.setup > 0 && (
-                                <div className="text-[11px] text-muted-foreground font-normal">
-                                  fastpris {fmt(r.fixed)} · etablering {fmt(r.setup)}
-                                </div>
-                              )}
-                            </>
+                            r.fixed > 0 && r.setup > 0 ? (
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <span className="cursor-help whitespace-nowrap">{fmt(oneTimeFor(r))} kr</span>
+                                </TooltipTrigger>
+                                <TooltipContent side="top" className="text-xs">
+                                  Fastpris {fmt(r.fixed)} kr · etablering {fmt(r.setup)} kr
+                                </TooltipContent>
+                              </Tooltip>
+                            ) : (
+                              `${fmt(oneTimeFor(r))} kr`
+                            )
                           ) : (
                             "—"
                           )}
@@ -254,6 +261,42 @@ export default function MSPInvoices() {
                         </TableCell>
                         <TableCell className="text-right font-semibold text-foreground tabular-nums">
                           {netFor(r) > 0 ? `${fmt(grossFor(r))} kr` : "—"}
+                        </TableCell>
+                        <TableCell className="text-right whitespace-nowrap">
+                          <div className="flex items-center justify-end gap-0.5">
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-7 w-7 text-muted-foreground hover:text-foreground"
+                                  onClick={() => setPreviewId(r.id)}
+                                  aria-label="Se faktura slik kunden ser den"
+                                >
+                                  <Receipt className="h-4 w-4" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent side="top" className="text-xs">
+                                Se faktura slik den vil se ut for kunden
+                              </TooltipContent>
+                            </Tooltip>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-7 w-7 text-muted-foreground hover:text-foreground"
+                                  onClick={() => setHistoryId(r.id)}
+                                  aria-label="Fakturahistorikk"
+                                >
+                                  <History className="h-4 w-4" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent side="top" className="text-xs">
+                                Fakturahistorikk per måned
+                              </TooltipContent>
+                            </Tooltip>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -274,6 +317,7 @@ export default function MSPInvoices() {
                         <TableCell className="text-right font-semibold text-foreground tabular-nums">
                           {fmt(totalBreakdown.gross)} kr
                         </TableCell>
+                        <TableCell />
                       </TableRow>
                     )}
 
@@ -342,6 +386,14 @@ export default function MSPInvoices() {
                     <History className="h-3.5 w-3.5" />
                     Se fakturahistorikk
                   </button>
+                  <button
+                    type="button"
+                    onClick={() => setPreviewId(r.id)}
+                    className="ml-4 inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary"
+                  >
+                    <Receipt className="h-3.5 w-3.5" />
+                    Se faktura
+                  </button>
                 </Card>
               ))}
               {rows.length > 0 && (
@@ -361,6 +413,14 @@ export default function MSPInvoices() {
                 <Card className="p-10 text-center text-sm text-muted-foreground">Ingen kunder ennå</Card>
               )}
             </div>
+
+            <CustomerInvoicePreviewDialog
+              open={previewId !== null}
+              onOpenChange={(o) => !o && setPreviewId(null)}
+              customer={previewCustomer}
+              tax={invoiceTax}
+              periodLabel={periodLabel}
+            />
 
             <CustomerInvoiceHistorySheet
               open={historyId !== null}
