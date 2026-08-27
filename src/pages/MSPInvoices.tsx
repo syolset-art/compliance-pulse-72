@@ -212,8 +212,11 @@ export default function MSPInvoices() {
                       <TableHead className="w-[120px] text-right text-foreground/80 whitespace-nowrap">
                         {taxLabel}
                       </TableHead>
-                      <TableHead className="w-[140px] text-right text-foreground/80 whitespace-nowrap">
-                        Total inkl. {tax.label}
+                      <TableHead className="w-[140px] text-right text-foreground/80">
+                        <div className="flex flex-col items-end leading-tight">
+                          <span>Total</span>
+                          <span className="text-xs text-foreground/60">inkl. {tax.label}</span>
+                        </div>
                       </TableHead>
                       <TableHead className="w-[80px] text-right text-foreground/80">
                         <span className="sr-only">Handlinger</span>
