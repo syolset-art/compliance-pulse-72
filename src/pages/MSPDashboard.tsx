@@ -239,7 +239,6 @@ function RecommendationCell({
       {shown.map((s) => {
         const on = picked.includes(s.id);
         const displayLabel = s.packageInfo?.name ?? s.label;
-        const stage: "anbefalt" | "tilbud" = s.offerStatus ? "tilbud" : "anbefalt";
         return (
           <Tooltip key={s.id}>
             <TooltipTrigger asChild>
@@ -250,25 +249,13 @@ function RecommendationCell({
                   "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-recommend focus-visible:ring-offset-1",
                   on
                     ? "border-recommend bg-recommend text-recommend-foreground"
-                    : s.offerStatus
-                      ? "border-warning/50 bg-warning/10 text-foreground hover:bg-warning/20 hover:border-warning/70"
-                      : s.activatable
-                        ? "border-recommend/60 bg-recommend/15 text-recommend dark:text-recommend hover:bg-recommend/25 hover:border-recommend"
-                        : "border-dashed border-recommend/50 bg-transparent text-recommend/90 hover:bg-recommend/10",
+                    : s.activatable
+                      ? "border-recommend/60 bg-recommend/15 text-recommend dark:text-recommend hover:bg-recommend/25 hover:border-recommend"
+                      : "border-dashed border-recommend/50 bg-transparent text-recommend/90 hover:bg-recommend/10",
                 )}
               >
                 {s.activatable && <Zap className="h-2.5 w-2.5 shrink-0" />}
                 {displayLabel}
-                {s.offerStatus && (
-                  <span
-                    className={cn(
-                      "rounded-full px-1 text-[9px] font-semibold uppercase tracking-wide",
-                      on ? "bg-recommend-foreground/20 text-recommend-foreground" : "bg-warning/20 text-warning",
-                    )}
-                  >
-                    I tilbud
-                  </span>
-                )}
               </button>
             </TooltipTrigger>
             <TooltipContent side="top" className="max-w-[260px] text-xs">
@@ -289,15 +276,9 @@ function RecommendationCell({
                       : "Tjeneste — leveres som oppdrag."}
                 </p>
               )}
-              <p className="mt-1.5 flex items-center gap-1 text-muted-foreground">
-                <span className={stage === "anbefalt" ? "font-semibold text-foreground" : ""}>Anbefalt</span>
-                <ArrowRight className="h-3 w-3 shrink-0" />
-                <span className={stage === "tilbud" ? "font-semibold text-foreground" : ""}>I tilbud</span>
-                <ArrowRight className="h-3 w-3 shrink-0" />
-                <span>Aktivert</span>
-              </p>
             </TooltipContent>
           </Tooltip>
+
         );
       })}
       {hidden > 0 && (
