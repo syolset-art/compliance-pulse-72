@@ -1,11 +1,14 @@
-import React, { createContext, useContext, useEffect, useState, useCallback } from "react";
+import React, { createContext, useContext, useEffect, useState, useCallback, useMemo } from "react";
+import { useUserRole } from "@/hooks/useUserRole";
 
-export type WorkspaceMode = "compliance" | "partner";
+export type WorkspaceMode = "compliance" | "partner" | "admin";
+
+const ADMIN_ROLES = ["super_admin", "daglig_leder"] as const;
 
 interface WorkspaceModeContextType {
   mode: WorkspaceMode;
   setMode: (mode: WorkspaceMode) => void;
-  /** In the demo prototype both modes are always available. */
+  /** Available modes depend on role and flags. */
   availableModes: WorkspaceMode[];
   /** True when the user has more than one mode and can toggle. */
   canSwitch: boolean;
@@ -13,6 +16,11 @@ interface WorkspaceModeContextType {
 
 const STORAGE_KEY = "workspaceMode";
 const PARTNER_ONLY_KEY = "workspaceModePartnerOnly";
+
+const VALID_MODES: WorkspaceMode[] = ["compliance", "partner", "admin"];
+
+const isValidMode = (value: string | null): value is WorkspaceMode =>
+  VALID_MODES.includes(value as WorkspaceMode);
 
 const WorkspaceModeContext = createContext<WorkspaceModeContextType>({
   mode: "compliance",
@@ -24,15 +32,23 @@ const WorkspaceModeContext = createContext<WorkspaceModeContextType>({
 export const useWorkspaceMode = () => useContext(WorkspaceModeContext);
 
 export function WorkspaceModeProvider({ children }: { children: React.ReactNode }) {
+  const { allRoles, isLoading } = useUserRole();
+  const isAdminUser = !isLoading && allRoles.some((r) => ADMIN_ROLES.includes(r as any));
+
   // Demo: a flag in localStorage can simulate a "partner only" user.
   const partnerOnly = typeof window !== "undefined" && localStorage.getItem(PARTNER_ONLY_KEY) === "1";
-  const availableModes: WorkspaceMode[] = partnerOnly ? ["partner"] : ["compliance", "partner"];
+
+  const availableModes = useMemo<WorkspaceMode[]>(() => {
+    const modes: WorkspaceMode[] = partnerOnly ? ["partner"] : ["compliance", "partner"];
+    if (isAdminUser) modes.push("admin");
+    return modes;
+  }, [partnerOnly, isAdminUser]);
 
   const [mode, setModeState] = useState<WorkspaceMode>(() => {
     if (typeof window === "undefined") return "compliance";
     if (partnerOnly) return "partner";
-    const stored = localStorage.getItem(STORAGE_KEY) as WorkspaceMode | null;
-    if (stored === "compliance" || stored === "partner") return stored;
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (isValidMode(stored)) return stored;
     return "compliance";
   });
 
@@ -46,13 +62,21 @@ export function WorkspaceModeProvider({ children }: { children: React.ReactNode 
   // React to mode changes coming from other tabs
   useEffect(() => {
     const onStorage = (e: StorageEvent) => {
-      if (e.key === STORAGE_KEY && (e.newValue === "compliance" || e.newValue === "partner")) {
+      if (e.key === STORAGE_KEY && e.newValue && isValidMode(e.newValue)) {
         setModeState(e.newValue);
       }
     };
     window.addEventListener("storage", onStorage);
     return () => window.removeEventListener("storage", onStorage);
   }, []);
+
+  // If an invalid/disabled mode is active (e.g. admin mode lost after role change), fall back.
+  useEffect(() => {
+    if (!availableModes.includes(mode)) {
+      const fallback: WorkspaceMode = availableModes.includes("compliance") ? "compliance" : availableModes[0] || "compliance";
+      setMode(fallback);
+    }
+  }, [availableModes, mode, setMode]);
 
   return (
     <WorkspaceModeContext.Provider value={{ mode, setMode, availableModes, canSwitch: availableModes.length > 1 }}>
