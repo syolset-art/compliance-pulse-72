@@ -38,6 +38,9 @@ interface BillingSettings {
   payment_method: string;
   ehf_enabled: boolean;
   notes: string;
+  partner_share_pct: number;
+  agreement_start: string;
+  agreement_note: string;
 }
 
 const defaults: BillingSettings = {
@@ -53,7 +56,11 @@ const defaults: BillingSettings = {
   payment_method: "invoice",
   ehf_enabled: false,
   notes: "",
+  partner_share_pct: 30,
+  agreement_start: "",
+  agreement_note: "",
 };
+
 
 const fmt = (n: number) => n.toLocaleString("nb-NO");
 
