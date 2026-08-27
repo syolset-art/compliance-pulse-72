@@ -264,22 +264,25 @@ export default function MSPInvoices() {
                     <TableRow>
                       <TableHead className="w-[200px] text-foreground/80">Kunde</TableHead>
                       <TableHead className="text-foreground/80">Aktiverte produkter og regelverk</TableHead>
-                      <TableHead className="w-[170px] text-right text-foreground/80">
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <span className="inline-flex flex-col items-end gap-0 cursor-help leading-tight">
-                              <span className="inline-flex items-center gap-1.5">
-                                Annet <Info className="h-3.5 w-3.5 text-foreground/50" />
+                      {!isMynder && (
+                        <TableHead className="w-[170px] text-right text-foreground/80">
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <span className="inline-flex flex-col items-end gap-0 cursor-help leading-tight">
+                                <span className="inline-flex items-center gap-1.5">
+                                  Annet <Info className="h-3.5 w-3.5 text-foreground/50" />
+                                </span>
+                                <span className="text-xs text-foreground/60">eks. {tax.label}</span>
                               </span>
-                              <span className="text-xs text-foreground/60">eks. {tax.label}</span>
-                            </span>
-                          </TooltipTrigger>
-                          <TooltipContent side="top" className="max-w-[260px] text-xs">
-                            Tallene er oppgitt eks. {tax.label}. Engangsbeløp: leverte fastprisprosjekter og eventuelt etableringsgebyr. Tom når kunden ikke
-                            har noen av delene.
-                          </TooltipContent>
-                        </Tooltip>
-                      </TableHead>
+                            </TooltipTrigger>
+                            <TooltipContent side="top" className="max-w-[260px] text-xs">
+                              Tallene er oppgitt eks. {tax.label}. Engangsbeløp: leverte fastprisprosjekter og eventuelt etableringsgebyr. Tom når kunden ikke
+                              har noen av delene.
+                            </TooltipContent>
+                          </Tooltip>
+                        </TableHead>
+                      )}
+
                       <TableHead className="w-[160px] text-right text-foreground/80">
                         <Tooltip>
                           <TooltipTrigger asChild>
