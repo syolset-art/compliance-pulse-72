@@ -178,6 +178,11 @@ export const EditActiveFrameworksDialog = ({
             </Button>
           )}
         </div>
+        <p className="mt-2 flex items-center gap-1.5 text-[11px] text-muted-foreground">
+          <PinBadge pin={getFrameworkPin("gdpr")} size="xs" interactive={false} />
+          Pin viser kilde og kvalitet på regelverksdataene — klikk merket for detaljer.
+        </p>
+
         {q && (
           <p className="text-xs text-muted-foreground mt-2">
             {totalMatches} treff for «{search}»
