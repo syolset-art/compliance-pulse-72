@@ -15,8 +15,11 @@ interface PinBadgeProps {
   pin?: Pin;
   /** Klikkbar (popover) eller ren visning med tooltip — bruk false inne i knapper. */
   interactive?: boolean;
+  /** "xs" = kun ikon, for tette lister. */
+  size?: "sm" | "xs";
   className?: string;
 }
+
 
 /** Kompakt merke: ikon + tekstlabel (aldri farge alene). */
 function badgeVisual(pin?: Pin) {
