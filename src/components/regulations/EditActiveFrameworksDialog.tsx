@@ -393,6 +393,8 @@ export const EditActiveFrameworksDialog = ({
                             <span className={`font-medium text-sm`}>
                               {fw.name}
                             </span>
+                            <PinBadge pin={getFrameworkPin(fw.id)} size="xs" />
+
                             {recommendations?.has(fw.id) && !isActive && (
                               <Tooltip>
                                 <TooltipTrigger asChild>
