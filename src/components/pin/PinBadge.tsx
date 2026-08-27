@@ -57,7 +57,7 @@ function badgeVisual(pin?: Pin) {
   };
 }
 
-export function PinBadge({ pin, interactive = true, className }: PinBadgeProps) {
+export function PinBadge({ pin, interactive = true, size = "sm", className }: PinBadgeProps) {
   const { Icon, label, cls, hint } = badgeVisual(pin);
   const authority = pin ? AUTHORITY_LABEL[pin.authority.level] : "—";
   const a11yLabel = `${label}. ${hint} Bruksgrense: ${authority}.`;
@@ -65,15 +65,17 @@ export function PinBadge({ pin, interactive = true, className }: PinBadgeProps) 
   const visual = (
     <span
       className={cn(
-        "inline-flex max-w-full items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium",
+        "inline-flex max-w-full items-center rounded-full border font-medium",
+        size === "xs" ? "gap-0 p-1 text-[10px]" : "gap-1 px-2 py-0.5 text-[11px]",
         cls,
         className,
       )}
     >
       <Icon className="h-3 w-3 shrink-0" aria-hidden="true" />
-      <span className="truncate">{label}</span>
+      {size !== "xs" && <span className="truncate">{label}</span>}
     </span>
   );
+
 
   if (!interactive || !pin) {
     return (
