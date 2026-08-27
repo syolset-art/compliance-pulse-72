@@ -295,15 +295,39 @@ export default function MSPInvoices() {
                           </TooltipContent>
                         </Tooltip>
                       </TableHead>
-                      <TableHead className="w-[120px] text-right text-foreground/80 whitespace-nowrap">
-                        {taxLabel}
-                      </TableHead>
-                      <TableHead className="w-[140px] text-right text-foreground/80">
-                        <div className="flex flex-col items-end leading-tight">
-                          <span>Total</span>
-                          <span className="text-xs text-foreground/60">inkl. {tax.label}</span>
-                        </div>
-                      </TableHead>
+                      {isMynder ? (
+                        <>
+                          <TableHead className="w-[150px] text-right text-foreground/80 whitespace-nowrap">
+                            Din andel ({partnerSharePct} %)
+                          </TableHead>
+                          <TableHead className="w-[160px] text-right text-foreground/80">
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <span className="inline-flex items-center gap-1.5 cursor-help whitespace-nowrap">
+                                  Mynder fakturerer <Info className="h-3.5 w-3.5 text-foreground/50" />
+                                </span>
+                              </TooltipTrigger>
+                              <TooltipContent side="top" className="max-w-[260px] text-xs">
+                                Abonnementet minus partnerandelen din. Engangsleveranser du selv utfører faktureres
+                                ikke av Mynder.
+                              </TooltipContent>
+                            </Tooltip>
+                          </TableHead>
+                        </>
+                      ) : (
+                        <>
+                          <TableHead className="w-[120px] text-right text-foreground/80 whitespace-nowrap">
+                            {taxLabel}
+                          </TableHead>
+                          <TableHead className="w-[140px] text-right text-foreground/80">
+                            <div className="flex flex-col items-end leading-tight">
+                              <span>Total</span>
+                              <span className="text-xs text-foreground/60">inkl. {tax.label}</span>
+                            </div>
+                          </TableHead>
+                        </>
+                      )}
+
                       <TableHead className="w-[80px] text-right text-foreground/80">
                         <span className="sr-only">Handlinger</span>
                       </TableHead>
