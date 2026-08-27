@@ -148,19 +148,25 @@ export function PinBadge({ pin, interactive = true, size = "sm", className }: Pi
 
   return (
     <Popover>
-      <PopoverTrigger asChild>
-        <button
-          type="button"
-          aria-label={`${a11yLabel} Vis detaljer.`}
-          className="rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1"
-        >
-          {visual}
-        </button>
-      </PopoverTrigger>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <PopoverTrigger asChild>
+            <button
+              type="button"
+              aria-label={`${a11yLabel} Vis detaljer.`}
+              className="rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1"
+            >
+              {visual}
+            </button>
+          </PopoverTrigger>
+        </TooltipTrigger>
+        <TooltipContent className="max-w-[280px] space-y-1">{hoverCard}</TooltipContent>
+      </Tooltip>
       <PopoverContent align="start" className="w-[340px] max-h-[70vh] overflow-y-auto">
         <PinDetails pin={pin} />
       </PopoverContent>
     </Popover>
   );
+
 }
 
