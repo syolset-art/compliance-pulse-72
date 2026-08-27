@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { Link } from "react-router-dom";
 import { Sidebar } from "@/components/Sidebar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { ArrowLeft, Download, History } from "lucide-react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { ArrowLeft, ChevronRight, Download, History } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   PieChart,
@@ -16,7 +17,7 @@ import {
 } from "recharts";
 import { useMSPInvoiceBasis } from "@/hooks/useMSPInvoiceBasis";
 import { ExportInvoiceBasisDialog } from "@/components/msp/ExportInvoiceBasisDialog";
-import { CustomerInvoiceHistorySheet } from "@/components/msp/CustomerInvoiceHistorySheet";
+import { CustomerInvoiceHistorySheet, buildPeriods } from "@/components/msp/CustomerInvoiceHistorySheet";
 
 const fmt = (n: number) => n.toLocaleString("nb-NO");
 
@@ -36,6 +37,7 @@ export default function MSPInvoiceReports() {
 
   const [exportOpen, setExportOpen] = useState(false);
   const [historyId, setHistoryId] = useState<string | null>(null);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
   const historyCustomer = rows.find((r) => r.id === historyId) ?? null;
   const [subPeriod, setSubPeriod] = useState<"month" | "year">("year");
   const subTotal = subPeriod === "month" ? monthlyTotal : monthlyTotal * 12;
@@ -184,51 +186,124 @@ export default function MSPInvoiceReports() {
               <div className="p-4 border-b border-border">
                 <h2 className="text-sm font-semibold text-foreground">Rapport per kunde</h2>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Åpne fakturahistorikken for å se grunnlaget måned for måned.
+                  Utvid en kunde for å se historikken måned for måned.
                 </p>
               </div>
-              <div className="divide-y divide-border">
-                {rows.map((r) => (
-                  <div key={r.id} className="flex items-center justify-between gap-3 px-4 py-3">
-                    <div className="min-w-0">
-                      <Link
-                        to={`/msp-dashboard/${r.id}`}
-                        className="text-sm font-medium text-foreground hover:text-primary hover:underline underline-offset-2 block truncate"
-                      >
-                        {r.name}
-                      </Link>
-                      <div className="text-xs text-muted-foreground truncate">{r.meta || "—"}</div>
-                    </div>
-                    <div className="flex items-center gap-3 shrink-0">
-                      <div className="text-right">
-                        <div className="text-sm font-semibold text-foreground tabular-nums">
-                          {r.monthly > 0 ? `${fmt(r.monthly)} kr` : "—"}
-                        </div>
-                        <div className="text-[11px] text-muted-foreground">per mnd eks. {tax.label}</div>
-                      </div>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="gap-1.5"
-                            onClick={() => setHistoryId(r.id)}
-                          >
-                            <History className="h-3.5 w-3.5" />
-                            Fakturahistorikk
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent side="left" className="max-w-[240px] text-xs">
-                          Se fakturagrunnlaget per måned for denne kunden.
-                        </TooltipContent>
-                      </Tooltip>
-                    </div>
-                  </div>
-                ))}
-                {rows.length === 0 && (
-                  <div className="p-10 text-center text-sm text-muted-foreground">Ingen kunder ennå</div>
-                )}
-              </div>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-8" />
+                    <TableHead className="text-foreground/80">Kunde</TableHead>
+                    <TableHead className="text-right text-foreground/80 whitespace-nowrap">
+                      Per mnd eks. {tax.label}
+                    </TableHead>
+                    <TableHead className="text-right text-foreground/80 whitespace-nowrap">Perioder</TableHead>
+                    <TableHead className="w-10" />
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {rows.map((r) => {
+                    const periods = buildPeriods(r);
+                    const hasHistory = periods.length > 0;
+                    const expanded = expandedId === r.id;
+                    return (
+                      <Fragment key={r.id}>
+                        <TableRow className={cn(expanded && "bg-muted/40")}>
+                          <TableCell className="pr-0">
+                            {hasHistory ? (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-6 w-6"
+                                aria-expanded={expanded}
+                                aria-label={expanded ? "Skjul historikk" : "Vis historikk"}
+                                onClick={() => setExpandedId(expanded ? null : r.id)}
+                              >
+                                <ChevronRight
+                                  className={cn("h-4 w-4 transition-transform", expanded && "rotate-90")}
+                                />
+                              </Button>
+                            ) : null}
+                          </TableCell>
+                          <TableCell>
+                            <Link
+                              to={`/msp-dashboard/${r.id}`}
+                              className="text-sm font-medium text-foreground hover:text-primary hover:underline underline-offset-2"
+                            >
+                              {r.name}
+                            </Link>
+                            <div className="text-xs text-muted-foreground truncate">{r.meta || "—"}</div>
+                          </TableCell>
+                          <TableCell className="text-right tabular-nums text-foreground">
+                            {r.monthly > 0 ? `${fmt(r.monthly)} kr` : "—"}
+                          </TableCell>
+                          <TableCell className="text-right tabular-nums text-muted-foreground">
+                            {hasHistory ? periods.length : "Ingen historikk"}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-7 w-7"
+                                  aria-label="Åpne fakturahistorikk"
+                                  onClick={() => setHistoryId(r.id)}
+                                >
+                                  <History className="h-3.5 w-3.5" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent side="left" className="max-w-[240px] text-xs">
+                                Åpne full fakturahistorikk for denne kunden.
+                              </TooltipContent>
+                            </Tooltip>
+                          </TableCell>
+                        </TableRow>
+                        {expanded && (
+                          <TableRow className="bg-muted/20 hover:bg-muted/20">
+                            <TableCell />
+                            <TableCell colSpan={4} className="py-3">
+                              <div className="space-y-1">
+                                {periods.map((p) => (
+                                  <div
+                                    key={p.key}
+                                    className="flex items-center justify-between gap-4 text-xs border-b border-border/60 last:border-0 py-1"
+                                  >
+                                    <span className="text-foreground">
+                                      {p.label}
+                                      {p.isCurrent && (
+                                        <span className="ml-2 text-[10px] text-muted-foreground">inneværende</span>
+                                      )}
+                                    </span>
+                                    <span className="flex items-center gap-5 tabular-nums">
+                                      <span className="text-muted-foreground">
+                                        Abonnement {p.subscription > 0 ? `${fmt(p.subscription)} kr` : "—"}
+                                      </span>
+                                      <span className="text-muted-foreground">
+                                        Engangs {p.oneTime > 0 ? `${fmt(p.oneTime)} kr` : "—"}
+                                      </span>
+                                      <span className="font-semibold text-foreground w-24 text-right">
+                                        {fmt(p.subscription + p.oneTime)} kr
+                                      </span>
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        )}
+                      </Fragment>
+                    );
+                  })}
+                  {rows.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={5} className="p-10 text-center text-sm text-muted-foreground">
+                        Ingen kunder ennå
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
             </Card>
 
             <CustomerInvoiceHistorySheet
