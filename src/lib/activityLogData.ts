@@ -245,9 +245,12 @@ const PARTNER_EVENTS: ActivityEvent[] = [
   },
 ];
 
-export function getActivityEvents(mode: "compliance" | "partner"): ActivityEvent[] {
-  return mode === "partner" ? PARTNER_EVENTS : OWN_EVENTS;
+export function getActivityEvents(mode: "compliance" | "partner" | "admin"): ActivityEvent[] {
+  if (mode === "partner") return PARTNER_EVENTS;
+  if (mode === "admin") return [...OWN_EVENTS, ...PARTNER_EVENTS];
+  return OWN_EVENTS;
 }
+
 
 export const CATEGORY_LABELS: Record<ActivityCategory, string> = {
   resource: "Ressurser",
