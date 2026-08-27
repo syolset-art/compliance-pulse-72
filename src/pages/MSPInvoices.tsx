@@ -116,24 +116,32 @@ export default function MSPInvoices() {
                 </p>
               </div>
               <div className="flex gap-2 flex-wrap">
-                <Link to="/msp-invoices/reports">
-                  <Button variant="outline" size="sm" className="gap-2">
-                    <BarChart3 className="h-4 w-4" />
-                    Rapporter
-                  </Button>
-                </Link>
-
-                <Button variant="outline" size="sm" className="gap-2" onClick={() => setExportOpen(true)}>
-                  <Download className="h-4 w-4" />
-                  Eksporter
-                </Button>
-
-                <Link to="/msp-billing">
-                  <Button variant="outline" size="sm" className="gap-2">
-                    <Settings className="h-4 w-4" />
-                    Innstillinger
-                  </Button>
-                </Link>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="icon" className="rounded-full h-9 w-9">
+                      <PlusCircle className="h-5 w-5" />
+                      <span className="sr-only">Flere handlinger</span>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuItem asChild>
+                      <Link to="/msp-invoices/reports" className="flex items-center gap-2 cursor-pointer">
+                        <BarChart3 className="h-4 w-4" />
+                        Rapporter
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setExportOpen(true)} className="flex items-center gap-2 cursor-pointer">
+                      <Download className="h-4 w-4" />
+                      Eksporter
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/msp-billing" className="flex items-center gap-2 cursor-pointer">
+                        <Settings className="h-4 w-4" />
+                        Innstillinger
+                      </Link>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </div>
 
