@@ -182,7 +182,14 @@ export default function MSPBillingSettings() {
         payment_method: existing.payment_method || "invoice",
         ehf_enabled: existing.ehf_enabled || false,
         notes: existing.notes || "",
+        partner_share_pct:
+          existing.partner_share_pct === null || existing.partner_share_pct === undefined
+            ? 30
+            : Number(existing.partner_share_pct),
+        agreement_start: existing.agreement_start || "",
+        agreement_note: existing.agreement_note || "",
       });
+
     }
   }, [existing]);
 
