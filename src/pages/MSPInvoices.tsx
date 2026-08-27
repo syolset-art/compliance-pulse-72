@@ -82,6 +82,10 @@ export default function MSPInvoices() {
     totalBreakdown,
     exportRows,
     periodLabel,
+    partnerSharePct,
+    partnerShareFor,
+    partnerShareTotal,
+    mynderMonthlyTotal,
   } = useMSPInvoiceBasis();
 
   const oneTimeFor = (r: Row) => r.fixed + r.setup;
@@ -96,6 +100,12 @@ export default function MSPInvoices() {
   const previewCustomer = rows.find((r) => r.id === previewId) ?? null;
   const [subPeriod, setSubPeriod] = useState<"month" | "year">("year");
   const subTotal = subPeriod === "month" ? monthlyTotal : monthlyTotal * 12;
+  /** Perspektiv: hva partneren fakturerer sine kunder, eller hva Mynder fakturerer partneren. */
+  const [view, setView] = useState<"customers" | "mynder">("customers");
+  const isMynder = view === "mynder";
+  const mynderSubTotal = subPeriod === "month" ? mynderMonthlyTotal : mynderMonthlyTotal * 12;
+  const shareSubTotal = subPeriod === "month" ? partnerShareTotal : partnerShareTotal * 12;
+
 
 
 
