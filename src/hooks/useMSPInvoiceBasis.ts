@@ -67,6 +67,22 @@ export function useMSPInvoiceBasis() {
   const { branding } = usePartnerBranding();
   const tax = branding.tax;
 
+  /** Partneravtalen: andelen av abonnementet partneren beholder. Resten fakturerer Mynder. */
+  const { data: agreement } = useQuery({
+    queryKey: ["msp-partner-agreement"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("msp_billing_settings" as any)
+        .select("partner_share_pct, agreement_start, agreement_note")
+        .maybeSingle();
+      return (data as any) ?? null;
+    },
+  });
+  const partnerSharePct =
+    agreement?.partner_share_pct === null || agreement?.partner_share_pct === undefined
+      ? 30
+      : Number(agreement.partner_share_pct);
+
   const { data: customers = [], refetch } = useQuery({
     queryKey: ["msp-customers-invoices"],
     queryFn: async () => {
@@ -78,6 +94,7 @@ export function useMSPInvoiceBasis() {
       return data as any[];
     },
   });
+
 
   // Oppdater når partneren aktiverer eller endrer nivå på en modul.
   const [, setTick] = useState(0);
