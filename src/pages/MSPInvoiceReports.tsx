@@ -4,7 +4,8 @@ import { Sidebar } from "@/components/Sidebar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { ArrowLeft, Download, History } from "lucide-react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { ArrowLeft, ChevronRight, Download, History } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   PieChart,
@@ -16,7 +17,7 @@ import {
 } from "recharts";
 import { useMSPInvoiceBasis } from "@/hooks/useMSPInvoiceBasis";
 import { ExportInvoiceBasisDialog } from "@/components/msp/ExportInvoiceBasisDialog";
-import { CustomerInvoiceHistorySheet } from "@/components/msp/CustomerInvoiceHistorySheet";
+import { CustomerInvoiceHistorySheet, buildPeriods } from "@/components/msp/CustomerInvoiceHistorySheet";
 
 const fmt = (n: number) => n.toLocaleString("nb-NO");
 
@@ -36,6 +37,7 @@ export default function MSPInvoiceReports() {
 
   const [exportOpen, setExportOpen] = useState(false);
   const [historyId, setHistoryId] = useState<string | null>(null);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
   const historyCustomer = rows.find((r) => r.id === historyId) ?? null;
   const [subPeriod, setSubPeriod] = useState<"month" | "year">("year");
   const subTotal = subPeriod === "month" ? monthlyTotal : monthlyTotal * 12;
