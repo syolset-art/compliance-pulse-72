@@ -1,4 +1,4 @@
-import { AlertTriangle, BadgeCheck, CircleHelp, Pin as PinIcon } from "lucide-react";
+import { AlertTriangle } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
@@ -6,7 +6,6 @@ import {
   ATTESTATION_LABEL,
   AUTHORITY_LABEL,
   SOURCE_CLASS_LABEL,
-  attestationTone,
   type Pin,
 } from "@/lib/pin";
 import { PinDetails } from "./PinDetails";
@@ -15,67 +14,89 @@ interface PinBadgeProps {
   pin?: Pin;
   /** Klikkbar (popover) eller ren visning med tooltip — bruk false inne i knapper. */
   interactive?: boolean;
-  /** "xs" = kun ikon, for tette lister. */
+  /** "xs" = ekstra liten for tette lister. */
   size?: "sm" | "xs";
   className?: string;
 }
 
+/** Lite rosett-ikon med en «i» inni. */
+function RosetteInfo({ size = 16, className }: { size?: number; className?: string }) {
+  const s = size;
+  const cx = s / 2;
+  const cy = s / 2;
+  const outer = s * 0.46;
+  const inner = s * 0.34;
+  const points: string[] = [];
+  for (let i = 0; i < 24; i++) {
+    const r = i % 2 === 0 ? outer : inner;
+    const a = ((i * 15 - 90) * Math.PI) / 180;
+    const x = cx + r * Math.cos(a);
+    const y = cy + r * Math.sin(a);
+    points.push(`${x.toFixed(2)},${y.toFixed(2)}`);
+  }
+  return (
+    <svg
+      width={s}
+      height={s}
+      viewBox={`0 0 ${s} ${s}`}
+      className={cn("shrink-0", className)}
+      aria-hidden="true"
+    >
+      <polygon points={points.join(" ")} fill="currentColor" />
+      <circle cx={cx} cy={cy - s * 0.08} r={s * 0.06} className="fill-background" />
+      <rect
+        x={cx - s * 0.04}
+        y={cy - s * 0.02}
+        width={s * 0.08}
+        height={s * 0.22}
+        rx={s * 0.02}
+        className="fill-background"
+      />
+    </svg>
+  );
+}
 
-/** Kompakt merke: ikon + tekstlabel (aldri farge alene). */
-function badgeVisual(pin?: Pin) {
+function pinVisual(pin?: Pin) {
   if (!pin) {
     return {
-      Icon: CircleHelp,
+      colorClass: "text-muted-foreground",
       label: "Ingen Pin",
-      cls: "border-border bg-muted text-muted-foreground",
-      hint: "Innholdet er ikke pinnet — kvaliteten er ikke deklarert.",
+      hint: "Innholdet er ikke pinnet — kilden er ikke deklarert.",
     };
   }
+  const human = pin.attestation.level === "human_verified" || pin.attestation.level === "human_reviewed";
   if (pin.fallen) {
     return {
-      Icon: AlertTriangle,
+      colorClass: "text-destructive",
       label: "Pin falt",
-      cls: "border-destructive/50 bg-destructive/10 text-destructive line-through decoration-destructive/60",
-      hint: "Innholdet er endret etter pinning — Pin er ikke gyldig.",
-    };
-  }
-  const tone = attestationTone(pin.attestation);
-  if (tone === "good") {
-    return {
-      Icon: BadgeCheck,
-      label: "Pin · attestert",
-      cls: "border-success/40 bg-success/10 text-success",
-      hint: `${SOURCE_CLASS_LABEL[pin.source.sourceClass]} · ${ATTESTATION_LABEL[pin.attestation.level]}`,
+      hint: "Pin er ikke gyldig fordi innholdet er endret etter pinning.",
     };
   }
   return {
-    Icon: PinIcon,
-    label:
-      pin.attestation.level === "not_attested" ? "Pin · ikke attestert" : "Pin · egenerklært",
-    cls: "border-warning/40 bg-warning/10 text-warning",
+    colorClass: human ? "text-success" : "text-warning",
+    label: human ? "Validert av menneske" : "Ikke validert av menneske",
     hint: `${SOURCE_CLASS_LABEL[pin.source.sourceClass]} · ${ATTESTATION_LABEL[pin.attestation.level]}`,
   };
 }
 
 export function PinBadge({ pin, interactive = true, size = "sm", className }: PinBadgeProps) {
-  const { Icon, label, cls, hint } = badgeVisual(pin);
+  const { colorClass, label, hint } = pinVisual(pin);
   const authority = pin ? AUTHORITY_LABEL[pin.authority.level] : "—";
   const a11yLabel = `${label}. ${hint} Bruksgrense: ${authority}.`;
+  const iconSize = size === "xs" ? 14 : 16;
 
   const visual = (
     <span
       className={cn(
-        "inline-flex max-w-full items-center rounded-full border font-medium",
-        size === "xs" ? "gap-0 p-1 text-[10px]" : "gap-1 px-2 py-0.5 text-[11px]",
-        cls,
+        "inline-flex items-center justify-center rounded-full",
+        size === "xs" ? "p-0.5" : "p-1",
+        colorClass,
         className,
       )}
     >
-      <Icon className="h-3 w-3 shrink-0" aria-hidden="true" />
-      {size !== "xs" && <span className="truncate">{label}</span>}
+      <RosetteInfo size={iconSize} />
     </span>
   );
-
 
   if (!interactive || !pin) {
     return (
@@ -83,9 +104,15 @@ export function PinBadge({ pin, interactive = true, size = "sm", className }: Pi
         <TooltipTrigger asChild>
           <span aria-label={a11yLabel}>{visual}</span>
         </TooltipTrigger>
-        <TooltipContent className="max-w-[280px]">
+        <TooltipContent className="max-w-[280px] space-y-1">
           <p className="text-xs">{hint}</p>
-          <p className="mt-1 text-[11px] text-muted-foreground">Bruksgrense: {authority}</p>
+          {pin?.fallen && (
+            <p className="flex items-start gap-1 text-[11px] text-destructive">
+              <AlertTriangle className="mt-px h-3 w-3 shrink-0" aria-hidden="true" />
+              Pin falt — innholdet er endret etter pinning.
+            </p>
+          )}
+          <p className="text-[11px] text-muted-foreground">Bruksgrense: {authority}</p>
         </TooltipContent>
       </Tooltip>
     );
@@ -108,3 +135,4 @@ export function PinBadge({ pin, interactive = true, size = "sm", className }: Pi
     </Popover>
   );
 }
+
