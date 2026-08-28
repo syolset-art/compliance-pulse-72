@@ -222,7 +222,7 @@ const NOT_VERIFIED: PinRecipe = {
  * Kilde: Notion — NIS2 og AI Act ferdig menneskeverifisert av Vilde 26.08.2026,
  * GDPR Vilde-sikret. Ingen andre regelverk skal settes grønt uten dokumentasjon.
  */
-const VILDE = "Vilde (Mynder)";
+const ANONYMOUS_ATTESTANT = "Mynder";
 
 const FRAMEWORK_PIN_RECIPES: Record<string, PinRecipe> = {
   nis2: {
@@ -230,7 +230,7 @@ const FRAMEWORK_PIN_RECIPES: Record<string, PinRecipe> = {
     sourceRef: "CELEX:32022L2555",
     fetchMethod: "manual_upload",
     attestation: "human_verified",
-    attestedBy: VILDE,
+    attestedBy: ANONYMOUS_ATTESTANT,
     attestedAt: "2026-08-26",
     freshness: "current",
     checkedAt: "2026-08-26",
@@ -240,7 +240,7 @@ const FRAMEWORK_PIN_RECIPES: Record<string, PinRecipe> = {
     sourceRef: "CELEX:32024R1689",
     fetchMethod: "manual_upload",
     attestation: "human_verified",
-    attestedBy: VILDE,
+    attestedBy: ANONYMOUS_ATTESTANT,
     attestedAt: "2026-08-26",
     freshness: "current",
     checkedAt: "2026-08-26",
@@ -250,7 +250,7 @@ const FRAMEWORK_PIN_RECIPES: Record<string, PinRecipe> = {
     sourceRef: "CELEX:32016R0679",
     fetchMethod: "manual_upload",
     attestation: "human_reviewed",
-    attestedBy: VILDE,
+    attestedBy: ANONYMOUS_ATTESTANT,
     attestedAt: "2026-08-26",
     freshness: "current",
     checkedAt: "2026-08-26",
