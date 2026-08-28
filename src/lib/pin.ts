@@ -222,7 +222,7 @@ const NOT_VERIFIED: PinRecipe = {
  * Kilde: Notion — NIS2 og AI Act ferdig menneskeverifisert av Vilde 26.08.2026,
  * GDPR Vilde-sikret. Ingen andre regelverk skal settes grønt uten dokumentasjon.
  */
-const VILDE = "Vilde (Mynder)";
+const ANONYMOUS_ATTESTANT = "Mynder";
 
 const FRAMEWORK_PIN_RECIPES: Record<string, PinRecipe> = {
   nis2: {
