@@ -31,7 +31,7 @@ export default function MynderAdminDashboard() {
                   <ShieldCheck className="h-5 w-5 text-primary" />
                   <span className="text-xs font-medium text-primary uppercase tracking-wide">Mynder innstillinger</span>
                 </div>
-                <h1 className="text-2xl font-semibold text-foreground">Eierdashbord</h1>
+                <h1 className="text-2xl font-semibold text-foreground">Dashbord</h1>
                 <p className="text-sm text-muted-foreground mt-1">
                   Partnerkanal og direktesalg — kun for daglig leder og superbruker.
                 </p>
