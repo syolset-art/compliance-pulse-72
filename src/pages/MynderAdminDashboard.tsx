@@ -22,8 +22,8 @@ export default function MynderAdminDashboard() {
     <AdminRouteGuard>
       <div className="flex min-h-screen w-full bg-background">
         <Sidebar />
-        <main className="flex-1 md:ml-64 pt-16 px-6 pb-12">
-          <div className="max-w-6xl mx-auto space-y-6">
+        <main className="flex-1 overflow-auto pt-11 px-4 md:px-8 pb-12">
+          <div className="max-w-6xl mx-auto py-6 md:py-8 space-y-6">
             {/* Header */}
             <div className="flex items-start justify-between gap-4">
               <div>
