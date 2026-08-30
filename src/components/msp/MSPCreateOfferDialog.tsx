@@ -313,7 +313,7 @@ export function MSPCreateOfferDialog({
   };
   const removeTask = (i: number) => setTasks(p => p.filter((_, idx) => idx !== i));
   const addTask = () =>
-    setTasks(p => [...p, { label: "Ny oppgave", hours: 8, owner: "Partner", weeks: "", gapIds: [] }]);
+    setTasks(p => [...p, { label: "New task", hours: 8, owner: "Partner", weeks: "", gapIds: [] }]);
 
   const offerName = serviceTitle || domainName;
   const displayOfferName = offerName.replace(/^Tilbudsutkast til/i, "Tilbud til");
@@ -454,9 +454,9 @@ export function MSPCreateOfferDialog({
     // Activities header
     doc.setFontSize(10);
     doc.setTextColor(120);
-    doc.text("OPPGAVE", margin, y);
-    doc.text("TIMER", pageWidth - margin - 90, y, { align: "right" });
-    doc.text("BELØP", pageWidth - margin, y, { align: "right" });
+    doc.text("TASK", margin, y);
+    doc.text("HOURS", pageWidth - margin - 90, y, { align: "right" });
+    doc.text("AMOUNT", pageWidth - margin, y, { align: "right" });
     y += 8;
     doc.setDrawColor(220);
     doc.line(margin, y, pageWidth - margin, y);
@@ -765,8 +765,8 @@ export function MSPCreateOfferDialog({
               </div>
               <div className="rounded-md border border-border overflow-hidden">
                 <div className="grid grid-cols-[1fr_90px_32px] gap-2 px-3 py-2 bg-muted/40 text-xs uppercase tracking-wide text-muted-foreground font-semibold">
-                  <span>Oppgave</span>
-                  <span className="text-right">Timer</span>
+                  <span>Task</span>
+                  <span className="text-right">Hours</span>
                   <span />
                 </div>
                 <div className="divide-y divide-border">
