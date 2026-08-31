@@ -55,26 +55,26 @@ export default function MynderAdminDashboard() {
             </div>
 
             {/* Nøkkeltall — kompakt stripe */}
-            <div className="flex flex-wrap items-center gap-x-8 gap-y-3 border-y border-border py-3">
-              <div className="flex items-center gap-2">
-                <Handshake className="h-3.5 w-3.5 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">Partnere</span>
+            <div className="grid grid-cols-3 sm:flex sm:flex-wrap sm:items-center gap-x-6 gap-y-3 border-y border-border py-3">
+              <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+                <Handshake className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                <span className="text-xs sm:text-sm text-muted-foreground truncate">Partnere</span>
                 <span className="text-sm font-semibold tabular-nums text-foreground">{partnerCount}</span>
               </div>
-              <div className="flex items-center gap-2">
-                <Users className="h-3.5 w-3.5 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">Via partner</span>
+              <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+                <Users className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                <span className="text-xs sm:text-sm text-muted-foreground truncate">Via partner</span>
                 <span className="text-sm font-semibold tabular-nums text-foreground">{partnerCustomers.length}</span>
               </div>
-              <div className="flex items-center gap-2">
-                <Building2 className="h-3.5 w-3.5 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">Direkte</span>
+              <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+                <Building2 className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                <span className="text-xs sm:text-sm text-muted-foreground truncate">Direkte</span>
                 <span className="text-sm font-semibold tabular-nums text-foreground">{directCustomers.length}</span>
               </div>
 
-              <div className="flex items-center gap-3 ml-auto">
+              <div className="col-span-3 flex flex-wrap items-center gap-x-3 gap-y-2 sm:ml-auto">
                 <div className="flex items-center gap-2">
-                  <Coins className="h-3.5 w-3.5 text-muted-foreground" />
+                  <Coins className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
                   <div className="inline-flex rounded-md border border-border overflow-hidden">
                     {(["mrr", "arr"] as const).map((v) => (
                       <button
@@ -89,7 +89,7 @@ export default function MynderAdminDashboard() {
                       </button>
                     ))}
                   </div>
-                  <span className="text-sm font-semibold tabular-nums text-foreground">
+                  <span className="text-sm font-semibold tabular-nums text-foreground whitespace-nowrap">
                     {revenueValue.toLocaleString("nb-NO")} kr
                   </span>
                 </div>
@@ -98,7 +98,7 @@ export default function MynderAdminDashboard() {
                     <TooltipTrigger asChild>
                       <span
                         className={cn(
-                          "inline-flex items-center gap-1 text-xs font-medium cursor-default",
+                          "inline-flex items-center gap-1 text-xs font-medium cursor-default whitespace-nowrap",
                           onTrack ? "text-success" : "text-warning",
                         )}
                       >
@@ -116,6 +116,7 @@ export default function MynderAdminDashboard() {
                 </TooltipProvider>
               </div>
             </div>
+
 
 
             {/* Tabs */}
