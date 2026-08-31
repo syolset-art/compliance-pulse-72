@@ -29,6 +29,7 @@ import { WorkspaceSwitcherCompact } from "@/components/sidebar/WorkspaceSwitcher
 import { CustomerContextBar } from "@/components/msp/CustomerContextBar";
 import { useWorkspaceMode } from "@/contexts/WorkspaceModeContext";
 import { PartnerActivationNotice } from "@/components/legal/PartnerActivationNotice";
+import { PartnerTermsGateDialog } from "@/components/legal/PartnerTermsGateDialog";
 
 const AVAILABLE_ROLES = [
   { key: "admin", labelNb: "Administrator", labelEn: "Administrator" },
@@ -103,6 +104,7 @@ export function TopBar() {
 
       <CustomerContextBar />
       <PartnerActivationNotice />
+      <PartnerTermsGateDialog />
 
 
       {/* Push everything to the right */}
