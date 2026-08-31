@@ -1,8 +1,10 @@
+import { useState } from "react";
 import { Sidebar } from "@/components/Sidebar";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { MetricCard } from "@/components/widgets/MetricCard";
-import { Briefcase, Building2, Coins, Download, Handshake, Receipt, ShieldCheck, Users } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Briefcase, Building2, Coins, Download, Handshake, Receipt, ShieldCheck, Users, TrendingUp, TrendingDown } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { AdminRouteGuard } from "@/components/mynder-admin/AdminRouteGuard";
 import { PartnerChannelView } from "@/components/mynder-admin/PartnerChannelView";
 import { DirectSalesView } from "@/components/mynder-admin/DirectSalesView";
@@ -12,11 +14,21 @@ import { PartnerInvoicesView } from "@/components/mynder-admin/PartnerInvoicesVi
 import { MynderProjectsView } from "@/components/mynder-admin/MynderProjectsView";
 import { PARTNERS, CUSTOMERS } from "@/components/mynder-admin/adminDemoData";
 
+/** Prognose fra interne styrende dokumenter (budsjett 2026). Erstattes av backend-kobling. */
+const MRR_FORECAST_NOK = 75000;
+
 export default function MynderAdminDashboard() {
+  const [revenueView, setRevenueView] = useState<"mrr" | "arr">("mrr");
   const partnerCount = PARTNERS.length;
   const partnerCustomers = CUSTOMERS.filter((c) => c.salesChannel === "partner");
   const directCustomers = CUSTOMERS.filter((c) => c.salesChannel === "direct");
   const totalMrr = CUSTOMERS.reduce((s, c) => s + c.mrrNok, 0);
+  const isArr = revenueView === "arr";
+  const revenueValue = isArr ? totalMrr * 12 : totalMrr;
+  const forecastValue = isArr ? MRR_FORECAST_NOK * 12 : MRR_FORECAST_NOK;
+  const deviationPct = Math.round(((revenueValue - forecastValue) / forecastValue) * 100);
+  const onTrack = deviationPct >= 0;
+
 
   return (
     <AdminRouteGuard>
