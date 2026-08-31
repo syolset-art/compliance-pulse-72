@@ -3,76 +3,55 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Download, HelpCircle } from "lucide-react";
+import { Bell, HelpCircle, Laptop } from "lucide-react";
 import { SaraOnboardingDialog } from "@/components/agents/SaraOnboardingDialog";
-import { useSaraAgent } from "@/lib/saraAgent";
-import saraAgentHero from "@/assets/sara-agent-hero.png";
 
 /**
- * Lokal agent (Sara) – annonsepreget seksjon øverst på Datakilder og agenter.
- * Illustrasjon til venstre, informasjon og CTA til høyre.
+ * Sara – lokal agent hos kunden. Ikke lansert ennå, så dette er
+ * et nedtonet «kommer senere»-kort som ligger nederst på siden.
  */
 export function LocalAgentCard() {
   const [open, setOpen] = useState(false);
-  const { installed, markInstalled } = useSaraAgent();
 
   return (
-    <Card className="mt-6 overflow-hidden border-border">
-      <div className="flex flex-col md:flex-row">
-        {/* Illustrasjon */}
-        <div className="relative flex items-center justify-center bg-muted/50 p-6 md:w-1/2 md:p-10">
-          <div className="relative w-full max-w-[320px]">
-            <img
-              src={saraAgentHero}
-              alt="Sara – lokal Mynder compliance agent"
-              loading="lazy"
-              width={1024}
-              height={1024}
-              className="w-full"
-            />
-          </div>
+    <Card className="mt-8 border-dashed bg-muted/20 p-5">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+          <Laptop className="h-5 w-5" aria-hidden="true" />
         </div>
 
-        {/* Informasjon og CTA */}
-        <div className="flex flex-1 flex-col justify-center p-6 md:p-10">
-          <div className="flex items-center gap-2">
-            <h2 className="text-2xl font-semibold tracking-tight text-foreground">
-              Sara jobber hos deg
-            </h2>
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <h3 className="text-sm font-semibold text-foreground">Sara jobber hos deg</h3>
             <Badge variant="outline" className="text-[10px]">
-              Kommer snart
+              Kommer senere
             </Badge>
           </div>
-
-          <p className="mt-4 max-w-md text-sm leading-relaxed text-muted-foreground">
-            Dokumentene dine forlater aldri deg. Bare et kort, strukturert funn sendes til
-            Mynder — og et menneske hos dere godkjenner det alltid først.
+          <p className="mt-1 max-w-2xl text-[13px] leading-relaxed text-muted-foreground">
+            Sara skal kjøre i din egen infrastruktur og lese dokumentene dine lokalt. Bare et kort,
+            strukturert funn sendes til Mynder — og et menneske hos dere godkjenner det alltid
+            først. Vi jobber med den nå.
           </p>
+        </div>
 
-          <div className="mt-6 flex flex-wrap items-center gap-3">
-            <Button
-              disabled={installed}
-              onClick={() => {
-                markInstalled();
-                toast.success(
-                  "Sara er registrert som installert. Funn fra dokumentkildene dine vises nå i kravlistene.",
-                );
-              }}
-              className="h-10 gap-2"
-            >
-              <Download className="h-4 w-4" aria-hidden="true" />
-              {installed ? "Lastet ned" : "Kom i gang"}
-            </Button>
-
-            <Button
-              variant="outline"
-              onClick={() => setOpen(true)}
-              className="h-10 gap-2"
-            >
-              <HelpCircle className="h-4 w-4" aria-hidden="true" />
-              Hva Sara aldri gjør
-            </Button>
-          </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-9 gap-2"
+            onClick={() =>
+              toast.success("Vi sier fra når Sara er klar", {
+                description: "Interessen din er registrert hos Mynder.",
+              })
+            }
+          >
+            <Bell className="h-3.5 w-3.5" aria-hidden="true" />
+            Hold meg oppdatert
+          </Button>
+          <Button variant="ghost" size="sm" className="h-9 gap-2" onClick={() => setOpen(true)}>
+            <HelpCircle className="h-3.5 w-3.5" aria-hidden="true" />
+            Les mer
+          </Button>
         </div>
       </div>
 
