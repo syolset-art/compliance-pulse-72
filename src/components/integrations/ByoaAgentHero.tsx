@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -29,9 +29,24 @@ const VALUE_POINTS = [
  * BYOA – «La AI-agenten din jobbe i Mynder».
  * Toppseksjon på Datakilder og agenter, med Agent Access Center rett under.
  */
-export function ByoaAgentHero() {
+export function ByoaAgentHero({ onViewAccess }: { onViewAccess?: () => void } = {}) {
   const [wizardOpen, setWizardOpen] = useState(false);
   const [showAccess, setShowAccess] = useState(false);
+
+  useEffect(() => {
+    const open = () => setWizardOpen(true);
+    window.addEventListener("mynder:open-agent-wizard", open);
+    return () => window.removeEventListener("mynder:open-agent-wizard", open);
+  }, []);
+
+  const handleViewAccess = () => {
+    if (onViewAccess) onViewAccess();
+    else setShowAccess((s) => !s);
+  };
+
+
+
+
 
   return (
     <>
@@ -83,8 +98,8 @@ export function ByoaAgentHero() {
               <Button
                 variant="outline"
                 className="h-10 gap-2"
-                onClick={() => setShowAccess((s) => !s)}
-                aria-expanded={showAccess}
+                onClick={handleViewAccess}
+                aria-expanded={onViewAccess ? undefined : showAccess}
               >
                 <ShieldCheck className="h-4 w-4" aria-hidden="true" />
                 Se og styre agenttilgang
@@ -94,9 +109,16 @@ export function ByoaAgentHero() {
         </div>
       </Card>
 
-      {showAccess && <AgentAccessCenter onConnectNew={() => setWizardOpen(true)} />}
+      {!onViewAccess && showAccess && (
+        <AgentAccessCenter onConnectNew={() => setWizardOpen(true)} />
+      )}
 
-      <ByoaConnectWizard open={wizardOpen} onOpenChange={setWizardOpen} />
+      <ByoaConnectWizard
+        open={wizardOpen}
+        onOpenChange={setWizardOpen}
+        onConnected={onViewAccess}
+      />
     </>
   );
 }
+
