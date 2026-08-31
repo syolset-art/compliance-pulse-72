@@ -1949,7 +1949,42 @@
       }
     },
     "tools": {
-      "title": "Hva agenten kan gjøre",
+      "title": "Hva agenten kan gjøre for deg",
+      "intro": "Agenten din jobber i Mynder på dine vegne. Den kan hente svar fra leverandør- og regelverksdataene dine, og opprette oppfølging. Alt skjer innenfor din tilgang, og du kan trekke tilbake koden når som helst.",
+      "summary": "{{total}} oppgaver · {{read}} leser · {{write}} endrer",
+      "show": "Vis",
+      "hide": "Skjul",
+      "badgeReads": "Leser",
+      "badgeWrites": "Endrer",
+      "exampleLabel": "Spør agenten:",
+      "completeness": "Dette er alle oppgavene agenten kan gjøre i dag. Flere kommer — blant annet avvik og databehandlingsprotokoll (RoPA).",
+      "items": {
+        "list_vendors": {
+          "title": "Leverandøroversikt",
+          "body": "Får full oversikt over leverandørene dine, hvor kritiske de er og hvilken risiko de har.",
+          "example": "Hvilke leverandører er kritiske og mangler dokumentasjon?"
+        },
+        "list_requirements": {
+          "title": "Krav i regelverkene dine",
+          "body": "Slår opp krav og artikler i regelverkene du har aktivert, og forklarer hva de betyr.",
+          "example": "Hva krever NIS2 av oss om leverandøroppfølging?"
+        },
+        "get_documentation_status": {
+          "title": "Dokumentasjonsstatus",
+          "body": "Ser hvor langt du er kommet per regelverk og hva som mangler.",
+          "example": "Hvor står vi på GDPR akkurat nå?"
+        },
+        "report_document_coverage": {
+          "title": "Rapporter dekning",
+          "body": "Har du dokumentasjon liggende i egne systemer, kan agenten melde inn hva den dekker — uten å laste opp filen.",
+          "example": "Registrer at policyen vår dekker artikkel 32."
+        },
+        "create_activity": {
+          "title": "Opprett aktivitet",
+          "body": "Oppretter oppfølgingsoppgaver i Mynder, med frist og ansvarlig.",
+          "example": "Lag en oppgave om å innhente DPA fra Visma innen fredag."
+        }
+      },
       "readVendors": "Les leverandører",
       "readRequirements": "Les krav i regelverkene dine",
       "readDocumentation": "Les dokumentasjonsstatus",

@@ -1948,7 +1948,42 @@
       }
     },
     "tools": {
-      "title": "What the agent can do",
+      "title": "What the agent can do for you",
+      "intro": "Your agent works inside Mynder on your behalf. It can pull answers from your vendor and regulatory data, and create follow-up work. Everything happens within your own access, and you can revoke the code at any time.",
+      "summary": "{{total}} tasks · {{read}} read · {{write}} write",
+      "show": "Show",
+      "hide": "Hide",
+      "badgeReads": "Reads",
+      "badgeWrites": "Writes",
+      "exampleLabel": "Ask the agent:",
+      "completeness": "These are all the tasks the agent can do today. More are coming — including deviations and the record of processing activities (RoPA).",
+      "items": {
+        "list_vendors": {
+          "title": "Vendor overview",
+          "body": "Gives a full picture of your vendors, how critical they are and what risk they carry.",
+          "example": "Which vendors are critical and missing documentation?"
+        },
+        "list_requirements": {
+          "title": "Requirements in your frameworks",
+          "body": "Looks up requirements and articles in the frameworks you have activated, and explains what they mean.",
+          "example": "What does NIS2 require of us on vendor follow-up?"
+        },
+        "get_documentation_status": {
+          "title": "Documentation status",
+          "body": "Sees how far you have come per framework and what is still missing.",
+          "example": "Where do we stand on GDPR right now?"
+        },
+        "report_document_coverage": {
+          "title": "Report coverage",
+          "body": "If documentation lives in your own systems, the agent can report what it covers — without uploading the file.",
+          "example": "Register that our policy covers Article 32."
+        },
+        "create_activity": {
+          "title": "Create activity",
+          "body": "Creates follow-up tasks in Mynder, with a due date and an owner.",
+          "example": "Create a task to obtain the DPA from Visma by Friday."
+        }
+      },
       "readVendors": "Read vendors",
       "readRequirements": "Read requirements in your frameworks",
       "readDocumentation": "Read documentation status",
