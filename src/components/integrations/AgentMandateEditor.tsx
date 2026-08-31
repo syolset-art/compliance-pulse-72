@@ -1,5 +1,4 @@
 import { Switch } from "@/components/ui/switch";
-import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { ShieldCheck } from "lucide-react";
 import { MANDATE_PERMISSIONS, type Mandate } from "@/lib/agentMandate";
