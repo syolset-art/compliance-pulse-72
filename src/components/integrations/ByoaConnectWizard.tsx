@@ -128,6 +128,7 @@ export function ByoaConnectWizard({
     if (open) {
       setStep(1);
       setFreshToken(null);
+      setIsDemo(false);
       setConnectionName(CLIENTS.find((c) => c.id === client)?.label ?? "Min agent");
       loadCodes();
     }
