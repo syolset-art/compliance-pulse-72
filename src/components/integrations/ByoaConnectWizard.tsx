@@ -304,10 +304,23 @@ export function ByoaConnectWizard({
 
             {freshToken ? (
               <div className="rounded-lg border border-primary/30 bg-primary/5 p-3">
+                <div className="mb-2 flex items-center gap-2">
+                  <Check className="h-4 w-4 text-primary" aria-hidden="true" />
+                  <span className="text-[13px] font-medium text-foreground">
+                    Koblingen «{connectionName.trim() || "Min agent"}» er opprettet
+                  </span>
+                  {isDemo && (
+                    <Badge variant="outline" className="text-[10px]">
+                      Demo
+                    </Badge>
+                  )}
+                </div>
                 <CopyField label="Din kode" value={freshToken} secret />
                 <p className="mt-2 text-xs text-muted-foreground">
                   Vi viser koden bare nå. Mister du den, lager du bare en ny.
+                  {isDemo && " Dette er en eksempelkode – den virkelige lages når du er innlogget."}
                 </p>
+
               </div>
             ) : (
               <Button
