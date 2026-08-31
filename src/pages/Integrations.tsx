@@ -184,8 +184,9 @@ export default function Integrations() {
           <div>
             <h1 className="text-2xl font-semibold tracking-tight">Datakilder og agenter</h1>
             <p className="text-sm text-muted-foreground mt-1">
-              Koble din egen agent til Mynder, og se hvor Lara henter grunnlaget sitt fra. Du godkjenner alltid funnene før noe blir aktivt.
+              Koble din egen AI-agent til Mynder. Du bestemmer hva den får se, hva den får gjøre, og hva som krever din godkjenning.
             </p>
+
           </div>
         </div>
 

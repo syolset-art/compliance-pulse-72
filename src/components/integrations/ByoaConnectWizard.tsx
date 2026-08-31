@@ -20,13 +20,24 @@ import {
   KeyRound,
   Loader2,
   MessageSquare,
+  ScrollText,
+  ShieldCheck,
   Sparkles,
   Trash2,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { mcpServerUrl } from "@/lib/mcpAgentConnections";
-
-type ClientKind = "claude" | "chatgpt" | "other";
+import { AgentMandateEditor } from "@/components/integrations/AgentMandateEditor";
+import {
+  AGENT_CLIENT_LABEL,
+  approvalSummary,
+  defaultMandate,
+  mandateSummary,
+  readConnectedAgents,
+  writeConnectedAgents,
+  type AgentClientKind,
+  type Mandate,
+} from "@/lib/agentMandate";
 
 interface CodeRow {
   id: string;
@@ -37,13 +48,13 @@ interface CodeRow {
   revoked_at: string | null;
 }
 
-const CLIENTS: { id: ClientKind; label: string; hint: string; icon: typeof Bot }[] = [
+const CLIENTS: { id: AgentClientKind; label: string; hint: string; icon: typeof Bot }[] = [
   { id: "claude", label: "Claude", hint: "Anthropic – app eller nettleser", icon: Sparkles },
   { id: "chatgpt", label: "ChatGPT", hint: "OpenAI – app eller nettleser", icon: MessageSquare },
-  { id: "other", label: "Annet", hint: "Cursor, Codex eller egen agent", icon: Bot },
+  { id: "other", label: "Annen agent", hint: "Cursor, Codex eller egen agent", icon: Bot },
 ];
 
-/** Kopifelt med etikett – brukes for adresse og kode. */
+/** Kopifelt med etikett – brukes for adresse og token i avansert oppsett. */
 function CopyField({ label, value, secret }: { label: string; value: string; secret?: boolean }) {
   const [copied, setCopied] = useState(false);
   return (
@@ -76,28 +87,12 @@ function CopyField({ label, value, secret }: { label: string; value: string; sec
   );
 }
 
-const INSTRUCTIONS: Record<ClientKind, string[]> = {
-  claude: [
-    "Åpne Claude og gå til Innstillinger.",
-    "Velg «Koblinger» (Connectors) og trykk «Legg til egendefinert kobling».",
-    "Lim inn adressen under i feltet for URL, og gi koblingen navnet «Mynder».",
-    "Lim inn koden din hvis Claude spør etter en nøkkel eller token.",
-    "Trykk «Koble til». Logg inn i Mynder og godkjenn når du blir spurt.",
-  ],
-  chatgpt: [
-    "Åpne ChatGPT og gå til Innstillinger.",
-    "Velg «Koblinger» og trykk «Legg til» / «Egendefinert kobling».",
-    "Lim inn adressen under som server-URL, og kall den «Mynder».",
-    "Lim inn koden din hvis ChatGPT ber om en nøkkel eller token.",
-    "Lagre. Logg inn i Mynder og godkjenn når du blir spurt.",
-  ],
-  other: [
-    "Åpne innstillingene for MCP-koblinger i verktøyet ditt.",
-    "Legg til en ny server av typen «HTTP» eller «Remote / Streamable HTTP».",
-    "Bruk adressen under som URL, og koden din som token hvis den etterspørres.",
-    "Lagre og start verktøyet på nytt hvis det kreves.",
-  ],
-};
+const MANUAL_INSTRUCTIONS = [
+  "Åpne innstillingene for MCP-koblinger i verktøyet ditt.",
+  "Legg til en ny server av typen «HTTP» eller «Remote / Streamable HTTP».",
+  "Bruk adressen under som URL, og tokenet som nøkkel når det etterspørres.",
+  "Lagre og start verktøyet på nytt hvis det kreves.",
+];
 
 export function ByoaConnectWizard({
   open,
@@ -107,14 +102,20 @@ export function ByoaConnectWizard({
   onOpenChange: (v: boolean) => void;
 }) {
   const [step, setStep] = useState(1);
-  const [client, setClient] = useState<ClientKind>("claude");
-  const [connectionName, setConnectionName] = useState("Claude");
+  const [client, setClient] = useState<AgentClientKind>("claude");
+  const [mandate, setMandate] = useState<Mandate>(() => defaultMandate());
+  const [connecting, setConnecting] = useState(false);
+  const [connected, setConnected] = useState(false);
+
+  // Avansert/manuelt oppsett (kun «Annen agent»)
+  const [connectionName, setConnectionName] = useState("Min agent");
   const [codes, setCodes] = useState<CodeRow[]>([]);
   const [freshToken, setFreshToken] = useState<string | null>(null);
   const [isDemo, setIsDemo] = useState(false);
   const [creating, setCreating] = useState(false);
+
   const endpoint = mcpServerUrl();
-  const clientLabel = CLIENTS.find((c) => c.id === client)?.label ?? "Agent";
+  const clientLabel = AGENT_CLIENT_LABEL[client];
 
   const loadCodes = async () => {
     const { data } = await supabase
@@ -125,17 +126,19 @@ export function ByoaConnectWizard({
   };
 
   useEffect(() => {
-    if (open) {
-      setStep(1);
-      setFreshToken(null);
-      setIsDemo(false);
-      setConnectionName(CLIENTS.find((c) => c.id === client)?.label ?? "Min agent");
-      loadCodes();
-    }
+    if (!open) return;
+    setStep(1);
+    setClient("claude");
+    setMandate(defaultMandate());
+    setConnected(false);
+    setConnecting(false);
+    setFreshToken(null);
+    setIsDemo(false);
+    setConnectionName("Min agent");
+    loadCodes();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
-  /** Realistisk demokode når backend ikke er tilgjengelig (f.eks. ikke innlogget i forhåndsvisning). */
   const makeDemoToken = () => {
     const bytes = new Uint8Array(24);
     crypto.getRandomValues(bytes);
@@ -145,26 +148,57 @@ export function ByoaConnectWizard({
     return `mynder_${hex}`;
   };
 
+  const registerAgent = (name: string, manual: boolean) => {
+    const existing = readConnectedAgents();
+    writeConnectedAgents([
+      {
+        id: `agent-${Date.now()}`,
+        name,
+        client,
+        status: "active",
+        connectedAt: new Date().toISOString(),
+        lastUsedLabel: "Sist brukt i dag",
+        mandate,
+        manual,
+        demo: true,
+      },
+      ...existing,
+    ]);
+  };
+
+  /** Simulert OAuth/OIDC-flyt for Claude og ChatGPT. */
+  const connectWithOauth = async () => {
+    setConnecting(true);
+    await new Promise((r) => setTimeout(r, 1200));
+    registerAgent(`${clientLabel} – denne enheten`, false);
+    setConnecting(false);
+    setConnected(true);
+    toast.success(`${clientLabel} er koblet til Mynder`, {
+      description: "Demoflyt – tilgangen vises nå under «Tilkoblede agenter».",
+    });
+  };
+
   const createCode = async () => {
     setCreating(true);
+    const name = connectionName.trim() || "Min agent";
     try {
       const { data, error } = await supabase.functions.invoke("create-agent-code", {
-        body: { name: connectionName.trim() || "Min agent" },
+        body: { name },
       });
       if (error || !data?.token) throw error ?? new Error("Ingen kode");
       setFreshToken(data.token as string);
       setIsDemo(false);
       await loadCodes();
-      toast.success("Koden din er laget. Kopier den nå – den vises bare denne ene gangen.");
+      registerAgent(name, true);
+      toast.success("Tokenet er laget. Kopier det nå – det vises bare denne ene gangen.");
     } catch {
-      // Demovisning: viser nøyaktig hvordan resultatet ser ut i produksjon.
       const token = makeDemoToken();
       setFreshToken(token);
       setIsDemo(true);
       setCodes((prev) => [
         {
           id: `demo-${token.slice(-6)}`,
-          name: connectionName.trim() || "Min agent",
+          name,
           token_prefix: token.slice(0, 14),
           created_at: new Date().toISOString(),
           last_used_at: null,
@@ -172,7 +206,8 @@ export function ByoaConnectWizard({
         },
         ...prev,
       ]);
-      toast.success("Eksempelkode laget (demo). Slik ser koden din ut når du er innlogget.");
+      registerAgent(name, true);
+      toast.success("Eksempeltoken laget (demo). Slik ser tokenet ut når du er innlogget.");
     } finally {
       setCreating(false);
     }
@@ -183,7 +218,7 @@ export function ByoaConnectWizard({
       setCodes((prev) =>
         prev.map((c) => (c.id === id ? { ...c, revoked_at: new Date().toISOString() } : c)),
       );
-      toast.info("Koden er trukket tilbake. Agenten mister tilgangen.");
+      toast.info("Tokenet er trukket tilbake. Agenten mister tilgangen.");
       return;
     }
     await supabase
@@ -191,17 +226,18 @@ export function ByoaConnectWizard({
       .update({ revoked_at: new Date().toISOString() })
       .eq("id", id);
     await loadCodes();
-    toast.info("Koden er trukket tilbake. Agenten mister tilgangen.");
+    toast.info("Tokenet er trukket tilbake. Agenten mister tilgangen.");
   };
 
+  const stepTitles = ["Velg agent", "Bestem mandat", "Koble til"];
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-xl">
+      <DialogContent className="max-h-[85vh] max-w-xl overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Koble agenten din til Mynder</DialogTitle>
           <DialogDescription>
-            Tre steg. Du trenger ikke kunne noe teknisk – bare kopiere og lime inn.
+            Tre steg: velg agent, bestem mandat og koble til. Du styrer tilgangen hele veien.
           </DialogDescription>
         </DialogHeader>
 
@@ -216,6 +252,11 @@ export function ByoaConnectWizard({
               >
                 {n}
               </div>
+              <span
+                className={`hidden text-xs sm:inline ${step === n ? "font-medium text-foreground" : "text-muted-foreground"}`}
+              >
+                {stepTitles[n - 1]}
+              </span>
               {n < 3 && <div className={`h-px flex-1 ${step > n ? "bg-primary" : "bg-border"}`} />}
             </div>
           ))}
@@ -232,21 +273,8 @@ export function ByoaConnectWizard({
                   <button
                     key={c.id}
                     type="button"
-                    onClick={() => {
-                      setClient(c.id);
-                      const current = connectionName.trim();
-                      const isSuggested =
-                        !current ||
-                        CLIENTS.some(
-                          (x) => current === x.label || current.startsWith(`${x.label} – `),
-                        );
-                      if (isSuggested) {
-                        const suffix = current.includes(" – ")
-                          ? current.slice(current.indexOf(" – "))
-                          : "";
-                        setConnectionName(`${c.label}${suffix}`);
-                      }
-                    }}
+                    aria-pressed={active}
+                    onClick={() => setClient(c.id)}
                     className={`rounded-lg border p-3 text-left transition-colors ${
                       active ? "border-primary bg-primary/5" : "border-border hover:bg-muted/50"
                     }`}
@@ -263,144 +291,179 @@ export function ByoaConnectWizard({
 
         {step === 2 && (
           <div className="space-y-3">
-            <p className="text-sm text-muted-foreground">
-              Gi koblingen et navn du kjenner igjen, og lag koden. Koden er din personlige nøkkel til
-              Mynder – behandle den som et passord.
-            </p>
-
-            <div>
-              <Label htmlFor="byoa-name" className="text-xs text-muted-foreground">
-                Navn på koblingen
-              </Label>
-              <Input
-                id="byoa-name"
-                className="mt-1 h-9 text-[13px]"
-                placeholder={`F.eks. ${clientLabel} – jobb-PC`}
-                value={connectionName}
-                onChange={(e) => setConnectionName(e.target.value)}
-                disabled={!!freshToken}
-              />
-              <p className="mt-1 text-xs text-muted-foreground">
-                Vanlig praksis er å navngi koblingen etter agenten og hvor den brukes – da ser du
-                lett hvilken kode du skal trekke tilbake senere.
-              </p>
-              {!freshToken && (
-                <div className="mt-2 flex flex-wrap gap-1.5">
-                  {[`${clientLabel} – jobb-PC`, `${clientLabel} – privat`, `${clientLabel} – mobil`].map(
-                    (s) => (
-                      <button
-                        key={s}
-                        type="button"
-                        onClick={() => setConnectionName(s)}
-                        className="rounded-full border border-border px-2.5 py-1 text-xs text-muted-foreground transition-colors hover:bg-muted"
-                      >
-                        {s}
-                      </button>
-                    ),
-                  )}
-                </div>
-              )}
-            </div>
-
-
-            {freshToken ? (
-              <div className="rounded-lg border border-primary/30 bg-primary/5 p-3">
-                <div className="mb-2 flex items-center gap-2">
-                  <Check className="h-4 w-4 text-primary" aria-hidden="true" />
-                  <span className="text-[13px] font-medium text-foreground">
-                    Koblingen «{connectionName.trim() || "Min agent"}» er opprettet
-                  </span>
-                  {isDemo && (
-                    <Badge variant="outline" className="text-[10px]">
-                      Demo
-                    </Badge>
-                  )}
-                </div>
-                <CopyField label="Din kode" value={freshToken} secret />
-                <p className="mt-2 text-xs text-muted-foreground">
-                  Vi viser koden bare nå. Mister du den, lager du bare en ny.
-                  {isDemo && " Dette er en eksempelkode – den virkelige lages når du er innlogget."}
-                </p>
-
-              </div>
-            ) : (
-              <Button
-                onClick={createCode}
-                disabled={creating || !connectionName.trim()}
-                className="gap-2"
-              >
-                {creating ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <KeyRound className="h-4 w-4" />
-                )}
-                Lag koden min
-              </Button>
-            )}
-
-
-            {codes.length > 0 && (
-              <div className="rounded-lg border border-border">
-                <div className="border-b px-3 py-2 text-xs font-medium text-muted-foreground">
-                  Kodene dine
-                </div>
-                <ul className="divide-y">
-                  {codes.map((c) => (
-                    <li key={c.id} className="flex items-center gap-3 px-3 py-2 text-[13px]">
-                      <span className="font-medium text-foreground">{c.name}</span>
-                      <span className="font-mono text-muted-foreground">{c.token_prefix}…</span>
-                      <span className="text-muted-foreground">
-                        {new Date(c.created_at).toLocaleDateString("nb-NO")}
-                      </span>
-                      {c.revoked_at ? (
-                        <Badge variant="outline" className="ml-auto text-[10px]">
-                          Trukket tilbake
-                        </Badge>
-                      ) : (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="ml-auto h-7 gap-1 px-2 text-xs text-destructive hover:text-destructive"
-                          onClick={() => revoke(c.id)}
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                          Trekk tilbake
-                        </Button>
-                      )}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
+            <p className="text-sm font-medium text-foreground">Hva skal agenten få tilgang til?</p>
+            <AgentMandateEditor mandate={mandate} onChange={setMandate} idPrefix="wizard" />
           </div>
         )}
 
         {step === 3 && (
           <div className="space-y-4">
-            <div className="space-y-3">
-              <CopyField label="Adresse" value={endpoint} />
-              {freshToken && <CopyField label="Din kode" value={freshToken} secret />}
-            </div>
-
-            <ol className="space-y-2 rounded-lg border border-border bg-muted/30 p-3">
-              {INSTRUCTIONS[client].map((line, i) => (
-                <li key={i} className="flex gap-2 text-[13px] text-foreground">
-                  <span className="text-muted-foreground">{i + 1}.</span>
-                  <span>{line}</span>
-                </li>
-              ))}
-            </ol>
-
-            <div className="rounded-lg border border-primary/20 bg-primary/5 p-3">
+            <div className="rounded-lg border border-border bg-muted/30 p-3">
               <p className="text-[13px] font-medium text-foreground">
-                Slik sjekker du at det virker
+                {clientLabel} kobles til Mynder
               </p>
-              <p className="mt-1 text-[13px] text-muted-foreground">
-                Skriv til agenten din: «Hvilke leverandører har jeg i Mynder?» Agenten skal svare med
-                leverandørene dine og kritikaliteten deres. Får du ikke svar, gå gjennom stegene over
-                én gang til.
-              </p>
+              <dl className="mt-2 space-y-1 text-[13px]">
+                <div className="flex gap-2">
+                  <dt className="w-28 shrink-0 text-muted-foreground">Organisasjon</dt>
+                  <dd className="text-foreground">
+                    Acme AS{" "}
+                    <Badge variant="outline" className="text-[10px] text-muted-foreground">
+                      Demo
+                    </Badge>
+                  </dd>
+                </div>
+                <div className="flex gap-2">
+                  <dt className="w-28 shrink-0 text-muted-foreground">Tilgang</dt>
+                  <dd className="text-foreground">{mandateSummary(mandate)}</dd>
+                </div>
+                <div className="flex gap-2">
+                  <dt className="w-28 shrink-0 text-muted-foreground">Godkjenning</dt>
+                  <dd className="text-foreground">{approvalSummary(mandate)}</dd>
+                </div>
+                <div className="flex gap-2">
+                  <dt className="w-28 shrink-0 text-muted-foreground">Logging</dt>
+                  <dd className="text-foreground">Alle agenthandlinger logges</dd>
+                </div>
+              </dl>
             </div>
+
+            {client !== "other" ? (
+              <div className="space-y-3">
+                {connected ? (
+                  <div className="flex items-center gap-2 rounded-lg border border-primary/30 bg-primary/5 p-3">
+                    <Check className="h-4 w-4 text-primary" aria-hidden="true" />
+                    <span className="text-[13px] text-foreground">
+                      {clientLabel} er koblet til og vises under «Tilkoblede agenter».
+                    </span>
+                  </div>
+                ) : (
+                  <>
+                    <Button className="w-full gap-2" onClick={connectWithOauth} disabled={connecting}>
+                      {connecting ? (
+                        <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                      ) : (
+                        <ShieldCheck className="h-4 w-4" aria-hidden="true" />
+                      )}
+                      {connecting ? "Venter på godkjenning …" : `Koble til ${clientLabel}`}
+                    </Button>
+                    <p className="text-xs text-muted-foreground">
+                      Du logger inn og godkjenner tilgangen i {clientLabel}. Du trenger ingen
+                      hemmelig kode. Denne prototypen simulerer innloggingen.
+                    </p>
+                  </>
+                )}
+                <p className="flex items-start gap-2 text-xs text-muted-foreground">
+                  <ScrollText className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                  Du kan når som helst endre eller trekke tilbake tilgangen.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <p className="text-[13px] text-muted-foreground">
+                  Egne agenter kobles til manuelt med MCP-adressen og et hemmelig token.
+                </p>
+
+                <CopyField label="MCP-adresse" value={endpoint} />
+
+                <div>
+                  <Label htmlFor="byoa-name" className="text-xs text-muted-foreground">
+                    Navn på koblingen
+                  </Label>
+                  <Input
+                    id="byoa-name"
+                    className="mt-1 h-9 text-[13px]"
+                    placeholder="F.eks. Cursor – jobb-PC"
+                    value={connectionName}
+                    onChange={(e) => setConnectionName(e.target.value)}
+                    disabled={!!freshToken}
+                  />
+                </div>
+
+                {freshToken ? (
+                  <div className="rounded-lg border border-primary/30 bg-primary/5 p-3">
+                    <div className="mb-2 flex items-center gap-2">
+                      <Check className="h-4 w-4 text-primary" aria-hidden="true" />
+                      <span className="text-[13px] font-medium text-foreground">
+                        «{connectionName.trim() || "Min agent"}» er opprettet
+                      </span>
+                      {isDemo && (
+                        <Badge variant="outline" className="text-[10px]">
+                          Demo
+                        </Badge>
+                      )}
+                    </div>
+                    <CopyField label="Hemmelig token" value={freshToken} secret />
+                    <p className="mt-2 text-xs text-muted-foreground">
+                      Behandle tokenet som et passord. Vi viser det bare nå – mister du det, lager
+                      du bare et nytt.
+                    </p>
+                  </div>
+                ) : (
+                  <Button
+                    onClick={createCode}
+                    disabled={creating || !connectionName.trim()}
+                    className="gap-2"
+                  >
+                    {creating ? (
+                      <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                    ) : (
+                      <KeyRound className="h-4 w-4" aria-hidden="true" />
+                    )}
+                    Lag token
+                  </Button>
+                )}
+
+                <ol className="space-y-2 rounded-lg border border-border bg-muted/30 p-3">
+                  {MANUAL_INSTRUCTIONS.map((line, i) => (
+                    <li key={i} className="flex gap-2 text-[13px] text-foreground">
+                      <span className="text-muted-foreground">{i + 1}.</span>
+                      <span>{line}</span>
+                    </li>
+                  ))}
+                </ol>
+
+                {codes.length > 0 && (
+                  <div className="rounded-lg border border-border">
+                    <div className="border-b px-3 py-2 text-xs font-medium text-muted-foreground">
+                      Tokenene dine
+                    </div>
+                    <ul className="divide-y">
+                      {codes.map((c) => (
+                        <li
+                          key={c.id}
+                          className="flex flex-wrap items-center gap-3 px-3 py-2 text-[13px]"
+                        >
+                          <span className="font-medium text-foreground">{c.name}</span>
+                          <span className="font-mono text-muted-foreground">{c.token_prefix}…</span>
+                          <span className="text-muted-foreground">
+                            {new Date(c.created_at).toLocaleDateString("nb-NO")}
+                          </span>
+                          {c.revoked_at ? (
+                            <Badge variant="outline" className="ml-auto text-[10px]">
+                              Trukket tilbake
+                            </Badge>
+                          ) : (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="ml-auto h-7 gap-1 px-2 text-xs text-destructive hover:text-destructive"
+                              onClick={() => revoke(c.id)}
+                            >
+                              <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
+                              Trekk tilbake
+                            </Button>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                <p className="text-xs text-muted-foreground">
+                  Du kan når som helst endre eller trekke tilbake tilgangen.
+                </p>
+              </div>
+            )}
           </div>
         )}
 
@@ -411,13 +474,13 @@ export function ByoaConnectWizard({
             className="gap-1"
             onClick={() => (step === 1 ? onOpenChange(false) : setStep(step - 1))}
           >
-            <ArrowLeft className="h-4 w-4" />
+            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
             {step === 1 ? "Avbryt" : "Tilbake"}
           </Button>
           {step < 3 ? (
             <Button size="sm" className="gap-1" onClick={() => setStep(step + 1)}>
               Neste
-              <ArrowRight className="h-4 w-4" />
+              <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </Button>
           ) : (
             <Button size="sm" onClick={() => onOpenChange(false)}>
