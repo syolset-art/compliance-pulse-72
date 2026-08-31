@@ -92,6 +92,17 @@ export default function Integrations() {
   const [mainTab, setMainTab] = useState("agents");
   const connectedAgents = useConnectedAgents();
   const activeAgentCount = connectedAgents.filter((a) => a.status === "active").length;
+  const [tokens, setTokens] = useState<AgentTokenRow[]>([]);
+  const [showWizard, setShowWizard] = useState(false);
+  const activeTokens = tokens.filter(isActiveToken);
+  const refreshTokens = async () => setTokens(await listAgentTokens());
+
+  useEffect(() => {
+    refreshTokens();
+    const sync = () => refreshTokens();
+    window.addEventListener(AGENT_TOKENS_EVENT, sync);
+    return () => window.removeEventListener(AGENT_TOKENS_EVENT, sync);
+  }, []);
 
   const [discovery, setDiscovery] = useState<DiscoveryType | "all">(initialDiscovery);
   const [activity, setActivity] = useState<AgentActivityItem[]>([]);
