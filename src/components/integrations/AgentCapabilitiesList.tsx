@@ -32,7 +32,7 @@ export function AgentCapabilitiesList() {
             {label}
           </span>
         ))}
-        <span className="rounded-full border border-accent/40 bg-accent/10 px-3 py-1 text-[13px] text-accent-foreground">
+        <span className="rounded-full border border-accent/40 bg-accent/10 px-3 py-1 text-[13px] text-accent">
           {t("byoa.tools.createActivity")}
           <span className="ml-1.5 text-muted-foreground">{t("byoa.tools.writes")}</span>
         </span>

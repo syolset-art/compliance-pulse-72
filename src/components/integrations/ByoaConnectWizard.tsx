@@ -81,7 +81,7 @@ function StepCard({
     <Card className="p-5">
       <div className="flex items-center gap-3">
         <span
-          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent/15 text-[13px] font-semibold text-accent-foreground"
+          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent/15 text-[13px] font-semibold text-accent"
           aria-hidden="true"
         >
           {number}

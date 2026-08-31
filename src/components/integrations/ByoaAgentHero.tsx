@@ -29,7 +29,7 @@ export function ByoaAgentHero({ onConnect }: { onConnect: () => void }) {
       <Card className="mt-6 overflow-hidden">
         <div className="flex flex-col gap-6 p-6 md:flex-row md:items-center md:p-8">
           <div className="flex h-40 w-full shrink-0 items-center justify-center rounded-xl bg-accent/10 md:h-44 md:w-56">
-            <Plug className="h-14 w-14 text-accent-foreground" aria-hidden="true" />
+            <Plug className="h-14 w-14 text-accent" aria-hidden="true" />
           </div>
 
           <div className="min-w-0 flex-1">
