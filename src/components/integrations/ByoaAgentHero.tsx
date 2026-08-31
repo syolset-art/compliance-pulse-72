@@ -33,10 +33,18 @@ export function ByoaAgentHero({ onViewAccess }: { onViewAccess?: () => void } = 
   const [wizardOpen, setWizardOpen] = useState(false);
   const [showAccess, setShowAccess] = useState(false);
 
+  useEffect(() => {
+    const open = () => setWizardOpen(true);
+    window.addEventListener("mynder:open-agent-wizard", open);
+    return () => window.removeEventListener("mynder:open-agent-wizard", open);
+  }, []);
+
   const handleViewAccess = () => {
     if (onViewAccess) onViewAccess();
     else setShowAccess((s) => !s);
   };
+
+
 
 
 
