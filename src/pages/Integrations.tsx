@@ -203,7 +203,7 @@ export default function Integrations() {
             <Bot className="h-5 w-5" />
           </div>
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight">MCP Integrasjoner</h1>
+            <h1 className="text-2xl font-semibold tracking-tight">MCP Integrasjon</h1>
             <p className="text-sm text-muted-foreground mt-1">
               Koble din egen AI-agent til Mynder. Du bestemmer hva den får se, hva den får gjøre, og hva som krever din godkjenning.
             </p>
