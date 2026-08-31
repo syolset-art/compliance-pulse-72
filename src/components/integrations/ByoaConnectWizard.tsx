@@ -97,10 +97,14 @@ const MANUAL_INSTRUCTIONS = [
 export function ByoaConnectWizard({
   open,
   onOpenChange,
+  onConnected,
 }: {
   open: boolean;
   onOpenChange: (v: boolean) => void;
+  /** Kalles når en agent er registrert – brukes til å vise fanen «Tilkoblede agenter». */
+  onConnected?: () => void;
 }) {
+
   const [step, setStep] = useState(1);
   const [client, setClient] = useState<AgentClientKind>("claude");
   const [mandate, setMandate] = useState<Mandate>(() => defaultMandate());
