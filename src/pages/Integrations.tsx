@@ -195,7 +195,15 @@ export default function Integrations() {
           <AgentActivityFeed items={activity} />
         )}
 
+        <Tabs value={mainTab} onValueChange={setMainTab} className="mt-8">
+          <TabsList>
+            <TabsTrigger value="agents">Agenter</TabsTrigger>
+            <TabsTrigger value="later">Kommer senere</TabsTrigger>
+          </TabsList>
+        </Tabs>
 
+        {mainTab === "later" && (
+          <>
 
         <section className="mt-8">
           <div className="flex items-baseline gap-2">
