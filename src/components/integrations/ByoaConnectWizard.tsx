@@ -308,7 +308,11 @@ export function ByoaConnectWizard({
                     onFocus={(e) => e.currentTarget.select()}
                     className="h-9 font-mono text-[13px]"
                   />
-                  <CopyButton value={freshToken} label={t("byoa.wizard.step2.copyToken")} />
+                  <CopyButton
+                    value={freshToken}
+                    label={t("byoa.wizard.step2.copyToken")}
+                    tooltip={t("byoa.wizard.step3.copyTokenTooltip")}
+                  />
                 </div>
               </div>
             )}
