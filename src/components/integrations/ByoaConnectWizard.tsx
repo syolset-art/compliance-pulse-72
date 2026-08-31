@@ -17,6 +17,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { toast } from "sonner";
 import {
   AlertTriangle,
@@ -48,10 +53,18 @@ const CLIENT_ICON = {
   other: Bot,
 } as const;
 
-/** Kopiknapp med tilgjengelig etikett. */
-function CopyButton({ value, label }: { value: string; label: string }) {
+/** Kopiknapp med tilgjengelig etikett og valgfri forklaring på hover. */
+function CopyButton({
+  value,
+  label,
+  tooltip,
+}: {
+  value: string;
+  label: string;
+  tooltip?: string;
+}) {
   const [copied, setCopied] = useState(false);
-  return (
+  const button = (
     <Button
       type="button"
       variant="outline"
@@ -71,6 +84,17 @@ function CopyButton({ value, label }: { value: string; label: string }) {
         <Copy className="h-3.5 w-3.5" aria-hidden="true" />
       )}
     </Button>
+  );
+
+  if (!tooltip) return button;
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>{button}</TooltipTrigger>
+      <TooltipContent side="top">
+        <p className="max-w-xs text-[13px]">{tooltip}</p>
+      </TooltipContent>
+    </Tooltip>
   );
 }
 
@@ -284,7 +308,11 @@ export function ByoaConnectWizard({
                     onFocus={(e) => e.currentTarget.select()}
                     className="h-9 font-mono text-[13px]"
                   />
-                  <CopyButton value={freshToken} label={t("byoa.wizard.step2.copyToken")} />
+                  <CopyButton
+                    value={freshToken}
+                    label={t("byoa.wizard.step2.copyToken")}
+                    tooltip={t("byoa.wizard.step3.copyTokenTooltip")}
+                  />
                 </div>
               </div>
             )}
@@ -357,7 +385,11 @@ export function ByoaConnectWizard({
                 onFocus={(e) => e.currentTarget.select()}
                 className="h-9 font-mono text-[13px]"
               />
-              <CopyButton value={endpoint} label={t("byoa.wizard.step3.copyAddress")} />
+              <CopyButton
+                value={endpoint}
+                label={t("byoa.wizard.step3.copyAddress")}
+                tooltip={t("byoa.wizard.step3.copyAddressTooltip")}
+              />
             </div>
 
             <ol className="mt-4 space-y-2">
@@ -374,7 +406,11 @@ export function ByoaConnectWizard({
                 <pre className="flex-1 overflow-x-auto rounded-lg border border-border bg-muted/40 p-3 font-mono text-[13px] text-foreground">
                   {snippet}
                 </pre>
-                <CopyButton value={snippet} label={t("byoa.wizard.step3.copySnippet")} />
+                <CopyButton
+                  value={snippet}
+                  label={t("byoa.wizard.step3.copySnippet")}
+                  tooltip={t("byoa.wizard.step3.copySnippetTooltip")}
+                />
               </div>
             )}
 

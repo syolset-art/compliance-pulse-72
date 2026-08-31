@@ -1924,7 +1924,10 @@
         "title": "Lim inn i {{client}}",
         "addressLabel": "Adresse",
         "copyAddress": "Kopier adressen",
+        "copyAddressTooltip": "Kopier adressen og lim den inn i agenten din.",
         "copySnippet": "Kopier konfigurasjonen",
+        "copySnippetTooltip": "Kopier konfigurasjonen og lim den inn i MCP-klienten din.",
+        "copyTokenTooltip": "Kopier koden og lim den inn i agenten din.",
         "verifyTitle": "Slik sjekker du at det virker",
         "verifyBody": "Spør agenten din: «Hvilke leverandører har jeg i Mynder?» Du skal få en liste med leverandørnavn og status. Får du ingenting, er koden trolig ikke limt inn riktig.",
         "instructions": {

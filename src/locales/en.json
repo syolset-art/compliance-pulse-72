@@ -1923,7 +1923,10 @@
         "title": "Paste into {{client}}",
         "addressLabel": "Address",
         "copyAddress": "Copy the address",
+        "copyAddressTooltip": "Copy the address and paste it into your agent.",
         "copySnippet": "Copy the configuration",
+        "copySnippetTooltip": "Copy the configuration and paste it into your MCP client.",
+        "copyTokenTooltip": "Copy the code and paste it into your agent.",
         "verifyTitle": "How to check that it works",
         "verifyBody": "Ask your agent: \"Which vendors do I have in Mynder?\" You should get a list of vendor names and status. If nothing comes back, the code is probably not pasted in correctly.",
         "instructions": {
