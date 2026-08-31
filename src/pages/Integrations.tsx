@@ -453,10 +453,6 @@ export default function Integrations() {
 
         {mainTab === "agents" && (
           <>
-            <LocalAgentCard />
-
-            <SaraDetailsSection />
-
             <div className="mt-10 border-t border-border pt-8">
               <McpAgentConnectionsSection />
             </div>
