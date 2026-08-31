@@ -111,6 +111,7 @@ export function ByoaConnectWizard({
   const [connectionName, setConnectionName] = useState("Claude");
   const [codes, setCodes] = useState<CodeRow[]>([]);
   const [freshToken, setFreshToken] = useState<string | null>(null);
+  const [isDemo, setIsDemo] = useState(false);
   const [creating, setCreating] = useState(false);
   const endpoint = mcpServerUrl();
   const clientLabel = CLIENTS.find((c) => c.id === client)?.label ?? "Agent";
@@ -127,11 +128,22 @@ export function ByoaConnectWizard({
     if (open) {
       setStep(1);
       setFreshToken(null);
+      setIsDemo(false);
       setConnectionName(CLIENTS.find((c) => c.id === client)?.label ?? "Min agent");
       loadCodes();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
+
+  /** Realistisk demokode når backend ikke er tilgjengelig (f.eks. ikke innlogget i forhåndsvisning). */
+  const makeDemoToken = () => {
+    const bytes = new Uint8Array(24);
+    crypto.getRandomValues(bytes);
+    const hex = Array.from(bytes)
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("");
+    return `mynder_${hex}`;
+  };
 
   const createCode = async () => {
     setCreating(true);
@@ -141,16 +153,39 @@ export function ByoaConnectWizard({
       });
       if (error || !data?.token) throw error ?? new Error("Ingen kode");
       setFreshToken(data.token as string);
+      setIsDemo(false);
       await loadCodes();
       toast.success("Koden din er laget. Kopier den nå – den vises bare denne ene gangen.");
     } catch {
-      toast.error("Klarte ikke å lage koden. Prøv igjen om litt.");
+      // Demovisning: viser nøyaktig hvordan resultatet ser ut i produksjon.
+      const token = makeDemoToken();
+      setFreshToken(token);
+      setIsDemo(true);
+      setCodes((prev) => [
+        {
+          id: `demo-${token.slice(-6)}`,
+          name: connectionName.trim() || "Min agent",
+          token_prefix: token.slice(0, 14),
+          created_at: new Date().toISOString(),
+          last_used_at: null,
+          revoked_at: null,
+        },
+        ...prev,
+      ]);
+      toast.success("Eksempelkode laget (demo). Slik ser koden din ut når du er innlogget.");
     } finally {
       setCreating(false);
     }
   };
 
   const revoke = async (id: string) => {
+    if (id.startsWith("demo-")) {
+      setCodes((prev) =>
+        prev.map((c) => (c.id === id ? { ...c, revoked_at: new Date().toISOString() } : c)),
+      );
+      toast.info("Koden er trukket tilbake. Agenten mister tilgangen.");
+      return;
+    }
     await supabase
       .from("agent_access_tokens")
       .update({ revoked_at: new Date().toISOString() })
@@ -158,6 +193,7 @@ export function ByoaConnectWizard({
     await loadCodes();
     toast.info("Koden er trukket tilbake. Agenten mister tilgangen.");
   };
+
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -269,10 +305,23 @@ export function ByoaConnectWizard({
 
             {freshToken ? (
               <div className="rounded-lg border border-primary/30 bg-primary/5 p-3">
+                <div className="mb-2 flex items-center gap-2">
+                  <Check className="h-4 w-4 text-primary" aria-hidden="true" />
+                  <span className="text-[13px] font-medium text-foreground">
+                    Koblingen «{connectionName.trim() || "Min agent"}» er opprettet
+                  </span>
+                  {isDemo && (
+                    <Badge variant="outline" className="text-[10px]">
+                      Demo
+                    </Badge>
+                  )}
+                </div>
                 <CopyField label="Din kode" value={freshToken} secret />
                 <p className="mt-2 text-xs text-muted-foreground">
                   Vi viser koden bare nå. Mister du den, lager du bare en ny.
+                  {isDemo && " Dette er en eksempelkode – den virkelige lages når du er innlogget."}
                 </p>
+
               </div>
             ) : (
               <Button
