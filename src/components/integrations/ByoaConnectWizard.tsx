@@ -108,6 +108,7 @@ export function ByoaConnectWizard({
 }) {
   const [step, setStep] = useState(1);
   const [client, setClient] = useState<ClientKind>("claude");
+  const [connectionName, setConnectionName] = useState("Claude");
   const [codes, setCodes] = useState<CodeRow[]>([]);
   const [freshToken, setFreshToken] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
