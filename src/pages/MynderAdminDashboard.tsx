@@ -37,44 +37,45 @@ export default function MynderAdminDashboard() {
         <main className="flex-1 overflow-auto pt-11 px-4 md:px-8 pb-12">
           <div className="max-w-6xl mx-auto py-6 md:py-8 space-y-6">
             {/* Header */}
-            <div className="flex items-start justify-between gap-4">
-              <div>
+            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4">
+              <div className="min-w-0">
                 <div className="flex items-center gap-2 mb-1">
                   <ShieldCheck className="h-5 w-5 text-primary" />
                   <span className="text-xs font-medium text-primary uppercase tracking-wide">Mynder innstillinger</span>
                 </div>
-                <h1 className="text-2xl font-semibold text-foreground">Dashbord</h1>
+                <h1 className="text-xl sm:text-2xl font-semibold text-foreground">Dashbord</h1>
                 <p className="text-sm text-muted-foreground mt-1">
                   Partnerkanal og direktesalg — kun for daglig leder og superbruker.
                 </p>
               </div>
-              <Button variant="outline" size="sm" className="gap-2">
+              <Button variant="outline" size="sm" className="gap-2 self-start shrink-0">
                 <Download className="h-4 w-4" />
                 Eksporter
               </Button>
             </div>
 
+
             {/* Nøkkeltall — kompakt stripe */}
-            <div className="flex flex-wrap items-center gap-x-8 gap-y-3 border-y border-border py-3">
-              <div className="flex items-center gap-2">
-                <Handshake className="h-3.5 w-3.5 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">Partnere</span>
+            <div className="grid grid-cols-3 sm:flex sm:flex-wrap sm:items-center gap-x-6 gap-y-3 border-y border-border py-3">
+              <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+                <Handshake className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                <span className="text-xs sm:text-sm text-muted-foreground truncate">Partnere</span>
                 <span className="text-sm font-semibold tabular-nums text-foreground">{partnerCount}</span>
               </div>
-              <div className="flex items-center gap-2">
-                <Users className="h-3.5 w-3.5 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">Via partner</span>
+              <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+                <Users className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                <span className="text-xs sm:text-sm text-muted-foreground truncate">Via partner</span>
                 <span className="text-sm font-semibold tabular-nums text-foreground">{partnerCustomers.length}</span>
               </div>
-              <div className="flex items-center gap-2">
-                <Building2 className="h-3.5 w-3.5 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">Direkte</span>
+              <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+                <Building2 className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                <span className="text-xs sm:text-sm text-muted-foreground truncate">Direkte</span>
                 <span className="text-sm font-semibold tabular-nums text-foreground">{directCustomers.length}</span>
               </div>
 
-              <div className="flex items-center gap-3 ml-auto">
+              <div className="col-span-3 flex flex-wrap items-center gap-x-3 gap-y-2 sm:ml-auto">
                 <div className="flex items-center gap-2">
-                  <Coins className="h-3.5 w-3.5 text-muted-foreground" />
+                  <Coins className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
                   <div className="inline-flex rounded-md border border-border overflow-hidden">
                     {(["mrr", "arr"] as const).map((v) => (
                       <button
@@ -89,7 +90,7 @@ export default function MynderAdminDashboard() {
                       </button>
                     ))}
                   </div>
-                  <span className="text-sm font-semibold tabular-nums text-foreground">
+                  <span className="text-sm font-semibold tabular-nums text-foreground whitespace-nowrap">
                     {revenueValue.toLocaleString("nb-NO")} kr
                   </span>
                 </div>
@@ -98,7 +99,7 @@ export default function MynderAdminDashboard() {
                     <TooltipTrigger asChild>
                       <span
                         className={cn(
-                          "inline-flex items-center gap-1 text-xs font-medium cursor-default",
+                          "inline-flex items-center gap-1 text-xs font-medium cursor-default whitespace-nowrap",
                           onTrack ? "text-success" : "text-warning",
                         )}
                       >
@@ -118,30 +119,32 @@ export default function MynderAdminDashboard() {
             </div>
 
 
+
             {/* Tabs */}
             <Tabs defaultValue="partners" className="w-full">
-              <TabsList className="flex-wrap h-auto">
-                <TabsTrigger value="partners" className="gap-2">
+              <TabsList className="w-full justify-start overflow-x-auto flex-nowrap sm:flex-wrap h-auto">
+
+                <TabsTrigger value="partners" className="gap-2 shrink-0 whitespace-nowrap text-xs sm:text-sm">
                   <Handshake className="h-4 w-4" />
                   Partnere ({partnerCount})
                 </TabsTrigger>
-                <TabsTrigger value="partner" className="gap-2">
+                <TabsTrigger value="partner" className="gap-2 shrink-0 whitespace-nowrap text-xs sm:text-sm">
                   <Users className="h-4 w-4" />
                   Partnerkanal ({partnerCustomers.length})
                 </TabsTrigger>
-                <TabsTrigger value="direct" className="gap-2">
+                <TabsTrigger value="direct" className="gap-2 shrink-0 whitespace-nowrap text-xs sm:text-sm">
                   <Building2 className="h-4 w-4" />
                   Direktekunder ({directCustomers.length})
                 </TabsTrigger>
-                <TabsTrigger value="partner-invoices" className="gap-2">
+                <TabsTrigger value="partner-invoices" className="gap-2 shrink-0 whitespace-nowrap text-xs sm:text-sm">
                   <Receipt className="h-4 w-4" />
                   Fakturaer til partnere
                 </TabsTrigger>
-                <TabsTrigger value="invoice" className="gap-2">
+                <TabsTrigger value="invoice" className="gap-2 shrink-0 whitespace-nowrap text-xs sm:text-sm">
                   <Coins className="h-4 w-4" />
                   Fakturagrunnlag
                 </TabsTrigger>
-                <TabsTrigger value="projects" className="gap-2">
+                <TabsTrigger value="projects" className="gap-2 shrink-0 whitespace-nowrap text-xs sm:text-sm">
                   <Briefcase className="h-4 w-4" />
                   Prosjekter
                 </TabsTrigger>
