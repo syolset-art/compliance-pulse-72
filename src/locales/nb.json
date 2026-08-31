@@ -2024,6 +2024,28 @@
       "count": "{{count}} aktiv tilkobling",
       "count_other": "{{count}} aktive tilkoblinger",
       "details": "Detaljer"
+    },
+    "continuous": {
+      "title": "Første steg: be agenten lage en plan",
+      "intro": "Compliance er ikke et engangsprosjekt. Når agenten er koblet til, ber du den lage en plan — så tar den deg steg for steg gjennom kartlegging og dokumentasjon av regelverkene du har aktivert i Mynder.",
+      "step1": {
+        "title": "Be om planen",
+        "body": "Lim inn setningen under i agenten din. Den henter regelverkene dine fra Mynder og foreslår en plan."
+      },
+      "step2": {
+        "title": "Agenten kartlegger",
+        "body": "Den leser leverandører, krav og dokumentasjonsstatus, og finner hullene som må tettes."
+      },
+      "step3": {
+        "title": "Dere jobber videre løpende",
+        "body": "Agenten oppretter aktiviteter med frist og ansvarlig. Gjenta planen for eksempel hver måned."
+      },
+      "prompt1": "Lag en plan for kontinuerlig leverandørstyring basert på regelverkene vi har aktivert i Mynder.",
+      "prompt2": "Lag en plan for GDPR-dokumentasjon.",
+      "prompt3": "Hva mangler vi før neste revisjon?",
+      "morePrompts": "Flere oppdrag du kan gi agenten",
+      "copyTooltip": "Kopier setningen og lim den inn i agenten din.",
+      "copied": "Kopiert — lim den inn i agenten din."
     }
   }
 }

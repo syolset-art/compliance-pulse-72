@@ -2023,6 +2023,28 @@
       "count": "{{count}} active connection",
       "count_other": "{{count}} active connections",
       "details": "Details"
+    },
+    "continuous": {
+      "title": "First step: ask your agent for a plan",
+      "intro": "Compliance is not a one-off project. Once the agent is connected, ask it for a plan — it then walks you step by step through mapping and documenting the frameworks you have activated in Mynder.",
+      "step1": {
+        "title": "Ask for the plan",
+        "body": "Paste the sentence below into your agent. It pulls your frameworks from Mynder and proposes a plan."
+      },
+      "step2": {
+        "title": "The agent maps things out",
+        "body": "It reads vendors, requirements and documentation status, and finds the gaps you need to close."
+      },
+      "step3": {
+        "title": "You keep working continuously",
+        "body": "The agent creates activities with deadline and owner. Repeat the plan monthly, for example."
+      },
+      "prompt1": "Create a plan for continuous vendor management based on the frameworks we have activated in Mynder.",
+      "prompt2": "Create a plan for GDPR documentation.",
+      "prompt3": "What are we missing before the next audit?",
+      "morePrompts": "More tasks you can give the agent",
+      "copyTooltip": "Copy the sentence and paste it into your agent.",
+      "copied": "Copied — paste it into your agent."
     }
   }
 }

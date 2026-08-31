@@ -44,7 +44,8 @@ import { SaraDetailsSection } from "@/components/integrations/SaraDetailsSection
 import { ByoaAgentHero } from "@/components/integrations/ByoaAgentHero";
 import { ByoaConnectWizard } from "@/components/integrations/ByoaConnectWizard";
 import { ByoaConnectedStatus } from "@/components/integrations/ByoaConnectedStatus";
-import { AgentCapabilitiesList } from "@/components/integrations/AgentCapabilitiesList";
+import { AgentDeveloperDetails } from "@/components/integrations/AgentCapabilitiesList";
+import { ContinuousComplianceCard } from "@/components/integrations/ContinuousComplianceCard";
 import {
   AGENT_TOKENS_EVENT,
   isActiveToken,
@@ -232,7 +233,9 @@ export default function Integrations() {
           onConnected={refreshTokens}
         />
 
-        <AgentCapabilitiesList />
+        <ContinuousComplianceCard />
+
+        <AgentDeveloperDetails />
 
 
         <Tabs value={mainTab} onValueChange={setMainTab} className="mt-8">
