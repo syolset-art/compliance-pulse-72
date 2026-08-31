@@ -111,6 +111,7 @@ export function ByoaConnectWizard({
   const [connectionName, setConnectionName] = useState("Claude");
   const [codes, setCodes] = useState<CodeRow[]>([]);
   const [freshToken, setFreshToken] = useState<string | null>(null);
+  const [isDemo, setIsDemo] = useState(false);
   const [creating, setCreating] = useState(false);
   const endpoint = mcpServerUrl();
   const clientLabel = CLIENTS.find((c) => c.id === client)?.label ?? "Agent";
