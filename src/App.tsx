@@ -45,6 +45,8 @@ import OAuthConsent from "./pages/OAuthConsent";
 import TermsAndConsent from "./pages/TermsAndConsent";
 import Terms from "./pages/Terms";
 import Legal from "./pages/Legal";
+import DocumentsPage from "./pages/Documents";
+import LegalDocumentPage from "./pages/LegalDocumentPage";
 import Reports from "./pages/Reports";
 import ProcessProfile from "./pages/ProcessProfile";
 import Deviations from "./pages/Deviations";
@@ -172,7 +174,9 @@ const App = () => (
                   <Route path="/settings/mcp" element={<Navigate to="/settings/integrations#mcp" replace />} />
                   <Route path="/terms-and-consent" element={<TermsAndConsent />} />
                   <Route path="/terms" element={<Terms />} />
-                  <Route path="/legal" element={<Legal />} />
+                  <Route path="/legal" element={<Navigate to="/dokumenter" replace />} />
+                  <Route path="/dokumenter" element={<DocumentsPage />} />
+                  <Route path="/dokumenter/:slug" element={<LegalDocumentPage />} />
                   <Route path="/deviations" element={<Deviations />} />
                   <Route path="/resources" element={<Resources />} />
                   <Route path="/compliance" element={<ComplianceChecklist />} />

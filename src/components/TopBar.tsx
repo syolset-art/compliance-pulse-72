@@ -208,11 +208,11 @@ export function TopBar() {
             </DropdownMenuSubTrigger>
             <DropdownMenuPortal>
               <DropdownMenuSubContent>
-                <DropdownMenuItem onClick={() => navigate("/legal?doc=terms")}>
-                  {isNb ? "Vilkår" : "Terms of service"}
+                <DropdownMenuItem onClick={() => navigate("/dokumenter")}>
+                  {isNb ? "Alle dokumenter" : "All documents"}
                 </DropdownMenuItem>
                 {workspaceMode === "partner" && (
-                  <DropdownMenuItem onClick={() => navigate("/legal?doc=partner")}>
+                  <DropdownMenuItem onClick={() => navigate("/dokumenter/vilkar-for-partnere")}>
                     {isNb ? "Partnervilkår" : "Partner terms"}
                   </DropdownMenuItem>
                 )}
