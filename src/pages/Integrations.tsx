@@ -218,6 +218,9 @@ export default function Integrations() {
 
         {mainTab === "later" && (
           <>
+            <LocalAgentCard />
+
+            <SaraDetailsSection />
 
         <section className="mt-8">
           <div className="flex items-baseline gap-2">
@@ -450,10 +453,6 @@ export default function Integrations() {
 
         {mainTab === "agents" && (
           <>
-            <LocalAgentCard />
-
-            <SaraDetailsSection />
-
             <div className="mt-10 border-t border-border pt-8">
               <McpAgentConnectionsSection />
             </div>
