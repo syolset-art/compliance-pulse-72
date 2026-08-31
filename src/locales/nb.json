@@ -2018,6 +2018,12 @@
       "title": "Hva agenten har gjort",
       "seeAll": "Se alt",
       "empty": "Aktivitet vises her så snart logging av agenthandlinger er på plass."
+    },
+    "agents": {
+      "title": "Dine agenter",
+      "count": "{{count}} aktiv tilkobling",
+      "count_other": "{{count}} aktive tilkoblinger",
+      "details": "Detaljer"
     }
   }
 }

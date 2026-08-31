@@ -2017,6 +2017,12 @@
       "title": "What the agent has done",
       "seeAll": "See all",
       "empty": "Activity will appear here as soon as logging of agent actions is in place."
+    },
+    "agents": {
+      "title": "Your agents",
+      "count": "{{count}} active connection",
+      "count_other": "{{count}} active connections",
+      "details": "Details"
     }
   }
 }
