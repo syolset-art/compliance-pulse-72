@@ -126,15 +126,17 @@ export function ByoaConnectWizard({
     if (open) {
       setStep(1);
       setFreshToken(null);
+      setConnectionName(CLIENTS.find((c) => c.id === client)?.label ?? "Min agent");
       loadCodes();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
   const createCode = async () => {
     setCreating(true);
     try {
       const { data, error } = await supabase.functions.invoke("create-agent-code", {
-        body: { name: CLIENTS.find((c) => c.id === client)?.label ?? "Min agent" },
+        body: { name: connectionName.trim() || "Min agent" },
       });
       if (error || !data?.token) throw error ?? new Error("Ingen kode");
       setFreshToken(data.token as string);
