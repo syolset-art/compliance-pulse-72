@@ -1,5 +1,4 @@
 import { Switch } from "@/components/ui/switch";
-import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { ShieldCheck } from "lucide-react";
 import { MANDATE_PERMISSIONS, type Mandate } from "@/lib/agentMandate";
@@ -34,11 +33,6 @@ export function AgentMandateEditor({
                   <Label htmlFor={switchId} className="text-[13px] font-medium text-foreground">
                     {p.label}
                   </Label>
-                  {value?.enabled && value?.requiresApproval && (
-                    <Badge variant="outline" className="border-primary/40 text-[10px] text-primary">
-                      Krever godkjenning
-                    </Badge>
-                  )}
                 </div>
                 <p className="mt-0.5 text-xs text-muted-foreground">{p.description}</p>
 
