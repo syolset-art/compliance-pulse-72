@@ -77,6 +77,8 @@ export default function Integrations() {
       : ("all" as const);
   })();
   const [search, setSearch] = useState("");
+  const [mainTab, setMainTab] = useState("agents");
+
   const [discovery, setDiscovery] = useState<DiscoveryType | "all">(initialDiscovery);
   const [activity, setActivity] = useState<AgentActivityItem[]>([]);
   const [connections, setConnections] = useState<Record<string, ConnectionState>>({});
