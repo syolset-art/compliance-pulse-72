@@ -37,22 +37,23 @@ export default function MynderAdminDashboard() {
         <main className="flex-1 overflow-auto pt-11 px-4 md:px-8 pb-12">
           <div className="max-w-6xl mx-auto py-6 md:py-8 space-y-6">
             {/* Header */}
-            <div className="flex items-start justify-between gap-4">
-              <div>
+            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4">
+              <div className="min-w-0">
                 <div className="flex items-center gap-2 mb-1">
                   <ShieldCheck className="h-5 w-5 text-primary" />
                   <span className="text-xs font-medium text-primary uppercase tracking-wide">Mynder innstillinger</span>
                 </div>
-                <h1 className="text-2xl font-semibold text-foreground">Dashbord</h1>
+                <h1 className="text-xl sm:text-2xl font-semibold text-foreground">Dashbord</h1>
                 <p className="text-sm text-muted-foreground mt-1">
                   Partnerkanal og direktesalg — kun for daglig leder og superbruker.
                 </p>
               </div>
-              <Button variant="outline" size="sm" className="gap-2">
+              <Button variant="outline" size="sm" className="gap-2 self-start shrink-0">
                 <Download className="h-4 w-4" />
                 Eksporter
               </Button>
             </div>
+
 
             {/* Nøkkeltall — kompakt stripe */}
             <div className="grid grid-cols-3 sm:flex sm:flex-wrap sm:items-center gap-x-6 gap-y-3 border-y border-border py-3">
