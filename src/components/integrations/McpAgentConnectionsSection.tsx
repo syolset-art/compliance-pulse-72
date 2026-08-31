@@ -42,6 +42,7 @@ export function McpAgentConnectionsSection() {
   const [url, setUrl] = useState("");
   const [description, setDescription] = useState("");
   const [copied, setCopied] = useState<string | null>(null);
+  const [toolsOpen, setToolsOpen] = useState(false);
 
   useEffect(() => setItems(readMcpConnections()), []);
 
