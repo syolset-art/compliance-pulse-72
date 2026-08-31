@@ -2027,6 +2027,8 @@
     },
     "continuous": {
       "title": "Slik kommer du i gang",
+      "showMore": "Les mer",
+      "showLess": "Skjul",
       "intro": "Compliance er ikke et engangsprosjekt. Når agenten er koblet til, ber du den lage en plan — så tar den deg steg for steg gjennom kartlegging og dokumentasjon av regelverkene du har aktivert i Mynder.",
       "step1": {
         "title": "Be om planen",

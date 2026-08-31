@@ -2026,6 +2026,8 @@
     },
     "continuous": {
       "title": "How to get started",
+      "showMore": "Read more",
+      "showLess": "Hide",
       "intro": "Compliance is not a one-off project. Once the agent is connected, ask it for a plan — it then walks you step by step through mapping and documenting the frameworks you have activated in Mynder.",
       "step1": {
         "title": "Ask for the plan",
