@@ -218,6 +218,9 @@ export default function Integrations() {
 
         {mainTab === "later" && (
           <>
+            <LocalAgentCard />
+
+            <SaraDetailsSection />
 
         <section className="mt-8">
           <div className="flex items-baseline gap-2">
