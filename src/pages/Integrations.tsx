@@ -40,6 +40,7 @@ import { LocalAgentCard } from "@/components/integrations/LocalAgentCard";
 import { AgentActivityFeed, type AgentActivityItem } from "@/components/integrations/AgentActivityFeed";
 import { NextSourceSuggestions } from "@/components/integrations/NextSourceSuggestions";
 import { SaraDetailsSection } from "@/components/integrations/SaraDetailsSection";
+import { ByoaAgentHero } from "@/components/integrations/ByoaAgentHero";
 
 
 interface ConnectionState {
@@ -181,15 +182,13 @@ export default function Integrations() {
           <div>
             <h1 className="text-2xl font-semibold tracking-tight">Datakilder og agenter</h1>
             <p className="text-sm text-muted-foreground mt-1">
-              Her henter Lara og Sara grunnlaget sitt. Du godkjenner alltid funnene før noe blir aktivt.
+              Koble din egen agent til Mynder, og se hvor Lara henter grunnlaget sitt fra. Du godkjenner alltid funnene før noe blir aktivt.
             </p>
           </div>
         </div>
 
 
-        <LocalAgentCard />
-
-        <SaraDetailsSection />
+        <ByoaAgentHero />
 
 
         {Object.values(connections).some((c) => c.status === "active") && (
@@ -417,6 +416,10 @@ export default function Integrations() {
 
 
         <NextSourceSuggestions covered={coveredTypes} />
+
+        <LocalAgentCard />
+
+        <SaraDetailsSection />
 
         <div className="mt-10 border-t border-border pt-8">
           <McpAgentConnectionsSection />

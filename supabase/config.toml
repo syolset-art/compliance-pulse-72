@@ -59,3 +59,6 @@ verify_jwt = false
 
 [functions.suggest-baseline-answers]
 verify_jwt = false
+
+[functions.create-agent-code]
+verify_jwt = true
