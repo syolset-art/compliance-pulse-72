@@ -1,124 +1,80 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { MessagesSquare, Plug, ShieldCheck, SlidersHorizontal, Zap } from "lucide-react";
-import { ByoaConnectWizard } from "@/components/integrations/ByoaConnectWizard";
-import { AgentAccessCenter } from "@/components/integrations/AgentAccessCenter";
-import byoaHero from "@/assets/byoa-agent-hero.png";
-
-const VALUE_POINTS = [
-  {
-    icon: MessagesSquare,
-    title: "Spør Mynder fra agenten din",
-    body: "Få svar fra virksomhetens compliance-grunnlag.",
-  },
-  {
-    icon: Zap,
-    title: "La agenten utføre arbeid",
-    body: "Opprett aktiviteter, innhent dokumentasjon og start Playbooks.",
-  },
-  {
-    icon: SlidersHorizontal,
-    title: "Du bestemmer mandatet",
-    body: "Velg hva agenten får lese, gjøre selv og hva du må godkjenne.",
-  },
-];
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Eye, ListChecks, Plug, ShieldCheck, Sparkles } from "lucide-react";
+import { TrustBoundaryStrip } from "@/components/integrations/TrustBoundaryStrip";
 
 /**
- * BYOA – «La AI-agenten din jobbe i Mynder».
- * Toppseksjon på Datakilder og agenter, med Agent Access Center rett under.
+ * BYOA-toppseksjon: illustrasjonsflate til venstre, verdibudskap og CTA til høyre.
  */
-export function ByoaAgentHero({ onViewAccess }: { onViewAccess?: () => void } = {}) {
-  const [wizardOpen, setWizardOpen] = useState(false);
-  const [showAccess, setShowAccess] = useState(false);
+export function ByoaAgentHero({ onConnect }: { onConnect: () => void }) {
+  const { t } = useTranslation();
+  const [showBoundary, setShowBoundary] = useState(false);
 
-  useEffect(() => {
-    const open = () => setWizardOpen(true);
-    window.addEventListener("mynder:open-agent-wizard", open);
-    return () => window.removeEventListener("mynder:open-agent-wizard", open);
-  }, []);
-
-  const handleViewAccess = () => {
-    if (onViewAccess) onViewAccess();
-    else setShowAccess((s) => !s);
-  };
-
-
-
-
+  const points = [
+    { icon: Eye, text: t("byoa.hero.point1") },
+    { icon: ListChecks, text: t("byoa.hero.point2") },
+    { icon: ShieldCheck, text: t("byoa.hero.point3") },
+  ];
 
   return (
     <>
-      <Card className="mt-6 overflow-hidden border-border">
-        <div className="flex flex-col md:flex-row">
-          <div className="flex items-center justify-center bg-muted/50 p-6 md:w-1/2 md:p-10">
-            <img
-              src={byoaHero}
-              alt="Din egen AI-agent koblet til Mynder"
-              width={1024}
-              height={1024}
-              className="w-full max-w-[320px]"
-            />
+      <Card className="mt-6 overflow-hidden">
+        <div className="flex flex-col gap-6 p-6 md:flex-row md:items-center md:p-8">
+          <div className="flex h-40 w-full shrink-0 items-center justify-center rounded-xl bg-accent/10 md:h-44 md:w-56">
+            <Plug className="h-14 w-14 text-accent-foreground" aria-hidden="true" />
           </div>
 
-          <div className="flex flex-1 flex-col justify-center p-6 md:p-10">
-            <div className="flex items-center gap-2">
-              <h2 className="text-2xl font-semibold tracking-tight text-foreground">
-                La AI-agenten din jobbe i Mynder
-              </h2>
-              <Badge variant="outline" className="text-[10px]">
-                Tilgjengelig nå
-              </Badge>
-            </div>
-
-            <p className="mt-4 max-w-md text-sm leading-relaxed text-muted-foreground">
-              Koble ChatGPT, Claude eller din egen AI-agent til Mynder. Spør om compliance-status,
-              leverandører og krav – eller la agenten opprette aktiviteter og starte Playbooks for
-              deg.
+          <div className="min-w-0 flex-1">
+            <h2 className="text-xl font-semibold tracking-tight text-foreground">
+              {t("byoa.hero.title")}
+            </h2>
+            <p className="mt-2 max-w-2xl text-[13px] leading-relaxed text-muted-foreground">
+              {t("byoa.hero.intro")}
             </p>
 
-            <ul className="mt-4 space-y-2">
-              {VALUE_POINTS.map(({ icon: Icon, title, body }) => (
-                <li key={title} className="flex gap-2">
-                  <Icon className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
-                  <div>
-                    <p className="text-[13px] font-medium text-foreground">{title}</p>
-                    <p className="text-xs text-muted-foreground">{body}</p>
-                  </div>
+            <ul className="mt-4 flex flex-wrap gap-x-6 gap-y-2">
+              {points.map(({ icon: Icon, text }) => (
+                <li key={text} className="flex items-center gap-1.5 text-[13px] text-foreground">
+                  <Icon className="h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+                  {text}
                 </li>
               ))}
             </ul>
 
-            <div className="mt-6 flex flex-wrap items-center gap-3">
-              <Button className="h-10 gap-2" onClick={() => setWizardOpen(true)}>
-                <Plug className="h-4 w-4" aria-hidden="true" />
-                Koble til en agent
+            <div className="mt-6 flex flex-wrap gap-3">
+              <Button className="h-10 gap-2" onClick={onConnect}>
+                <Sparkles className="h-4 w-4" aria-hidden="true" />
+                {t("byoa.hero.connect")}
               </Button>
               <Button
                 variant="outline"
                 className="h-10 gap-2"
-                onClick={handleViewAccess}
-                aria-expanded={onViewAccess ? undefined : showAccess}
+                onClick={() => setShowBoundary(true)}
               >
                 <ShieldCheck className="h-4 w-4" aria-hidden="true" />
-                Se og styre agenttilgang
+                {t("byoa.hero.seeAccess")}
               </Button>
             </div>
           </div>
         </div>
       </Card>
 
-      {!onViewAccess && showAccess && (
-        <AgentAccessCenter onConnectNew={() => setWizardOpen(true)} />
-      )}
-
-      <ByoaConnectWizard
-        open={wizardOpen}
-        onOpenChange={setWizardOpen}
-        onConnected={onViewAccess}
-      />
+      <Dialog open={showBoundary} onOpenChange={setShowBoundary}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>{t("byoa.hero.seeAccess")}</DialogTitle>
+          </DialogHeader>
+          <TrustBoundaryStrip activeCount={0} discoveredTotal={0} />
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
-
