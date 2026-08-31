@@ -122,7 +122,8 @@ export default function MynderAdminDashboard() {
 
             {/* Tabs */}
             <Tabs defaultValue="partners" className="w-full">
-              <TabsList className="flex-wrap h-auto">
+              <TabsList className="w-full justify-start overflow-x-auto flex-nowrap sm:flex-wrap h-auto">
+
                 <TabsTrigger value="partners" className="gap-2">
                   <Handshake className="h-4 w-4" />
                   Partnere ({partnerCount})
