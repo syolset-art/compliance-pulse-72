@@ -29,9 +29,16 @@ const VALUE_POINTS = [
  * BYOA – «La AI-agenten din jobbe i Mynder».
  * Toppseksjon på Datakilder og agenter, med Agent Access Center rett under.
  */
-export function ByoaAgentHero() {
+export function ByoaAgentHero({ onViewAccess }: { onViewAccess?: () => void } = {}) {
   const [wizardOpen, setWizardOpen] = useState(false);
   const [showAccess, setShowAccess] = useState(false);
+
+  const handleViewAccess = () => {
+    if (onViewAccess) onViewAccess();
+    else setShowAccess((s) => !s);
+  };
+
+
 
   return (
     <>
