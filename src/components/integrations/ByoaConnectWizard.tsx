@@ -210,8 +210,23 @@ export function ByoaConnectWizard({
         {step === 2 && (
           <div className="space-y-3">
             <p className="text-sm text-muted-foreground">
-              Koden er din personlige nøkkel til Mynder. Behandle den som et passord.
+              Gi koblingen et navn du kjenner igjen, og lag koden. Koden er din personlige nøkkel til
+              Mynder – behandle den som et passord.
             </p>
+
+            <div>
+              <Label htmlFor="byoa-name" className="text-xs text-muted-foreground">
+                Navn på koblingen
+              </Label>
+              <Input
+                id="byoa-name"
+                className="mt-1 h-9 text-[13px]"
+                placeholder="F.eks. Claude på jobb-PC"
+                value={connectionName}
+                onChange={(e) => setConnectionName(e.target.value)}
+                disabled={!!freshToken}
+              />
+            </div>
 
             {freshToken ? (
               <div className="rounded-lg border border-primary/30 bg-primary/5 p-3">
@@ -221,7 +236,11 @@ export function ByoaConnectWizard({
                 </p>
               </div>
             ) : (
-              <Button onClick={createCode} disabled={creating} className="gap-2">
+              <Button
+                onClick={createCode}
+                disabled={creating || !connectionName.trim()}
+                className="gap-2"
+              >
                 {creating ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
@@ -230,6 +249,7 @@ export function ByoaConnectWizard({
                 Lag koden min
               </Button>
             )}
+
 
             {codes.length > 0 && (
               <div className="rounded-lg border border-border">
