@@ -35,8 +35,6 @@ import {
 } from "@/lib/integrationCatalog";
 import { useConnectedSources } from "@/hooks/useConnectedSources";
 import { ConnectIntegrationDialog } from "@/components/integrations/ConnectIntegrationDialog";
-import { McpAgentConnectionsSection } from "@/components/integrations/McpAgentConnectionsSection";
-import { AgentAccessCenter, useConnectedAgents } from "@/components/integrations/AgentAccessCenter";
 import { LocalAgentCard } from "@/components/integrations/LocalAgentCard";
 import { AgentActivityFeed, type AgentActivityItem } from "@/components/integrations/AgentActivityFeed";
 import { NextSourceSuggestions } from "@/components/integrations/NextSourceSuggestions";
@@ -90,9 +88,6 @@ export default function Integrations() {
       : ("all" as const);
   })();
   const [search, setSearch] = useState("");
-  const [mainTab, setMainTab] = useState("agents");
-  const connectedAgents = useConnectedAgents();
-  const activeAgentCount = connectedAgents.filter((a) => a.status === "active").length;
   const [tokens, setTokens] = useState<AgentTokenRow[]>([]);
   const [showWizard, setShowWizard] = useState(false);
   const activeTokens = tokens.filter(isActiveToken);
@@ -238,23 +233,6 @@ export default function Integrations() {
         <AgentDeveloperDetails />
 
 
-        <Tabs value={mainTab} onValueChange={setMainTab} className="mt-8">
-          <TabsList>
-            <TabsTrigger value="agents">Agenter</TabsTrigger>
-            <TabsTrigger value="connected">
-              Tilkoblede agenter
-              {activeAgentCount > 0 && (
-                <span className="ml-1.5 rounded-full bg-primary/10 px-1.5 text-[10px] text-primary">
-                  {activeAgentCount}
-                </span>
-              )}
-            </TabsTrigger>
-            <TabsTrigger value="later">Kommer senere</TabsTrigger>
-          </TabsList>
-        </Tabs>
-
-        {mainTab === "later" && (
-          <>
             <LocalAgentCard />
 
             <SaraDetailsSection />
@@ -477,24 +455,6 @@ export default function Integrations() {
         )}
 
         <NextSourceSuggestions covered={coveredTypes} />
-          </>
-        )}
-
-        {mainTab === "connected" && (
-          <AgentAccessCenter
-            onConnectNew={() =>
-              window.dispatchEvent(new CustomEvent("mynder:open-agent-wizard"))
-            }
-          />
-        )}
-
-        {mainTab === "agents" && (
-          <>
-            <div className="mt-10 border-t border-border pt-8">
-              <McpAgentConnectionsSection />
-            </div>
-          </>
-        )}
 
 
 
