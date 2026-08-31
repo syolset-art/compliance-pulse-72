@@ -195,7 +195,12 @@ export function ByoaConnectWizard({
                   <button
                     key={c.id}
                     type="button"
-                    onClick={() => setClient(c.id)}
+                    onClick={() => {
+                      setClient(c.id);
+                      if (CLIENTS.some((x) => x.label === connectionName.trim()) || !connectionName.trim()) {
+                        setConnectionName(c.label);
+                      }
+                    }}
                     className={`rounded-lg border p-3 text-left transition-colors ${
                       active ? "border-primary bg-primary/5" : "border-border hover:bg-muted/50"
                     }`}
