@@ -27,6 +27,7 @@ Deno.serve(async (req) => {
     const name = typeof body?.name === "string" && body.name.trim()
       ? body.name.trim().slice(0, 60)
       : "Min agent";
+    const expiresAt = typeof body?.expiresAt === "string" ? body.expiresAt : null;
 
     // Generer en lesbar, tilfeldig kode: mynder_<32 hex>
     const bytes = new Uint8Array(24);
@@ -47,8 +48,9 @@ Deno.serve(async (req) => {
         name,
         token_prefix: token.slice(0, 14),
         token_hash: tokenHash,
+        expires_at: expiresAt,
       })
-      .select("id, name, token_prefix, created_at")
+      .select("id, name, token_prefix, created_at, expires_at")
       .single();
 
     if (error) {

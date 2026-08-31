@@ -42,6 +42,17 @@ import { AgentActivityFeed, type AgentActivityItem } from "@/components/integrat
 import { NextSourceSuggestions } from "@/components/integrations/NextSourceSuggestions";
 import { SaraDetailsSection } from "@/components/integrations/SaraDetailsSection";
 import { ByoaAgentHero } from "@/components/integrations/ByoaAgentHero";
+import { ByoaConnectWizard } from "@/components/integrations/ByoaConnectWizard";
+import { ByoaConnectedStatus } from "@/components/integrations/ByoaConnectedStatus";
+import { AgentCapabilitiesList } from "@/components/integrations/AgentCapabilitiesList";
+import {
+  AGENT_TOKENS_EVENT,
+  isActiveToken,
+  listAgentTokens,
+  type AgentTokenRow,
+} from "@/lib/agentTokens";
+import { useEffect } from "react";
+
 
 
 interface ConnectionState {
@@ -81,6 +92,17 @@ export default function Integrations() {
   const [mainTab, setMainTab] = useState("agents");
   const connectedAgents = useConnectedAgents();
   const activeAgentCount = connectedAgents.filter((a) => a.status === "active").length;
+  const [tokens, setTokens] = useState<AgentTokenRow[]>([]);
+  const [showWizard, setShowWizard] = useState(false);
+  const activeTokens = tokens.filter(isActiveToken);
+  const refreshTokens = async () => setTokens(await listAgentTokens());
+
+  useEffect(() => {
+    refreshTokens();
+    const sync = () => refreshTokens();
+    window.addEventListener(AGENT_TOKENS_EVENT, sync);
+    return () => window.removeEventListener(AGENT_TOKENS_EVENT, sync);
+  }, []);
 
   const [discovery, setDiscovery] = useState<DiscoveryType | "all">(initialDiscovery);
   const [activity, setActivity] = useState<AgentActivityItem[]>([]);
@@ -194,12 +216,21 @@ export default function Integrations() {
         </div>
 
 
-        <ByoaAgentHero onViewAccess={() => setMainTab("connected")} />
-
-
-        {Object.values(connections).some((c) => c.status === "active") && (
-          <AgentActivityFeed items={activity} />
+        {activeTokens.length > 0 && !showWizard ? (
+          <ByoaConnectedStatus
+            tokens={activeTokens}
+            onConnectAnother={() => setShowWizard(true)}
+            onChanged={refreshTokens}
+          />
+        ) : (
+          <>
+            <ByoaAgentHero onConnect={() => setShowWizard(true)} />
+            <ByoaConnectWizard onConnected={refreshTokens} />
+          </>
         )}
+
+        <AgentCapabilitiesList />
+
 
         <Tabs value={mainTab} onValueChange={setMainTab} className="mt-8">
           <TabsList>

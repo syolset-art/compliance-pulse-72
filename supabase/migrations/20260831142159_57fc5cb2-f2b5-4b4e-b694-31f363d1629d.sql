@@ -1,0 +1,1 @@
+ALTER TABLE public.agent_access_tokens ADD COLUMN IF NOT EXISTS expires_at timestamptz;

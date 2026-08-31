@@ -17,6 +17,7 @@ export type Database = {
       agent_access_tokens: {
         Row: {
           created_at: string
+          expires_at: string | null
           id: string
           last_used_at: string | null
           name: string
@@ -27,6 +28,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          expires_at?: string | null
           id?: string
           last_used_at?: string | null
           name?: string
@@ -37,6 +39,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          expires_at?: string | null
           id?: string
           last_used_at?: string | null
           name?: string
