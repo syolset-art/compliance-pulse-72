@@ -15,7 +15,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Plug, Copy, Check, Trash2, Info } from "lucide-react";
+import { Plug, Copy, Check, Trash2, Info, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   MCP_EXPOSED_TOOLS,
