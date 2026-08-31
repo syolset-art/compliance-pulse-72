@@ -15,7 +15,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Plug, Copy, Check, Trash2, Info } from "lucide-react";
+import { Plug, Copy, Check, Trash2, Info, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   MCP_EXPOSED_TOOLS,
@@ -42,6 +42,7 @@ export function McpAgentConnectionsSection() {
   const [url, setUrl] = useState("");
   const [description, setDescription] = useState("");
   const [copied, setCopied] = useState<string | null>(null);
+  const [toolsOpen, setToolsOpen] = useState(false);
 
   useEffect(() => setItems(readMcpConnections()), []);
 
@@ -114,16 +115,35 @@ export function McpAgentConnectionsSection() {
         {field("Server-URL", "Server URL", serverUrl, "url")}
         {field("Autentisering", "Authentication", "OAuth 2.1 (Bearer token)", "auth")}
         <div>
-          <Label className="text-xs">{isNb ? "Verktøy som eksponeres" : "Exposed tools"}</Label>
-          <ul className="mt-1.5 space-y-1">
-            {MCP_EXPOSED_TOOLS.map((t) => (
-              <li key={t.name} className="flex items-center gap-2 text-xs">
-                <code className="rounded bg-muted px-1.5 py-0.5 text-[11px]">{t.name}</code>
-                <span className="text-muted-foreground">{isNb ? t.nb : t.en}</span>
-              </li>
-            ))}
-          </ul>
+          <button
+            type="button"
+            onClick={() => setToolsOpen((v) => !v)}
+            className="flex w-full items-center justify-between gap-2 rounded-md py-1 text-left"
+            aria-expanded={toolsOpen}
+          >
+            <Label className="cursor-pointer text-xs">
+              {isNb ? "Verktøy som eksponeres" : "Exposed tools"}
+              <span className="ml-1.5 text-muted-foreground">({MCP_EXPOSED_TOOLS.length})</span>
+            </Label>
+            <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
+              {toolsOpen ? (isNb ? "Skjul" : "Hide") : isNb ? "Vis" : "Show"}
+              <ChevronDown
+                className={cn("h-3.5 w-3.5 transition-transform", toolsOpen && "rotate-180")}
+              />
+            </span>
+          </button>
+          {toolsOpen && (
+            <ul className="mt-1.5 space-y-1">
+              {MCP_EXPOSED_TOOLS.map((t) => (
+                <li key={t.name} className="flex items-center gap-2 text-xs">
+                  <code className="rounded bg-muted px-1.5 py-0.5 text-[11px]">{t.name}</code>
+                  <span className="text-muted-foreground">{isNb ? t.nb : t.en}</span>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
+
         <div className="flex items-start gap-2 rounded-lg border border-border bg-muted/30 p-2.5">
           <Info className="h-3.5 w-3.5 text-muted-foreground mt-0.5 shrink-0" />
           <p className="text-[11px] text-muted-foreground leading-relaxed">
