@@ -194,12 +194,21 @@ export default function Integrations() {
         </div>
 
 
-        <ByoaAgentHero onViewAccess={() => setMainTab("connected")} />
-
-
-        {Object.values(connections).some((c) => c.status === "active") && (
-          <AgentActivityFeed items={activity} />
+        {activeTokens.length > 0 && !showWizard ? (
+          <ByoaConnectedStatus
+            tokens={activeTokens}
+            onConnectAnother={() => setShowWizard(true)}
+            onChanged={refreshTokens}
+          />
+        ) : (
+          <>
+            <ByoaAgentHero onConnect={() => setShowWizard(true)} />
+            <ByoaConnectWizard onConnected={refreshTokens} />
+          </>
         )}
+
+        <AgentCapabilitiesList />
+
 
         <Tabs value={mainTab} onValueChange={setMainTab} className="mt-8">
           <TabsList>
