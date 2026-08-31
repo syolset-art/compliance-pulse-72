@@ -44,7 +44,6 @@ import Integrations from "./pages/Integrations";
 import OAuthConsent from "./pages/OAuthConsent";
 import TermsAndConsent from "./pages/TermsAndConsent";
 import Terms from "./pages/Terms";
-import Legal from "./pages/Legal";
 import DocumentsPage from "./pages/Documents";
 import LegalDocumentPage from "./pages/LegalDocumentPage";
 import Reports from "./pages/Reports";

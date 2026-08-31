@@ -28,6 +28,7 @@ import {
 import { WorkspaceSwitcherCompact } from "@/components/sidebar/WorkspaceSwitcherCompact";
 import { CustomerContextBar } from "@/components/msp/CustomerContextBar";
 import { useWorkspaceMode } from "@/contexts/WorkspaceModeContext";
+import { PartnerActivationNotice } from "@/components/legal/PartnerActivationNotice";
 
 const AVAILABLE_ROLES = [
   { key: "admin", labelNb: "Administrator", labelEn: "Administrator" },

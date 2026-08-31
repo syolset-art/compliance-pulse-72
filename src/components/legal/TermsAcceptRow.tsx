@@ -52,13 +52,13 @@ export function TermsAcceptRow({
         <label htmlFor={id} className="text-xs text-muted-foreground leading-relaxed cursor-pointer">
           Jeg godtar{" "}
           <a
-            href="/terms"
+            href="/dokumenter/sluttkundevilkar"
             target="_blank"
             rel="noopener noreferrer"
             className="text-foreground underline underline-offset-2 hover:text-primary"
             onClick={(e) => e.stopPropagation()}
           >
-            vilkår og betingelser
+            sluttkundevilkårene
           </a>
           {version ? ` (versjon ${version})` : ""}
         </label>
