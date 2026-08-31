@@ -28,6 +28,7 @@ export type TermsContext =
   | "license_purchase"
   | "framework_activation"
   | "signup"
+  | "partner_mandate"
   | "settings";
 
 /**

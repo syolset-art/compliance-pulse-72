@@ -28,6 +28,7 @@ import {
 import { WorkspaceSwitcherCompact } from "@/components/sidebar/WorkspaceSwitcherCompact";
 import { CustomerContextBar } from "@/components/msp/CustomerContextBar";
 import { useWorkspaceMode } from "@/contexts/WorkspaceModeContext";
+import { PartnerActivationNotice } from "@/components/legal/PartnerActivationNotice";
 
 const AVAILABLE_ROLES = [
   { key: "admin", labelNb: "Administrator", labelEn: "Administrator" },
@@ -101,6 +102,8 @@ export function TopBar() {
     <div className="fixed top-0 right-0 z-40 h-11 border-b border-border bg-background/95 backdrop-blur-sm flex items-center gap-1 px-4 left-0 md:left-64 transition-colors">
 
       <CustomerContextBar />
+      <PartnerActivationNotice />
+
 
       {/* Push everything to the right */}
       <div className="ml-auto flex items-center gap-1">
@@ -208,11 +211,11 @@ export function TopBar() {
             </DropdownMenuSubTrigger>
             <DropdownMenuPortal>
               <DropdownMenuSubContent>
-                <DropdownMenuItem onClick={() => navigate("/legal?doc=terms")}>
-                  {isNb ? "Vilkår" : "Terms of service"}
+                <DropdownMenuItem onClick={() => navigate("/dokumenter")}>
+                  {isNb ? "Alle dokumenter" : "All documents"}
                 </DropdownMenuItem>
                 {workspaceMode === "partner" && (
-                  <DropdownMenuItem onClick={() => navigate("/legal?doc=partner")}>
+                  <DropdownMenuItem onClick={() => navigate("/dokumenter/vilkar-for-partnere")}>
                     {isNb ? "Partnervilkår" : "Partner terms"}
                   </DropdownMenuItem>
                 )}
