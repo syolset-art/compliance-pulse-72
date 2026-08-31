@@ -216,32 +216,21 @@ export default function Integrations() {
         </div>
 
 
-        {activeTokens.length > 0 && !showWizard ? (
+        {activeTokens.length > 0 ? (
           <ByoaConnectedStatus
             tokens={activeTokens}
-            onConnectAnother={() => {
-              setShowWizard(true);
-              requestAnimationFrame(() =>
-                document
-                  .getElementById("byoa-wizard")
-                  ?.scrollIntoView({ behavior: "smooth", block: "start" }),
-              );
-            }}
+            onConnectAnother={() => setShowWizard(true)}
             onChanged={refreshTokens}
           />
         ) : (
-          <>
-            <ByoaAgentHero
-              onConnect={() => {
-                setShowWizard(true);
-                const el = document.getElementById("byoa-wizard");
-                el?.scrollIntoView({ behavior: "smooth", block: "start" });
-                el?.querySelector<HTMLElement>('[role="radio"], button')?.focus();
-              }}
-            />
-            <ByoaConnectWizard onConnected={refreshTokens} />
-          </>
+          <ByoaAgentHero onConnect={() => setShowWizard(true)} />
         )}
+
+        <ByoaConnectWizard
+          open={showWizard}
+          onOpenChange={setShowWizard}
+          onConnected={refreshTokens}
+        />
 
         <AgentCapabilitiesList />
 
