@@ -68,36 +68,20 @@ function CopyButton({ value, label }: { value: string; label: string }) {
   );
 }
 
-function StepCard({
-  number,
-  title,
-  children,
-}: {
-  number: number;
-  title: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <Card className="p-5">
-      <div className="flex items-center gap-3">
-        <span
-          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent text-[13px] font-semibold text-accent-foreground"
-          aria-hidden="true"
-        >
-          {number}
-        </span>
-        <h3 className="text-[15px] font-semibold text-foreground">{title}</h3>
-      </div>
-      <div className="mt-4">{children}</div>
-    </Card>
-  );
-}
-
 /**
- * BYOA-veiviser i tre stablede steg: velg klient, lag personlig kode, lim inn.
+ * BYOA-veiviser som dialog: ett steg om gangen (velg klient, lag kode, lim inn).
  */
-export function ByoaConnectWizard({ onConnected }: { onConnected?: () => void } = {}) {
+export function ByoaConnectWizard({
+  open,
+  onOpenChange,
+  onConnected,
+}: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  onConnected?: () => void;
+}) {
   const { t } = useTranslation();
+  const [step, setStep] = useState(1);
   const [client, setClient] = useState<WizardClient>("claude");
   const [name, setName] = useState("");
   const [expiry, setExpiry] = useState<ExpiryChoice>("90");
@@ -116,6 +100,14 @@ export function ByoaConnectWizard({ onConnected }: { onConnected?: () => void } 
     window.addEventListener(AGENT_TOKENS_EVENT, sync);
     return () => window.removeEventListener(AGENT_TOKENS_EVENT, sync);
   }, []);
+
+  useEffect(() => {
+    if (open) {
+      setStep(1);
+      setFreshToken(null);
+    }
+  }, [open]);
+
 
   const instructions = useMemo(
     () => t(`byoa.wizard.step3.instructions.${client}`, { returnObjects: true }) as string[],
