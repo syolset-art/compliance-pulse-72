@@ -53,10 +53,18 @@ const CLIENT_ICON = {
   other: Bot,
 } as const;
 
-/** Kopiknapp med tilgjengelig etikett. */
-function CopyButton({ value, label }: { value: string; label: string }) {
+/** Kopiknapp med tilgjengelig etikett og valgfri forklaring på hover. */
+function CopyButton({
+  value,
+  label,
+  tooltip,
+}: {
+  value: string;
+  label: string;
+  tooltip?: string;
+}) {
   const [copied, setCopied] = useState(false);
-  return (
+  const button = (
     <Button
       type="button"
       variant="outline"
@@ -76,6 +84,17 @@ function CopyButton({ value, label }: { value: string; label: string }) {
         <Copy className="h-3.5 w-3.5" aria-hidden="true" />
       )}
     </Button>
+  );
+
+  if (!tooltip) return button;
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>{button}</TooltipTrigger>
+      <TooltipContent side="top">
+        <p className="max-w-xs text-[13px]">{tooltip}</p>
+      </TooltipContent>
+    </Tooltip>
   );
 }
 
