@@ -113,6 +113,7 @@ export function ByoaConnectWizard({
   const [freshToken, setFreshToken] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
   const endpoint = mcpServerUrl();
+  const clientLabel = CLIENTS.find((c) => c.id === client)?.label ?? "Agent";
 
   const loadCodes = async () => {
     const { data } = await supabase
