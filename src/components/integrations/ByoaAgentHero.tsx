@@ -2,19 +2,36 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, Plug, ShieldCheck, ListChecks, PenLine } from "lucide-react";
+import { MessagesSquare, Plug, ShieldCheck, SlidersHorizontal, Zap } from "lucide-react";
 import { ByoaConnectWizard } from "@/components/integrations/ByoaConnectWizard";
-import { MCP_EXPOSED_TOOLS } from "@/lib/mcpAgentConnections";
+import { AgentAccessCenter } from "@/components/integrations/AgentAccessCenter";
 import byoaHero from "@/assets/byoa-agent-hero.png";
 
+const VALUE_POINTS = [
+  {
+    icon: MessagesSquare,
+    title: "Spør Mynder fra agenten din",
+    body: "Få svar fra virksomhetens compliance-grunnlag.",
+  },
+  {
+    icon: Zap,
+    title: "La agenten utføre arbeid",
+    body: "Opprett aktiviteter, innhent dokumentasjon og start Playbooks.",
+  },
+  {
+    icon: SlidersHorizontal,
+    title: "Du bestemmer mandatet",
+    body: "Velg hva agenten får lese, gjøre selv og hva du må godkjenne.",
+  },
+];
+
 /**
- * BYOA – «Bruk din egen agent i Mynder».
- * Toppseksjon på Datakilder og agenter: illustrasjon til venstre,
- * forklaring og CTA til høyre.
+ * BYOA – «La AI-agenten din jobbe i Mynder».
+ * Toppseksjon på Datakilder og agenter, med Agent Access Center rett under.
  */
 export function ByoaAgentHero() {
   const [wizardOpen, setWizardOpen] = useState(false);
-  const [showTools, setShowTools] = useState(false);
+  const [showAccess, setShowAccess] = useState(false);
 
   return (
     <>
@@ -33,7 +50,7 @@ export function ByoaAgentHero() {
           <div className="flex flex-1 flex-col justify-center p-6 md:p-10">
             <div className="flex items-center gap-2">
               <h2 className="text-2xl font-semibold tracking-tight text-foreground">
-                Bruk din egen agent i Mynder
+                La AI-agenten din jobbe i Mynder
               </h2>
               <Badge variant="outline" className="text-[10px]">
                 Tilgjengelig nå
@@ -41,23 +58,19 @@ export function ByoaAgentHero() {
             </div>
 
             <p className="mt-4 max-w-md text-sm leading-relaxed text-muted-foreground">
-              Har du Claude eller ChatGPT? Koble den til Mynder én gang, så kan du spørre den om
-              leverandører, krav og dokumentasjon — og be den opprette aktiviteter for deg. Du
-              trenger ikke logge inn i Mynder.
+              Koble ChatGPT, Claude eller din egen AI-agent til Mynder. Spør om compliance-status,
+              leverandører og krav – eller la agenten opprette aktiviteter og starte Playbooks for
+              deg.
             </p>
 
-            <ul className="mt-4 space-y-1.5">
-              {[
-                { icon: BookOpen, text: "Les leverandører og krav" },
-                { icon: PenLine, text: "Opprett aktiviteter" },
-                {
-                  icon: ShieldCheck,
-                  text: "Du styrer tilgangen, og kan trekke den tilbake når som helst",
-                },
-              ].map(({ icon: Icon, text }) => (
-                <li key={text} className="flex items-center gap-2 text-[13px] text-foreground">
-                  <Icon className="h-3.5 w-3.5 shrink-0 text-primary" aria-hidden="true" />
-                  {text}
+            <ul className="mt-4 space-y-2">
+              {VALUE_POINTS.map(({ icon: Icon, title, body }) => (
+                <li key={title} className="flex gap-2">
+                  <Icon className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+                  <div>
+                    <p className="text-[13px] font-medium text-foreground">{title}</p>
+                    <p className="text-xs text-muted-foreground">{body}</p>
+                  </div>
                 </li>
               ))}
             </ul>
@@ -65,49 +78,23 @@ export function ByoaAgentHero() {
             <div className="mt-6 flex flex-wrap items-center gap-3">
               <Button className="h-10 gap-2" onClick={() => setWizardOpen(true)}>
                 <Plug className="h-4 w-4" aria-hidden="true" />
-                Koble til agenten min
+                Koble til en agent
               </Button>
               <Button
                 variant="outline"
                 className="h-10 gap-2"
-                onClick={() => setShowTools((s) => !s)}
-                aria-expanded={showTools}
+                onClick={() => setShowAccess((s) => !s)}
+                aria-expanded={showAccess}
               >
-                <ListChecks className="h-4 w-4" aria-hidden="true" />
-                Hva agenten får se
+                <ShieldCheck className="h-4 w-4" aria-hidden="true" />
+                Se og styre agenttilgang
               </Button>
             </div>
           </div>
         </div>
-
-        {showTools && (
-          <div className="border-t border-border bg-muted/20 px-6 py-4 md:px-10">
-            <p className="text-[13px] font-medium text-foreground">Dette kan agenten din gjøre</p>
-            <ul className="mt-2 space-y-1.5">
-              {MCP_EXPOSED_TOOLS.map((tool) => {
-                const writes = tool.name === "create_activity";
-                return (
-                  <li key={tool.name} className="flex flex-wrap items-center gap-2 text-[13px]">
-                    <span className={writes ? "font-medium text-foreground" : "text-foreground"}>
-                      {tool.nb}
-                    </span>
-                    <Badge
-                      variant="outline"
-                      className={`text-[10px] ${writes ? "border-primary/40 text-primary" : "text-muted-foreground"}`}
-                    >
-                      {writes ? "Endrer noe" : "Kun lesing"}
-                    </Badge>
-                  </li>
-                );
-              })}
-            </ul>
-            <p className="mt-3 text-xs text-muted-foreground">
-              Agenten ser bare det du selv har tilgang til i Mynder. Ingenting slettes, og du kan
-              trekke tilbake koden når som helst.
-            </p>
-          </div>
-        )}
       </Card>
+
+      {showAccess && <AgentAccessCenter onConnectNew={() => setWizardOpen(true)} />}
 
       <ByoaConnectWizard open={wizardOpen} onOpenChange={setWizardOpen} />
     </>
