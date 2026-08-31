@@ -429,6 +429,10 @@ export default function Integrations() {
           </>
         )}
 
+        {mainTab === "connected" && (
+          <AgentAccessCenter onConnectNew={() => setMainTab("connected")} />
+        )}
+
         {mainTab === "agents" && (
           <>
             <LocalAgentCard />
@@ -440,6 +444,7 @@ export default function Integrations() {
             </div>
           </>
         )}
+
 
 
         <ConnectIntegrationDialog
