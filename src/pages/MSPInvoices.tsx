@@ -127,11 +127,7 @@ export default function MSPInvoices() {
                       selv utfører er ikke med. Alle priser eks. {tax.label}.
                     </>
                   ) : (
-                    <>
-                      Aktiverte produkter og regelverk per kunde — grunnlaget du kan fakturere kundene dine for. Alle
-                      priser er oppgitt <span className="font-medium text-foreground">eks. {tax.label}</span>;{" "}
-                      {tax.label} beregnes i egen kolonne.
-                    </>
+                    <>Aktiverte produkter og regelverk per kunde.</>
                   )}
                 </p>
               </div>
