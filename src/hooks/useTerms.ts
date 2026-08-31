@@ -29,6 +29,7 @@ export type TermsContext =
   | "framework_activation"
   | "signup"
   | "partner_mandate"
+  | "partner_workspace"
   | "settings";
 
 /**
@@ -139,6 +140,25 @@ export function useTerms() {
   );
 
 
+  /** Registrerer aksept av et bestemt dokument (f.eks. partnervilkårene). */
+  const acceptDocument = useCallback(
+    async (docType: LegalDocType, context: TermsContext, contextRef?: string) => {
+      const doc = documents.find((d) => d.is_current && d.doc_type === docType);
+      if (!user?.id || !doc) return false;
+      const { error } = await supabase.from("terms_acceptances").insert({
+        user_id: user.id,
+        terms_version_id: doc.id,
+        context,
+        context_ref: contextRef ?? null,
+        operator_role: docType === "partner",
+      });
+      if (error) return false;
+      await load();
+      return true;
+    },
+    [user?.id, documents, load],
+  );
+
   return {
     current,
     currentByType,
@@ -150,6 +170,7 @@ export function useTerms() {
     currentAcceptedAt,
     acceptedAtFor,
     acceptTerms,
+    acceptDocument,
     refresh: load,
   };
 }
