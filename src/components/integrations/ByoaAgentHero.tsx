@@ -8,11 +8,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Eye, ListChecks, Plug, ShieldCheck, Sparkles } from "lucide-react";
+import { Eye, ListChecks, ShieldCheck, Sparkles } from "lucide-react";
 import { TrustBoundaryStrip } from "@/components/integrations/TrustBoundaryStrip";
+import { CapabilityList } from "@/components/integrations/AgentCapabilitiesList";
+import byoaHero from "@/assets/byoa-agent-hero.png";
 
 /**
- * BYOA-toppseksjon: illustrasjonsflate til venstre, verdibudskap og CTA til høyre.
+ * BYOA-toppseksjon: illustrasjon og verdibudskap til venstre, hva agenten kan gjøre til høyre.
  */
 export function ByoaAgentHero({ onConnect }: { onConnect: () => void }) {
   const { t } = useTranslation();
@@ -27,22 +29,27 @@ export function ByoaAgentHero({ onConnect }: { onConnect: () => void }) {
   return (
     <>
       <Card className="mt-6 overflow-hidden">
-        <div className="flex flex-col gap-6 p-6 md:flex-row md:items-center md:p-8">
-          <div className="flex h-40 w-full shrink-0 items-center justify-center rounded-xl bg-accent/10 md:h-44 md:w-56">
-            <Plug className="h-14 w-14 text-accent" aria-hidden="true" />
-          </div>
+        <div className="grid gap-8 p-6 md:grid-cols-2 md:p-8">
+          <div className="min-w-0">
+            <div className="overflow-hidden rounded-xl bg-accent/10">
+              <img
+                src={byoaHero}
+                alt={t("byoa.hero.title")}
+                className="h-40 w-full object-cover md:h-48"
+                loading="lazy"
+              />
+            </div>
 
-          <div className="min-w-0 flex-1">
-            <h2 className="text-xl font-semibold tracking-tight text-foreground">
+            <h2 className="mt-5 text-xl font-semibold tracking-tight text-foreground">
               {t("byoa.hero.title")}
             </h2>
-            <p className="mt-2 max-w-2xl text-[13px] leading-relaxed text-muted-foreground">
+            <p className="mt-2 text-[13px] leading-relaxed text-muted-foreground">
               {t("byoa.hero.intro")}
             </p>
 
-            <ul className="mt-4 flex flex-wrap gap-x-6 gap-y-2">
+            <ul className="mt-4 space-y-1.5">
               {points.map(({ icon: Icon, text }) => (
-                <li key={text} className="flex items-center gap-1.5 text-[13px] text-foreground">
+                <li key={text} className="flex items-center gap-2 text-[13px] text-foreground">
                   <Icon className="h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
                   {text}
                 </li>
@@ -63,6 +70,10 @@ export function ByoaAgentHero({ onConnect }: { onConnect: () => void }) {
                 {t("byoa.hero.seeAccess")}
               </Button>
             </div>
+          </div>
+
+          <div className="min-w-0 md:border-l md:border-border md:pl-8">
+            <CapabilityList />
           </div>
         </div>
       </Card>
