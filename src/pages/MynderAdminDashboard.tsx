@@ -124,27 +124,27 @@ export default function MynderAdminDashboard() {
             <Tabs defaultValue="partners" className="w-full">
               <TabsList className="w-full justify-start overflow-x-auto flex-nowrap sm:flex-wrap h-auto">
 
-                <TabsTrigger value="partners" className="gap-2">
+                <TabsTrigger value="partners" className="gap-2 shrink-0 whitespace-nowrap text-xs sm:text-sm">
                   <Handshake className="h-4 w-4" />
                   Partnere ({partnerCount})
                 </TabsTrigger>
-                <TabsTrigger value="partner" className="gap-2">
+                <TabsTrigger value="partner" className="gap-2 shrink-0 whitespace-nowrap text-xs sm:text-sm">
                   <Users className="h-4 w-4" />
                   Partnerkanal ({partnerCustomers.length})
                 </TabsTrigger>
-                <TabsTrigger value="direct" className="gap-2">
+                <TabsTrigger value="direct" className="gap-2 shrink-0 whitespace-nowrap text-xs sm:text-sm">
                   <Building2 className="h-4 w-4" />
                   Direktekunder ({directCustomers.length})
                 </TabsTrigger>
-                <TabsTrigger value="partner-invoices" className="gap-2">
+                <TabsTrigger value="partner-invoices" className="gap-2 shrink-0 whitespace-nowrap text-xs sm:text-sm">
                   <Receipt className="h-4 w-4" />
                   Fakturaer til partnere
                 </TabsTrigger>
-                <TabsTrigger value="invoice" className="gap-2">
+                <TabsTrigger value="invoice" className="gap-2 shrink-0 whitespace-nowrap text-xs sm:text-sm">
                   <Coins className="h-4 w-4" />
                   Fakturagrunnlag
                 </TabsTrigger>
-                <TabsTrigger value="projects" className="gap-2">
+                <TabsTrigger value="projects" className="gap-2 shrink-0 whitespace-nowrap text-xs sm:text-sm">
                   <Briefcase className="h-4 w-4" />
                   Prosjekter
                 </TabsTrigger>
