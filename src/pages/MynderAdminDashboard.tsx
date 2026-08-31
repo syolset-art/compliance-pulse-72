@@ -54,13 +54,69 @@ export default function MynderAdminDashboard() {
               </Button>
             </div>
 
-            {/* KPI row */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              <MetricCard title="Partnere" value={partnerCount} icon={Handshake} />
-              <MetricCard title="Partnerkunder" value={partnerCustomers.length} subtitle="Solgt via partner" icon={Users} />
-              <MetricCard title="Direktekunder" value={directCustomers.length} subtitle="Solgt direkte" icon={Building2} />
-              <MetricCard title="MRR totalt" value={`${totalMrr.toLocaleString("nb-NO")} kr`} icon={Coins} />
+            {/* Nøkkeltall — kompakt stripe */}
+            <div className="flex flex-wrap items-center gap-x-8 gap-y-3 border-y border-border py-3">
+              <div className="flex items-center gap-2">
+                <Handshake className="h-3.5 w-3.5 text-muted-foreground" />
+                <span className="text-sm text-muted-foreground">Partnere</span>
+                <span className="text-sm font-semibold tabular-nums text-foreground">{partnerCount}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Users className="h-3.5 w-3.5 text-muted-foreground" />
+                <span className="text-sm text-muted-foreground">Via partner</span>
+                <span className="text-sm font-semibold tabular-nums text-foreground">{partnerCustomers.length}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Building2 className="h-3.5 w-3.5 text-muted-foreground" />
+                <span className="text-sm text-muted-foreground">Direkte</span>
+                <span className="text-sm font-semibold tabular-nums text-foreground">{directCustomers.length}</span>
+              </div>
+
+              <div className="flex items-center gap-3 ml-auto">
+                <div className="flex items-center gap-2">
+                  <Coins className="h-3.5 w-3.5 text-muted-foreground" />
+                  <div className="inline-flex rounded-md border border-border overflow-hidden">
+                    {(["mrr", "arr"] as const).map((v) => (
+                      <button
+                        key={v}
+                        onClick={() => setRevenueView(v)}
+                        className={cn(
+                          "px-2 py-0.5 text-[11px] font-medium uppercase transition-colors",
+                          revenueView === v ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted",
+                        )}
+                      >
+                        {v}
+                      </button>
+                    ))}
+                  </div>
+                  <span className="text-sm font-semibold tabular-nums text-foreground">
+                    {revenueValue.toLocaleString("nb-NO")} kr
+                  </span>
+                </div>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span
+                        className={cn(
+                          "inline-flex items-center gap-1 text-xs font-medium cursor-default",
+                          onTrack ? "text-success" : "text-warning",
+                        )}
+                      >
+                        {onTrack ? <TrendingUp className="h-3.5 w-3.5" /> : <TrendingDown className="h-3.5 w-3.5" />}
+                        {deviationPct > 0 ? "+" : ""}{deviationPct}% mot prognose
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-[260px]">
+                      <p className="text-xs">
+                        Prognose fra våre interne styrende dokumenter: {forecastValue.toLocaleString("nb-NO")} kr {isArr ? "ARR" : "MRR"}.
+                        Faktisk: {revenueValue.toLocaleString("nb-NO")} kr.
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
             </div>
+
 
             {/* Tabs */}
             <Tabs defaultValue="partners" className="w-full">
