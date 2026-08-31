@@ -198,8 +198,17 @@ export function ByoaConnectWizard({
                     type="button"
                     onClick={() => {
                       setClient(c.id);
-                      if (CLIENTS.some((x) => x.label === connectionName.trim()) || !connectionName.trim()) {
-                        setConnectionName(c.label);
+                      const current = connectionName.trim();
+                      const isSuggested =
+                        !current ||
+                        CLIENTS.some(
+                          (x) => current === x.label || current.startsWith(`${x.label} – `),
+                        );
+                      if (isSuggested) {
+                        const suffix = current.includes(" – ")
+                          ? current.slice(current.indexOf(" – "))
+                          : "";
+                        setConnectionName(`${c.label}${suffix}`);
                       }
                     }}
                     className={`rounded-lg border p-3 text-left transition-colors ${
