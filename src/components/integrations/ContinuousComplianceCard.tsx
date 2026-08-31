@@ -3,12 +3,17 @@ import { useTranslation } from "react-i18next";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { toast } from "sonner";
-import { Check, Copy, MessageSquare, Repeat, Search } from "lucide-react";
+import { Check, ChevronDown, Copy, MessageSquare, Repeat, Search } from "lucide-react";
 
 /** Kopierbar setning brukeren limer inn i agenten sin. */
 function CopyPrompt({ text, className = "" }: { text: string; className?: string }) {
