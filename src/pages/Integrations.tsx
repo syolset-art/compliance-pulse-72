@@ -77,6 +77,8 @@ export default function Integrations() {
       : ("all" as const);
   })();
   const [search, setSearch] = useState("");
+  const [mainTab, setMainTab] = useState("agents");
+
   const [discovery, setDiscovery] = useState<DiscoveryType | "all">(initialDiscovery);
   const [activity, setActivity] = useState<AgentActivityItem[]>([]);
   const [connections, setConnections] = useState<Record<string, ConnectionState>>({});
@@ -195,7 +197,15 @@ export default function Integrations() {
           <AgentActivityFeed items={activity} />
         )}
 
+        <Tabs value={mainTab} onValueChange={setMainTab} className="mt-8">
+          <TabsList>
+            <TabsTrigger value="agents">Agenter</TabsTrigger>
+            <TabsTrigger value="later">Kommer senere</TabsTrigger>
+          </TabsList>
+        </Tabs>
 
+        {mainTab === "later" && (
+          <>
 
         <section className="mt-8">
           <div className="flex items-baseline gap-2">
@@ -414,16 +424,22 @@ export default function Integrations() {
           </Card>
         )}
 
-
         <NextSourceSuggestions covered={coveredTypes} />
+          </>
+        )}
 
-        <LocalAgentCard />
+        {mainTab === "agents" && (
+          <>
+            <LocalAgentCard />
 
-        <SaraDetailsSection />
+            <SaraDetailsSection />
 
-        <div className="mt-10 border-t border-border pt-8">
-          <McpAgentConnectionsSection />
-        </div>
+            <div className="mt-10 border-t border-border pt-8">
+              <McpAgentConnectionsSection />
+            </div>
+          </>
+        )}
+
 
         <ConnectIntegrationDialog
           integration={dialogIntegration}
