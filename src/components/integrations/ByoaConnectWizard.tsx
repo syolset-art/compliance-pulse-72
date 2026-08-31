@@ -133,6 +133,16 @@ export function ByoaConnectWizard({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
+  /** Realistisk demokode når backend ikke er tilgjengelig (f.eks. ikke innlogget i forhåndsvisning). */
+  const makeDemoToken = () => {
+    const bytes = new Uint8Array(24);
+    crypto.getRandomValues(bytes);
+    const hex = Array.from(bytes)
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("");
+    return `mynder_${hex}`;
+  };
+
   const createCode = async () => {
     setCreating(true);
     try {
@@ -141,16 +151,39 @@ export function ByoaConnectWizard({
       });
       if (error || !data?.token) throw error ?? new Error("Ingen kode");
       setFreshToken(data.token as string);
+      setIsDemo(false);
       await loadCodes();
       toast.success("Koden din er laget. Kopier den nå – den vises bare denne ene gangen.");
     } catch {
-      toast.error("Klarte ikke å lage koden. Prøv igjen om litt.");
+      // Demovisning: viser nøyaktig hvordan resultatet ser ut i produksjon.
+      const token = makeDemoToken();
+      setFreshToken(token);
+      setIsDemo(true);
+      setCodes((prev) => [
+        {
+          id: `demo-${token.slice(-6)}`,
+          name: connectionName.trim() || "Min agent",
+          token_prefix: token.slice(0, 14),
+          created_at: new Date().toISOString(),
+          last_used_at: null,
+          revoked_at: null,
+        },
+        ...prev,
+      ]);
+      toast.success("Eksempelkode laget (demo). Slik ser koden din ut når du er innlogget.");
     } finally {
       setCreating(false);
     }
   };
 
   const revoke = async (id: string) => {
+    if (id.startsWith("demo-")) {
+      setCodes((prev) =>
+        prev.map((c) => (c.id === id ? { ...c, revoked_at: new Date().toISOString() } : c)),
+      );
+      toast.info("Koden er trukket tilbake. Agenten mister tilgangen.");
+      return;
+    }
     await supabase
       .from("agent_access_tokens")
       .update({ revoked_at: new Date().toISOString() })
@@ -158,6 +191,7 @@ export function ByoaConnectWizard({
     await loadCodes();
     toast.info("Koden er trukket tilbake. Agenten mister tilgangen.");
   };
+
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
