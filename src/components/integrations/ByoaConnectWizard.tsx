@@ -163,7 +163,7 @@ export function ByoaConnectWizard({ onConnected }: { onConnected?: () => void } 
     v ? new Date(v).toLocaleDateString("nb-NO", { dateStyle: "medium" }) : null;
 
   return (
-    <div className="mt-6 space-y-4">
+    <div id="byoa-wizard" className="mt-6 scroll-mt-24 space-y-4">
       {/* Steg 1 */}
       <StepCard number={1} title={t("byoa.wizard.step1.title")}>
         <div
