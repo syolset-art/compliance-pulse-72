@@ -422,16 +422,22 @@ export default function Integrations() {
           </Card>
         )}
 
-
         <NextSourceSuggestions covered={coveredTypes} />
+          </>
+        )}
 
-        <LocalAgentCard />
+        {mainTab === "agents" && (
+          <>
+            <LocalAgentCard />
 
-        <SaraDetailsSection />
+            <SaraDetailsSection />
 
-        <div className="mt-10 border-t border-border pt-8">
-          <McpAgentConnectionsSection />
-        </div>
+            <div className="mt-10 border-t border-border pt-8">
+              <McpAgentConnectionsSection />
+            </div>
+          </>
+        )}
+
 
         <ConnectIntegrationDialog
           integration={dialogIntegration}
