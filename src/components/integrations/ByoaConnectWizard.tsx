@@ -113,6 +113,7 @@ export function ByoaConnectWizard({
   const [freshToken, setFreshToken] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
   const endpoint = mcpServerUrl();
+  const clientLabel = CLIENTS.find((c) => c.id === client)?.label ?? "Agent";
 
   const loadCodes = async () => {
     const { data } = await supabase
@@ -197,8 +198,17 @@ export function ByoaConnectWizard({
                     type="button"
                     onClick={() => {
                       setClient(c.id);
-                      if (CLIENTS.some((x) => x.label === connectionName.trim()) || !connectionName.trim()) {
-                        setConnectionName(c.label);
+                      const current = connectionName.trim();
+                      const isSuggested =
+                        !current ||
+                        CLIENTS.some(
+                          (x) => current === x.label || current.startsWith(`${x.label} – `),
+                        );
+                      if (isSuggested) {
+                        const suffix = current.includes(" – ")
+                          ? current.slice(current.indexOf(" – "))
+                          : "";
+                        setConnectionName(`${c.label}${suffix}`);
                       }
                     }}
                     className={`rounded-lg border p-3 text-left transition-colors ${
@@ -229,12 +239,33 @@ export function ByoaConnectWizard({
               <Input
                 id="byoa-name"
                 className="mt-1 h-9 text-[13px]"
-                placeholder="F.eks. Claude på jobb-PC"
+                placeholder={`F.eks. ${clientLabel} – jobb-PC`}
                 value={connectionName}
                 onChange={(e) => setConnectionName(e.target.value)}
                 disabled={!!freshToken}
               />
+              <p className="mt-1 text-xs text-muted-foreground">
+                Vanlig praksis er å navngi koblingen etter agenten og hvor den brukes – da ser du
+                lett hvilken kode du skal trekke tilbake senere.
+              </p>
+              {!freshToken && (
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  {[`${clientLabel} – jobb-PC`, `${clientLabel} – privat`, `${clientLabel} – mobil`].map(
+                    (s) => (
+                      <button
+                        key={s}
+                        type="button"
+                        onClick={() => setConnectionName(s)}
+                        className="rounded-full border border-border px-2.5 py-1 text-xs text-muted-foreground transition-colors hover:bg-muted"
+                      >
+                        {s}
+                      </button>
+                    ),
+                  )}
+                </div>
+              )}
             </div>
+
 
             {freshToken ? (
               <div className="rounded-lg border border-primary/30 bg-primary/5 p-3">
