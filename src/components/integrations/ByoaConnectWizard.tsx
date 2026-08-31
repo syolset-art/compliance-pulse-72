@@ -385,7 +385,11 @@ export function ByoaConnectWizard({
                 onFocus={(e) => e.currentTarget.select()}
                 className="h-9 font-mono text-[13px]"
               />
-              <CopyButton value={endpoint} label={t("byoa.wizard.step3.copyAddress")} />
+              <CopyButton
+                value={endpoint}
+                label={t("byoa.wizard.step3.copyAddress")}
+                tooltip={t("byoa.wizard.step3.copyAddressTooltip")}
+              />
             </div>
 
             <ol className="mt-4 space-y-2">
@@ -402,7 +406,11 @@ export function ByoaConnectWizard({
                 <pre className="flex-1 overflow-x-auto rounded-lg border border-border bg-muted/40 p-3 font-mono text-[13px] text-foreground">
                   {snippet}
                 </pre>
-                <CopyButton value={snippet} label={t("byoa.wizard.step3.copySnippet")} />
+                <CopyButton
+                  value={snippet}
+                  label={t("byoa.wizard.step3.copySnippet")}
+                  tooltip={t("byoa.wizard.step3.copySnippetTooltip")}
+                />
               </div>
             )}
 
