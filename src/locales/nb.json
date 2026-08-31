@@ -1582,7 +1582,7 @@
       "category": "Kategori",
       "allCategories": "Alle kategorier",
       "country": "Land",
-"owner": "Leverandøransvarlig",
+      "owner": "Leverandøransvarlig",
       "name": "Navn",
       "score": "Score",
       "criticality": "Kritikalitet",
@@ -1867,5 +1867,119 @@
     "manualRun": "Manuell start",
     "syncText": "Sara kjøres når du starter henne. Nye eller endrede funn må bekreftes av en navngitt person hos dere før de teller som bevis.",
     "package": "Kravpakken Sara vurderer"
+  },
+  "byoa": {
+    "hero": {
+      "title": "Bruk din egen agent i Mynder",
+      "intro": "Har du Claude eller ChatGPT? Koble den til Mynder én gang, så kan du spørre den om leverandører, krav og dokumentasjon — og be den opprette aktiviteter. Du trenger ikke logge inn i Mynder.",
+      "point1": "Les leverandører og krav",
+      "point2": "Opprett aktiviteter",
+      "point3": "Du styrer tilgangen",
+      "connect": "Koble til agenten min",
+      "seeAccess": "Hva agenten får se"
+    },
+    "wizard": {
+      "clients": {
+        "claude": {
+          "label": "Claude",
+          "hint": "Desktop eller web"
+        },
+        "chatgpt": {
+          "label": "ChatGPT",
+          "hint": "Egendefinert kobling"
+        },
+        "other": {
+          "label": "Annet",
+          "hint": "MCP-klient"
+        }
+      },
+      "step1": {
+        "title": "Velg hvor agenten din bor"
+      },
+      "step2": {
+        "title": "Lag din personlige kode",
+        "description": "Koden knytter agenten til deg. Den er personlig — trenger en kollega tilgang, lager de sin egen.",
+        "nameLabel": "Navn",
+        "namePlaceholder": "Claude Desktop",
+        "expiryLabel": "Utløp",
+        "expiry90": "Utløper om 90 dager",
+        "expiry30": "Utløper om 30 dager",
+        "expiryNever": "Ingen utløp",
+        "create": "Lag koden min",
+        "created": "Koden er laget. Kopier den nå.",
+        "warning": "Vi viser koden bare denne ene gangen. Behandle den som et passord — ikke send den i chat, e-post eller skjermbilde. Mister du den, lager du bare en ny.",
+        "tokenLabel": "Din personlige kode",
+        "copyToken": "Kopier koden",
+        "yourCodes": "Kodene dine",
+        "noCodes": "Du har ingen koder ennå.",
+        "lastUsed": "Sist brukt {{date}}",
+        "neverUsed": "Aldri brukt",
+        "expiresOn": "Utløper {{date}}",
+        "noExpiry": "Ingen utløp",
+        "revoke": "Trekk tilbake",
+        "revoked": "«{{name}}» er trukket tilbake.",
+        "inactive": "Ikke aktiv"
+      },
+      "step3": {
+        "title": "Lim inn i {{client}}",
+        "addressLabel": "Adresse",
+        "copyAddress": "Kopier adressen",
+        "copySnippet": "Kopier konfigurasjonen",
+        "verifyTitle": "Slik sjekker du at det virker",
+        "verifyBody": "Spør agenten din: «Hvilke leverandører har jeg i Mynder?» Du skal få en liste med leverandørnavn og status. Får du ingenting, er koden trolig ikke limt inn riktig.",
+        "instructions": {
+          "claude": [
+            "Åpne Innstillinger i Claude.",
+            "Velg Koblinger, og deretter Legg til egendefinert kobling.",
+            "Lim adressen over inn i feltet Server-URL.",
+            "Lim den personlige koden inn i autentiseringsfeltet, og lagre."
+          ],
+          "chatgpt": [
+            "Åpne Innstillinger i ChatGPT.",
+            "Velg Koblinger, og deretter Legg til egendefinert kobling.",
+            "Lim adressen over inn i feltet Server-URL (MCP-server).",
+            "Lim den personlige koden inn i autentiseringsfeltet, og lagre."
+          ],
+          "other": [
+            "Åpne konfigurasjonsfilen for MCP-servere i verktøyet ditt.",
+            "Lim inn utklippet under og bytt <din-kode> med den personlige koden.",
+            "Lagre filen og start verktøyet på nytt."
+          ]
+        }
+      }
+    },
+    "tools": {
+      "title": "Hva agenten kan gjøre",
+      "readVendors": "Les leverandører",
+      "readRequirements": "Les krav i regelverkene dine",
+      "readDocumentation": "Les dokumentasjonsstatus",
+      "reportCoverage": "Rapporter dekningsgrad",
+      "createActivity": "Opprett aktivitet",
+      "writes": "endrer noe",
+      "devQuestion": "Trenger du endepunkt, transport og Bearer-header?",
+      "devButton": "For utviklere",
+      "devEndpoint": "Endepunkt",
+      "devTransport": "Transport",
+      "devAuth": "Autentisering"
+    },
+    "connected": {
+      "title": "Agenten din er koblet til",
+      "subtitle": "Du kan spørre agenten om leverandører, krav og dokumentasjon uten å logge inn her.",
+      "active": "Aktiv",
+      "client": "Klient",
+      "lastUsed": "Sist brukt",
+      "notUsedYet": "Ikke brukt ennå",
+      "expires": "Koden utløper",
+      "connectAnother": "Koble til en agent til",
+      "revoke": "Trekk tilbake tilgangen",
+      "revokeTitle": "Trekke tilbake tilgangen?",
+      "revokeBody": "Alle aktive koder slutter å virke umiddelbart. Du kan lage en ny kode når som helst.",
+      "revokedToast": "Tilgangen er trukket tilbake."
+    },
+    "activity": {
+      "title": "Hva agenten har gjort",
+      "seeAll": "Se alt",
+      "empty": "Aktivitet vises her så snart logging av agenthandlinger er på plass."
+    }
   }
 }

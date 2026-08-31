@@ -1581,7 +1581,7 @@
       "category": "Category",
       "allCategories": "All categories",
       "country": "Country",
-"owner": "Vendor manager",
+      "owner": "Vendor manager",
       "name": "Name",
       "score": "Score",
       "criticality": "Criticality",
@@ -1866,5 +1866,119 @@
     "manualRun": "Manual start",
     "syncText": "Sara runs when you start her. New or changed findings must be confirmed by a named person at your organisation before they count as evidence.",
     "package": "The requirement package Sara assesses"
+  },
+  "byoa": {
+    "hero": {
+      "title": "Use your own agent in Mynder",
+      "intro": "Do you use Claude or ChatGPT? Connect it to Mynder once, and you can ask it about vendors, requirements and documentation — and have it create activities. You don't need to log in to Mynder.",
+      "point1": "Read vendors and requirements",
+      "point2": "Create activities",
+      "point3": "You control the access",
+      "connect": "Connect my agent",
+      "seeAccess": "What the agent can see"
+    },
+    "wizard": {
+      "clients": {
+        "claude": {
+          "label": "Claude",
+          "hint": "Desktop or web"
+        },
+        "chatgpt": {
+          "label": "ChatGPT",
+          "hint": "Custom connector"
+        },
+        "other": {
+          "label": "Other",
+          "hint": "MCP client"
+        }
+      },
+      "step1": {
+        "title": "Choose where your agent lives"
+      },
+      "step2": {
+        "title": "Create your personal code",
+        "description": "The code links the agent to you. It is personal — if a colleague needs access, they create their own.",
+        "nameLabel": "Name",
+        "namePlaceholder": "Claude Desktop",
+        "expiryLabel": "Expiry",
+        "expiry90": "Expires in 90 days",
+        "expiry30": "Expires in 30 days",
+        "expiryNever": "No expiry",
+        "create": "Create my code",
+        "created": "The code is created. Copy it now.",
+        "warning": "We show the code only this once. Treat it like a password — never send it in chat, email or a screenshot. If you lose it, simply create a new one.",
+        "tokenLabel": "Your personal code",
+        "copyToken": "Copy the code",
+        "yourCodes": "Your codes",
+        "noCodes": "You have no codes yet.",
+        "lastUsed": "Last used {{date}}",
+        "neverUsed": "Never used",
+        "expiresOn": "Expires {{date}}",
+        "noExpiry": "No expiry",
+        "revoke": "Revoke",
+        "revoked": "\"{{name}}\" has been revoked.",
+        "inactive": "Not active"
+      },
+      "step3": {
+        "title": "Paste into {{client}}",
+        "addressLabel": "Address",
+        "copyAddress": "Copy the address",
+        "copySnippet": "Copy the configuration",
+        "verifyTitle": "How to check that it works",
+        "verifyBody": "Ask your agent: \"Which vendors do I have in Mynder?\" You should get a list of vendor names and status. If nothing comes back, the code is probably not pasted in correctly.",
+        "instructions": {
+          "claude": [
+            "Open Settings in Claude.",
+            "Choose Connectors, then Add custom connector.",
+            "Paste the address above into the Server URL field.",
+            "Paste the personal code into the authentication field and save."
+          ],
+          "chatgpt": [
+            "Open Settings in ChatGPT.",
+            "Choose Connectors, then Add custom connector.",
+            "Paste the address above into the Server URL (MCP server) field.",
+            "Paste the personal code into the authentication field and save."
+          ],
+          "other": [
+            "Open the MCP server configuration file in your tool.",
+            "Paste the snippet below and replace <din-kode> with your personal code.",
+            "Save the file and restart the tool."
+          ]
+        }
+      }
+    },
+    "tools": {
+      "title": "What the agent can do",
+      "readVendors": "Read vendors",
+      "readRequirements": "Read requirements in your frameworks",
+      "readDocumentation": "Read documentation status",
+      "reportCoverage": "Report coverage",
+      "createActivity": "Create activity",
+      "writes": "changes something",
+      "devQuestion": "Need the endpoint, transport and Bearer header?",
+      "devButton": "For developers",
+      "devEndpoint": "Endpoint",
+      "devTransport": "Transport",
+      "devAuth": "Authentication"
+    },
+    "connected": {
+      "title": "Your agent is connected",
+      "subtitle": "You can ask the agent about vendors, requirements and documentation without logging in here.",
+      "active": "Active",
+      "client": "Client",
+      "lastUsed": "Last used",
+      "notUsedYet": "Not used yet",
+      "expires": "Code expires",
+      "connectAnother": "Connect another agent",
+      "revoke": "Revoke access",
+      "revokeTitle": "Revoke access?",
+      "revokeBody": "All active codes stop working immediately. You can create a new code at any time.",
+      "revokedToast": "Access has been revoked."
+    },
+    "activity": {
+      "title": "What the agent has done",
+      "seeAll": "See all",
+      "empty": "Activity will appear here as soon as logging of agent actions is in place."
+    }
   }
 }
