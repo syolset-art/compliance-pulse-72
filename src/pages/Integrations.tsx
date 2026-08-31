@@ -36,6 +36,7 @@ import {
 import { useConnectedSources } from "@/hooks/useConnectedSources";
 import { ConnectIntegrationDialog } from "@/components/integrations/ConnectIntegrationDialog";
 import { McpAgentConnectionsSection } from "@/components/integrations/McpAgentConnectionsSection";
+import { AgentAccessCenter, useConnectedAgents } from "@/components/integrations/AgentAccessCenter";
 import { LocalAgentCard } from "@/components/integrations/LocalAgentCard";
 import { AgentActivityFeed, type AgentActivityItem } from "@/components/integrations/AgentActivityFeed";
 import { NextSourceSuggestions } from "@/components/integrations/NextSourceSuggestions";
@@ -78,6 +79,8 @@ export default function Integrations() {
   })();
   const [search, setSearch] = useState("");
   const [mainTab, setMainTab] = useState("agents");
+  const connectedAgents = useConnectedAgents();
+  const activeAgentCount = connectedAgents.filter((a) => a.status === "active").length;
 
   const [discovery, setDiscovery] = useState<DiscoveryType | "all">(initialDiscovery);
   const [activity, setActivity] = useState<AgentActivityItem[]>([]);
@@ -191,7 +194,7 @@ export default function Integrations() {
         </div>
 
 
-        <ByoaAgentHero />
+        <ByoaAgentHero onViewAccess={() => setMainTab("connected")} />
 
 
         {Object.values(connections).some((c) => c.status === "active") && (
@@ -201,6 +204,14 @@ export default function Integrations() {
         <Tabs value={mainTab} onValueChange={setMainTab} className="mt-8">
           <TabsList>
             <TabsTrigger value="agents">Agenter</TabsTrigger>
+            <TabsTrigger value="connected">
+              Tilkoblede agenter
+              {activeAgentCount > 0 && (
+                <span className="ml-1.5 rounded-full bg-primary/10 px-1.5 text-[10px] text-primary">
+                  {activeAgentCount}
+                </span>
+              )}
+            </TabsTrigger>
             <TabsTrigger value="later">Kommer senere</TabsTrigger>
           </TabsList>
         </Tabs>
@@ -430,7 +441,11 @@ export default function Integrations() {
         )}
 
         {mainTab === "connected" && (
-          <AgentAccessCenter onConnectNew={() => setMainTab("connected")} />
+          <AgentAccessCenter
+            onConnectNew={() =>
+              window.dispatchEvent(new CustomEvent("mynder:open-agent-wizard"))
+            }
+          />
         )}
 
         {mainTab === "agents" && (
