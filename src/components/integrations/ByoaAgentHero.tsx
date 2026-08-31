@@ -90,8 +90,8 @@ export function ByoaAgentHero({ onViewAccess }: { onViewAccess?: () => void } = 
               <Button
                 variant="outline"
                 className="h-10 gap-2"
-                onClick={() => setShowAccess((s) => !s)}
-                aria-expanded={showAccess}
+                onClick={handleViewAccess}
+                aria-expanded={onViewAccess ? undefined : showAccess}
               >
                 <ShieldCheck className="h-4 w-4" aria-hidden="true" />
                 Se og styre agenttilgang
@@ -101,9 +101,16 @@ export function ByoaAgentHero({ onViewAccess }: { onViewAccess?: () => void } = 
         </div>
       </Card>
 
-      {showAccess && <AgentAccessCenter onConnectNew={() => setWizardOpen(true)} />}
+      {!onViewAccess && showAccess && (
+        <AgentAccessCenter onConnectNew={() => setWizardOpen(true)} />
+      )}
 
-      <ByoaConnectWizard open={wizardOpen} onOpenChange={setWizardOpen} />
+      <ByoaConnectWizard
+        open={wizardOpen}
+        onOpenChange={setWizardOpen}
+        onConnected={onViewAccess}
+      />
     </>
   );
 }
+
