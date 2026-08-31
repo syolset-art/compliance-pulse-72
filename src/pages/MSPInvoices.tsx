@@ -193,8 +193,9 @@ export default function MSPInvoices() {
                 to="/msp-billing"
                 className="text-xs text-muted-foreground hover:text-primary hover:underline underline-offset-2"
               >
-                {partnerSharePct} % partnerandel · Partneravtale
+                Partnerens andel: {partnerSharePct} % — registrert i fakturainnstillinger og partneravtale
               </Link>
+
             </div>
 
             {/* Toppsammendrag — kompakt */}
