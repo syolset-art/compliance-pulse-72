@@ -168,7 +168,9 @@ export function ByoaConnectWizard({
       },
       ...existing,
     ]);
+    onConnected?.();
   };
+
 
   /** Simulert OAuth/OIDC-flyt for Claude og ChatGPT. */
   const connectWithOauth = async () => {
