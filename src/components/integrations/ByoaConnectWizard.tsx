@@ -229,12 +229,33 @@ export function ByoaConnectWizard({
               <Input
                 id="byoa-name"
                 className="mt-1 h-9 text-[13px]"
-                placeholder="F.eks. Claude på jobb-PC"
+                placeholder={`F.eks. ${clientLabel} – jobb-PC`}
                 value={connectionName}
                 onChange={(e) => setConnectionName(e.target.value)}
                 disabled={!!freshToken}
               />
+              <p className="mt-1 text-xs text-muted-foreground">
+                Vanlig praksis er å navngi koblingen etter agenten og hvor den brukes – da ser du
+                lett hvilken kode du skal trekke tilbake senere.
+              </p>
+              {!freshToken && (
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  {[`${clientLabel} – jobb-PC`, `${clientLabel} – privat`, `${clientLabel} – mobil`].map(
+                    (s) => (
+                      <button
+                        key={s}
+                        type="button"
+                        onClick={() => setConnectionName(s)}
+                        className="rounded-full border border-border px-2.5 py-1 text-xs text-muted-foreground transition-colors hover:bg-muted"
+                      >
+                        {s}
+                      </button>
+                    ),
+                  )}
+                </div>
+              )}
             </div>
+
 
             {freshToken ? (
               <div className="rounded-lg border border-primary/30 bg-primary/5 p-3">
