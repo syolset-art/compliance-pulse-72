@@ -184,6 +184,7 @@ type PinRecipe = {
   fetchedAt?: string;
   attestation: PinAttestationLevel;
   attestedBy?: string;
+  attestedByRole?: string;
   attestedAt?: string;
   freshness: PinFreshnessFlag;
   checkedAt?: string;
@@ -225,6 +226,7 @@ function buildPin(id: string, r: PinRecipe): Pin {
     attestation: {
       level: r.attestation,
       attestedBy: r.attestedBy,
+      attestedByRole: r.attestedByRole,
       attestedAt: r.attestedAt,
     },
     freshness: { flag: r.freshness, checkedAt: r.checkedAt, drifting: r.drifting ?? false },
@@ -247,6 +249,7 @@ const NOT_VERIFIED: PinRecipe = {
  * GDPR Vilde-sikret. Ingen andre regelverk skal settes grønt uten dokumentasjon.
  */
 const ANONYMOUS_ATTESTANT = "Mynder";
+const ATTESTANT_ROLE = "juridisk fagansvarlig";
 
 const FRAMEWORK_PIN_RECIPES: Record<string, PinRecipe> = {
   nis2: {
@@ -255,6 +258,7 @@ const FRAMEWORK_PIN_RECIPES: Record<string, PinRecipe> = {
     fetchMethod: "manual_upload",
     attestation: "human_verified",
     attestedBy: ANONYMOUS_ATTESTANT,
+    attestedByRole: ATTESTANT_ROLE,
     attestedAt: "2026-08-26",
     freshness: "current",
     checkedAt: "2026-08-26",
@@ -265,6 +269,7 @@ const FRAMEWORK_PIN_RECIPES: Record<string, PinRecipe> = {
     fetchMethod: "manual_upload",
     attestation: "human_verified",
     attestedBy: ANONYMOUS_ATTESTANT,
+    attestedByRole: ATTESTANT_ROLE,
     attestedAt: "2026-08-26",
     freshness: "current",
     checkedAt: "2026-08-26",
@@ -275,6 +280,7 @@ const FRAMEWORK_PIN_RECIPES: Record<string, PinRecipe> = {
     fetchMethod: "manual_upload",
     attestation: "human_reviewed",
     attestedBy: ANONYMOUS_ATTESTANT,
+    attestedByRole: ATTESTANT_ROLE,
     attestedAt: "2026-08-26",
     freshness: "current",
     checkedAt: "2026-08-26",
