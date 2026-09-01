@@ -8,7 +8,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Eye, ListChecks, ShieldCheck, Sparkles } from "lucide-react";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import { ChevronDown, Eye, ListChecks, ShieldCheck, Sparkles } from "lucide-react";
 import { TrustBoundaryStrip } from "@/components/integrations/TrustBoundaryStrip";
 import { CapabilityList } from "@/components/integrations/AgentCapabilitiesList";
 import byoaHero from "@/assets/byoa-agent-hero.png";
@@ -19,6 +24,7 @@ import byoaHero from "@/assets/byoa-agent-hero.png";
 export function ByoaAgentHero({ onConnect }: { onConnect: () => void }) {
   const { t } = useTranslation();
   const [showBoundary, setShowBoundary] = useState(false);
+  const [showCapabilities, setShowCapabilities] = useState(false);
 
   const points = [
     { icon: Eye, text: t("byoa.hero.point1") },
@@ -73,8 +79,28 @@ export function ByoaAgentHero({ onConnect }: { onConnect: () => void }) {
           </div>
 
           <div className="min-w-0 md:border-l md:border-border md:pl-8">
-            <CapabilityList />
+            <Collapsible open={showCapabilities} onOpenChange={setShowCapabilities}>
+              <CollapsibleTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 gap-1.5 px-2 text-[13px] font-medium text-primary hover:text-primary"
+                >
+                  <ChevronDown
+                    className={`h-4 w-4 transition-transform ${showCapabilities ? "rotate-180" : ""}`}
+                    aria-hidden="true"
+                  />
+                  {showCapabilities
+                    ? t("byoa.continuous.showLess", "Skjul")
+                    : t("byoa.tools.title")}
+                </Button>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="mt-4">
+                <CapabilityList />
+              </CollapsibleContent>
+            </Collapsible>
           </div>
+
         </div>
       </Card>
 
