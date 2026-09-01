@@ -80,7 +80,7 @@ export function PinBadge({
       </p>
       <dl className="space-y-1">
         <TooltipRow label="Pin-ID" value={`${resolved.pin_id} · ${resolved.unit_version}`} />
-        <TooltipRow label="Kilde" value={sourceText} />
+        <TooltipRow label="Kilde" value={SOURCE_CLASS_LABEL[resolved.source.sourceClass]} />
         <TooltipRow label="Referanse" value={resolved.source.sourceRef || UNKNOWN_TEXT} />
         <TooltipRow label="Innhold laget av" value={CONTENT_CREATED_BY_TEXT[level]} />
         <TooltipRow
