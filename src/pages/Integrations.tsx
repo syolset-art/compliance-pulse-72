@@ -311,132 +311,142 @@ export default function Integrations() {
                 </div>
               )}
 
-              <div className="mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {group.items.map((integration) => {
-                  const conn = connections[integration.id];
-                  const status: IntegrationStatus = conn?.status ?? "not_connected";
-                  const isPlanned = group.key === "planned";
-                  const Icon = integration.icon;
-                  return (
-                    <Card
-                      key={integration.id}
-                      className={`p-5 flex flex-col gap-4 transition-shadow ${
-                        isPlanned ? "opacity-80 border-dashed" : "hover:shadow-md"
-                      }`}
-                    >
-                      <div className="flex items-start gap-3">
-                        <div className="h-10 w-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
-                          <Icon className="h-5 w-5" />
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-center gap-2">
-                            <h3 className="font-semibold text-sm truncate">{integration.name}</h3>
-                          </div>
-                          <div className="text-xs text-muted-foreground">{integration.vendor}</div>
-                        </div>
-                        {isPlanned ? (
-                          <Badge variant="outline" className="text-[10px] bg-muted text-muted-foreground">
-                            Kommer
-                          </Badge>
-                        ) : (
-                          <Badge variant="outline" className={`text-[10px] ${STATUS_STYLE[status]}`}>
-                            {status === "active" && <CheckCircle2 className="h-3 w-3 mr-1" />}
-                            {status === "error" && <AlertTriangle className="h-3 w-3 mr-1" />}
-                            {STATUS_LABEL[status]}
-                          </Badge>
-                        )}
-                      </div>
-
-                      <p className="text-xs text-muted-foreground leading-relaxed line-clamp-3">
-                        {integration.description}
-                      </p>
-
-                      <div className="flex flex-wrap gap-1">
-                        {integration.discovers.map((d) => (
-                          <Badge key={d} variant="secondary" className="text-[10px] font-normal">
-                            {DISCOVERY_FILTER_LABEL[d]}
-                          </Badge>
-                        ))}
-                      </div>
-
-                      {conn?.status === "active" && (
-                        <div className="text-xs text-muted-foreground border-t pt-3 space-y-1">
-                          <div className="flex justify-between">
-                            <span>Sist synk</span>
-                            <span className="text-foreground">
-                              {conn.lastSyncAt ? new Date(conn.lastSyncAt).toLocaleString("nb-NO", {
-                                dateStyle: "short",
-                                timeStyle: "short",
-                              }) : "—"}
-                            </span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span>Oppdaget</span>
-                            <span className="text-foreground">
-                              {(conn.discoveredSystems ?? 0)} systemer, {(conn.discoveredVendors ?? 0)} leverandører
-                            </span>
-                          </div>
-                        </div>
-                      )}
-
-                      <div className="mt-auto flex gap-2">
-                        {isPlanned ? (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="w-full"
-                            onClick={() =>
-                              toast.success(`Vi sier fra når ${integration.name} er klar`, {
-                                description: "Interessen din er registrert hos Mynder.",
-                              })
-                            }
-                          >
-                            Gi meg beskjed
-                          </Button>
-                        ) : status === "not_connected" ? (
-                          <Button size="sm" className="w-full" onClick={() => setDialogIntegration(integration)}>
-                            <Plug className="h-3.5 w-3.5 mr-1.5" />
-                            Koble til
-                          </Button>
-                        ) : (
-                          <>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="flex-1"
-                              onClick={() => handleSync(integration.id, integration.name)}
-                            >
-                              <RefreshCw className="h-3.5 w-3.5 mr-1.5" />
-                              Synk nå
-                            </Button>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button size="sm" variant="ghost" className="px-2">
-                                  <Settings2 className="h-3.5 w-3.5" />
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>Innstillinger</TooltipContent>
-                            </Tooltip>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
+              <Card className="mt-3 overflow-hidden p-0">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-[30%]">Kilde</TableHead>
+                      <TableHead className="hidden md:table-cell">Oppdager</TableHead>
+                      <TableHead className="hidden lg:table-cell">Sist synk</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead className="text-right">Handling</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {group.items.map((integration) => {
+                      const conn = connections[integration.id];
+                      const status: IntegrationStatus = conn?.status ?? "not_connected";
+                      const isPlanned = group.key === "planned";
+                      const Icon = integration.icon;
+                      return (
+                        <TableRow key={integration.id} className={isPlanned ? "opacity-70" : undefined}>
+                          <TableCell>
+                            <div className="flex items-center gap-2.5">
+                              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
+                                <Icon className="h-3.5 w-3.5" />
+                              </span>
+                              <div className="min-w-0">
+                                <div className="truncate text-[13px] font-medium text-foreground">
+                                  {integration.name}
+                                </div>
+                                <div className="truncate text-[12px] text-muted-foreground">
+                                  {integration.vendor}
+                                </div>
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell className="hidden md:table-cell">
+                            <div className="flex flex-wrap gap-1">
+                              {integration.discovers.map((d) => (
+                                <Badge key={d} variant="secondary" className="text-[10px] font-normal">
+                                  {DISCOVERY_FILTER_LABEL[d]}
+                                </Badge>
+                              ))}
+                            </div>
+                          </TableCell>
+                          <TableCell className="hidden lg:table-cell text-[12px] text-muted-foreground">
+                            {conn?.status === "active" && conn.lastSyncAt
+                              ? new Date(conn.lastSyncAt).toLocaleString("nb-NO", {
+                                  dateStyle: "short",
+                                  timeStyle: "short",
+                                })
+                              : "—"}
+                          </TableCell>
+                          <TableCell>
+                            {isPlanned ? (
+                              <Badge variant="outline" className="text-[10px] bg-muted text-muted-foreground">
+                                Kommer
+                              </Badge>
+                            ) : (
+                              <Badge variant="outline" className={`text-[10px] ${STATUS_STYLE[status]}`}>
+                                {status === "active" && <CheckCircle2 className="h-3 w-3 mr-1" />}
+                                {status === "error" && <AlertTriangle className="h-3 w-3 mr-1" />}
+                                {STATUS_LABEL[status]}
+                              </Badge>
+                            )}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex justify-end gap-1">
+                              {isPlanned ? (
                                 <Button
                                   size="sm"
                                   variant="ghost"
-                                  className="px-2 text-destructive hover:text-destructive"
-                                  onClick={() => handleDisconnect(integration.id, integration.name)}
+                                  className="h-8 text-[13px]"
+                                  onClick={() =>
+                                    toast.success(`Vi sier fra når ${integration.name} er klar`, {
+                                      description: "Interessen din er registrert hos Mynder.",
+                                    })
+                                  }
                                 >
-                                  <Trash2 className="h-3.5 w-3.5" />
+                                  Gi meg beskjed
                                 </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>Koble fra og revokér tilgang</TooltipContent>
-                            </Tooltip>
-                          </>
-                        )}
-                      </div>
-                    </Card>
-                  );
-                })}
-              </div>
+                              ) : status === "not_connected" ? (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="h-8 text-[13px]"
+                                  onClick={() => setDialogIntegration(integration)}
+                                >
+                                  <Plug className="h-3.5 w-3.5 mr-1.5" />
+                                  Koble til
+                                </Button>
+                              ) : (
+                                <>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Button
+                                        size="sm"
+                                        variant="ghost"
+                                        className="h-8 px-2"
+                                        onClick={() => handleSync(integration.id, integration.name)}
+                                      >
+                                        <RefreshCw className="h-3.5 w-3.5" />
+                                      </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>Synk nå</TooltipContent>
+                                  </Tooltip>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Button size="sm" variant="ghost" className="h-8 px-2">
+                                        <Settings2 className="h-3.5 w-3.5" />
+                                      </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>Innstillinger</TooltipContent>
+                                  </Tooltip>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Button
+                                        size="sm"
+                                        variant="ghost"
+                                        className="h-8 px-2 text-destructive hover:text-destructive"
+                                        onClick={() => handleDisconnect(integration.id, integration.name)}
+                                      >
+                                        <Trash2 className="h-3.5 w-3.5" />
+                                      </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>Koble fra og revokér tilgang</TooltipContent>
+                                  </Tooltip>
+                                </>
+                              )}
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </Card>
+
             </section>
           ))}
 
