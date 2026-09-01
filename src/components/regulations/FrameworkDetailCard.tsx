@@ -2,6 +2,12 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 import { type Framework } from "@/lib/frameworkDefinitions";
 import { exportCompliancePdf } from "./ExportCompliancePdf";
@@ -10,6 +16,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { FrameworkCountryTag } from "./FrameworkCountryTag";
 import { PinBadge } from "@/components/pin/PinBadge";
 import { getFrameworkPin } from "@/lib/pin";
+import { MoreVertical, Share2, FileDown } from "lucide-react";
 
 interface FrameworkDetailCardProps {
   framework: Framework;
@@ -57,14 +64,23 @@ export const FrameworkDetailCard = ({ framework, counts }: FrameworkDetailCardPr
               </h2>
               <p className="text-sm text-muted-foreground mt-0.5">{framework.description}</p>
             </div>
-            <div className="flex gap-2 shrink-0">
-              <Button variant="outline" size="sm" onClick={() => setShowShare(true)}>
-                Del
-              </Button>
-              <Button variant="outline" size="sm" onClick={handleExport} disabled={exporting}>
-                {exporting ? "Eksporterer…" : "Eksporter PDF"}
-              </Button>
-            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="icon" className="h-8 w-8 shrink-0" aria-label="Alternativer">
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => setShowShare(true)}>
+                  <Share2 className="mr-2 h-4 w-4" />
+                  Del rapport
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleExport} disabled={exporting}>
+                  <FileDown className="mr-2 h-4 w-4" />
+                  {exporting ? "Eksporterer…" : "Eksporter PDF"}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
           {/* Progress: "X av Y krav oppfylt" + percentage */}
