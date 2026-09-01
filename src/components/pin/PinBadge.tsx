@@ -3,15 +3,36 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { cn } from "@/lib/utils";
 import {
   ATTESTATION_LABEL,
+  ATTESTATION_METHOD_TEXT,
   ATTESTATION_VERIFIER_TEXT,
+  CONTENT_CREATED_BY_TEXT,
   SOURCE_CLASS_LABEL,
+  UNKNOWN_TEXT,
   formatPinDate,
+  formatPinRelativeDate,
   getFrameworkPin,
   pinTooltipLine,
   type Pin,
 } from "@/lib/pin";
 import { PinRosette } from "./PinRosette";
 import { PinDetails } from "./PinDetails";
+
+function TooltipRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex gap-2 text-xs">
+      <dt className="w-[110px] shrink-0 text-muted-foreground">{label}</dt>
+      <dd
+        className={cn(
+          "min-w-0 flex-1 truncate text-foreground",
+          value === UNKNOWN_TEXT && "italic text-muted-foreground",
+        )}
+        title={value}
+      >
+        {value}
+      </dd>
+    </div>
+  );
+}
 
 interface PinBadgeProps {
   pin?: Pin;
@@ -38,9 +59,6 @@ export function PinBadge({
 
   const sourceText =
     resolved.source.sourceRef || SOURCE_CLASS_LABEL[resolved.source.sourceClass];
-  const checkedText = formatPinDate(
-    resolved.freshness.checkedAt ?? resolved.attestation.attestedAt,
-  );
 
   // Kun rosett — ingen pille, ingen tekst.
   const visual = (
@@ -50,29 +68,45 @@ export function PinBadge({
   );
 
   const tooltip = (
-    <div className="max-w-[260px] space-y-1.5">
-      <div className="flex items-center gap-1.5 font-medium">
-        <PinRosette level={level} className="h-3.5 w-3.5" />
+    <div className="w-[300px] space-y-2 p-1">
+      <div className="flex items-center gap-1.5 font-semibold">
+        <PinRosette level={level} className="h-4 w-4" />
         {label}
       </div>
-      <dl className="space-y-0.5 text-xs opacity-90">
-        <div className="flex gap-1.5">
-          <dt className="shrink-0">Verifisert av</dt>
-          <dd className="truncate">{ATTESTATION_VERIFIER_TEXT[level]}</dd>
-        </div>
-        <div className="flex gap-1.5">
-          <dt className="shrink-0">Kilde</dt>
-          <dd className="truncate">{sourceText}</dd>
-        </div>
-        <div className="flex gap-1.5">
-          <dt className="shrink-0">Sist verifisert</dt>
-          <dd>{checkedText}</dd>
-        </div>
-        <div className="flex gap-1.5">
-          <dt className="shrink-0">Pin-ID</dt>
-          <dd className="font-mono">{resolved.pin_id}</dd>
-        </div>
+      <p className="text-xs opacity-90">
+        {`Verifisert av ${ATTESTATION_VERIFIER_TEXT[level]} · ${ATTESTATION_METHOD_TEXT[level]} · ${formatPinDate(
+          resolved.attestation.attestedAt,
+        )}`}
+      </p>
+      <dl className="space-y-1">
+        <TooltipRow label="Pin-ID" value={`${resolved.pin_id} · ${resolved.unit_version}`} />
+        <TooltipRow label="Kilde" value={sourceText} />
+        <TooltipRow label="Referanse" value={resolved.source.sourceRef || UNKNOWN_TEXT} />
+        <TooltipRow label="Innhold laget av" value={CONTENT_CREATED_BY_TEXT[level]} />
+        <TooltipRow
+          label="Sist kontrollert"
+          value={formatPinRelativeDate(
+            resolved.freshness.checkedAt ?? resolved.attestation.attestedAt,
+          )}
+        />
+        <TooltipRow
+          label="Innholdsversjon"
+          value={`${resolved.unit_version} · ${resolved.content_hash}`}
+        />
+        {resolved.previousAttestation && (
+          <TooltipRow
+            label="Tidligere"
+            value={`${ATTESTATION_LABEL[resolved.previousAttestation.level]} ${formatPinDate(
+              resolved.previousAttestation.at,
+            )}, gjaldt ${resolved.previousAttestation.unitVersion}`}
+          />
+        )}
       </dl>
+      <p className="border-t border-border pt-2 text-[10px] leading-relaxed text-muted-foreground">
+        {resolved.previousAttestation
+          ? "Innholdet er endret siden forrige menneskeverifisering. Merket gjelder denne innholdsversjonen — den sier hvor innholdet kommer fra og hvem som står bak, ikke at det er godkjent for bruk."
+          : "Merket gjelder denne innholdsversjonen — den sier hvor innholdet kommer fra og hvem som står bak, ikke at det er godkjent for bruk."}
+      </p>
     </div>
   );
 
