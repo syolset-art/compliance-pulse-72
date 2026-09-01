@@ -2071,7 +2071,7 @@
     },
     "page": {
       "title": "MCP Integrasjon",
-      "intro": "Koble din egen AI-agent til Mynder. Du får en adresse og en personlig kode — lim dem inn i agenten din, så kan den lese leverandører, krav og dokumentasjon og opprette aktiviteter for deg."
+      "intro": "Koble din egen AI-agent til Mynder.\u00a0"
     },
     "clients": {
       "title": "Velg hvor agenten din bor",
