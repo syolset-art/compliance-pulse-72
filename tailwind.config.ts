@@ -122,25 +122,15 @@ export default {
           foreground: "hsl(var(--system-owned-foreground))",
           soft: "hsl(var(--system-owned-soft))",
         },
-        "pin-verified": {
-          DEFAULT: "hsl(var(--pin-verified))",
-          soft: "hsl(var(--pin-verified-soft))",
-          fg: "hsl(var(--pin-verified-fg))",
+        "pin-human": {
+          DEFAULT: "hsl(var(--pin-human))",
+          soft: "hsl(var(--pin-human-soft))",
+          fg: "hsl(var(--pin-human-fg))",
         },
-        "pin-unverified": {
-          DEFAULT: "hsl(var(--pin-unverified))",
-          soft: "hsl(var(--pin-unverified-soft))",
-          fg: "hsl(var(--pin-unverified-fg))",
-        },
-        "pin-fallen": {
-          DEFAULT: "hsl(var(--pin-fallen))",
-          soft: "hsl(var(--pin-fallen-soft))",
-          fg: "hsl(var(--pin-fallen-fg))",
-        },
-        "pin-unknown": {
-          DEFAULT: "hsl(var(--pin-unknown))",
-          soft: "hsl(var(--pin-unknown-soft))",
-          fg: "hsl(var(--pin-unknown-fg))",
+        "pin-agent": {
+          DEFAULT: "hsl(var(--pin-agent))",
+          soft: "hsl(var(--pin-agent-soft))",
+          fg: "hsl(var(--pin-agent-fg))",
         },
         "crit-low": {
           DEFAULT: "hsl(var(--crit-low))",
