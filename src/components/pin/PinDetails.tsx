@@ -92,7 +92,7 @@ export function PinDetails({ pin, className }: { pin: Pin; className?: string })
           Pin {pin.pin_id}
         </p>
         {pin.fallen && (
-          <p className="flex items-start gap-1.5 rounded-md border border-warning/40 bg-warning/10 px-2 py-1.5 text-[11px] font-medium text-warning">
+          <p className="flex items-start gap-1.5 rounded-md border border-pin-fallen/40 bg-pin-fallen-soft px-2 py-1.5 text-[11px] font-medium text-pin-fallen-fg">
             <AlertTriangle className="mt-px h-3 w-3 shrink-0" aria-hidden="true" />
             Pin falt — innholdsversjonen er endret etter verifikasjon. Innholdet kan
             fortsatt brukes.
