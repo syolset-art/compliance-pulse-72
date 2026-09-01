@@ -1,52 +1,10 @@
-import { useMemo, useState } from "react";
-import { useTranslation } from "react-i18next";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 import { Sidebar } from "@/components/Sidebar";
-import {
-  Search,
-  Plug,
-  ArrowLeft,
-  Shield,
-  RefreshCw,
-  Settings2,
-  Trash2,
-  CheckCircle2,
-  AlertTriangle,
-  Bot,
-  Info,
-} from "lucide-react";
+import { ArrowLeft, Bot } from "lucide-react";
 
-
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { toast } from "sonner";
-import {
-  INTEGRATION_CATALOG,
-  DISCOVERY_FILTER_LABEL,
-  STATUS_LABEL,
-  type DiscoveryType,
-  type IntegrationDefinition,
-  type IntegrationStatus,
-} from "@/lib/integrationCatalog";
-import { useConnectedSources } from "@/hooks/useConnectedSources";
-import { ConnectIntegrationDialog } from "@/components/integrations/ConnectIntegrationDialog";
-import { LocalAgentCard } from "@/components/integrations/LocalAgentCard";
-import { AgentActivityFeed, type AgentActivityItem } from "@/components/integrations/AgentActivityFeed";
-import { NextSourceSuggestions } from "@/components/integrations/NextSourceSuggestions";
-import { SaraDetailsSection } from "@/components/integrations/SaraDetailsSection";
 import { ByoaAgentHero } from "@/components/integrations/ByoaAgentHero";
 import { ByoaConnectWizard } from "@/components/integrations/ByoaConnectWizard";
 import { ByoaConnectedStatus } from "@/components/integrations/ByoaConnectedStatus";
@@ -58,44 +16,9 @@ import {
   listAgentTokens,
   type AgentTokenRow,
 } from "@/lib/agentTokens";
-import { useEffect } from "react";
-
-
-
-interface ConnectionState {
-  status: IntegrationStatus;
-  connectedAt?: string;
-  lastSyncAt?: string;
-  discoveredSystems?: number;
-  discoveredVendors?: number;
-}
-
-const DISCOVERY_FILTERS: (DiscoveryType | "all")[] = [
-  "all",
-  "systems",
-  "vendors",
-  "documents",
-  "users",
-  "incidents",
-];
-
-const STATUS_STYLE: Record<IntegrationStatus, string> = {
-  not_connected: "bg-muted text-muted-foreground",
-  active: "bg-success/15 text-success border-success/30",
-  error: "bg-destructive/15 text-destructive border-destructive/30",
-  expired: "bg-warning/15 text-warning border-warning/30",
-};
 
 export default function Integrations() {
-  const { t } = useTranslation();
-  const [searchParams] = useSearchParams();
-  const initialDiscovery = (() => {
-    const q = searchParams.get("discover");
-    return q && DISCOVERY_FILTERS.includes(q as DiscoveryType)
-      ? (q as DiscoveryType)
-      : ("all" as const);
-  })();
-  const [search, setSearch] = useState("");
+  const navigate = useNavigate();
   const [tokens, setTokens] = useState<AgentTokenRow[]>([]);
   const [showWizard, setShowWizard] = useState(false);
   const activeTokens = tokens.filter(isActiveToken);
@@ -108,384 +31,47 @@ export default function Integrations() {
     return () => window.removeEventListener(AGENT_TOKENS_EVENT, sync);
   }, []);
 
-  const [discovery, setDiscovery] = useState<DiscoveryType | "all">(initialDiscovery);
-  const [activity, setActivity] = useState<AgentActivityItem[]>([]);
-  const [connections, setConnections] = useState<Record<string, ConnectionState>>({});
-  const [dialogIntegration, setDialogIntegration] = useState<IntegrationDefinition | null>(null);
-  const { connectSource, disconnectSource } = useConnectedSources();
-  const navigate = useNavigate();
-
-
-
-  const filtered = useMemo(() => {
-    return INTEGRATION_CATALOG.filter((i) => {
-      if (discovery !== "all" && !i.discovers.includes(discovery)) return false;
-      if (search.trim() && !`${i.name} ${i.vendor} ${i.description}`.toLowerCase().includes(search.toLowerCase())) {
-        return false;
-      }
-      return true;
-    });
-  }, [search, discovery]);
-
-
-  const coveredTypes = useMemo(() => {
-    const set = new Set<DiscoveryType>();
-    INTEGRATION_CATALOG.forEach((i) => {
-      if (connections[i.id]?.status === "active") i.discovers.forEach((d) => set.add(d));
-    });
-    return Array.from(set);
-  }, [connections]);
-
-  const handleConnect = (integration: IntegrationDefinition) => {
-    setConnections((prev) => ({
-      ...prev,
-      [integration.id]: {
-        status: "active",
-        connectedAt: new Date().toISOString(),
-        lastSyncAt: new Date().toISOString(),
-        discoveredSystems: integration.discovers.includes("systems") ? Math.floor(Math.random() * 24) + 3 : 0,
-        discoveredVendors: integration.discovers.includes("vendors") ? Math.floor(Math.random() * 12) + 1 : 0,
-      },
-    }));
-    connectSource(integration.id);
-    setActivity((prev) => [
-      {
-        id: `${integration.id}-${Date.now()}`,
-        source: integration.name,
-        summary: `Lara startet kartlegging av ${integration.name}`,
-        at: new Date().toISOString(),
-        status: "pending",
-      },
-      ...prev,
-    ]);
-
-    toast.success(`${integration.name} koblet til`, {
-      description: "Lara starter automatisk kartlegging. Oppdagede elementer krever din godkjenning.",
-    });
-    setDialogIntegration(null);
-  };
-
-  const handleSync = (id: string, name: string) => {
-    setConnections((prev) => ({
-      ...prev,
-      [id]: {
-        ...prev[id]!,
-        lastSyncAt: new Date().toISOString(),
-        discoveredSystems: (prev[id]?.discoveredSystems ?? 0) + Math.floor(Math.random() * 3),
-      },
-    }));
-    setActivity((prev) => [
-      {
-        id: `${id}-${Date.now()}`,
-        source: name,
-        summary: `Nye funn fra ${name} venter på godkjenning`,
-        at: new Date().toISOString(),
-        status: "pending",
-      },
-      ...prev,
-    ]);
-    toast.success(`${name}: synkronisering fullført`);
-  };
-
-  const handleDisconnect = (id: string, name: string) => {
-    setConnections((prev) => {
-      const next = { ...prev };
-      delete next[id];
-      return next;
-    });
-    disconnectSource(id);
-    toast.info(`${name} koblet fra`, { description: "Tilgangstokenet er revokert." });
-  };
-
   return (
-    <TooltipProvider>
-      <div className="flex min-h-screen bg-background">
-        <Sidebar />
-        <main className="flex-1 overflow-auto">
-      <div className="container mx-auto pt-16 px-6 pb-12 max-w-7xl">
-        <div className="flex items-start gap-3">
-          <Button variant="ghost" size="icon" onClick={() => navigate(-1)} aria-label="Tilbake">
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <div className="h-10 w-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
-            <Bot className="h-5 w-5" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-semibold tracking-tight">MCP Integrasjon</h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              Koble din egen AI-agent til Mynder. Du bestemmer hva den får se, hva den får gjøre, og hva som krever din godkjenning.
-            </p>
-
-          </div>
-        </div>
-
-
-        {activeTokens.length > 0 ? (
-          <ByoaConnectedStatus
-            tokens={activeTokens}
-            onConnectAnother={() => setShowWizard(true)}
-            onChanged={refreshTokens}
-          />
-        ) : (
-          <ByoaAgentHero onConnect={() => setShowWizard(true)} />
-        )}
-
-        <ByoaConnectWizard
-          open={showWizard}
-          onOpenChange={setShowWizard}
-          onConnected={refreshTokens}
-        />
-
-        <section className="mt-8">
-          <div className="flex items-baseline gap-2">
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-foreground">
-              {t("sourceMap.title")}
-            </h2>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Info className="h-4 w-4 text-muted-foreground cursor-help" />
-              </TooltipTrigger>
-              <TooltipContent side="right" className="max-w-sm">
-                {t("sourceMap.tooltip")}
-              </TooltipContent>
-            </Tooltip>
-            <span className="text-xs text-muted-foreground">{t("sourceMap.description")}</span>
+    <div className="flex min-h-screen bg-background">
+      <Sidebar />
+      <main className="flex-1 overflow-auto">
+        <div className="container mx-auto pt-16 px-6 pb-12 max-w-7xl">
+          <div className="flex items-start gap-3">
+            <Button variant="ghost" size="icon" onClick={() => navigate(-1)} aria-label="Tilbake">
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <div className="h-10 w-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
+              <Bot className="h-5 w-5" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-semibold tracking-tight">MCP Integrasjon</h1>
+              <p className="text-sm text-muted-foreground mt-1">
+                Koble din egen AI-agent til Mynder. Du bestemmer hva den får se, hva den får gjøre, og hva som krever din godkjenning.
+              </p>
+            </div>
           </div>
 
-        </section>
-
-
-        {/* Filters */}
-        <div className="mt-6 flex flex-col md:flex-row md:items-center gap-3">
-          <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Søk etter kilde…"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-9"
+          {activeTokens.length > 0 ? (
+            <ByoaConnectedStatus
+              tokens={activeTokens}
+              onConnectAnother={() => setShowWizard(true)}
+              onChanged={refreshTokens}
             />
-          </div>
-          <Tabs value={discovery} onValueChange={(v) => setDiscovery(v as DiscoveryType | "all")}>
-            <TabsList>
-              {DISCOVERY_FILTERS.map((d) => (
-                <TabsTrigger key={d} value={d} className="text-xs">
-                  {d === "all" ? "Alle" : DISCOVERY_FILTER_LABEL[d]}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </Tabs>
+          ) : (
+            <ByoaAgentHero onConnect={() => setShowWizard(true)} />
+          )}
+
+          <ByoaConnectWizard
+            open={showWizard}
+            onOpenChange={setShowWizard}
+            onConnected={refreshTokens}
+          />
+
+          <ContinuousComplianceCard />
+
+          <AgentDeveloperDetails />
         </div>
-
-        {/* Groups */}
-        {[
-          {
-            key: "connected",
-            title: "Tilkoblet",
-            desc: "Kilder Lara henter data fra nå.",
-            items: filtered.filter((i) => connections[i.id]?.status === "active"),
-          },
-          {
-            key: "available",
-            title: "Tilgjengelig nå",
-            desc: "Kan kobles på i dag — kun lesetilgang.",
-            items: filtered.filter(
-              (i) => i.availability === "available" && connections[i.id]?.status !== "active",
-            ),
-          },
-          {
-            key: "planned",
-            title: "Planlagt",
-            desc: "Under arbeid. Si fra hvis du vil ha den tidlig.",
-            items: filtered.filter(
-              (i) => i.availability === "planned" && connections[i.id]?.status !== "active",
-            ),
-          },
-        ]
-          .filter((g) => g.items.length > 0)
-          .map((group) => (
-            <section key={group.key} className="mt-8">
-              <div className="flex items-baseline gap-2">
-                <h2 className="text-sm font-semibold uppercase tracking-wide text-foreground">
-                  {group.title}
-                </h2>
-                <span className="text-xs text-muted-foreground">{group.desc}</span>
-              </div>
-
-              {group.key === "available" && (
-                <div className="mt-3 flex items-center gap-2 rounded-lg border border-border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
-                  <Shield className="h-3.5 w-3.5 shrink-0 text-primary" />
-                  <span>Alle integrasjoner ber kun om lesetilgang. Mynder skriver aldri tilbake til kilden.</span>
-                </div>
-              )}
-
-              <Card className="mt-3 overflow-hidden p-0">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-[30%]">Kilde</TableHead>
-                      <TableHead className="hidden md:table-cell">Oppdager</TableHead>
-                      <TableHead className="hidden lg:table-cell">Sist synk</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead className="text-right">Handling</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {group.items.map((integration) => {
-                      const conn = connections[integration.id];
-                      const status: IntegrationStatus = conn?.status ?? "not_connected";
-                      const isPlanned = group.key === "planned";
-                      const Icon = integration.icon;
-                      return (
-                        <TableRow key={integration.id} className={isPlanned ? "opacity-70" : undefined}>
-                          <TableCell>
-                            <div className="flex items-center gap-2.5">
-                              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
-                                <Icon className="h-3.5 w-3.5" />
-                              </span>
-                              <div className="min-w-0">
-                                <div className="truncate text-[13px] font-medium text-foreground">
-                                  {integration.name}
-                                </div>
-                                <div className="truncate text-[12px] text-muted-foreground">
-                                  {integration.vendor}
-                                </div>
-                              </div>
-                            </div>
-                          </TableCell>
-                          <TableCell className="hidden md:table-cell">
-                            <div className="flex flex-wrap gap-1">
-                              {integration.discovers.map((d) => (
-                                <Badge key={d} variant="secondary" className="text-[10px] font-normal">
-                                  {DISCOVERY_FILTER_LABEL[d]}
-                                </Badge>
-                              ))}
-                            </div>
-                          </TableCell>
-                          <TableCell className="hidden lg:table-cell text-[12px] text-muted-foreground">
-                            {conn?.status === "active" && conn.lastSyncAt
-                              ? new Date(conn.lastSyncAt).toLocaleString("nb-NO", {
-                                  dateStyle: "short",
-                                  timeStyle: "short",
-                                })
-                              : "—"}
-                          </TableCell>
-                          <TableCell>
-                            {isPlanned ? (
-                              <Badge variant="outline" className="text-[10px] bg-muted text-muted-foreground">
-                                Kommer
-                              </Badge>
-                            ) : (
-                              <Badge variant="outline" className={`text-[10px] ${STATUS_STYLE[status]}`}>
-                                {status === "active" && <CheckCircle2 className="h-3 w-3 mr-1" />}
-                                {status === "error" && <AlertTriangle className="h-3 w-3 mr-1" />}
-                                {STATUS_LABEL[status]}
-                              </Badge>
-                            )}
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <div className="flex justify-end gap-1">
-                              {isPlanned ? (
-                                <Button
-                                  size="sm"
-                                  variant="ghost"
-                                  className="h-8 text-[13px]"
-                                  onClick={() =>
-                                    toast.success(`Vi sier fra når ${integration.name} er klar`, {
-                                      description: "Interessen din er registrert hos Mynder.",
-                                    })
-                                  }
-                                >
-                                  Gi meg beskjed
-                                </Button>
-                              ) : status === "not_connected" ? (
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  className="h-8 text-[13px]"
-                                  onClick={() => setDialogIntegration(integration)}
-                                >
-                                  <Plug className="h-3.5 w-3.5 mr-1.5" />
-                                  Koble til
-                                </Button>
-                              ) : (
-                                <>
-                                  <Tooltip>
-                                    <TooltipTrigger asChild>
-                                      <Button
-                                        size="sm"
-                                        variant="ghost"
-                                        className="h-8 px-2"
-                                        onClick={() => handleSync(integration.id, integration.name)}
-                                      >
-                                        <RefreshCw className="h-3.5 w-3.5" />
-                                      </Button>
-                                    </TooltipTrigger>
-                                    <TooltipContent>Synk nå</TooltipContent>
-                                  </Tooltip>
-                                  <Tooltip>
-                                    <TooltipTrigger asChild>
-                                      <Button size="sm" variant="ghost" className="h-8 px-2">
-                                        <Settings2 className="h-3.5 w-3.5" />
-                                      </Button>
-                                    </TooltipTrigger>
-                                    <TooltipContent>Innstillinger</TooltipContent>
-                                  </Tooltip>
-                                  <Tooltip>
-                                    <TooltipTrigger asChild>
-                                      <Button
-                                        size="sm"
-                                        variant="ghost"
-                                        className="h-8 px-2 text-destructive hover:text-destructive"
-                                        onClick={() => handleDisconnect(integration.id, integration.name)}
-                                      >
-                                        <Trash2 className="h-3.5 w-3.5" />
-                                      </Button>
-                                    </TooltipTrigger>
-                                    <TooltipContent>Koble fra og revokér tilgang</TooltipContent>
-                                  </Tooltip>
-                                </>
-                              )}
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
-              </Card>
-
-            </section>
-          ))}
-
-        {filtered.length === 0 && (
-          <Card className="mt-6 p-12 text-center text-muted-foreground text-sm">
-            Ingen kilder matcher søket.
-          </Card>
-        )}
-
-        <NextSourceSuggestions covered={coveredTypes} />
-
-        <ContinuousComplianceCard />
-
-        <LocalAgentCard />
-
-        <SaraDetailsSection />
-
-        <AgentDeveloperDetails />
-
-
-
-
-
-        <ConnectIntegrationDialog
-          integration={dialogIntegration}
-          onOpenChange={(open) => !open && setDialogIntegration(null)}
-          onConfirm={handleConnect}
-        />
-      </div>
-        </main>
-      </div>
-    </TooltipProvider>
+      </main>
+    </div>
   );
 }
