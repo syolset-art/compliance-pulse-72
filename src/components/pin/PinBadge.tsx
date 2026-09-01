@@ -87,7 +87,7 @@ export function PinBadge({
       <p className="border-t border-border pt-2 text-[10px] leading-relaxed text-muted-foreground">
         {resolved.previousAttestation
           ? "Innholdet er endret siden forrige menneskeverifisering. Merket gjelder denne innholdsversjonen — den sier hvor innholdet kommer fra og hvem som står bak, ikke at det er godkjent for bruk."
-          : "Merket gjelder denne innholdsversjonen — den sier hvor innholdet kommer fra og hvem som står bak, ikke at det er godkjent for bruk."}
+           : "Merket gjelder denne innholdsversjonen — den sier hvor innholdet kommer fra og hvem som står bak."}
       </p>
     </div>
   );
