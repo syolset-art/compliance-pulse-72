@@ -8,6 +8,8 @@ import { exportCompliancePdf } from "./ExportCompliancePdf";
 import { ShareReportDialog } from "./ShareReportDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { FrameworkCountryTag } from "./FrameworkCountryTag";
+import { PinBadge } from "@/components/pin/PinBadge";
+import { getFrameworkPin } from "@/lib/pin";
 
 interface FrameworkDetailCardProps {
   framework: Framework;
