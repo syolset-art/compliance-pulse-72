@@ -87,13 +87,25 @@ export const SOURCE_CLASS_LABEL: Record<PinSourceClass, string> = {
 
 export const ATTESTATION_LABEL: Record<PinAttestationLevel, string> = {
   human_verified: "Menneskeverifisert",
-  agent_verified: "Verifisert av KI-agent",
+  agent_verified: "Agentverifisert",
 };
 
 /** Hvem som verifiserte — aldri personnavn. */
 export const ATTESTATION_VERIFIER_TEXT: Record<PinAttestationLevel, string> = {
   human_verified: "Mynder, juridisk fagansvarlig",
-  agent_verified: "Mynder KI-agent etter dokumentert kontrollrutine",
+  agent_verified: "Regelverksagent",
+};
+
+/** Hvilken kontrollmetode som ligger bak verifiseringen. */
+export const ATTESTATION_METHOD_TEXT: Record<PinAttestationLevel, string> = {
+  human_verified: "manuell fagvurdering",
+  agent_verified: "automatisk kildesjekk",
+};
+
+/** Hvem/hva som produserte innholdet ut fra kilden. */
+export const CONTENT_CREATED_BY_TEXT: Record<PinAttestationLevel, string> = {
+  human_verified: "Menneske, bearbeidet fra kilde",
+  agent_verified: "Agent, bearbeidet fra kilde",
 };
 
 export const FETCH_METHOD_LABEL: Record<
@@ -114,6 +126,26 @@ export function formatPinDate(value?: string): string {
   const d = new Date(value);
   if (Number.isNaN(d.getTime())) return UNKNOWN_TEXT;
   return d.toLocaleDateString("nb-NO", { day: "numeric", month: "short", year: "numeric" });
+}
+
+/** Dato pluss enkel relativ periode på norsk, f.eks. «31. aug. 2026 · 1 dag siden». */
+export function formatPinRelativeDate(value?: string): string {
+  const formatted = formatPinDate(value);
+  if (formatted === UNKNOWN_TEXT || !value) return formatted;
+  const d = new Date(value);
+  const now = new Date();
+  const diffMs = now.getTime() - d.getTime();
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  if (diffDays < 0) return `${formatted} · i dag`;
+  if (diffDays === 0) return `${formatted} · i dag`;
+  if (diffDays === 1) return `${formatted} · 1 dag siden`;
+  if (diffDays < 30) return `${formatted} · ${diffDays} dager siden`;
+  const diffMonths = Math.floor(diffDays / 30);
+  if (diffMonths === 1) return `${formatted} · 1 måned siden`;
+  if (diffMonths < 12) return `${formatted} · ${diffMonths} måneder siden`;
+  const diffYears = Math.floor(diffMonths / 12);
+  if (diffYears === 1) return `${formatted} · 1 år siden`;
+  return `${formatted} · ${diffYears} år siden`;
 }
 
 /** Tokenklasser per tilstand. Farge er aldri eneste bærer av mening. */

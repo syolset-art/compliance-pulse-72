@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils";
 import {
   ATTESTATION_LABEL,
   ATTESTATION_VERIFIER_TEXT,
+  CONTENT_CREATED_BY_TEXT,
   FETCH_METHOD_LABEL,
   PIN_LEVEL_CLASS,
   SOURCE_CLASS_LABEL,
@@ -55,6 +56,7 @@ export function PinDetails({ pin, className }: { pin: Pin; className?: string })
         <Row label="Verifisert av" value={ATTESTATION_VERIFIER_TEXT[level]} />
         <Row label="Kilde" value={SOURCE_CLASS_LABEL[pin.source.sourceClass]} />
         <Row label="Referanse" value={pin.source.sourceRef || UNKNOWN_TEXT} />
+        <Row label="Innhold laget av" value={CONTENT_CREATED_BY_TEXT[level]} />
         <Row
           label="Hentemetode"
           value={FETCH_METHOD_LABEL[pin.source.fetchMethod ?? "unknown"]}
@@ -72,8 +74,10 @@ export function PinDetails({ pin, className }: { pin: Pin; className?: string })
         )}
       </dl>
 
-      <p className="border-t border-border pt-2 text-[10px] text-muted-foreground">
-        Merket gjelder denne innholdsversjonen – ikke samsvar.
+      <p className="border-t border-border pt-2 text-[10px] leading-relaxed text-muted-foreground">
+        {prev
+          ? "Innholdet er endret siden forrige menneskeverifisering. Merket gjelder denne innholdsversjonen — den sier hvor innholdet kommer fra og hvem som står bak, ikke at det er godkjent for bruk."
+          : "Merket gjelder denne innholdsversjonen — den sier hvor innholdet kommer fra og hvem som står bak, ikke at det er godkjent for bruk."}
       </p>
     </div>
   );
