@@ -46,8 +46,6 @@ export function FrameworkOverviewList({ frameworks, getStats, selectedId, onSele
             <span className="min-w-0 flex-1">
               <span className="flex min-w-0 items-center gap-2">
                 <span className="truncate text-sm font-medium text-foreground">{fw.name}</span>
-                {/* Pin vises som ren visning her (raden er en knapp) */}
-                <PinBadge pin={getFrameworkPin(fw.id)} interactive={false} className="shrink-0" />
               </span>
               <span className="mt-1 flex items-center gap-2">
                 <span className="h-1.5 w-24 overflow-hidden rounded-full bg-muted">
@@ -58,6 +56,11 @@ export function FrameworkOverviewList({ frameworks, getStats, selectedId, onSele
                 </span>
                 <span className="text-xs font-semibold text-foreground">{stats.percent}%</span>
               </span>
+            </span>
+
+            {/* Pin: fast kolonne, samme x-posisjon på alle rader */}
+            <span className="flex w-6 shrink-0 justify-end">
+              <PinBadge pin={getFrameworkPin(fw.id)} variant="icon" interactive={false} />
             </span>
 
             <span className="hidden shrink-0 items-center gap-3 text-xs text-muted-foreground sm:flex">

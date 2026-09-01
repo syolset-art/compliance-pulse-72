@@ -37,7 +37,7 @@ export function AgentTable({ title, icon, agents }: Props) {
               <th className="px-4 py-2.5 font-medium">Status</th>
               <th className="px-4 py-2.5 font-medium">MACF-nivå</th>
               <th className="px-4 py-2.5 font-medium">Tillit-score</th>
-              <th className="px-4 py-2.5 font-medium">Pin</th>
+              <th className="w-16 px-4 py-2.5 font-medium text-right">Pin</th>
               <th className="px-4 py-2.5 font-medium text-right">Handling</th>
             </tr>
           </thead>
@@ -61,7 +61,7 @@ export function AgentTable({ title, icon, agents }: Props) {
                     <td className="px-4 py-3"><AgentStatusBadge status={a.status} /></td>
                     <td className="px-4 py-3"><MacfLevelBadge level={a.macf_level} /></td>
                     <td className="px-4 py-3"><AgentTrustBar score={a.trust_score} /></td>
-                    <td className="px-4 py-3"><PinBadge pin={getMockPin(a.id + a.name)} /></td>
+                    <td className="w-16 px-4 py-3 text-right"><PinBadge pin={getMockPin(a.id + a.name)} variant="icon" /></td>
                     <td className="px-4 py-3 text-right">
                       <Button
                         size="sm"
