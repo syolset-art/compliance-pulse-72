@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { FileText, Share2, Loader2 } from "lucide-react";
+
 import { type Framework } from "@/lib/frameworkDefinitions";
 import { exportCompliancePdf } from "./ExportCompliancePdf";
 import { ShareReportDialog } from "./ShareReportDialog";
@@ -52,13 +52,11 @@ export const FrameworkDetailCard = ({ framework, counts }: FrameworkDetailCardPr
               <p className="text-sm text-muted-foreground mt-0.5">{framework.description}</p>
             </div>
             <div className="flex gap-2 shrink-0">
-              <Button variant="outline" size="sm" className="gap-2" onClick={() => setShowShare(true)}>
-                <Share2 className="h-4 w-4" />
+              <Button variant="outline" size="sm" onClick={() => setShowShare(true)}>
                 Del
               </Button>
-              <Button variant="outline" size="sm" className="gap-2" onClick={handleExport} disabled={exporting}>
-                {exporting ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileText className="h-4 w-4" />}
-                Eksporter PDF
+              <Button variant="outline" size="sm" onClick={handleExport} disabled={exporting}>
+                {exporting ? "Eksporterer…" : "Eksporter PDF"}
               </Button>
             </div>
           </div>
