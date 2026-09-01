@@ -105,14 +105,16 @@ export function ByoaConnectWizard({
   open,
   onOpenChange,
   onConnected,
+  initialClient = "claude",
 }: {
   open: boolean;
   onOpenChange: (v: boolean) => void;
   onConnected?: () => void;
+  initialClient?: WizardClient;
 }) {
   const { t } = useTranslation();
   const [step, setStep] = useState(1);
-  const [client, setClient] = useState<WizardClient>("claude");
+  const [client, setClient] = useState<WizardClient>(initialClient);
   const [name, setName] = useState("");
   const [expiry, setExpiry] = useState<ExpiryChoice>("90");
   const [creating, setCreating] = useState(false);
