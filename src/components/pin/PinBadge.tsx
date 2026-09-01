@@ -35,22 +35,10 @@ export function PinBadge({
   const label = ATTESTATION_LABEL[level];
   const tooltipLine = pinTooltipLine(resolved);
   const a11yLabel = `Pin: ${label}. ${tooltipLine}.`;
-  const asIcon = variant === "icon" || (variant !== "pill" && size === "xs");
-
-  const visual = asIcon ? (
+  // Kun rosett — ingen pille, ingen tekst.
+  const visual = (
     <span className={cn("inline-flex items-center justify-center", className)}>
-      <PinRosette level={level} className="h-3.5 w-3.5" />
-    </span>
-  ) : (
-    <span
-      className={cn(
-        "inline-flex items-center gap-1.5 rounded-pill border px-2 py-0.5 text-xs font-medium",
-        PIN_LEVEL_CLASS[level],
-        className,
-      )}
-    >
-      <PinRosette level={level} className="h-3.5 w-3.5" />
-      {label}
+      <PinRosette level={level} className="h-4 w-4" />
     </span>
   );
 
