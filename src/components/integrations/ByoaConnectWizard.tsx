@@ -377,6 +377,13 @@ export function ByoaConnectWizard({
 
         {step === 3 && (
           <div>
+            <div className="mb-4 flex gap-2 rounded-lg border border-border bg-muted/40 p-3">
+              <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+              <p className="text-[13px] text-muted-foreground">
+                {t("byoa.wizard.step3.comingSoon")}
+              </p>
+            </div>
+
             <Label htmlFor="byoa-endpoint" className="text-[13px] text-muted-foreground">
               {t("byoa.wizard.step3.addressLabel")}
             </Label>
