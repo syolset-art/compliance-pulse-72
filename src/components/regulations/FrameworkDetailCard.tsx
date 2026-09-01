@@ -22,8 +22,6 @@ interface FrameworkDetailCardProps {
 }
 
 export const FrameworkDetailCard = ({ framework, counts }: FrameworkDetailCardProps) => {
-  const category = getCategoryById(framework.category);
-  const CategoryIcon = category?.icon;
   const pct = counts.total > 0 ? Math.round((counts.met / counts.total) * 100) : 0;
   const [exporting, setExporting] = useState(false);
   const [showShare, setShowShare] = useState(false);
@@ -47,18 +45,11 @@ export const FrameworkDetailCard = ({ framework, counts }: FrameworkDetailCardPr
     <>
       <Card>
         <CardContent className="p-5 space-y-4">
-          {/* Header: Icon + Title + Buttons */}
+          {/* Header: Title + Buttons */}
           <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-            <div className="flex items-start gap-3 flex-1 min-w-0">
-              {CategoryIcon && (
-                <div className={`p-2.5 rounded-xl shrink-0 ${category?.bgColor}`}>
-                  <CategoryIcon className={`h-5 w-5 ${category?.color}`} />
-                </div>
-              )}
-              <div className="min-w-0">
-                <h2 className="text-lg font-bold text-foreground flex items-center gap-2 flex-wrap"><FrameworkCountryTag frameworkId={framework.id} />{framework.name}</h2>
-                <p className="text-sm text-muted-foreground mt-0.5">{framework.description}</p>
-              </div>
+            <div className="min-w-0 flex-1">
+              <h2 className="text-lg font-bold text-foreground flex items-center gap-2 flex-wrap"><FrameworkCountryTag frameworkId={framework.id} />{framework.name}</h2>
+              <p className="text-sm text-muted-foreground mt-0.5">{framework.description}</p>
             </div>
             <div className="flex gap-2 shrink-0">
               <Button variant="outline" size="sm" className="gap-2" onClick={() => setShowShare(true)}>
