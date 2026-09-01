@@ -85,6 +85,26 @@ export default function Integrations() {
             onConnected={refreshTokens}
           />
 
+          <Card className="mt-8 p-4">
+            <Collapsible open={showCapabilities} onOpenChange={setShowCapabilities}>
+              <div className="flex items-center justify-between gap-3">
+                <h2 className="text-sm font-semibold text-foreground">{t("byoa.tools.title")}</h2>
+                <CollapsibleTrigger asChild>
+                  <Button variant="outline" size="sm" className="h-8 gap-1.5 text-[13px]">
+                    {showCapabilities ? t("byoa.tools.hide") : t("byoa.tools.show")}
+                    <ChevronDown
+                      className={`h-4 w-4 transition-transform ${showCapabilities ? "rotate-180" : ""}`}
+                      aria-hidden="true"
+                    />
+                  </Button>
+                </CollapsibleTrigger>
+              </div>
+              <CollapsibleContent className="mt-4">
+                <CapabilityList />
+              </CollapsibleContent>
+            </Collapsible>
+          </Card>
+
           <ContinuousComplianceCard />
 
           <AgentDeveloperDetails />
