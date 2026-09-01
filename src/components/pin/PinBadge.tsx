@@ -19,13 +19,7 @@ function TooltipRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex gap-2 text-xs">
       <dt className="w-[110px] shrink-0 text-muted-foreground">{label}</dt>
-      <dd
-        className={cn(
-          "min-w-0 flex-1 truncate text-foreground",
-          value === UNKNOWN_TEXT && "italic text-muted-foreground",
-        )}
-        title={value}
-      >
+      <dd className="min-w-0 flex-1 truncate text-foreground" title={value}>
         {value}
       </dd>
     </div>
