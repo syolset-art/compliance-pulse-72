@@ -63,7 +63,9 @@ export function PinBadge({
         {label}
       </div>
       <p className="text-xs opacity-90">
-        Verifisert av juridisk fagansvarlig.
+        {level === "human_verified"
+          ? "Verifisert av juridisk fagansvarlig."
+          : "Verifisert av agentis runtime-rutine."}
       </p>
       <dl className="space-y-1">
         <TooltipRow label="Kilde" value={SOURCE_CLASS_LABEL[resolved.source.sourceClass]} />
