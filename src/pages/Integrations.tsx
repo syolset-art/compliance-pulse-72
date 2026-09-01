@@ -37,6 +37,7 @@ export default function Integrations() {
   const [tokens, setTokens] = useState<AgentTokenRow[]>([]);
   const [showWizard, setShowWizard] = useState(false);
   const [wizardClient, setWizardClient] = useState<WizardClient>("claude");
+  const [showCapabilities, setShowCapabilities] = useState(false);
   const activeTokens = tokens.filter(isActiveToken);
   const refreshTokens = async () => setTokens(await listAgentTokens());
 
