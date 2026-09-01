@@ -87,13 +87,13 @@ export const SOURCE_CLASS_LABEL: Record<PinSourceClass, string> = {
 
 export const ATTESTATION_LABEL: Record<PinAttestationLevel, string> = {
   human_verified: "Menneskeverifisert",
-  agent_verified: "Agentverifisert",
+  agent_verified: "Verifisert av KI-agent",
 };
 
 /** Hvem som verifiserte — aldri personnavn. */
 export const ATTESTATION_VERIFIER_TEXT: Record<PinAttestationLevel, string> = {
   human_verified: "Mynder, juridisk fagansvarlig",
-  agent_verified: "agent etter dokumentert kontrollrutine",
+  agent_verified: "Mynder KI-agent etter dokumentert kontrollrutine",
 };
 
 export const FETCH_METHOD_LABEL: Record<
