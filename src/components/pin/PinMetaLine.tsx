@@ -1,25 +1,17 @@
 import { cn } from "@/lib/utils";
-import {
-  FRESHNESS_LABEL,
-  SOURCE_CLASS_LABEL,
-  UNKNOWN_TEXT,
-  formatPinDate,
-  type Pin,
-} from "@/lib/pin";
+import { SOURCE_CLASS_LABEL, UNKNOWN_TEXT, formatPinDate, type Pin } from "@/lib/pin";
 import { PinBadge } from "./PinBadge";
 
 /**
  * Metalinje under en tittel: Pin + kilde + kontrolldato.
- * Fast høyde-slot slik at kort ikke hopper når Pin mangler.
+ * Fast høyde-slot slik at kort ikke hopper.
  */
 export function PinMetaLine({ pin, className }: { pin?: Pin; className?: string }) {
   const sourceText = pin
     ? pin.source.sourceRef || SOURCE_CLASS_LABEL[pin.source.sourceClass]
     : UNKNOWN_TEXT;
   const checkedText = pin
-    ? pin.freshness.checkedAt
-      ? formatPinDate(pin.freshness.checkedAt)
-      : FRESHNESS_LABEL[pin.freshness.flag]
+    ? formatPinDate(pin.freshness.checkedAt ?? pin.attestation.attestedAt)
     : UNKNOWN_TEXT;
 
   return (
