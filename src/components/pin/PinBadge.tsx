@@ -57,9 +57,6 @@ export function PinBadge({
   const label = ATTESTATION_LABEL[level];
   const a11yLabel = `Pin: ${label}. ${pinTooltipLine(resolved)}.`;
 
-  const sourceText =
-    resolved.source.sourceRef || SOURCE_CLASS_LABEL[resolved.source.sourceClass];
-
   // Kun rosett — ingen pille, ingen tekst.
   const visual = (
     <span className={cn("inline-flex items-center justify-center", className)}>
