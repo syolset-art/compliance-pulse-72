@@ -68,19 +68,12 @@ export function PinBadge({
         )}`}
       </p>
       <dl className="space-y-1">
-        <TooltipRow label="Pin-ID" value={`${resolved.pin_id} · ${resolved.unit_version}`} />
         <TooltipRow label="Kilde" value={SOURCE_CLASS_LABEL[resolved.source.sourceClass]} />
-        <TooltipRow label="Referanse" value={resolved.source.sourceRef || UNKNOWN_TEXT} />
-        <TooltipRow label="Innhold laget av" value={CONTENT_CREATED_BY_TEXT[level]} />
         <TooltipRow
           label="Sist kontrollert"
           value={formatPinRelativeDate(
             resolved.freshness.checkedAt ?? resolved.attestation.attestedAt,
           )}
-        />
-        <TooltipRow
-          label="Innholdsversjon"
-          value={`${resolved.unit_version} · ${resolved.content_hash}`}
         />
         {resolved.previousAttestation && (
           <TooltipRow
