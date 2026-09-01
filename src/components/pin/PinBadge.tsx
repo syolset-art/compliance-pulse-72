@@ -68,6 +68,10 @@ export function PinBadge({
           <dt className="shrink-0">Sist verifisert</dt>
           <dd>{checkedText}</dd>
         </div>
+        <div className="flex gap-1.5">
+          <dt className="shrink-0">Pin-ID</dt>
+          <dd className="font-mono">{resolved.pin_id}</dd>
+        </div>
       </dl>
     </div>
   );
