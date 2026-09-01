@@ -8,7 +8,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Eye, ListChecks, ShieldCheck, Sparkles } from "lucide-react";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import { ChevronDown, Eye, ListChecks, ShieldCheck, Sparkles } from "lucide-react";
 import { TrustBoundaryStrip } from "@/components/integrations/TrustBoundaryStrip";
 import { CapabilityList } from "@/components/integrations/AgentCapabilitiesList";
 import byoaHero from "@/assets/byoa-agent-hero.png";
