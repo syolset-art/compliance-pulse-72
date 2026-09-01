@@ -8,8 +8,6 @@ import { exportCompliancePdf } from "./ExportCompliancePdf";
 import { ShareReportDialog } from "./ShareReportDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { FrameworkCountryTag } from "./FrameworkCountryTag";
-import { PinMetaLine } from "@/components/pin/PinMetaLine";
-import { getFrameworkPin } from "@/lib/pin";
 
 interface FrameworkDetailCardProps {
   framework: Framework;
@@ -60,7 +58,6 @@ export const FrameworkDetailCard = ({ framework, counts }: FrameworkDetailCardPr
               <div className="min-w-0">
                 <h2 className="text-lg font-bold text-foreground flex items-center gap-2 flex-wrap"><FrameworkCountryTag frameworkId={framework.id} />{framework.name}</h2>
                 <p className="text-sm text-muted-foreground mt-0.5">{framework.description}</p>
-                <PinMetaLine pin={getFrameworkPin(framework.id)} />
               </div>
             </div>
             <div className="flex gap-2 shrink-0">
