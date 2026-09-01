@@ -134,6 +134,20 @@ Apple-inspired professional aesthetic: clean whites, subtle grays, crisp blue ac
     --fw-transparency: 1 60% 45%;      /* destructive deepened */
     --fw-transparency-soft: 0 79% 96%;
     --fw-transparency-fg: 0 60% 28%;
+
+    /* Pin – proveniensmerke (egne tokens, deler ikke --success/--warning) */
+    --pin-verified: 165 76% 25%;
+    --pin-verified-soft: 153 56% 92%;
+    --pin-verified-fg: 165 76% 18%;
+    --pin-unverified: 28 79% 41%;
+    --pin-unverified-soft: 33 84% 92%;
+    --pin-unverified-fg: 28 79% 28%;
+    --pin-fallen: 0 58% 41%;
+    --pin-fallen-soft: 0 79% 96%;
+    --pin-fallen-fg: 0 60% 19%;
+    --pin-unknown: 52 4% 52%;
+    --pin-unknown-soft: 48 21% 93%;
+    --pin-unknown-fg: 220 16% 25%;
   }
 
 
@@ -198,6 +212,20 @@ Apple-inspired professional aesthetic: clean whites, subtle grays, crisp blue ac
     --fw-iso: 161 60% 55%;
     --fw-iso-soft: 165 30% 22%;
     --fw-iso-fg: 153 56% 88%;
+
+    /* Pin – mørk modus */
+    --pin-verified: 161 60% 55%;
+    --pin-verified-soft: 165 30% 22%;
+    --pin-verified-fg: 153 56% 88%;
+    --pin-unverified: 33 87% 65%;
+    --pin-unverified-soft: 28 30% 25%;
+    --pin-unverified-fg: 33 84% 90%;
+    --pin-fallen: 1 73% 70%;
+    --pin-fallen-soft: 0 30% 25%;
+    --pin-fallen-fg: 0 79% 92%;
+    --pin-unknown: 52 8% 70%;
+    --pin-unknown-soft: 220 14% 22%;
+    --pin-unknown-fg: 48 21% 90%;
 
     --fw-nis2: 245 60% 75%;
     --fw-nis2-soft: 245 30% 28%;
