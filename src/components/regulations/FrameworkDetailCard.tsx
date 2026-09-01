@@ -2,6 +2,12 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 import { type Framework } from "@/lib/frameworkDefinitions";
 import { exportCompliancePdf } from "./ExportCompliancePdf";
@@ -10,6 +16,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { FrameworkCountryTag } from "./FrameworkCountryTag";
 import { PinBadge } from "@/components/pin/PinBadge";
 import { getFrameworkPin } from "@/lib/pin";
+import { MoreVertical, Share2, FileDown } from "lucide-react";
 
 interface FrameworkDetailCardProps {
   framework: Framework;
