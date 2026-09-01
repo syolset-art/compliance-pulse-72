@@ -228,15 +228,6 @@ export default function Integrations() {
           onConnected={refreshTokens}
         />
 
-        <ContinuousComplianceCard />
-
-        <AgentDeveloperDetails />
-
-
-            <LocalAgentCard />
-
-            <SaraDetailsSection />
-
         <section className="mt-8">
           <div className="flex items-baseline gap-2">
             <h2 className="text-sm font-semibold uppercase tracking-wide text-foreground">
@@ -254,6 +245,7 @@ export default function Integrations() {
           </div>
 
         </section>
+
 
         {/* Filters */}
         <div className="mt-6 flex flex-col md:flex-row md:items-center gap-3">
