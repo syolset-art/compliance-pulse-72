@@ -3,9 +3,15 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 import { Sidebar } from "@/components/Sidebar";
-import { ArrowLeft, Bot } from "lucide-react";
+import { ArrowLeft, Bot, ChevronDown } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import { ByoaAgentHero } from "@/components/integrations/ByoaAgentHero";
 import {
   ByoaConnectWizard,
@@ -13,7 +19,10 @@ import {
 } from "@/components/integrations/ByoaConnectWizard";
 import { ByoaConnectedStatus } from "@/components/integrations/ByoaConnectedStatus";
 import { ClientPickerCards } from "@/components/integrations/ClientPickerCards";
-import { AgentDeveloperDetails } from "@/components/integrations/AgentCapabilitiesList";
+import {
+  AgentDeveloperDetails,
+  CapabilityList,
+} from "@/components/integrations/AgentCapabilitiesList";
 import { ContinuousComplianceCard } from "@/components/integrations/ContinuousComplianceCard";
 import {
   AGENT_TOKENS_EVENT,
