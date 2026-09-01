@@ -24,6 +24,7 @@ import byoaHero from "@/assets/byoa-agent-hero.png";
 export function ByoaAgentHero({ onConnect }: { onConnect: () => void }) {
   const { t } = useTranslation();
   const [showBoundary, setShowBoundary] = useState(false);
+  const [showCapabilities, setShowCapabilities] = useState(false);
 
   const points = [
     { icon: Eye, text: t("byoa.hero.point1") },
