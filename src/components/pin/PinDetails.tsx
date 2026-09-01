@@ -94,15 +94,12 @@ export function PinDetails({ pin, className }: { pin: Pin; className?: string })
         {pin.fallen && (
           <p className="flex items-start gap-1.5 rounded-md border border-warning/40 bg-warning/10 px-2 py-1.5 text-[11px] font-medium text-warning">
             <AlertTriangle className="mt-px h-3 w-3 shrink-0" aria-hidden="true" />
-            Pin falt — innholdsversjonen er endret etter verifikasjon. Merket gjelder
-            ikke denne versjonen, men innholdet kan fortsatt brukes.
+            Pin falt — innholdsversjonen er endret etter verifikasjon. Innholdet kan
+            fortsatt brukes.
           </p>
         )}
         <p className="font-mono text-[10px] leading-relaxed text-muted-foreground">
           {pin.content_hash} · {pin.unit_version} · pinnet {formatPinDate(pin.pinned_at)}
-        </p>
-        <p className="text-[10px] text-muted-foreground">
-          Merket gjelder denne innholdsversjonen, ikke enheten.
         </p>
       </header>
 
@@ -112,8 +109,20 @@ export function PinDetails({ pin, className }: { pin: Pin; className?: string })
         tone={attestationTone(pin.attestation)}
         headline={ATTESTATION_LABEL[pin.attestation.level]}
         rows={[
-          { label: "Verifisert av", value: pin.attestation.attestedBy || UNKNOWN_TEXT },
-          { label: "Dato", value: formatPinDate(pin.attestation.attestedAt) },
+          {
+            label: "Verifisert av",
+            value: pin.attestation.attestedBy
+              ? [
+                  pin.attestation.attestedBy,
+                  pin.attestation.attestedByRole,
+                  formatPinDate(pin.attestation.attestedAt) !== UNKNOWN_TEXT
+                    ? formatPinDate(pin.attestation.attestedAt)
+                    : undefined,
+                ]
+                  .filter(Boolean)
+                  .join(" · ")
+              : UNKNOWN_TEXT,
+          },
         ]}
       />
 
@@ -149,8 +158,7 @@ export function PinDetails({ pin, className }: { pin: Pin; className?: string })
 
       <p className="flex items-start gap-1.5 border-t border-border pt-2 text-[10px] text-muted-foreground">
         <FileSearch className="mt-px h-3 w-3 shrink-0" aria-hidden="true" />
-        Pin viser kun hvor innholdet kommer fra og om et menneske har verifisert det.
-        Pin begrenser ikke bruk og sier ingenting om samsvar.
+        Merket gjelder denne innholdsversjonen – ikke samsvar.
       </p>
     </div>
   );
