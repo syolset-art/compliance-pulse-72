@@ -1,43 +1,26 @@
-import { AlertTriangle, BadgeCheck, Bot, HelpCircle, type LucideIcon } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import {
-  FRESHNESS_LABEL,
-  PIN_STATE_LABEL,
-  PIN_TONE_CLASS,
-  UNKNOWN_TEXT,
-  formatPinDate,
-  pinState,
+  ATTESTATION_LABEL,
+  PIN_LEVEL_CLASS,
+  getFrameworkPin,
+  pinTooltipLine,
   type Pin,
-  type PinState,
 } from "@/lib/pin";
+import { PinRosette } from "./PinRosette";
 import { PinDetails } from "./PinDetails";
 
 interface PinBadgeProps {
   pin?: Pin;
   /** Klikkbar (popover) eller ren visning med tooltip — bruk false inne i knapper. */
   interactive?: boolean;
-  /** "xs" = kun ikon, for tette lister. */
+  /** "xs" = kun rosett, for tette lister. */
   size?: "sm" | "xs";
   /** Tving pille eller kun ikon. Standard: pille (ikon når size="xs"). */
   variant?: "pill" | "icon";
   className?: string;
 }
-
-const STATE_ICON: Record<PinState, LucideIcon> = {
-  verified: BadgeCheck,
-  unverified: Bot,
-  fallen: AlertTriangle,
-  unknown: HelpCircle,
-};
-
-const STATE_ICON_CLASS: Record<PinState, string> = {
-  verified: "text-pin-verified-fg",
-  unverified: "text-pin-unverified-fg",
-  fallen: "text-pin-fallen-fg",
-  unknown: "text-pin-unknown-fg",
-};
 
 export function PinBadge({
   pin,
@@ -46,44 +29,32 @@ export function PinBadge({
   variant,
   className,
 }: PinBadgeProps) {
-  const { state, tone } = pinState(pin);
-  const label = PIN_STATE_LABEL[state];
-  const Icon = STATE_ICON[state];
-
-  const checkedText = pin
-    ? pin.freshness.checkedAt
-      ? formatPinDate(pin.freshness.checkedAt)
-      : FRESHNESS_LABEL[pin.freshness.flag]
-    : UNKNOWN_TEXT;
-
-  const a11yLabel = `Pin: ${label}. Sist kontrollert ${checkedText}.`;
-  const tooltipLine = `${label} · sist kontrollert ${checkedText}`;
+  // Alt produksjonssatt har alltid en Pin — fall tilbake til agentverifisert.
+  const resolved: Pin = pin ?? getFrameworkPin("__default__");
+  const level = resolved.attestation.level;
+  const label = ATTESTATION_LABEL[level];
+  const tooltipLine = pinTooltipLine(resolved);
+  const a11yLabel = `Pin: ${label}. ${tooltipLine}.`;
   const asIcon = variant === "icon" || (variant !== "pill" && size === "xs");
 
   const visual = asIcon ? (
-    <span
-      className={cn(
-        "inline-flex items-center justify-center",
-        STATE_ICON_CLASS[state],
-        className,
-      )}
-    >
-      <Icon className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+    <span className={cn("inline-flex items-center justify-center", className)}>
+      <PinRosette level={level} className="h-3.5 w-3.5" />
     </span>
   ) : (
     <span
       className={cn(
         "inline-flex items-center gap-1.5 rounded-pill border px-2 py-0.5 text-xs font-medium",
-        PIN_TONE_CLASS[tone],
+        PIN_LEVEL_CLASS[level],
         className,
       )}
     >
-      <Icon className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+      <PinRosette level={level} className="h-3.5 w-3.5" />
       {label}
     </span>
   );
 
-  if (!interactive || !pin) {
+  if (!interactive) {
     return (
       <Tooltip>
         <TooltipTrigger asChild>
@@ -117,7 +88,7 @@ export function PinBadge({
         collisionPadding={16}
         className="w-[360px] max-h-[70vh] overflow-y-auto"
       >
-        <PinDetails pin={pin} />
+        <PinDetails pin={resolved} />
       </PopoverContent>
     </Popover>
   );

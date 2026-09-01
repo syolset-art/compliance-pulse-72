@@ -1,163 +1,78 @@
-import type { LucideIcon } from "lucide-react";
-import {
-  AlertTriangle,
-  BadgeCheck,
-  CalendarClock,
-  CircleHelp,
-  FileSearch,
-  Link2,
-  ShieldCheck,
-  UserCheck,
-} from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   ATTESTATION_LABEL,
+  ATTESTATION_VERIFIER_TEXT,
   FETCH_METHOD_LABEL,
-  FRESHNESS_LABEL,
-  PIN_TONE_CLASS,
+  PIN_LEVEL_CLASS,
   SOURCE_CLASS_LABEL,
   UNKNOWN_TEXT,
-  attestationTone,
   formatPinDate,
-  freshnessTone,
-  sourceTone,
   type Pin,
-  type PinTone,
 } from "@/lib/pin";
+import { PinRosette } from "./PinRosette";
 
-function Dimension({
-  icon: Icon,
-  title,
-  tone,
-  headline,
-  rows,
-}: {
-  icon: LucideIcon;
-  title: string;
-  tone: PinTone;
-  headline: string;
-  rows: Array<{ label: string; value: string }>;
-}) {
+function Row({ label, value }: { label: string; value: string }) {
   return (
-    <section className="space-y-1.5">
-      <header className="flex items-center gap-2">
-        <Icon className="h-3.5 w-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
-        <h4 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-          {title}
-        </h4>
-      </header>
-      <p
+    <div className="flex items-baseline gap-2 text-[11px]">
+      <dt className="w-[104px] shrink-0 text-muted-foreground">{label}</dt>
+      <dd
         className={cn(
-          "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium",
-          PIN_TONE_CLASS[tone],
+          "min-w-0 flex-1 truncate text-foreground",
+          value === UNKNOWN_TEXT && "italic text-muted-foreground",
         )}
+        title={value}
       >
-        {tone === "good" ? (
-          <BadgeCheck className="h-3 w-3" aria-hidden="true" />
-        ) : (
-          <CircleHelp className="h-3 w-3" aria-hidden="true" />
-        )}
-        {headline}
-      </p>
-      <dl className="space-y-0.5">
-        {rows.map((r) => (
-          <div key={r.label} className="flex items-baseline gap-2 text-[11px]">
-            <dt className="shrink-0 text-muted-foreground">{r.label}</dt>
-            <dd
-              className={cn(
-                "min-w-0 flex-1 truncate text-foreground",
-                r.value === UNKNOWN_TEXT && "italic text-muted-foreground",
-              )}
-              title={r.value}
-            >
-              {r.value}
-            </dd>
-          </div>
-        ))}
-      </dl>
-    </section>
+        {value}
+      </dd>
+    </div>
   );
 }
 
 /**
- * Full proveniensvisning: kilde, verifikasjon og sist kontrollert.
- * Pin sier ingenting om brukbarhet, compliance eller hva en agent får gjøre.
+ * Proveniensvisning: hvem verifiserte, kilde, referanse, sist kontrollert og
+ * innholdsversjon. Pin sier ingenting om samsvar.
  */
 export function PinDetails({ pin, className }: { pin: Pin; className?: string }) {
+  const level = pin.attestation.level;
+  const prev = pin.previousAttestation;
+
   return (
     <div className={cn("space-y-3", className)}>
-      <header className="space-y-1 border-b border-border pb-2">
-        <p className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
-          <ShieldCheck className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
-          Pin {pin.pin_id}
-        </p>
-        {pin.fallen && (
-          <p className="flex items-start gap-1.5 rounded-md border border-pin-fallen/40 bg-pin-fallen-soft px-2 py-1.5 text-[11px] font-medium text-pin-fallen-fg">
-            <AlertTriangle className="mt-px h-3 w-3 shrink-0" aria-hidden="true" />
-            Pin falt — innholdsversjonen er endret etter verifikasjon. Innholdet kan
-            fortsatt brukes.
-          </p>
-        )}
-        <p className="font-mono text-[10px] leading-relaxed text-muted-foreground">
-          {pin.content_hash} · {pin.unit_version} · pinnet {formatPinDate(pin.pinned_at)}
-        </p>
+      <header className="flex items-center gap-2 border-b border-border pb-2">
+        <span
+          className={cn(
+            "inline-flex items-center gap-1.5 rounded-pill border px-2 py-0.5 text-xs font-medium",
+            PIN_LEVEL_CLASS[level],
+          )}
+        >
+          <PinRosette level={level} className="h-3.5 w-3.5" />
+          {ATTESTATION_LABEL[level]}
+        </span>
+        <span className="truncate font-mono text-[10px] text-muted-foreground">{pin.pin_id}</span>
       </header>
 
-      <Dimension
-        icon={UserCheck}
-        title="Status"
-        tone={attestationTone(pin.attestation)}
-        headline={ATTESTATION_LABEL[pin.attestation.level]}
-        rows={[
-          {
-            label: "Verifisert av",
-            value: pin.attestation.attestedBy
-              ? [
-                  pin.attestation.attestedBy,
-                  pin.attestation.attestedByRole,
-                  formatPinDate(pin.attestation.attestedAt) !== UNKNOWN_TEXT
-                    ? formatPinDate(pin.attestation.attestedAt)
-                    : undefined,
-                ]
-                  .filter(Boolean)
-                  .join(" · ")
-              : UNKNOWN_TEXT,
-          },
-        ]}
-      />
+      <dl className="space-y-1">
+        <Row label="Verifisert av" value={ATTESTATION_VERIFIER_TEXT[level]} />
+        <Row label="Kilde" value={SOURCE_CLASS_LABEL[pin.source.sourceClass]} />
+        <Row label="Referanse" value={pin.source.sourceRef || UNKNOWN_TEXT} />
+        <Row
+          label="Hentemetode"
+          value={FETCH_METHOD_LABEL[pin.source.fetchMethod ?? "unknown"]}
+        />
+        <Row
+          label="Sist kontrollert"
+          value={formatPinDate(pin.freshness.checkedAt ?? pin.attestation.attestedAt)}
+        />
+        <Row label="Innholdsversjon" value={pin.unit_version} />
+        {prev && (
+          <Row
+            label="Tidligere"
+            value={`${ATTESTATION_LABEL[prev.level]} ${formatPinDate(prev.at)}, gjaldt ${prev.unitVersion}`}
+          />
+        )}
+      </dl>
 
-      <Dimension
-        icon={Link2}
-        title="Kilde"
-        tone={sourceTone(pin.source)}
-        headline={SOURCE_CLASS_LABEL[pin.source.sourceClass]}
-        rows={[
-          { label: "Referanse", value: pin.source.sourceRef || UNKNOWN_TEXT },
-          { label: "Konsolidert", value: formatPinDate(pin.source.consolidatedAt) },
-          {
-            label: "Hentemetode",
-            value: FETCH_METHOD_LABEL[pin.source.fetchMethod ?? "unknown"],
-          },
-          { label: "Hentet", value: formatPinDate(pin.source.fetchedAt) },
-        ]}
-      />
-
-      <Dimension
-        icon={CalendarClock}
-        title="Sist kontrollert"
-        tone={freshnessTone(pin.freshness)}
-        headline={FRESHNESS_LABEL[pin.freshness.flag]}
-        rows={[
-          { label: "Sist kontrollert", value: formatPinDate(pin.freshness.checkedAt) },
-          {
-            label: "Kildeavvik",
-            value: pin.freshness.drifting ? "Innholdet avviker fra kilden" : "Ingen avvik registrert",
-          },
-        ]}
-      />
-
-      <p className="flex items-start gap-1.5 border-t border-border pt-2 text-[10px] text-muted-foreground">
-        <FileSearch className="mt-px h-3 w-3 shrink-0" aria-hidden="true" />
+      <p className="border-t border-border pt-2 text-[10px] text-muted-foreground">
         Merket gjelder denne innholdsversjonen – ikke samsvar.
       </p>
     </div>
