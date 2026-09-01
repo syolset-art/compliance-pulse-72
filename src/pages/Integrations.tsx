@@ -466,6 +466,16 @@ export default function Integrations() {
 
         <NextSourceSuggestions covered={coveredTypes} />
 
+        <ContinuousComplianceCard />
+
+        <LocalAgentCard />
+
+        <SaraDetailsSection />
+
+        <AgentDeveloperDetails />
+
+
+
 
 
         <ConnectIntegrationDialog
