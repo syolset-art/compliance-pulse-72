@@ -3,8 +3,6 @@ import { cn } from "@/lib/utils";
 import { staggerEntranceClass } from "@/lib/animation";
 import { getCategoryById, type Framework } from "@/lib/frameworkDefinitions";
 import type { FrameworkAgentStats } from "@/lib/regulationsApprovalQueue";
-import { PinBadge } from "@/components/pin/PinBadge";
-import { getFrameworkPin } from "@/lib/pin";
 
 interface Props {
   frameworks: Framework[];
@@ -56,11 +54,6 @@ export function FrameworkOverviewList({ frameworks, getStats, selectedId, onSele
                 </span>
                 <span className="text-xs font-semibold text-foreground">{stats.percent}%</span>
               </span>
-            </span>
-
-            {/* Pin: fast kolonne, samme x-posisjon på alle rader */}
-            <span className="flex w-6 shrink-0 justify-end">
-              <PinBadge pin={getFrameworkPin(fw.id)} variant="icon" interactive={false} />
             </span>
 
             <span className="hidden shrink-0 items-center gap-3 text-xs text-muted-foreground sm:flex">

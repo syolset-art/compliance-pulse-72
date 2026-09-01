@@ -4,8 +4,6 @@ import { ChevronDown, ChevronRight, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FrameworkCountryTag } from "@/components/regulations/FrameworkCountryTag";
 import { loadCountryScope, getCountry } from "@/components/regulations/countryScopeData";
-import { PinBadge } from "@/components/pin/PinBadge";
-import { getFrameworkPin } from "@/lib/pin";
 
 interface FrameworkChipSelectorProps {
   frameworks: Framework[];
@@ -94,7 +92,6 @@ const CategorySection = ({
                       : <FrameworkCountryTag frameworkId={fw.id} />;
                   })()}
                   <span className="truncate">{fw.name}</span>
-                  <PinBadge pin={getFrameworkPin(fw.id)} size="xs" interactive={false} />
                 </p>
                 <p className="text-[13px] text-muted-foreground">
                   {met} av {total} krav oppfylt
