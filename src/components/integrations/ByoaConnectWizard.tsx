@@ -137,8 +137,9 @@ export function ByoaConnectWizard({
     if (open) {
       setStep(1);
       setFreshToken(null);
+      setClient(initialClient);
     }
-  }, [open]);
+  }, [open, initialClient]);
 
 
   const instructions = useMemo(
