@@ -105,14 +105,16 @@ export function ByoaConnectWizard({
   open,
   onOpenChange,
   onConnected,
+  initialClient = "claude",
 }: {
   open: boolean;
   onOpenChange: (v: boolean) => void;
   onConnected?: () => void;
+  initialClient?: WizardClient;
 }) {
   const { t } = useTranslation();
   const [step, setStep] = useState(1);
-  const [client, setClient] = useState<WizardClient>("claude");
+  const [client, setClient] = useState<WizardClient>(initialClient);
   const [name, setName] = useState("");
   const [expiry, setExpiry] = useState<ExpiryChoice>("90");
   const [creating, setCreating] = useState(false);
@@ -135,8 +137,9 @@ export function ByoaConnectWizard({
     if (open) {
       setStep(1);
       setFreshToken(null);
+      setClient(initialClient);
     }
-  }, [open]);
+  }, [open, initialClient]);
 
 
   const instructions = useMemo(
@@ -374,6 +377,13 @@ export function ByoaConnectWizard({
 
         {step === 3 && (
           <div>
+            <div className="mb-4 flex gap-2 rounded-lg border border-border bg-muted/40 p-3">
+              <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+              <p className="text-[13px] text-muted-foreground">
+                {t("byoa.wizard.step3.comingSoon")}
+              </p>
+            </div>
+
             <Label htmlFor="byoa-endpoint" className="text-[13px] text-muted-foreground">
               {t("byoa.wizard.step3.addressLabel")}
             </Label>

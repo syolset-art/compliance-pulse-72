@@ -1875,7 +1875,22 @@
       "point2": "Create activities",
       "point3": "You control the access",
       "connect": "Connect my agent",
-      "seeAccess": "What the agent can see"
+      "seeAccess": "What the agent can see",
+      "statusNone": "No agents connected",
+      "statusActive": "{{count}} agent connected",
+      "statusActive_other": "{{count}} agents connected",
+      "how1": {
+        "title": "Create your personal code",
+        "body": "The code is yours alone and works like a password. You choose how long it is valid."
+      },
+      "how2": {
+        "title": "Paste the address and code into your agent",
+        "body": "In Claude, ChatGPT or another MCP client, add Mynder as a custom connector."
+      },
+      "how3": {
+        "title": "Ask the agent for a plan",
+        "body": "First task: let the agent build a plan for continuous compliance based on your frameworks."
+      }
     },
     "wizard": {
       "clients": {
@@ -1947,7 +1962,8 @@
             "Paste the snippet below and replace <din-kode> with your personal code.",
             "Save the file and restart the tool."
           ]
-        }
+        },
+        "comingSoon": "Once Mynder is available as a ready-made connector in Claude, you just press Connect and sign in like with any other connector. Until then, paste the address and personal code manually."
       }
     },
     "tools": {
@@ -2022,7 +2038,11 @@
       "title": "Your agents",
       "count": "{{count}} active connection",
       "count_other": "{{count}} active connections",
-      "details": "Details"
+      "details": "Details",
+      "colAgent": "Agent",
+      "colStatus": "Status",
+      "emptyTitle": "You have no agents connected yet.",
+      "emptyBody": "Connect your first agent to get started."
     },
     "continuous": {
       "title": "How to get started",
@@ -2047,6 +2067,25 @@
       "morePrompts": "More tasks you can give the agent",
       "copyTooltip": "Copy the sentence and paste it into your agent.",
       "copied": "Copied — paste it into your agent."
+    },
+    "page": {
+      "title": "MCP integration",
+      "intro": "Connect your own AI agent to Mynder. You get an address and a personal code — paste them into your agent, and it can read vendors, requirements and documentation, and create activities for you."
+    },
+    "clients": {
+      "title": "Choose where your agent lives",
+      "intro": "Click the agent you use and the wizard walks you through setup in under a minute.",
+      "manualBadge": "Manual setup",
+      "comingSoon": "One-click connection in Claude is coming. Then you just press Connect and sign in with your Mynder account — until then, use the address and personal code.",
+      "claude": {
+        "body": "Claude Desktop or web. Added under Settings → Connectors."
+      },
+      "chatgpt": {
+        "body": "ChatGPT with custom connectors (MCP)."
+      },
+      "other": {
+        "body": "Cursor, VS Code or another MCP client. You get a ready-made config snippet."
+      }
     }
   }
 }

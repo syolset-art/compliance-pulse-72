@@ -1876,7 +1876,22 @@
       "point2": "Opprett aktiviteter",
       "point3": "Du styrer tilgangen",
       "connect": "Koble til agenten min",
-      "seeAccess": "Hva agenten får se"
+      "seeAccess": "Hva agenten får se",
+      "statusNone": "Ingen agenter tilkoblet",
+      "statusActive": "{{count}} agent tilkoblet",
+      "statusActive_other": "{{count}} agenter tilkoblet",
+      "how1": {
+        "title": "Lag din personlige kode",
+        "body": "Koden er din egen og virker som et passord. Du velger hvor lenge den skal gjelde."
+      },
+      "how2": {
+        "title": "Lim inn adresse og kode i agenten",
+        "body": "I Claude, ChatGPT eller en annen MCP-klient legger du til Mynder som en egendefinert kobling."
+      },
+      "how3": {
+        "title": "Be agenten lage en plan",
+        "body": "Første oppdrag: la agenten lage en plan for kontinuerlig etterlevelse basert på regelverkene dine."
+      }
     },
     "wizard": {
       "clients": {
@@ -1948,7 +1963,8 @@
             "Lim inn utklippet under og bytt <din-kode> med den personlige koden.",
             "Lagre filen og start verktøyet på nytt."
           ]
-        }
+        },
+        "comingSoon": "Når Mynder ligger som ferdig kobling i Claude, trykker du bare «Koble til» og logger inn som med andre koblinger. Fram til da limer du inn adressen og den personlige koden manuelt."
       }
     },
     "tools": {
@@ -2023,7 +2039,11 @@
       "title": "Dine agenter",
       "count": "{{count}} aktiv tilkobling",
       "count_other": "{{count}} aktive tilkoblinger",
-      "details": "Detaljer"
+      "details": "Detaljer",
+      "colAgent": "Agent",
+      "colStatus": "Status",
+      "emptyTitle": "Du har ingen agenter tilkoblet ennå.",
+      "emptyBody": "Koble til den første agenten din for å komme i gang."
     },
     "continuous": {
       "title": "Slik kommer du i gang",
@@ -2048,6 +2068,25 @@
       "morePrompts": "Flere oppdrag du kan gi agenten",
       "copyTooltip": "Kopier setningen og lim den inn i agenten din.",
       "copied": "Kopiert — lim den inn i agenten din."
+    },
+    "page": {
+      "title": "MCP Integrasjon",
+      "intro": "Koble din egen AI-agent til Mynder. Du får en adresse og en personlig kode — lim dem inn i agenten din, så kan den lese leverandører, krav og dokumentasjon og opprette aktiviteter for deg."
+    },
+    "clients": {
+      "title": "Velg hvor agenten din bor",
+      "intro": "Klikk på agenten du bruker, så tar veiviseren deg gjennom oppsettet på under ett minutt.",
+      "manualBadge": "Manuell tilkobling",
+      "comingSoon": "Ett-klikks tilkobling i Claude kommer. Da trykker du bare «Koble til» og logger inn med Mynder-kontoen din — fram til da bruker du adressen og den personlige koden.",
+      "claude": {
+        "body": "Claude Desktop eller web. Legges til under Innstillinger → Koblinger."
+      },
+      "chatgpt": {
+        "body": "ChatGPT med egendefinerte koblinger (MCP)."
+      },
+      "other": {
+        "body": "Cursor, VS Code eller en annen MCP-klient. Du får et ferdig konfigurasjonsutklipp."
+      }
     }
   }
 }

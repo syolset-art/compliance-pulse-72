@@ -4,6 +4,14 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
   Sheet,
   SheetContent,
   SheetDescription,
@@ -25,7 +33,7 @@ import { Bot, CheckCircle2, History, Plus } from "lucide-react";
 import { TrustBoundaryStrip } from "@/components/integrations/TrustBoundaryStrip";
 import { revokeAgentToken, type AgentTokenRow } from "@/lib/agentTokens";
 
-/** «Dine agenter»: kompakt liste. Detaljer og tilgang ligger bak et panel. */
+/** «Dine agenter»: stram tabell. Detaljer og tilgang ligger bak et panel. */
 export function ByoaConnectedStatus({
   tokens,
   onConnectAnother,
@@ -65,55 +73,94 @@ export function ByoaConnectedStatus({
 
   return (
     <>
-      <section className="mt-6">
+      <section className="mt-8">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h2 className="text-lg font-semibold text-foreground">
               {t("byoa.agents.title", "Dine agenter")}
             </h2>
             <p className="mt-0.5 text-[13px] text-muted-foreground">
-              {t("byoa.agents.count", { count: tokens.length, defaultValue: "{{count}} aktiv tilkobling" })}
+              {tokens.length > 0
+                ? t("byoa.agents.count", {
+                    count: tokens.length,
+                    defaultValue: "{{count}} aktiv tilkobling",
+                  })
+                : t("byoa.agents.emptyBody")}
             </p>
           </div>
-          <Button variant="outline" className="h-9 gap-2" onClick={onConnectAnother}>
+          <Button
+            variant={tokens.length > 0 ? "outline" : "default"}
+            className="h-9 gap-2"
+            onClick={onConnectAnother}
+          >
             <Plus className="h-4 w-4" aria-hidden="true" />
-            {t("byoa.connected.connectAnother")}
+            {tokens.length > 0 ? t("byoa.connected.connectAnother") : t("byoa.hero.connect")}
           </Button>
         </div>
 
-        <Card className="mt-3 divide-y divide-border p-0">
-          {tokens.map((row) => (
-            <div key={row.id} className="flex items-center gap-3 p-4">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                <Bot className="h-4 w-4" aria-hidden="true" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2">
-                  <p className="truncate text-sm font-medium text-foreground">{row.name ?? "—"}</p>
-                  <Badge
-                    variant="outline"
-                    className="border-success/30 bg-success/15 text-[11px] text-success"
-                  >
-                    <CheckCircle2 className="mr-1 h-3 w-3" aria-hidden="true" />
-                    {t("byoa.connected.active")}
-                  </Badge>
-                </div>
-                <p className="truncate text-[12px] text-muted-foreground">
-                  {t("byoa.connected.lastUsed")}:{" "}
-                  {fmt(row.last_used_at ?? null) ?? t("byoa.connected.notUsedYet")}
-                </p>
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-8 shrink-0 text-[13px]"
-                onClick={() => setSelected(row)}
-              >
-                {t("byoa.agents.details", "Detaljer")}
-              </Button>
+        {tokens.length === 0 ? (
+          <Card className="mt-3 flex items-center gap-3 p-6">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
+              <Bot className="h-4 w-4" aria-hidden="true" />
             </div>
-          ))}
-        </Card>
+            <p className="text-[13px] text-muted-foreground">{t("byoa.agents.emptyTitle")}</p>
+          </Card>
+        ) : (
+          <Card className="mt-3 overflow-hidden p-0">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="text-[12px]">{t("byoa.agents.colAgent")}</TableHead>
+                  <TableHead className="text-[12px]">{t("byoa.agents.colStatus")}</TableHead>
+                  <TableHead className="hidden text-[12px] sm:table-cell">
+                    {t("byoa.connected.lastUsed")}
+                  </TableHead>
+                  <TableHead className="hidden text-[12px] md:table-cell">
+                    {t("byoa.connected.expires")}
+                  </TableHead>
+                  <TableHead className="w-[1%]" />
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {tokens.map((row) => (
+                  <TableRow key={row.id}>
+                    <TableCell className="text-[13px] font-medium text-foreground">
+                      <div className="flex items-center gap-2">
+                        <Bot className="h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+                        <span className="truncate">{row.name ?? "—"}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge
+                        variant="outline"
+                        className="border-success/30 bg-success/15 text-[11px] text-success"
+                      >
+                        <CheckCircle2 className="mr-1 h-3 w-3" aria-hidden="true" />
+                        {t("byoa.connected.active")}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="hidden text-[13px] text-muted-foreground sm:table-cell">
+                      {fmt(row.last_used_at ?? null) ?? t("byoa.connected.notUsedYet")}
+                    </TableCell>
+                    <TableCell className="hidden text-[13px] text-muted-foreground md:table-cell">
+                      {fmt(row.expires_at ?? null) ?? t("byoa.wizard.step2.noExpiry")}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 text-[13px]"
+                        onClick={() => setSelected(row)}
+                      >
+                        {t("byoa.agents.details", "Detaljer")}
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </Card>
+        )}
       </section>
 
       <Sheet open={!!selected} onOpenChange={(open) => !open && setSelected(null)}>
