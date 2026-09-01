@@ -41,8 +41,14 @@ export interface PinSourceDimension {
 
 export interface PinAttestationDimension {
   level: PinAttestationLevel;
-  /** Kun mennesker kan verifisere — aldri agenter. */
+  /**
+   * Kun organisasjon — aldri personnavn.
+   * VIKTIG: personidentitet (navn, initialer, e-post, bruker-id) hører KUN
+   * hjemme i revisjonslogg/eksport med tilgangsstyring, aldri i visningslaget.
+   */
   attestedBy?: string;
+  /** Valgfri rolle, f.eks. «juridisk fagansvarlig». Aldri en person. */
+  attestedByRole?: string;
   attestedAt?: string;
 }
 
@@ -73,6 +79,16 @@ export const SOURCE_CLASS_LABEL: Record<PinSourceClass, string> = {
   secondary: "Sekundærkilde",
   unknown: "Kilde ikke dokumentert",
 };
+
+/** Kort pille-label — én ordliste for hele appen. */
+export const PIN_STATE_LABEL = {
+  verified: "Verifisert",
+  unverified: "Ikke verifisert",
+  fallen: "Pin falt",
+  unknown: "Ukjent kilde",
+} as const;
+
+export type PinState = keyof typeof PIN_STATE_LABEL;
 
 export const ATTESTATION_LABEL: Record<PinAttestationLevel, string> = {
   human_verified: "Menneskeverifisert",
@@ -121,11 +137,19 @@ export function isHumanVerified(pin?: Pin): boolean {
 export type PinTone = "good" | "caution" | "poor" | "neutral";
 
 export const PIN_TONE_CLASS: Record<PinTone, string> = {
-  good: "border-success/40 bg-success/10 text-success",
-  caution: "border-warning/40 bg-warning/10 text-warning",
-  poor: "border-destructive/40 bg-destructive/10 text-destructive",
-  neutral: "border-border bg-muted text-muted-foreground",
+  good: "border-pin-verified/40 bg-pin-verified-soft text-pin-verified-fg",
+  caution: "border-pin-unverified/40 bg-pin-unverified-soft text-pin-unverified-fg",
+  poor: "border-pin-fallen/40 bg-pin-fallen-soft text-pin-fallen-fg",
+  neutral: "border-pin-unknown/40 bg-pin-unknown-soft text-pin-unknown-fg",
 };
+
+/** Visuell tilstand: to hovedtilstander + to unntakstilstander. */
+export function pinState(pin?: Pin): { state: PinState; tone: PinTone } {
+  if (!pin) return { state: "unknown", tone: "neutral" };
+  if (pin.fallen) return { state: "fallen", tone: "poor" };
+  if (isHumanVerified(pin)) return { state: "verified", tone: "good" };
+  return { state: "unverified", tone: "caution" };
+}
 
 export const sourceTone = (s: PinSourceDimension): PinTone =>
   s.sourceClass === "official_consolidated"
