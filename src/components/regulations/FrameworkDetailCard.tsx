@@ -8,6 +8,8 @@ import { exportCompliancePdf } from "./ExportCompliancePdf";
 import { ShareReportDialog } from "./ShareReportDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { FrameworkCountryTag } from "./FrameworkCountryTag";
+import { PinBadge } from "@/components/pin/PinBadge";
+import { getFrameworkPin } from "@/lib/pin";
 
 interface FrameworkDetailCardProps {
   framework: Framework;
@@ -48,7 +50,11 @@ export const FrameworkDetailCard = ({ framework, counts }: FrameworkDetailCardPr
           {/* Header: Title + Buttons */}
           <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
             <div className="min-w-0 flex-1">
-              <h2 className="text-lg font-bold text-foreground flex items-center gap-2 flex-wrap"><FrameworkCountryTag frameworkId={framework.id} />{framework.name}</h2>
+              <h2 className="text-lg font-bold text-foreground flex items-center gap-2 flex-wrap">
+                <FrameworkCountryTag frameworkId={framework.id} />
+                {framework.name}
+                <PinBadge pin={getFrameworkPin(framework.id)} size="sm" />
+              </h2>
               <p className="text-sm text-muted-foreground mt-0.5">{framework.description}</p>
             </div>
             <div className="flex gap-2 shrink-0">
