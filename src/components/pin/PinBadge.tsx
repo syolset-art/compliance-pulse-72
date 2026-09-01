@@ -63,9 +63,7 @@ export function PinBadge({
         {label}
       </div>
       <p className="text-xs opacity-90">
-        {`Verifisert av ${ATTESTATION_VERIFIER_TEXT[level]} · ${ATTESTATION_METHOD_TEXT[level]} · ${formatPinDate(
-          resolved.attestation.attestedAt,
-        )}`}
+        Verifisert av Mynder, juridisk fagansvarlig.
       </p>
       <dl className="space-y-1">
         <TooltipRow label="Kilde" value={SOURCE_CLASS_LABEL[resolved.source.sourceClass]} />
