@@ -605,7 +605,7 @@ export function AttachEvidenceDialog({
                   </p>
                   <p className="text-[11px] text-muted-foreground mt-0.5">
                     {isNb
-                      ? "Dette er kun et forslag — Lara kan ta feil. Du bestemmer hva som tilknyttes."
+                       ? "Dette er kun et forslag - Lara kan ta feil. Du bestemmer hva som tilknyttes."
                       : "This is only a suggestion — Lara can be wrong. You decide what to attach."}
                   </p>
                 </div>
