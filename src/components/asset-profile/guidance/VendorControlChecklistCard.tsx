@@ -134,7 +134,3 @@ export function VendorControlChecklistCard({
     </section>
   );
 }
-
-    </section>
-  );
-}
