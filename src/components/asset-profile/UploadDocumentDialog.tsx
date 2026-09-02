@@ -550,6 +550,44 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
   const confidenceColor = confidencePercent >= 80 ? "bg-status-closed" : confidencePercent >= 50 ? "bg-warning" : "bg-destructive";
   const confidenceTextColor = confidencePercent >= 80 ? "text-status-closed" : confidencePercent >= 50 ? "text-warning" : "text-destructive";
 
+  const isExpiredValidTo = !!validTo && new Date(validTo) < new Date();
+
+  /** Forklaring på hvorfor konfidensgraden er høy eller lav — bygget av det analysen faktisk fant. */
+  const confidenceReasons: string[] = (() => {
+    if (!classification) return [];
+    const out: string[] = [];
+    const typeLabel = classification.documentTypeLabel || classification.documentType;
+    out.push(
+      isNb
+        ? `Dokumentet ble gjenkjent som ${typeLabel} ut fra tittel, parter og begrepsbruk i teksten.`
+        : `The document was recognised as ${typeLabel} from its title, parties and terminology.`
+    );
+    out.push(
+      classification.validFrom || classification.validTo
+        ? (isNb
+            ? "Gyldighetsdatoer ble funnet i dokumentet."
+            : "Validity dates were found in the document.")
+        : (isNb
+            ? "Ingen gyldighetsdatoer ble funnet – datoene er satt som standard."
+            : "No validity dates were found – the dates are set to defaults.")
+    );
+    const highCount = (classification.relevantRegulations || []).filter((r) => r.relevance === "high").length;
+    out.push(
+      isNb
+        ? `${highCount} regelverk ble koblet med høy relevans.`
+        : `${highCount} regulations were linked with high relevance.`
+    );
+    if (confidencePercent < 80) {
+      out.push(
+        isNb
+          ? "Skåren er lavere fordi flere signaler var tvetydige – kontroller feltene før du lagrer."
+          : "The score is lower because several signals were ambiguous – check the fields before saving."
+      );
+    }
+    return out;
+  })();
+
+
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
