@@ -624,7 +624,32 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
                   <Sparkles className={`h-4 w-4 shrink-0 ${confidenceTextColor}`} />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-xs font-medium">{isNb ? "AI-konfidensgrad" : "AI Confidence"}</span>
+                      <span className="text-xs font-medium flex items-center gap-1">
+                        {isNb ? "AI-konfidensgrad" : "AI Confidence"}
+                        <TooltipProvider delayDuration={150}>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <button
+                                type="button"
+                                className="text-muted-foreground hover:text-foreground"
+                                aria-label={isNb ? "Hvorfor denne skåren?" : "Why this score?"}
+                              >
+                                <Info className="h-3.5 w-3.5" />
+                              </button>
+                            </TooltipTrigger>
+                            <TooltipContent side="bottom" className="max-w-[300px] space-y-1.5">
+                              <p className="text-xs font-medium">
+                                {isNb ? "Hvorfor denne skåren?" : "Why this score?"}
+                              </p>
+                              <ul className="list-disc pl-4 space-y-0.5 text-xs text-muted-foreground">
+                                {confidenceReasons.map((r) => (
+                                  <li key={r}>{r}</li>
+                                ))}
+                              </ul>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </span>
                       <div className="flex items-center gap-2">
                         <span className={`text-sm font-bold ${confidenceTextColor}`}>{confidencePercent}%</span>
                         {/* Feedback buttons */}
