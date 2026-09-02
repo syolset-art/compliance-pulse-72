@@ -28,7 +28,6 @@ import {
   ChevronDown,
   ChevronUp,
   Plus,
-  Plug,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
@@ -74,7 +73,6 @@ type Phase =
   | { kind: "review"; result: AttachEvidenceResult; fileName: string }
   | { kind: "error"; message: string };
 
-const MCP_SOURCES = ["Notion", "SharePoint", "Google Drive", "Confluence"];
 
 const STEPS: PhaseKind[] = ["select", "analyzing", "review"];
 
