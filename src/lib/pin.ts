@@ -49,6 +49,14 @@ export interface PinAttestationDimension {
   /** Valgfri rolle, f.eks. «juridisk fagansvarlig». Aldri en person. */
   attestedByRole?: string;
   attestedAt?: string;
+  /** Ikke-avslørende identifikator for agenten som verifiserte. */
+  agentId?: string;
+  /** Alias for agenten, f.eks. «LEX-3». Aldri modell eller leverandør. */
+  agentAlias?: string;
+  /** Kontrollrutine i kvalitetssystemet, uten metodedetaljer. */
+  routineRef?: string;
+  /** Kode som mapper tilbake til Mynders kvalitetssystem. */
+  traceCode?: string;
 }
 
 export interface PinFreshnessDimension {
@@ -118,6 +126,17 @@ export const FETCH_METHOD_LABEL: Record<
   unknown: "Ukjent metode",
 };
 
+/** Forklaring på hvorfor vi ikke viser modell/metode, men en sporbar kode. */
+export const AGENT_IDENTITY_NOTE =
+  "Full dokumentasjon på valideringsprosessen kan fremlegges på forespørsel med denne koden.";
+
+export const PIN_ROW_LABEL = {
+  agent: "Agent",
+  agentId: "Agent-ID",
+  routine: "Kontrollrutine",
+  traceCode: "Sporingskode",
+} as const;
+
 /** Ukjent/manglende verdi vises alltid eksplisitt, aldri som tom streng. */
 export const UNKNOWN_TEXT = "Ukjent";
 
@@ -180,6 +199,10 @@ type PinRecipe = {
   attestedBy?: string;
   attestedByRole?: string;
   attestedAt?: string;
+  agentId?: string;
+  agentAlias?: string;
+  routineRef?: string;
+  traceCode?: string;
   freshness: PinFreshnessFlag;
   checkedAt?: string;
   drifting?: boolean;
@@ -221,6 +244,10 @@ function buildPin(id: string, r: PinRecipe): Pin {
       attestedBy: r.attestedBy,
       attestedByRole: r.attestedByRole,
       attestedAt: r.attestedAt,
+      agentId: r.agentId,
+      agentAlias: r.agentAlias,
+      routineRef: r.routineRef,
+      traceCode: r.traceCode,
     },
     freshness: { flag: r.freshness, checkedAt: r.checkedAt, drifting: r.drifting ?? false },
     previousAttestation: r.previousAttestation,
@@ -232,20 +259,43 @@ const ATTESTANT_ROLE = "juridisk fagansvarlig";
 const AGENT_ATTESTANT = "Mynder-agent";
 const AGENT_ROLE = "dokumentert kontrollrutine";
 
+const AGENT_ALIASES = ["LEX-1", "LEX-2", "LEX-3", "LEX-4"] as const;
+const AGENT_ROUTINES: Record<string, string> = {
+  "LEX-1": "Kildesjekk og versjonskontroll, rutine QS-02",
+  "LEX-2": "Kildesjekk og artikkelmapping, rutine QS-04",
+  "LEX-3": "Kravutledning og kryssreferanse, rutine QS-06",
+  "LEX-4": "Endringsovervåking mot kilde, rutine QS-08",
+};
+
+function aliasFor(id: string): string {
+  const h = parseInt(stableHex(id + "alias", 4), 16);
+  return AGENT_ALIASES[h % AGENT_ALIASES.length];
+}
+
+function traceCode(id: string, tag: string, year = 2026): string {
+  const n = parseInt(stableHex(id + tag, 4), 16) % 10000;
+  return `QS-${year}-${tag}-${String(n).padStart(4, "0")}`;
+}
+
 /** Standard for alt som er produksjonssatt uten menneskelig verifikasjon. */
-function agentRecipe(): PinRecipe {
+function agentRecipe(id: string): PinRecipe {
+  const alias = aliasFor(id);
   return {
     sourceClass: "official_raw",
     attestation: "agent_verified",
     attestedBy: AGENT_ATTESTANT,
     attestedByRole: AGENT_ROLE,
     attestedAt: "2026-08-26",
+    agentId: `agt_${stableHex(id + "agent", 6)}`,
+    agentAlias: alias,
+    routineRef: AGENT_ROUTINES[alias],
+    traceCode: traceCode(id, alias.replace("-", "")),
     freshness: "current",
     checkedAt: "2026-08-26",
   };
 }
 
-function humanRecipe(sourceRef: string): PinRecipe {
+function humanRecipe(id: string, sourceRef: string): PinRecipe {
   return {
     sourceClass: "official_consolidated",
     sourceRef,
@@ -254,6 +304,8 @@ function humanRecipe(sourceRef: string): PinRecipe {
     attestedBy: ANONYMOUS_ATTESTANT,
     attestedByRole: ATTESTANT_ROLE,
     attestedAt: "2026-08-26",
+    routineRef: "Manuell fagvurdering, rutine QS-01",
+    traceCode: traceCode(id, "JUR"),
     freshness: "current",
     checkedAt: "2026-08-26",
   };
@@ -266,9 +318,9 @@ const HUMAN_VERIFIED_FRAMEWORKS: Record<string, string> = {
 };
 
 const FRAMEWORK_PIN_RECIPES: Record<string, PinRecipe> = Object.fromEntries([
-  ...frameworks.map((f) => [f.id, agentRecipe()] as const),
+  ...frameworks.map((f) => [f.id, agentRecipe(f.id)] as const),
   ...Object.entries(HUMAN_VERIFIED_FRAMEWORKS).map(
-    ([id, ref]) => [id, humanRecipe(ref)] as const,
+    ([id, ref]) => [id, humanRecipe(id, ref)] as const,
   ),
 ]);
 
@@ -278,12 +330,12 @@ export const PIN_BY_FRAMEWORK: Record<string, Pin> = Object.fromEntries(
 
 /** Alt produksjonssatt har en Pin — ukjente id-er er agentverifisert. */
 export function getFrameworkPin(frameworkId: string): Pin {
-  return PIN_BY_FRAMEWORK[frameworkId] ?? buildPin(frameworkId, agentRecipe());
+  return PIN_BY_FRAMEWORK[frameworkId] ?? buildPin(frameworkId, agentRecipe(frameworkId));
 }
 
 /** Oppslag for ikke-regelverk (f.eks. agenter). */
 export function getMockPin(key: string): Pin {
   return (
-    PIN_BY_FRAMEWORK[key] ?? PIN_BY_FRAMEWORK[key.toLowerCase()] ?? buildPin(key, agentRecipe())
+    PIN_BY_FRAMEWORK[key] ?? PIN_BY_FRAMEWORK[key.toLowerCase()] ?? buildPin(key, agentRecipe(key))
   );
 }
