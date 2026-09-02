@@ -793,7 +793,10 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
                     <Badge variant="outline" className="text-[13px] ml-1 border-warning/40 text-warning">{isNb ? "Standard" : "Default"}</Badge>
                   )}
                   {classification?.validFrom && (
-                    <Badge variant="outline" className="text-[13px] ml-1">AI</Badge>
+                    <AiSuggestionMark
+                      isNb={isNb}
+                      detail={isNb ? "Dato lest ut av dokumentteksten." : "Date extracted from the document text."}
+                    />
                   )}
                 </Label>
                 <Input type="date" value={validFrom} onChange={(e) => { setValidFrom(e.target.value); setDatesAreDefaults(false); }} className="h-8 text-xs" />
@@ -806,10 +809,20 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
                     <Badge variant="outline" className="text-[13px] ml-1 border-warning/40 text-warning">{isNb ? "Standard" : "Default"}</Badge>
                   )}
                   {classification?.validTo && (
-                    <Badge variant="outline" className="text-[13px] ml-1">AI</Badge>
+                    <AiSuggestionMark
+                      isNb={isNb}
+                      detail={isNb ? "Dato lest ut av dokumentteksten." : "Date extracted from the document text."}
+                    />
                   )}
                 </Label>
                 <Input type="date" value={validTo} onChange={(e) => { setValidTo(e.target.value); setDatesAreDefaults(false); }} className="h-8 text-xs" />
+                {isExpiredValidTo && (
+                  <p className="text-[11px] text-destructive">
+                    {isNb
+                      ? "Dokumentet er utgått – be leverandøren om en oppdatert versjon."
+                      : "This document has expired – request an updated version from the vendor."}
+                  </p>
+                )}
               </div>
             </div>
 
