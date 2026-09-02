@@ -28,6 +28,33 @@ import {
   type FrameworkCoverageMatches,
 } from "@/lib/laraDocumentCoverage";
 import { useRegisterVendorDeviation } from "@/hooks/useVendorDeviations";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { PinRosette } from "@/components/pin/PinRosette";
+
+/** Oransje agent-rosett som markerer at verdien er et forslag fra KI-agenten. */
+function AiSuggestionMark({ isNb, detail }: { isNb: boolean; detail: string }) {
+  return (
+    <TooltipProvider delayDuration={150}>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button
+            type="button"
+            className="ml-1 inline-flex items-center"
+            aria-label={isNb ? "Forslag fra KI-agent" : "Suggestion from AI agent"}
+          >
+            <PinRosette level="agent_verified" className="h-3.5 w-3.5" />
+          </button>
+        </TooltipTrigger>
+        <TooltipContent side="bottom" className="max-w-[280px] space-y-1">
+          <p className="text-xs font-medium">
+            {isNb ? "Forslag fra KI-agent" : "Suggestion from AI agent"}
+          </p>
+          <p className="text-xs text-muted-foreground">{detail}</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+}
 
 const DOC_TYPES = [
   { value: "policy", label: "Policy", labelNb: "Policy" },
