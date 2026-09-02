@@ -67,7 +67,8 @@
     "products": "Products",
     "integrations": "Data sources and agents",
     "activityLog": "Activity log",
-    "legal": "Agreements and terms"
+    "legal": "Agreements and terms",
+    "sourceSystems": "Source systems"
   },
   "regulationsPage": {
     "type": "Type",

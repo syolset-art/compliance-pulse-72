@@ -41,6 +41,7 @@ import ActivityLog from "./pages/ActivityLog";
 import DocumentHub from "./pages/DocumentHub";
 import Wiki from "./pages/Wiki";
 import Integrations from "./pages/Integrations";
+import SourceSystems from "./pages/SourceSystems";
 import OAuthConsent from "./pages/OAuthConsent";
 import TermsAndConsent from "./pages/TermsAndConsent";
 import Terms from "./pages/Terms";
@@ -169,6 +170,7 @@ const App = () => (
                   <Route path="/wiki" element={<Wiki />} />
 
                   <Route path="/settings/integrations" element={<Integrations />} />
+                  <Route path="/settings/source-systems" element={<SourceSystems />} />
                   <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
                   <Route path="/settings/mcp" element={<Navigate to="/settings/integrations#mcp" replace />} />
                   <Route path="/terms-and-consent" element={<TermsAndConsent />} />

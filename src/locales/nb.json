@@ -68,7 +68,8 @@
     "products": "Produkter",
     "integrations": "MCP integrasjon",
     "activityLog": "Aktivitetslogg",
-    "legal": "Avtaler og vilkår"
+    "legal": "Avtaler og vilkår",
+    "sourceSystems": "Kildesystemer"
   },
   "regulationsPage": {
     "type": "Type",
@@ -2071,7 +2072,7 @@
     },
     "page": {
       "title": "MCP Integrasjon",
-      "intro": "Koble din egen AI-agent til Mynder.\u00a0"
+      "intro": "Koble din egen AI-agent til Mynder. "
     },
     "clients": {
       "title": "Velg hvor agenten din bor",
