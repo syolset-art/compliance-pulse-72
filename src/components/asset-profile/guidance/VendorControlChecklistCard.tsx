@@ -61,7 +61,7 @@ export function VendorControlChecklistCard({
 
   return (
     <section className={cn("rounded-2xl border border-border bg-card p-4 sm:p-5 h-full flex flex-col", className)}>
-      <div className="flex flex-wrap items-start justify-between gap-2">
+      <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
         <div className="min-w-0">
           <h3 className="text-sm font-semibold text-foreground">
             {isNb ? "Kontroll på leverandøren" : "Vendor control"}
@@ -77,25 +77,30 @@ export function VendorControlChecklistCard({
           </p>
         </div>
         {!complete && onOpen && (
-          <Button size="sm" variant="outline" className="h-8 gap-1.5 text-xs" onClick={onOpen}>
+          <Button
+            size="sm"
+            variant="outline"
+            className="h-8 w-full gap-1.5 text-xs sm:w-auto sm:shrink-0"
+            onClick={onOpen}
+          >
             {isNb ? "Fullfør" : "Complete"}
             <ArrowRight className="h-3.5 w-3.5" />
           </Button>
         )}
       </div>
 
-      <ul className="mt-3 grid gap-1.5 sm:grid-cols-2">
+      <ul className="mt-3 grid gap-1.5 grid-cols-1 sm:grid-cols-2 xl:grid-cols-2">
         {requiredItems.map((item) => (
-          <li key={item.nb} className="flex items-center gap-2 text-sm">
+          <li key={item.nb} className="flex items-start gap-2 text-sm">
             <span
               className={cn(
-                "flex h-4 w-4 shrink-0 items-center justify-center rounded-full border",
+                "mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border",
                 item.done ? "border-success bg-success text-success-foreground" : "border-muted-foreground/40",
               )}
             >
               {item.done && <Check className="h-3 w-3" />}
             </span>
-            <span className={cn("truncate", item.done ? "text-muted-foreground" : "text-foreground")}>
+            <span className={cn("min-w-0 break-words", item.done ? "text-muted-foreground" : "text-foreground")}>
               {isNb ? item.nb : item.en}
             </span>
           </li>
@@ -107,18 +112,18 @@ export function VendorControlChecklistCard({
           <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground mb-1.5">
             {isNb ? "Valgfritt" : "Optional"}
           </p>
-          <ul className="grid gap-1.5 sm:grid-cols-2">
+          <ul className="grid gap-1.5 grid-cols-1 sm:grid-cols-2">
             {optionalItems.map((item) => (
-              <li key={item.nb} className="flex items-center gap-2 text-sm">
+              <li key={item.nb} className="flex items-start gap-2 text-sm">
                 <span
                   className={cn(
-                    "flex h-4 w-4 shrink-0 items-center justify-center rounded-full border",
+                    "mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border",
                     item.done ? "border-success bg-success text-success-foreground" : "border-muted-foreground/40",
                   )}
                 >
                   {item.done && <Check className="h-3 w-3" />}
                 </span>
-                <span className={cn("truncate", item.done ? "text-muted-foreground" : "text-foreground")}>
+                <span className={cn("min-w-0 break-words", item.done ? "text-muted-foreground" : "text-foreground")}>
                   {isNb ? item.nb : item.en}
                 </span>
               </li>
