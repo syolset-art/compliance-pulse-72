@@ -7,8 +7,15 @@ import {
   Shield, Settings, KeyRound, Users, FileText,
   ChevronRight, TrendingUp, BarChart3, Layers,
   CheckCircle2, Circle, AlertCircle, HelpCircle, Sparkles,
+  MoreVertical, Check,
 } from "lucide-react";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useGlobalChat } from "@/components/GlobalChatProvider";
 import { Button } from "@/components/ui/button";
 import { useComplianceRequirements } from "@/hooks/useComplianceRequirements";
@@ -266,30 +273,7 @@ export function AggregatedMaturityWidget() {
               {isNb ? "Aggregert på tvers av leverandører og systemer" : "Aggregated across vendors and systems"}
             </p>
           </div>
-          <div className="flex items-center justify-between sm:justify-end gap-2 sm:shrink-0">
-
-            {/* Segmented control */}
-            <div className="flex items-center rounded-lg border border-border bg-muted/30 p-0.5">
-              {VIEW_MODES.map((mode) => {
-                const Icon = mode.icon;
-                const isActive = viewMode === mode.key;
-                return (
-                  <button
-                    key={mode.key}
-                    onClick={() => setViewMode(mode.key)}
-                    className={cn(
-                      "flex items-center gap-1 px-2 py-1 rounded-md text-[13px] font-medium transition-all",
-                      isActive
-                        ? "bg-background text-foreground shadow-sm"
-                        : "text-muted-foreground hover:text-foreground"
-                    )}
-                  >
-                    <Icon className="h-3 w-3" />
-                    <span className="hidden sm:inline">{isNb ? mode.label_no : mode.label_en}</span>
-                  </button>
-                );
-              })}
-            </div>
+          <div className="flex items-center justify-between sm:justify-end gap-1 sm:shrink-0">
             <HoverCard openDelay={120} closeDelay={80}>
               <HoverCardTrigger asChild>
                 <button
@@ -352,6 +336,36 @@ export function AggregatedMaturityWidget() {
                 </div>
               </HoverCardContent>
             </HoverCard>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                  aria-label={isNb ? "Endre visning" : "Change view"}
+                >
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-44">
+                {VIEW_MODES.map((mode) => {
+                  const Icon = mode.icon;
+                  const isActive = viewMode === mode.key;
+                  return (
+                    <DropdownMenuItem
+                      key={mode.key}
+                      onClick={() => setViewMode(mode.key)}
+                      className="cursor-pointer"
+                    >
+                      <Icon className={cn("h-4 w-4 mr-2", isActive ? "text-foreground" : "text-muted-foreground")} />
+                      <span className="flex-1">{isNb ? mode.label_no : mode.label_en}</span>
+                      {isActive && <Check className="h-4 w-4 text-foreground" />}
+                    </DropdownMenuItem>
+                  );
+                })}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
 
