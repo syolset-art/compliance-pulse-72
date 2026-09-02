@@ -838,7 +838,7 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
                       title={aiSuggestion?.reason || ""}
                     >
                       {reg}
-                      {aiSuggestion && !selected && <Sparkles className="h-2.5 w-2.5 opacity-60" />}
+                      {aiSuggestion && !selected && <PinRosette level="agent_verified" className="h-3 w-3" />}
                     </button>
                   );
                 })}
