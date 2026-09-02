@@ -113,6 +113,7 @@ const settingsMenu = [
   { name: "nav.products", href: "/subscriptions", icon: Crown },
   { name: "nav.accessManagement", href: "/admin/access", icon: Users },
   { name: "nav.adminNotifications", href: "/admin/notifications", icon: Bell },
+  { name: "nav.sourceSystems", href: "/settings/source-systems", icon: Database },
   { name: "nav.integrations", href: "/settings/integrations", icon: Plug },
   { name: "nav.activityLog", href: "/activity-log", icon: ClipboardList },
   { name: "nav.legal", href: "/dokumenter", icon: FileText },
