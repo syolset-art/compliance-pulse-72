@@ -538,12 +538,6 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
     [handleFileSelected]
   );
 
-  const expiryStatusConfig = {
-    valid: { icon: CheckCircle2, color: "text-status-closed", bg: "bg-status-closed/10 dark:bg-emerald-950/30 border-status-closed/20 dark:border-status-closed", label: isNb ? "Gyldig" : "Valid" },
-    expired: { icon: XCircle, color: "text-destructive", bg: "bg-destructive/10 border-destructive/20", label: isNb ? "Utgått" : "Expired" },
-    expiring_soon: { icon: AlertTriangle, color: "text-warning", bg: "bg-warning/10 dark:bg-yellow-950/30 border-warning/20 dark:border-warning", label: isNb ? "Utløper snart" : "Expiring soon" },
-    unknown: { icon: Clock, color: "text-muted-foreground", bg: "bg-muted/30 border-border", label: isNb ? "Ukjent" : "Unknown" },
-  };
 
   const confidencePercent = classification ? Math.round((classification.confidence || 0) * 100) : 0;
   const totalRequirementHits = requirementHits.reduce((n, g) => n + g.matches.length, 0);
