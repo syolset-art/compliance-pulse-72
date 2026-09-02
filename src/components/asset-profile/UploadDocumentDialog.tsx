@@ -717,30 +717,6 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
               </div>
             )}
 
-            {/* Expiry status banner */}
-            {classification && classification.expiryStatus !== "unknown" && (
-              <div className={`flex items-center gap-2 p-3 rounded-lg border ${expiryStatusConfig[classification.expiryStatus].bg}`}>
-                {(() => {
-                  const Icon = expiryStatusConfig[classification.expiryStatus].icon;
-                  return <Icon className={`h-4 w-4 ${expiryStatusConfig[classification.expiryStatus].color}`} />;
-                })()}
-                <div>
-                  <span className={`text-sm font-medium ${expiryStatusConfig[classification.expiryStatus].color}`}>
-                    {expiryStatusConfig[classification.expiryStatus].label}
-                  </span>
-                  {classification.expiryStatus === "expired" && (
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      {isNb ? "Dette dokumentet er utgått. Du bør be leverandøren om en oppdatert versjon." : "This document has expired. You should request an updated version from the vendor."}
-                    </p>
-                  )}
-                  {classification.expiryStatus === "expiring_soon" && (
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      {isNb ? "Dokumentet utløper snart. Planlegg fornyelse." : "Document is expiring soon. Plan for renewal."}
-                    </p>
-                  )}
-                </div>
-              </div>
-            )}
 
             {/* Suggested type & category */}
             <div className="grid grid-cols-2 gap-3">
