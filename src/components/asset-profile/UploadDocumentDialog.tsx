@@ -28,6 +28,33 @@ import {
   type FrameworkCoverageMatches,
 } from "@/lib/laraDocumentCoverage";
 import { useRegisterVendorDeviation } from "@/hooks/useVendorDeviations";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { PinRosette } from "@/components/pin/PinRosette";
+
+/** Oransje agent-rosett som markerer at verdien er et forslag fra KI-agenten. */
+function AiSuggestionMark({ isNb, detail }: { isNb: boolean; detail: string }) {
+  return (
+    <TooltipProvider delayDuration={150}>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button
+            type="button"
+            className="ml-1 inline-flex items-center"
+            aria-label={isNb ? "Forslag fra KI-agent" : "Suggestion from AI agent"}
+          >
+            <PinRosette level="agent_verified" className="h-3.5 w-3.5" />
+          </button>
+        </TooltipTrigger>
+        <TooltipContent side="bottom" className="max-w-[280px] space-y-1">
+          <p className="text-xs font-medium">
+            {isNb ? "Forslag fra KI-agent" : "Suggestion from AI agent"}
+          </p>
+          <p className="text-xs text-muted-foreground">{detail}</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+}
 
 const DOC_TYPES = [
   { value: "policy", label: "Policy", labelNb: "Policy" },
@@ -511,17 +538,49 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
     [handleFileSelected]
   );
 
-  const expiryStatusConfig = {
-    valid: { icon: CheckCircle2, color: "text-status-closed", bg: "bg-status-closed/10 dark:bg-emerald-950/30 border-status-closed/20 dark:border-status-closed", label: isNb ? "Gyldig" : "Valid" },
-    expired: { icon: XCircle, color: "text-destructive", bg: "bg-destructive/10 border-destructive/20", label: isNb ? "Utgått" : "Expired" },
-    expiring_soon: { icon: AlertTriangle, color: "text-warning", bg: "bg-warning/10 dark:bg-yellow-950/30 border-warning/20 dark:border-warning", label: isNb ? "Utløper snart" : "Expiring soon" },
-    unknown: { icon: Clock, color: "text-muted-foreground", bg: "bg-muted/30 border-border", label: isNb ? "Ukjent" : "Unknown" },
-  };
 
   const confidencePercent = classification ? Math.round((classification.confidence || 0) * 100) : 0;
   const totalRequirementHits = requirementHits.reduce((n, g) => n + g.matches.length, 0);
   const confidenceColor = confidencePercent >= 80 ? "bg-status-closed" : confidencePercent >= 50 ? "bg-warning" : "bg-destructive";
   const confidenceTextColor = confidencePercent >= 80 ? "text-status-closed" : confidencePercent >= 50 ? "text-warning" : "text-destructive";
+
+  const isExpiredValidTo = !!validTo && new Date(validTo) < new Date();
+
+  /** Forklaring på hvorfor konfidensgraden er høy eller lav — bygget av det analysen faktisk fant. */
+  const confidenceReasons: string[] = (() => {
+    if (!classification) return [];
+    const out: string[] = [];
+    const typeLabel = classification.documentTypeLabel || classification.documentType;
+    out.push(
+      isNb
+        ? `Dokumentet ble gjenkjent som ${typeLabel} ut fra tittel, parter og begrepsbruk i teksten.`
+        : `The document was recognised as ${typeLabel} from its title, parties and terminology.`
+    );
+    out.push(
+      classification.validFrom || classification.validTo
+        ? (isNb
+            ? "Gyldighetsdatoer ble funnet i dokumentet."
+            : "Validity dates were found in the document.")
+        : (isNb
+            ? "Ingen gyldighetsdatoer ble funnet – datoene er satt som standard."
+            : "No validity dates were found – the dates are set to defaults.")
+    );
+    const highCount = (classification.relevantRegulations || []).filter((r) => r.relevance === "high").length;
+    out.push(
+      isNb
+        ? `${highCount} regelverk ble koblet med høy relevans.`
+        : `${highCount} regulations were linked with high relevance.`
+    );
+    if (confidencePercent < 80) {
+      out.push(
+        isNb
+          ? "Skåren er lavere fordi flere signaler var tvetydige – kontroller feltene før du lagrer."
+          : "The score is lower because several signals were ambiguous – check the fields before saving."
+      );
+    }
+    return out;
+  })();
+
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -624,7 +683,32 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
                   <Sparkles className={`h-4 w-4 shrink-0 ${confidenceTextColor}`} />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-xs font-medium">{isNb ? "AI-konfidensgrad" : "AI Confidence"}</span>
+                      <span className="text-xs font-medium flex items-center gap-1">
+                        {isNb ? "AI-konfidensgrad" : "AI Confidence"}
+                        <TooltipProvider delayDuration={150}>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <button
+                                type="button"
+                                className="text-muted-foreground hover:text-foreground"
+                                aria-label={isNb ? "Hvorfor denne skåren?" : "Why this score?"}
+                              >
+                                <Info className="h-3.5 w-3.5" />
+                              </button>
+                            </TooltipTrigger>
+                            <TooltipContent side="bottom" className="max-w-[300px] space-y-1.5">
+                              <p className="text-xs font-medium">
+                                {isNb ? "Hvorfor denne skåren?" : "Why this score?"}
+                              </p>
+                              <ul className="list-disc pl-4 space-y-0.5 text-xs text-muted-foreground">
+                                {confidenceReasons.map((r) => (
+                                  <li key={r}>{r}</li>
+                                ))}
+                              </ul>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </span>
                       <div className="flex items-center gap-2">
                         <span className={`text-sm font-bold ${confidenceTextColor}`}>{confidencePercent}%</span>
                         {/* Feedback buttons */}
@@ -717,37 +801,22 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
               </div>
             )}
 
-            {/* Expiry status banner */}
-            {classification && classification.expiryStatus !== "unknown" && (
-              <div className={`flex items-center gap-2 p-3 rounded-lg border ${expiryStatusConfig[classification.expiryStatus].bg}`}>
-                {(() => {
-                  const Icon = expiryStatusConfig[classification.expiryStatus].icon;
-                  return <Icon className={`h-4 w-4 ${expiryStatusConfig[classification.expiryStatus].color}`} />;
-                })()}
-                <div>
-                  <span className={`text-sm font-medium ${expiryStatusConfig[classification.expiryStatus].color}`}>
-                    {expiryStatusConfig[classification.expiryStatus].label}
-                  </span>
-                  {classification.expiryStatus === "expired" && (
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      {isNb ? "Dette dokumentet er utgått. Du bør be leverandøren om en oppdatert versjon." : "This document has expired. You should request an updated version from the vendor."}
-                    </p>
-                  )}
-                  {classification.expiryStatus === "expiring_soon" && (
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      {isNb ? "Dokumentet utløper snart. Planlegg fornyelse." : "Document is expiring soon. Plan for renewal."}
-                    </p>
-                  )}
-                </div>
-              </div>
-            )}
 
             {/* Suggested type & category */}
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label className="text-xs font-medium flex items-center gap-1">
                   {isNb ? "Dokumenttype" : "Document Type"}
-                  {classification && <Badge variant="outline" className="text-[13px] ml-1">AI-forslag</Badge>}
+                  {classification && (
+                    <AiSuggestionMark
+                      isNb={isNb}
+                      detail={
+                        isNb
+                          ? `Foreslått type: ${classification.documentTypeLabel || classification.documentType}. Basert på innhold, parter og begrepsbruk i dokumentet.`
+                          : `Suggested type: ${classification.documentTypeLabel || classification.documentType}. Based on content, parties and terminology in the document.`
+                      }
+                    />
+                  )}
                 </Label>
                 <Select value={docType} onValueChange={setDocType}>
                   <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
@@ -793,7 +862,10 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
                     <Badge variant="outline" className="text-[13px] ml-1 border-warning/40 text-warning">{isNb ? "Standard" : "Default"}</Badge>
                   )}
                   {classification?.validFrom && (
-                    <Badge variant="outline" className="text-[13px] ml-1">AI</Badge>
+                    <AiSuggestionMark
+                      isNb={isNb}
+                      detail={isNb ? "Dato lest ut av dokumentteksten." : "Date extracted from the document text."}
+                    />
                   )}
                 </Label>
                 <Input type="date" value={validFrom} onChange={(e) => { setValidFrom(e.target.value); setDatesAreDefaults(false); }} className="h-8 text-xs" />
@@ -806,10 +878,20 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
                     <Badge variant="outline" className="text-[13px] ml-1 border-warning/40 text-warning">{isNb ? "Standard" : "Default"}</Badge>
                   )}
                   {classification?.validTo && (
-                    <Badge variant="outline" className="text-[13px] ml-1">AI</Badge>
+                    <AiSuggestionMark
+                      isNb={isNb}
+                      detail={isNb ? "Dato lest ut av dokumentteksten." : "Date extracted from the document text."}
+                    />
                   )}
                 </Label>
                 <Input type="date" value={validTo} onChange={(e) => { setValidTo(e.target.value); setDatesAreDefaults(false); }} className="h-8 text-xs" />
+                {isExpiredValidTo && (
+                  <p className="text-[11px] text-destructive">
+                    {isNb
+                      ? "Dokumentet er utgått – be leverandøren om en oppdatert versjon."
+                      : "This document has expired – request an updated version from the vendor."}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -838,7 +920,7 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
                       title={aiSuggestion?.reason || ""}
                     >
                       {reg}
-                      {aiSuggestion && !selected && <Sparkles className="h-2.5 w-2.5 opacity-60" />}
+                      {aiSuggestion && !selected && <PinRosette level="agent_verified" className="h-3 w-3" />}
                     </button>
                   );
                 })}
