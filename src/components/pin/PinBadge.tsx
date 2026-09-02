@@ -56,18 +56,28 @@ export function PinBadge({
     </span>
   );
 
+  const isAgent = level === "agent_verified";
+  const att = resolved.attestation;
+
   const tooltip = (
-    <div className="w-[300px] space-y-2 p-1">
+    <div className="w-[320px] space-y-2 p-1">
       <div className="flex items-center gap-1.5 font-semibold">
         <PinRosette level={level} className="h-4 w-4" />
         {label}
       </div>
       <p className="text-xs opacity-90">
-        {level === "human_verified"
-          ? "Verifisert av juridisk fagansvarlig."
-          : "Verifisert av agentis runtime-rutine."}
+        {isAgent
+          ? "Verifisert av agentis runtime-rutine."
+          : "Verifisert av juridisk fagansvarlig."}
       </p>
       <dl className="space-y-1">
+        {isAgent && att.agentAlias && (
+          <TooltipRow label={PIN_ROW_LABEL.agent} value={`Regelverksagent · ${att.agentAlias}`} />
+        )}
+        {isAgent && att.agentId && (
+          <TooltipRow label={PIN_ROW_LABEL.agentId} value={att.agentId} />
+        )}
+        {att.routineRef && <TooltipRow label={PIN_ROW_LABEL.routine} value={att.routineRef} />}
         <TooltipRow label="Kilde" value={SOURCE_CLASS_LABEL[resolved.source.sourceClass]} />
         <TooltipRow
           label="Sist kontrollert"
@@ -75,6 +85,12 @@ export function PinBadge({
             resolved.freshness.checkedAt ?? resolved.attestation.attestedAt,
           )}
         />
+        {att.traceCode && (
+          <div className="flex gap-2 text-xs">
+            <dt className="w-[110px] shrink-0 text-muted-foreground">{PIN_ROW_LABEL.traceCode}</dt>
+            <dd className="min-w-0 flex-1 truncate font-mono text-foreground">{att.traceCode}</dd>
+          </div>
+        )}
         {resolved.previousAttestation && (
           <TooltipRow
             label="Tidligere"
@@ -84,6 +100,9 @@ export function PinBadge({
           />
         )}
       </dl>
+      {att.traceCode && (
+        <p className="text-[10px] leading-relaxed text-muted-foreground">{AGENT_IDENTITY_NOTE}</p>
+      )}
       <p className="border-t border-border pt-2 text-[10px] leading-relaxed text-muted-foreground">
         {resolved.previousAttestation
           ? "Innholdet er endret siden forrige menneskeverifisering. Merket gjelder denne innholdsversjonen — den sier hvor innholdet kommer fra og hvem som står bak, ikke at det er godkjent for bruk."
