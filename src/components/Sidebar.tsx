@@ -23,6 +23,7 @@ import {
   Inbox,
   Globe,
   Layers,
+  Database,
   Cloud,
   Bell,
   Pencil,
