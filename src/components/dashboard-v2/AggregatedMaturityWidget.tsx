@@ -336,6 +336,36 @@ export function AggregatedMaturityWidget() {
                 </div>
               </HoverCardContent>
             </HoverCard>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                  aria-label={isNb ? "Endre visning" : "Change view"}
+                >
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-44">
+                {VIEW_MODES.map((mode) => {
+                  const Icon = mode.icon;
+                  const isActive = viewMode === mode.key;
+                  return (
+                    <DropdownMenuItem
+                      key={mode.key}
+                      onClick={() => setViewMode(mode.key)}
+                      className="cursor-pointer"
+                    >
+                      <Icon className={cn("h-4 w-4 mr-2", isActive ? "text-foreground" : "text-muted-foreground")} />
+                      <span className="flex-1">{isNb ? mode.label_no : mode.label_en}</span>
+                      {isActive && <Check className="h-4 w-4 text-foreground" />}
+                    </DropdownMenuItem>
+                  );
+                })}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
 
