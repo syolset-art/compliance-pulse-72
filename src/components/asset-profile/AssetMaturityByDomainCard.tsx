@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { Shield, ChevronDown, HelpCircle, Sparkles } from "lucide-react";
+import { Shield, ChevronDown, HelpCircle, Sparkles, Info } from "lucide-react";
 import { useTrustControlEvaluation } from "@/hooks/useTrustControlEvaluation";
 import { cn } from "@/lib/utils";
 import { CONTROL_AREAS, type ControlAreaKey } from "@/lib/controlAreas";
