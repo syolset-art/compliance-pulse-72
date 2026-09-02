@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { Shield, ChevronDown, HelpCircle, Sparkles } from "lucide-react";
+import { Shield, ChevronDown, HelpCircle, Sparkles, Info } from "lucide-react";
 import { useTrustControlEvaluation } from "@/hooks/useTrustControlEvaluation";
 import { cn } from "@/lib/utils";
 import { CONTROL_AREAS, type ControlAreaKey } from "@/lib/controlAreas";
@@ -62,17 +62,30 @@ export function AssetMaturityByDomainCard({ assetId, variant = "default" }: Prop
                 : (isNb ? "Modenhet per kontrollområde" : "Maturity by control area")}
             </h3>
             {isVendor && (
+              <TooltipProvider delayDuration={150}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      type="button"
+                      className="inline-flex items-center justify-center rounded-full p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors shrink-0"
+                      aria-label={isNb ? "Mer informasjon om leverandørmodenhet" : "More information about vendor maturity"}
+                    >
+                      <Info className="h-3.5 w-3.5" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom" align="start" className="max-w-xs p-3 text-xs leading-relaxed bg-popover text-popover-foreground border border-border shadow-xl">
+                    <p>{t("assetMaturityByDomain.vendorExplainer")}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
+            {isVendor && (
               <Badge variant="outline" className="text-[10px] uppercase tracking-wide gap-1 px-2 py-0.5 h-5">
                 <Sparkles className="h-3 w-3" />
                 {t("assetMaturityByDomain.phase2Badge")}
               </Badge>
             )}
           </div>
-          {isVendor && (
-            <p className="text-[12px] text-muted-foreground leading-relaxed max-w-2xl">
-              {t("assetMaturityByDomain.vendorExplainer")}
-            </p>
-          )}
         </div>
         <TooltipProvider delayDuration={150}>
           <Tooltip>
