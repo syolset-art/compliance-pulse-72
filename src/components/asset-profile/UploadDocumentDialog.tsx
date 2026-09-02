@@ -747,7 +747,16 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
               <div className="space-y-1.5">
                 <Label className="text-xs font-medium flex items-center gap-1">
                   {isNb ? "Dokumenttype" : "Document Type"}
-                  {classification && <Badge variant="outline" className="text-[13px] ml-1">AI-forslag</Badge>}
+                  {classification && (
+                    <AiSuggestionMark
+                      isNb={isNb}
+                      detail={
+                        isNb
+                          ? `Foreslått type: ${classification.documentTypeLabel || classification.documentType}. Basert på innhold, parter og begrepsbruk i dokumentet.`
+                          : `Suggested type: ${classification.documentTypeLabel || classification.documentType}. Based on content, parties and terminology in the document.`
+                      }
+                    />
+                  )}
                 </Label>
                 <Select value={docType} onValueChange={setDocType}>
                   <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
