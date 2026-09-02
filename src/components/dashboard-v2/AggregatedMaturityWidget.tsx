@@ -7,8 +7,15 @@ import {
   Shield, Settings, KeyRound, Users, FileText,
   ChevronRight, TrendingUp, BarChart3, Layers,
   CheckCircle2, Circle, AlertCircle, HelpCircle, Sparkles,
+  MoreVertical, Check,
 } from "lucide-react";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useGlobalChat } from "@/components/GlobalChatProvider";
 import { Button } from "@/components/ui/button";
 import { useComplianceRequirements } from "@/hooks/useComplianceRequirements";
