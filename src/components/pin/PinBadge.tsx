@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
@@ -9,7 +10,7 @@ import {
   type Pin,
 } from "@/lib/pin";
 import { PinRosette } from "./PinRosette";
-import { PinDetails, PinSummary } from "./PinDetails";
+import { PinDetails, PinSummary, type PinDetailsView } from "./PinDetails";
 
 interface PinBadgeProps {
   pin?: Pin;
@@ -28,11 +29,18 @@ export function PinBadge({
   size = "sm",
   className,
 }: PinBadgeProps) {
+  const [open, setOpen] = useState(false);
+  const [detailsView, setDetailsView] = useState<PinDetailsView>("main");
   // Alt produksjonssatt har alltid en Pin — fall tilbake til agentverifisert.
   const resolved: Pin = pin ?? getFrameworkPin("__default__");
   const level = resolved.attestation.level;
   const label = ATTESTATION_LABEL[level];
   const a11yLabel = `Pin: ${label}. ${pinTooltipLine(resolved)}.`;
+
+  const openDetails = (view: PinDetailsView) => {
+    setDetailsView(view);
+    setOpen(true);
+  };
 
   // Kun rosett — ingen pille, ingen tekst.
   const visual = (
@@ -55,12 +63,21 @@ export function PinBadge({
       <PinSummary pin={resolved} />
       <div className="space-y-1 border-t border-border pt-2">
         <div className="flex flex-wrap gap-4 text-xs text-primary">
-          <span className="underline underline-offset-2">
+          <button
+            type="button"
+            onClick={() => openDetails("sources")}
+            className="underline underline-offset-2 hover:no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
             Kilder for {resolved.subject?.label ?? "regelverket"}
-          </span>
-          <span className="underline underline-offset-2">Slik kvalitetssikrer vi</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => openDetails("quality")}
+            className="underline underline-offset-2 hover:no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            Slik kvalitetssikrer vi
+          </button>
         </div>
-        <p className="text-[11px] text-muted-foreground">Klikk på merket for å åpne.</p>
       </div>
     </div>
   );
@@ -77,7 +94,13 @@ export function PinBadge({
   }
 
   return (
-    <Popover>
+    <Popover
+      open={open}
+      onOpenChange={(nextOpen) => {
+        setOpen(nextOpen);
+        if (nextOpen) setDetailsView("main");
+      }}
+    >
       <Tooltip>
         <TooltipTrigger asChild>
           <PopoverTrigger asChild>
@@ -90,7 +113,7 @@ export function PinBadge({
             </button>
           </PopoverTrigger>
         </TooltipTrigger>
-        <TooltipContent side="bottom">{tooltip}</TooltipContent>
+        <TooltipContent side="bottom" className="pointer-events-auto">{tooltip}</TooltipContent>
       </Tooltip>
       <PopoverContent
         side="bottom"
@@ -99,7 +122,7 @@ export function PinBadge({
         collisionPadding={16}
         className="w-[360px] max-h-[70vh] overflow-y-auto"
       >
-        <PinDetails pin={resolved} />
+        <PinDetails key={`${detailsView}-${open}`} pin={resolved} initialView={detailsView} />
       </PopoverContent>
     </Popover>
   );
