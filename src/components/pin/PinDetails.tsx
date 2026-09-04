@@ -68,7 +68,22 @@ export function PinDetails({ pin, className }: { pin: Pin; className?: string })
           <Row label={PIN_ROW_LABEL.routine} value={pin.attestation.routineRef} />
         )}
         <Row label="Kilde" value={SOURCE_CLASS_LABEL[pin.source.sourceClass]} />
-        <Row label="Referanse" value={pin.source.sourceRef || UNKNOWN_TEXT} />
+        {pin.source.sourceRef && (
+          <div className="flex items-baseline gap-2 text-[11px]">
+            <dt className="w-[104px] shrink-0 text-muted-foreground">Referanse</dt>
+            <dd className="min-w-0 flex-1 truncate text-foreground">
+              <a
+                href={sourceRefHref(pin.source.sourceRef)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline underline-offset-2 hover:text-primary"
+              >
+                {sourceRefDisplay(pin.source.sourceRef)}
+              </a>
+            </dd>
+          </div>
+        )}
+        <Row label="Verifiseres" value={VERIFICATION_FREQUENCY_TEXT} />
         <Row label="Innhold laget av" value={CONTENT_CREATED_BY_TEXT[level]} />
         <Row
           label="Hentemetode"
