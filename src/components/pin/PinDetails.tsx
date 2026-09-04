@@ -115,12 +115,6 @@ export function PinDetails({ pin, className }: { pin: Pin; className?: string })
       {pin.attestation.traceCode && (
         <p className="text-[10px] leading-relaxed text-muted-foreground">{AGENT_IDENTITY_NOTE}</p>
       )}
-
-      <p className="border-t border-border pt-2 text-[10px] leading-relaxed text-muted-foreground">
-        {prev
-          ? "Innholdet er endret siden forrige menneskeverifisering. Merket gjelder denne innholdsversjonen — den sier hvor innholdet kommer fra og hvem som står bak, ikke at det er godkjent for bruk."
-          : "Merket gjelder denne innholdsversjonen — den sier hvor innholdet kommer fra og hvem som står bak, ikke at det er godkjent for bruk."}
-      </p>
     </div>
   );
 }
