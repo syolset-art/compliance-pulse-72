@@ -560,14 +560,16 @@ export function AttachEvidenceDialog({
                         ? `Lara foreslår ${matches.length} krav dokumentet ser ut til å dekke`
                         : `Lara suggests ${matches.length} requirements this document appears to cover`
                       : isNb
-                        ? "Lara fant ingen tydelige treff. Du kan legge til krav selv."
-                        : "Lara found no clear matches. You can add requirements yourself."}
+                        ? "Lara er en AI agent og kan ta feil."
+                        : "Lara is an AI agent and can be wrong."}
                   </p>
-                  <p className="text-[11px] text-muted-foreground mt-0.5">
-                    {isNb
-                       ? "Dette er kun et forslag - Lara kan ta feil. Du bestemmer hva som tilknyttes."
-                      : "This is only a suggestion — Lara can be wrong. You decide what to attach."}
-                  </p>
+                  {matches.length > 0 && (
+                    <p className="text-[11px] text-muted-foreground mt-0.5">
+                      {isNb
+                         ? "Dette er kun et forslag - Lara kan ta feil. Du bestemmer hva som tilknyttes."
+                        : "This is only a suggestion — Lara can be wrong. You decide what to attach."}
+                    </p>
+                  )}
                 </div>
 
                 {selectedList.map((m) => {
