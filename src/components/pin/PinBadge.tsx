@@ -107,6 +107,9 @@ export function PinBadge({
           />
         )}
       </dl>
+      <p className="border-t border-border pt-2 text-[11px] leading-relaxed text-muted-foreground">
+        {SOURCE_CLASS_DESCRIPTION[resolved.source.sourceClass]}
+      </p>
     </div>
   );
 
