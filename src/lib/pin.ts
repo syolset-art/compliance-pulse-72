@@ -55,8 +55,6 @@ export interface PinAttestationDimension {
   agentAlias?: string;
   /** Kontrollrutine i kvalitetssystemet, uten metodedetaljer. */
   routineRef?: string;
-  /** Kode som mapper tilbake til Mynders kvalitetssystem. */
-  traceCode?: string;
 }
 
 export interface PinFreshnessDimension {
@@ -130,7 +128,6 @@ export const PIN_ROW_LABEL = {
   agent: "Agent",
   agentId: "Agent-ID",
   routine: "Kontrollrutine",
-  traceCode: "Sporingskode",
 } as const;
 
 /** Ukjent/manglende verdi vises alltid eksplisitt, aldri som tom streng. */
@@ -198,7 +195,6 @@ type PinRecipe = {
   agentId?: string;
   agentAlias?: string;
   routineRef?: string;
-  traceCode?: string;
   freshness: PinFreshnessFlag;
   checkedAt?: string;
   drifting?: boolean;
@@ -243,7 +239,6 @@ function buildPin(id: string, r: PinRecipe): Pin {
       agentId: r.agentId,
       agentAlias: r.agentAlias,
       routineRef: r.routineRef,
-      traceCode: r.traceCode,
     },
     freshness: { flag: r.freshness, checkedAt: r.checkedAt, drifting: r.drifting ?? false },
     previousAttestation: r.previousAttestation,
@@ -268,11 +263,6 @@ function aliasFor(id: string): string {
   return AGENT_ALIASES[h % AGENT_ALIASES.length];
 }
 
-function traceCode(id: string, tag: string, year = 2026): string {
-  const n = parseInt(stableHex(id + tag, 4), 16) % 10000;
-  return `QS-${year}-${tag}-${String(n).padStart(4, "0")}`;
-}
-
 /** Standard for alt som er produksjonssatt uten menneskelig verifikasjon. */
 function agentRecipe(id: string): PinRecipe {
   const alias = aliasFor(id);
@@ -285,7 +275,6 @@ function agentRecipe(id: string): PinRecipe {
     agentId: `agt_${stableHex(id + "agent", 6)}`,
     agentAlias: alias,
     routineRef: AGENT_ROUTINES[alias],
-    traceCode: traceCode(id, alias.replace("-", "")),
     freshness: "current",
     checkedAt: "2026-08-26",
   };
@@ -301,7 +290,6 @@ function humanRecipe(id: string, sourceRef: string): PinRecipe {
     attestedByRole: ATTESTANT_ROLE,
     attestedAt: "2026-08-26",
     routineRef: "Manuell fagvurdering, rutine QS-01",
-    traceCode: traceCode(id, "JUR"),
     freshness: "current",
     checkedAt: "2026-08-26",
   };
