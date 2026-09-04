@@ -121,8 +121,18 @@ function BackLink({ onClick }: { onClick: () => void }) {
  * Proveniensvisning med tre nivåer: oppsummering, kilder og kvalitetsprosess.
  * Pin sier ingenting om samsvar.
  */
-export function PinDetails({ pin, className }: { pin: Pin; className?: string }) {
-  const [view, setView] = useState<"main" | "sources" | "quality">("main");
+export type PinDetailsView = "main" | "sources" | "quality";
+
+export function PinDetails({
+  pin,
+  className,
+  initialView = "main",
+}: {
+  pin: Pin;
+  className?: string;
+  initialView?: PinDetailsView;
+}) {
+  const [view, setView] = useState<PinDetailsView>(initialView);
   const level = pin.attestation.level;
   const subject = pin.subject?.label ?? "regelverket";
 
