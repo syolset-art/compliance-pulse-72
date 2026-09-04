@@ -190,7 +190,7 @@ export function ModuleCard({
 
           {isPendingCancel ? (
             <Button variant="outline" size="sm" className="h-8 text-xs" onClick={onResume}>
-              Angre oppsigelse
+              Aktiver
             </Button>
           ) : action !== "none" && (
             <div className="flex items-center gap-2 shrink-0">
