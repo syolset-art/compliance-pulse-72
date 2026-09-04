@@ -3,33 +3,13 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { cn } from "@/lib/utils";
 import {
   ATTESTATION_LABEL,
-  ATTESTATION_METHOD_TEXT,
-  PIN_ROW_LABEL,
-  ATTESTATION_VERIFIER_TEXT,
-  SOURCE_CLASS_DESCRIPTION,
-  SOURCE_CLASS_LABEL,
-  VERIFICATION_FREQUENCY_TEXT,
-  formatPinDate,
-  formatPinRelativeDate,
+  ATTESTATION_SUMMARY_TEXT,
   getFrameworkPin,
   pinTooltipLine,
-  sourceRefDisplay,
-  sourceRefHref,
   type Pin,
 } from "@/lib/pin";
 import { PinRosette } from "./PinRosette";
-import { PinDetails } from "./PinDetails";
-
-function TooltipRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex gap-2 text-xs">
-      <dt className="w-[110px] shrink-0 text-muted-foreground">{label}</dt>
-      <dd className="min-w-0 flex-1 truncate text-foreground" title={value}>
-        {value}
-      </dd>
-    </div>
-  );
-}
+import { PinDetails, PinSummary } from "./PinDetails";
 
 interface PinBadgeProps {
   pin?: Pin;
@@ -61,54 +41,20 @@ export function PinBadge({
     </span>
   );
 
-  const isAgent = level === "agent_verified";
-  const att = resolved.attestation;
-
   const tooltip = (
-    <div className="w-[320px] space-y-2 p-1">
-      <div className="flex items-center gap-1.5 font-semibold">
-        <PinRosette level={level} className="h-4 w-4" />
-        {label}
+    <div className="w-[300px] space-y-2.5 p-1">
+      <div className="space-y-1">
+        <div className="flex items-center gap-2 font-semibold">
+          <PinRosette level={level} className="h-4 w-4" />
+          {label}
+        </div>
+        <p className="text-xs leading-relaxed opacity-80">
+          {ATTESTATION_SUMMARY_TEXT[level]}
+        </p>
       </div>
-      <p className="text-xs opacity-90">
-        {isAgent
-          ? "Verifisert av agentis runtime-rutine."
-          : "Verifisert av juridisk fagansvarlig."}
-      </p>
-      <dl className="space-y-1">
-        {isAgent && att.agentAlias && (
-          <TooltipRow label={PIN_ROW_LABEL.agent} value={`Regelverksagent · ${att.agentAlias}`} />
-        )}
-        {isAgent && att.agentId && (
-          <TooltipRow label={PIN_ROW_LABEL.agentId} value={att.agentId} />
-        )}
-        {att.routineRef && <TooltipRow label={PIN_ROW_LABEL.routine} value={att.routineRef} />}
-        <TooltipRow
-          label="Kilde"
-          value={
-            resolved.source.sourceRef
-              ? sourceRefDisplay(resolved.source.sourceRef)
-              : SOURCE_CLASS_LABEL[resolved.source.sourceClass]
-          }
-        />
-        <TooltipRow label="Verifiseres" value={VERIFICATION_FREQUENCY_TEXT} />
-        <TooltipRow
-          label="Sist kontrollert"
-          value={formatPinRelativeDate(
-            resolved.freshness.checkedAt ?? resolved.attestation.attestedAt,
-          )}
-        />
-        {resolved.previousAttestation && (
-          <TooltipRow
-            label="Tidligere"
-            value={`${ATTESTATION_LABEL[resolved.previousAttestation.level]} ${formatPinDate(
-              resolved.previousAttestation.at,
-            )}, gjaldt ${resolved.previousAttestation.unitVersion}`}
-          />
-        )}
-      </dl>
-      <p className="border-t border-border pt-2 text-[11px] leading-relaxed text-muted-foreground">
-        {SOURCE_CLASS_DESCRIPTION[resolved.source.sourceClass]}
+      <PinSummary pin={resolved} />
+      <p className="border-t border-border pt-2 text-[11px] text-muted-foreground">
+        Klikk for kilder og kvalitetsprosess.
       </p>
     </div>
   );

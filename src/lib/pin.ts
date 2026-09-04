@@ -70,6 +70,25 @@ export interface PinPreviousAttestation {
   unitVersion: string;
 }
 
+export interface PinSubject {
+  id: string;
+  label: string;
+}
+
+/** Kravtelling for regelverket merket gjelder. */
+export interface PinRequirements {
+  total: number;
+  requiringDocs: number;
+  missing: number;
+}
+
+/** En rettskilde som innholdet bygger på. */
+export interface PinSourceEntry {
+  label: string;
+  ref?: string;
+  note?: string;
+}
+
 export interface Pin {
   pin_id: string;
   content_hash: string;
@@ -80,6 +99,20 @@ export interface Pin {
   freshness: PinFreshnessDimension;
   /** Historikk: forrige versjon hadde høyere verifikator. */
   previousAttestation?: PinPreviousAttestation;
+  /** Hva merket gjelder — f.eks. regelverket. */
+  subject?: PinSubject;
+  /** Kravtelling som vises i hover. */
+  requirements?: PinRequirements;
+  /** Alle rettskilder innholdet bygger på. */
+  sources?: PinSourceEntry[];
+  /** Hva vi følger i tillegg til rettskildene. */
+  alsoFollows?: string;
+  /** Sist sjekket mot kilden (fritekst, f.eks. «I dag, 06:00»). */
+  lastSourceCheck?: string;
+  /** Når menneskelig verifikasjon forfaller. */
+  attestationExpiresAt?: string;
+  /** Hvor ofte kilden sjekkes, f.eks. «kilden sjekkes daglig». */
+  sourceCheckCadence?: string;
 }
 
 /* ---------------------------------------------------------------- labels */
@@ -162,6 +195,32 @@ export const PIN_ROW_LABEL = {
 
 /** Ukjent/manglende verdi vises alltid eksplisitt, aldri som tom streng. */
 export const UNKNOWN_TEXT = "Ukjent";
+
+/** Kort forklaring på hvem som står bak innholdet. */
+export const ATTESTATION_SUMMARY_TEXT: Record<PinAttestationLevel, string> = {
+  human_verified: "Gjennomgått av Mynder juridisk.",
+  agent_verified:
+    "Utledet og kontrollert av Regelverksagenten. Ikke gjennomgått av en jurist.",
+};
+
+/** Punktene i «Slik kvalitetssikrer vi regelverk». */
+export const QUALITY_PROCESS_STEPS: string[] = [
+  "Teksten hentes fra den offisielle rettskilden, aldri fra en oppsummering.",
+  "Kravene utledes fra teksten, og hvert krav peker tilbake på bestemmelsen det bygger på.",
+  "Et uavhengig kontrollpass ser etter manglende kildekobling, motstrid og overtolkning.",
+  "En jurist i Mynder går gjennom der konsekvensen er størst, og tar stikkprøver ellers.",
+  "Vi følger kildene løpende. Endres teksten, starter en ny gjennomgang.",
+  "Merket på hvert regelverk viser hvem som sist gikk gjennom innholdet — en jurist eller en agent.",
+];
+
+export const QUALITY_PROCESS_DISCLAIMER =
+  "Innholdet er dokumentasjon av gjeldende regelverk. Det er ikke juridisk rådgivning.";
+
+export const SOURCE_POLICY_TEXT =
+  "Vi bygger bare på offisielle rettskilder. Fagpresse og juridiske kommentarer kan varsle oss om at noe har skjedd, men endrer aldri innholdet her.";
+
+export const SOURCE_CHANGE_TEXT =
+  "Endres teksten i en av kildene over, starter en ny gjennomgang automatisk. Innhold som var menneskeverifisert står som agentverifisert til en jurist har sett på den nye teksten.";
 
 export function formatPinDate(value?: string): string {
   if (!value) return UNKNOWN_TEXT;
@@ -338,18 +397,72 @@ const FRAMEWORK_PIN_RECIPES: Record<string, PinRecipe> = Object.fromEntries([
   ),
 ]);
 
+/** Deterministisk tall i et intervall, stabilt per id. */
+function stableNumber(seed: string, min: number, max: number): number {
+  const hex = stableHex(seed, 6);
+  return min + (parseInt(hex, 16) % (max - min + 1));
+}
+
+/** Fyller Pin med regelverksnavn, kravtelling og kildeliste. */
+function enrichPin(id: string, pin: Pin): Pin {
+  const fw = frameworks.find((f) => f.id === id);
+  const label = fw?.name ?? id.toUpperCase();
+  const total = stableNumber(id + "req", 18, 62);
+  const requiringDocs = Math.max(4, Math.round(total * 0.62));
+  const missing = stableNumber(id + "miss", 0, 8);
+
+  const sources: PinSourceEntry[] = [];
+  if (pin.source.sourceRef) {
+    sources.push({
+      label: sourceRefDisplay(pin.source.sourceRef),
+      ref: pin.source.sourceRef,
+      note: pin.source.consolidatedAt
+        ? `konsolidert ${formatPinDate(pin.source.consolidatedAt)}`
+        : "konsolidert 04.05.2016",
+    });
+  }
+  if (id === "gdpr") {
+    sources.push({
+      label: "Personopplysningsloven",
+      ref: "lovdata:lov/2018-06-15-38",
+      note: "sist endret 01.01.2024",
+    });
+  }
+  if (sources.length === 0) {
+    sources.push({ label: SOURCE_CLASS_LABEL[pin.source.sourceClass] });
+  }
+
+  return {
+    ...pin,
+    subject: { id, label: fw?.name.split(" / ")[0] ?? label },
+    requirements: { total, requiringDocs, missing },
+    sources,
+    alsoFollows: "Avgjørelser og veiledning fra EU-domstolen, EDPB og Datatilsynet",
+    lastSourceCheck: "I dag, 06:00",
+    attestationExpiresAt:
+      pin.attestation.level === "human_verified" ? "2027-08-26" : undefined,
+    sourceCheckCadence:
+      pin.attestation.level === "agent_verified" ? "kilden sjekkes daglig" : undefined,
+  };
+}
+
 export const PIN_BY_FRAMEWORK: Record<string, Pin> = Object.fromEntries(
-  Object.entries(FRAMEWORK_PIN_RECIPES).map(([id, r]) => [id, buildPin(id, r)]),
+  Object.entries(FRAMEWORK_PIN_RECIPES).map(([id, r]) => [id, enrichPin(id, buildPin(id, r))]),
 );
 
 /** Alt produksjonssatt har en Pin — ukjente id-er er agentverifisert. */
 export function getFrameworkPin(frameworkId: string): Pin {
-  return PIN_BY_FRAMEWORK[frameworkId] ?? buildPin(frameworkId, agentRecipe(frameworkId));
+  return (
+    PIN_BY_FRAMEWORK[frameworkId] ??
+    enrichPin(frameworkId, buildPin(frameworkId, agentRecipe(frameworkId)))
+  );
 }
 
 /** Oppslag for ikke-regelverk (f.eks. agenter). */
 export function getMockPin(key: string): Pin {
   return (
-    PIN_BY_FRAMEWORK[key] ?? PIN_BY_FRAMEWORK[key.toLowerCase()] ?? buildPin(key, agentRecipe(key))
+    PIN_BY_FRAMEWORK[key] ??
+    PIN_BY_FRAMEWORK[key.toLowerCase()] ??
+    enrichPin(key, buildPin(key, agentRecipe(key)))
   );
 }
