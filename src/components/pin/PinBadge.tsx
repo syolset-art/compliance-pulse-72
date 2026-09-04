@@ -53,9 +53,15 @@ export function PinBadge({
         </p>
       </div>
       <PinSummary pin={resolved} />
-      <p className="border-t border-border pt-2 text-[11px] text-muted-foreground">
-        Klikk for kilder og kvalitetsprosess.
-      </p>
+      <div className="space-y-1 border-t border-border pt-2">
+        <div className="flex flex-wrap gap-4 text-xs text-primary">
+          <span className="underline underline-offset-2">
+            Kilder for {resolved.subject?.label ?? "regelverket"}
+          </span>
+          <span className="underline underline-offset-2">Slik kvalitetssikrer vi</span>
+        </div>
+        <p className="text-[11px] text-muted-foreground">Klikk på merket for å åpne.</p>
+      </div>
     </div>
   );
 
