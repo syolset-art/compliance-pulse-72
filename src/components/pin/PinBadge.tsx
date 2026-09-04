@@ -1,11 +1,13 @@
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   ATTESTATION_LABEL,
   ATTESTATION_METHOD_TEXT,
   PIN_ROW_LABEL,
   ATTESTATION_VERIFIER_TEXT,
+  SOURCE_CLASS_DESCRIPTION,
   SOURCE_CLASS_LABEL,
   formatPinDate,
   formatPinRelativeDate,
