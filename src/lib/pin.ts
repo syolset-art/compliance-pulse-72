@@ -70,6 +70,25 @@ export interface PinPreviousAttestation {
   unitVersion: string;
 }
 
+export interface PinSubject {
+  id: string;
+  label: string;
+}
+
+/** Kravtelling for regelverket merket gjelder. */
+export interface PinRequirements {
+  total: number;
+  requiringDocs: number;
+  missing: number;
+}
+
+/** En rettskilde som innholdet bygger på. */
+export interface PinSourceEntry {
+  label: string;
+  ref?: string;
+  note?: string;
+}
+
 export interface Pin {
   pin_id: string;
   content_hash: string;
@@ -80,6 +99,20 @@ export interface Pin {
   freshness: PinFreshnessDimension;
   /** Historikk: forrige versjon hadde høyere verifikator. */
   previousAttestation?: PinPreviousAttestation;
+  /** Hva merket gjelder — f.eks. regelverket. */
+  subject?: PinSubject;
+  /** Kravtelling som vises i hover. */
+  requirements?: PinRequirements;
+  /** Alle rettskilder innholdet bygger på. */
+  sources?: PinSourceEntry[];
+  /** Hva vi følger i tillegg til rettskildene. */
+  alsoFollows?: string;
+  /** Sist sjekket mot kilden (fritekst, f.eks. «I dag, 06:00»). */
+  lastSourceCheck?: string;
+  /** Når menneskelig verifikasjon forfaller. */
+  attestationExpiresAt?: string;
+  /** Hvor ofte kilden sjekkes, f.eks. «kilden sjekkes daglig». */
+  sourceCheckCadence?: string;
 }
 
 /* ---------------------------------------------------------------- labels */
@@ -162,6 +195,32 @@ export const PIN_ROW_LABEL = {
 
 /** Ukjent/manglende verdi vises alltid eksplisitt, aldri som tom streng. */
 export const UNKNOWN_TEXT = "Ukjent";
+
+/** Kort forklaring på hvem som står bak innholdet. */
+export const ATTESTATION_SUMMARY_TEXT: Record<PinAttestationLevel, string> = {
+  human_verified: "Gjennomgått av Mynder juridisk.",
+  agent_verified:
+    "Utledet og kontrollert av Regelverksagenten. Ikke gjennomgått av en jurist.",
+};
+
+/** Punktene i «Slik kvalitetssikrer vi regelverk». */
+export const QUALITY_PROCESS_STEPS: string[] = [
+  "Teksten hentes fra den offisielle rettskilden, aldri fra en oppsummering.",
+  "Kravene utledes fra teksten, og hvert krav peker tilbake på bestemmelsen det bygger på.",
+  "Et uavhengig kontrollpass ser etter manglende kildekobling, motstrid og overtolkning.",
+  "En jurist i Mynder går gjennom der konsekvensen er størst, og tar stikkprøver ellers.",
+  "Vi følger kildene løpende. Endres teksten, starter en ny gjennomgang.",
+  "Merket på hvert regelverk viser hvem som sist gikk gjennom innholdet — en jurist eller en agent.",
+];
+
+export const QUALITY_PROCESS_DISCLAIMER =
+  "Innholdet er dokumentasjon av gjeldende regelverk. Det er ikke juridisk rådgivning.";
+
+export const SOURCE_POLICY_TEXT =
+  "Vi bygger bare på offisielle rettskilder. Fagpresse og juridiske kommentarer kan varsle oss om at noe har skjedd, men endrer aldri innholdet her.";
+
+export const SOURCE_CHANGE_TEXT =
+  "Endres teksten i en av kildene over, starter en ny gjennomgang automatisk. Innhold som var menneskeverifisert står som agentverifisert til en jurist har sett på den nye teksten.";
 
 export function formatPinDate(value?: string): string {
   if (!value) return UNKNOWN_TEXT;
