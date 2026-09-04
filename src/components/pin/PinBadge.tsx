@@ -86,12 +86,6 @@ export function PinBadge({
             resolved.freshness.checkedAt ?? resolved.attestation.attestedAt,
           )}
         />
-        {att.traceCode && (
-          <div className="flex gap-2 text-xs">
-            <dt className="w-[110px] shrink-0 text-muted-foreground">{PIN_ROW_LABEL.traceCode}</dt>
-            <dd className="min-w-0 flex-1 truncate font-mono text-foreground">{att.traceCode}</dd>
-          </div>
-        )}
         {resolved.previousAttestation && (
           <TooltipRow
             label="Tidligere"

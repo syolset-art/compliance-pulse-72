@@ -102,7 +102,6 @@ export function PinDetails({ pin, className }: { pin: Pin; className?: string })
           value={formatPinDate(pin.freshness.checkedAt ?? pin.attestation.attestedAt)}
         />
         <Row label="Innholdsversjon" value={pin.unit_version} />
-        {pin.attestation.traceCode && <TraceCodeRow value={pin.attestation.traceCode} />}
         {prev && (
           <Row
             label="Tidligere"
