@@ -87,7 +87,19 @@ export function PinBadge({
         <div className="flex gap-2 text-xs">
           <dt className="w-[110px] shrink-0 text-muted-foreground">Kilde</dt>
           <dd className="min-w-0 flex-1 truncate text-foreground">
-            {SOURCE_CLASS_LABEL[resolved.source.sourceClass]}
+            {resolved.source.sourceRef ? (
+              <a
+                href={sourceRefHref(resolved.source.sourceRef)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline underline-offset-2 hover:text-primary"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {sourceRefDisplay(resolved.source.sourceRef)}
+              </a>
+            ) : (
+              SOURCE_CLASS_LABEL[resolved.source.sourceClass]
+            )}
           </dd>
           <span
             className="shrink-0 text-muted-foreground"
@@ -96,6 +108,7 @@ export function PinBadge({
             <Info className="h-3.5 w-3.5" />
           </span>
         </div>
+        <TooltipRow label="Verifiseres" value={VERIFICATION_FREQUENCY_TEXT} />
         <TooltipRow
           label="Sist kontrollert"
           value={formatPinRelativeDate(
