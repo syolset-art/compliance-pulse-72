@@ -81,7 +81,18 @@ export function PinBadge({
           <TooltipRow label={PIN_ROW_LABEL.agentId} value={att.agentId} />
         )}
         {att.routineRef && <TooltipRow label={PIN_ROW_LABEL.routine} value={att.routineRef} />}
-        <TooltipRow label="Kilde" value={SOURCE_CLASS_LABEL[resolved.source.sourceClass]} />
+        <div className="flex gap-2 text-xs">
+          <dt className="w-[110px] shrink-0 text-muted-foreground">Kilde</dt>
+          <dd className="min-w-0 flex-1 truncate text-foreground">
+            {SOURCE_CLASS_LABEL[resolved.source.sourceClass]}
+          </dd>
+          <span
+            className="shrink-0 text-muted-foreground"
+            title={SOURCE_CLASS_DESCRIPTION[resolved.source.sourceClass]}
+          >
+            <Info className="h-3.5 w-3.5" />
+          </span>
+        </div>
         <TooltipRow
           label="Sist kontrollert"
           value={formatPinRelativeDate(
