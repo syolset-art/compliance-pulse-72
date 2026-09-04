@@ -350,7 +350,7 @@ export function AttachEvidenceDialog({
         onOpenChange(o);
       }}
     >
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader className="space-y-2">
           <DialogTitle className="flex items-center gap-2 text-base">
             <Sparkles className="h-4 w-4 text-primary" />
