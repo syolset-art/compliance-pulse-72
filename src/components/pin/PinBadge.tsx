@@ -1,6 +1,5 @@
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   ATTESTATION_LABEL,
@@ -84,30 +83,14 @@ export function PinBadge({
           <TooltipRow label={PIN_ROW_LABEL.agentId} value={att.agentId} />
         )}
         {att.routineRef && <TooltipRow label={PIN_ROW_LABEL.routine} value={att.routineRef} />}
-        <div className="flex gap-2 text-xs">
-          <dt className="w-[110px] shrink-0 text-muted-foreground">Kilde</dt>
-          <dd className="min-w-0 flex-1 truncate text-foreground">
-            {resolved.source.sourceRef ? (
-              <a
-                href={sourceRefHref(resolved.source.sourceRef)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline underline-offset-2 hover:text-primary"
-                onClick={(e) => e.stopPropagation()}
-              >
-                {sourceRefDisplay(resolved.source.sourceRef)}
-              </a>
-            ) : (
-              SOURCE_CLASS_LABEL[resolved.source.sourceClass]
-            )}
-          </dd>
-          <span
-            className="shrink-0 text-muted-foreground"
-            title={SOURCE_CLASS_DESCRIPTION[resolved.source.sourceClass]}
-          >
-            <Info className="h-3.5 w-3.5" />
-          </span>
-        </div>
+        <TooltipRow
+          label="Kilde"
+          value={
+            resolved.source.sourceRef
+              ? sourceRefDisplay(resolved.source.sourceRef)
+              : SOURCE_CLASS_LABEL[resolved.source.sourceClass]
+          }
+        />
         <TooltipRow label="Verifiseres" value={VERIFICATION_FREQUENCY_TEXT} />
         <TooltipRow
           label="Sist kontrollert"
@@ -124,6 +107,9 @@ export function PinBadge({
           />
         )}
       </dl>
+      <p className="border-t border-border pt-2 text-[11px] leading-relaxed text-muted-foreground">
+        {SOURCE_CLASS_DESCRIPTION[resolved.source.sourceClass]}
+      </p>
     </div>
   );
 
