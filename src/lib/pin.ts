@@ -397,18 +397,72 @@ const FRAMEWORK_PIN_RECIPES: Record<string, PinRecipe> = Object.fromEntries([
   ),
 ]);
 
+/** Deterministisk tall i et intervall, stabilt per id. */
+function stableNumber(seed: string, min: number, max: number): number {
+  const hex = stableHex(seed, 6);
+  return min + (parseInt(hex, 16) % (max - min + 1));
+}
+
+/** Fyller Pin med regelverksnavn, kravtelling og kildeliste. */
+function enrichPin(id: string, pin: Pin): Pin {
+  const fw = frameworks.find((f) => f.id === id);
+  const label = fw?.name ?? id.toUpperCase();
+  const total = stableNumber(id + "req", 18, 62);
+  const requiringDocs = Math.max(4, Math.round(total * 0.62));
+  const missing = stableNumber(id + "miss", 0, 8);
+
+  const sources: PinSourceEntry[] = [];
+  if (pin.source.sourceRef) {
+    sources.push({
+      label: sourceRefDisplay(pin.source.sourceRef),
+      ref: pin.source.sourceRef,
+      note: pin.source.consolidatedAt
+        ? `konsolidert ${formatPinDate(pin.source.consolidatedAt)}`
+        : "konsolidert 04.05.2016",
+    });
+  }
+  if (id === "gdpr") {
+    sources.push({
+      label: "Personopplysningsloven",
+      ref: "lovdata:lov/2018-06-15-38",
+      note: "sist endret 01.01.2024",
+    });
+  }
+  if (sources.length === 0) {
+    sources.push({ label: SOURCE_CLASS_LABEL[pin.source.sourceClass] });
+  }
+
+  return {
+    ...pin,
+    subject: { id, label: fw?.name.split(" / ")[0] ?? label },
+    requirements: { total, requiringDocs, missing },
+    sources,
+    alsoFollows: "Avgjørelser og veiledning fra EU-domstolen, EDPB og Datatilsynet",
+    lastSourceCheck: "I dag, 06:00",
+    attestationExpiresAt:
+      pin.attestation.level === "human_verified" ? "2027-08-26" : undefined,
+    sourceCheckCadence:
+      pin.attestation.level === "agent_verified" ? "kilden sjekkes daglig" : undefined,
+  };
+}
+
 export const PIN_BY_FRAMEWORK: Record<string, Pin> = Object.fromEntries(
-  Object.entries(FRAMEWORK_PIN_RECIPES).map(([id, r]) => [id, buildPin(id, r)]),
+  Object.entries(FRAMEWORK_PIN_RECIPES).map(([id, r]) => [id, enrichPin(id, buildPin(id, r))]),
 );
 
 /** Alt produksjonssatt har en Pin — ukjente id-er er agentverifisert. */
 export function getFrameworkPin(frameworkId: string): Pin {
-  return PIN_BY_FRAMEWORK[frameworkId] ?? buildPin(frameworkId, agentRecipe(frameworkId));
+  return (
+    PIN_BY_FRAMEWORK[frameworkId] ??
+    enrichPin(frameworkId, buildPin(frameworkId, agentRecipe(frameworkId)))
+  );
 }
 
 /** Oppslag for ikke-regelverk (f.eks. agenter). */
 export function getMockPin(key: string): Pin {
   return (
-    PIN_BY_FRAMEWORK[key] ?? PIN_BY_FRAMEWORK[key.toLowerCase()] ?? buildPin(key, agentRecipe(key))
+    PIN_BY_FRAMEWORK[key] ??
+    PIN_BY_FRAMEWORK[key.toLowerCase()] ??
+    enrichPin(key, buildPin(key, agentRecipe(key)))
   );
 }
