@@ -6,6 +6,7 @@ import {
   CONTENT_CREATED_BY_TEXT,
   FETCH_METHOD_LABEL,
   PIN_LEVEL_CLASS,
+  SOURCE_CLASS_DESCRIPTION,
   SOURCE_CLASS_LABEL,
   UNKNOWN_TEXT,
   VERIFICATION_FREQUENCY_TEXT,
@@ -101,6 +102,9 @@ export function PinDetails({ pin, className }: { pin: Pin; className?: string })
           />
         )}
       </dl>
+      <p className="border-t border-border pt-2 text-[11px] leading-relaxed text-muted-foreground">
+        {SOURCE_CLASS_DESCRIPTION[pin.source.sourceClass]}
+      </p>
     </div>
   );
 }
