@@ -1,5 +1,3 @@
-import { useState } from "react";
-import { Check, Copy } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   ATTESTATION_LABEL,
@@ -27,30 +25,6 @@ function Row({ label, value }: { label: string; value: string }) {
         title={value}
       >
         {value}
-      </dd>
-    </div>
-  );
-}
-
-function TraceCodeRow({ value }: { value: string }) {
-  const [copied, setCopied] = useState(false);
-  return (
-    <div className="flex items-center gap-2 text-[11px]">
-      <dt className="w-[104px] shrink-0 text-muted-foreground">{PIN_ROW_LABEL.traceCode}</dt>
-      <dd className="flex min-w-0 flex-1 items-center gap-1.5">
-        <span className="truncate font-mono text-foreground">{value}</span>
-        <button
-          type="button"
-          aria-label="Kopier sporingskode"
-          className="rounded p-0.5 text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          onClick={() => {
-            navigator.clipboard?.writeText(value);
-            setCopied(true);
-            setTimeout(() => setCopied(false), 1500);
-          }}
-        >
-          {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
-        </button>
       </dd>
     </div>
   );
@@ -102,7 +76,6 @@ export function PinDetails({ pin, className }: { pin: Pin; className?: string })
           value={formatPinDate(pin.freshness.checkedAt ?? pin.attestation.attestedAt)}
         />
         <Row label="Innholdsversjon" value={pin.unit_version} />
-        {pin.attestation.traceCode && <TraceCodeRow value={pin.attestation.traceCode} />}
         {prev && (
           <Row
             label="Tidligere"
