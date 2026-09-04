@@ -100,6 +100,27 @@ export const SOURCE_CLASS_DESCRIPTION: Record<PinSourceClass, string> = {
   unknown: "Kilden er ikke dokumentert.",
 };
 
+/** Visningsnavn og URL for en kildereferanse. */
+export function sourceRefDisplay(ref?: string): string {
+  if (!ref) return UNKNOWN_TEXT;
+  if (ref.startsWith("CELEX:")) return `EUR-Lex ${ref.replace("CELEX:", "")}`;
+  if (ref.startsWith("lovdata:")) return `Lovdata ${ref.replace("lovdata:", "")}`;
+  return ref;
+}
+
+export function sourceRefHref(ref?: string): string | undefined {
+  if (!ref) return undefined;
+  if (ref.startsWith("CELEX:")) {
+    return `https://eur-lex.europa.eu/legal-content/NO/TXT/?uri=${encodeURIComponent(ref)}`;
+  }
+  if (ref.startsWith("lovdata:")) {
+    return `https://lovdata.no/${ref.replace("lovdata:", "")}`;
+  }
+  return undefined;
+}
+
+export const VERIFICATION_FREQUENCY_TEXT = "Hver 12. måned";
+
 export const ATTESTATION_LABEL: Record<PinAttestationLevel, string> = {
   human_verified: "Menneskeverifisert",
   agent_verified: "Agentverifisert",
