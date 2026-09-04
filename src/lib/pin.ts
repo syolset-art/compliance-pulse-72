@@ -217,7 +217,7 @@ export const QUALITY_PROCESS_DISCLAIMER =
   "Innholdet er dokumentasjon av gjeldende regelverk. Det er ikke juridisk rådgivning.";
 
 export const SOURCE_POLICY_TEXT =
-  "Vi bygger bare på offisielle rettskilder. Fagpresse og juridiske kommentarer kan varsle oss om at noe har skjedd, men endrer aldri innholdet her.";
+  "Vi bygger bare på offisielle rettskilder.";
 
 export const SOURCE_CHANGE_TEXT =
   "Endres teksten i en av kildene over, starter en ny gjennomgang automatisk. Innhold som var menneskeverifisert står som agentverifisert til en jurist har sett på den nye teksten.";
