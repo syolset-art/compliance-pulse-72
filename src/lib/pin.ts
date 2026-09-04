@@ -91,6 +91,15 @@ export const SOURCE_CLASS_LABEL: Record<PinSourceClass, string> = {
   unknown: "Kilde ikke dokumentert",
 };
 
+export const SOURCE_CLASS_DESCRIPTION: Record<PinSourceClass, string> = {
+  official_consolidated:
+    "Kilden er offisiell og har blitt konsolidert, det vil si samlet til én gjeldende versjon av regelverket.",
+  official_raw:
+    "Kilden er offisiell, men viser rådata uten at ulike endringer er slått sammen til én versjon.",
+  secondary: "Kilden er ikke primær, for eksempel en tolkning, veileder eller fagartikkel.",
+  unknown: "Kilden er ikke dokumentert.",
+};
+
 export const ATTESTATION_LABEL: Record<PinAttestationLevel, string> = {
   human_verified: "Menneskeverifisert",
   agent_verified: "Agentverifisert",
