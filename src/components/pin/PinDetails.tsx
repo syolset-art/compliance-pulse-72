@@ -110,10 +110,6 @@ export function PinDetails({ pin, className }: { pin: Pin; className?: string })
           />
         )}
       </dl>
-
-      {pin.attestation.traceCode && (
-        <p className="text-[10px] leading-relaxed text-muted-foreground">{AGENT_IDENTITY_NOTE}</p>
-      )}
     </div>
   );
 }

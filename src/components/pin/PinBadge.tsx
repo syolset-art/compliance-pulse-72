@@ -101,9 +101,6 @@ export function PinBadge({
           />
         )}
       </dl>
-      {att.traceCode && (
-        <p className="text-[10px] leading-relaxed text-muted-foreground">{AGENT_IDENTITY_NOTE}</p>
-      )}
     </div>
   );
 
