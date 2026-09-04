@@ -8,7 +8,10 @@ import {
   PIN_LEVEL_CLASS,
   SOURCE_CLASS_LABEL,
   UNKNOWN_TEXT,
+  VERIFICATION_FREQUENCY_TEXT,
   formatPinDate,
+  sourceRefDisplay,
+  sourceRefHref,
   type Pin,
 } from "@/lib/pin";
 import { PinRosette } from "./PinRosette";
