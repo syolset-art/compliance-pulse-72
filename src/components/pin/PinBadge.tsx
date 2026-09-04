@@ -9,10 +9,13 @@ import {
   ATTESTATION_VERIFIER_TEXT,
   SOURCE_CLASS_DESCRIPTION,
   SOURCE_CLASS_LABEL,
+  VERIFICATION_FREQUENCY_TEXT,
   formatPinDate,
   formatPinRelativeDate,
   getFrameworkPin,
   pinTooltipLine,
+  sourceRefDisplay,
+  sourceRefHref,
   type Pin,
 } from "@/lib/pin";
 import { PinRosette } from "./PinRosette";
