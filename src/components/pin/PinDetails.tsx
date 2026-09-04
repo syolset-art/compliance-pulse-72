@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Check, Copy } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
-  AGENT_IDENTITY_NOTE,
   ATTESTATION_LABEL,
   PIN_ROW_LABEL,
   ATTESTATION_VERIFIER_TEXT,
