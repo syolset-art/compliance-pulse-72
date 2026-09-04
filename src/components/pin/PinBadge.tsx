@@ -2,7 +2,6 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import {
-  AGENT_IDENTITY_NOTE,
   ATTESTATION_LABEL,
   ATTESTATION_METHOD_TEXT,
   PIN_ROW_LABEL,
@@ -102,9 +101,6 @@ export function PinBadge({
           />
         )}
       </dl>
-      {att.traceCode && (
-        <p className="text-[10px] leading-relaxed text-muted-foreground">{AGENT_IDENTITY_NOTE}</p>
-      )}
     </div>
   );
 

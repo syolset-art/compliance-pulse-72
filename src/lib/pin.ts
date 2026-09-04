@@ -126,10 +126,6 @@ export const FETCH_METHOD_LABEL: Record<
   unknown: "Ukjent metode",
 };
 
-/** Forklaring på hvorfor vi ikke viser modell/metode, men en sporbar kode. */
-export const AGENT_IDENTITY_NOTE =
-  "Full dokumentasjon på valideringsprosessen kan fremlegges på forespørsel med denne koden.";
-
 export const PIN_ROW_LABEL = {
   agent: "Agent",
   agentId: "Agent-ID",

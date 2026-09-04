@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Check, Copy } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
-  AGENT_IDENTITY_NOTE,
   ATTESTATION_LABEL,
   PIN_ROW_LABEL,
   ATTESTATION_VERIFIER_TEXT,
@@ -111,10 +110,6 @@ export function PinDetails({ pin, className }: { pin: Pin; className?: string })
           />
         )}
       </dl>
-
-      {pin.attestation.traceCode && (
-        <p className="text-[10px] leading-relaxed text-muted-foreground">{AGENT_IDENTITY_NOTE}</p>
-      )}
     </div>
   );
 }
