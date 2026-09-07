@@ -30,6 +30,8 @@ import { ProcessSystemsTab } from "./tabs/ProcessSystemsTab";
 import { ProcessDataTypesTab } from "./tabs/ProcessDataTypesTab";
 import { ProcessCriticalityTab } from "./tabs/ProcessCriticalityTab";
 import { ProcessRiskTab } from "./tabs/ProcessRiskTab";
+import { ProcessAiSetupTab } from "./tabs/ProcessAiSetupTab";
+
 import { getSystemIcon } from "@/lib/systemIcons";
 
 interface ProcessCardProps {
@@ -416,7 +418,14 @@ export const ProcessCard = ({ processId, workAreaId, onEdit }: ProcessCardProps)
                 >
                   AI-bruk
                 </TabsTrigger>
+                <TabsTrigger 
+                  value="ai-setup" 
+                  className="data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none px-2.5 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm"
+                >
+                  AI-oppsett
+                </TabsTrigger>
               </TabsList>
+
             </div>
 
             <div className="p-3 sm:p-6">
@@ -451,6 +460,16 @@ export const ProcessCard = ({ processId, workAreaId, onEdit }: ProcessCardProps)
                   systemId={process.system_id}
                 />
               </TabsContent>
+
+              <TabsContent value="ai-setup" className="mt-0">
+                <ProcessAiSetupTab
+                  processId={processId}
+                  processName={process.name}
+                  systemId={process.system_id}
+                  workAreaId={workAreaId}
+                />
+              </TabsContent>
+
             </div>
           </Tabs>
         </CardContent>
