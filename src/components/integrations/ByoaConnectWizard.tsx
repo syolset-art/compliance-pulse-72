@@ -120,6 +120,8 @@ export function ByoaConnectWizard({
   const [creating, setCreating] = useState(false);
   const [freshToken, setFreshToken] = useState<string | null>(null);
   const [tokens, setTokens] = useState<AgentTokenRow[]>([]);
+  const [showCodes, setShowCodes] = useState(false);
+
 
   const endpoint = mcpServerUrl();
   const clientLabel = t(`byoa.wizard.clients.${client}.label`);
@@ -335,7 +337,12 @@ export function ByoaConnectWizard({
 
         {step === 3 && (
           <div>
-            <p className="text-[13px] text-muted-foreground">{t("byoa.wizard.step2.description")}</p>
+            <div className="flex gap-2 rounded-lg border border-primary/30 bg-primary/5 p-3">
+              <KeyRound className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+              <p className="text-[13px] text-foreground">{t("byoa.wizard.step2.prompted")}</p>
+            </div>
+            <p className="mt-3 text-[13px] text-muted-foreground">{t("byoa.wizard.step2.description")}</p>
+
 
             <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-end">
               <div className="flex-1">
@@ -403,17 +410,32 @@ export function ByoaConnectWizard({
                     className="mt-0.5 h-4 w-4 shrink-0 text-success"
                     aria-hidden="true"
                   />
-                  <p className="text-[13px] text-foreground">
-                    {t("byoa.wizard.step2.sameAccess")}
-                  </p>
+                  <div className="space-y-1">
+                    <p className="text-[13px] font-medium text-foreground">
+                      {t("byoa.wizard.step2.finish")}
+                    </p>
+                    <p className="text-[13px] text-muted-foreground">
+                      {t("byoa.wizard.step2.sameAccess")}
+                    </p>
+                  </div>
                 </div>
               </div>
             )}
 
             <div className="mt-5 border-t border-border pt-4">
-              <h4 className="text-[13px] font-medium text-foreground">
-                {t("byoa.wizard.step2.yourCodes")}
-              </h4>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 px-0 text-[13px] text-muted-foreground hover:bg-transparent"
+                onClick={() => setShowCodes((v) => !v)}
+              >
+                {showCodes
+                  ? t("byoa.wizard.step2.hideCodes")
+                  : t("byoa.wizard.step2.showCodes")}
+              </Button>
+              {showCodes && (
+              <>
+
               {tokens.length === 0 ? (
                 <p className="mt-2 text-[13px] text-muted-foreground">
                   {t("byoa.wizard.step2.noCodes")}
@@ -461,7 +483,10 @@ export function ByoaConnectWizard({
                   })}
                 </ul>
               )}
+              </>
+              )}
             </div>
+
           </div>
         )}
 
