@@ -116,69 +116,114 @@ const DEMO_PROCESSES: DemoProcessSeed[] = [
   },
 ];
 
-/** Finnes Økonomi-demoen allerede? */
+/** Finnes Økonomi-demoen allerede, med AI-muligheter og alt? */
 export async function economyDemoExists(): Promise<boolean> {
-  const { data } = await supabase
+  const { data: wa } = await supabase
     .from("work_areas")
     .select("id")
     .eq("name", ECONOMY_WORK_AREA_NAME)
     .maybeSingle();
-  return !!data;
+  if (!wa) return false;
+  const { data: recs } = await supabase
+    .from("process_agent_recommendations" as never)
+    .select("id")
+    .eq("work_area_id", wa.id)
+    .limit(1);
+  return (recs?.length ?? 0) > 0;
 }
 
 /**
- * Legger inn Økonomi-demoen. Idempotent: hvis arbeidsområdet finnes fra før,
- * gjør vi ingenting og returnerer 0.
+ * Legger inn Økonomi-demoen. Idempotent og tåler halvferdige forsøk:
+ * det som allerede finnes gjenbrukes, bare det som mangler opprettes.
  */
 export async function seedDemoEconomy(): Promise<number> {
   if (await economyDemoExists()) return 0;
 
-  const { data: workArea, error: waErr } = await supabase
+  // Arbeidsområde
+  const { data: existingWa } = await supabase
     .from("work_areas")
-    .insert({
-      name: ECONOMY_WORK_AREA_NAME,
-      description:
-        "Regnskap, fakturabehandling, lønnsgrunnlag og rapportering til ledelsen.",
-      responsible_person: "Maria Johansen",
-      is_active: true,
-    })
     .select("id")
-    .single();
-  if (waErr || !workArea) throw waErr ?? new Error("Kunne ikke opprette arbeidsområdet");
+    .eq("name", ECONOMY_WORK_AREA_NAME)
+    .maybeSingle();
 
-  const { data: systems, error: sysErr } = await supabase
+  let workAreaId = existingWa?.id;
+  if (!workAreaId) {
+    const { data: created, error: waErr } = await supabase
+      .from("work_areas")
+      .insert({
+        name: ECONOMY_WORK_AREA_NAME,
+        description:
+          "Regnskap, fakturabehandling, lønnsgrunnlag og rapportering til ledelsen.",
+        responsible_person: "Maria Johansen",
+        is_active: true,
+      })
+      .select("id")
+      .single();
+    if (waErr || !created) throw waErr ?? new Error("Kunne ikke opprette arbeidsområdet");
+    workAreaId = created.id;
+  }
+
+  // Systemer
+  const { data: existingSystems } = await supabase
     .from("systems")
-    .insert(
-      DEMO_SYSTEMS.map((s) => ({
-        ...s,
-        work_area_id: workArea.id,
-        status: "in_use",
-        system_manager: "Maria Johansen",
-      }))
-    )
-    .select("id, name");
-  if (sysErr || !systems) throw sysErr ?? new Error("Kunne ikke opprette systemer");
+    .select("id, name")
+    .eq("work_area_id", workAreaId);
+  const systemIdByName: Record<string, string> = Object.fromEntries(
+    (existingSystems ?? []).map((s) => [s.name, s.id])
+  );
 
-  const systemIdByName = Object.fromEntries(systems.map((s) => [s.name, s.id]));
+  const missingSystems = DEMO_SYSTEMS.filter((s) => !systemIdByName[s.name]);
+  if (missingSystems.length > 0) {
+    const { data: created, error: sysErr } = await supabase
+      .from("systems")
+      .insert(
+        missingSystems.map((s) => ({
+          ...s,
+          work_area_id: workAreaId,
+          status: "in_use",
+          system_manager: "Maria Johansen",
+        }))
+      )
+      .select("id, name");
+    if (sysErr || !created) throw sysErr ?? new Error("Kunne ikke opprette systemer");
+    created.forEach((s) => {
+      systemIdByName[s.name] = s.id;
+    });
+  }
 
-  const { data: processes, error: procErr } = await supabase
+  // Prosesser
+  const systemIds = Object.values(systemIdByName);
+  const { data: existingProcesses } = await supabase
     .from("system_processes")
-    .insert(
-      DEMO_PROCESSES.map((p) => ({
-        system_id: systemIdByName[p.system],
-        name: p.name,
-        description: p.description,
-        purpose: p.purpose,
-        data_class: p.data_class,
-        legal_basis: p.legal_basis,
-        status: "active",
-        ai_suggested_fields: {},
-      }))
-    )
-    .select("id, name");
-  if (procErr || !processes) throw procErr ?? new Error("Kunne ikke opprette prosesser");
+    .select("id, name")
+    .in("system_id", systemIds);
+  const processIdByName: Record<string, string> = Object.fromEntries(
+    (existingProcesses ?? []).map((p) => [p.name, p.id])
+  );
 
-  const processIdByName = Object.fromEntries(processes.map((p) => [p.name, p.id]));
+  const missingProcesses = DEMO_PROCESSES.filter((p) => !processIdByName[p.name]);
+  if (missingProcesses.length > 0) {
+    const { data: created, error: procErr } = await supabase
+      .from("system_processes")
+      .insert(
+        missingProcesses.map((p) => ({
+          system_id: systemIdByName[p.system],
+          name: p.name,
+          description: p.description,
+          purpose: p.purpose,
+          data_class: p.data_class,
+          legal_basis: p.legal_basis,
+          status: "active",
+          ai_suggested_fields: {},
+        }))
+      )
+      .select("id, name");
+    if (procErr || !created) throw procErr ?? new Error("Kunne ikke opprette prosesser");
+    created.forEach((p) => {
+      processIdByName[p.name] = p.id;
+    });
+  }
+
 
   const { error: recErr } = await supabase
     .from("process_agent_recommendations" as never)
