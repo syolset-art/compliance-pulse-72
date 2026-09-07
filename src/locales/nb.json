@@ -1943,6 +1943,14 @@
         "hideCodes": "Skjul kodene mine",
         "expiry365": "1 år"
       },
+      "config": {
+        "title": "Koble til Mynder",
+        "description": "Legg inn navn og adresse i agenten din, og lag den personlige koden.",
+        "stepLabel": "Konfigurasjon",
+        "connectionGroup": "Koblingsdetaljer",
+        "securityGroup": "Sikkerhet og tilgang",
+        "securityHint": "Når du trykker Connect i agenten, ber den om en kode. Lag den her."
+      },
       "step3": {
         "title": "Lim inn i {{client}}",
         "addressLabel": "Adresse",
