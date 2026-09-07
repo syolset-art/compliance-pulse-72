@@ -230,7 +230,54 @@ const ComplianceOverview = () => {
           {/* Samsvar per regelverk — klikkbar tabell */}
           <Card>
             <CardContent className="p-4 sm:p-5 space-y-3">
-              <h2 className="text-sm font-semibold text-foreground">Samsvar per regelverk</h2>
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <h2 className="text-sm font-semibold text-foreground">Samsvar per regelverk</h2>
+                <span className="text-xs text-muted-foreground">
+                  Viser {filteredFrameworkScores.length} av {frameworkScores.length}
+                </span>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2">
+                <Input
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Søk etter regelverk…"
+                  className="h-9 w-full sm:w-56"
+                />
+                <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                  <SelectTrigger className="h-9 w-full sm:w-44">
+                    <SelectValue placeholder="Kategori" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Alle kategorier</SelectItem>
+                    {activeCategories.map((c) => (
+                      <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select value={levelFilter} onValueChange={setLevelFilter}>
+                  <SelectTrigger className="h-9 w-full sm:w-40">
+                    <SelectValue placeholder="Nivå" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Alle nivåer</SelectItem>
+                    {levelOptions.map((l) => (
+                      <SelectItem key={l} value={l.toLowerCase()}>{l}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {(search || categoryFilter !== "all" || levelFilter !== "all") && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-9"
+                    onClick={() => { setSearch(""); setCategoryFilter("all"); setLevelFilter("all"); }}
+                  >
+                    Nullstill
+                  </Button>
+                )}
+              </div>
+
               <div className="overflow-x-auto rounded-lg border border-border">
                 <Table>
                   <TableHeader>
