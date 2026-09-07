@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Sidebar } from "@/components/Sidebar";
 import { Card, CardContent } from "@/components/ui/card";
@@ -16,6 +16,8 @@ import { ALL_ADDITIONAL_REQUIREMENTS } from "@/lib/additionalFrameworkRequiremen
 import { getMaturityLevel, maturityBgClass, maturitySoftClass, maturityLabelNb } from "@/lib/maturityLevel";
 import { MaturityIndicator } from "@/components/shared/MaturityIndicator";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 // Demo: which frameworks are "active" in scope
 const ACTIVE_FRAMEWORK_IDS = [
@@ -130,6 +132,31 @@ const ComplianceOverview = () => {
     }).filter(Boolean) as FrameworkScore[];
   }, []);
 
+  const [search, setSearch] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [levelFilter, setLevelFilter] = useState("all");
+
+  const filteredFrameworkScores = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return frameworkScores.filter((fw) => {
+      const category = frameworks.find((f) => f.id === fw.id)?.category ?? "";
+      if (q && !fw.name.toLowerCase().includes(q)) return false;
+      if (categoryFilter !== "all" && category !== categoryFilter) return false;
+      if (levelFilter !== "all" && fw.level.toLowerCase() !== levelFilter) return false;
+      return true;
+    });
+  }, [frameworkScores, search, categoryFilter, levelFilter]);
+
+  const activeCategories = useMemo(() => {
+    const ids = new Set(frameworkScores.map((fw) => frameworks.find((f) => f.id === fw.id)?.category));
+    return categories.filter((c) => ids.has(c.id as (typeof frameworks)[number]["category"]));
+  }, [frameworkScores]);
+
+  const levelOptions = useMemo(
+    () => Array.from(new Set(frameworkScores.map((fw) => fw.level))),
+    [frameworkScores],
+  );
+
   const reportData: ReportData = useMemo(() => ({
     overallScore,
     pillars: PILLARS.map(p => ({ name: p.name, score: p.score, level: p.level, measures: p.measures })),
@@ -203,7 +230,54 @@ const ComplianceOverview = () => {
           {/* Samsvar per regelverk — klikkbar tabell */}
           <Card>
             <CardContent className="p-4 sm:p-5 space-y-3">
-              <h2 className="text-sm font-semibold text-foreground">Samsvar per regelverk</h2>
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <h2 className="text-sm font-semibold text-foreground">Samsvar per regelverk</h2>
+                <span className="text-xs text-muted-foreground">
+                  Viser {filteredFrameworkScores.length} av {frameworkScores.length}
+                </span>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2">
+                <Input
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Søk etter regelverk…"
+                  className="h-9 w-full sm:w-56"
+                />
+                <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                  <SelectTrigger className="h-9 w-full sm:w-44">
+                    <SelectValue placeholder="Kategori" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Alle kategorier</SelectItem>
+                    {activeCategories.map((c) => (
+                      <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select value={levelFilter} onValueChange={setLevelFilter}>
+                  <SelectTrigger className="h-9 w-full sm:w-40">
+                    <SelectValue placeholder="Nivå" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Alle nivåer</SelectItem>
+                    {levelOptions.map((l) => (
+                      <SelectItem key={l} value={l.toLowerCase()}>{l}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {(search || categoryFilter !== "all" || levelFilter !== "all") && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-9"
+                    onClick={() => { setSearch(""); setCategoryFilter("all"); setLevelFilter("all"); }}
+                  >
+                    Nullstill
+                  </Button>
+                )}
+              </div>
+
               <div className="overflow-x-auto rounded-lg border border-border">
                 <Table>
                   <TableHeader>
@@ -217,7 +291,7 @@ const ComplianceOverview = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {frameworkScores.map((fw) => {
+                    {filteredFrameworkScores.map((fw) => {
                       const cat = categories.find((c) => c.id === frameworks.find((f) => f.id === fw.id)?.category);
                       const missing = fw.total - fw.fulfilled;
                       return (
@@ -262,6 +336,13 @@ const ComplianceOverview = () => {
                         </TableRow>
                       );
                     })}
+                    {filteredFrameworkScores.length === 0 && (
+                      <TableRow>
+                        <TableCell colSpan={6} className="py-6 text-center text-sm text-muted-foreground">
+                          Ingen regelverk treffer filteret.
+                        </TableCell>
+                      </TableRow>
+                    )}
                   </TableBody>
                 </Table>
               </div>
