@@ -132,6 +132,31 @@ const ComplianceOverview = () => {
     }).filter(Boolean) as FrameworkScore[];
   }, []);
 
+  const [search, setSearch] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [levelFilter, setLevelFilter] = useState("all");
+
+  const filteredFrameworkScores = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return frameworkScores.filter((fw) => {
+      const category = frameworks.find((f) => f.id === fw.id)?.category ?? "";
+      if (q && !fw.name.toLowerCase().includes(q)) return false;
+      if (categoryFilter !== "all" && category !== categoryFilter) return false;
+      if (levelFilter !== "all" && fw.level.toLowerCase() !== levelFilter) return false;
+      return true;
+    });
+  }, [frameworkScores, search, categoryFilter, levelFilter]);
+
+  const activeCategories = useMemo(() => {
+    const ids = new Set(frameworkScores.map((fw) => frameworks.find((f) => f.id === fw.id)?.category));
+    return categories.filter((c) => ids.has(c.id));
+  }, [frameworkScores]);
+
+  const levelOptions = useMemo(
+    () => Array.from(new Set(frameworkScores.map((fw) => fw.level))),
+    [frameworkScores],
+  );
+
   const reportData: ReportData = useMemo(() => ({
     overallScore,
     pillars: PILLARS.map(p => ({ name: p.name, score: p.score, level: p.level, measures: p.measures })),
