@@ -1998,7 +1998,11 @@
             "Name the connector Mynder Partner, save and restart the tool."
           ]
         }
-      }
+      },
+      "stepOf": "Step {{current}} of {{total}}",
+      "back": "Back",
+      "next": "Next",
+      "done": "Done"
     },
     "tools": {
       "title": "What the agent can do for you",
