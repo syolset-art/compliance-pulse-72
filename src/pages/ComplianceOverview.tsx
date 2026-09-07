@@ -149,7 +149,7 @@ const ComplianceOverview = () => {
 
   const activeCategories = useMemo(() => {
     const ids = new Set(frameworkScores.map((fw) => frameworks.find((f) => f.id === fw.id)?.category));
-    return categories.filter((c) => ids.has(c.id));
+    return categories.filter((c) => ids.has(c.id as (typeof frameworks)[number]["category"]));
   }, [frameworkScores]);
 
   const levelOptions = useMemo(
