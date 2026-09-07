@@ -332,11 +332,9 @@ export function ByoaConnectWizard({
                     label={t("byoa.wizard.step2.copyToken")}
                   />
                 </div>
-                <p className="text-[13px] text-muted-foreground">
-                  {t("byoa.wizard.step2.sameAccess")}
-                </p>
               </div>
             )}
+
           </div>
         )}
 
