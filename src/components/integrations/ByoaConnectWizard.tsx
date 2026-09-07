@@ -335,7 +335,12 @@ export function ByoaConnectWizard({
 
         {step === 3 && (
           <div>
-            <p className="text-[13px] text-muted-foreground">{t("byoa.wizard.step2.description")}</p>
+            <div className="flex gap-2 rounded-lg border border-primary/30 bg-primary/5 p-3">
+              <KeyRound className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+              <p className="text-[13px] text-foreground">{t("byoa.wizard.step2.prompted")}</p>
+            </div>
+            <p className="mt-3 text-[13px] text-muted-foreground">{t("byoa.wizard.step2.description")}</p>
+
 
             <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-end">
               <div className="flex-1">
