@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Sidebar } from "@/components/Sidebar";
 import { Card, CardContent } from "@/components/ui/card";
@@ -16,6 +16,8 @@ import { ALL_ADDITIONAL_REQUIREMENTS } from "@/lib/additionalFrameworkRequiremen
 import { getMaturityLevel, maturityBgClass, maturitySoftClass, maturityLabelNb } from "@/lib/maturityLevel";
 import { MaturityIndicator } from "@/components/shared/MaturityIndicator";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 // Demo: which frameworks are "active" in scope
 const ACTIVE_FRAMEWORK_IDS = [
