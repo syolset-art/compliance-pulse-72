@@ -1942,6 +1942,14 @@
         "hideCodes": "Hide my codes",
         "expiry365": "1 year"
       },
+      "config": {
+        "title": "Connect to Mynder",
+        "description": "Enter the name and address in your agent, then create your personal code.",
+        "stepLabel": "Configuration",
+        "connectionGroup": "Connection details",
+        "securityGroup": "Security and access",
+        "securityHint": "When you press Connect in the agent, it asks for a code. Create it here."
+      },
       "step3": {
         "title": "Paste into {{client}}",
         "addressLabel": "Address",
