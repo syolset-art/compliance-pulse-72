@@ -1909,7 +1909,8 @@
         }
       },
       "step1": {
-        "title": "Choose where your agent lives"
+        "title": "Choose where your agent lives",
+        "stepLabel": "Client"
       },
       "step2": {
         "title": "Create your code and paste it in",
@@ -1940,6 +1941,14 @@
         "showCodes": "Show my codes",
         "hideCodes": "Hide my codes",
         "expiry365": "1 year"
+      },
+      "config": {
+        "title": "Connect to Mynder",
+        "description": "Enter the name and address in your agent, then create your personal code.",
+        "stepLabel": "Configuration",
+        "connectionGroup": "Connection details",
+        "securityGroup": "Security and access",
+        "securityHint": "When you press Connect in the agent, it asks for a code. Create it here."
       },
       "step3": {
         "title": "Paste into {{client}}",
@@ -1989,7 +1998,11 @@
             "Name the connector Mynder Partner, save and restart the tool."
           ]
         }
-      }
+      },
+      "stepOf": "Step {{current}} of {{total}}",
+      "back": "Back",
+      "next": "Next",
+      "done": "Done"
     },
     "tools": {
       "title": "What the agent can do for you",
