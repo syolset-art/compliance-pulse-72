@@ -40,9 +40,17 @@ interface ProcessCardProps {
   onEdit?: () => void;
 }
 
+const VALID_TABS = ["systems", "datatypes", "criticality", "risk", "ai", "ai-setup"];
+
 export const ProcessCard = ({ processId, workAreaId, onEdit }: ProcessCardProps) => {
   const { t } = useTranslation();
-  const [activeTab, setActiveTab] = useState("systems");
+  // Tillat dyplenke som /processes/:id?tab=ai-setup fra Core-oversikten.
+  const [activeTab, setActiveTab] = useState(() => {
+    if (typeof window === "undefined") return "systems";
+    const requested = new URLSearchParams(window.location.search).get("tab");
+    return requested && VALID_TABS.includes(requested) ? requested : "systems";
+  });
+
   const [editOpen, setEditOpen] = useState(false);
   const queryClient = useQueryClient();
 
