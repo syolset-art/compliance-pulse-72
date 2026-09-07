@@ -16,7 +16,7 @@ export interface AgentTokenRow {
   demo?: boolean;
 }
 
-export type ExpiryChoice = "90" | "30" | "never";
+export type ExpiryChoice = "never" | "30" | "90" | "365";
 
 const DEMO_KEY = "mynder_agent_tokens_demo";
 export const AGENT_TOKENS_EVENT = "mynder:agent-tokens-change";

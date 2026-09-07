@@ -15,6 +15,13 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { toast } from "sonner";
 import {
   Bot,
@@ -103,7 +110,7 @@ export function ByoaConnectWizard({
 
   const endpoint = mcpServerUrl();
   const clientLabel = t(`byoa.wizard.clients.${client}.label`);
-  const expiry: ExpiryChoice = "90";
+  const [expiry, setExpiry] = useState<ExpiryChoice>("never");
 
   useEffect(() => {
     if (open) {
@@ -301,6 +308,28 @@ export function ByoaConnectWizard({
                 <p className="text-[13px] text-muted-foreground">
                   {t("byoa.wizard.step2.description")}
                 </p>
+                <div>
+                  <Label
+                    htmlFor="byoa-expiry"
+                    className="text-[13px] text-muted-foreground"
+                  >
+                    {t("byoa.wizard.step2.expiryLabel")}
+                  </Label>
+                  <Select
+                    value={expiry}
+                    onValueChange={(v) => setExpiry(v as ExpiryChoice)}
+                  >
+                    <SelectTrigger id="byoa-expiry" className="mt-1 h-9 text-[13px]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="never">{t("byoa.wizard.step2.expiryNever")}</SelectItem>
+                      <SelectItem value="30">{t("byoa.wizard.step2.expiry30")}</SelectItem>
+                      <SelectItem value="90">{t("byoa.wizard.step2.expiry90")}</SelectItem>
+                      <SelectItem value="365">{t("byoa.wizard.step2.expiry365")}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
                 <Button
                   className="h-9 w-full gap-1.5"
                   onClick={handleCreate}

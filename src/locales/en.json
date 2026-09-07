@@ -1917,8 +1917,8 @@
         "nameLabel": "Name",
         "namePlaceholder": "Mynder Partner",
         "expiryLabel": "Expiry",
-        "expiry90": "Expires in 90 days",
-        "expiry30": "Expires in 30 days",
+        "expiry90": "90 days",
+        "expiry30": "30 days",
         "expiryNever": "No expiry",
         "create": "Create my code",
         "created": "The code is created. Copy it now.",
@@ -1938,7 +1938,8 @@
         "prompted": "Your agent is now asking for a personal code. Create it here, choose how long it should last, and copy it.",
         "finish": "Paste the code into the agent.",
         "showCodes": "Show my codes",
-        "hideCodes": "Hide my codes"
+        "hideCodes": "Hide my codes",
+        "expiry365": "1 year"
       },
       "step3": {
         "title": "Paste into {{client}}",

@@ -1918,8 +1918,8 @@
         "nameLabel": "Navn",
         "namePlaceholder": "Mynder Partner",
         "expiryLabel": "Utløp",
-        "expiry90": "Utløper om 90 dager",
-        "expiry30": "Utløper om 30 dager",
+        "expiry90": "90 dager",
+        "expiry30": "30 dager",
         "expiryNever": "Ingen utløp",
         "create": "Lag koden min",
         "created": "Koden er laget. Kopier den nå.",
@@ -1939,7 +1939,8 @@
         "prompted": "Agenten spør nå om en personlig kode. Lag den her, velg hvor lenge den skal vare, og kopier den.",
         "finish": "Lim koden inn i agenten.",
         "showCodes": "Vis kodene mine",
-        "hideCodes": "Skjul kodene mine"
+        "hideCodes": "Skjul kodene mine",
+        "expiry365": "1 år"
       },
       "step3": {
         "title": "Lim inn i {{client}}",
