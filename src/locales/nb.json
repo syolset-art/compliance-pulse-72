@@ -1935,7 +1935,11 @@
         "revoke": "Trekk tilbake",
         "revoked": "«{{name}}» er trukket tilbake.",
         "inactive": "Ikke aktiv",
-        "sameAccess": "Lim koden inn i agenten. Du får da nøyaktig samme tilgang som du har når du logger inn i Mynder selv — verken mer eller mindre."
+        "sameAccess": "Lim koden inn i agenten. Du får da nøyaktig samme tilgang som du har når du logger inn i Mynder selv — verken mer eller mindre.",
+        "prompted": "Agenten spør nå om en personlig kode. Lag den her, velg hvor lenge den skal vare, og kopier den.",
+        "finish": "Lim koden inn i feltet agenten spør om, og trykk fullfør. Da er koblingen ferdig.",
+        "showCodes": "Vis kodene mine",
+        "hideCodes": "Skjul kodene mine"
       },
       "step3": {
         "title": "Lim inn i {{client}}",

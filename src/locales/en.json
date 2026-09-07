@@ -1934,7 +1934,11 @@
         "revoke": "Revoke",
         "revoked": "\"{{name}}\" has been revoked.",
         "inactive": "Not active",
-        "sameAccess": "Paste the code into the agent. You then get exactly the same access as when you log in to Mynder yourself — no more, no less."
+        "sameAccess": "Paste the code into the agent. You then get exactly the same access as when you log in to Mynder yourself — no more, no less.",
+        "prompted": "Your agent is now asking for a personal code. Create it here, choose how long it should last, and copy it.",
+        "finish": "Paste the code into the field the agent asks for and press finish. The connection is then complete.",
+        "showCodes": "Show my codes",
+        "hideCodes": "Hide my codes"
       },
       "step3": {
         "title": "Paste into {{client}}",
