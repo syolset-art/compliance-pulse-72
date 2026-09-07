@@ -957,7 +957,7 @@ const SidebarContent = () => {
                       )}
                     >
                       <Plug className="h-3.5 w-3.5" />
-                      {isNb ? "Datakilder og agenter" : "Data sources and agents"}
+                      {isNb ? "MCP integrasjon" : "MCP integration"}
                     </button>
                     <button
                       onClick={() => navigate("/activity-log")}
