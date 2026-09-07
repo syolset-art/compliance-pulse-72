@@ -196,7 +196,6 @@ export function ByoaConnectWizard({
     t("byoa.wizard.step2.title"),
   ];
 
-  const hasCode = Boolean(freshToken) || tokens.some(isActiveToken);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
