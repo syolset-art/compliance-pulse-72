@@ -15,6 +15,7 @@ import { getRequirementsByFramework } from "@/lib/complianceRequirementsData";
 import { ALL_ADDITIONAL_REQUIREMENTS } from "@/lib/additionalFrameworkRequirements";
 import { getMaturityLevel, maturityBgClass, maturitySoftClass, maturityLabelNb } from "@/lib/maturityLevel";
 import { MaturityIndicator } from "@/components/shared/MaturityIndicator";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 // Demo: which frameworks are "active" in scope
 const ACTIVE_FRAMEWORK_IDS = [
@@ -198,6 +199,77 @@ const ComplianceOverview = () => {
             </CardContent>
           </Card>
 
+
+          {/* Samsvar per regelverk — klikkbar tabell */}
+          <Card>
+            <CardContent className="p-4 sm:p-5 space-y-3">
+              <h2 className="text-sm font-semibold text-foreground">Samsvar per regelverk</h2>
+              <div className="overflow-x-auto rounded-lg border border-border">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Regelverk</TableHead>
+                      <TableHead className="hidden md:table-cell">Kategori</TableHead>
+                      <TableHead>Nivå</TableHead>
+                      <TableHead className="hidden sm:table-cell">Oppfylt</TableHead>
+                      <TableHead className="w-[160px]">Fremdrift</TableHead>
+                      <TableHead className="w-8" />
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {frameworkScores.map((fw) => {
+                      const cat = categories.find((c) => c.id === frameworks.find((f) => f.id === fw.id)?.category);
+                      const missing = fw.total - fw.fulfilled;
+                      return (
+                        <TableRow
+                          key={fw.id}
+                          onClick={() => navigate(`/regulations?framework=${fw.id}`)}
+                          className="cursor-pointer group"
+                        >
+                          <TableCell>
+                            <div className="flex items-center gap-2.5 min-w-0">
+                              <fw.icon className={`h-4 w-4 shrink-0 ${fw.iconColor}`} />
+                              <span className="truncate text-sm font-medium text-foreground group-hover:text-primary transition-colors">
+                                {fw.name}
+                              </span>
+                            </div>
+                          </TableCell>
+                          <TableCell className="hidden md:table-cell text-sm text-muted-foreground">
+                            {cat?.name || "—"}
+                          </TableCell>
+                          <TableCell>
+                            <span className={`rounded px-1.5 py-0.5 text-[10px] font-semibold tracking-wide ${fw.levelColor}`}>
+                              {fw.level}
+                            </span>
+                          </TableCell>
+                          <TableCell className="hidden sm:table-cell text-sm text-muted-foreground whitespace-nowrap">
+                            {fw.fulfilled} av {fw.total}
+                            {missing > 0 && (
+                              <span className="ml-1.5 text-xs text-destructive">({missing} gjenstår)</span>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
+                                <div className={`h-full rounded-full ${fw.progressColor}`} style={{ width: `${fw.score}%` }} />
+                              </div>
+                              <span className="text-xs text-muted-foreground w-8 text-right">{fw.score}%</span>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <ChevronRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Klikk på et regelverk for å jobbe videre med kravene som gjenstår.
+              </p>
+            </CardContent>
+          </Card>
 
           {/* Tabs */}
           <Tabs defaultValue="forbedring" className="space-y-4">
