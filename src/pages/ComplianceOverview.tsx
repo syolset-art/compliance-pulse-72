@@ -336,6 +336,13 @@ const ComplianceOverview = () => {
                         </TableRow>
                       );
                     })}
+                    {filteredFrameworkScores.length === 0 && (
+                      <TableRow>
+                        <TableCell colSpan={6} className="py-6 text-center text-sm text-muted-foreground">
+                          Ingen regelverk treffer filteret.
+                        </TableCell>
+                      </TableRow>
+                    )}
                   </TableBody>
                 </Table>
               </div>
