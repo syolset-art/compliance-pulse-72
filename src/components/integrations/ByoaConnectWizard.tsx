@@ -120,6 +120,8 @@ export function ByoaConnectWizard({
   const [creating, setCreating] = useState(false);
   const [freshToken, setFreshToken] = useState<string | null>(null);
   const [tokens, setTokens] = useState<AgentTokenRow[]>([]);
+  const [showCodes, setShowCodes] = useState(false);
+
 
   const endpoint = mcpServerUrl();
   const clientLabel = t(`byoa.wizard.clients.${client}.label`);
