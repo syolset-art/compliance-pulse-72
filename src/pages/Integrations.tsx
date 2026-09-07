@@ -3,15 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 import { Sidebar } from "@/components/Sidebar";
-import { ArrowLeft, Bot, ChevronDown } from "lucide-react";
+import { ArrowLeft, Bot } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
 import { ByoaAgentHero } from "@/components/integrations/ByoaAgentHero";
 import {
   ByoaConnectWizard,
@@ -30,7 +24,6 @@ export default function Integrations() {
   const [tokens, setTokens] = useState<AgentTokenRow[]>([]);
   const [showWizard, setShowWizard] = useState(false);
   const [wizardClient, setWizardClient] = useState<WizardClient>("claude");
-  const [showCapabilities, setShowCapabilities] = useState(false);
   const activeTokens = tokens.filter(isActiveToken);
   const refreshTokens = async () => setTokens(await listAgentTokens());
 
