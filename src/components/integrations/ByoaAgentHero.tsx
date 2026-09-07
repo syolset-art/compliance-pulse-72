@@ -9,7 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Copy, KeyRound, Link2, ListChecks, ShieldCheck, Sparkles } from "lucide-react";
+import { KeyRound, Link2, ShieldCheck, Sparkles } from "lucide-react";
 import { TrustBoundaryStrip } from "@/components/integrations/TrustBoundaryStrip";
 import byoaHero from "@/assets/byoa-agent-hero.png";
 
