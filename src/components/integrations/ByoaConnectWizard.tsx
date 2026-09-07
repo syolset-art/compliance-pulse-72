@@ -143,9 +143,11 @@ export function ByoaConnectWizard({
 
 
   const instructions = useMemo(
-    () => t(`byoa.wizard.step3.instructions.${client}`, { returnObjects: true }) as string[],
+    () => t(`byoa.wizard.setup.steps.${client}`, { returnObjects: true }) as string[],
     [client, t],
   );
+
+  const connectionName = t("byoa.wizard.setup.connectionName");
 
   const snippet = useMemo(
     () =>
@@ -167,7 +169,7 @@ export function ByoaConnectWizard({
   const handleCreate = async () => {
     setCreating(true);
     try {
-      const label = name.trim() || t("byoa.wizard.step2.namePlaceholder");
+      const label = name.trim() || connectionName;
       const { token } = await createAgentToken(label, expiry);
       setFreshToken(token);
       await refresh();
@@ -189,24 +191,24 @@ export function ByoaConnectWizard({
 
   const titles = [
     t("byoa.wizard.step1.title"),
+    t("byoa.wizard.address.title"),
+    t("byoa.wizard.setup.title", { client: clientLabel }),
     t("byoa.wizard.step2.title"),
-    t("byoa.wizard.step3.title", { client: clientLabel }),
   ];
 
-  const hasCode = Boolean(freshToken) || tokens.some(isActiveToken);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[85vh] max-w-2xl overflow-y-auto">
         <DialogHeader>
           <p className="text-[13px] text-muted-foreground">
-            {t("byoa.wizard.stepOf", { current: step, total: 3, defaultValue: `Trinn ${step} av 3` })}
+            {t("byoa.wizard.stepOf", { current: step, total: 4, defaultValue: `Trinn ${step} av 4` })}
           </p>
           <DialogTitle className="text-[17px]">{titles[step - 1]}</DialogTitle>
         </DialogHeader>
 
         <div className="flex gap-1.5" aria-hidden="true">
-          {[1, 2, 3].map((n) => (
+          {[1, 2, 3, 4].map((n) => (
             <span
               key={n}
               className={`h-1.5 flex-1 rounded-full ${n <= step ? "bg-primary" : "bg-muted"}`}
@@ -252,7 +254,7 @@ export function ByoaConnectWizard({
           </div>
         )}
 
-        {step === 2 && (
+        {step === 4 && (
           <div>
             <p className="text-[13px] text-muted-foreground">{t("byoa.wizard.step2.description")}</p>
 
@@ -317,6 +319,15 @@ export function ByoaConnectWizard({
                     tooltip={t("byoa.wizard.step3.copyTokenTooltip")}
                   />
                 </div>
+                <div className="flex gap-2 rounded-lg border border-success/30 bg-success/10 p-3">
+                  <CheckCircle2
+                    className="mt-0.5 h-4 w-4 shrink-0 text-success"
+                    aria-hidden="true"
+                  />
+                  <p className="text-[13px] text-foreground">
+                    {t("byoa.wizard.step2.sameAccess")}
+                  </p>
+                </div>
               </div>
             )}
 
@@ -375,17 +386,13 @@ export function ByoaConnectWizard({
           </div>
         )}
 
-        {step === 3 && (
+        {step === 2 && (
           <div>
-            <div className="mb-4 flex gap-2 rounded-lg border border-border bg-muted/40 p-3">
-              <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
-              <p className="text-[13px] text-muted-foreground">
-                {t("byoa.wizard.step3.comingSoon")}
-              </p>
-            </div>
-
-            <Label htmlFor="byoa-endpoint" className="text-[13px] text-muted-foreground">
-              {t("byoa.wizard.step3.addressLabel")}
+            <p className="text-[13px] text-muted-foreground">
+              {t("byoa.wizard.address.description")}
+            </p>
+            <Label htmlFor="byoa-endpoint" className="mt-4 block text-[13px] text-muted-foreground">
+              {t("byoa.wizard.address.label")}
             </Label>
             <div className="mt-1 flex gap-2">
               <Input
@@ -397,9 +404,62 @@ export function ByoaConnectWizard({
               />
               <CopyButton
                 value={endpoint}
-                label={t("byoa.wizard.step3.copyAddress")}
-                tooltip={t("byoa.wizard.step3.copyAddressTooltip")}
+                label={t("byoa.wizard.address.copy")}
+                tooltip={t("byoa.wizard.address.copyTooltip")}
               />
+            </div>
+          </div>
+        )}
+
+        {step === 3 && (
+          <div>
+            <p className="text-[13px] text-muted-foreground">{t("byoa.wizard.setup.intro")}</p>
+
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              <div>
+                <Label
+                  htmlFor="byoa-conn-name"
+                  className="text-[13px] text-muted-foreground"
+                >
+                  {t("byoa.wizard.setup.nameLabel")}
+                </Label>
+                <div className="mt-1 flex gap-2">
+                  <Input
+                    id="byoa-conn-name"
+                    readOnly
+                    value={connectionName}
+                    onFocus={(e) => e.currentTarget.select()}
+                    className="h-9 text-[13px]"
+                  />
+                  <CopyButton
+                    value={connectionName}
+                    label={t("byoa.wizard.setup.copyName")}
+                    tooltip={t("byoa.wizard.setup.copyNameTooltip")}
+                  />
+                </div>
+              </div>
+              <div>
+                <Label
+                  htmlFor="byoa-endpoint-setup"
+                  className="text-[13px] text-muted-foreground"
+                >
+                  {t("byoa.wizard.address.label")}
+                </Label>
+                <div className="mt-1 flex gap-2">
+                  <Input
+                    id="byoa-endpoint-setup"
+                    readOnly
+                    value={endpoint}
+                    onFocus={(e) => e.currentTarget.select()}
+                    className="h-9 font-mono text-[13px]"
+                  />
+                  <CopyButton
+                    value={endpoint}
+                    label={t("byoa.wizard.address.copy")}
+                    tooltip={t("byoa.wizard.address.copyTooltip")}
+                  />
+                </div>
+              </div>
             </div>
 
             <ol className="mt-4 space-y-2">
@@ -424,16 +484,11 @@ export function ByoaConnectWizard({
               </div>
             )}
 
-            <div className="mt-4 flex gap-2 rounded-lg border border-success/30 bg-success/10 p-3">
-              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-success" aria-hidden="true" />
-              <div>
-                <p className="text-[13px] font-medium text-foreground">
-                  {t("byoa.wizard.step3.verifyTitle")}
-                </p>
-                <p className="mt-0.5 text-[13px] text-muted-foreground">
-                  {t("byoa.wizard.step3.verifyBody")}
-                </p>
-              </div>
+            <div className="mt-4 flex gap-2 rounded-lg border border-border bg-muted/40 p-3">
+              <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+              <p className="text-[13px] text-muted-foreground">
+                {t("byoa.wizard.step3.comingSoon")}
+              </p>
             </div>
           </div>
         )}
@@ -448,13 +503,13 @@ export function ByoaConnectWizard({
               ? t("common.cancel", "Avbryt")
               : t("byoa.wizard.back", { defaultValue: "Tilbake" })}
           </Button>
-          {step < 3 ? (
-            <Button
-              className="h-9"
-              disabled={step === 2 && !hasCode}
-              onClick={() => setStep(step + 1)}
-            >
-              {t("byoa.wizard.next", { defaultValue: "Neste" })}
+          {step < 4 ? (
+            <Button className="h-9" onClick={() => setStep(step + 1)}>
+              {step === 2
+                ? t("byoa.wizard.address.next")
+                : step === 3
+                  ? t("byoa.wizard.setup.next")
+                  : t("byoa.wizard.next", { defaultValue: "Neste" })}
             </Button>
           ) : (
             <Button className="h-9" onClick={() => onOpenChange(false)}>

@@ -1881,14 +1881,18 @@
       "statusActive": "{{count}} agent connected",
       "statusActive_other": "{{count}} agents connected",
       "how1": {
-        "title": "Create your personal code",
-        "body": "The code is yours alone and works like a password. You choose how long it is valid."
+        "title": "Copy the Mynder address",
+        "body": "One address that tells the agent where Mynder is."
       },
       "how2": {
-        "title": "Paste the address and code into your agent",
-        "body": "In Claude, ChatGPT or another MCP client, add Mynder as a custom connector."
+        "title": "Add the connector in your agent",
+        "body": "In Claude: Settings → Capabilities → Connectors → Add. Name it Mynder Partner."
       },
       "how3": {
+        "title": "Create your code and paste it in",
+        "body": "The code works like a password and gives the agent the same access you have yourself."
+      },
+      "how4": {
         "title": "Ask the agent for a plan",
         "body": "First task: let the agent build a plan for continuous compliance based on your frameworks."
       }
@@ -1912,10 +1916,10 @@
         "title": "Choose where your agent lives"
       },
       "step2": {
-        "title": "Create your personal code",
-        "description": "The code links the agent to you. It is personal — if a colleague needs access, they create their own.",
+        "title": "Create your code and paste it in",
+        "description": "When you press Connect, the agent asks for a code. You create it here. The code is personal — if a colleague needs access, they create their own.",
         "nameLabel": "Name",
-        "namePlaceholder": "Claude Desktop",
+        "namePlaceholder": "Mynder Partner",
         "expiryLabel": "Expiry",
         "expiry90": "Expires in 90 days",
         "expiry30": "Expires in 30 days",
@@ -1933,7 +1937,8 @@
         "noExpiry": "No expiry",
         "revoke": "Revoke",
         "revoked": "\"{{name}}\" has been revoked.",
-        "inactive": "Not active"
+        "inactive": "Not active",
+        "sameAccess": "Paste the code into the agent. You then get exactly the same access as when you log in to Mynder yourself — no more, no less."
       },
       "step3": {
         "title": "Paste into {{client}}",
@@ -1965,6 +1970,46 @@
           ]
         },
         "comingSoon": "Once Mynder is available as a ready-made connector in Claude, you just press Connect and sign in like with any other connector. Until then, paste the address and personal code manually."
+      },
+      "address": {
+        "title": "Copy the Mynder address",
+        "description": "This is the Mynder address. Copy it now — you will paste it into your agent in the next step.",
+        "label": "Address",
+        "copy": "Copy the address",
+        "copyTooltip": "Copy the address and paste it into your agent in the next step.",
+        "next": "I have copied the address"
+      },
+      "setup": {
+        "title": "Add the connector in {{client}}",
+        "intro": "Do this inside your agent. The name and address are right here, so you don't have to go back.",
+        "nameLabel": "Connector name",
+        "connectionName": "Mynder Partner",
+        "copyName": "Copy the name",
+        "copyNameTooltip": "Copy the name and paste it into the name field in your agent.",
+        "next": "I have pressed Connect",
+        "steps": {
+          "claude": [
+            "Open Claude and go to Settings.",
+            "Choose Capabilities.",
+            "Find Connectors and press Add.",
+            "Enter the name: Mynder Partner.",
+            "Paste the address you copied.",
+            "Press Connect."
+          ],
+          "chatgpt": [
+            "Open ChatGPT and go to Settings.",
+            "Choose Connectors.",
+            "Press Add custom connector.",
+            "Enter the name: Mynder Partner.",
+            "Paste the address you copied into the Server URL field.",
+            "Press Connect."
+          ],
+          "other": [
+            "Open the MCP server configuration in your tool.",
+            "Paste the snippet below — the address is already in it.",
+            "Name the connector Mynder Partner, save and restart the tool."
+          ]
+        }
       }
     },
     "tools": {

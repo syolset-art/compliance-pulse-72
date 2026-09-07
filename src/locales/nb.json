@@ -1882,14 +1882,18 @@
       "statusActive": "{{count}} agent tilkoblet",
       "statusActive_other": "{{count}} agenter tilkoblet",
       "how1": {
-        "title": "Lag din personlige kode",
-        "body": "Koden er din egen og virker som et passord. Du velger hvor lenge den skal gjelde."
+        "title": "Kopier adressen til Mynder",
+        "body": "Én adresse som forteller agenten hvor Mynder er."
       },
       "how2": {
-        "title": "Lim inn adresse og kode i agenten",
-        "body": "I Claude, ChatGPT eller en annen MCP-klient legger du til Mynder som en egendefinert kobling."
+        "title": "Legg til koblingen i agenten",
+        "body": "I Claude: Innstillinger → Capabilities → Connectors → Add. Kall den Mynder Partner."
       },
       "how3": {
+        "title": "Lag koden din og lim den inn",
+        "body": "Koden virker som et passord og gir agenten samme tilgang som du har selv."
+      },
+      "how4": {
         "title": "Be agenten lage en plan",
         "body": "Første oppdrag: la agenten lage en plan for kontinuerlig etterlevelse basert på regelverkene dine."
       }
@@ -1913,10 +1917,10 @@
         "title": "Velg hvor agenten din bor"
       },
       "step2": {
-        "title": "Lag din personlige kode",
-        "description": "Koden knytter agenten til deg. Den er personlig — trenger en kollega tilgang, lager de sin egen.",
+        "title": "Lag koden din og lim den inn",
+        "description": "Når du trykker Connect, spør agenten om en kode. Den lager du her. Koden er personlig — trenger en kollega tilgang, lager de sin egen.",
         "nameLabel": "Navn",
-        "namePlaceholder": "Claude Desktop",
+        "namePlaceholder": "Mynder Partner",
         "expiryLabel": "Utløp",
         "expiry90": "Utløper om 90 dager",
         "expiry30": "Utløper om 30 dager",
@@ -1934,7 +1938,8 @@
         "noExpiry": "Ingen utløp",
         "revoke": "Trekk tilbake",
         "revoked": "«{{name}}» er trukket tilbake.",
-        "inactive": "Ikke aktiv"
+        "inactive": "Ikke aktiv",
+        "sameAccess": "Lim koden inn i agenten. Du får da nøyaktig samme tilgang som du har når du logger inn i Mynder selv — verken mer eller mindre."
       },
       "step3": {
         "title": "Lim inn i {{client}}",
@@ -1966,6 +1971,46 @@
           ]
         },
         "comingSoon": "Når Mynder ligger som ferdig kobling i Claude, trykker du bare «Koble til» og logger inn som med andre koblinger. Fram til da limer du inn adressen og den personlige koden manuelt."
+      },
+      "address": {
+        "title": "Kopier adressen til Mynder",
+        "description": "Dette er adressen til Mynder. Kopier den nå — du skal lime den inn i agenten din i neste steg.",
+        "label": "Adresse",
+        "copy": "Kopier adressen",
+        "copyTooltip": "Kopier adressen og lim den inn i agenten din i neste steg.",
+        "next": "Jeg har kopiert adressen"
+      },
+      "setup": {
+        "title": "Legg til koblingen i {{client}}",
+        "intro": "Gjør dette i agenten din. Navnet og adressen finner du her, så du slipper å bla tilbake.",
+        "nameLabel": "Navn på koblingen",
+        "connectionName": "Mynder Partner",
+        "copyName": "Kopier navnet",
+        "copyNameTooltip": "Kopier navnet og lim det inn i navnefeltet i agenten din.",
+        "next": "Jeg har trykket Connect",
+        "steps": {
+          "claude": [
+            "Åpne Claude og gå til Innstillinger.",
+            "Velg Capabilities (Funksjoner).",
+            "Finn Connectors og trykk Add (Legg til).",
+            "Skriv navnet: Mynder Partner.",
+            "Lim inn adressen du kopierte.",
+            "Trykk Connect."
+          ],
+          "chatgpt": [
+            "Åpne ChatGPT og gå til Innstillinger.",
+            "Velg Koblinger (Connectors).",
+            "Trykk Legg til egendefinert kobling.",
+            "Skriv navnet: Mynder Partner.",
+            "Lim inn adressen du kopierte i feltet Server-URL.",
+            "Trykk Koble til."
+          ],
+          "other": [
+            "Åpne konfigurasjonen for MCP-servere i verktøyet ditt.",
+            "Lim inn utklippet under — adressen ligger allerede i det.",
+            "Kall koblingen Mynder Partner, lagre og start verktøyet på nytt."
+          ]
+        }
       }
     },
     "tools": {
