@@ -216,20 +216,22 @@ export function ByoaConnectedStatus({
                 <p className="text-[13px] text-muted-foreground">
                   {t("byoa.connected.revokeExplanation")}
                 </p>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      className="h-9 text-destructive hover:text-destructive"
-                      onClick={() => setConfirmRevoke(true)}
-                    >
-                      {t("byoa.connected.revoke")}
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent side="bottom" className="max-w-xs">
-                    <p className="text-[13px]">{t("byoa.connected.revokeHelp")}</p>
-                  </TooltipContent>
-                </Tooltip>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        className="h-9 text-destructive hover:text-destructive"
+                        onClick={() => setConfirmRevoke(true)}
+                      >
+                        {t("byoa.connected.revoke")}
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="max-w-xs">
+                      <p className="text-[13px]">{t("byoa.connected.revokeHelp")}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </div>
             </div>
           )}
