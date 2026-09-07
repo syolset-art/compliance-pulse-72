@@ -481,7 +481,10 @@ export function ByoaConnectWizard({
                   })}
                 </ul>
               )}
+              </>
+              )}
             </div>
+
           </div>
         )}
 
