@@ -143,9 +143,11 @@ export function ByoaConnectWizard({
 
 
   const instructions = useMemo(
-    () => t(`byoa.wizard.step3.instructions.${client}`, { returnObjects: true }) as string[],
+    () => t(`byoa.wizard.setup.steps.${client}`, { returnObjects: true }) as string[],
     [client, t],
   );
+
+  const connectionName = t("byoa.wizard.setup.connectionName");
 
   const snippet = useMemo(
     () =>
@@ -167,7 +169,7 @@ export function ByoaConnectWizard({
   const handleCreate = async () => {
     setCreating(true);
     try {
-      const label = name.trim() || t("byoa.wizard.step2.namePlaceholder");
+      const label = name.trim() || connectionName;
       const { token } = await createAgentToken(label, expiry);
       setFreshToken(token);
       await refresh();
@@ -189,8 +191,9 @@ export function ByoaConnectWizard({
 
   const titles = [
     t("byoa.wizard.step1.title"),
+    t("byoa.wizard.address.title"),
+    t("byoa.wizard.setup.title", { client: clientLabel }),
     t("byoa.wizard.step2.title"),
-    t("byoa.wizard.step3.title", { client: clientLabel }),
   ];
 
   const hasCode = Boolean(freshToken) || tokens.some(isActiveToken);
@@ -200,13 +203,13 @@ export function ByoaConnectWizard({
       <DialogContent className="max-h-[85vh] max-w-2xl overflow-y-auto">
         <DialogHeader>
           <p className="text-[13px] text-muted-foreground">
-            {t("byoa.wizard.stepOf", { current: step, total: 3, defaultValue: `Trinn ${step} av 3` })}
+            {t("byoa.wizard.stepOf", { current: step, total: 4, defaultValue: `Trinn ${step} av 4` })}
           </p>
           <DialogTitle className="text-[17px]">{titles[step - 1]}</DialogTitle>
         </DialogHeader>
 
         <div className="flex gap-1.5" aria-hidden="true">
-          {[1, 2, 3].map((n) => (
+          {[1, 2, 3, 4].map((n) => (
             <span
               key={n}
               className={`h-1.5 flex-1 rounded-full ${n <= step ? "bg-primary" : "bg-muted"}`}
@@ -252,7 +255,7 @@ export function ByoaConnectWizard({
           </div>
         )}
 
-        {step === 2 && (
+        {step === 4 && (
           <div>
             <p className="text-[13px] text-muted-foreground">{t("byoa.wizard.step2.description")}</p>
 
@@ -316,6 +319,15 @@ export function ByoaConnectWizard({
                     label={t("byoa.wizard.step2.copyToken")}
                     tooltip={t("byoa.wizard.step3.copyTokenTooltip")}
                   />
+                </div>
+                <div className="flex gap-2 rounded-lg border border-success/30 bg-success/10 p-3">
+                  <CheckCircle2
+                    className="mt-0.5 h-4 w-4 shrink-0 text-success"
+                    aria-hidden="true"
+                  />
+                  <p className="text-[13px] text-foreground">
+                    {t("byoa.wizard.step2.sameAccess")}
+                  </p>
                 </div>
               </div>
             )}
