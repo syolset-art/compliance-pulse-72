@@ -2065,7 +2065,9 @@
       "revoke": "Revoke access",
       "revokeTitle": "Revoke access?",
       "revokeBody": "All active codes stop working immediately. You can create a new code at any time.",
-      "revokedToast": "Access has been revoked."
+      "revokedToast": "Access has been revoked.",
+      "expired": "Expired",
+      "revoked": "Revoked"
     },
     "activity": {
       "title": "What the agent has done",

@@ -2066,7 +2066,9 @@
       "revoke": "Trekk tilbake tilgangen",
       "revokeTitle": "Trekke tilbake tilgangen?",
       "revokeBody": "Alle aktive koder slutter å virke umiddelbart. Du kan lage en ny kode når som helst.",
-      "revokedToast": "Tilgangen er trukket tilbake."
+      "revokedToast": "Tilgangen er trukket tilbake.",
+      "expired": "Utløpt",
+      "revoked": "Tilbakekalt"
     },
     "activity": {
       "title": "Hva agenten har gjort",
