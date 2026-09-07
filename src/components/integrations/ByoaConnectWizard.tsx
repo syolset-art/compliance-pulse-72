@@ -302,61 +302,30 @@ export function ByoaConnectWizard({
         )}
 
         {step === 3 && (
-          <div>
-            <div className="flex gap-2 rounded-lg border border-primary/30 bg-primary/5 p-3">
-              <KeyRound className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
-              <p className="text-[13px] text-foreground">{t("byoa.wizard.step2.prompted")}</p>
-            </div>
-            <p className="mt-3 text-[13px] text-muted-foreground">{t("byoa.wizard.step2.description")}</p>
-
-
-            <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-end">
-              <div className="flex-1">
-                <Label htmlFor="byoa-code-name" className="text-[13px] text-muted-foreground">
-                  {t("byoa.wizard.step2.nameLabel")}
-                </Label>
-                <Input
-                  id="byoa-code-name"
-                  className="mt-1 h-9 text-[13px]"
-                  placeholder={t("byoa.wizard.step2.namePlaceholder")}
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                />
-              </div>
-              <div className="sm:w-48">
-                <Label htmlFor="byoa-expiry" className="text-[13px] text-muted-foreground">
-                  {t("byoa.wizard.step2.expiryLabel")}
-                </Label>
-                <Select value={expiry} onValueChange={(v) => setExpiry(v as ExpiryChoice)}>
-                  <SelectTrigger id="byoa-expiry" className="mt-1 h-9 text-[13px]">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="90">{t("byoa.wizard.step2.expiry90")}</SelectItem>
-                    <SelectItem value="30">{t("byoa.wizard.step2.expiry30")}</SelectItem>
-                    <SelectItem value="never">{t("byoa.wizard.step2.expiryNever")}</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <Button className="h-9 gap-1.5" onClick={handleCreate} disabled={creating}>
-                {creating ? (
-                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-                ) : (
-                  <KeyRound className="h-4 w-4" aria-hidden="true" />
-                )}
-                {t("byoa.wizard.step2.create")}
-              </Button>
-            </div>
-
-            {freshToken && (
-              <div className="mt-4 space-y-2">
-                <div className="flex gap-2 rounded-lg border border-warning/30 bg-warning/10 p-3">
-                  <AlertTriangle
-                    className="mt-0.5 h-4 w-4 shrink-0 text-warning"
-                    aria-hidden="true"
-                  />
-                  <p className="text-[13px] text-foreground">{t("byoa.wizard.step2.warning")}</p>
-                </div>
+          <div className="space-y-4">
+            {!freshToken ? (
+              <>
+                <p className="text-[13px] text-muted-foreground">
+                  {t("byoa.wizard.step2.description")}
+                </p>
+                <Button
+                  className="h-9 w-full gap-1.5"
+                  onClick={handleCreate}
+                  disabled={creating}
+                >
+                  {creating ? (
+                    <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                  ) : (
+                    <KeyRound className="h-4 w-4" aria-hidden="true" />
+                  )}
+                  {t("byoa.wizard.step2.create")}
+                </Button>
+              </>
+            ) : (
+              <div className="space-y-3">
+                <p className="text-[13px] text-foreground">
+                  {t("byoa.wizard.step2.finish")}
+                </p>
                 <div className="flex gap-2">
                   <Input
                     readOnly
@@ -368,91 +337,13 @@ export function ByoaConnectWizard({
                   <CopyButton
                     value={freshToken}
                     label={t("byoa.wizard.step2.copyToken")}
-                    tooltip={t("byoa.wizard.step3.copyTokenTooltip")}
                   />
                 </div>
-                <div className="flex gap-2 rounded-lg border border-success/30 bg-success/10 p-3">
-                  <CheckCircle2
-                    className="mt-0.5 h-4 w-4 shrink-0 text-success"
-                    aria-hidden="true"
-                  />
-                  <div className="space-y-1">
-                    <p className="text-[13px] font-medium text-foreground">
-                      {t("byoa.wizard.step2.finish")}
-                    </p>
-                    <p className="text-[13px] text-muted-foreground">
-                      {t("byoa.wizard.step2.sameAccess")}
-                    </p>
-                  </div>
-                </div>
+                <p className="text-[13px] text-muted-foreground">
+                  {t("byoa.wizard.step2.sameAccess")}
+                </p>
               </div>
             )}
-
-            <div className="mt-5 border-t border-border pt-4">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-8 px-0 text-[13px] text-muted-foreground hover:bg-transparent"
-                onClick={() => setShowCodes((v) => !v)}
-              >
-                {showCodes
-                  ? t("byoa.wizard.step2.hideCodes")
-                  : t("byoa.wizard.step2.showCodes")}
-              </Button>
-              {showCodes && (
-              <>
-
-              {tokens.length === 0 ? (
-                <p className="mt-2 text-[13px] text-muted-foreground">
-                  {t("byoa.wizard.step2.noCodes")}
-                </p>
-              ) : (
-                <ul className="mt-2 divide-y divide-border">
-                  {tokens.map((row) => {
-                    const active = isActiveToken(row);
-                    return (
-                      <li key={row.id} className="flex items-center gap-3 py-2.5">
-                        <div className="min-w-0 flex-1">
-                          <p className="truncate text-[13px] font-medium text-foreground">
-                            {row.name}
-                          </p>
-                          <p className="text-[13px] text-muted-foreground">
-                            {row.last_used_at
-                              ? t("byoa.wizard.step2.lastUsed", {
-                                  date: formatDate(row.last_used_at),
-                                })
-                              : t("byoa.wizard.step2.neverUsed")}
-                            {" · "}
-                            {row.expires_at
-                              ? t("byoa.wizard.step2.expiresOn", {
-                                  date: formatDate(row.expires_at),
-                                })
-                              : t("byoa.wizard.step2.noExpiry")}
-                          </p>
-                        </div>
-                        {active ? (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-8 text-[13px] text-destructive hover:text-destructive"
-                            onClick={() => handleRevoke(row)}
-                          >
-                            {t("byoa.wizard.step2.revoke")}
-                          </Button>
-                        ) : (
-                          <span className="text-[13px] text-muted-foreground">
-                            {t("byoa.wizard.step2.inactive")}
-                          </span>
-                        )}
-                      </li>
-                    );
-                  })}
-                </ul>
-              )}
-              </>
-              )}
-            </div>
-
           </div>
         )}
 
