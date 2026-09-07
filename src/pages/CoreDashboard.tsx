@@ -14,6 +14,8 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
 import { useTranslation } from "react-i18next";
 import { DashboardLaraRecommendation } from "@/components/dashboard/DashboardLaraRecommendation";
+import { AiOpportunityCard } from "@/components/dashboard/AiOpportunityCard";
+
 import { DashboardOverallMaturity } from "@/components/dashboard/DashboardOverallMaturity";
 import { DashboardFrameworkStatus } from "@/components/dashboard/DashboardFrameworkStatus";
 import { DashboardMaturityOverTime } from "@/components/dashboard/DashboardMaturityOverTime";
@@ -86,7 +88,9 @@ const CoreDashboard = () => {
         <p className="text-sm text-muted-foreground mt-1">{formatDate(isNb)}</p>
       </div>
 
+      <AiOpportunityCard isNb={isNb} />
       <DashboardLaraRecommendation />
+
       <DashboardOverallMaturity />
       <DashboardMaturityOverTime />
       <DashboardFrameworkStatus />
