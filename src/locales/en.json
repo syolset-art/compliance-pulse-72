@@ -1909,7 +1909,8 @@
         }
       },
       "step1": {
-        "title": "Choose where your agent lives"
+        "title": "Choose where your agent lives",
+        "stepLabel": "Client"
       },
       "step2": {
         "title": "Create your code and paste it in",
