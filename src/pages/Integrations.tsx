@@ -11,6 +11,7 @@ import {
   ByoaConnectWizard,
   type WizardClient,
 } from "@/components/integrations/ByoaConnectWizard";
+import { ByoaConnectedStatus } from "@/components/integrations/ByoaConnectedStatus";
 import {
   AGENT_TOKENS_EVENT,
   isActiveToken,
@@ -65,6 +66,12 @@ export default function Integrations() {
           </div>
 
           <ByoaAgentHero onConnect={() => openWizard()} activeCount={activeTokens.length} />
+
+          <ByoaConnectedStatus
+            tokens={tokens}
+            onConnectAnother={() => openWizard()}
+            onChanged={refreshTokens}
+          />
 
           <ByoaConnectWizard
             open={showWizard}

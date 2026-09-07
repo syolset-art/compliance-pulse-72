@@ -31,7 +31,7 @@ import {
 import { toast } from "sonner";
 import { Bot, CheckCircle2, History, Plus } from "lucide-react";
 import { TrustBoundaryStrip } from "@/components/integrations/TrustBoundaryStrip";
-import { revokeAgentToken, type AgentTokenRow } from "@/lib/agentTokens";
+import { isActiveToken, revokeAgentToken, type AgentTokenRow } from "@/lib/agentTokens";
 
 /** «Dine agenter»: stram tabell. Detaljer og tilgang ligger bak et panel. */
 export function ByoaConnectedStatus({
@@ -115,9 +115,7 @@ export function ByoaConnectedStatus({
                   <TableHead className="hidden text-[12px] sm:table-cell">
                     {t("byoa.connected.lastUsed")}
                   </TableHead>
-                  <TableHead className="hidden text-[12px] md:table-cell">
-                    {t("byoa.connected.expires")}
-                  </TableHead>
+                  <TableHead className="text-[12px]">{t("byoa.connected.expires")}</TableHead>
                   <TableHead className="w-[1%]" />
                 </TableRow>
               </TableHeader>
@@ -131,18 +129,26 @@ export function ByoaConnectedStatus({
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge
-                        variant="outline"
-                        className="border-success/30 bg-success/15 text-[11px] text-success"
-                      >
-                        <CheckCircle2 className="mr-1 h-3 w-3" aria-hidden="true" />
-                        {t("byoa.connected.active")}
-                      </Badge>
+                      {isActiveToken(row) ? (
+                        <Badge
+                          variant="outline"
+                          className="border-success/30 bg-success/15 text-[11px] text-success"
+                        >
+                          <CheckCircle2 className="mr-1 h-3 w-3" aria-hidden="true" />
+                          {t("byoa.connected.active")}
+                        </Badge>
+                      ) : (
+                        <Badge variant="outline" className="text-[11px] text-muted-foreground">
+                          {row.revoked_at
+                            ? t("byoa.connected.revoked")
+                            : t("byoa.connected.expired")}
+                        </Badge>
+                      )}
                     </TableCell>
                     <TableCell className="hidden text-[13px] text-muted-foreground sm:table-cell">
                       {fmt(row.last_used_at ?? null) ?? t("byoa.connected.notUsedYet")}
                     </TableCell>
-                    <TableCell className="hidden text-[13px] text-muted-foreground md:table-cell">
+                    <TableCell className="text-[13px] text-muted-foreground">
                       {fmt(row.expires_at ?? null) ?? t("byoa.wizard.step2.noExpiry")}
                     </TableCell>
                     <TableCell className="text-right">
