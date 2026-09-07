@@ -12,6 +12,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
   Sheet,
   SheetContent,
   SheetDescription,
@@ -206,13 +212,27 @@ export function ByoaConnectedStatus({
                 </Card>
               </div>
 
-              <Button
-                variant="ghost"
-                className="h-9 text-destructive hover:text-destructive"
-                onClick={() => setConfirmRevoke(true)}
-              >
-                {t("byoa.connected.revoke")}
-              </Button>
+              <div className="space-y-2">
+                <p className="text-[13px] text-muted-foreground">
+                  {t("byoa.connected.revokeExplanation")}
+                </p>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        className="h-9 text-destructive hover:text-destructive"
+                        onClick={() => setConfirmRevoke(true)}
+                      >
+                        {t("byoa.connected.revoke")}
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="max-w-xs">
+                      <p className="text-[13px]">{t("byoa.connected.revokeHelp")}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
             </div>
           )}
         </SheetContent>

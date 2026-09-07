@@ -2065,7 +2065,9 @@
       "connectAnother": "Koble til en agent til",
       "revoke": "Trekk tilbake tilgangen",
       "revokeTitle": "Trekke tilbake tilgangen?",
-      "revokeBody": "Alle aktive koder slutter å virke umiddelbart. Du kan lage en ny kode når som helst.",
+      "revokeBody": "Agenten får ikke lenger lese noe fra Mynder eller opprette oppgaver på dine vegne. Koden slutter å virke med én gang. Du kan lage en ny kode senere hvis du vil koble til igjen.",
+      "revokeExplanation": "Dette betyr at agenten slutter å ha tilgang til dine data i Mynder.",
+      "revokeHelp": "Trekk tilbake tilgangen hvis du ikke lenger vil at agenten skal kunne spørre om leverandører, krav eller dokumentasjon på dine vegne.",
       "revokedToast": "Tilgangen er trukket tilbake.",
       "expired": "Utløpt",
       "revoked": "Tilbakekalt"

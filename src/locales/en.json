@@ -2064,7 +2064,9 @@
       "connectAnother": "Connect another agent",
       "revoke": "Revoke access",
       "revokeTitle": "Revoke access?",
-      "revokeBody": "All active codes stop working immediately. You can create a new code at any time.",
+      "revokeBody": "The agent will no longer be able to read anything from Mynder or create tasks on your behalf. The code stops working immediately. You can create a new code later if you want to connect again.",
+      "revokeExplanation": "This means the agent stops having access to your data in Mynder.",
+      "revokeHelp": "Revoke access if you no longer want the agent to be able to ask about vendors, requirements or documentation on your behalf.",
       "revokedToast": "Access has been revoked.",
       "expired": "Expired",
       "revoked": "Revoked"
