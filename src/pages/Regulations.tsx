@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { usePageHelpListener } from "@/hooks/usePageHelpListener";
 
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Sidebar } from "@/components/Sidebar";
 import { Button } from "@/components/ui/button";
 import { Settings2, HelpCircle, Scale, Shield, CheckCircle2, BookOpen, FileText, RefreshCw, Layers, Filter } from "lucide-react";
@@ -175,6 +175,15 @@ const Regulations = () => {
     () => new Set(activeFrameworks.map((f) => f.id)),
     [activeFrameworks]
   );
+
+  // Velg regelverk fra URL (?framework=...) — brukes bl.a. fra Samsvar-tabellen
+  const [searchParams] = useSearchParams();
+  useEffect(() => {
+    const fwId = searchParams.get("framework");
+    if (fwId && frameworks.some((f) => f.id === fwId)) {
+      setSelectedId(fwId);
+    }
+  }, [searchParams]);
 
   // Auto-select first active framework
   useEffect(() => {
