@@ -230,7 +230,7 @@ export async function seedDemoEconomy(): Promise<number> {
     .insert(
       DEMO_PROCESSES.map((p) => ({
         process_id: processIdByName[p.name],
-        work_area_id: workArea.id,
+        work_area_id: workAreaId,
         recommendation: p.recommendation,
         rationale: p.rationale,
         suggested_agent_role: p.role,
@@ -241,5 +241,6 @@ export async function seedDemoEconomy(): Promise<number> {
     );
   if (recErr) throw recErr;
 
-  return processes.length;
+  return DEMO_PROCESSES.length;
+
 }
