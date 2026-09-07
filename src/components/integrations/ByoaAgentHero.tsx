@@ -9,7 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { KeyRound, Link2, ShieldCheck, Sparkles } from "lucide-react";
+import { ShieldCheck, Sparkles } from "lucide-react";
 import { TrustBoundaryStrip } from "@/components/integrations/TrustBoundaryStrip";
 import byoaHero from "@/assets/byoa-agent-hero.png";
 
@@ -26,12 +26,6 @@ export function ByoaAgentHero({
 }) {
   const { t } = useTranslation();
   const [showBoundary, setShowBoundary] = useState(false);
-
-  const steps = [
-    { icon: Sparkles, key: "how1" },
-    { icon: Link2, key: "how2" },
-    { icon: KeyRound, key: "how3" },
-  ] as const;
 
   return (
     <>
@@ -72,24 +66,6 @@ export function ByoaAgentHero({
                 {t("byoa.hero.seeAccess")}
               </Button>
             </div>
-
-            <ol className="mt-6 space-y-3 border-t border-border pt-5">
-              {steps.map(({ icon: Icon, key }, i) => (
-                <li key={key} className="flex gap-3">
-                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                    <Icon className="h-3.5 w-3.5" aria-hidden="true" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-[13px] font-medium text-foreground">
-                      {i + 1}. {t(`byoa.hero.${key}.title`)}
-                    </p>
-                    <p className="text-[13px] text-muted-foreground">
-                      {t(`byoa.hero.${key}.body`)}
-                    </p>
-                  </div>
-                </li>
-              ))}
-            </ol>
           </div>
 
           <div className="min-w-0">
