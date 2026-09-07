@@ -24,10 +24,8 @@ import {
 } from "@/components/ui/tooltip";
 import { toast } from "sonner";
 import {
-  AlertTriangle,
   Bot,
   Check,
-  CheckCircle2,
   Copy,
   KeyRound,
   Loader2,
@@ -35,15 +33,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { mcpServerUrl } from "@/lib/mcpAgentConnections";
-import {
-  AGENT_TOKENS_EVENT,
-  createAgentToken,
-  isActiveToken,
-  listAgentTokens,
-  revokeAgentToken,
-  type AgentTokenRow,
-  type ExpiryChoice,
-} from "@/lib/agentTokens";
+import { createAgentToken, type ExpiryChoice } from "@/lib/agentTokens";
 
 export type WizardClient = "claude" | "chatgpt" | "other";
 
