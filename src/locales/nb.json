@@ -1910,7 +1910,8 @@
         }
       },
       "step1": {
-        "title": "Velg hvor agenten din bor"
+        "title": "Velg hvor agenten din bor",
+        "stepLabel": "Klient"
       },
       "step2": {
         "title": "Lag koden din og lim den inn",
