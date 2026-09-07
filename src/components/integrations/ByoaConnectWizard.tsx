@@ -105,25 +105,12 @@ export function ByoaConnectWizard({
   const { t } = useTranslation();
   const [step, setStep] = useState(1);
   const [client, setClient] = useState<WizardClient>(initialClient);
-  const [name, setName] = useState("");
-  const [expiry, setExpiry] = useState<ExpiryChoice>("90");
   const [creating, setCreating] = useState(false);
   const [freshToken, setFreshToken] = useState<string | null>(null);
-  const [tokens, setTokens] = useState<AgentTokenRow[]>([]);
-  const [showCodes, setShowCodes] = useState(false);
-
 
   const endpoint = mcpServerUrl();
   const clientLabel = t(`byoa.wizard.clients.${client}.label`);
-
-  const refresh = async () => setTokens(await listAgentTokens());
-
-  useEffect(() => {
-    refresh();
-    const sync = () => refresh();
-    window.addEventListener(AGENT_TOKENS_EVENT, sync);
-    return () => window.removeEventListener(AGENT_TOKENS_EVENT, sync);
-  }, []);
+  const expiry: ExpiryChoice = "90";
 
   useEffect(() => {
     if (open) {
