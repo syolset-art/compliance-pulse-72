@@ -99,7 +99,7 @@ function CopyButton({
 }
 
 /**
- * BYOA-veiviser som dialog: ett steg om gangen (velg klient, lag kode, lim inn).
+ * BYOA-veiviser som dialog: tre trinn (velg klient, legg til kobling, lag kode).
  */
 export function ByoaConnectWizard({
   open,
@@ -140,7 +140,6 @@ export function ByoaConnectWizard({
       setClient(initialClient);
     }
   }, [open, initialClient]);
-
 
   const instructions = useMemo(
     () => t(`byoa.wizard.setup.steps.${client}`, { returnObjects: true }) as string[],
@@ -191,24 +190,22 @@ export function ByoaConnectWizard({
 
   const titles = [
     t("byoa.wizard.step1.title"),
-    t("byoa.wizard.address.title"),
     t("byoa.wizard.setup.title", { client: clientLabel }),
     t("byoa.wizard.step2.title"),
   ];
-
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[85vh] max-w-2xl overflow-y-auto">
         <DialogHeader>
           <p className="text-[13px] text-muted-foreground">
-            {t("byoa.wizard.stepOf", { current: step, total: 4, defaultValue: `Trinn ${step} av 4` })}
+            {t("byoa.wizard.stepOf", { current: step, total: 3, defaultValue: `Trinn ${step} av 3` })}
           </p>
           <DialogTitle className="text-[17px]">{titles[step - 1]}</DialogTitle>
         </DialogHeader>
 
         <div className="flex gap-1.5" aria-hidden="true">
-          {[1, 2, 3, 4].map((n) => (
+          {[1, 2, 3].map((n) => (
             <span
               key={n}
               className={`h-1.5 flex-1 rounded-full ${n <= step ? "bg-primary" : "bg-muted"}`}
@@ -254,7 +251,89 @@ export function ByoaConnectWizard({
           </div>
         )}
 
-        {step === 4 && (
+        {step === 2 && (
+          <div>
+            <p className="text-[13px] text-muted-foreground">{t("byoa.wizard.setup.intro")}</p>
+
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              <div>
+                <Label
+                  htmlFor="byoa-conn-name"
+                  className="text-[13px] text-muted-foreground"
+                >
+                  {t("byoa.wizard.setup.nameLabel")}
+                </Label>
+                <div className="mt-1 flex gap-2">
+                  <Input
+                    id="byoa-conn-name"
+                    readOnly
+                    value={connectionName}
+                    onFocus={(e) => e.currentTarget.select()}
+                    className="h-9 text-[13px]"
+                  />
+                  <CopyButton
+                    value={connectionName}
+                    label={t("byoa.wizard.setup.copyName")}
+                    tooltip={t("byoa.wizard.setup.copyNameTooltip")}
+                  />
+                </div>
+              </div>
+              <div>
+                <Label
+                  htmlFor="byoa-endpoint-setup"
+                  className="text-[13px] text-muted-foreground"
+                >
+                  {t("byoa.wizard.address.label")}
+                </Label>
+                <div className="mt-1 flex gap-2">
+                  <Input
+                    id="byoa-endpoint-setup"
+                    readOnly
+                    value={endpoint}
+                    onFocus={(e) => e.currentTarget.select()}
+                    className="h-9 font-mono text-[13px]"
+                  />
+                  <CopyButton
+                    value={endpoint}
+                    label={t("byoa.wizard.address.copy")}
+                    tooltip={t("byoa.wizard.address.copyTooltip")}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <ol className="mt-4 space-y-2">
+              {instructions.map((line, i) => (
+                <li key={i} className="flex gap-2 text-[13px] text-foreground">
+                  <span className="text-muted-foreground">{i + 1}.</span>
+                  <span>{line}</span>
+                </li>
+              ))}
+            </ol>
+
+            {client === "other" && (
+              <div className="mt-4 flex items-start gap-2">
+                <pre className="flex-1 overflow-x-auto rounded-lg border border-border bg-muted/40 p-3 font-mono text-[13px] text-foreground">
+                  {snippet}
+                </pre>
+                <CopyButton
+                  value={snippet}
+                  label={t("byoa.wizard.step3.copySnippet")}
+                  tooltip={t("byoa.wizard.step3.copySnippetTooltip")}
+                />
+              </div>
+            )}
+
+            <div className="mt-4 flex gap-2 rounded-lg border border-border bg-muted/40 p-3">
+              <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+              <p className="text-[13px] text-muted-foreground">
+                {t("byoa.wizard.step3.comingSoon")}
+              </p>
+            </div>
+          </div>
+        )}
+
+        {step === 3 && (
           <div>
             <p className="text-[13px] text-muted-foreground">{t("byoa.wizard.step2.description")}</p>
 
@@ -386,113 +465,6 @@ export function ByoaConnectWizard({
           </div>
         )}
 
-        {step === 2 && (
-          <div>
-            <p className="text-[13px] text-muted-foreground">
-              {t("byoa.wizard.address.description")}
-            </p>
-            <Label htmlFor="byoa-endpoint" className="mt-4 block text-[13px] text-muted-foreground">
-              {t("byoa.wizard.address.label")}
-            </Label>
-            <div className="mt-1 flex gap-2">
-              <Input
-                id="byoa-endpoint"
-                readOnly
-                value={endpoint}
-                onFocus={(e) => e.currentTarget.select()}
-                className="h-9 font-mono text-[13px]"
-              />
-              <CopyButton
-                value={endpoint}
-                label={t("byoa.wizard.address.copy")}
-                tooltip={t("byoa.wizard.address.copyTooltip")}
-              />
-            </div>
-          </div>
-        )}
-
-        {step === 3 && (
-          <div>
-            <p className="text-[13px] text-muted-foreground">{t("byoa.wizard.setup.intro")}</p>
-
-            <div className="mt-4 grid gap-3 sm:grid-cols-2">
-              <div>
-                <Label
-                  htmlFor="byoa-conn-name"
-                  className="text-[13px] text-muted-foreground"
-                >
-                  {t("byoa.wizard.setup.nameLabel")}
-                </Label>
-                <div className="mt-1 flex gap-2">
-                  <Input
-                    id="byoa-conn-name"
-                    readOnly
-                    value={connectionName}
-                    onFocus={(e) => e.currentTarget.select()}
-                    className="h-9 text-[13px]"
-                  />
-                  <CopyButton
-                    value={connectionName}
-                    label={t("byoa.wizard.setup.copyName")}
-                    tooltip={t("byoa.wizard.setup.copyNameTooltip")}
-                  />
-                </div>
-              </div>
-              <div>
-                <Label
-                  htmlFor="byoa-endpoint-setup"
-                  className="text-[13px] text-muted-foreground"
-                >
-                  {t("byoa.wizard.address.label")}
-                </Label>
-                <div className="mt-1 flex gap-2">
-                  <Input
-                    id="byoa-endpoint-setup"
-                    readOnly
-                    value={endpoint}
-                    onFocus={(e) => e.currentTarget.select()}
-                    className="h-9 font-mono text-[13px]"
-                  />
-                  <CopyButton
-                    value={endpoint}
-                    label={t("byoa.wizard.address.copy")}
-                    tooltip={t("byoa.wizard.address.copyTooltip")}
-                  />
-                </div>
-              </div>
-            </div>
-
-            <ol className="mt-4 space-y-2">
-              {instructions.map((line, i) => (
-                <li key={i} className="flex gap-2 text-[13px] text-foreground">
-                  <span className="text-muted-foreground">{i + 1}.</span>
-                  <span>{line}</span>
-                </li>
-              ))}
-            </ol>
-
-            {client === "other" && (
-              <div className="mt-4 flex items-start gap-2">
-                <pre className="flex-1 overflow-x-auto rounded-lg border border-border bg-muted/40 p-3 font-mono text-[13px] text-foreground">
-                  {snippet}
-                </pre>
-                <CopyButton
-                  value={snippet}
-                  label={t("byoa.wizard.step3.copySnippet")}
-                  tooltip={t("byoa.wizard.step3.copySnippetTooltip")}
-                />
-              </div>
-            )}
-
-            <div className="mt-4 flex gap-2 rounded-lg border border-border bg-muted/40 p-3">
-              <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
-              <p className="text-[13px] text-muted-foreground">
-                {t("byoa.wizard.step3.comingSoon")}
-              </p>
-            </div>
-          </div>
-        )}
-
         <DialogFooter className="mt-2 sm:justify-between">
           <Button
             variant="ghost"
@@ -503,13 +475,11 @@ export function ByoaConnectWizard({
               ? t("common.cancel", "Avbryt")
               : t("byoa.wizard.back", { defaultValue: "Tilbake" })}
           </Button>
-          {step < 4 ? (
+          {step < 3 ? (
             <Button className="h-9" onClick={() => setStep(step + 1)}>
               {step === 2
-                ? t("byoa.wizard.address.next")
-                : step === 3
-                  ? t("byoa.wizard.setup.next")
-                  : t("byoa.wizard.next", { defaultValue: "Neste" })}
+                ? t("byoa.wizard.setup.next")
+                : t("byoa.wizard.next", { defaultValue: "Neste" })}
             </Button>
           ) : (
             <Button className="h-9" onClick={() => onOpenChange(false)}>
@@ -521,4 +491,3 @@ export function ByoaConnectWizard({
     </Dialog>
   );
 }
-

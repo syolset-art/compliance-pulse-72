@@ -1881,20 +1881,16 @@
       "statusActive": "{{count}} agent connected",
       "statusActive_other": "{{count}} agents connected",
       "how1": {
-        "title": "Copy the Mynder address",
-        "body": "One address that tells the agent where Mynder is."
+        "title": "Choose your agent",
+        "body": "Claude, ChatGPT or another MCP client."
       },
       "how2": {
         "title": "Add the connector in your agent",
-        "body": "In Claude: Settings → Capabilities → Connectors → Add. Name it Mynder Partner."
+        "body": "In Claude: Settings → Capabilities → Connectors → Add. Name it Mynder Partner and paste the address."
       },
       "how3": {
         "title": "Create your code and paste it in",
         "body": "The code works like a password and gives the agent the same access you have yourself."
-      },
-      "how4": {
-        "title": "Ask the agent for a plan",
-        "body": "First task: let the agent build a plan for continuous compliance based on your frameworks."
       }
     },
     "wizard": {
@@ -1950,34 +1946,12 @@
         "copyTokenTooltip": "Copy the code and paste it into your agent.",
         "verifyTitle": "How to check that it works",
         "verifyBody": "Ask your agent: \"Which vendors do I have in Mynder?\" You should get a list of vendor names and status. If nothing comes back, the code is probably not pasted in correctly.",
-        "instructions": {
-          "claude": [
-            "Open Settings in Claude.",
-            "Choose Connectors, then Add custom connector.",
-            "Paste the address above into the Server URL field.",
-            "Paste the personal code into the authentication field and save."
-          ],
-          "chatgpt": [
-            "Open Settings in ChatGPT.",
-            "Choose Connectors, then Add custom connector.",
-            "Paste the address above into the Server URL (MCP server) field.",
-            "Paste the personal code into the authentication field and save."
-          ],
-          "other": [
-            "Open the MCP server configuration file in your tool.",
-            "Paste the snippet below and replace <din-kode> with your personal code.",
-            "Save the file and restart the tool."
-          ]
-        },
         "comingSoon": "Once Mynder is available as a ready-made connector in Claude, you just press Connect and sign in like with any other connector. Until then, paste the address and personal code manually."
       },
       "address": {
-        "title": "Copy the Mynder address",
-        "description": "This is the Mynder address. Copy it now — you will paste it into your agent in the next step.",
         "label": "Address",
         "copy": "Copy the address",
-        "copyTooltip": "Copy the address and paste it into your agent in the next step.",
-        "next": "I have copied the address"
+        "copyTooltip": "Copy the address and paste it into your agent in the next step."
       },
       "setup": {
         "title": "Add the connector in {{client}}",
@@ -1993,7 +1967,7 @@
             "Choose Capabilities.",
             "Find Connectors and press Add.",
             "Enter the name: Mynder Partner.",
-            "Paste the address you copied.",
+            "Paste the address shown above.",
             "Press Connect."
           ],
           "chatgpt": [
@@ -2001,7 +1975,7 @@
             "Choose Connectors.",
             "Press Add custom connector.",
             "Enter the name: Mynder Partner.",
-            "Paste the address you copied into the Server URL field.",
+            "Paste the address shown above into the Server URL field.",
             "Press Connect."
           ],
           "other": [

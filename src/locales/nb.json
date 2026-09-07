@@ -1882,20 +1882,16 @@
       "statusActive": "{{count}} agent tilkoblet",
       "statusActive_other": "{{count}} agenter tilkoblet",
       "how1": {
-        "title": "Kopier adressen til Mynder",
-        "body": "Én adresse som forteller agenten hvor Mynder er."
+        "title": "Velg agenten din",
+        "body": "Claude, ChatGPT eller en annen MCP-klient."
       },
       "how2": {
         "title": "Legg til koblingen i agenten",
-        "body": "I Claude: Innstillinger → Capabilities → Connectors → Add. Kall den Mynder Partner."
+        "body": "I Claude: Innstillinger → Capabilities → Connectors → Add. Kall den Mynder Partner, og lim inn adressen."
       },
       "how3": {
         "title": "Lag koden din og lim den inn",
         "body": "Koden virker som et passord og gir agenten samme tilgang som du har selv."
-      },
-      "how4": {
-        "title": "Be agenten lage en plan",
-        "body": "Første oppdrag: la agenten lage en plan for kontinuerlig etterlevelse basert på regelverkene dine."
       }
     },
     "wizard": {
@@ -1951,34 +1947,12 @@
         "copyTokenTooltip": "Kopier koden og lim den inn i agenten din.",
         "verifyTitle": "Slik sjekker du at det virker",
         "verifyBody": "Spør agenten din: «Hvilke leverandører har jeg i Mynder?» Du skal få en liste med leverandørnavn og status. Får du ingenting, er koden trolig ikke limt inn riktig.",
-        "instructions": {
-          "claude": [
-            "Åpne Innstillinger i Claude.",
-            "Velg Koblinger, og deretter Legg til egendefinert kobling.",
-            "Lim adressen over inn i feltet Server-URL.",
-            "Lim den personlige koden inn i autentiseringsfeltet, og lagre."
-          ],
-          "chatgpt": [
-            "Åpne Innstillinger i ChatGPT.",
-            "Velg Koblinger, og deretter Legg til egendefinert kobling.",
-            "Lim adressen over inn i feltet Server-URL (MCP-server).",
-            "Lim den personlige koden inn i autentiseringsfeltet, og lagre."
-          ],
-          "other": [
-            "Åpne konfigurasjonsfilen for MCP-servere i verktøyet ditt.",
-            "Lim inn utklippet under og bytt <din-kode> med den personlige koden.",
-            "Lagre filen og start verktøyet på nytt."
-          ]
-        },
         "comingSoon": "Når Mynder ligger som ferdig kobling i Claude, trykker du bare «Koble til» og logger inn som med andre koblinger. Fram til da limer du inn adressen og den personlige koden manuelt."
       },
       "address": {
-        "title": "Kopier adressen til Mynder",
-        "description": "Dette er adressen til Mynder. Kopier den nå — du skal lime den inn i agenten din i neste steg.",
         "label": "Adresse",
         "copy": "Kopier adressen",
-        "copyTooltip": "Kopier adressen og lim den inn i agenten din i neste steg.",
-        "next": "Jeg har kopiert adressen"
+        "copyTooltip": "Kopier adressen og lim den inn i agenten din i neste steg."
       },
       "setup": {
         "title": "Legg til koblingen i {{client}}",
@@ -1994,7 +1968,7 @@
             "Velg Capabilities (Funksjoner).",
             "Finn Connectors og trykk Add (Legg til).",
             "Skriv navnet: Mynder Partner.",
-            "Lim inn adressen du kopierte.",
+            "Lim inn adressen du ser over.",
             "Trykk Connect."
           ],
           "chatgpt": [
@@ -2002,7 +1976,7 @@
             "Velg Koblinger (Connectors).",
             "Trykk Legg til egendefinert kobling.",
             "Skriv navnet: Mynder Partner.",
-            "Lim inn adressen du kopierte i feltet Server-URL.",
+            "Lim inn adressen du ser over i feltet Server-URL.",
             "Trykk Koble til."
           ],
           "other": [
