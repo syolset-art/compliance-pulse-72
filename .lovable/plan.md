@@ -1,94 +1,90 @@
-# Mynder Core som virksomhetens AI-kart
+# Mynder Core som virksomhetens AI-kart — revidert plan
 
-Målet er å snu inngangen til Core fra «compliance først» til «hvor kan AI-agenter avlaste oss?», uten å bygge et nytt produkt. Alt bygger på kartleggingen som allerede finnes: arbeidsområder, prosesser, systemer, data og mennesker. Compliance (RoPA, AI Act, ROS, NIS2/ISO) blir utledet av det samme kartet, ikke startpunktet.
+Planen er strammet inn etter en kritisk gjennomgang. Den første versjonen bygget på flere antakelser som ikke stemte med koden, og la opp til mer ny kode enn runwayen tåler. Under står først hva som var galt, deretter den enklere planen.
 
-## Hva som allerede finnes (og gjenbrukes)
+## Hva som var feil i forrige plan
 
-Prototypen har mer av dette på plass enn den viser:
+**Faktafeil om dagens app:**
+- Core-menyen har allerede fire punkter (Behandlingsprotokoll, Systemer, Arbeidsområder, Oppgaver) — ikke to. Å foreslå «fem punkter» var å legge til, ikke rydde.
+- RoPA ligger på `/protocols`, ikke `/processing-activities`.
+- Det finnes ingen `/processes`-side i dag; prosesslisten ligger inne i Arbeidsområder. Å lage en ny toppside for prosesser innfører et nytt sted for noe som allerede har et sted.
+- Det finnes ingen M Vest Energy-demo-org. Firmanavn faller tilbake til «Mynder AS», og demo-data er bransjestyrt via maler.
+- Sara-funn bruker ikke ordene foreslått/observert/bekreftet. Koden har `awaiting → approved_mynder / rejected`. Å innføre en tredje vokabular-variant hadde skapt tre parallelle språk for samme sak.
+- «Rekrutter agent» finnes allerede og oppretter en `user_tasks`-rad. Godkjenningskøen jeg foreslo å bygge er delvis bygget.
 
-- **Arbeidsområder** — `src/pages/WorkAreas.tsx` med faner for eiendeler, protokoller, prosesser, dokumenter, innstillinger.
-- **Prosesser** — `src/components/process/` (ProcessCard, ProcessList, faner for systemer, datatyper, risiko, kritikalitet) og `src/pages/ProcessProfile.tsx`.
-- **AI-mulighet per prosess** — finnes allerede: `useProcessAgentRecommendations` + kant-funksjonen `analyze-process-agent-fit` gir anbefaling (autonom / copilot / manuell), begrunnelse, foreslått agentrolle og estimerte spart timer per måned, med status foreslått → rekruttert → avvist. `AgentRecommendationStrip` og `AgentFitChip` viser dette.
-- **AI-oppsett** — `src/pages/AIAgentSetup.tsx` har allerede autonominivåer med krav og compliance-kobling.
-- **Mandat** — `src/lib/agentMandate.ts` har tillatelser med «krever godkjenning»-flagg.
-- **Agentregister** — `src/pages/AgentRegistry.tsx` + `src/lib/agentMacf.ts` (Mynder-agenter og BYOA).
-- **Sara** — `src/lib/saraAgent.ts` med funn som har bekreftet/ubekreftet-tilstand.
-- **Systemer** — `src/pages/Systems.tsx` og `DiscoverSystemsDialog`.
+**For mye kompleksitet:** ny prosesside, nytt kartbånd, ny veiviser, ny seed, omskrevet agentregister og omorganisert sidebar — seks arbeidsstrømmer før én av dem er overbevisende.
 
-Konklusjonen: vi trenger ikke bygge motoren. Vi trenger å **koble bitene sammen til én synlig reise** og gi den et nytt språk og en ny inngang.
+**Feil inntrykk:** planen ville vist «mandat» og «logg» som om de håndheves. De gjør de ikke. En sikkerhetsansvarlig som klikker seg inn ville trodd noe var på plass som ikke er det.
 
-## Navigasjonsendring — minst mulig, størst effekt
+**Inkonsistent IA:** to frakoblede agentbegreper i koden — anbefalinger per prosess (i databasen) og agentregister med mandat (kun i nettleseren). Forrige plan lot dem være frakoblet, men bandt likevel veiviseren til begge.
 
-Sidebar har allerede et mønster for sammenleggbare seksjoner med underpunkter (`renderCollapsibleSection`, `coreNav`). Vi utvider Core-seksjonen fra to punkter til fem, i den rekkefølgen reisen faktisk går:
+## Den reviderte planen: én historie, fire endringer
+
+Demoen skal vise **én** reise fra ende til ende: *Økonomi → leverandørfaktura → her kan AI avlaste dere → sett AI i arbeid → agent med kontrollpunkt → menneske godkjenner.*
+
+### 1. Én ny inngang på Core-oversikten
+
+`CoreDashboard.tsx` får ett nytt kort øverst: **«Hvor kan AI avlaste oss?»**. Det viser de tre høyest rangerte AI-mulighetene fra `process_agent_recommendations` — prosessnavn, arbeidsområde, hva agenten ville gjort, anslåtte timer spart per måned. Knappen er **Sett AI i arbeid** og går rett til prosessen.
+
+Dette er hele den nye inngangen. Dagens modenhetsvisninger blir liggende under, uendret.
+
+### 2. Ingen navigasjonsendring
+
+Core-menyen står som den er. Arbeidsområder er allerede stedet der prosesser bor, og AI-agenter finnes allerede som eget punkt. Reisen går gjennom oversikten, ikke gjennom nye menypunkter. Dette er det som skiller den reviderte planen mest fra den forrige — og det er bevisst.
+
+### 3. Én ny fane på prosessen: «AI-oppsett»
+
+Ny fane i `ProcessCard` (`src/components/process/tabs/ProcessAiSetupTab.tsx`), i klarspråk og uten sjargong:
+
+- *Slik utføres arbeidet i dag* — systemer, data og hvem som gjør hva, fra kartleggingen som allerede finnes.
+- *Agentens jobb* — hentet fra anbefalingens `suggested_agent_role` og begrunnelse.
+- *Hva agenten får lov til* — brytere, gjenbruker taksonomien i `agentMandate.ts`.
+- *Krever godkjenning* — ett menneskelig kontrollpunkt, forhåndsutfylt med en terskel.
+- Primærknapp **Sett AI i arbeid**.
+
+Ingen egen veiviser. Fanen *er* oppsettet. Knappen kaller eksisterende `recruitAgent()`, som allerede setter status til rekruttert og legger en rad i `user_tasks`.
+
+### 4. Ærlig statusspråk, ett sett ord
+
+Vi bruker kodens eksisterende to trinn og legger på klarspråk i visningen, ikke et nytt tredje sett:
 
 ```text
-Core
-  Oversikt        /dashboard-core   (finnes, får nytt innhold)
-  Arbeidsområder  /work-areas       (finnes)
-  Prosesser       /processes        (ny samleside på tvers av arbeidsområder)
-  AI-agenter      /agents           (finnes — flyttes inn under Core)
-  Systemer        /systems          (finnes — flyttes inn under Core)
+Foreslått av Lara        (awaiting)          — et forslag, ikke en beslutning
+Bekreftet av <navn>      (approved_mynder)   — et menneske har godkjent
 ```
 
-Ingen ruter fjernes eller omdøpes, så eksisterende lenker fortsetter å virke. «Oppgaver» blir liggende der det er i dag. Dette er hele den strukturelle endringen.
+Sara-observasjoner vises som *Observert av Sara — venter på bekreftelse*, som er den samme `awaiting`-tilstanden med kilden synlig. Ingen ny enum, ingen ny tabell.
 
-## Skjermer
-
-**1. Core Oversikt (`CoreDashboard.tsx`) — ny topp, gammelt innhold beholdt**
-
-Øverst et kartbånd som viser virksomheten som en kjede med tall: arbeidsområder → prosesser → systemer → AI-muligheter. Under: «Her kan AI avlaste dere» — de tre høyest rangerte AI-mulighetene på tvers av arbeidsområder, hver med prosessnavn, hva agenten ville gjort, anslåtte timer spart per måned, og knappen **Sett AI i arbeid**. Under dette: «Dette faller ut av kartet» — små lenker til RoPA, AI Act, ROS og regelverk med antall poster som allerede er dekket. Dagens modenhetsvisninger flyttes ned, uendret.
-
-**2. Prosesser (`/processes`, ny side)**
-
-Tabell over alle prosesser på tvers av arbeidsområder, gjenbruker `ProcessList`/`AgentFitChip`. Kolonner: prosess, arbeidsområde, systemer, persondata, AI-mulighet, risiko, status. Filtre på arbeidsområde og AI-mulighet. Klikk går til eksisterende `ProcessProfile`.
-
-**3. Prosessprofil — én ny fane «AI-oppsett»**
-
-Fanen viser i klarspråk: *Slik utføres arbeidet i dag* (steg fra kartleggingen), *Agentens jobb*, *Hva agenten får lov til* (fra `agentMandate`), *Krever godkjenning* (menneskelige kontrollpunkter), og *Hva som logges*. Nederst: **Sett AI i arbeid**.
-
-**4. «Sett AI i arbeid» — kort veiviser (3 steg)**
-
-Steg 1: Agentens jobb (forhåndsutfylt fra anbefalingen, kan endres). Steg 2: Hva agenten får lov til — brytere per tillatelse, med «krever godkjenning» der det er relevant. Steg 3: Kontrollpunkt og logg — hvem godkjenner, hvor ofte gjennomgås. Avslutning skriver en agent inn i registeret og viser hva dette betyr for AI Act / ROS / RoPA.
-
-**5. AI-agenter (`AgentRegistry`) — tre lag forklart**
-
-Siden får tre tydelige grupper med én setning hver, ingen sjargong:
-- *Din egen agent* — ChatGPT, Claude eller Gemini koblet til Mynder (lenker til MCP-siden).
-- *Mynder-agenten* — kjenner en bestemt jobb og har fått et mandat.
-- *Sara* — kjenner miljøet deres og finner dokumentasjon lokalt.
-
-Sara-funn får tre synlige tilstander: **Foreslått → Observert → Bekreftet av menneske**. Bare bekreftet teller som sannhet.
+Der noe ikke er koblet til reell utførelse, står det i klartekst på skjermen: **«Kontrollpunktet vises her, men agenten kjører ikke ennå i denne prototypen.»** Det er billigere enn å bli tatt i det på et kundemøte.
 
 ## Demo-data
 
-Ett realistisk scenario, M Vest Energy-lignende, seedet på samme måte som dagens demo-seeds (`src/lib/demoSeed*.ts`):
+Én seed, ikke en generell løsning: `src/lib/demoSeedEconomy.ts` etter mønster fra `demoSeedSystems.ts`. Arbeidsområde **Økonomi** med fire prosesser (leverandørfaktura, reiseregning, månedsavslutning, kundefakturering), hver med systemer, persondata og risiko. Én rad i `process_agent_recommendations` er forhåndsutfylt for leverandørfaktura, slik at demoen ikke er avhengig av at et AI-kall lykkes live.
 
-- Arbeidsområde **Økonomi** med fire prosesser: leverandørfaktura, reiseregning, månedsavslutning, kundefakturering.
-- Hver prosess med systemer (ERP, bank, e-post), persondata, risiko og AI-mulighet.
-- **Leverandørfaktura** er den komplette historien: kartlagt → anbefalt AI-mulighet (høy, ~40 timer/mnd) → AI-oppsett → aktiv agent med kontrollpunkt «faktura over 50 000 kr krever godkjenning» → to loggførte hendelser, hvorav én venter på godkjenning.
+Firmanavnet i demoen settes til et energiselskap i seeden. Vi lager ingen generell org-bytter.
 
-## Klikkbar testflyt
+## Klikkbar testflyt (den eneste som må være perfekt)
 
-Core Oversikt → «Her kan AI avlaste dere» → leverandørfaktura → fanen AI-oppsett → Sett AI i arbeid → tre steg → agenten dukker opp under AI-agenter med mandat og kontrollpunkt → logg viser én hendelse til godkjenning → lenke tilbake til RoPA-posten som ble utledet av samme prosess.
+Core Oversikt → «Hvor kan AI avlaste oss?» → leverandørfaktura → fanen AI-oppsett → Sett AI i arbeid → agenten blir rekruttert → oppgaven dukker opp i Oppgaver som «Godkjenn AI-oppsett for leverandørfaktura» → godkjenn → prosessen viser *Bekreftet av <navn>*.
 
-## Språk
-
-«Verdistrøm» og HAIO beholdes i koden og i interne felt, men vises aldri. Kundeteksten er: AI-oppsett, Slik utføres arbeidet, Agentens jobb, Hva agenten får lov til, Krever godkjenning, Sett AI i arbeid. Alle nye strenger legges i `nb.json` og `en.json` etter mønsteret som brukes i Core-sidene i dag.
+Alt annet på skjermen er kulisser og skal tåle et klikk uten å gå i stykker, men det er denne flyten som demonstreres.
 
 ## Vi bygger IKKE nå
 
-Ingen faktisk agent-kjøretid, ingen reell systemintegrasjon eller lesing av kundens data, ingen ny håndhevelse av mandat i backend, ingen endring av eksisterende compliance-motorer, ingen ny prismodell. Godkjenningskøen er klikkbar, ikke koblet til reell utførelse.
+Ingen ny prosesside, ingen ny navigasjon, ingen egen veiviser-dialog, ingen omskriving av agentregisteret, intet kartbånd, ingen sammenslåing av de to agentmodellene, ingen agent-kjøretid, ingen håndhevelse av mandat i backend, ingen endring av eksisterende compliance-motorer.
+
+## Språk
+
+«Verdistrøm» og HAIO beholdes i kode og interne felt, aldri i kundetekst. Synlige ord: AI-oppsett, Slik utføres arbeidet, Agentens jobb, Hva agenten får lov til, Krever godkjenning, Sett AI i arbeid. Nye strenger legges i `nb.json`/`en.json` under et nytt `aiSetup`-navnerom, i tråd med mønsteret i filene.
 
 ## Risiko
 
-Den reelle faren er at Core blir tyngre, ikke lettere. Motvekten er tredelt: vi legger til én ny side og én ny fane, vi flytter eksisterende punkter i stedet for å duplisere dem, og compliance-utledningene vises som resultater langt nede på siden — aldri som noe brukeren må fylle ut først. Hvis Core-oversikten begynner å kreve rulling for å nå det første handlingsvalget, har vi gått for langt.
+Den gjenstående risikoen er at Core-oversikten blir en side til å lese i stedet for å handle på. Motvekten er at det nye kortet har én knapp og tre linjer. Hvis kortet vokser til flere valg før demoen, kutter vi ned igjen framfor å legge til.
 
-## Teknisk
+## Teknisk oppsummert
 
-- `Sidebar.tsx`: utvid `coreNav` med Oversikt, Prosesser, AI-agenter, Systemer; gjenbruk `renderCollapsibleSection`. Fjern de samme lenkene fra toppnivå der de i dag ligger som frittstående moduler, men behold gating-logikken.
-- Ny `src/pages/Processes.tsx` + rute i `App.tsx`; gjenbruker `ProcessList`, `AgentFitChip`.
-- Nytt `src/components/core/ValueMapStrip.tsx` og `AiOpportunityCard.tsx` for Core-oversikten.
-- Ny fane i `ProcessCard` (`src/components/process/tabs/ProcessAiSetupTab.tsx`) som leser fra `useProcessAgentRecommendations` og `agentMandate`.
-- Ny `src/components/core/PutAiToWorkWizard.tsx`; skriver agent via `agentMacf.ts` (localStorage, som i dag) med nye felter for mandat og kontrollpunkt.
-- Ny `src/lib/demoSeedEconomy.ts` etter mønster fra `demoSeedSystems.ts`.
-- `AgentRegistry.tsx`: tre grupper; Sara-funn får trestegsstatus i `saraAgent.ts`.
+- `src/components/dashboard/AiOpportunityCard.tsx` (ny) — leser `process_agent_recommendations`, monteres øverst i `CoreDashboard.tsx`.
+- `src/components/process/tabs/ProcessAiSetupTab.tsx` (ny) — registreres som fane i `ProcessCard`; gjenbruker `useProcessAgentRecommendations` og `MANDATE_PERMISSIONS`.
+- `src/lib/demoSeedEconomy.ts` (ny) — arbeidsområde, prosesser, systemer og én forhåndsutfylt anbefaling.
+- Små tekstendringer i `agentRequirementFindings.ts`-visninger for det felles statusspråket.
+- Ingen migrasjoner utover seed-data, ingen ruteendringer, ingen endringer i `Sidebar.tsx`.
