@@ -291,7 +291,7 @@ const ComplianceOverview = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {frameworkScores.map((fw) => {
+                    {filteredFrameworkScores.map((fw) => {
                       const cat = categories.find((c) => c.id === frameworks.find((f) => f.id === fw.id)?.category);
                       const missing = fw.total - fw.fulfilled;
                       return (
