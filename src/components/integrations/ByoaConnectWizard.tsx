@@ -147,25 +147,14 @@ export function ByoaConnectWizard({
   const handleCreate = async () => {
     setCreating(true);
     try {
-      const label = name.trim() || connectionName;
-      const { token } = await createAgentToken(label, expiry);
+      const { token } = await createAgentToken(connectionName, expiry);
       setFreshToken(token);
-      await refresh();
       onConnected?.();
       toast.success(t("byoa.wizard.step2.created"));
     } finally {
       setCreating(false);
     }
   };
-
-  const handleRevoke = async (row: AgentTokenRow) => {
-    await revokeAgentToken(row.id);
-    await refresh();
-    toast.info(t("byoa.wizard.step2.revoked", { name: row.name }));
-  };
-
-  const formatDate = (v: string | null) =>
-    v ? new Date(v).toLocaleDateString("nb-NO", { dateStyle: "medium" }) : null;
 
   const titles = [
     t("byoa.wizard.step1.title"),
