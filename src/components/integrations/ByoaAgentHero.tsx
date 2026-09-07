@@ -27,12 +27,6 @@ export function ByoaAgentHero({
   const { t } = useTranslation();
   const [showBoundary, setShowBoundary] = useState(false);
 
-  const steps = [
-    { icon: Sparkles, key: "how1" },
-    { icon: Link2, key: "how2" },
-    { icon: KeyRound, key: "how3" },
-  ] as const;
-
   return (
     <>
       <Card className="mt-6 overflow-hidden">
