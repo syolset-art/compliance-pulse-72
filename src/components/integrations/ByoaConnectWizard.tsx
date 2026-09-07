@@ -408,17 +408,32 @@ export function ByoaConnectWizard({
                     className="mt-0.5 h-4 w-4 shrink-0 text-success"
                     aria-hidden="true"
                   />
-                  <p className="text-[13px] text-foreground">
-                    {t("byoa.wizard.step2.sameAccess")}
-                  </p>
+                  <div className="space-y-1">
+                    <p className="text-[13px] font-medium text-foreground">
+                      {t("byoa.wizard.step2.finish")}
+                    </p>
+                    <p className="text-[13px] text-muted-foreground">
+                      {t("byoa.wizard.step2.sameAccess")}
+                    </p>
+                  </div>
                 </div>
               </div>
             )}
 
             <div className="mt-5 border-t border-border pt-4">
-              <h4 className="text-[13px] font-medium text-foreground">
-                {t("byoa.wizard.step2.yourCodes")}
-              </h4>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 px-0 text-[13px] text-muted-foreground hover:bg-transparent"
+                onClick={() => setShowCodes((v) => !v)}
+              >
+                {showCodes
+                  ? t("byoa.wizard.step2.hideCodes")
+                  : t("byoa.wizard.step2.showCodes")}
+              </Button>
+              {showCodes && (
+              <>
+
               {tokens.length === 0 ? (
                 <p className="mt-2 text-[13px] text-muted-foreground">
                   {t("byoa.wizard.step2.noCodes")}
