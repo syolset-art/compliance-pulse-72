@@ -103,7 +103,7 @@ export function ByoaConnectWizard({
 
   const endpoint = mcpServerUrl();
   const clientLabel = t(`byoa.wizard.clients.${client}.label`);
-  const expiry: ExpiryChoice = "90";
+  const [expiry, setExpiry] = useState<ExpiryChoice>("never");
 
   useEffect(() => {
     if (open) {
