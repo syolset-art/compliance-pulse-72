@@ -1999,7 +1999,11 @@
             "Kall koblingen Mynder Partner, lagre og start verktøyet på nytt."
           ]
         }
-      }
+      },
+      "stepOf": "Steg {{current}} av {{total}}",
+      "back": "Tilbake",
+      "next": "Neste",
+      "done": "Ferdig"
     },
     "tools": {
       "title": "Hva agenten kan gjøre for deg",
