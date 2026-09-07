@@ -135,10 +135,12 @@ export function useProcessAgentRecommendations(workAreaId: string | undefined) {
       // 2. Create a task in the inbox
       const { error: taskErr } = await supabase.from("user_tasks").insert({
         user_id: user.id,
+        process_id: rec.process_id,
         title,
         description,
         status: "todo",
       });
+
       if (taskErr) throw taskErr;
     },
     onSuccess: () => {
