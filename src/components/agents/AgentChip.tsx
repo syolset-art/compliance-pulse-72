@@ -9,13 +9,15 @@ interface AgentChipProps {
   /** Arbeidsområdet chipen vises i – brukes til «her: prosess X» og «også i …». */
   currentWorkAreaId?: string;
   className?: string;
+  /** "areas": vis arbeidsområdenavn i stedet for agentnavn (brukes i agentregisteret). */
+  variant?: "agent" | "areas";
 }
 
 /**
  * Felles notasjon for KI-agenter: navn + «Delt (n)» når agenten jobber i flere
  * arbeidsområder. Tooltip viser alltid arbeidsområde → prosess.
  */
-export function AgentChip({ agent, currentWorkAreaId, className }: AgentChipProps) {
+export function AgentChip({ agent, currentWorkAreaId, className, variant = "agent" }: AgentChipProps) {
   const areas = agentWorkAreas(agent);
   const shared = isSharedAgent(agent);
   const here = currentWorkAreaId ? agent.links.filter((l) => l.workAreaId === currentWorkAreaId) : [];
@@ -31,14 +33,14 @@ export function AgentChip({ agent, currentWorkAreaId, className }: AgentChipProp
       )}
     >
       <Bot className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
-      <span className="truncate max-w-[180px]">{agent.name}</span>
+      <span className="truncate max-w-[220px]">{variant === "areas" ? areas.map((a) => a.name).join(" · ") : agent.name}</span>
       {shared && (
         <span className="inline-flex items-center gap-0.5 text-[10px] uppercase tracking-wide text-primary">
           <Share2 className="h-3 w-3" aria-hidden="true" />
           Delt ({areas.length})
         </span>
       )}
-      {agent.source === "recruited" && (
+      {variant === "agent" && agent.source === "recruited" && (
         <span className="text-[10px] text-muted-foreground">Satt i arbeid</span>
       )}
     </span>

@@ -67,7 +67,7 @@ export function AgentTable({ title, icon, agents }: Props) {
                       {(() => {
                         const wa = linked.find((l) => l.id === a.id);
                         return wa ? (
-                          <TooltipProvider delayDuration={150}><AgentChip agent={wa} /></TooltipProvider>
+                          <TooltipProvider delayDuration={150}><AgentChip agent={wa} variant="areas" /></TooltipProvider>
                         ) : (
                           <span className="text-xs text-muted-foreground">Ikke koblet til prosess</span>
                         );
