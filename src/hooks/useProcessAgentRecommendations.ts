@@ -111,7 +111,12 @@ export function useProcessAgentRecommendations(workAreaId: string | undefined) {
       processName: string;
     }) => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not authenticated");
+      if (!user)
+        throw new Error(
+          i18n.language === "nb"
+            ? "Du må være innlogget for å sende AI-oppsettet til godkjenning."
+            : "You need to be signed in to send the AI setup for approval."
+        );
 
       const isNb = i18n.language === "nb";
       const role = rec.suggested_agent_role || (isNb ? "AI-agent" : "AI agent");
