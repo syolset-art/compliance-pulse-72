@@ -31,6 +31,7 @@ import { ProcessDataTypesTab } from "./tabs/ProcessDataTypesTab";
 import { ProcessCriticalityTab } from "./tabs/ProcessCriticalityTab";
 import { ProcessRiskTab } from "./tabs/ProcessRiskTab";
 import { ProcessAiSetupTab } from "./tabs/ProcessAiSetupTab";
+import { ProcessHaioTab } from "./tabs/ProcessHaioTab";
 
 import { getSystemIcon } from "@/lib/systemIcons";
 
@@ -40,7 +41,7 @@ interface ProcessCardProps {
   onEdit?: () => void;
 }
 
-const VALID_TABS = ["systems", "datatypes", "criticality", "risk", "ai", "ai-setup"];
+const VALID_TABS = ["systems", "datatypes", "criticality", "risk", "ai", "ai-setup", "haio"];
 
 export const ProcessCard = ({ processId, workAreaId, onEdit }: ProcessCardProps) => {
   const { t } = useTranslation();
@@ -432,6 +433,12 @@ export const ProcessCard = ({ processId, workAreaId, onEdit }: ProcessCardProps)
                 >
                   AI-oppsett
                 </TabsTrigger>
+                <TabsTrigger 
+                  value="haio" 
+                  className="data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none px-2.5 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm"
+                >
+                  HAIO-verdistrøm
+                </TabsTrigger>
               </TabsList>
 
             </div>
@@ -477,6 +484,15 @@ export const ProcessCard = ({ processId, workAreaId, onEdit }: ProcessCardProps)
                   workAreaId={workAreaId}
                 />
               </TabsContent>
+
+              <TabsContent value="haio" className="mt-0">
+                <ProcessHaioTab
+                  processId={processId}
+                  processName={process.name}
+                  workAreaId={workAreaId}
+                />
+              </TabsContent>
+
 
             </div>
           </Tabs>
