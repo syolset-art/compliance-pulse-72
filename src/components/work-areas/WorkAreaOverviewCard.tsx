@@ -20,6 +20,7 @@ interface WorkAreaOverviewCardProps {
  * agent-chips og én tydelig inngang til å kartlegge KI-muligheter.
  */
 export function WorkAreaOverviewCard({
+  workAreaId,
   responsiblePerson,
   counts,
   agents,
@@ -44,7 +45,7 @@ export function WorkAreaOverviewCard({
             <TooltipProvider delayDuration={150}>
               <div className="flex flex-wrap gap-1.5">
                 {agents.map((a) => (
-                  <AgentChip key={a.id} agent={a} />
+                  <AgentChip key={a.id} agent={a} currentWorkAreaId={workAreaId} />
                 ))}
               </div>
             </TooltipProvider>
