@@ -537,7 +537,7 @@ const SidebarContent = () => {
     location.pathname === deviationsLink.href || location.pathname.startsWith(deviationsLink.href + "/");
 
   // "Moduler" combines items from sections not shown normally, split by category
-  const exploreCoreItems = !showCoreNormal ? [protocolsLink, ...coreNav, systemsLink] : [];
+  const exploreCoreItems = !showCoreNormal ? [...coreNav.filter((item) => item.name === "nav.myWorkAreas"), protocolsLink, ...coreNav.filter((item) => item.name !== "nav.myWorkAreas" && item.name !== "nav.protocols"), systemsLink] : [];
   const exploreRegistryItems = [
     ...(!showAssetsNormal ? [assetsLink] : []),
     ...(!hasAgentsAccess ? [agentsLink] : []),
