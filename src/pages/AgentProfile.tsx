@@ -82,7 +82,7 @@ export default function AgentProfile() {
             <Tabs defaultValue="overview">
               <TabsList>
                 <TabsTrigger value="overview">Oversikt</TabsTrigger>
-                <TabsTrigger value="macf">MACF</TabsTrigger>
+                <TabsTrigger value="policy">Policyer</TabsTrigger>
                 <TabsTrigger value="risk">Risikovurdering</TabsTrigger>
                 <TabsTrigger value="audit">Audit-logg</TabsTrigger>
                 <TabsTrigger value="connections">Tilkoblinger</TabsTrigger>
