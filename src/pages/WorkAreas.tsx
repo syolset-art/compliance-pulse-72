@@ -706,7 +706,7 @@ export default function WorkAreas() {
                   </p>
                 </div>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                 <div className="flex items-start gap-3 rounded-lg border bg-background p-3">
                   <Server className="h-5 w-5 text-primary mt-0.5 shrink-0" />
                   <div>
@@ -718,7 +718,7 @@ export default function WorkAreas() {
                   <ClipboardList className="h-5 w-5 text-primary mt-0.5 shrink-0" />
                   <div>
                     <p className="text-sm font-medium text-foreground">Prosesser</p>
-                    <p className="text-xs text-muted-foreground">Dokumenter behandlingsaktiviteter og AI-bruk</p>
+                    <p className="text-xs text-muted-foreground">Dokumenter behandlingsaktiviteter og KI-bruk</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3 rounded-lg border bg-background p-3">
@@ -726,6 +726,13 @@ export default function WorkAreas() {
                   <div>
                     <p className="text-sm font-medium text-foreground">Leverandører</p>
                     <p className="text-xs text-muted-foreground">Hold oversikt over tredjeparter</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3 rounded-lg border bg-background p-3">
+                  <Sparkles className="h-5 w-5 text-primary mt-0.5 shrink-0" />
+                  <div>
+                    <p className="text-sm font-medium text-foreground">KI-agenter</p>
+                    <p className="text-xs text-muted-foreground">Se hvilke agenter som er i arbeid, og kartlegg nye muligheter</p>
                   </div>
                 </div>
               </div>
@@ -738,19 +745,47 @@ export default function WorkAreas() {
               workAreas={filteredAreas}
               selectedWorkArea={selectedWorkArea}
               workAreaRiskMap={workAreaRiskMap}
+              systemCountByArea={systemCountByArea}
               ownershipFilter={ownershipFilter}
               riskFilter={riskFilter}
               onOwnershipFilterChange={setOwnershipFilter}
               onRiskFilterChange={setRiskFilter}
-              onSelect={(area) => setSelectedWorkArea(area as WorkArea)}
+              onSelect={(area) => selectWorkArea(area as WorkArea)}
               onAddNew={() => setIsAddDialogOpen(true)}
             />
           </div>
 
+          {/* Oversiktskort for valgt arbeidsområde */}
+          {selectedWorkArea && (
+            <WorkAreaOverviewCard
+              workAreaId={selectedWorkArea.id}
+              workAreaName={selectedWorkArea.name}
+              responsiblePerson={selectedWorkArea.responsible_person}
+              description={selectedWorkArea.description}
+              counts={{
+                systems: systemCountByArea[selectedWorkArea.id] ?? 0,
+                assets: allAssets.length,
+                processes: processCountByArea[selectedWorkArea.id] ?? 0,
+              }}
+              agents={selectedAgents}
+              onMapAi={() => setKiView(true)}
+              onShowProcesses={() => { setKiView(false); setActiveWorkAreaTab("processes"); }}
+            />
+          )}
 
+          {/* KI-kartlegging (åpnes fra knappen, erstatter fanene) */}
+          {selectedWorkArea && kiView && (
+            <div className="space-y-4">
+              <Button variant="ghost" size="sm" onClick={() => setKiView(false)} className="gap-1.5 -ml-2">
+                <ChevronLeft className="h-4 w-4" />
+                Tilbake til arbeidsområdet
+              </Button>
+              <AiOpportunitiesTab workAreaId={selectedWorkArea.id} workAreaName={selectedWorkArea.name} />
+            </div>
+          )}
 
           {/* Tabs Section */}
-          {selectedWorkArea && (
+          {selectedWorkArea && !kiView && (
             <Tabs defaultValue="assets" className="w-full" onValueChange={(v) => setActiveWorkAreaTab(v)} value={activeWorkAreaTab}>
               <div className="flex items-center justify-between gap-2">
                 <div className="overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0 flex-1 min-w-0">
