@@ -42,6 +42,7 @@ interface WorkAreaSwitcherProps {
   workAreas: WorkArea[];
   selectedWorkArea: WorkArea | null;
   workAreaRiskMap: Record<string, string>;
+  systemCountByArea?: Record<string, number>;
   ownershipFilter: OwnershipFilter;
   riskFilter: RiskFilter;
   onOwnershipFilterChange: (v: OwnershipFilter) => void;
