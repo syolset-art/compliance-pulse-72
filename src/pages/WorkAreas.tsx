@@ -18,6 +18,7 @@ import { EditCompanyProfileDialog } from "@/components/dialogs/EditCompanyProfil
 import { AssignAssetDialog } from "@/components/dialogs/AssignAssetDialog";
 import { AssignVendorDialog } from "@/components/dialogs/AssignVendorDialog";
 import { CompanyOnboarding } from "@/components/onboarding/CompanyOnboarding";
+import { AiOpportunitiesTab } from "@/components/workarea/AiOpportunitiesTab";
 import { ProcessList } from "@/components/process/ProcessList";
 import { ResponsiblePersonEditor } from "@/components/work-areas/ResponsiblePersonEditor";
 import { WorkAreaDetailsCard } from "@/components/work-areas/WorkAreaDetailsCard";
@@ -739,6 +740,14 @@ export default function WorkAreas() {
                     <Badge variant="secondary" className="ml-1 text-xs">110</Badge>
                   </TabsTrigger>
                   <TabsTrigger 
+                    value="ai-opportunities" 
+                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-3 sm:px-4 py-2 sm:py-3 gap-1 sm:gap-2 text-xs sm:text-sm whitespace-nowrap"
+                  >
+                    <Sparkles className="h-3 w-3 sm:h-4 sm:w-4" />
+                    <span className="hidden sm:inline">KI-muligheter</span>
+                    <span className="sm:hidden">KI</span>
+                  </TabsTrigger>
+                  <TabsTrigger 
                     value="documents" 
                     className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-3 sm:px-4 py-2 sm:py-3 gap-1 sm:gap-2 text-xs sm:text-sm whitespace-nowrap"
                   >
@@ -932,6 +941,10 @@ export default function WorkAreas() {
 
               <TabsContent value="processes" className="mt-4">
                 <ProcessList workAreaId={selectedWorkArea.id} workAreaName={selectedWorkArea.name} />
+              </TabsContent>
+
+              <TabsContent value="ai-opportunities" className="mt-4">
+                <AiOpportunitiesTab workAreaId={selectedWorkArea.id} workAreaName={selectedWorkArea.name} />
               </TabsContent>
 
               <TabsContent value="documents" className="mt-4">
