@@ -437,7 +437,7 @@ export const ProcessCard = ({ processId, workAreaId, onEdit }: ProcessCardProps)
                   value="haio" 
                   className="data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none px-2.5 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm"
                 >
-                  HAIO-verdistrøm
+                  Verdistrøm
                 </TabsTrigger>
               </TabsList>
 
