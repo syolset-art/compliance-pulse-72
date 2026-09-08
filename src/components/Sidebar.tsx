@@ -240,6 +240,11 @@ const ReportsMenu = () => {
       icon: Shield,
     },
     {
+      name: isNb ? "KI-agenter" : "AI agents",
+      href: "/reports/ai-agents",
+      icon: Bot,
+    },
+    {
       name: isNb ? "Alle rapporter" : "All reports",
       href: "/reports/all",
       icon: FileText,
