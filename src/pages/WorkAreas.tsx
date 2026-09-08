@@ -762,50 +762,50 @@ export default function WorkAreas() {
 
                 {/* Category filter chips */}
                 <div className="flex items-center justify-between mb-4">
-                  <div className="flex flex-wrap gap-1.5 flex-1">
-                    {[
-                      { key: "system", icon: Server, label: "Systemer", enabled: true },
-                      { key: "vendor", icon: Building2, label: "Leverandører", enabled: true },
-                      { key: "location", icon: MapPin, label: "Lokasjoner", enabled: true },
-                      { key: "network", icon: Network, label: "Nettverk", enabled: false },
-                      { key: "device", icon: Monitor, label: "Enheter", enabled: false },
-                    ].map(({ key, icon: Icon, label, enabled }) => {
-                      const count = allAssets.filter(a => a.asset_type === key).length;
-                      const isSelected = assetTypeFilter === key;
-                      return (
-                        <button
-                          key={key}
-                          disabled={!enabled}
-                          className={cn(
-                            "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium transition-all border",
-                            enabled
-                              ? isSelected
-                                ? "border-primary bg-primary/10 text-primary"
-                                : "border-border text-muted-foreground hover:border-primary/40 hover:text-foreground"
-                              : "opacity-40 cursor-not-allowed border-border text-muted-foreground"
-                          )}
-                          onClick={() => {
-                            if (!enabled) return;
-                            setAssetTypeFilter(isSelected ? "all" : key);
-                          }}
+                  <div className="flex items-center gap-2 flex-1">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className={cn("h-8 w-8", assetTypeFilter !== "all" && "border-primary text-primary")}
+                          aria-label="Filtrer"
                         >
-                          <Icon className="h-3 w-3" />
-                          {label}
-                          {enabled && (
-                            <span
-                              className={cn(
-                                "inline-flex items-center justify-center min-w-[18px] h-[18px] px-1.5 rounded-full text-[11px] font-semibold tabular-nums border",
-                                isSelected
-                                  ? "bg-primary text-primary-foreground border-primary/40"
-                                  : "bg-muted text-muted-foreground border-border"
-                              )}
+                          <Filter className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="start">
+                        <DropdownMenuItem onClick={() => setAssetTypeFilter("all")}>
+                          Alle
+                          {assetTypeFilter === "all" && <Check className="h-3.5 w-3.5 ml-auto" />}
+                        </DropdownMenuItem>
+                        {[
+                          { key: "system", icon: Server, label: "Systemer", enabled: true },
+                          { key: "vendor", icon: Building2, label: "Leverandører", enabled: true },
+                          { key: "location", icon: MapPin, label: "Lokasjoner", enabled: true },
+                          { key: "network", icon: Network, label: "Nettverk", enabled: false },
+                          { key: "device", icon: Monitor, label: "Enheter", enabled: false },
+                        ].map(({ key, icon: Icon, label, enabled }) => {
+                          const count = allAssets.filter(a => a.asset_type === key).length;
+                          return (
+                            <DropdownMenuItem
+                              key={key}
+                              disabled={!enabled}
+                              onClick={() => setAssetTypeFilter(key)}
                             >
-                              {count}
-                            </span>
-                          )}
-                        </button>
-                      );
-                    })}
+                              <Icon className="h-3.5 w-3.5 mr-2" />
+                              {label}
+                              {enabled && (
+                                <span className="ml-auto pl-3 text-xs text-muted-foreground tabular-nums">
+                                  {count}
+                                </span>
+                              )}
+                              {assetTypeFilter === key && <Check className="h-3.5 w-3.5 ml-2" />}
+                            </DropdownMenuItem>
+                          );
+                        })}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                   <div className="ml-3 self-start">
                     <DropdownMenu>
