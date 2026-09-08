@@ -66,8 +66,7 @@ import {
   Sparkles,
   AlertTriangle,
   Save,
-  Check,
-  Filter
+  Check
 } from "lucide-react";
 import { useNavigationMode } from "@/hooks/useNavigationMode";
 import { useTranslation } from "react-i18next";
