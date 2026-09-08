@@ -1,90 +1,69 @@
-# Mynder Core som virksomhetens AI-kart — revidert plan
+# Arbeidsområder som Core-landingsside: «Kartlegg KI-muligheter» som knapp + agenter på tvers av arbeidsområder
 
-Planen er strammet inn etter en kritisk gjennomgang. Den første versjonen bygget på flere antakelser som ikke stemte med koden, og la opp til mer ny kode enn runwayen tåler. Under står først hva som var galt, deretter den enklere planen.
+## Mål
+Når brukeren åpner Core skal `/work-areas` oppleves som «slik er virksomheten organisert»: alle arbeidsområder, velg ett, se systemer, eiendeler, prosesser og KI-agenter som hører til – og én tydelig knapp for å kartlegge KI-muligheter. Ingen ny fane, ingen ny meny.
 
-## Hva som var feil i forrige plan
+## Dagens tilstand (verifisert)
+- `/work-areas` = kombiboks-velger (`WorkAreaSwitcher`) + seks faner, inkl. fanen «KI-muligheter» som monterer `AiOpportunitiesTab`.
+- Valgt arbeidsområde er lokal state (ikke URL). Første område velges automatisk.
+- Prosesser hører til ett arbeidsområde via `system_processes.system_id → systems.work_area_id`. `process_agent_recommendations` har både `process_id` og `work_area_id`.
+- KI-agenter (`useAgents`/`agentMacf`) er ren prototype i localStorage og har i dag ingen kobling til prosesser eller arbeidsområder.
+- Plassholdere: fanebadge «Prosesser» viser hardkodet 110, velgeren viser hardkodet «10» systemer.
 
-**Faktafeil om dagens app:**
-- Core-menyen har allerede fire punkter (Behandlingsprotokoll, Systemer, Arbeidsområder, Oppgaver) — ikke to. Å foreslå «fem punkter» var å legge til, ikke rydde.
-- RoPA ligger på `/protocols`, ikke `/processing-activities`.
-- Det finnes ingen `/processes`-side i dag; prosesslisten ligger inne i Arbeidsområder. Å lage en ny toppside for prosesser innfører et nytt sted for noe som allerede har et sted.
-- Det finnes ingen M Vest Energy-demo-org. Firmanavn faller tilbake til «Mynder AS», og demo-data er bransjestyrt via maler.
-- Sara-funn bruker ikke ordene foreslått/observert/bekreftet. Koden har `awaiting → approved_mynder / rejected`. Å innføre en tredje vokabular-variant hadde skapt tre parallelle språk for samme sak.
-- «Rekrutter agent» finnes allerede og oppretter en `user_tasks`-rad. Godkjenningskøen jeg foreslo å bygge er delvis bygget.
+## Reflektert modell: kan en agent høre til flere arbeidsområder?
+Tre modeller vurdert:
 
-**For mye kompleksitet:** ny prosesside, nytt kartbånd, ny veiviser, ny seed, omskrevet agentregister og omorganisert sidebar — seks arbeidsstrømmer før én av dem er overbevisende.
+| Modell | Beskrivelse | Vurdering |
+|---|---|---|
+| A. Agent eies av ett arbeidsområde | Enkelt, men feil når f.eks. en fakturaagent brukes av både Økonomi og Innkjøp | Forkastes |
+| B. Agent eies av prosesser, arbeidsområder avledes | Agenten kobles til én eller flere prosesser. Arbeidsområdene følger av prosessene. Én sannhet, ingen dobbeltregistrering | **Anbefalt** |
+| C. Egen kobling agent ↔ arbeidsområde | Fleksibelt, men gir to kilder som kan sprike (prosess sier Økonomi, koblingen sier HR) | Forkastes nå |
 
-**Feil inntrykk:** planen ville vist «mandat» og «logg» som om de håndheves. De gjør de ikke. En sikkerhetsansvarlig som klikker seg inn ville trodd noe var på plass som ikke er det.
+Modell B gjenbruker det som allerede finnes (`process_agent_recommendations.status = recruited` er i praksis «agent i arbeid på prosess X»). En agent vises i et arbeidsområde fordi den jobber på en prosess der. Er den koblet til prosesser i flere arbeidsområder, merkes den som **delt**.
 
-**Inkonsistent IA:** to frakoblede agentbegreper i koden — anbefalinger per prosess (i databasen) og agentregister med mandat (kun i nettleseren). Forrige plan lot dem være frakoblet, men bandt likevel veiviseren til begge.
+Notasjon for delt agent (samme overalt):
+- Chip: `Fakturaagent · Delt (2)` med ikon for deling.
+- Tooltip/popover: «Jobber i: Økonomi → Leverandørfaktura · Innkjøp → Bestillingsgodkjenning».
+- I arbeidsområdet listes agenten med *hvilken prosess her* den er knyttet til, pluss «også i Innkjøp».
 
-## Den reviderte planen: én historie, fire endringer
+## Endringer
 
-Demoen skal vise **én** reise fra ende til ende: *Økonomi → leverandørfaktura → her kan AI avlaste dere → sett AI i arbeid → agent med kontrollpunkt → menneske godkjenner.*
+### 1. Ny oversiktsblokk for valgt arbeidsområde (erstatter fanen «KI-muligheter»)
+Over fanene, under velgeren: ett kort «Slik er {arbeidsområde} satt opp»
+- Venstre: navn, ansvarlig, kort beskrivelse.
+- Tellere: Systemer · Eiendeler · Prosesser · KI-agenter (ekte tall fra spørringene som allerede finnes / ny liten spørring).
+- Rad med KI-agent-chips (med delt-notasjon). Tom tilstand: «Ingen agenter i arbeid ennå».
+- Primær CTA: **«Kartlegg KI-muligheter»** (Sparkles). Sekundær: «Se prosesser».
+- Fanen «KI-muligheter» fjernes fra fanelisten.
 
-### 1. Én ny inngang på Core-oversikten
+### 2. Kartleggingsvisning åpnes fra knappen
+- Knappen setter `?view=ki` i URL (delbar lenke) og bytter innholdet under oversiktskortet fra faner til `AiOpportunitiesTab` med en «Tilbake til arbeidsområdet»-lenke.
+- `AiOpportunitiesTab` beholdes uendret (trakt, tabell, «Finn KI-muligheter», «Se vurdering»).
+- Når en anbefaling blir `recruited`, dukker agenten opp i agent-raden på oversiktskortet.
 
-`CoreDashboard.tsx` får ett nytt kort øverst: **«Hvor kan AI avlaste oss?»**. Det viser de tre høyest rangerte AI-mulighetene fra `process_agent_recommendations` — prosessnavn, arbeidsområde, hva agenten ville gjort, anslåtte timer spart per måned. Knappen er **Sett AI i arbeid** og går rett til prosessen.
+### 3. Agenter på tvers av arbeidsområder (prototype)
+- Utvid prototype-agentmodellen i `agentMacf` med `processIds: string[]` (localStorage, ingen skjemaendring).
+- Ny hjelpefunksjon `deriveAgentWorkAreas(agent, processes)` som gir liste av `{ workAreaId, workAreaName, processId, processName }`.
+- Ny liten komponent `AgentChip` med delt-notasjon og tooltip, brukt på oversiktskortet og i `AgentRegistry` (ny kolonne «Arbeidsområder»).
+- Demo-data: én delt agent (Fakturaagent) koblet til Leverandørfaktura (Økonomi) og én prosess i et annet område, så delt-notasjonen faktisk vises i demoen.
 
-Dette er hele den nye inngangen. Dagens modenhetsvisninger blir liggende under, uendret.
+### 4. Opprydding
+- Erstatt hardkodet 110 (prosesser) og «10» (systemer) med reelle tellere.
+- Intro-banneret får en ekstra rad «KI-agenter – se hvilke agenter som er i arbeid, og kartlegg nye muligheter».
+- Sørg for at valgt arbeidsområde speiles i URL (`?wa=<id>`) slik at «Tilbake» og dyplenker fungerer.
 
-### 2. Ingen navigasjonsendring
+## Klikkbar testflyt
+Core → Arbeidsområder (Økonomi valgt) → oversiktskort med tellere og agent-chips → «Kartlegg KI-muligheter» → trakt/tabell → «Se vurdering» → HAIO-fane → «Godkjenn og aktiver» → tilbake til Arbeidsområder: agenten vises i Økonomi. Bytt til Innkjøp: samme agent vises med «Delt (2)» og tooltip.
 
-Core-menyen står som den er. Arbeidsområder er allerede stedet der prosesser bor, og AI-agenter finnes allerede som eget punkt. Reisen går gjennom oversikten, ikke gjennom nye menypunkter. Dette er det som skiller den reviderte planen mest fra den forrige — og det er bevisst.
+## Bygger vi ikke nå
+- Ingen databaseendringer (ingen ny kobling agent ↔ arbeidsområde/prosess i DB).
+- Ingen ny toppmeny eller rute.
+- Ingen faktisk agentkjøring; tekst om at oppsett ikke håndheves beholdes.
 
-### 3. Én ny fane på prosessen: «AI-oppsett»
-
-Ny fane i `ProcessCard` (`src/components/process/tabs/ProcessAiSetupTab.tsx`), i klarspråk og uten sjargong:
-
-- *Slik utføres arbeidet i dag* — systemer, data og hvem som gjør hva, fra kartleggingen som allerede finnes.
-- *Agentens jobb* — hentet fra anbefalingens `suggested_agent_role` og begrunnelse.
-- *Hva agenten får lov til* — brytere, gjenbruker taksonomien i `agentMandate.ts`.
-- *Krever godkjenning* — ett menneskelig kontrollpunkt, forhåndsutfylt med en terskel.
-- Primærknapp **Sett AI i arbeid**.
-
-Ingen egen veiviser. Fanen *er* oppsettet. Knappen kaller eksisterende `recruitAgent()`, som allerede setter status til rekruttert og legger en rad i `user_tasks`.
-
-### 4. Ærlig statusspråk, ett sett ord
-
-Vi bruker kodens eksisterende to trinn og legger på klarspråk i visningen, ikke et nytt tredje sett:
-
-```text
-Foreslått av Lara        (awaiting)          — et forslag, ikke en beslutning
-Bekreftet av <navn>      (approved_mynder)   — et menneske har godkjent
-```
-
-Sara-observasjoner vises som *Observert av Sara — venter på bekreftelse*, som er den samme `awaiting`-tilstanden med kilden synlig. Ingen ny enum, ingen ny tabell.
-
-Der noe ikke er koblet til reell utførelse, står det i klartekst på skjermen: **«Kontrollpunktet vises her, men agenten kjører ikke ennå i denne prototypen.»** Det er billigere enn å bli tatt i det på et kundemøte.
-
-## Demo-data
-
-Én seed, ikke en generell løsning: `src/lib/demoSeedEconomy.ts` etter mønster fra `demoSeedSystems.ts`. Arbeidsområde **Økonomi** med fire prosesser (leverandørfaktura, reiseregning, månedsavslutning, kundefakturering), hver med systemer, persondata og risiko. Én rad i `process_agent_recommendations` er forhåndsutfylt for leverandørfaktura, slik at demoen ikke er avhengig av at et AI-kall lykkes live.
-
-Firmanavnet i demoen settes til et energiselskap i seeden. Vi lager ingen generell org-bytter.
-
-## Klikkbar testflyt (den eneste som må være perfekt)
-
-Core Oversikt → «Hvor kan AI avlaste oss?» → leverandørfaktura → fanen AI-oppsett → Sett AI i arbeid → agenten blir rekruttert → oppgaven dukker opp i Oppgaver som «Godkjenn AI-oppsett for leverandørfaktura» → godkjenn → prosessen viser *Bekreftet av <navn>*.
-
-Alt annet på skjermen er kulisser og skal tåle et klikk uten å gå i stykker, men det er denne flyten som demonstreres.
-
-## Vi bygger IKKE nå
-
-Ingen ny prosesside, ingen ny navigasjon, ingen egen veiviser-dialog, ingen omskriving av agentregisteret, intet kartbånd, ingen sammenslåing av de to agentmodellene, ingen agent-kjøretid, ingen håndhevelse av mandat i backend, ingen endring av eksisterende compliance-motorer.
-
-## Språk
-
-«Verdistrøm» og HAIO beholdes i kode og interne felt, aldri i kundetekst. Synlige ord: AI-oppsett, Slik utføres arbeidet, Agentens jobb, Hva agenten får lov til, Krever godkjenning, Sett AI i arbeid. Nye strenger legges i `nb.json`/`en.json` under et nytt `aiSetup`-navnerom, i tråd med mønsteret i filene.
-
-## Risiko
-
-Den gjenstående risikoen er at Core-oversikten blir en side til å lese i stedet for å handle på. Motvekten er at det nye kortet har én knapp og tre linjer. Hvis kortet vokser til flere valg før demoen, kutter vi ned igjen framfor å legge til.
-
-## Teknisk oppsummert
-
-- `src/components/dashboard/AiOpportunityCard.tsx` (ny) — leser `process_agent_recommendations`, monteres øverst i `CoreDashboard.tsx`.
-- `src/components/process/tabs/ProcessAiSetupTab.tsx` (ny) — registreres som fane i `ProcessCard`; gjenbruker `useProcessAgentRecommendations` og `MANDATE_PERMISSIONS`.
-- `src/lib/demoSeedEconomy.ts` (ny) — arbeidsområde, prosesser, systemer og én forhåndsutfylt anbefaling.
-- Små tekstendringer i `agentRequirementFindings.ts`-visninger for det felles statusspråket.
-- Ingen migrasjoner utover seed-data, ingen ruteendringer, ingen endringer i `Sidebar.tsx`.
+## Teknisk
+- `src/pages/WorkAreas.tsx`: fjern fane `ai-opportunities`; legg til `WorkAreaOverviewCard`; `view`/`wa` i `useSearchParams`; ekte tellere.
+- Ny: `src/components/work-areas/WorkAreaOverviewCard.tsx`, `src/components/agents/AgentChip.tsx`, `src/lib/agentWorkAreas.ts`.
+- `src/lib/agentMacf.ts`: `processIds` på `AIAgent` + seed for delt agent.
+- `src/components/work-areas/WorkAreaSwitcher.tsx`: reell systemteller via prop.
+- `src/pages/AgentRegistry.tsx`: kolonne «Arbeidsområder» med `AgentChip`.
+- Typesjekk + Playwright-sjekk av flyten over.
