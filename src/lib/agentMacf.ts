@@ -215,7 +215,7 @@ export function loadAgents(): AIAgent[] {
       return DEMO_AGENTS;
     }
     const parsed = JSON.parse(raw);
-    if (Array.isArray(parsed)) return parsed as AIAgent[];
+    if (Array.isArray(parsed)) return mergeDemoSeed(parsed as AIAgent[]);
     return DEMO_AGENTS;
   } catch {
     return DEMO_AGENTS;
