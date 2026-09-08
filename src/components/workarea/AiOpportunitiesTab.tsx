@@ -168,25 +168,22 @@ export function AiOpportunitiesTab({ workAreaId, workAreaName }: Props) {
   return (
     <div className="space-y-4">
       {/* Trakt */}
-      <Card>
-        <CardContent className="p-4">
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            {steps.map((s, i) => (
-              <div
-                key={s.label}
-                className="rounded-lg border border-border bg-muted/30 p-3"
-                style={{ opacity: 1 - i * 0.06 }}
-              >
-                <p className="text-2xl font-semibold tabular-nums">{s.value}</p>
-                <p className="text-xs text-muted-foreground">{s.label}</p>
-              </div>
-            ))}
+      <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1 text-sm">
+        {steps.map((s, i) => (
+          <div key={s.label} className="flex items-baseline gap-1.5">
+            <span className="font-semibold tabular-nums">{s.value}</span>
+            <span className="text-muted-foreground">{s.label}</span>
+            {i < steps.length - 1 && (
+              <span className="ml-1.5 text-muted-foreground/60" aria-hidden="true">
+                →
+              </span>
+            )}
           </div>
-          <p className="mt-3 text-xs text-muted-foreground">
-            Samme kartlegging brukes videre til behandlingsprotokoll og risiko.
-          </p>
-        </CardContent>
-      </Card>
+        ))}
+        <span className="ml-auto text-xs text-muted-foreground">
+          Samme kartlegning brukes til behandlingsprotokoll og risiko.
+        </span>
+      </div>
 
       {/* Rangert tabell */}
       <Card>
