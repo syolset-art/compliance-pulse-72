@@ -159,6 +159,7 @@ export function useProcessAgentRecommendations(workAreaId: string | undefined) {
         queryKey: ["process-agent-recommendations", workAreaId],
       });
       queryClient.invalidateQueries({ queryKey: ["user-tasks"] });
+      queryClient.invalidateQueries({ queryKey: ["core-ai-opportunities"] });
     },
     onError: (e: any) => toast.error(e.message),
   });
