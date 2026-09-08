@@ -467,6 +467,15 @@ const Reports = () => {
             </TabsContent>
 
             <TabsContent value="aiact" className="space-y-4">
+              <ReportCard
+                title="KI-agenter (ISO/IEC 42001 + AI Act)"
+                description="Alle KI-agenter som er foreslått eller satt i arbeid, med mandat, kontrollpunkter og risikonivå."
+                icon={<Bot className="h-4 w-4" />}
+                status="ready"
+                standard={["ISO/IEC 42001", "EU AI Act"]}
+                onClick={() => navigate("/reports/ai-agents")}
+              />
+
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">

@@ -48,6 +48,7 @@ import Terms from "./pages/Terms";
 import DocumentsPage from "./pages/Documents";
 import LegalDocumentPage from "./pages/LegalDocumentPage";
 import Reports from "./pages/Reports";
+import AgentGovernanceReport from "./pages/AgentGovernanceReport";
 import ProcessProfile from "./pages/ProcessProfile";
 import Deviations from "./pages/Deviations";
 import NotFound from "./pages/NotFound";
@@ -157,6 +158,7 @@ const App = () => (
                   <Route path="/processes/:id" element={<ProcessProfile />} />
                   <Route path="/reports" element={<Navigate to="/reports/compliance" replace />} />
                   <Route path="/reports/all" element={<Reports />} />
+                  <Route path="/reports/ai-agents" element={<AgentGovernanceReport />} />
                   <Route path="/reports/compliance" element={<ComplianceOverview />} />
                   <Route path="/company-settings" element={<CompanySettings />} />
                   <Route path="/settings" element={<PersonalSettings />} />
