@@ -85,6 +85,7 @@ export function WorkAreaSwitcher({
   workAreas,
   selectedWorkArea,
   workAreaRiskMap,
+  systemCountByArea = {},
   ownershipFilter,
   riskFilter,
   onOwnershipFilterChange,
@@ -255,7 +256,7 @@ export function WorkAreaSwitcher({
                     </span>
                     <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
                       <Server className="h-3 w-3" />
-                      10
+                      {systemCountByArea[area.id] ?? 0}
                     </span>
                     {rLabel && (
                       <Badge
