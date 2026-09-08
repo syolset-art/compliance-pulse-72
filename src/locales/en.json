@@ -1763,7 +1763,7 @@
       "vendorName": "Vendor module (Mynder)",
       "vendorDesc": "End-to-end third-party management: discovery, risk assessment and vendor follow-up.",
       "agentsName": "Agent governance (Mynder)",
-      "agentsDesc": "Register, classification and control of AI agents — MACF level, ownership and ongoing follow-up."
+      "agentsDesc": "Register, classification and control of AI agents — control level, ownership and ongoing follow-up."
     }
   },
   "baselineCard": {

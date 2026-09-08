@@ -40,7 +40,7 @@ export function AgentTable({ title, icon, agents }: Props) {
               <th className="px-4 py-2.5 font-medium">Type</th>
               <th className="px-4 py-2.5 font-medium">Arbeidsområder</th>
               <th className="px-4 py-2.5 font-medium">Status</th>
-              <th className="px-4 py-2.5 font-medium">MACF-nivå</th>
+              <th className="px-4 py-2.5 font-medium">Kontrollnivå</th>
               <th className="px-4 py-2.5 font-medium">Tillit-score</th>
               <th className="w-16 px-4 py-2.5 font-medium text-right">Pin</th>
               <th className="px-4 py-2.5 font-medium text-right">Handling</th>
@@ -84,7 +84,7 @@ export function AgentTable({ title, icon, agents }: Props) {
                         onClick={() => navigate(`/agents/${a.id}`)}
                       >
                         {a.macf_level === "L3_pending" ? "Godkjenn" :
-                         a.macf_level === "not_assessed" ? "Start MACF" : "Detaljer"}
+                         a.macf_level === "not_assessed" ? "Start vurdering" : "Detaljer"}
                       </Button>
                     </td>
                   </tr>

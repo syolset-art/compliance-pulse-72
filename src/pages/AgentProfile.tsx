@@ -3,7 +3,8 @@ import { Sidebar } from "@/components/Sidebar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Bot, ShieldCheck } from "lucide-react";
+import { ArrowLeft, Bot } from "lucide-react";
+import { AgentPolicyTab } from "@/components/agents/AgentPolicyTab";
 import { getAgent } from "@/lib/agentMacf";
 import { AgentTypePill } from "@/components/agents/AgentTypePill";
 import { AgentStatusBadge } from "@/components/agents/AgentStatusBadge";
@@ -82,7 +83,7 @@ export default function AgentProfile() {
             <Tabs defaultValue="overview">
               <TabsList>
                 <TabsTrigger value="overview">Oversikt</TabsTrigger>
-                <TabsTrigger value="macf">MACF</TabsTrigger>
+                <TabsTrigger value="policy">Policyer</TabsTrigger>
                 <TabsTrigger value="risk">Risikovurdering</TabsTrigger>
                 <TabsTrigger value="audit">Audit-logg</TabsTrigger>
                 <TabsTrigger value="connections">Tilkoblinger</TabsTrigger>
@@ -121,31 +122,8 @@ export default function AgentProfile() {
                 </div>
               </TabsContent>
 
-              <TabsContent value="macf" className="mt-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-base flex items-center gap-2">
-                      <ShieldCheck className="h-4 w-4 text-primary" />
-                      MACF-rammeverket
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="text-sm space-y-3 text-foreground/90">
-                    <p>
-                      MACF (Mynder Agent Compliance Framework) klassifiserer agenter etter autonomi,
-                      datatilgang og risikoeksponering. Lara vurderer agenten kontinuerlig mot:
-                    </p>
-                    <ul className="list-disc pl-5 space-y-1">
-                      <li>Runtime-grenser (MAX_TURNS, timeout, context-budsjett)</li>
-                      <li>RBAC og privilegerte roller</li>
-                      <li>Prompt injection-deteksjon</li>
-                      <li>Audit-logging og sporbarhet</li>
-                      <li>Regelverkskobling (NIS2, GDPR, EU AI Act)</li>
-                    </ul>
-                    <p className="text-muted-foreground">
-                      Detaljert MACF-evaluering aktiveres i neste iterasjon.
-                    </p>
-                  </CardContent>
-                </Card>
+              <TabsContent value="policy" className="mt-4">
+                <AgentPolicyTab agentId={agent.id} />
               </TabsContent>
 
               {(["risk","audit","connections"] as const).map((tab) => (
