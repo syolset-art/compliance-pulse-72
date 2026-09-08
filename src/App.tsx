@@ -48,6 +48,7 @@ import Terms from "./pages/Terms";
 import DocumentsPage from "./pages/Documents";
 import LegalDocumentPage from "./pages/LegalDocumentPage";
 import Reports from "./pages/Reports";
+import AgentGovernanceReport from "./pages/AgentGovernanceReport";
 import ProcessProfile from "./pages/ProcessProfile";
 import Deviations from "./pages/Deviations";
 import NotFound from "./pages/NotFound";
