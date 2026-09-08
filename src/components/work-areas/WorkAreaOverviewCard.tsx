@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AgentChip } from "@/components/agents/AgentChip";
 import type { WorkAreaAgent } from "@/lib/agentWorkAreas";
-import { Sparkles, Bot } from "lucide-react";
+import { Sparkles, Bot, User } from "lucide-react";
 
 interface WorkAreaOverviewCardProps {
   workAreaName: string;
