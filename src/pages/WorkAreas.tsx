@@ -172,6 +172,44 @@ export default function WorkAreas() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const [searchParams, setSearchParams] = useSearchParams();
+  // ?view=ki åpner KI-kartleggingen i stedet for fanene (delbar lenke).
+  const kiView = searchParams.get("view") === "ki";
+  const setKiView = (on: boolean) => {
+    const next = new URLSearchParams(searchParams);
+    if (on) next.set("view", "ki"); else next.delete("view");
+    setSearchParams(next, { replace: true });
+  };
+  const selectWorkArea = (area: WorkArea) => {
+    setSelectedWorkArea(area);
+    const next = new URLSearchParams(searchParams);
+    next.set("wa", area.id);
+    setSearchParams(next, { replace: true });
+  };
+
+  // KI-agenter på tvers av virksomheten (avledet fra prosesser)
+  const { agents: allWorkAreaAgents, processes: allProcesses } = useWorkAreaAgents();
+  const selectedAgents = useMemo(
+    () => (selectedWorkArea ? agentsForWorkArea(allWorkAreaAgents, selectedWorkArea.id) : []),
+    [allWorkAreaAgents, selectedWorkArea]
+  );
+  const processCountByArea = useMemo(() => {
+    const m: Record<string, number> = {};
+    for (const p of allProcesses) m[p.workAreaId] = (m[p.workAreaId] ?? 0) + 1;
+    return m;
+  }, [allProcesses]);
+
+  // Systemteller per arbeidsområde (erstatter tidligere plassholder)
+  const { data: systemCountByArea = {} } = useQuery({
+    queryKey: ["system-count-by-work-area"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("systems").select("work_area_id");
+      if (error) throw error;
+      const m: Record<string, number> = {};
+      for (const s of data ?? []) if (s.work_area_id) m[s.work_area_id] = (m[s.work_area_id] ?? 0) + 1;
+      return m;
+    },
+  });
 
   // Fetch document count for selected work area
   const { data: docCount = 0 } = useQuery({
