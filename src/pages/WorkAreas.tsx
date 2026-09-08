@@ -342,7 +342,9 @@ export default function WorkAreas() {
       if (error) throw error;
       setWorkAreas(data || []);
       if (data && data.length > 0 && !selectedWorkArea) {
-        setSelectedWorkArea(data[0]);
+        // Dyplenke: ?wa=<id> velger arbeidsområde, ellers første.
+        const fromUrl = searchParams.get("wa");
+        setSelectedWorkArea(data.find((w) => w.id === fromUrl) ?? data[0]);
       }
     } catch (error) {
       console.error("Error fetching work areas:", error);
