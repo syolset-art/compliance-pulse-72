@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AgentChip } from "@/components/agents/AgentChip";
 import type { WorkAreaAgent } from "@/lib/agentWorkAreas";
-import { Sparkles, Bot } from "lucide-react";
+import { Sparkles, Bot, User } from "lucide-react";
 
 interface WorkAreaOverviewCardProps {
   workAreaName: string;
@@ -31,11 +31,15 @@ export function WorkAreaOverviewCard({
 
   return (
     <div className="mb-4 sm:mb-6 rounded-lg border bg-muted/30 px-4 py-3 flex flex-wrap items-center gap-x-6 gap-y-3">
-      <div className="min-w-0 flex-1 flex flex-wrap items-center gap-x-6 gap-y-2">
-        <p className="text-sm text-muted-foreground">
-          {stats}
-          {responsiblePerson && <span className="hidden sm:inline"> · Ansvarlig: {responsiblePerson}</span>}
-        </p>
+      <div className="min-w-0 flex-1 flex flex-wrap items-center gap-x-4 gap-y-2">
+        <p className="text-sm text-muted-foreground">{stats}</p>
+        {responsiblePerson && (
+          <div className="flex items-center gap-1.5 text-sm">
+            <User className="h-3.5 w-3.5 text-primary shrink-0" aria-hidden="true" />
+            <span className="text-muted-foreground hidden sm:inline">Ansvarlig:</span>
+            <span className="font-medium text-foreground">{responsiblePerson}</span>
+          </div>
+        )}
 
         <div className="flex items-center gap-1.5 min-w-0">
           <Bot className="h-3.5 w-3.5 text-muted-foreground shrink-0" aria-hidden="true" />
