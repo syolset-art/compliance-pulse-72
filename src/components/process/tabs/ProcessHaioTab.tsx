@@ -1,5 +1,5 @@
 /**
- * «HAIO-verdistrøm» for én prosess.
+ * «Verdistrøm» for én prosess.
  *
  * Viser egnethetsvurderingen, foreslått arbeidsdeling mellom menneske og
  * agent, agentens mandat, kontrollpunkter — og hva den samme kartleggingen
