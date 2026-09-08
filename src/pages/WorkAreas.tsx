@@ -27,10 +27,13 @@ import { AssetSummaryDashboard } from "@/components/work-areas/AssetSummaryDashb
 import { WorkAreaSwitcher } from "@/components/work-areas/WorkAreaSwitcher";
 import { WorkAreaDocumentsTab } from "@/components/work-areas/WorkAreaDocumentsTab";
 import { ProcessingActivitiesTab } from "@/components/work-areas/ProcessingActivitiesTab";
+import { WorkAreaOverviewCard } from "@/components/work-areas/WorkAreaOverviewCard";
+import { useWorkAreaAgents } from "@/hooks/useWorkAreaAgents";
+import { agentsForWorkArea } from "@/lib/agentWorkAreas";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   Plus, 
   Shield, 
@@ -169,6 +172,44 @@ export default function WorkAreas() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const [searchParams, setSearchParams] = useSearchParams();
+  // ?view=ki åpner KI-kartleggingen i stedet for fanene (delbar lenke).
+  const kiView = searchParams.get("view") === "ki";
+  const setKiView = (on: boolean) => {
+    const next = new URLSearchParams(searchParams);
+    if (on) next.set("view", "ki"); else next.delete("view");
+    setSearchParams(next, { replace: true });
+  };
+  const selectWorkArea = (area: WorkArea) => {
+    setSelectedWorkArea(area);
+    const next = new URLSearchParams(searchParams);
+    next.set("wa", area.id);
+    setSearchParams(next, { replace: true });
+  };
+
+  // KI-agenter på tvers av virksomheten (avledet fra prosesser)
+  const { agents: allWorkAreaAgents, processes: allProcesses } = useWorkAreaAgents();
+  const selectedAgents = useMemo(
+    () => (selectedWorkArea ? agentsForWorkArea(allWorkAreaAgents, selectedWorkArea.id) : []),
+    [allWorkAreaAgents, selectedWorkArea]
+  );
+  const processCountByArea = useMemo(() => {
+    const m: Record<string, number> = {};
+    for (const p of allProcesses) m[p.workAreaId] = (m[p.workAreaId] ?? 0) + 1;
+    return m;
+  }, [allProcesses]);
+
+  // Systemteller per arbeidsområde (erstatter tidligere plassholder)
+  const { data: systemCountByArea = {} } = useQuery({
+    queryKey: ["system-count-by-work-area"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("systems").select("work_area_id");
+      if (error) throw error;
+      const m: Record<string, number> = {};
+      for (const s of data ?? []) if (s.work_area_id) m[s.work_area_id] = (m[s.work_area_id] ?? 0) + 1;
+      return m;
+    },
+  });
 
   // Fetch document count for selected work area
   const { data: docCount = 0 } = useQuery({
@@ -339,7 +380,9 @@ export default function WorkAreas() {
       if (error) throw error;
       setWorkAreas(data || []);
       if (data && data.length > 0 && !selectedWorkArea) {
-        setSelectedWorkArea(data[0]);
+        // Dyplenke: ?wa=<id> velger arbeidsområde, ellers første.
+        const fromUrl = searchParams.get("wa");
+        setSelectedWorkArea(data.find((w) => w.id === fromUrl) ?? data[0]);
       }
     } catch (error) {
       console.error("Error fetching work areas:", error);
@@ -663,7 +706,7 @@ export default function WorkAreas() {
                   </p>
                 </div>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                 <div className="flex items-start gap-3 rounded-lg border bg-background p-3">
                   <Server className="h-5 w-5 text-primary mt-0.5 shrink-0" />
                   <div>
@@ -675,7 +718,7 @@ export default function WorkAreas() {
                   <ClipboardList className="h-5 w-5 text-primary mt-0.5 shrink-0" />
                   <div>
                     <p className="text-sm font-medium text-foreground">Prosesser</p>
-                    <p className="text-xs text-muted-foreground">Dokumenter behandlingsaktiviteter og AI-bruk</p>
+                    <p className="text-xs text-muted-foreground">Dokumenter behandlingsaktiviteter og KI-bruk</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3 rounded-lg border bg-background p-3">
@@ -683,6 +726,13 @@ export default function WorkAreas() {
                   <div>
                     <p className="text-sm font-medium text-foreground">Leverandører</p>
                     <p className="text-xs text-muted-foreground">Hold oversikt over tredjeparter</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3 rounded-lg border bg-background p-3">
+                  <Sparkles className="h-5 w-5 text-primary mt-0.5 shrink-0" />
+                  <div>
+                    <p className="text-sm font-medium text-foreground">KI-agenter</p>
+                    <p className="text-xs text-muted-foreground">Se hvilke agenter som er i arbeid, og kartlegg nye muligheter</p>
                   </div>
                 </div>
               </div>
@@ -695,19 +745,47 @@ export default function WorkAreas() {
               workAreas={filteredAreas}
               selectedWorkArea={selectedWorkArea}
               workAreaRiskMap={workAreaRiskMap}
+              systemCountByArea={systemCountByArea}
               ownershipFilter={ownershipFilter}
               riskFilter={riskFilter}
               onOwnershipFilterChange={setOwnershipFilter}
               onRiskFilterChange={setRiskFilter}
-              onSelect={(area) => setSelectedWorkArea(area as WorkArea)}
+              onSelect={(area) => selectWorkArea(area as WorkArea)}
               onAddNew={() => setIsAddDialogOpen(true)}
             />
           </div>
 
+          {/* Oversiktskort for valgt arbeidsområde */}
+          {selectedWorkArea && (
+            <WorkAreaOverviewCard
+              workAreaId={selectedWorkArea.id}
+              workAreaName={selectedWorkArea.name}
+              responsiblePerson={selectedWorkArea.responsible_person}
+              description={selectedWorkArea.description}
+              counts={{
+                systems: systemCountByArea[selectedWorkArea.id] ?? 0,
+                assets: allAssets.length,
+                processes: processCountByArea[selectedWorkArea.id] ?? 0,
+              }}
+              agents={selectedAgents}
+              onMapAi={() => setKiView(true)}
+              onShowProcesses={() => { setKiView(false); setActiveWorkAreaTab("processes"); }}
+            />
+          )}
 
+          {/* KI-kartlegging (åpnes fra knappen, erstatter fanene) */}
+          {selectedWorkArea && kiView && (
+            <div className="space-y-4">
+              <Button variant="ghost" size="sm" onClick={() => setKiView(false)} className="gap-1.5 -ml-2">
+                <ChevronLeft className="h-4 w-4" />
+                Tilbake til arbeidsområdet
+              </Button>
+              <AiOpportunitiesTab workAreaId={selectedWorkArea.id} workAreaName={selectedWorkArea.name} />
+            </div>
+          )}
 
           {/* Tabs Section */}
-          {selectedWorkArea && (
+          {selectedWorkArea && !kiView && (
             <Tabs defaultValue="assets" className="w-full" onValueChange={(v) => setActiveWorkAreaTab(v)} value={activeWorkAreaTab}>
               <div className="flex items-center justify-between gap-2">
                 <div className="overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0 flex-1 min-w-0">
@@ -737,15 +815,7 @@ export default function WorkAreas() {
                     <FileText className="h-3 w-3 sm:h-4 sm:w-4" />
                     <span className="hidden sm:inline">{t("myWorkAreas.tabs.processes")}</span>
                     <span className="sm:hidden">Pros</span>
-                    <Badge variant="secondary" className="ml-1 text-xs">110</Badge>
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="ai-opportunities" 
-                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-3 sm:px-4 py-2 sm:py-3 gap-1 sm:gap-2 text-xs sm:text-sm whitespace-nowrap"
-                  >
-                    <Sparkles className="h-3 w-3 sm:h-4 sm:w-4" />
-                    <span className="hidden sm:inline">KI-muligheter</span>
-                    <span className="sm:hidden">KI</span>
+                    <Badge variant="secondary" className="ml-1 text-xs">{processCountByArea[selectedWorkArea.id] ?? 0}</Badge>
                   </TabsTrigger>
                   <TabsTrigger 
                     value="documents" 
@@ -941,10 +1011,6 @@ export default function WorkAreas() {
 
               <TabsContent value="processes" className="mt-4">
                 <ProcessList workAreaId={selectedWorkArea.id} workAreaName={selectedWorkArea.name} />
-              </TabsContent>
-
-              <TabsContent value="ai-opportunities" className="mt-4">
-                <AiOpportunitiesTab workAreaId={selectedWorkArea.id} workAreaName={selectedWorkArea.name} />
               </TabsContent>
 
               <TabsContent value="documents" className="mt-4">

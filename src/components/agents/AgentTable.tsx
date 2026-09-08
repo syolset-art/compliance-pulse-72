@@ -8,6 +8,9 @@ import { AgentTrustBar } from "./AgentTrustBar";
 import { Sparkles, Plug } from "lucide-react";
 import { PinBadge } from "@/components/pin/PinBadge";
 import { getMockPin } from "@/lib/pin";
+import { useWorkAreaAgents } from "@/hooks/useWorkAreaAgents";
+import { AgentChip } from "./AgentChip";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 interface Props {
   title: string;
@@ -18,6 +21,7 @@ interface Props {
 export function AgentTable({ title, icon, agents }: Props) {
   const navigate = useNavigate();
   const Icon = icon === "mynder" ? Sparkles : Plug;
+  const { agents: linked } = useWorkAreaAgents();
 
   return (
     <section className="rounded-lg border bg-card overflow-hidden">
@@ -34,6 +38,7 @@ export function AgentTable({ title, icon, agents }: Props) {
             <tr className="text-left text-xs text-muted-foreground border-b">
               <th className="px-4 py-2.5 font-medium">Agent</th>
               <th className="px-4 py-2.5 font-medium">Type</th>
+              <th className="px-4 py-2.5 font-medium">Arbeidsområder</th>
               <th className="px-4 py-2.5 font-medium">Status</th>
               <th className="px-4 py-2.5 font-medium">MACF-nivå</th>
               <th className="px-4 py-2.5 font-medium">Tillit-score</th>
@@ -44,7 +49,7 @@ export function AgentTable({ title, icon, agents }: Props) {
           <tbody className="divide-y">
             {agents.length === 0 ? (
               <tr>
-                <td colSpan={7} className="px-4 py-8 text-center text-muted-foreground text-sm">
+                <td colSpan={8} className="px-4 py-8 text-center text-muted-foreground text-sm">
                   Ingen agenter registrert her ennå.
                 </td>
               </tr>
@@ -58,6 +63,16 @@ export function AgentTable({ title, icon, agents }: Props) {
                       <div className="text-xs text-muted-foreground">{a.subtitle}</div>
                     </td>
                     <td className="px-4 py-3"><AgentTypePill kind={a.kind} /></td>
+                    <td className="px-4 py-3">
+                      {(() => {
+                        const wa = linked.find((l) => l.id === a.id);
+                        return wa ? (
+                          <TooltipProvider delayDuration={150}><AgentChip agent={wa} variant="areas" /></TooltipProvider>
+                        ) : (
+                          <span className="text-xs text-muted-foreground">Ikke koblet til prosess</span>
+                        );
+                      })()}
+                    </td>
                     <td className="px-4 py-3"><AgentStatusBadge status={a.status} /></td>
                     <td className="px-4 py-3"><MacfLevelBadge level={a.macf_level} /></td>
                     <td className="px-4 py-3"><AgentTrustBar score={a.trust_score} /></td>
