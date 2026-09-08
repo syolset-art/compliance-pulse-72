@@ -173,7 +173,35 @@ export const DEMO_AGENTS: AIAgent[] = [
     rbac_roles: ["dev.user"],
     created_at: now, updated_at: now,
   },
+  {
+    id: "lara-document-assistant",
+    name: "Lara — Dokumentassistent",
+    subtitle: "Co-pilot · henter og sorterer bilag og meldinger",
+    kind: "mynder",
+    provider: "Mynder",
+    owner_team: "Økonomi",
+    status: "active",
+    macf_level: "L2",
+    trust_score: 81,
+    purpose: "Finner, sorterer og forbereder dokumenter for menneskelig kontroll i flere arbeidsområder.",
+    data_scope: ["Fakturaer", "Bilag", "Kanalmeldinger"],
+    tools: ["doc.search", "doc.classify"],
+    audit_logging: true,
+    rbac_roles: ["finance.read", "collab.read"],
+    process_names: ["Leverandørfaktura", "Bruk av Slack"],
+    created_at: now, updated_at: now,
+  },
 ];
+
+/**
+ * Sørger for at demo-agenter som er lagt til senere (f.eks. den delte
+ * dokumentassistenten) også finnes hos brukere med eldre localStorage-data.
+ */
+function mergeDemoSeed(stored: AIAgent[]): AIAgent[] {
+  const ids = new Set(stored.map((a) => a.id));
+  const missing = DEMO_AGENTS.filter((d) => !ids.has(d.id));
+  return missing.length ? [...stored, ...missing] : stored;
+}
 
 // --- Local persistence ---------------------------------------------------------
 const STORAGE_KEY = "mynder.agents.v1";
