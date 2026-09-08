@@ -15,7 +15,7 @@ export default function AgentRegistry() {
   const byoa = agents.filter((a) => a.kind === "byoa");
 
   const handleExport = () => {
-    const header = ["Navn", "Type", "Leverandør", "Eier", "Status", "MACF-nivå", "Tillit-score"];
+    const header = ["Navn", "Type", "Leverandør", "Eier", "Status", "Kontrollnivå", "Tillit-score"];
     const rows = agents.map((a) => [a.name, a.kind, a.provider, a.owner_team, a.status, a.macf_level, a.trust_score]);
     const csv = [header, ...rows].map((r) => r.join(";")).join("\n");
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
@@ -41,7 +41,7 @@ export default function AgentRegistry() {
                   AI-agenter
                 </h1>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Registrerte agenter tilknyttet din Trust Profile · MACF-styrt
+                  Registrerte agenter tilknyttet din Trust Profile
                 </p>
               </div>
               <div className="flex items-center gap-2">

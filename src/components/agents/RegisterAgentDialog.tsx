@@ -59,7 +59,7 @@ export function RegisterAgentDialog({ open, onOpenChange, onCreated }: Props) {
         <DialogHeader>
           <DialogTitle>Registrer agent</DialogTitle>
           <DialogDescription>
-            Legg til en AI-agent i Trust Profile-registeret. Lara hjelper med MACF-vurdering senere.
+            Legg til en AI-agent i Trust Profile-registeret. Lara hjelper med vurderingen senere.
           </DialogDescription>
         </DialogHeader>
 
@@ -76,7 +76,7 @@ export function RegisterAgentDialog({ open, onOpenChange, onCreated }: Props) {
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="macf">MACF-mål</Label>
+              <Label htmlFor="macf">Kontrollnivå (mål)</Label>
               <Select value={macfTarget} onValueChange={(v) => setMacfTarget(v as MacfLevel)}>
                 <SelectTrigger id="macf"><SelectValue /></SelectTrigger>
                 <SelectContent>

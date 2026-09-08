@@ -1764,7 +1764,7 @@
       "vendorName": "Leverandørmodulen (Mynder)",
       "vendorDesc": "Helhetlig styring av tredjeparter: kartlegging, risikovurdering og oppfølging av leverandører.",
       "agentsName": "Agentstyring (Mynder)",
-      "agentsDesc": "Register, klassifisering og kontroll av AI-agenter — MACF-nivå, eierskap og løpende oppfølging."
+      "agentsDesc": "Register, klassifisering og kontroll av AI-agenter — kontrollnivå, eierskap og løpende oppfølging."
     }
   },
   "baselineCard": {
