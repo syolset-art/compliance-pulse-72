@@ -158,6 +158,7 @@ const App = () => (
                   <Route path="/processes/:id" element={<ProcessProfile />} />
                   <Route path="/reports" element={<Navigate to="/reports/compliance" replace />} />
                   <Route path="/reports/all" element={<Reports />} />
+                  <Route path="/reports/ai-agents" element={<AgentGovernanceReport />} />
                   <Route path="/reports/compliance" element={<ComplianceOverview />} />
                   <Route path="/company-settings" element={<CompanySettings />} />
                   <Route path="/settings" element={<PersonalSettings />} />
