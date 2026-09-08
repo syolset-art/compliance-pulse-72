@@ -27,10 +27,13 @@ import { AssetSummaryDashboard } from "@/components/work-areas/AssetSummaryDashb
 import { WorkAreaSwitcher } from "@/components/work-areas/WorkAreaSwitcher";
 import { WorkAreaDocumentsTab } from "@/components/work-areas/WorkAreaDocumentsTab";
 import { ProcessingActivitiesTab } from "@/components/work-areas/ProcessingActivitiesTab";
+import { WorkAreaOverviewCard } from "@/components/work-areas/WorkAreaOverviewCard";
+import { useWorkAreaAgents } from "@/hooks/useWorkAreaAgents";
+import { agentsForWorkArea } from "@/lib/agentWorkAreas";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   Plus, 
   Shield, 
