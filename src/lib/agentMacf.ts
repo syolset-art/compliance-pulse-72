@@ -20,6 +20,12 @@ export interface AIAgent {
   tools?: string[];
   audit_logging?: boolean;
   rbac_roles?: string[];
+  /**
+   * Prototype: prosessene agenten jobber på (navn, matches mot system_processes.name).
+   * Arbeidsområder avledes fra prosessene – en agent kan derfor være «delt»
+   * på tvers av flere arbeidsområder uten egen kobling.
+   */
+  process_names?: string[];
   created_at: string;
   updated_at: string;
 }
