@@ -100,6 +100,21 @@ export function useDocumentHub() {
     return names;
   };
 
+  /** Regelverk-IDer et dokument bidrar til — brukes av regelverksfilteret. */
+  const frameworkIdsForDoc = (docId: string): string[] => {
+    const ids = new Set<string>();
+    (data?.reqEvidence ?? [])
+      .filter((r) => r.document_id === docId)
+      .forEach((r) => ids.add(r.framework_id));
+    coverage?.frameworks.forEach((fw: any) => {
+      if (fw.requirements.some((r: any) => r.doc?.id === docId)) {
+        const match = (data?.frameworks ?? []).find((f) => f.framework_name === fw.frameworkName);
+        if (match) ids.add(match.framework_id);
+      }
+    });
+    return [...ids];
+  };
+
   /** Krav dokumentet dekker, på tvers av regelverk. */
   const requirementsForDoc = (docId: string): string[] => {
     const names = new Set<string>();
@@ -121,6 +136,7 @@ export function useDocumentHub() {
     activeFrameworks: (data?.frameworks ?? []) as { framework_id: string; framework_name: string }[],
     activeFrameworkCount: data?.frameworks.length ?? 0,
     frameworksForDoc,
+    frameworkIdsForDoc,
     requirementsForDoc,
     isLoading,
   };

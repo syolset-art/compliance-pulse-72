@@ -34,16 +34,33 @@ import {
 import { useDocumentHub } from "@/hooks/useDocumentHub";
 import { UploadHubDocumentDialog } from "@/components/documents/UploadHubDocumentDialog";
 import { DocumentActionButtons } from "@/components/agents/DocumentActionButtons";
-
-import { GuidingDocumentsTab } from "@/components/documents/GuidingDocumentsTab";
+import { Label } from "@/components/ui/label";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { GuidingDocumentsTab } from "@/components/documents/GuidingDocumentsTab";
+import { GoverningDocumentsTab } from "@/components/documents/GoverningDocumentsTab";
+import {
+  readDocGovernance,
+  setDocGovernance,
+  type DocGovernance,
+} from "@/lib/documentGovernance";
+import {
+  DOC_CLASS_HELP,
+  DOC_CLASS_LABELS,
   MODULE_LABELS,
   MODULE_ROUTES,
   STATUS_LABELS,
   TYPE_GROUP_LABELS,
+  docClassFromType,
   documentTypeLabel,
   formatFileSize,
   typeGroup,
+  type HubDocClass,
   type HubDocument,
   type HubModule,
   type HubTypeGroup,
@@ -62,6 +79,7 @@ export default function DocumentHub() {
     scoreDocIds,
     activeFrameworks,
     frameworksForDoc,
+    frameworkIdsForDoc,
     requirementsForDoc,
     isLoading,
   } = useDocumentHub();
@@ -69,14 +87,24 @@ export default function DocumentHub() {
   const [search, setSearch] = useState("");
   const [modules, setModules] = useState<HubModule[]>([]);
   const [types, setTypes] = useState<HubTypeGroup[]>([]);
+  const [classes, setClasses] = useState<HubDocClass[]>([]);
+  const [frameworkFilter, setFrameworkFilter] = useState<string[]>([]);
   const [uploader, setUploader] = useState<string | null>(null);
   const [onlyScore, setOnlyScore] = useState(false);
+  const [onlyAttention, setOnlyAttention] = useState(false);
   const [selected, setSelected] = useState<HubDocument | null>(null);
   const [uploadOpen, setUploadOpen] = useState(false);
   const [preset, setPreset] = useState<{ name?: string; frameworkId?: string }>({});
+  const [governance, setGovernance] = useState<Record<string, DocGovernance>>(() =>
+    readDocGovernance(),
+  );
 
+  /** Klasse for et dokument: brukerens overstyring, ellers utledet fra typen. */
+  const docClassOf = (doc: HubDocument): HubDocClass =>
+    governance[doc.id]?.docClass ?? docClassFromType(doc.documentType);
 
-
+  const updateGovernance = (docId: string, patch: DocGovernance) =>
+    setGovernance(setDocGovernance(docId, patch));
 
   const toggle = <T,>(list: T[], set: (v: T[]) => void, value: T) =>
     set(list.includes(value) ? list.filter((v) => v !== value) : [...list, value]);
@@ -93,18 +121,50 @@ export default function DocumentHub() {
       if (q && !`${d.name} ${d.fileName ?? ""} ${d.contextLabel ?? ""}`.toLowerCase().includes(q)) return false;
       if (modules.length && !modules.includes(d.module)) return false;
       if (types.length && !types.includes(typeGroup(d.documentType))) return false;
+      if (classes.length && !classes.includes(docClassOf(d))) return false;
+      if (frameworkFilter.length) {
+        const ids = frameworkIdsForDoc(d.id);
+        if (!ids.some((id) => frameworkFilter.includes(id))) return false;
+      }
       if (uploader && d.uploadedBy !== uploader) return false;
       if (onlyScore && !scoreDocIds.has(d.id)) return false;
+      if (onlyAttention && d.status !== "expired" && d.status !== "expiring") return false;
       return true;
     });
-  }, [documents, search, modules, types, uploader, onlyScore, scoreDocIds]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    documents,
+    search,
+    modules,
+    types,
+    classes,
+    frameworkFilter,
+    uploader,
+    onlyScore,
+    onlyAttention,
+    scoreDocIds,
+    governance,
+  ]);
 
   const stats = useMemo(() => {
     const affectsScore = documents.filter((d) => scoreDocIds.has(d.id)).length;
     const attention = documents.filter((d) => d.status === "expired" || d.status === "expiring").length;
-    const incomplete = documents.filter((d) => !d.uploadedBy || d.documentType === "other").length;
-    return { total: documents.length, affectsScore, attention, incomplete };
-  }, [documents, scoreDocIds]);
+    const governing = documents.filter((d) => docClassOf(d) === "governing").length;
+    return { total: documents.length, affectsScore, attention, governing };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [documents, scoreDocIds, governance]);
+
+  const governingDocs = useMemo(
+    () => documents.filter((d) => docClassOf(d) === "governing"),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [documents, governance],
+  );
+
+  const guidanceDocs = useMemo(
+    () => documents.filter((d) => docClassOf(d) === "guidance"),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [documents, governance],
+  );
 
   const sorted = useMemo(() => {
     return [...filtered].sort((a, b) => {
@@ -116,7 +176,13 @@ export default function DocumentHub() {
 
 
   const activeFilters =
-    modules.length + types.length + (uploader ? 1 : 0) + (onlyScore ? 1 : 0);
+    modules.length +
+    types.length +
+    classes.length +
+    frameworkFilter.length +
+    (uploader ? 1 : 0) +
+    (onlyScore ? 1 : 0) +
+    (onlyAttention ? 1 : 0);
 
   const pill = (active: boolean) =>
     cn(
@@ -150,24 +216,34 @@ export default function DocumentHub() {
             </div>
             <p className="text-sm text-muted-foreground">
               {L(
-                "Alle dokumenter dere har lastet opp – samlet på tvers av moduler.",
-                "Every document you have uploaded – collected across modules.",
+                `${stats.total} dokumenter · ${stats.governing} styrende · ${stats.affectsScore} dekker aktiverte krav · ${stats.attention} krever oppfølging`,
+                `${stats.total} documents · ${stats.governing} governing · ${stats.affectsScore} cover activated requirements · ${stats.attention} need attention`,
               )}
             </p>
           </header>
 
           <Tabs defaultValue="mine" className="space-y-5">
             <TabsList>
-              <TabsTrigger value="mine">{L("Mine dokumenter", "My documents")}</TabsTrigger>
-              <TabsTrigger value="guiding">
-                {L("Veiledende dokumentasjon", "Guiding documentation")}
+              <TabsTrigger value="mine">{L("Alle dokumenter", "All documents")}</TabsTrigger>
+              <TabsTrigger value="governing">
+                {L("Styrende dokumenter", "Governing documents")}
               </TabsTrigger>
+              <TabsTrigger value="guiding">{L("Dokumentkrav", "Documentation requirements")}</TabsTrigger>
             </TabsList>
+
+            <TabsContent value="governing" className="space-y-5">
+              <GoverningDocumentsTab
+                documents={governingDocs}
+                governance={governance}
+                onSelect={setSelected}
+              />
+            </TabsContent>
 
             <TabsContent value="guiding" className="space-y-5">
               <GuidingDocumentsTab
                 frameworks={activeFrameworks}
                 documents={documents}
+                guidanceDocs={guidanceDocs}
                 onUpload={({ name, frameworkId }) => {
                   setPreset({ name, frameworkId });
                   setUploadOpen(true);
@@ -189,11 +265,28 @@ export default function DocumentHub() {
                 />
               </div>
 
-              <button className={pill(!onlyScore && activeFilters === 0)} onClick={() => {
-                setModules([]); setTypes([]); setUploader(null); setOnlyScore(false);
+              <button className={pill(activeFilters === 0)} onClick={() => {
+                setModules([]); setTypes([]); setClasses([]); setFrameworkFilter([]);
+                setUploader(null); setOnlyScore(false); setOnlyAttention(false);
               }}>
                 {L("Alle", "All")}
               </button>
+
+              <button className={pill(onlyAttention)} onClick={() => setOnlyAttention(!onlyAttention)}>
+                {L("Krever oppfølging", "Needs attention")}
+              </button>
+
+              <button
+                className={pill(classes.length === 1 && classes[0] === "unclassified")}
+                onClick={() =>
+                  setClasses(
+                    classes.length === 1 && classes[0] === "unclassified" ? [] : ["unclassified"],
+                  )
+                }
+              >
+                {L("Ikke klassifisert", "Unclassified")}
+              </button>
+
 
               <TooltipProvider>
                 <Tooltip>
@@ -224,7 +317,32 @@ export default function DocumentHub() {
                     )}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent align="end" className="w-80 space-y-4">
+                <PopoverContent align="end" className="w-80 space-y-4 max-h-[70vh] overflow-y-auto">
+                  {activeFrameworks.length > 0 && (
+                    <FilterGroup title={L("Regelverk", "Regulations")}>
+                      {activeFrameworks.map((f) => (
+                        <button
+                          key={f.framework_id}
+                          className={pill(frameworkFilter.includes(f.framework_id))}
+                          onClick={() => toggle(frameworkFilter, setFrameworkFilter, f.framework_id)}
+                        >
+                          {f.framework_name}
+                        </button>
+                      ))}
+                    </FilterGroup>
+                  )}
+                  <FilterGroup title={L("Dokumentklasse", "Document class")}>
+                    {(Object.keys(DOC_CLASS_LABELS) as HubDocClass[]).map((c) => (
+                      <button
+                        key={c}
+                        className={pill(classes.includes(c))}
+                        onClick={() => toggle(classes, setClasses, c)}
+                        title={DOC_CLASS_HELP[c][isNb ? "nb" : "en"]}
+                      >
+                        {DOC_CLASS_LABELS[c][isNb ? "nb" : "en"]}
+                      </button>
+                    ))}
+                  </FilterGroup>
                   <FilterGroup title={L("Modul", "Module")}>
                     {(Object.keys(MODULE_LABELS) as HubModule[]).map((m) => (
                       <button key={m} className={pill(modules.includes(m))} onClick={() => toggle(modules, setModules, m)}>
@@ -277,6 +395,7 @@ export default function DocumentHub() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>{L("Dokument", "Document")}</TableHead>
+                    <TableHead className="hidden sm:table-cell">{L("Klasse", "Class")}</TableHead>
                     <TableHead className="hidden sm:table-cell">{L("Analyse", "Analysis")}</TableHead>
                     <TableHead className="hidden md:table-cell">{L("Type", "Type")}</TableHead>
                     <TableHead className="hidden md:table-cell">
@@ -297,7 +416,8 @@ export default function DocumentHub() {
                         </TooltipProvider>
                       </div>
                     </TableHead>
-                    <TableHead className="hidden lg:table-cell">{L("Registrert av", "Registered by")}</TableHead>
+                    <TableHead className="hidden lg:table-cell">{L("Status", "Status")}</TableHead>
+                    <TableHead className="hidden xl:table-cell">{L("Registrert av", "Registered by")}</TableHead>
                     <TableHead>{L("Dato", "Date")}</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -317,6 +437,29 @@ export default function DocumentHub() {
                             {doc.contextLabel}
                           </div>
                         )}
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell py-2">
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <span className="inline-flex">
+                                <Badge
+                                  variant="outline"
+                                  className={cn(
+                                    "text-[12px] font-normal",
+                                    docClassOf(doc) === "governing" && "border-primary/40 bg-primary/10 text-primary",
+                                    docClassOf(doc) === "unclassified" && "text-muted-foreground",
+                                  )}
+                                >
+                                  {DOC_CLASS_LABELS[docClassOf(doc)][isNb ? "nb" : "en"]}
+                                </Badge>
+                              </span>
+                            </TooltipTrigger>
+                            <TooltipContent className="max-w-xs text-[13px]">
+                              {DOC_CLASS_HELP[docClassOf(doc)][isNb ? "nb" : "en"]}
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                       </TableCell>
                       <TableCell className="hidden sm:table-cell py-2">
                         {scoreDocIds.has(doc.id) ? (
@@ -372,7 +515,17 @@ export default function DocumentHub() {
                           );
                         })()}
                       </TableCell>
-                      <TableCell className="hidden lg:table-cell py-2 text-[13px] text-muted-foreground">
+                      <TableCell
+                        className={cn(
+                          "hidden lg:table-cell py-2 text-[13px]",
+                          doc.status === "expired" || doc.status === "expiring"
+                            ? "text-destructive"
+                            : "text-muted-foreground",
+                        )}
+                      >
+                        {STATUS_LABELS[doc.status][isNb ? "nb" : "en"]}
+                      </TableCell>
+                      <TableCell className="hidden xl:table-cell py-2 text-[13px] text-muted-foreground">
                         {doc.uploadedBy || L("Ukjent", "Unknown")}
                       </TableCell>
                       <TableCell className="py-2 text-[13px] text-muted-foreground">
@@ -407,6 +560,57 @@ export default function DocumentHub() {
                 <SheetTitle className="text-base">{selected.name}</SheetTitle>
               </SheetHeader>
               <div className="mt-4 space-y-4 text-sm">
+                <div className="rounded-lg border border-border p-3 space-y-3">
+                  <div className="space-y-1.5">
+                    <Label className="text-[12px] text-muted-foreground">
+                      {L("Dokumentklasse", "Document class")}
+                    </Label>
+                    <Select
+                      value={docClassOf(selected)}
+                      onValueChange={(v) => updateGovernance(selected.id, { docClass: v as HubDocClass })}
+                    >
+                      <SelectTrigger className="h-9 text-sm">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {(Object.keys(DOC_CLASS_LABELS) as HubDocClass[]).map((c) => (
+                          <SelectItem key={c} value={c}>
+                            {DOC_CLASS_LABELS[c][isNb ? "nb" : "en"]}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <p className="text-[12px] text-muted-foreground">
+                      {DOC_CLASS_HELP[docClassOf(selected)][isNb ? "nb" : "en"]}
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1.5">
+                      <Label className="text-[12px] text-muted-foreground">
+                        {L("Eier / ansvarlig", "Owner")}
+                      </Label>
+                      <Input
+                        className="h-9 text-sm"
+                        value={governance[selected.id]?.owner ?? ""}
+                        placeholder={L("Navn", "Name")}
+                        onChange={(e) => updateGovernance(selected.id, { owner: e.target.value })}
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-[12px] text-muted-foreground">
+                        {L("Neste gjennomgang", "Next review")}
+                      </Label>
+                      <Input
+                        type="date"
+                        className="h-9 text-sm"
+                        value={governance[selected.id]?.nextReview ?? ""}
+                        onChange={(e) => updateGovernance(selected.id, { nextReview: e.target.value })}
+                      />
+                    </div>
+                  </div>
+                </div>
+
                 <dl className="space-y-2">
                   <Row label={L("Type", "Type")} value={documentTypeLabel(selected.documentType, isNb)} />
                   <Row label={L("Modul", "Module")} value={MODULE_LABELS[selected.module][isNb ? "nb" : "en"]} />

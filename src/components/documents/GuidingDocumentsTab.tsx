@@ -17,6 +17,8 @@ import type { HubDocument } from "@/lib/documentHub";
 interface Props {
   frameworks: { framework_id: string; framework_name: string }[];
   documents: HubDocument[];
+  /** Eksterne standarder/veiledere dere har lastet opp – vises lavprofil nederst. */
+  guidanceDocs?: HubDocument[];
   onUpload: (preset: { name: string; frameworkId: string }) => void;
 }
 
@@ -39,7 +41,7 @@ function findExisting(docName: string, documents: HubDocument[]): HubDocument | 
   });
 }
 
-export function GuidingDocumentsTab({ frameworks, documents, onUpload }: Props) {
+export function GuidingDocumentsTab({ frameworks, documents, guidanceDocs = [], onUpload }: Props) {
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb" || i18n.language === "no";
   const L = (nb: string, en: string) => (isNb ? nb : en);
@@ -90,8 +92,8 @@ export function GuidingDocumentsTab({ frameworks, documents, onUpload }: Props) 
     <div className="space-y-5">
       <p className="text-sm text-muted-foreground">
         {L(
-          "Dokumentasjon som er veiledende for regelverkene dere har aktivert. Laster dere opp disse, øker modenheten på kravene de treffer.",
-          "Documentation that is guiding for the regulations you have activated. Uploading these increases maturity on the requirements they address.",
+          "Forventet dokumentasjon for regelverkene dere har aktivert. Laster dere opp disse, øker modenheten på kravene de treffer.",
+          "Expected documentation for the regulations you have activated. Uploading these increases maturity on the requirements they address.",
         )}
       </p>
 
@@ -171,6 +173,27 @@ export function GuidingDocumentsTab({ frameworks, documents, onUpload }: Props) 
             </div>
           </div>
         ))
+      )}
+
+      {guidanceDocs.length > 0 && (
+        <div className="space-y-1.5 pt-2">
+          <h2 className="text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">
+            {L("Veiledende kilder", "Guidance sources")}
+          </h2>
+          <p className="text-[12px] text-muted-foreground">
+            {L(
+              "Eksterne standarder og veiledere dere støtter dere på. Ikke bindende for dere.",
+              "External standards and guides you rely on. Not binding for you.",
+            )}
+          </p>
+          <ul className="space-y-0.5 pt-1">
+            {guidanceDocs.map((d) => (
+              <li key={d.id} className="truncate text-[13px] text-muted-foreground">
+                {d.name}
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
 
       <McpDocumentDiscoveryPanel />
