@@ -265,11 +265,28 @@ export default function DocumentHub() {
                 />
               </div>
 
-              <button className={pill(!onlyScore && activeFilters === 0)} onClick={() => {
-                setModules([]); setTypes([]); setUploader(null); setOnlyScore(false);
+              <button className={pill(activeFilters === 0)} onClick={() => {
+                setModules([]); setTypes([]); setClasses([]); setFrameworkFilter([]);
+                setUploader(null); setOnlyScore(false); setOnlyAttention(false);
               }}>
                 {L("Alle", "All")}
               </button>
+
+              <button className={pill(onlyAttention)} onClick={() => setOnlyAttention(!onlyAttention)}>
+                {L("Krever oppfølging", "Needs attention")}
+              </button>
+
+              <button
+                className={pill(classes.length === 1 && classes[0] === "unclassified")}
+                onClick={() =>
+                  setClasses(
+                    classes.length === 1 && classes[0] === "unclassified" ? [] : ["unclassified"],
+                  )
+                }
+              >
+                {L("Ikke klassifisert", "Unclassified")}
+              </button>
+
 
               <TooltipProvider>
                 <Tooltip>
