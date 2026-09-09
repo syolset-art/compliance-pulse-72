@@ -59,7 +59,7 @@ export const MYNDER_PRODUCTS: MynderProduct[] = [
   {
     id: "agents",
     moduleKey: "agents",
-    name: "Mynder Agents",
+    name: "Mynder Agents (Beta)",
     commissionPct: 25,
     fromPrice: 690,
     tiers: [{ label: "Standard", priceKr: 690 }],
