@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Check, Copy, ExternalLink, Play, Plug, ShieldCheck } from "lucide-react";
+import { Check, ChevronDown, Copy, ExternalLink, Play, Plug, ShieldCheck } from "lucide-react";
 import { MCP_EXPOSED_TOOLS, mcpServerUrl } from "@/lib/mcpAgentConnections";
 
 /**
