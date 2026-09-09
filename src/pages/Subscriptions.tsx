@@ -73,6 +73,7 @@ import { RetireModuleDialog } from "@/components/subscriptions/RetireModuleDialo
 import { ModuleChangeReceiptSheet, type ModuleChangeReceipt } from "@/components/subscriptions/ModuleChangeReceiptSheet";
 import { useTerms } from "@/hooks/useTerms";
 import { useModuleActivation } from "@/hooks/useModuleActivation";
+import { useActivatedServices } from "@/hooks/useActivatedServices";
 
 
 
