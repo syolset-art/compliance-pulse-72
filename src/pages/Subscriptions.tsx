@@ -810,6 +810,26 @@ export default function Subscriptions() {
             />
 
             <ModuleCard
+              icon={Bot}
+              title="Mynder Agents"
+              description="Kartlegg, dokumenter og styr KI-agentene dere bruker"
+              status={deactivatedModules.has("agents") || !isServiceActive("agents") ? "inactive" : moduleStatusOf("agents")}
+              cancelAtLabel={cancelAtLabelOf("agents")}
+              onResume={() => undoCancellation("agents")}
+              price={deactivatedModules.has("agents") || !isServiceActive("agents") ? 0 : AGENTS_PRICE_KR}
+              priceLabel={deactivatedModules.has("agents") || !isServiceActive("agents") ? "Ikke aktivert" : "Agentregister og styring"}
+              action={deactivatedModules.has("agents") || !isServiceActive("agents") ? "activate" : "open"}
+              onClick={() =>
+                deactivatedModules.has("agents") || !isServiceActive("agents")
+                  ? requestActivate("agents", { monthlyPriceKr: AGENTS_PRICE_KR })
+                  : navigate("/agents")
+              }
+              onDeactivate={() => requestDeactivate("agents", "Mynder Agents")}
+              accentColor="purple"
+              onReadMore={() => setReadMoreKey("agents")}
+            />
+
+            <ModuleCard
               icon={Globe}
               title="Trust Center"
               description="Del dokumentasjonen én gang — gjenbruk mot kunder og leverandører"
