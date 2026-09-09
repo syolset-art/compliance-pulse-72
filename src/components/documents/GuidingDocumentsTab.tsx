@@ -17,6 +17,8 @@ import type { HubDocument } from "@/lib/documentHub";
 interface Props {
   frameworks: { framework_id: string; framework_name: string }[];
   documents: HubDocument[];
+  /** Eksterne standarder/veiledere dere har lastet opp – vises lavprofil nederst. */
+  guidanceDocs?: HubDocument[];
   onUpload: (preset: { name: string; frameworkId: string }) => void;
 }
 
