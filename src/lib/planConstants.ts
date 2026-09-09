@@ -411,3 +411,7 @@ export interface CreditPackage {
 export const CREDIT_PACKAGES: CreditPackage[] = [];
 
 export const BASE_FREE_CREDITS = 0;
+
+// ─── Mynder Agents ─────────────────────────────────────────────────
+// Egen produktmodul: kartlegging, arbeidskontrakter og styring av KI-agenter.
+export const AGENTS_PRICE_KR = 690;
