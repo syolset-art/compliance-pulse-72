@@ -108,7 +108,7 @@ function save(map: ModuleStateMap) {
  * organisasjonen — eller partneren på vegne av den — har aktivert dem og
  * godkjent vilkårene.
  */
-export const OPT_IN_MODULES = new Set<string>(["deviations"]);
+export const OPT_IN_MODULES = new Set<string>(["deviations", "agents"]);
 
 export function isOptInModule(id: string): boolean {
   return OPT_IN_MODULES.has(id);
