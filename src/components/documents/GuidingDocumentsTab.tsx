@@ -51,6 +51,8 @@ export function GuidingDocumentsTab({ frameworks, documents, guidanceDocs = [], 
   const isNb = i18n.language === "nb" || i18n.language === "no";
   const L = (nb: string, en: string) => (isNb ? nb : en);
 
+  const [openGroups, setOpenGroups] = useState<Set<string>>(new Set());
+
   const groups = useMemo(
     () =>
       frameworks
