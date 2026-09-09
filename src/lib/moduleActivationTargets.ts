@@ -83,6 +83,17 @@ export const MODULE_ACTIVATION_TARGETS: Record<string, ModuleActivationTarget> =
     ],
   },
 
+  agents: {
+    key: "agents",
+    title: "Mynder Agents",
+    route: "/agents",
+    monthlyPriceKr: 690,
+    nextSteps: [
+      { label: "Åpne Mynder Agents", description: "Se oversikten over agentene.", route: "/agents" },
+      { label: "Kartlegg arbeidsområder", description: "Start med arbeidsområder og oppgaver.", route: "/agents/mapping" },
+    ],
+  },
+
   partner: {
     key: "partner",
     title: "Partnerarbeidsflate",

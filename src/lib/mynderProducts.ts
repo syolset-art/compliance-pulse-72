@@ -57,6 +57,14 @@ export const MYNDER_PRODUCTS: MynderProduct[] = [
     tiers: [{ label: "Standard", priceKr: 495 }],
   },
   {
+    id: "agents",
+    moduleKey: "agents",
+    name: "Mynder Agents",
+    commissionPct: 25,
+    fromPrice: 690,
+    tiers: [{ label: "Standard", priceKr: 690 }],
+  },
+  {
     id: "trust",
     moduleKey: "trust",
     name: "Trust Center",

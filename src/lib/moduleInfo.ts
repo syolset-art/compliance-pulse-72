@@ -5,6 +5,7 @@ export type ModuleKey =
   | "assets"
   | "trust"
   | "deviations"
+  | "agents"
   | "partner";
 
 export interface ModuleInfo {
@@ -99,6 +100,19 @@ export const MODULE_INFO: Record<ModuleKey, ModuleInfo> = {
   },
 
 
+  agents: {
+    title: "Mynder Agents",
+    tagline: "Kartlegg, dokumenter og styr KI-agentene",
+    description:
+      "Mynder Agents gir oversikt over KI-agentene virksomheten bruker — hvem som eier dem, hva de har lov til, og hvilke oppgaver de gjør. Kan brukes alene, eller sammen med Core for personvern og risiko.",
+    features: [
+      "Agentregister med eier, status og fagområde",
+      "Arbeidskontrakter (playbooks) med fullmakter og godkjenninger",
+      "Lettvekts kartlegging av arbeidsområder og oppgaver",
+      "Forslag til agenter basert på prosessene dere har",
+      "Rapport for ISO/IEC 42001 og AI Act",
+    ],
+  },
   partner: {
     title: "Partner Workspace",
     tagline: "For MSP-er og samarbeidspartnere",

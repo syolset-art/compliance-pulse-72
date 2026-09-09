@@ -4,7 +4,7 @@ import {
   Sparkles, Check, CreditCard, FileText,
   CheckCircle2, Shield, Crown, Zap, Star,
   Settings2, Building2,
-  LayoutGrid, Server, BookOpen, Briefcase, Users, ShieldCheck, Globe, AlertTriangle,
+  LayoutGrid, Server, BookOpen, Briefcase, Users, ShieldCheck, Globe, AlertTriangle, Bot,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { resolveVendorCapacity, persistVendorTier } from "@/lib/vendorCapacity";
@@ -40,6 +40,7 @@ import {
   VENDOR_TIERS, DEFAULT_VENDOR_TIER_ID, getVendorTier, getNextVendorTier,
   type PlanId, type BillingInterval, type CoreTierId, type VendorTierId,
   TRUST_CENTER_PRICE_KR,
+  AGENTS_PRICE_KR,
 } from "@/lib/planConstants";
 import { OrganizationContextBanner } from "@/components/OrganizationContextBanner";
 import { ModuleCard } from "@/components/subscriptions/ModuleCard";
@@ -72,6 +73,7 @@ import { RetireModuleDialog } from "@/components/subscriptions/RetireModuleDialo
 import { ModuleChangeReceiptSheet, type ModuleChangeReceipt } from "@/components/subscriptions/ModuleChangeReceiptSheet";
 import { useTerms } from "@/hooks/useTerms";
 import { useModuleActivation } from "@/hooks/useModuleActivation";
+import { useActivatedServices } from "@/hooks/useActivatedServices";
 
 
 
@@ -238,6 +240,7 @@ export default function Subscriptions() {
   const [vendorTierMode, setVendorTierMode] = useState<"change" | "activate">("change");
   const [receipt, setReceipt] = useState<ModuleChangeReceipt | null>(null);
   const { current: currentTerms } = useTerms();
+  const { isServiceActive, activateService } = useActivatedServices();
 
   const scheduledCore = moduleStates["core"]?.scheduledTierId
     ? { tier: getCoreTier(moduleStates["core"]!.scheduledTierId as CoreTierId), at: moduleStates["core"]!.scheduledAt! }
@@ -323,7 +326,10 @@ export default function Subscriptions() {
     confirmActivation,
     receipt: activationReceipt,
     setReceipt: setActivationReceipt,
-  } = useModuleActivation(() => syncModuleState());
+  } = useModuleActivation((key) => {
+    syncModuleState();
+    if (key === "agents") activateService("agents", "Abonnement");
+  });
 
 
   const { data: selectedFrameworks, refetch: refetchFrameworks } = useQuery({
@@ -444,9 +450,10 @@ export default function Subscriptions() {
     if (!deactivatedModules.has("vendors")) total += vendorMonthlyPrice;
     if (!deactivatedModules.has("assets")) total += assetMonthlyPrice;
     if (!deactivatedModules.has("trust")) total += TRUST_CENTER_PRICE_KR;
+    if (isServiceActive("agents") && !deactivatedModules.has("agents")) total += AGENTS_PRICE_KR;
     if (hasPartnerAccess && !deactivatedModules.has("partner")) total += partnerWorkspaceMonthlyPrice;
     return total;
-  }, [corePrice, activeFrameworkCount, frameworkMonthlyPrice, vendorMonthlyPrice, assetMonthlyPrice, hasPartnerAccess, deactivatedModules]);
+  }, [corePrice, activeFrameworkCount, frameworkMonthlyPrice, vendorMonthlyPrice, assetMonthlyPrice, hasPartnerAccess, deactivatedModules, isServiceActive]);
 
   const handleCoreTierSelect = (nextTierId: CoreTierId) => {
     setPendingCoreTierId(nextTierId);
@@ -807,6 +814,26 @@ export default function Subscriptions() {
               onDeactivate={() => requestDeactivate("deviations", "Avviksregister")}
               accentColor="amber"
               onReadMore={() => setReadMoreKey("deviations")}
+            />
+
+            <ModuleCard
+              icon={Bot}
+              title="Mynder Agents"
+              description="Kartlegg, dokumenter og styr KI-agentene dere bruker"
+              status={deactivatedModules.has("agents") || !isServiceActive("agents") ? "inactive" : moduleStatusOf("agents")}
+              cancelAtLabel={cancelAtLabelOf("agents")}
+              onResume={() => undoCancellation("agents")}
+              price={deactivatedModules.has("agents") || !isServiceActive("agents") ? 0 : AGENTS_PRICE_KR}
+              priceLabel={deactivatedModules.has("agents") || !isServiceActive("agents") ? "Ikke aktivert" : "Agentregister og styring"}
+              action={deactivatedModules.has("agents") || !isServiceActive("agents") ? "activate" : "open"}
+              onClick={() =>
+                deactivatedModules.has("agents") || !isServiceActive("agents")
+                  ? requestActivate("agents", { monthlyPriceKr: AGENTS_PRICE_KR })
+                  : navigate("/agents")
+              }
+              onDeactivate={() => requestDeactivate("agents", "Mynder Agents")}
+              accentColor="purple"
+              onReadMore={() => setReadMoreKey("agents")}
             />
 
             <ModuleCard
