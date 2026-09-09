@@ -52,8 +52,8 @@ export function DocumentActionButtons({
             <TooltipContent side="bottom" className="max-w-xs">
               <p>
                 {isNb
-                  ? "Last opp dokumentasjon. Lara analyserer dokumentet og foreslår hvilke krav det dekker. Bekreft forslaget, så oppdateres kravene og scoren automatisk."
-                  : "Upload documentation. Lara analyzes the document and suggests which requirements it covers. Confirm the suggestion, and the requirements and score are updated automatically."}
+                  ? "Lara analyserer hvilke regelverk og krav dokumentet kobles til, og oppdaterer status automatisk når du bekrefter forslaget."
+                  : "Lara analyzes which frameworks and requirements the document connects to, and updates the status automatically when you confirm the suggestion."}
               </p>
             </TooltipContent>
           </Tooltip>
