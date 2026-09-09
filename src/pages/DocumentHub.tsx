@@ -390,21 +390,21 @@ export default function DocumentHub() {
               </CardContent>
             </Card>
           ) : (
-            <div className="rounded-lg border border-border overflow-hidden">
-              <Table>
+            <div className="rounded-lg border border-border overflow-x-auto">
+              <Table className="w-auto table-auto md:table-fixed md:w-full md:min-w-[640px]">
                 <TableHeader>
                   <TableRow>
-                    <TableHead>{L("Dokument", "Document")}</TableHead>
-                    <TableHead className="hidden sm:table-cell">{L("Klasse", "Class")}</TableHead>
-                    <TableHead className="hidden sm:table-cell">{L("Analyse", "Analysis")}</TableHead>
-                    <TableHead className="hidden md:table-cell">{L("Type", "Type")}</TableHead>
-                    <TableHead className="hidden md:table-cell">
+                    <TableHead className="whitespace-nowrap sm:w-[40%] md:w-[35%]">{L("Dokument", "Document")}</TableHead>
+                    <TableHead className="hidden md:table-cell md:w-[90px] whitespace-nowrap">{L("Klasse", "Class")}</TableHead>
+                    <TableHead className="hidden md:table-cell md:w-[120px] whitespace-nowrap">{L("Analyse", "Analysis")}</TableHead>
+                    <TableHead className="hidden lg:table-cell md:w-[110px] whitespace-nowrap">{L("Type", "Type")}</TableHead>
+                    <TableHead className="hidden lg:table-cell md:w-[110px] whitespace-nowrap">
                       <div className="flex items-center gap-1.5">
                         {L("Modul", "Module")}
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                              <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help shrink-0" />
                             </TooltipTrigger>
                             <TooltipContent className="max-w-xs text-[13px]">
                               {L(
@@ -416,9 +416,9 @@ export default function DocumentHub() {
                         </TooltipProvider>
                       </div>
                     </TableHead>
-                    <TableHead className="hidden lg:table-cell">{L("Status", "Status")}</TableHead>
-                    <TableHead className="hidden xl:table-cell">{L("Registrert av", "Registered by")}</TableHead>
-                    <TableHead>{L("Dato", "Date")}</TableHead>
+                    <TableHead className="hidden sm:table-cell md:w-[90px] whitespace-nowrap">{L("Status", "Status")}</TableHead>
+                    <TableHead className="hidden xl:table-cell md:w-[110px] whitespace-nowrap">{L("Registrert av", "Registered by")}</TableHead>
+                    <TableHead className="w-[90px] whitespace-nowrap text-right">{L("Dato", "Date")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -428,17 +428,17 @@ export default function DocumentHub() {
                       onClick={() => setSelected(doc)}
                       className="cursor-pointer"
                     >
-                      <TableCell className="py-2">
-                        <div className="font-medium text-sm text-foreground max-w-[200px] sm:max-w-xs truncate">
+                      <TableCell className="py-2 whitespace-nowrap overflow-hidden">
+                        <div className="font-medium text-sm text-foreground truncate max-w-[180px] md:max-w-[280px] lg:max-w-none">
                           {doc.name}
                         </div>
                         {doc.contextLabel && (
-                          <div className="text-[12px] text-muted-foreground truncate max-w-[200px] sm:max-w-xs">
+                          <div className="text-[12px] text-muted-foreground truncate">
                             {doc.contextLabel}
                           </div>
                         )}
                       </TableCell>
-                      <TableCell className="hidden sm:table-cell py-2">
+                      <TableCell className="hidden md:table-cell py-2 whitespace-nowrap overflow-hidden">
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger asChild>
@@ -446,7 +446,7 @@ export default function DocumentHub() {
                                 <Badge
                                   variant="outline"
                                   className={cn(
-                                    "text-[12px] font-normal",
+                                    "text-[12px] font-normal truncate max-w-[110px]",
                                     docClassOf(doc) === "governing" && "border-primary/40 bg-primary/10 text-primary",
                                     docClassOf(doc) === "unclassified" && "text-muted-foreground",
                                   )}
@@ -461,35 +461,35 @@ export default function DocumentHub() {
                           </Tooltip>
                         </TooltipProvider>
                       </TableCell>
-                      <TableCell className="hidden sm:table-cell py-2">
+                      <TableCell className="hidden md:table-cell py-2 whitespace-nowrap overflow-hidden">
                         {scoreDocIds.has(doc.id) ? (
                           <Badge
                             variant="outline"
-                            className="border-success bg-success/10 text-foreground text-[12px] font-normal gap-1"
+                            className="border-success bg-success/10 text-foreground text-[12px] font-normal gap-1 truncate max-w-[140px]"
                           >
-                            <CheckCircle2 className="h-3 w-3 text-success" aria-hidden="true" />
+                            <CheckCircle2 className="h-3 w-3 text-success shrink-0" aria-hidden="true" />
                             {L("Påvirker modenhet", "Affects maturity")}
                           </Badge>
                         ) : (
                           <Badge
                             variant="outline"
-                            className="border-border bg-muted text-foreground text-[12px] font-normal gap-1"
+                            className="border-border bg-muted text-foreground text-[12px] font-normal gap-1 truncate max-w-[140px]"
                           >
-                            <FileText className="h-3 w-3" aria-hidden="true" />
+                            <FileText className="h-3 w-3 shrink-0" aria-hidden="true" />
                             {L("Ikke analysert", "Not analysed")}
                           </Badge>
                         )}
                       </TableCell>
-                      <TableCell className="hidden md:table-cell py-2 text-[13px] text-muted-foreground">
+                      <TableCell className="hidden lg:table-cell py-2 text-[13px] text-muted-foreground whitespace-nowrap overflow-hidden truncate">
                         {documentTypeLabel(doc.documentType, isNb)}
                       </TableCell>
-                      <TableCell className="hidden md:table-cell py-2">
+                      <TableCell className="hidden lg:table-cell py-2 whitespace-nowrap overflow-hidden">
                         {(() => {
                           const href = doc.sourceRoute || MODULE_ROUTES[doc.module];
                           const label = MODULE_LABELS[doc.module][isNb ? "nb" : "en"];
                           if (!href) {
                             return (
-                              <Badge variant="outline" className="text-[12px] font-normal">
+                              <Badge variant="outline" className="text-[12px] font-normal truncate max-w-[110px]">
                                 {label}
                               </Badge>
                             );
@@ -506,10 +506,10 @@ export default function DocumentHub() {
                             >
                               <Badge
                                 variant="outline"
-                                className="text-[12px] font-normal gap-1 hover:bg-muted hover:border-primary/40 transition-colors"
+                                className="text-[12px] font-normal gap-1 hover:bg-muted hover:border-primary/40 transition-colors truncate max-w-[110px]"
                               >
                                 {label}
-                                <ExternalLink className="h-3 w-3 text-muted-foreground" aria-hidden="true" />
+                                <ExternalLink className="h-3 w-3 text-muted-foreground shrink-0" aria-hidden="true" />
                               </Badge>
                             </button>
                           );
@@ -517,7 +517,7 @@ export default function DocumentHub() {
                       </TableCell>
                       <TableCell
                         className={cn(
-                          "hidden lg:table-cell py-2 text-[13px]",
+                          "hidden sm:table-cell py-2 text-[13px] whitespace-nowrap overflow-hidden truncate",
                           doc.status === "expired" || doc.status === "expiring"
                             ? "text-destructive"
                             : "text-muted-foreground",
@@ -525,10 +525,10 @@ export default function DocumentHub() {
                       >
                         {STATUS_LABELS[doc.status][isNb ? "nb" : "en"]}
                       </TableCell>
-                      <TableCell className="hidden xl:table-cell py-2 text-[13px] text-muted-foreground">
+                      <TableCell className="hidden xl:table-cell py-2 text-[13px] text-muted-foreground whitespace-nowrap overflow-hidden truncate">
                         {doc.uploadedBy || L("Ukjent", "Unknown")}
                       </TableCell>
-                      <TableCell className="py-2 text-[13px] text-muted-foreground">
+                      <TableCell className="py-2 text-[13px] text-muted-foreground whitespace-nowrap overflow-hidden text-right">
                         {doc.createdAt
                           ? new Date(doc.createdAt).toLocaleDateString(isNb ? "nb-NO" : "en-GB")
                           : "—"}
