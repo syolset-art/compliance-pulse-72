@@ -558,6 +558,57 @@ export default function DocumentHub() {
                 <SheetTitle className="text-base">{selected.name}</SheetTitle>
               </SheetHeader>
               <div className="mt-4 space-y-4 text-sm">
+                <div className="rounded-lg border border-border p-3 space-y-3">
+                  <div className="space-y-1.5">
+                    <Label className="text-[12px] text-muted-foreground">
+                      {L("Dokumentklasse", "Document class")}
+                    </Label>
+                    <Select
+                      value={docClassOf(selected)}
+                      onValueChange={(v) => updateGovernance(selected.id, { docClass: v as HubDocClass })}
+                    >
+                      <SelectTrigger className="h-9 text-sm">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {(Object.keys(DOC_CLASS_LABELS) as HubDocClass[]).map((c) => (
+                          <SelectItem key={c} value={c}>
+                            {DOC_CLASS_LABELS[c][isNb ? "nb" : "en"]}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <p className="text-[12px] text-muted-foreground">
+                      {DOC_CLASS_HELP[docClassOf(selected)][isNb ? "nb" : "en"]}
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1.5">
+                      <Label className="text-[12px] text-muted-foreground">
+                        {L("Eier / ansvarlig", "Owner")}
+                      </Label>
+                      <Input
+                        className="h-9 text-sm"
+                        value={governance[selected.id]?.owner ?? ""}
+                        placeholder={L("Navn", "Name")}
+                        onChange={(e) => updateGovernance(selected.id, { owner: e.target.value })}
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-[12px] text-muted-foreground">
+                        {L("Neste gjennomgang", "Next review")}
+                      </Label>
+                      <Input
+                        type="date"
+                        className="h-9 text-sm"
+                        value={governance[selected.id]?.nextReview ?? ""}
+                        onChange={(e) => updateGovernance(selected.id, { nextReview: e.target.value })}
+                      />
+                    </div>
+                  </div>
+                </div>
+
                 <dl className="space-y-2">
                   <Row label={L("Type", "Type")} value={documentTypeLabel(selected.documentType, isNb)} />
                   <Row label={L("Modul", "Module")} value={MODULE_LABELS[selected.module][isNb ? "nb" : "en"]} />
