@@ -18,6 +18,7 @@ import {
   listAgentTokens,
   type AgentTokenRow,
 } from "@/lib/agentTokens";
+import { McpDocumentDiscoveryPanel } from "@/components/documents/McpDocumentDiscoveryPanel";
 
 export default function Integrations() {
   const navigate = useNavigate();
@@ -79,6 +80,10 @@ export default function Integrations() {
             initialClient={wizardClient}
             onConnected={refreshTokens}
           />
+
+          <div className="mt-6">
+            <McpDocumentDiscoveryPanel />
+          </div>
         </div>
       </main>
     </div>
