@@ -429,7 +429,7 @@ export default function DocumentHub() {
                       className="cursor-pointer"
                     >
                       <TableCell className="py-2 whitespace-nowrap overflow-hidden">
-                        <div className="font-medium text-sm text-foreground truncate">
+                        <div className="font-medium text-sm text-foreground truncate max-w-[180px] md:max-w-[280px] lg:max-w-none">
                           {doc.name}
                         </div>
                         {doc.contextLabel && (
