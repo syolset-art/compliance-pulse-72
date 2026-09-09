@@ -1,7 +1,13 @@
-import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { getControlAreaLabel } from "@/lib/controlAreas";
 import {
   docControlArea,
@@ -17,21 +23,11 @@ interface Props {
   onSelect: (doc: HubDocument) => void;
 }
 
-/** Virksomhetens egne vedtatte dokumenter, gruppert etter kontrollområde. */
+/** Virksomhetens egne vedtatte dokumenter — én rad per dokument. */
 export function GoverningDocumentsTab({ documents, governance, onSelect }: Props) {
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb" || i18n.language === "no";
   const L = (nb: string, en: string) => (isNb ? nb : en);
-
-  const groups = useMemo(() => {
-    const byArea: Record<string, HubDocument[]> = {};
-    documents.forEach((d) => {
-      const area = docControlArea(d.documentType);
-      byArea[area] ??= [];
-      byArea[area].push(d);
-    });
-    return Object.entries(byArea).sort((a, b) => b[1].length - a[1].length);
-  }, [documents]);
 
   if (documents.length === 0) {
     return (
@@ -47,7 +43,7 @@ export function GoverningDocumentsTab({ documents, governance, onSelect }: Props
   }
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-3">
       <p className="text-sm text-muted-foreground">
         {L(
           "Dokumentene dere selv har vedtatt – deres egen regelbok. Dette er det en revisor spør etter først ved ISO-sertifisering eller NIS2-revisjon.",
@@ -55,50 +51,58 @@ export function GoverningDocumentsTab({ documents, governance, onSelect }: Props
         )}
       </p>
 
-      {groups.map(([area, docs]) => (
-        <div key={area} className="space-y-2">
-          <div className="flex items-center gap-2">
-            <h2 className="text-sm font-semibold text-foreground">
-              {getControlAreaLabel(area, isNb ? "nb" : "en")}
-            </h2>
-            <span className="text-[12px] text-muted-foreground">{docs.length}</span>
-          </div>
-          <div className="rounded-lg border border-border divide-y divide-border overflow-hidden">
-            {docs.map((doc) => {
+      <div className="rounded-lg border border-border overflow-hidden">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>{L("Dokument", "Document")}</TableHead>
+              <TableHead className="hidden sm:table-cell">{L("Kontrollområde", "Control area")}</TableHead>
+              <TableHead className="hidden md:table-cell">{L("Eier", "Owner")}</TableHead>
+              <TableHead className="hidden lg:table-cell">{L("Neste gjennomgang", "Next review")}</TableHead>
+              <TableHead>{L("Status", "Status")}</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {documents.map((doc) => {
               const g = governance[doc.id] ?? {};
               return (
-                <button
+                <TableRow
                   key={doc.id}
-                  type="button"
+                  className="cursor-pointer"
                   onClick={() => onSelect(doc)}
-                  className="flex w-full items-center gap-3 px-3 py-2 text-left transition-colors hover:bg-muted/50"
                 >
-                  <div className="min-w-0 flex-1">
+                  <TableCell className="py-2">
                     <p className="truncate text-[13px] font-medium text-foreground">{doc.name}</p>
                     <p className="truncate text-[12px] text-muted-foreground">
                       {documentTypeLabel(doc.documentType, isNb)}
-                      {g.owner ? ` · ${L("Eier", "Owner")}: ${g.owner}` : ""}
-                      {g.nextReview
-                        ? ` · ${L("Neste gjennomgang", "Next review")}: ${new Date(
-                            g.nextReview,
-                          ).toLocaleDateString(isNb ? "nb-NO" : "en-GB")}`
-                        : ""}
                     </p>
-                  </div>
-                  {!g.owner && (
-                    <Badge variant="outline" className="shrink-0 text-[12px] font-normal">
-                      {L("Mangler eier", "No owner")}
-                    </Badge>
-                  )}
-                  <span className="shrink-0 text-[12px] text-muted-foreground">
+                  </TableCell>
+                  <TableCell className="hidden sm:table-cell py-2 text-[13px] text-muted-foreground">
+                    {getControlAreaLabel(docControlArea(doc.documentType), isNb ? "nb" : "en")}
+                  </TableCell>
+                  <TableCell className="hidden md:table-cell py-2 text-[13px]">
+                    {g.owner ? (
+                      <span className="text-foreground">{g.owner}</span>
+                    ) : (
+                      <span className="text-[12px] text-muted-foreground">
+                        {L("Mangler eier", "No owner")}
+                      </span>
+                    )}
+                  </TableCell>
+                  <TableCell className="hidden lg:table-cell py-2 text-[13px] text-muted-foreground">
+                    {g.nextReview
+                      ? new Date(g.nextReview).toLocaleDateString(isNb ? "nb-NO" : "en-GB")
+                      : "—"}
+                  </TableCell>
+                  <TableCell className="py-2 text-[12px] text-muted-foreground">
                     {STATUS_LABELS[doc.status][isNb ? "nb" : "en"]}
-                  </span>
-                </button>
+                  </TableCell>
+                </TableRow>
               );
             })}
-          </div>
-        </div>
-      ))}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   );
 }
