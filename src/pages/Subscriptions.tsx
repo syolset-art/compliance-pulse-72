@@ -326,7 +326,10 @@ export default function Subscriptions() {
     confirmActivation,
     receipt: activationReceipt,
     setReceipt: setActivationReceipt,
-  } = useModuleActivation(() => syncModuleState());
+  } = useModuleActivation((key) => {
+    syncModuleState();
+    if (key === "agents") activateService("agents", "Abonnement");
+  });
 
 
   const { data: selectedFrameworks, refetch: refetchFrameworks } = useQuery({
