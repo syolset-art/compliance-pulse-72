@@ -557,6 +557,15 @@ const SidebarContent = () => {
     return () => window.removeEventListener("modules:changed", sync);
   }, []);
 
+  // Mynder Agents (Beta) — opt-in produkt; vises når modulen er aktivert.
+  const [agentsModuleActive, setAgentsModuleActive] = useState(() => !isModuleDeactivated("agents"));
+  useEffect(() => {
+    const sync = () => setAgentsModuleActive(!isModuleDeactivated("agents"));
+    sync();
+    window.addEventListener("modules:changed", sync);
+    return () => window.removeEventListener("modules:changed", sync);
+  }, []);
+
 
   const isVendorsActivating = activatingModules.has("vendors") && !hasRegistriesAccess;
   const isCoreActivating = activatingModules.has("core") && !(selectedCoreAtOnboarding || hasCoreAccess);
