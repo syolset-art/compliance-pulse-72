@@ -79,6 +79,7 @@ export default function DocumentHub() {
     scoreDocIds,
     activeFrameworks,
     frameworksForDoc,
+    frameworkIdsForDoc,
     requirementsForDoc,
     isLoading,
   } = useDocumentHub();
@@ -86,14 +87,24 @@ export default function DocumentHub() {
   const [search, setSearch] = useState("");
   const [modules, setModules] = useState<HubModule[]>([]);
   const [types, setTypes] = useState<HubTypeGroup[]>([]);
+  const [classes, setClasses] = useState<HubDocClass[]>([]);
+  const [frameworkFilter, setFrameworkFilter] = useState<string[]>([]);
   const [uploader, setUploader] = useState<string | null>(null);
   const [onlyScore, setOnlyScore] = useState(false);
+  const [onlyAttention, setOnlyAttention] = useState(false);
   const [selected, setSelected] = useState<HubDocument | null>(null);
   const [uploadOpen, setUploadOpen] = useState(false);
   const [preset, setPreset] = useState<{ name?: string; frameworkId?: string }>({});
+  const [governance, setGovernance] = useState<Record<string, DocGovernance>>(() =>
+    readDocGovernance(),
+  );
 
+  /** Klasse for et dokument: brukerens overstyring, ellers utledet fra typen. */
+  const docClassOf = (doc: HubDocument): HubDocClass =>
+    governance[doc.id]?.docClass ?? docClassFromType(doc.documentType);
 
-
+  const updateGovernance = (docId: string, patch: DocGovernance) =>
+    setGovernance(setDocGovernance(docId, patch));
 
   const toggle = <T,>(list: T[], set: (v: T[]) => void, value: T) =>
     set(list.includes(value) ? list.filter((v) => v !== value) : [...list, value]);
@@ -110,18 +121,50 @@ export default function DocumentHub() {
       if (q && !`${d.name} ${d.fileName ?? ""} ${d.contextLabel ?? ""}`.toLowerCase().includes(q)) return false;
       if (modules.length && !modules.includes(d.module)) return false;
       if (types.length && !types.includes(typeGroup(d.documentType))) return false;
+      if (classes.length && !classes.includes(docClassOf(d))) return false;
+      if (frameworkFilter.length) {
+        const ids = frameworkIdsForDoc(d.id);
+        if (!ids.some((id) => frameworkFilter.includes(id))) return false;
+      }
       if (uploader && d.uploadedBy !== uploader) return false;
       if (onlyScore && !scoreDocIds.has(d.id)) return false;
+      if (onlyAttention && d.status !== "expired" && d.status !== "expiring") return false;
       return true;
     });
-  }, [documents, search, modules, types, uploader, onlyScore, scoreDocIds]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    documents,
+    search,
+    modules,
+    types,
+    classes,
+    frameworkFilter,
+    uploader,
+    onlyScore,
+    onlyAttention,
+    scoreDocIds,
+    governance,
+  ]);
 
   const stats = useMemo(() => {
     const affectsScore = documents.filter((d) => scoreDocIds.has(d.id)).length;
     const attention = documents.filter((d) => d.status === "expired" || d.status === "expiring").length;
-    const incomplete = documents.filter((d) => !d.uploadedBy || d.documentType === "other").length;
-    return { total: documents.length, affectsScore, attention, incomplete };
-  }, [documents, scoreDocIds]);
+    const governing = documents.filter((d) => docClassOf(d) === "governing").length;
+    return { total: documents.length, affectsScore, attention, governing };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [documents, scoreDocIds, governance]);
+
+  const governingDocs = useMemo(
+    () => documents.filter((d) => docClassOf(d) === "governing"),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [documents, governance],
+  );
+
+  const guidanceDocs = useMemo(
+    () => documents.filter((d) => docClassOf(d) === "guidance"),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [documents, governance],
+  );
 
   const sorted = useMemo(() => {
     return [...filtered].sort((a, b) => {
@@ -133,7 +176,13 @@ export default function DocumentHub() {
 
 
   const activeFilters =
-    modules.length + types.length + (uploader ? 1 : 0) + (onlyScore ? 1 : 0);
+    modules.length +
+    types.length +
+    classes.length +
+    frameworkFilter.length +
+    (uploader ? 1 : 0) +
+    (onlyScore ? 1 : 0) +
+    (onlyAttention ? 1 : 0);
 
   const pill = (active: boolean) =>
     cn(
