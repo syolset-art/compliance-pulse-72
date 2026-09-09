@@ -488,13 +488,12 @@ const Regulations = () => {
                     </Popover>
                   </div>
 
-                  {/* Framework chip selector */}
-                  <FrameworkChipSelector
+                  {/* Framework selector — compact list, one selected at a time */}
+                  <FrameworkOverviewList
                     frameworks={activeFrameworks}
                     selectedId={selectedId}
-                    onSelect={(id) => { setSelectedId(id); setSummaryExpanded(false); }}
-                    getStats={getChipStats}
-                    hideSummary
+                    onSelect={(id) => setSelectedId(id)}
+                    getStats={getListStats}
                   />
                 </>
               )}
