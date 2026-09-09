@@ -55,43 +55,45 @@ export function GuidingDocumentsTab({ frameworks, documents, guidanceDocs = [], 
 
   const groups = useMemo(
     () =>
-      frameworks
-        .map((f) => {
-          // Foretrekk den kuraterte katalogen; ellers utled forventet dokumentasjon
-          // fra kravene i regelverket (frameworkEvidenceExpectations).
-          let entries: { key: string; label: string; docs: string[] }[];
-          if (hasDocumentationCatalog(f.framework_id)) {
-            entries = frameworkDocumentationCatalog(f.framework_id).map((e) => ({
-              key: e.requirementId,
-              label: e.label,
-              docs: e.docs,
-            }));
-          } else {
-            const byArea: Record<string, string[]> = {};
-            for (const req of getRequirementsByFramework(f.framework_id)) {
-              const area = toCanonicalArea(req.sla_category);
-              const label = expectedDocLabel(req, isNb);
-              byArea[area] ??= [];
-              if (!byArea[area].includes(label)) byArea[area].push(label);
-            }
-            entries = Object.entries(byArea).map(([area, docs]) => ({
-              key: area,
-              label: getControlAreaLabel(area, isNb ? "nb" : "en"),
-              docs,
-            }));
-          }
+      frameworks.map((f) => {
+        // Regelverk-IDer i basen matcher ikke alltid katalognøklene.
+        const catalogId = FRAMEWORK_ID_ALIASES[f.framework_id] ?? f.framework_id;
 
-          return {
-            framework: f,
-            entries: entries.map((entry) => ({
-              ...entry,
-              docs: entry.docs.map((d) => ({ name: d, existing: findExisting(d, documents) })),
-            })),
-          };
-        })
-        .filter((g) => g.entries.length > 0),
+        // Foretrekk den kuraterte katalogen; ellers utled forventet dokumentasjon
+        // fra kravene i regelverket (frameworkEvidenceExpectations).
+        let entries: { key: string; label: string; docs: string[] }[] = [];
+        if (hasDocumentationCatalog(catalogId)) {
+          entries = frameworkDocumentationCatalog(catalogId).map((e) => ({
+            key: e.requirementId,
+            label: e.label,
+            docs: e.docs,
+          }));
+        } else {
+          const byArea: Record<string, string[]> = {};
+          for (const req of getRequirementsByFramework(catalogId)) {
+            const area = toCanonicalArea(req.sla_category);
+            const label = expectedDocLabel(req, isNb);
+            byArea[area] ??= [];
+            if (!byArea[area].includes(label)) byArea[area].push(label);
+          }
+          entries = Object.entries(byArea).map(([area, docs]) => ({
+            key: area,
+            label: getControlAreaLabel(area, isNb ? "nb" : "en"),
+            docs,
+          }));
+        }
+
+        return {
+          framework: f,
+          entries: entries.map((entry) => ({
+            ...entry,
+            docs: entry.docs.map((d) => ({ name: d, existing: findExisting(d, documents) })),
+          })),
+        };
+      }),
     [frameworks, documents, isNb],
   );
+
 
 
 
