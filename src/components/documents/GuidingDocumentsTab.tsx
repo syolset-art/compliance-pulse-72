@@ -41,7 +41,7 @@ function findExisting(docName: string, documents: HubDocument[]): HubDocument | 
   });
 }
 
-export function GuidingDocumentsTab({ frameworks, documents, onUpload }: Props) {
+export function GuidingDocumentsTab({ frameworks, documents, guidanceDocs = [], onUpload }: Props) {
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb" || i18n.language === "no";
   const L = (nb: string, en: string) => (isNb ? nb : en);
@@ -92,8 +92,8 @@ export function GuidingDocumentsTab({ frameworks, documents, onUpload }: Props) 
     <div className="space-y-5">
       <p className="text-sm text-muted-foreground">
         {L(
-          "Dokumentasjon som er veiledende for regelverkene dere har aktivert. Laster dere opp disse, øker modenheten på kravene de treffer.",
-          "Documentation that is guiding for the regulations you have activated. Uploading these increases maturity on the requirements they address.",
+          "Forventet dokumentasjon for regelverkene dere har aktivert. Laster dere opp disse, øker modenheten på kravene de treffer.",
+          "Expected documentation for the regulations you have activated. Uploading these increases maturity on the requirements they address.",
         )}
       </p>
 
