@@ -513,7 +513,17 @@ export default function DocumentHub() {
                           );
                         })()}
                       </TableCell>
-                      <TableCell className="hidden lg:table-cell py-2 text-[13px] text-muted-foreground">
+                      <TableCell
+                        className={cn(
+                          "hidden lg:table-cell py-2 text-[13px]",
+                          doc.status === "expired" || doc.status === "expiring"
+                            ? "text-destructive"
+                            : "text-muted-foreground",
+                        )}
+                      >
+                        {STATUS_LABELS[doc.status][isNb ? "nb" : "en"]}
+                      </TableCell>
+                      <TableCell className="hidden xl:table-cell py-2 text-[13px] text-muted-foreground">
                         {doc.uploadedBy || L("Ukjent", "Unknown")}
                       </TableCell>
                       <TableCell className="py-2 text-[13px] text-muted-foreground">
