@@ -207,6 +207,16 @@ const Regulations = () => {
     [liveCounts]
   );
 
+  const getListStats = useCallback(
+    (fwId: string) => {
+      const live = liveCounts[fwId];
+      const s = live || getDemoStats(fwId);
+      const percent = s.total > 0 ? Math.round((s.met / s.total) * 100) : 0;
+      return { percent, agentFollowUp: 0, waitingYou: 0 };
+    },
+    [liveCounts]
+  );
+
   const currentCounts = useMemo(() => {
     if (!selectedId) return { met: 0, partial: 0, notMet: 0, auto: 0, manual: 0, total: 0 };
     return liveCounts[selectedId] || getDemoStats(selectedId);
