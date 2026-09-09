@@ -64,7 +64,10 @@ export function useDocumentHub() {
         reqEvidence: [...(reqEvidence.data || []), ...prototypeEvidence()] as any[],
       };
     },
-    staleTime: 1000 * 60,
+    staleTime: 0,
+    refetchOnMount: "always",
+    refetchOnWindowFocus: true,
+
   });
 
   const documents: HubDocument[] = useMemo(
