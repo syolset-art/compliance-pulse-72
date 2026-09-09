@@ -3686,8 +3686,9 @@ export type Database = {
           purpose: string | null
           special_categories: string[] | null
           status: string | null
-          system_id: string
+          system_id: string | null
           updated_at: string | null
+          work_area_id: string | null
         }
         Insert: {
           ai_suggested_fields?: Json
@@ -3703,8 +3704,9 @@ export type Database = {
           purpose?: string | null
           special_categories?: string[] | null
           status?: string | null
-          system_id: string
+          system_id?: string | null
           updated_at?: string | null
+          work_area_id?: string | null
         }
         Update: {
           ai_suggested_fields?: Json
@@ -3720,8 +3722,9 @@ export type Database = {
           purpose?: string | null
           special_categories?: string[] | null
           status?: string | null
-          system_id?: string
+          system_id?: string | null
           updated_at?: string | null
+          work_area_id?: string | null
         }
         Relationships: [
           {
@@ -3729,6 +3732,13 @@ export type Database = {
             columns: ["system_id"]
             isOneToOne: false
             referencedRelation: "systems"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "system_processes_work_area_id_fkey"
+            columns: ["work_area_id"]
+            isOneToOne: false
+            referencedRelation: "work_areas"
             referencedColumns: ["id"]
           },
         ]

@@ -304,6 +304,69 @@ const ReportsMenu = () => {
 
 
 
+// Agents — eget toppnivå-punkt med undermeny (kartlegging, register, forslag, kontrakter)
+const AgentsMenu = () => {
+  const location = useLocation();
+  const items = [
+    { name: "Oversikt", href: "/agents", icon: Bot },
+    { name: "Kartlegging", href: "/agents/mapping", icon: Layers },
+    { name: "Alle agenter", href: "/agents/all", icon: Bot },
+    { name: "Forslag", href: "/agents/suggestions", icon: Sparkles },
+    { name: "Arbeidskontrakter", href: "/agents/contracts", icon: FileText },
+  ];
+  const isActive = location.pathname === "/agents" || location.pathname.startsWith("/agents/");
+  const [open, setOpen] = useState(isActive);
+
+  useEffect(() => {
+    if (isActive) setOpen(true);
+  }, [isActive]);
+
+  return (
+    <div className="mt-1">
+      <button
+        onClick={() => setOpen(!open)}
+        className={cn(
+          "flex w-full items-center justify-between rounded-lg px-3 py-2 text-[0.9375rem] font-medium transition-all duration-200",
+          isActive
+            ? "bg-gradient-to-r from-primary/10 to-transparent text-sidebar-primary border-l-2 border-primary"
+            : "text-sidebar-foreground/80 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
+        )}
+      >
+        <div className="flex items-center gap-2.5">
+          <Bot className="h-4 w-4" />
+          <span>Agents</span>
+        </div>
+        <ChevronDown className={cn("h-3.5 w-3.5 transition-transform duration-200", open && "rotate-180")} />
+      </button>
+
+      <div className={cn("overflow-hidden transition-all duration-200", open ? "max-h-80 opacity-100" : "max-h-0 opacity-0")}>
+        <div className="ml-3 mt-0.5 space-y-0.5 border-l border-sidebar-border/50 pl-3">
+          {items.map((item) => {
+            const active = location.pathname === item.href;
+            return (
+              <Link
+                key={item.href}
+                to={item.href}
+                className={cn(
+                  "flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-sm font-medium transition-all duration-150",
+                  active
+                    ? "bg-sidebar-accent text-sidebar-primary"
+                    : "text-sidebar-foreground/60 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
+                )}
+              >
+                {active && <span className="h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />}
+                <item.icon className="h-3.5 w-3.5" />
+                {item.name}
+              </Link>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+
 // Partner-modus: egen sidebar-meny som erstatter compliance-navigasjonen
 const PartnerNav = () => {
   const location = useLocation();
@@ -821,22 +884,9 @@ const SidebarContent = () => {
 
 
 
-        {/* Agenter — eget punkt når agentmodulen er tilgjengelig */}
-        {hasAgentsAccess && !partnerHides("registries") && (
-          <Link
-            to={agentsLink.href}
-            className={cn(
-              "flex items-center gap-2.5 rounded-lg px-3 py-2 text-[0.9375rem] font-medium transition-all duration-200 relative",
-              isAgentsActive
-                ? "bg-gradient-to-r from-primary/10 to-transparent text-sidebar-primary border-l-2 border-primary"
-                : "text-sidebar-foreground/80 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
-            )}
-          >
-            {isAgentsActive && <span className="h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />}
-            <agentsLink.icon className="h-4 w-4" />
-            <span className="text-sm font-semibold">{t(agentsLink.name)}</span>
-          </Link>
-        )}
+        {/* Agents — eget toppnivå-punkt med undermeny */}
+        {hasAgentsAccess && !partnerHides("registries") && <AgentsMenu />}
+
 
         {/* "Moduler" fjernet fra hovedmenyen — produkter administreres nå under Innstillinger → Produkter. */}
 
