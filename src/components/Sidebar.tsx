@@ -566,6 +566,8 @@ const SidebarContent = () => {
     return () => window.removeEventListener("modules:changed", sync);
   }, []);
 
+  const hasAgentsAccess = agentsServiceActive || agentsModuleActive;
+
 
   const isVendorsActivating = activatingModules.has("vendors") && !hasRegistriesAccess;
   const isCoreActivating = activatingModules.has("core") && !(selectedCoreAtOnboarding || hasCoreAccess);
