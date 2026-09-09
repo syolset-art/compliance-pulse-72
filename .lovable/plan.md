@@ -2,9 +2,17 @@
 
 Mynder skal ikke bare være compliance. Kunden skal oppleve at de bygger og styrer **sine egne agenter** — i HR, salg, kommunikasjon, økonomi, drift — og at Mynder er orkestreringslaget rundt dem: identitet, arbeidskontrakt, eier, verdikjede, datafølsomhet og logg.
 
-Forslagene kommer fra kartleggingen i Core (prosesser → egnethet), men **agentene selv bor i et eget toppnivå-menypunkt «Agents»**.
+Agents skal kunne stå på egne ben. En kunde som bare vil ha agenter — uten Core, uten systemregister, uten arbeidsområder fra før — skal kunne starte her, og kartleggingen de gjør skal senere kunne gjenbrukes i Core når de vil ha personvern (GDPR), NIS2, risikostyring og kritikalitet på toppen.
 
-Merk: styrende dokument «Prosjekt — Agentlaget i Mynder Core» sier eksplisitt «ikke eget toppnivå-menypunkt», med begrunnelse om å unngå parallell kartlegging. Denne planen holder kartleggingen i Core og lar Agents kun være registeret/arbeidsflaten for agentene — altså ingen ny kartlegging. Det bør noteres som en bevisst avvikende beslutning.
+Styrende dokument «Prosjekt — Agentlaget i Mynder Core» sier «ikke eget toppnivå-menypunkt», begrunnet i faren for parallell kartlegging. Vi gjør et bevisst unntak, men fjerner den faren ved at Agents og Core deler **samme** datamodell for arbeidsområder og prosesser — det er én kartlegging, sett fra to innganger.
+
+## To innganger, én kartlegging
+
+- **Har Core:** arbeidsområder og prosesser finnes allerede. Agents viser forslag basert på dem, og lenker til Core for kartleggingen.
+- **Har ikke Core:** Agents viser en lettvekts kartlegging i samme skjermbilde — først arbeidsområder («Hvilke deler av virksomheten jobber dere i?»), så prosesser under hvert område («Hvilke oppgaver gjøres her?»). Ingen systemer, ingen compliance-felt, ingen krav om noe annet enn navn og en kort beskrivelse.
+
+Det som lagres er de samme radene Core bruker (`work_areas`, `system_processes`). Aktiverer kunden Core senere, ligger kartleggingen allerede der — og da kommer personvern, RoPA, NIS2, risiko og kritikalitet som et lag på toppen, uten å gjøre jobben på nytt. Dette er selve salgsargumentet og skal sies eksplisitt i grensesnittet: «Kartleggingen du gjør her brukes også hvis du senere tar i bruk Core.»
+
 
 ## Slik oppleves det (Notion-inspirert)
 
