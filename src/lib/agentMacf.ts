@@ -26,9 +26,70 @@ export interface AIAgent {
    * på tvers av flere arbeidsområder uten egen kobling.
    */
   process_names?: string[];
+  /** Fagområde agenten jobber i — viser at dette ikke bare er compliance. */
+  domain?: AgentDomain;
+  /** Navngitt eier (person), i tillegg til eier-team. */
+  owner_name?: string;
+  /** Er personopplysninger eller sensitive data involvert? */
+  sensitive_data?: boolean;
+  /** Livsløp: utkast → i test → aktiv → satt på pause. */
+  lifecycle?: AgentLifecycle;
+  /** Arbeidskontrakten — hva agenten gjør, kan selv, og må få godkjent. */
+  contract?: AgentContract;
   created_at: string;
   updated_at: string;
 }
+
+export type AgentDomain = "hr" | "sales" | "comms" | "finance" | "ops" | "compliance";
+
+export type AgentLifecycle = "draft" | "testing" | "active" | "paused";
+
+export interface AgentContract {
+  /** Steg for steg — hva jobben består av. */
+  steps: string[];
+  /** Hva agenten kan gjøre selv. */
+  allowed: string[];
+  /** Hva som krever menneskelig godkjenning. */
+  approvals: string[];
+  version: number;
+  /** Foreslått av Lara til et menneske har bekreftet. */
+  confirmed: boolean;
+  confirmed_by?: string;
+}
+
+export const DOMAINS: AgentDomain[] = ["hr", "sales", "comms", "finance", "ops", "compliance"];
+
+export const domainLabel = (d: AgentDomain): string => {
+  switch (d) {
+    case "hr": return "HR og personal";
+    case "sales": return "Salg";
+    case "comms": return "Kommunikasjon";
+    case "finance": return "Økonomi";
+    case "ops": return "Drift";
+    case "compliance": return "Etterlevelse";
+  }
+};
+
+export const domainBadgeClass = (d: AgentDomain): string => {
+  switch (d) {
+    case "hr": return "bg-primary/10 text-primary border-primary/25";
+    case "sales": return "bg-success/10 text-success border-success/25";
+    case "comms": return "bg-warning/10 text-warning border-warning/25";
+    case "finance": return "bg-primary/10 text-primary border-primary/25";
+    case "ops": return "bg-muted text-muted-foreground border-border";
+    case "compliance": return "bg-muted text-muted-foreground border-border";
+  }
+};
+
+export const lifecycleLabel = (l: AgentLifecycle): string => {
+  switch (l) {
+    case "draft": return "Utkast";
+    case "testing": return "I test";
+    case "active": return "Aktiv";
+    case "paused": return "Satt på pause";
+  }
+};
+
 
 export const MACF_LEVELS: MacfLevel[] = ["not_assessed", "L1", "L2", "L3", "L3_pending"];
 
@@ -191,7 +252,160 @@ export const DEMO_AGENTS: AIAgent[] = [
     process_names: ["Leverandørfaktura", "Bruk av Slack"],
     created_at: now, updated_at: now,
   },
+  {
+    id: "onboarding-assistant",
+    name: "Onboarding-assistent",
+    subtitle: "HR · klargjør alt en ny ansatt trenger",
+    kind: "mynder",
+    provider: "Mynder",
+    owner_team: "HR",
+    owner_name: "Kari Nordmann",
+    domain: "hr",
+    lifecycle: "active",
+    sensitive_data: true,
+    status: "active",
+    macf_level: "L2",
+    trust_score: 78,
+    purpose: "Samler utstyr, tilganger og dokumenter før første arbeidsdag.",
+    data_scope: ["Ansattopplysninger", "Tilgangslister"],
+    tools: ["hr.read", "task.create"],
+    audit_logging: true,
+    rbac_roles: ["hr.user"],
+    process_names: ["Onboarding av ansatt"],
+    contract: {
+      steps: [
+        "Fanger opp ny ansettelse",
+        "Lager sjekkliste for utstyr og tilganger",
+        "Varsler leder og IT",
+        "Følger opp åpne punkter",
+      ],
+      allowed: ["Lese ansattdata", "Opprette oppgaver", "Sende påminnelser"],
+      approvals: ["Tildeling av tilganger", "Utsending til den ansatte"],
+      version: 1,
+      confirmed: true,
+      confirmed_by: "Kari Nordmann",
+    },
+    created_at: now, updated_at: now,
+  },
+  {
+    id: "offer-draft-agent",
+    name: "Tilbudsutkast",
+    subtitle: "Salg · skriver førsteutkast til tilbud",
+    kind: "mynder",
+    provider: "Mynder",
+    owner_team: "Salg",
+    owner_name: "Jonas Berg",
+    domain: "sales",
+    lifecycle: "testing",
+    sensitive_data: false,
+    status: "review",
+    macf_level: "L1",
+    trust_score: 62,
+    purpose: "Lager utkast til tilbud basert på tidligere leveranser og prisliste.",
+    data_scope: ["Kundedialog", "Prisliste"],
+    tools: ["crm.read", "doc.draft"],
+    audit_logging: true,
+    rbac_roles: ["sales.user"],
+    process_names: ["Tilbudsprosess"],
+    contract: {
+      steps: ["Leser forespørselen", "Henter tidligere tilbud", "Skriver utkast", "Legger til godkjenning"],
+      allowed: ["Lese CRM", "Skrive utkast"],
+      approvals: ["Sending til kunde", "Endring av pris"],
+      version: 1,
+      confirmed: false,
+    },
+    created_at: now, updated_at: now,
+  },
+  {
+    id: "content-calendar-agent",
+    name: "Innholdskalender",
+    subtitle: "Kommunikasjon · planlegger og forbereder innhold",
+    kind: "mynder",
+    provider: "Mynder",
+    owner_team: "Kommunikasjon",
+    owner_name: "Ada Lie",
+    domain: "comms",
+    lifecycle: "draft",
+    sensitive_data: false,
+    status: "pending",
+    macf_level: "not_assessed",
+    trust_score: 48,
+    purpose: "Foreslår innhold og klargjør utkast til publisering.",
+    data_scope: ["Kampanjeplaner"],
+    tools: ["doc.draft"],
+    audit_logging: false,
+    rbac_roles: ["comms.user"],
+    contract: {
+      steps: ["Foreslår temaer", "Lager utkast", "Legger i kalender"],
+      allowed: ["Lese kampanjeplan", "Skrive utkast"],
+      approvals: ["Publisering"],
+      version: 1,
+      confirmed: false,
+    },
+    created_at: now, updated_at: now,
+  },
+  {
+    id: "vendor-review-agent",
+    name: "Leverandørgjennomgang",
+    subtitle: "Etterlevelse · forbereder årlig gjennomgang",
+    kind: "mynder",
+    provider: "Mynder",
+    owner_team: "Etterlevelse",
+    owner_name: "Vilde Haug",
+    domain: "compliance",
+    lifecycle: "active",
+    sensitive_data: false,
+    status: "active",
+    macf_level: "L2",
+    trust_score: 80,
+    purpose: "Samler dokumentasjon og peker på hull før leverandørgjennomgang.",
+    data_scope: ["Leverandørdokumenter"],
+    tools: ["doc.search", "doc.classify"],
+    audit_logging: true,
+    rbac_roles: ["compliance.user"],
+    process_names: ["Leverandøroppfølging"],
+    contract: {
+      steps: ["Henter dokumentasjon", "Sammenligner mot krav", "Lager gjennomgangsnotat"],
+      allowed: ["Lese dokumenter", "Lage notat"],
+      approvals: ["Konklusjon om leverandøren"],
+      version: 2,
+      confirmed: true,
+      confirmed_by: "Vilde Haug",
+    },
+    created_at: now, updated_at: now,
+  },
+  {
+    id: "invoice-control-agent",
+    name: "Fakturakontroll",
+    subtitle: "Økonomi · kontrollerer leverandørfaktura",
+    kind: "mynder",
+    provider: "Mynder",
+    owner_team: "Økonomi",
+    owner_name: "Per Olsen",
+    domain: "finance",
+    lifecycle: "active",
+    sensitive_data: false,
+    status: "active",
+    macf_level: "L2",
+    trust_score: 83,
+    purpose: "Kontrollerer faktura mot avtale og bestilling før godkjenning.",
+    data_scope: ["Fakturaer", "Avtaler"],
+    tools: ["doc.search", "invoice.match"],
+    audit_logging: true,
+    rbac_roles: ["finance.user"],
+    process_names: ["Leverandørfaktura", "Leverandøroppfølging"],
+    contract: {
+      steps: ["Leser faktura", "Matcher mot avtale", "Flagger avvik", "Sender til godkjenning"],
+      allowed: ["Lese faktura og avtale", "Flagge avvik"],
+      approvals: ["Godkjenning av betaling"],
+      version: 1,
+      confirmed: true,
+      confirmed_by: "Per Olsen",
+    },
+    created_at: now, updated_at: now,
+  },
 ];
+
 
 /**
  * Sørger for at demo-agenter som er lagt til senere (f.eks. den delte

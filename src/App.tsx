@@ -16,7 +16,12 @@ import Auth from "./pages/Auth";
 import SystemTrustProfile from "./pages/SystemTrustProfile";
 import AIAgentSetup from "./pages/AIAgentSetup";
 import AISystemRegistry from "./pages/AISystemRegistry";
-import AgentRegistry from "./pages/AgentRegistry";
+import AgentsOverview from "./pages/agents/AgentsOverview";
+import AgentsMapping from "./pages/agents/AgentsMapping";
+import AgentsAll from "./pages/agents/AgentsAll";
+import AgentSuggestions from "./pages/agents/AgentSuggestions";
+import AgentContracts from "./pages/agents/AgentContracts";
+import AgentBuilder from "./pages/agents/AgentBuilder";
 import AgentProfile from "./pages/AgentProfile";
 import Tasks from "./pages/Tasks";
 import Systems from "./pages/Systems";
@@ -141,7 +146,12 @@ const App = () => (
                   <Route path="/" element={<Index />} />
                   <Route path="/ai-setup" element={<AIAgentSetup />} />
                   <Route path="/ai-registry" element={<AISystemRegistry />} />
-                  <Route path="/agents" element={<AgentRegistry />} />
+                  <Route path="/agents" element={<AgentsOverview />} />
+                  <Route path="/agents/mapping" element={<AgentsMapping />} />
+                  <Route path="/agents/all" element={<AgentsAll />} />
+                  <Route path="/agents/suggestions" element={<AgentSuggestions />} />
+                  <Route path="/agents/contracts" element={<AgentContracts />} />
+                  <Route path="/agents/new" element={<AgentBuilder />} />
                   <Route path="/agents/:id" element={<AgentProfile />} />
                   <Route path="/tasks" element={<Tasks />} />
                   <Route path="/onboarding" element={<Onboarding />} />
