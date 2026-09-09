@@ -394,7 +394,7 @@ export default function DocumentHub() {
               <Table className="w-auto table-auto md:table-fixed md:w-full md:min-w-[640px]">
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="md:w-[35%] md:sm:w-[40%]">{L("Dokument", "Document")}</TableHead>
+                    <TableHead className="sm:w-[40%] md:w-[35%]">{L("Dokument", "Document")}</TableHead>
                     <TableHead className="hidden md:table-cell md:w-[90px]">{L("Klasse", "Class")}</TableHead>
                     <TableHead className="hidden md:table-cell md:w-[120px]">{L("Analyse", "Analysis")}</TableHead>
                     <TableHead className="hidden lg:table-cell md:w-[110px]">{L("Type", "Type")}</TableHead>
