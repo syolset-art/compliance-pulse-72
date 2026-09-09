@@ -173,7 +173,16 @@ export function GuidingDocumentsTab({ frameworks, documents, guidanceDocs = [], 
 
               <CollapsibleContent>
                 <div className="divide-y divide-border border-t border-border">
+                  {total === 0 && (
+                    <p className="px-3 py-3 text-[13px] text-muted-foreground">
+                      {L(
+                        "Vi har ikke kartlagt forventet dokumentasjon for dette regelverket ennå. Dokumenter dere laster opp kan likevel kobles til kravene.",
+                        "We have not mapped expected documentation for this regulation yet. Documents you upload can still be linked to its requirements.",
+                      )}
+                    </p>
+                  )}
                   {group.entries.map((entry) =>
+
                     entry.docs.map((doc) => (
                       <div
                         key={`${entry.key}-${doc.name}`}
