@@ -34,16 +34,33 @@ import {
 import { useDocumentHub } from "@/hooks/useDocumentHub";
 import { UploadHubDocumentDialog } from "@/components/documents/UploadHubDocumentDialog";
 import { DocumentActionButtons } from "@/components/agents/DocumentActionButtons";
-
-import { GuidingDocumentsTab } from "@/components/documents/GuidingDocumentsTab";
+import { Label } from "@/components/ui/label";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { GuidingDocumentsTab } from "@/components/documents/GuidingDocumentsTab";
+import { GoverningDocumentsTab } from "@/components/documents/GoverningDocumentsTab";
+import {
+  readDocGovernance,
+  setDocGovernance,
+  type DocGovernance,
+} from "@/lib/documentGovernance";
+import {
+  DOC_CLASS_HELP,
+  DOC_CLASS_LABELS,
   MODULE_LABELS,
   MODULE_ROUTES,
   STATUS_LABELS,
   TYPE_GROUP_LABELS,
+  docClassFromType,
   documentTypeLabel,
   formatFileSize,
   typeGroup,
+  type HubDocClass,
   type HubDocument,
   type HubModule,
   type HubTypeGroup,
