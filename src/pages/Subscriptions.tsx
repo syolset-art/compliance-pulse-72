@@ -240,6 +240,7 @@ export default function Subscriptions() {
   const [vendorTierMode, setVendorTierMode] = useState<"change" | "activate">("change");
   const [receipt, setReceipt] = useState<ModuleChangeReceipt | null>(null);
   const { current: currentTerms } = useTerms();
+  const { isServiceActive, activateService } = useActivatedServices();
 
   const scheduledCore = moduleStates["core"]?.scheduledTierId
     ? { tier: getCoreTier(moduleStates["core"]!.scheduledTierId as CoreTierId), at: moduleStates["core"]!.scheduledAt! }
