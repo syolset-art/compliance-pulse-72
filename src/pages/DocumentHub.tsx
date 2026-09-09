@@ -439,6 +439,27 @@ export default function DocumentHub() {
                         )}
                       </TableCell>
                       <TableCell className="hidden sm:table-cell py-2">
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Badge
+                                variant="outline"
+                                className={cn(
+                                  "text-[12px] font-normal",
+                                  docClassOf(doc) === "governing" && "border-primary/40 bg-primary/10 text-primary",
+                                  docClassOf(doc) === "unclassified" && "text-muted-foreground",
+                                )}
+                              >
+                                {DOC_CLASS_LABELS[docClassOf(doc)][isNb ? "nb" : "en"]}
+                              </Badge>
+                            </TooltipTrigger>
+                            <TooltipContent className="max-w-xs text-[13px]">
+                              {DOC_CLASS_HELP[docClassOf(doc)][isNb ? "nb" : "en"]}
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell py-2">
                         {scoreDocIds.has(doc.id) ? (
                           <Badge
                             variant="outline"
