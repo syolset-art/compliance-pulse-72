@@ -95,6 +95,100 @@ const TYPE_GROUP_MAP: Record<string, HubTypeGroup> = {
   evidence: "evidence",
 };
 
+/**
+ * Dokumentklasse — skiller virksomhetens egne vedtatte dokumenter (styrende)
+ * fra dokumentasjon på gjennomføring (bevis) og eksterne kilder (veiledende).
+ */
+export type HubDocClass = "governing" | "evidence" | "guidance" | "unclassified";
+
+export const DOC_CLASS_LABELS: Record<HubDocClass, { nb: string; en: string }> = {
+  governing: { nb: "Styrende", en: "Governing" },
+  evidence: { nb: "Bevis", en: "Evidence" },
+  guidance: { nb: "Veiledende", en: "Guidance" },
+  unclassified: { nb: "Ikke klassifisert", en: "Unclassified" },
+};
+
+export const DOC_CLASS_HELP: Record<HubDocClass, { nb: string; en: string }> = {
+  governing: {
+    nb: "Det dere selv har vedtatt: policyer, rutiner, instrukser og avtaler.",
+    en: "What you have decided yourselves: policies, procedures, instructions and agreements.",
+  },
+  evidence: {
+    nb: "Dokumentasjon på at noe faktisk er gjort: rapporter, logger, revisjoner og sertifikater.",
+    en: "Documentation that something was actually done: reports, logs, audits and certificates.",
+  },
+  guidance: {
+    nb: "Eksterne standarder, veiledere og maler dere støtter dere på. Ikke bindende for dere.",
+    en: "External standards, guides and templates you rely on. Not binding for you.",
+  },
+  unclassified: {
+    nb: "Dokumentet er ikke klassifisert ennå. Velg klasse i detaljvisningen.",
+    en: "This document is not classified yet. Choose a class in the detail view.",
+  },
+};
+
+const GOVERNING_TYPES = new Set([
+  "policy",
+  "privacy_policy",
+  "security_policy",
+  "acceptable_use",
+  "incident_response",
+  "data_protection_policy",
+  "procedure",
+  "routine",
+  "instruction",
+  "mandate",
+  "dpa",
+  "agreement",
+  "contract",
+  "sla",
+]);
+
+const EVIDENCE_TYPES_SET = new Set([
+  "audit_report",
+  "soc2_report",
+  "report",
+  "pentest",
+  "certification",
+  "iso27001",
+  "evidence",
+  "log",
+  "test_report",
+]);
+
+const GUIDANCE_TYPES = new Set(["standard", "guidance", "template", "guide"]);
+
+/** Utleder dokumentklasse fra dokumenttypen. Kan overstyres av brukeren. */
+export function docClassFromType(documentType: string | null | undefined): HubDocClass {
+  if (!documentType) return "unclassified";
+  if (GOVERNING_TYPES.has(documentType)) return "governing";
+  if (EVIDENCE_TYPES_SET.has(documentType)) return "evidence";
+  if (GUIDANCE_TYPES.has(documentType)) return "guidance";
+  return "unclassified";
+}
+
+/** Grovt kontrollområde for et styrende dokument, utledet av dokumenttypen. */
+export function docControlArea(documentType: string | null | undefined): string {
+  switch (documentType) {
+    case "privacy_policy":
+    case "data_protection_policy":
+      return "privacy";
+    case "dpa":
+    case "agreement":
+    case "contract":
+    case "sla":
+      return "vendor";
+    case "acceptable_use":
+      return "identityAccess";
+    case "incident_response":
+    case "procedure":
+    case "routine":
+      return "operations";
+    default:
+      return "governance";
+  }
+}
+
 export function typeGroup(documentType: string | null | undefined): HubTypeGroup {
   if (!documentType) return "other";
   return TYPE_GROUP_MAP[documentType] ?? "other";
