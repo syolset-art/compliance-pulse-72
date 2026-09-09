@@ -212,7 +212,7 @@ const Regulations = () => {
       const live = liveCounts[fwId];
       const s = live || getDemoStats(fwId);
       const percent = s.total > 0 ? Math.round((s.met / s.total) * 100) : 0;
-      return { percent, agentFollowUp: 0, waitingYou: 0 };
+      return { frameworkId: fwId, total: s.total, met: s.met, percent, agentFollowUp: 0, waitingYou: 0 };
     },
     [liveCounts]
   );
