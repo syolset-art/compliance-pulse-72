@@ -114,72 +114,105 @@ export function GuidingDocumentsTab({ frameworks, documents, guidanceDocs = [], 
           </CardContent>
         </Card>
       ) : (
-        groups.map((group) => (
-          <div key={group.framework.framework_id} className="space-y-2">
-            <div className="flex items-center gap-2">
-              <h2 className="text-sm font-semibold text-foreground">
-                {group.framework.framework_name}
-              </h2>
-              <Badge variant="outline" className="text-[12px] font-normal">
-                {group.entries.reduce(
-                  (n, e) => n + e.docs.filter((d) => d.existing).length,
-                  0,
-                )}
-                /{group.entries.reduce((n, e) => n + e.docs.length, 0)}{" "}
-                {L("finnes", "present")}
-              </Badge>
-            </div>
+        groups.map((group) => {
+          const fwId = group.framework.framework_id;
+          const present = group.entries.reduce(
+            (n, e) => n + e.docs.filter((d) => d.existing).length,
+            0,
+          );
+          const total = group.entries.reduce((n, e) => n + e.docs.length, 0);
+          const isOpen = openGroups.has(fwId);
 
-            <div className="rounded-lg border border-border divide-y divide-border overflow-hidden">
-              {group.entries.map((entry) =>
-                entry.docs.map((doc) => (
-                  <div
-                    key={`${entry.key}-${doc.name}`}
-                    className="flex items-center gap-3 px-3 py-2"
-                  >
-                    {doc.existing ? (
-                      <CheckCircle2 className="h-4 w-4 text-success shrink-0" aria-hidden="true" />
-                    ) : (
-                      <Circle className="h-4 w-4 text-muted-foreground shrink-0" aria-hidden="true" />
-                    )}
-                    <div className="min-w-0 flex-1">
-                      <p className="text-[13px] font-medium text-foreground truncate">{doc.name}</p>
-                      <p className="text-[12px] text-muted-foreground truncate">{entry.label}</p>
-                    </div>
-                    {doc.existing ? (
-                      <Badge
-                        variant="outline"
-                        className="shrink-0 border-success bg-success/10 text-foreground text-[12px] font-normal"
-                      >
-                        {L("Finnes", "Present")}
-                      </Badge>
-                    ) : (
-                      <div className="flex items-center gap-2 shrink-0">
-                        <Badge
-                          variant="outline"
-                          className="border-border bg-muted text-foreground text-[12px] font-normal"
-                        >
-                          {L("Mangler", "Missing")}
-                        </Badge>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="h-7 gap-1.5 shrink-0"
-                        onClick={() =>
-                          onUpload({ name: doc.name, frameworkId: group.framework.framework_id })
-                        }
-                      >
-                        <Upload className="h-3.5 w-3.5" aria-hidden="true" />
-                        {L("Last opp", "Upload")}
-                      </Button>
-                      </div>
-                    )}
+          return (
+            <Collapsible
+              key={fwId}
+              open={isOpen}
+              onOpenChange={(open) => {
+                setOpenGroups((prev) => {
+                  const next = new Set(prev);
+                  if (open) next.add(fwId);
+                  else next.delete(fwId);
+                  return next;
+                });
+              }}
+              className="rounded-lg border border-border overflow-hidden"
+            >
+              <CollapsibleTrigger asChild>
+                <button
+                  type="button"
+                  className="flex w-full items-center justify-between gap-3 px-3 py-2.5 text-left hover:bg-muted/50 transition-colors"
+                  aria-expanded={isOpen}
+                >
+                  <div className="flex items-center gap-2 min-w-0">
+                    <h2 className="text-sm font-semibold text-foreground truncate">
+                      {group.framework.framework_name}
+                    </h2>
+                    <Badge variant="outline" className="text-[12px] font-normal shrink-0">
+                      {present}/{total} {L("finnes", "present")}
+                    </Badge>
                   </div>
-                )),
-              )}
-            </div>
-          </div>
-        ))
+                  <ChevronDown
+                    className={`h-4 w-4 text-muted-foreground shrink-0 transition-transform ${
+                      isOpen ? "rotate-180" : ""
+                    }`}
+                    aria-hidden="true"
+                  />
+                </button>
+              </CollapsibleTrigger>
+
+              <CollapsibleContent>
+                <div className="divide-y divide-border border-t border-border">
+                  {group.entries.map((entry) =>
+                    entry.docs.map((doc) => (
+                      <div
+                        key={`${entry.key}-${doc.name}`}
+                        className="flex items-center gap-3 px-3 py-2"
+                      >
+                        {doc.existing ? (
+                          <CheckCircle2 className="h-4 w-4 text-success shrink-0" aria-hidden="true" />
+                        ) : (
+                          <Circle className="h-4 w-4 text-muted-foreground shrink-0" aria-hidden="true" />
+                        )}
+                        <div className="min-w-0 flex-1">
+                          <p className="text-[13px] font-medium text-foreground truncate">{doc.name}</p>
+                          <p className="text-[12px] text-muted-foreground truncate">{entry.label}</p>
+                        </div>
+                        {doc.existing ? (
+                          <Badge
+                            variant="outline"
+                            className="shrink-0 border-success bg-success/10 text-foreground text-[12px] font-normal"
+                          >
+                            {L("Finnes", "Present")}
+                          </Badge>
+                        ) : (
+                          <div className="flex items-center gap-2 shrink-0">
+                            <Badge
+                              variant="outline"
+                              className="border-border bg-muted text-foreground text-[12px] font-normal"
+                            >
+                              {L("Mangler", "Missing")}
+                            </Badge>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-7 gap-1.5 shrink-0"
+                              onClick={() =>
+                                onUpload({ name: doc.name, frameworkId: group.framework.framework_id })
+                              }
+                            >
+                              <Upload className="h-3.5 w-3.5" aria-hidden="true" />
+                              {L("Last opp", "Upload")}
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    )),
+                  )}
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
+          );
+        })
       )}
 
       {guidanceDocs.length > 0 && (
