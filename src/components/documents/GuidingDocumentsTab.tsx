@@ -11,7 +11,7 @@ import {
 import { getRequirementsByFramework } from "@/lib/complianceRequirementsData";
 import { toCanonicalArea, getControlAreaLabel } from "@/lib/controlAreas";
 import { expectedDocLabel } from "@/lib/frameworkEvidenceExpectations";
-import { McpDocumentDiscoveryPanel } from "./McpDocumentDiscoveryPanel";
+
 import type { HubDocument } from "@/lib/documentHub";
 
 interface Props {
@@ -195,8 +195,6 @@ export function GuidingDocumentsTab({ frameworks, documents, guidanceDocs = [], 
           </ul>
         </div>
       )}
-
-      <McpDocumentDiscoveryPanel />
     </div>
   );
 }
