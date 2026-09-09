@@ -434,7 +434,7 @@ const SidebarContent = () => {
   const isMynderAdmin = _adminRoles.includes("super_admin") || _adminRoles.includes("daglig_leder");
   const { mode: workspaceMode } = useWorkspaceMode();
   const { isServiceActive } = useActivatedServices();
-  const hasAgentsAccess = isServiceActive("agents");
+  const agentsServiceActive = isServiceActive("agents");
 
   // Check if the current company is already an MSP partner
   const { data: companyProfile } = useQuery({
@@ -556,6 +556,17 @@ const SidebarContent = () => {
     window.addEventListener("modules:changed", sync);
     return () => window.removeEventListener("modules:changed", sync);
   }, []);
+
+  // Mynder Agents (Beta) — opt-in produkt; vises når modulen er aktivert.
+  const [agentsModuleActive, setAgentsModuleActive] = useState(() => !isModuleDeactivated("agents"));
+  useEffect(() => {
+    const sync = () => setAgentsModuleActive(!isModuleDeactivated("agents"));
+    sync();
+    window.addEventListener("modules:changed", sync);
+    return () => window.removeEventListener("modules:changed", sync);
+  }, []);
+
+  const hasAgentsAccess = agentsServiceActive || agentsModuleActive;
 
 
   const isVendorsActivating = activatingModules.has("vendors") && !hasRegistriesAccess;
