@@ -442,16 +442,18 @@ export default function DocumentHub() {
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <Badge
-                                variant="outline"
-                                className={cn(
-                                  "text-[12px] font-normal",
-                                  docClassOf(doc) === "governing" && "border-primary/40 bg-primary/10 text-primary",
-                                  docClassOf(doc) === "unclassified" && "text-muted-foreground",
-                                )}
-                              >
-                                {DOC_CLASS_LABELS[docClassOf(doc)][isNb ? "nb" : "en"]}
-                              </Badge>
+                              <span className="inline-flex">
+                                <Badge
+                                  variant="outline"
+                                  className={cn(
+                                    "text-[12px] font-normal",
+                                    docClassOf(doc) === "governing" && "border-primary/40 bg-primary/10 text-primary",
+                                    docClassOf(doc) === "unclassified" && "text-muted-foreground",
+                                  )}
+                                >
+                                  {DOC_CLASS_LABELS[docClassOf(doc)][isNb ? "nb" : "en"]}
+                                </Badge>
+                              </span>
                             </TooltipTrigger>
                             <TooltipContent className="max-w-xs text-[13px]">
                               {DOC_CLASS_HELP[docClassOf(doc)][isNb ? "nb" : "en"]}
