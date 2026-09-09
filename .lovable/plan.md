@@ -71,10 +71,13 @@ Ingen skjemaendring i denne runden. Prototypen bygger videre på det som finnes.
 - `src/lib/agentMacf.ts` — utvid `AIAgent` med `domain`, `contract` (steg, fullmakter, godkjenninger), `owner_name`, `sensitive_data`, `lifecycle`. Behold localStorage som lager.
 - `src/lib/agentWorkAreas.ts` / `useWorkAreaAgents.ts` — gjenbrukes uendret for verdikjede-koblingen og «Delt (n)».
 - `src/components/Sidebar.tsx` — nytt toppnivå-punkt `Agents` med undermeny; `agentsLink` flyttes hit.
-- Nye ruter: `/agents` (oversikt), `/agents/all` (dagens tabell), `/agents/suggestions`, `/agents/contracts`, `/agents/new`. `/agents/:id` beholdes og utvides.
-- Nye komponenter: `AgentsOverview`, `AgentCostCard`, `AgentGovernanceControls` (pause + hvem kan opprette), `AgentBuilderWizard`, `AgentContractCard`, `AgentDomainBadge`.
+- Nye ruter: `/agents` (oversikt), `/agents/mapping` (lettvekts kartlegging), `/agents/all` (dagens tabell), `/agents/suggestions`, `/agents/contracts`, `/agents/new`. `/agents/:id` beholdes og utvides.
+- Nye komponenter: `AgentsOverview`, `AgentCostCard`, `AgentGovernanceControls` (pause + hvem kan opprette), `AgentMappingPage` (arbeidsområde → prosesser), `AgentBuilderWizard`, `AgentContractCard`, `AgentDomainBadge`.
+- Kartleggingen skriver til eksisterende `work_areas` og `system_processes` — samme rader som Core. Prosesser opprettet i Agents får ikke system-kobling; Core må derfor tåle prosesser uten system (verifiseres før bygging, siden dagens avledning går prosess → system → arbeidsområde). Trengs en direkte `work_area_id` på prosess, er det den eneste skjemaendringen i denne runden.
+- Tilgang: `useSubscription().hasCoreAccess` styrer om kartleggingsskjermen lenker til Core eller viser den lettvekts varianten. Agents vises uavhengig av Core.
 - Forslagslisten leser `process_agent_recommendations` via eksisterende hook; «Bygg agent» setter status `recruited` med dagens `recruitAgent()`.
 - Rapporten `/reports/ai-agents` beholdes og lenkes fra oversikten.
+
 
 ## Vi bygger ikke nå
 
