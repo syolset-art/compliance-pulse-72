@@ -502,7 +502,7 @@ const Regulations = () => {
                   <FrameworkOverviewList
                     frameworks={activeFrameworks}
                     selectedId={selectedId}
-                    onSelect={(id) => setSelectedId(id)}
+                    onSelect={(id) => { setSelectedId(id); setSummaryExpanded(false); }}
                     getStats={getListStats}
                   />
                 </>
