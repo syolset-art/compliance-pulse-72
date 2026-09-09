@@ -434,7 +434,7 @@ const SidebarContent = () => {
   const isMynderAdmin = _adminRoles.includes("super_admin") || _adminRoles.includes("daglig_leder");
   const { mode: workspaceMode } = useWorkspaceMode();
   const { isServiceActive } = useActivatedServices();
-  const hasAgentsAccess = isServiceActive("agents");
+  const agentsServiceActive = isServiceActive("agents");
 
   // Check if the current company is already an MSP partner
   const { data: companyProfile } = useQuery({
