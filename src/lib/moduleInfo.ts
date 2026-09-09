@@ -101,7 +101,7 @@ export const MODULE_INFO: Record<ModuleKey, ModuleInfo> = {
 
 
   agents: {
-    title: "Mynder Agents",
+    title: "Mynder Agents (Beta)",
     tagline: "Kartlegg, dokumenter og styr KI-agentene",
     description:
       "Mynder Agents gir oversikt over KI-agentene virksomheten bruker — hvem som eier dem, hva de har lov til, og hvilke oppgaver de gjør. Kan brukes alene, eller sammen med Core for personvern og risiko.",
