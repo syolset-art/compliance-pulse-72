@@ -27,7 +27,16 @@ interface Props {
   onUpload: (preset: { name: string; frameworkId: string }) => void;
 }
 
+/** Regelverks-IDer i basen som peker til samme dokumentkatalog. */
+const FRAMEWORK_ID_ALIASES: Record<string, string> = {
+  "ai-act": "aiact",
+  ai_act: "aiact",
+  personopplysningsloven: "gdpr",
+  iso27701: "gdpr",
+};
+
 function normalise(text: string): string[] {
+
   return text
     .toLowerCase()
     .replace(/\.[a-z0-9]+$/i, "")
