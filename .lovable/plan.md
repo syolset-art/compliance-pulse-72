@@ -2,9 +2,17 @@
 
 Mynder skal ikke bare være compliance. Kunden skal oppleve at de bygger og styrer **sine egne agenter** — i HR, salg, kommunikasjon, økonomi, drift — og at Mynder er orkestreringslaget rundt dem: identitet, arbeidskontrakt, eier, verdikjede, datafølsomhet og logg.
 
-Forslagene kommer fra kartleggingen i Core (prosesser → egnethet), men **agentene selv bor i et eget toppnivå-menypunkt «Agents»**.
+Agents skal kunne stå på egne ben. En kunde som bare vil ha agenter — uten Core, uten systemregister, uten arbeidsområder fra før — skal kunne starte her, og kartleggingen de gjør skal senere kunne gjenbrukes i Core når de vil ha personvern (GDPR), NIS2, risikostyring og kritikalitet på toppen.
 
-Merk: styrende dokument «Prosjekt — Agentlaget i Mynder Core» sier eksplisitt «ikke eget toppnivå-menypunkt», med begrunnelse om å unngå parallell kartlegging. Denne planen holder kartleggingen i Core og lar Agents kun være registeret/arbeidsflaten for agentene — altså ingen ny kartlegging. Det bør noteres som en bevisst avvikende beslutning.
+Styrende dokument «Prosjekt — Agentlaget i Mynder Core» sier «ikke eget toppnivå-menypunkt», begrunnet i faren for parallell kartlegging. Vi gjør et bevisst unntak, men fjerner den faren ved at Agents og Core deler **samme** datamodell for arbeidsområder og prosesser — det er én kartlegging, sett fra to innganger.
+
+## To innganger, én kartlegging
+
+- **Har Core:** arbeidsområder og prosesser finnes allerede. Agents viser forslag basert på dem, og lenker til Core for kartleggingen.
+- **Har ikke Core:** Agents viser en lettvekts kartlegging i samme skjermbilde — først arbeidsområder («Hvilke deler av virksomheten jobber dere i?»), så prosesser under hvert område («Hvilke oppgaver gjøres her?»). Ingen systemer, ingen compliance-felt, ingen krav om noe annet enn navn og en kort beskrivelse.
+
+Det som lagres er de samme radene Core bruker (`work_areas`, `system_processes`). Aktiverer kunden Core senere, ligger kartleggingen allerede der — og da kommer personvern, RoPA, NIS2, risiko og kritikalitet som et lag på toppen, uten å gjøre jobben på nytt. Dette er selve salgsargumentet og skal sies eksplisitt i grensesnittet: «Kartleggingen du gjør her brukes også hvis du senere tar i bruk Core.»
+
 
 ## Slik oppleves det (Notion-inspirert)
 
@@ -22,11 +30,13 @@ Notions Workers-side er intuitiv fordi den gjør fire ting på én skjerm: forkl
 Nytt toppnivå-punkt **Agents** rett etter Core-seksjonen (samme stil som Trust Center / Styrerom). Under det:
 
 - **Oversikt** — skjermen beskrevet over
+- **Kartlegging** — arbeidsområder og prosessene under dem. Vises alltid; har kunden Core, er dette de samme dataene og skjermen lenker videre dit.
 - **Alle agenter** — registeret (dagens `/agents`-tabell, utvidet)
-- **Forslag** — agentforslag fra prosesskartleggingen i Core
+- **Forslag** — agentforslag utledet fra prosessene
 - **Arbeidskontrakter** — bibliotek over playbooks/maler
 
-Core beholder kartleggingen (arbeidsområder, prosesser, KI-muligheter). Der en agent i dag aktiveres fra en prosess, får brukeren nå tydelig beskjed: «Agenten er opprettet og ligger under Agents».
+Har kunden Core, beholdes dagens flyt der: aktiverer man en agent fra en prosess, sier grensesnittet «Agenten er opprettet og ligger under Agents».
+
 
 ## Agenten som objekt
 
@@ -61,10 +71,13 @@ Ingen skjemaendring i denne runden. Prototypen bygger videre på det som finnes.
 - `src/lib/agentMacf.ts` — utvid `AIAgent` med `domain`, `contract` (steg, fullmakter, godkjenninger), `owner_name`, `sensitive_data`, `lifecycle`. Behold localStorage som lager.
 - `src/lib/agentWorkAreas.ts` / `useWorkAreaAgents.ts` — gjenbrukes uendret for verdikjede-koblingen og «Delt (n)».
 - `src/components/Sidebar.tsx` — nytt toppnivå-punkt `Agents` med undermeny; `agentsLink` flyttes hit.
-- Nye ruter: `/agents` (oversikt), `/agents/all` (dagens tabell), `/agents/suggestions`, `/agents/contracts`, `/agents/new`. `/agents/:id` beholdes og utvides.
-- Nye komponenter: `AgentsOverview`, `AgentCostCard`, `AgentGovernanceControls` (pause + hvem kan opprette), `AgentBuilderWizard`, `AgentContractCard`, `AgentDomainBadge`.
+- Nye ruter: `/agents` (oversikt), `/agents/mapping` (lettvekts kartlegging), `/agents/all` (dagens tabell), `/agents/suggestions`, `/agents/contracts`, `/agents/new`. `/agents/:id` beholdes og utvides.
+- Nye komponenter: `AgentsOverview`, `AgentCostCard`, `AgentGovernanceControls` (pause + hvem kan opprette), `AgentMappingPage` (arbeidsområde → prosesser), `AgentBuilderWizard`, `AgentContractCard`, `AgentDomainBadge`.
+- Kartleggingen skriver til eksisterende `work_areas` og `system_processes` — samme rader som Core. Prosesser opprettet i Agents får ikke system-kobling; Core må derfor tåle prosesser uten system (verifiseres før bygging, siden dagens avledning går prosess → system → arbeidsområde). Trengs en direkte `work_area_id` på prosess, er det den eneste skjemaendringen i denne runden.
+- Tilgang: `useSubscription().hasCoreAccess` styrer om kartleggingsskjermen lenker til Core eller viser den lettvekts varianten. Agents vises uavhengig av Core.
 - Forslagslisten leser `process_agent_recommendations` via eksisterende hook; «Bygg agent» setter status `recruited` med dagens `recruitAgent()`.
 - Rapporten `/reports/ai-agents` beholdes og lenkes fra oversikten.
+
 
 ## Vi bygger ikke nå
 
