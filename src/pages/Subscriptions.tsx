@@ -450,9 +450,10 @@ export default function Subscriptions() {
     if (!deactivatedModules.has("vendors")) total += vendorMonthlyPrice;
     if (!deactivatedModules.has("assets")) total += assetMonthlyPrice;
     if (!deactivatedModules.has("trust")) total += TRUST_CENTER_PRICE_KR;
+    if (isServiceActive("agents") && !deactivatedModules.has("agents")) total += AGENTS_PRICE_KR;
     if (hasPartnerAccess && !deactivatedModules.has("partner")) total += partnerWorkspaceMonthlyPrice;
     return total;
-  }, [corePrice, activeFrameworkCount, frameworkMonthlyPrice, vendorMonthlyPrice, assetMonthlyPrice, hasPartnerAccess, deactivatedModules]);
+  }, [corePrice, activeFrameworkCount, frameworkMonthlyPrice, vendorMonthlyPrice, assetMonthlyPrice, hasPartnerAccess, deactivatedModules, isServiceActive]);
 
   const handleCoreTierSelect = (nextTierId: CoreTierId) => {
     setPendingCoreTierId(nextTierId);
