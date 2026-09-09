@@ -317,7 +317,32 @@ export default function DocumentHub() {
                     )}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent align="end" className="w-80 space-y-4">
+                <PopoverContent align="end" className="w-80 space-y-4 max-h-[70vh] overflow-y-auto">
+                  {activeFrameworks.length > 0 && (
+                    <FilterGroup title={L("Regelverk", "Regulations")}>
+                      {activeFrameworks.map((f) => (
+                        <button
+                          key={f.framework_id}
+                          className={pill(frameworkFilter.includes(f.framework_id))}
+                          onClick={() => toggle(frameworkFilter, setFrameworkFilter, f.framework_id)}
+                        >
+                          {f.framework_name}
+                        </button>
+                      ))}
+                    </FilterGroup>
+                  )}
+                  <FilterGroup title={L("Dokumentklasse", "Document class")}>
+                    {(Object.keys(DOC_CLASS_LABELS) as HubDocClass[]).map((c) => (
+                      <button
+                        key={c}
+                        className={pill(classes.includes(c))}
+                        onClick={() => toggle(classes, setClasses, c)}
+                        title={DOC_CLASS_HELP[c][isNb ? "nb" : "en"]}
+                      >
+                        {DOC_CLASS_LABELS[c][isNb ? "nb" : "en"]}
+                      </button>
+                    ))}
+                  </FilterGroup>
                   <FilterGroup title={L("Modul", "Module")}>
                     {(Object.keys(MODULE_LABELS) as HubModule[]).map((m) => (
                       <button key={m} className={pill(modules.includes(m))} onClick={() => toggle(modules, setModules, m)}>
