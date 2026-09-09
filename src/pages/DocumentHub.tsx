@@ -216,24 +216,34 @@ export default function DocumentHub() {
             </div>
             <p className="text-sm text-muted-foreground">
               {L(
-                "Alle dokumenter dere har lastet opp – samlet på tvers av moduler.",
-                "Every document you have uploaded – collected across modules.",
+                `${stats.total} dokumenter · ${stats.governing} styrende · ${stats.affectsScore} dekker aktiverte krav · ${stats.attention} krever oppfølging`,
+                `${stats.total} documents · ${stats.governing} governing · ${stats.affectsScore} cover activated requirements · ${stats.attention} need attention`,
               )}
             </p>
           </header>
 
           <Tabs defaultValue="mine" className="space-y-5">
             <TabsList>
-              <TabsTrigger value="mine">{L("Mine dokumenter", "My documents")}</TabsTrigger>
-              <TabsTrigger value="guiding">
-                {L("Veiledende dokumentasjon", "Guiding documentation")}
+              <TabsTrigger value="mine">{L("Alle dokumenter", "All documents")}</TabsTrigger>
+              <TabsTrigger value="governing">
+                {L("Styrende dokumenter", "Governing documents")}
               </TabsTrigger>
+              <TabsTrigger value="guiding">{L("Dokumentkrav", "Documentation requirements")}</TabsTrigger>
             </TabsList>
+
+            <TabsContent value="governing" className="space-y-5">
+              <GoverningDocumentsTab
+                documents={governingDocs}
+                governance={governance}
+                onSelect={setSelected}
+              />
+            </TabsContent>
 
             <TabsContent value="guiding" className="space-y-5">
               <GuidingDocumentsTab
                 frameworks={activeFrameworks}
                 documents={documents}
+                guidanceDocs={guidanceDocs}
                 onUpload={({ name, frameworkId }) => {
                   setPreset({ name, frameworkId });
                   setUploadOpen(true);
