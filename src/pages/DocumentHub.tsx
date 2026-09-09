@@ -395,6 +395,7 @@ export default function DocumentHub() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>{L("Dokument", "Document")}</TableHead>
+                    <TableHead className="hidden sm:table-cell">{L("Klasse", "Class")}</TableHead>
                     <TableHead className="hidden sm:table-cell">{L("Analyse", "Analysis")}</TableHead>
                     <TableHead className="hidden md:table-cell">{L("Type", "Type")}</TableHead>
                     <TableHead className="hidden md:table-cell">
