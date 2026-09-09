@@ -391,14 +391,14 @@ export default function DocumentHub() {
             </Card>
           ) : (
             <div className="rounded-lg border border-border overflow-x-auto">
-              <Table className="table-fixed w-full min-w-full md:min-w-[640px]">
+              <Table className="w-auto table-auto md:table-fixed md:w-full md:min-w-[640px]">
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-[35%] sm:w-[40%]">{L("Dokument", "Document")}</TableHead>
-                    <TableHead className="hidden md:table-cell w-[90px]">{L("Klasse", "Class")}</TableHead>
-                    <TableHead className="hidden md:table-cell w-[120px]">{L("Analyse", "Analysis")}</TableHead>
-                    <TableHead className="hidden lg:table-cell w-[110px]">{L("Type", "Type")}</TableHead>
-                    <TableHead className="hidden lg:table-cell w-[110px]">
+                    <TableHead className="md:w-[35%] md:sm:w-[40%]">{L("Dokument", "Document")}</TableHead>
+                    <TableHead className="hidden md:table-cell md:w-[90px]">{L("Klasse", "Class")}</TableHead>
+                    <TableHead className="hidden md:table-cell md:w-[120px]">{L("Analyse", "Analysis")}</TableHead>
+                    <TableHead className="hidden lg:table-cell md:w-[110px]">{L("Type", "Type")}</TableHead>
+                    <TableHead className="hidden lg:table-cell md:w-[110px]">
                       <div className="flex items-center gap-1.5">
                         {L("Modul", "Module")}
                         <TooltipProvider>
@@ -416,8 +416,8 @@ export default function DocumentHub() {
                         </TooltipProvider>
                       </div>
                     </TableHead>
-                    <TableHead className="hidden sm:table-cell w-[90px]">{L("Status", "Status")}</TableHead>
-                    <TableHead className="hidden xl:table-cell w-[110px]">{L("Registrert av", "Registered by")}</TableHead>
+                    <TableHead className="hidden sm:table-cell md:w-[90px]">{L("Status", "Status")}</TableHead>
+                    <TableHead className="hidden xl:table-cell md:w-[110px]">{L("Registrert av", "Registered by")}</TableHead>
                     <TableHead className="w-[90px] text-right">{L("Dato", "Date")}</TableHead>
                   </TableRow>
                 </TableHeader>
