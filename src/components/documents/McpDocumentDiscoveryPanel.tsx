@@ -19,6 +19,7 @@ export function McpDocumentDiscoveryPanel() {
   const L = (nb: string, en: string) => (isNb ? nb : en);
   const { toast } = useToast();
 
+  const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [ran, setRan] = useState(false);
 
