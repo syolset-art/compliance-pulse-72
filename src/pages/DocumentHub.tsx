@@ -394,11 +394,11 @@ export default function DocumentHub() {
               <Table className="w-auto table-auto md:table-fixed md:w-full md:min-w-[640px]">
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="sm:w-[40%] md:w-[35%]">{L("Dokument", "Document")}</TableHead>
-                    <TableHead className="hidden md:table-cell md:w-[90px]">{L("Klasse", "Class")}</TableHead>
-                    <TableHead className="hidden md:table-cell md:w-[120px]">{L("Analyse", "Analysis")}</TableHead>
-                    <TableHead className="hidden lg:table-cell md:w-[110px]">{L("Type", "Type")}</TableHead>
-                    <TableHead className="hidden lg:table-cell md:w-[110px]">
+                    <TableHead className="whitespace-nowrap sm:w-[40%] md:w-[35%]">{L("Dokument", "Document")}</TableHead>
+                    <TableHead className="hidden md:table-cell md:w-[90px] whitespace-nowrap">{L("Klasse", "Class")}</TableHead>
+                    <TableHead className="hidden md:table-cell md:w-[120px] whitespace-nowrap">{L("Analyse", "Analysis")}</TableHead>
+                    <TableHead className="hidden lg:table-cell md:w-[110px] whitespace-nowrap">{L("Type", "Type")}</TableHead>
+                    <TableHead className="hidden lg:table-cell md:w-[110px] whitespace-nowrap">
                       <div className="flex items-center gap-1.5">
                         {L("Modul", "Module")}
                         <TooltipProvider>
@@ -416,9 +416,9 @@ export default function DocumentHub() {
                         </TooltipProvider>
                       </div>
                     </TableHead>
-                    <TableHead className="hidden sm:table-cell md:w-[90px]">{L("Status", "Status")}</TableHead>
-                    <TableHead className="hidden xl:table-cell md:w-[110px]">{L("Registrert av", "Registered by")}</TableHead>
-                    <TableHead className="w-[90px] text-right">{L("Dato", "Date")}</TableHead>
+                    <TableHead className="hidden sm:table-cell md:w-[90px] whitespace-nowrap">{L("Status", "Status")}</TableHead>
+                    <TableHead className="hidden xl:table-cell md:w-[110px] whitespace-nowrap">{L("Registrert av", "Registered by")}</TableHead>
+                    <TableHead className="w-[90px] whitespace-nowrap text-right">{L("Dato", "Date")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
