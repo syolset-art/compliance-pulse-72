@@ -12,8 +12,8 @@ import { ContextualHelpPanel } from "@/components/shared/ContextualHelpPanel";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { frameworks, categories, type Framework } from "@/lib/frameworkDefinitions";
-import { FrameworkChipSelector } from "@/components/regulations/FrameworkChipSelector";
 import { ActiveFrameworksSummary } from "@/components/regulations/ActiveFrameworksSummary";
+import { FrameworkOverviewList } from "@/components/regulations/FrameworkOverviewList";
 import { FrameworkDetailCard } from "@/components/regulations/FrameworkDetailCard";
 import { ComplianceHistoryChart } from "@/components/regulations/ComplianceHistoryChart";
 import { FrameworkRequirementsList } from "@/components/regulations/FrameworkRequirementsList";
@@ -203,6 +203,16 @@ const Regulations = () => {
       if (live) return { met: live.met, total: live.total };
       const s = getDemoStats(fwId);
       return { met: s.met, total: s.total };
+    },
+    [liveCounts]
+  );
+
+  const getListStats = useCallback(
+    (fwId: string) => {
+      const live = liveCounts[fwId];
+      const s = live || getDemoStats(fwId);
+      const percent = s.total > 0 ? Math.round((s.met / s.total) * 100) : 0;
+      return { frameworkId: fwId, total: s.total, met: s.met, percent, agentFollowUp: 0, waitingYou: 0 };
     },
     [liveCounts]
   );
@@ -488,13 +498,12 @@ const Regulations = () => {
                     </Popover>
                   </div>
 
-                  {/* Framework chip selector */}
-                  <FrameworkChipSelector
+                  {/* Framework selector — compact list, one selected at a time */}
+                  <FrameworkOverviewList
                     frameworks={activeFrameworks}
                     selectedId={selectedId}
                     onSelect={(id) => { setSelectedId(id); setSummaryExpanded(false); }}
-                    getStats={getChipStats}
-                    hideSummary
+                    getStats={getListStats}
                   />
                 </>
               )}
