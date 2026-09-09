@@ -5,6 +5,7 @@ export type ModuleKey =
   | "assets"
   | "trust"
   | "deviations"
+  | "agents"
   | "partner";
 
 export interface ModuleInfo {
