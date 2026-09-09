@@ -195,12 +195,12 @@ export default function DocumentHub() {
   return (
     <div className="flex min-h-screen w-full bg-background">
       <Sidebar />
-      <main className="flex-1 p-6 lg:p-8 pt-16 lg:pt-20">
+      <main className="flex-1 min-w-0 p-4 sm:p-6 lg:p-8 pt-16 lg:pt-20">
         <div className="container max-w-5xl mx-auto space-y-5">
           <header className="space-y-1">
-            <div className="flex items-center gap-2">
-              <FolderOpen className="h-5 w-5 text-primary" aria-hidden="true" />
-              <h1 className="text-2xl font-bold text-foreground">{L("Dokument hub", "Document hub")}</h1>
+            <div className="flex flex-wrap items-center gap-2">
+              <FolderOpen className="h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
+              <h1 className="text-xl sm:text-2xl font-bold text-foreground">{L("Dokument hub", "Document hub")}</h1>
               <span className="text-sm font-medium text-muted-foreground">
                 {stats.total} {L("dokumenter", "documents")}
               </span>
@@ -223,12 +223,12 @@ export default function DocumentHub() {
           </header>
 
           <Tabs defaultValue="mine" className="space-y-5">
-            <TabsList>
-              <TabsTrigger value="mine">{L("Alle dokumenter", "All documents")}</TabsTrigger>
-              <TabsTrigger value="governing">
+            <TabsList className="w-full justify-start overflow-x-auto">
+              <TabsTrigger value="mine" className="text-[13px] sm:text-sm">{L("Alle dokumenter", "All documents")}</TabsTrigger>
+              <TabsTrigger value="governing" className="text-[13px] sm:text-sm">
                 {L("Styrende dokumenter", "Governing documents")}
               </TabsTrigger>
-              <TabsTrigger value="guiding">{L("Dokumentkrav", "Documentation requirements")}</TabsTrigger>
+              <TabsTrigger value="guiding" className="text-[13px] sm:text-sm">{L("Dokumentkrav", "Documentation requirements")}</TabsTrigger>
             </TabsList>
 
             <TabsContent value="governing" className="space-y-5">
