@@ -30,11 +30,13 @@ Notions Workers-side er intuitiv fordi den gjør fire ting på én skjerm: forkl
 Nytt toppnivå-punkt **Agents** rett etter Core-seksjonen (samme stil som Trust Center / Styrerom). Under det:
 
 - **Oversikt** — skjermen beskrevet over
+- **Kartlegging** — arbeidsområder og prosessene under dem. Vises alltid; har kunden Core, er dette de samme dataene og skjermen lenker videre dit.
 - **Alle agenter** — registeret (dagens `/agents`-tabell, utvidet)
-- **Forslag** — agentforslag fra prosesskartleggingen i Core
+- **Forslag** — agentforslag utledet fra prosessene
 - **Arbeidskontrakter** — bibliotek over playbooks/maler
 
-Core beholder kartleggingen (arbeidsområder, prosesser, KI-muligheter). Der en agent i dag aktiveres fra en prosess, får brukeren nå tydelig beskjed: «Agenten er opprettet og ligger under Agents».
+Har kunden Core, beholdes dagens flyt der: aktiverer man en agent fra en prosess, sier grensesnittet «Agenten er opprettet og ligger under Agents».
+
 
 ## Agenten som objekt
 
