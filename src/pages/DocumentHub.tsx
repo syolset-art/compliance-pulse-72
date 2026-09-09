@@ -416,7 +416,8 @@ export default function DocumentHub() {
                         </TooltipProvider>
                       </div>
                     </TableHead>
-                    <TableHead className="hidden lg:table-cell">{L("Registrert av", "Registered by")}</TableHead>
+                    <TableHead className="hidden lg:table-cell">{L("Status", "Status")}</TableHead>
+                    <TableHead className="hidden xl:table-cell">{L("Registrert av", "Registered by")}</TableHead>
                     <TableHead>{L("Dato", "Date")}</TableHead>
                   </TableRow>
                 </TableHeader>
