@@ -25,7 +25,7 @@ export function AgentsPageShell({ title, description, actions, children }: Props
     <div className="flex min-h-screen bg-background">
       <Sidebar />
       <div className="flex-1 flex flex-col min-w-0">
-        <main className="flex-1 p-4 sm:p-6 overflow-y-auto pt-16">
+        <main className="flex-1 p-4 pt-16 sm:p-6 sm:pt-20 overflow-y-auto">
           <div className="max-w-6xl mx-auto space-y-5">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div className="min-w-0">
