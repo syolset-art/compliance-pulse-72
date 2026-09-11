@@ -1869,6 +1869,11 @@
     "package": "The requirement package Sara assesses"
   },
   "byoa": {
+    "dpa": {
+      "title": "Who is the data processor when you connect your own AI?",
+      "body": "When you connect your own AI service (e.g. Claude or ChatGPT) to Mynder, that provider is your own supplier — not Mynder's sub-processor. Mynder handles authentication, scoping and logging until the data is delivered to the agent. You are responsible for the agreement with your own AI provider.",
+      "link": "Read the data processing agreement (section 7)"
+    },
     "hero": {
       "title": "Use your own agent in Mynder",
       "intro": "Do you use Claude or ChatGPT? Connect it to Mynder once, and you can ask it about vendors, requirements and documentation — and have it create activities. You don't need to log in to Mynder.",

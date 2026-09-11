@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 import { Sidebar } from "@/components/Sidebar";
-import { ArrowLeft, Bot } from "lucide-react";
+import { ArrowLeft, Bot, Info } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { ByoaAgentHero } from "@/components/integrations/ByoaAgentHero";
@@ -67,6 +67,19 @@ export default function Integrations() {
           </div>
 
           <ByoaAgentHero onConnect={() => openWizard()} activeCount={activeTokens.length} />
+
+          <div className="mt-4 flex items-start gap-3 rounded-lg border border-border bg-muted/40 px-4 py-3">
+            <Info className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+            <div className="min-w-0 text-sm">
+              <p className="font-medium text-foreground">{t("byoa.dpa.title")}</p>
+              <p className="mt-0.5 text-muted-foreground">
+                {t("byoa.dpa.body")}{" "}
+                <Link to="/dokumenter/databehandleravtale" className="font-medium text-primary underline-offset-4 hover:underline">
+                  {t("byoa.dpa.link")}
+                </Link>
+              </p>
+            </div>
+          </div>
 
           <ByoaConnectedStatus
             tokens={tokens}
