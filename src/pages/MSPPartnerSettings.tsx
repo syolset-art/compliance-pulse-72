@@ -18,18 +18,15 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { supabase } from "@/integrations/supabase/client";
 import {
-  Settings,
   ArrowLeft,
-  Users,
-  UserPlus,
-  Mail,
-  Shield,
-  Save,
-  Info,
-  Plug,
-  Trash2,
   Eye,
-
+  Info,
+  Mail,
+  Save,
+  Shield,
+  Trash2,
+  UserPlus,
+  Users,
 } from "lucide-react";
 import { PartnerIntegrationsTab } from "@/components/msp/PartnerIntegrationsTab";
 import { PartnerMemberProfileSheet } from "@/components/msp/PartnerMemberProfileSheet";
@@ -293,22 +290,6 @@ export default function MSPPartnerSettings() {
           </div>
 
           <Tabs value={activeTab} onValueChange={(v) => setSearchParams({ tab: v })} className="space-y-4">
-            <TabsList className="h-10">
-              <TabsTrigger value="tilgangsstyring" className="gap-1.5">
-                <Users className="h-3.5 w-3.5" /> Tilgangsstyring
-              </TabsTrigger>
-              <TabsTrigger value="kommunikasjon" className="gap-1.5">
-                <Mail className="h-3.5 w-3.5" /> Kommunikasjon
-              </TabsTrigger>
-              <TabsTrigger value="integrasjoner" className="gap-1.5">
-                <Plug className="h-3.5 w-3.5" /> Integrasjoner
-              </TabsTrigger>
-              <TabsTrigger value="intern" className="gap-1.5">
-                <Eye className="h-3.5 w-3.5" /> Intern
-              </TabsTrigger>
-            </TabsList>
-
-
 
             <TabsContent value="tilgangsstyring" className="space-y-4">
               {/* 1. Team-tilgang */}
