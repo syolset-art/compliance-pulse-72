@@ -17,13 +17,17 @@ import {
   Users,
   Send,
   Sparkles,
+  BadgeCheck,
+  Link2,
 } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { HeaderMaturityIndicators } from "@/components/trust-controls/HeaderMaturityIndicators";
 import { useState } from "react";
 import { toast } from "sonner";
 import { getSystemIcon } from "@/lib/systemIcons";
 import { getMaturityLevel, maturityTextClass, maturityLabelNb } from "@/lib/maturityLevel";
 import { RequestUpdateDialog } from "@/components/asset-profile/RequestUpdateDialog";
+import { LinkVendorDialog } from "@/components/system-profile/LinkVendorDialog";
 
 interface TrustMetrics {
   trustScore: number;
