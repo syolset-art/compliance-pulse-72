@@ -107,7 +107,7 @@ export const MODULE_INFO: Record<ModuleKey, ModuleInfo> = {
       "Mynder Agents gir oversikt over KI-agentene virksomheten bruker — hvem som eier dem, hva de har lov til, og hvilke oppgaver de gjør. Kan brukes alene, eller sammen med Core for personvern og risiko.",
     features: [
       "Agentregister med eier, status og fagområde",
-      "Arbeidskontrakter (playbooks) med fullmakter og godkjenninger",
+      "Playbook-maler med fullmakter og godkjenninger",
       "Lettvekts kartlegging av arbeidsområder og oppgaver",
       "Forslag til agenter basert på prosessene dere har",
       "Rapport for ISO/IEC 42001 og AI Act",

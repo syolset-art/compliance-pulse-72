@@ -58,12 +58,12 @@ export const CONTRACT_TEMPLATES: Template[] = [
   },
 ];
 
-export default function AgentContracts() {
+export default function AgentPlaybooks() {
   const navigate = useNavigate();
 
   return (
     <AgentsPageShell
-      title="Arbeidskontrakter"
+      title="Playbook"
       description="Maler for hva en agent gjør, hva den kan gjøre selv, og hva som krever godkjenning."
     >
       <div className="grid gap-3 sm:grid-cols-2">
