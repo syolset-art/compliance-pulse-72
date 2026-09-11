@@ -322,21 +322,32 @@ export function CustomerDocumentationTab({
 
           {/* Regelverk-filter */}
           <Popover open={filterOpen} onOpenChange={setFilterOpen}>
-            <PopoverTrigger asChild>
-              <button
-                type="button"
-                className={`inline-flex items-center gap-1.5 h-7 pl-2 pr-2 rounded-full border transition-colors ${
-                  allSelected
-                    ? "border-border bg-card hover:bg-muted/40"
-                    : "border-primary/40 bg-primary/5 hover:bg-primary/10"
-                }`}
-              >
-                <Filter className="h-3.5 w-3.5 text-muted-foreground" />
-                <span className="text-xs font-medium text-foreground">
-                  {allSelected ? "Alle regelverk" : `${selectedFrameworks.size} valgt`}
-                </span>
-              </button>
-            </PopoverTrigger>
+            <TooltipProvider delayDuration={200}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <PopoverTrigger asChild>
+                    <button
+                      type="button"
+                      className={`inline-flex items-center gap-1.5 h-7 pl-2 pr-2 rounded-full border transition-colors ${
+                        allSelected
+                          ? "border-border bg-card hover:bg-muted/40"
+                          : "border-primary/40 bg-primary/5 hover:bg-primary/10"
+                      }`}
+                    >
+                      <Filter className="h-3.5 w-3.5 text-muted-foreground" />
+                      <span className="text-xs font-medium text-foreground">
+                        {allSelected ? "Alle regelverk" : `${selectedFrameworks.size} valgt`}
+                      </span>
+                    </button>
+                  </PopoverTrigger>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" align="end" className="max-w-xs text-xs leading-relaxed">
+                  <p>
+                    Velg hvilke aktiverte regelverk du vil vise. Oversikten gir deg status på dokumentasjon og styrende dokumenter for det regelverket kunden er forpliktet til å følge.
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
             <PopoverContent align="end" className="w-64 p-1">
               <div className="flex items-center justify-between px-2 py-1.5">
                 <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
