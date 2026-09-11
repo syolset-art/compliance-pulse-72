@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { supabase } from "@/integrations/supabase/client";
 import {
   ArrowLeft,
@@ -300,7 +301,36 @@ export default function MSPPartnerSettings() {
                       <Users className="h-4 w-4 text-primary" />
                     </div>
                     <div>
-                      <h2 className="text-base font-semibold text-foreground">Brukere med tilgang til partnerdelen</h2>
+                      <div className="flex items-center gap-1.5">
+                        <h2 className="text-base font-semibold text-foreground">Brukere med tilgang til partnerdelen</h2>
+                        <TooltipProvider delayDuration={100}>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <button
+                                type="button"
+                                className="inline-flex items-center justify-center rounded-full p-0.5 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                                aria-label="Les mer om roller og tilgangsnivå"
+                              >
+                                <Info className="h-4 w-4" />
+                              </button>
+                            </TooltipTrigger>
+                            <TooltipContent side="top" className="max-w-xs space-y-1 text-xs">
+                              <p>
+                                <span className="font-medium text-foreground">Kundeansvarlig:</span>{" "}
+                                {PARTNER_ROLE_DESC.Kundeansvarlig}
+                              </p>
+                              <p>
+                                <span className="font-medium text-foreground">Driftspartner:</span>{" "}
+                                {PARTNER_ROLE_DESC.Driftspartner}
+                              </p>
+                              <p>
+                                <span className="font-medium text-foreground">Tilgangsnivå (per rolle):</span>{" "}
+                                «{PARTNER_ACCESS_LABEL.write}» = skrivetilgang · «{PARTNER_ACCESS_LABEL.read}» = ser, men endrer ikke.
+                              </p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
                       <p className="text-base text-muted-foreground mt-0.5">
                         Disse brukerne blir brukere i kundens organisasjon.
                       </p>
@@ -471,24 +501,6 @@ export default function MSPPartnerSettings() {
                     );
                   })}
                 </div>
-
-                <div className="mt-3 space-y-1 text-sm text-muted-foreground">
-                  <p>
-                    <span className="font-medium text-foreground">Kundeansvarlig:</span>{" "}
-                    {PARTNER_ROLE_DESC.Kundeansvarlig}
-                  </p>
-                  <p>
-                    <span className="font-medium text-foreground">Driftspartner:</span>{" "}
-                    {PARTNER_ROLE_DESC.Driftspartner}
-                  </p>
-                  <p>
-                    <span className="font-medium text-foreground">Tilgangsnivå (per rolle):</span>{" "}
-                    «{PARTNER_ACCESS_LABEL.write}» = skrivetilgang · «{PARTNER_ACCESS_LABEL.read}» = ser, men endrer ikke.
-                  </p>
-                </div>
-
-
-
 
               </Card>
 
