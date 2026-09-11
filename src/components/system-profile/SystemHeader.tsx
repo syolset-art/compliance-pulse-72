@@ -17,13 +17,17 @@ import {
   Users,
   Send,
   Sparkles,
+  BadgeCheck,
+  Link2,
 } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { HeaderMaturityIndicators } from "@/components/trust-controls/HeaderMaturityIndicators";
 import { useState } from "react";
 import { toast } from "sonner";
 import { getSystemIcon } from "@/lib/systemIcons";
 import { getMaturityLevel, maturityTextClass, maturityLabelNb } from "@/lib/maturityLevel";
 import { RequestUpdateDialog } from "@/components/asset-profile/RequestUpdateDialog";
+import { LinkVendorDialog } from "@/components/system-profile/LinkVendorDialog";
 
 interface TrustMetrics {
   trustScore: number;
@@ -60,6 +64,22 @@ export const SystemHeader = ({ system, trustMetrics }: SystemHeaderProps) => {
   const isNb = i18n.language === "nb";
   const queryClient = useQueryClient();
   const [requestDialogOpen, setRequestDialogOpen] = useState(false);
+  const [linkVendorOpen, setLinkVendorOpen] = useState(false);
+
+  const { data: verifiedVendor } = useQuery({
+    queryKey: ["system-verified-vendor", system.id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("system_vendors")
+        .select("id, name, source, created_at")
+        .eq("system_id", system.id)
+        .like("source", "verified:%")
+        .order("created_at", { ascending: false })
+        .limit(1);
+      return data?.[0] ?? null;
+    },
+  });
+
 
   const { data: workAreas = [] } = useQuery({
     queryKey: ["work-areas"],
@@ -149,10 +169,46 @@ export const SystemHeader = ({ system, trustMetrics }: SystemHeaderProps) => {
         <div className="flex-1 min-w-0">
           <div className="flex flex-wrap items-center gap-2 mb-1">
             <h1 className="text-lg md:text-xl font-bold text-foreground">{system.name}</h1>
-            {system.vendor && (
-              <Badge variant="secondary" className="text-[13px] shrink-0">
-                {system.vendor}
-              </Badge>
+            {verifiedVendor ? (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Badge
+                      variant="secondary"
+                      className="text-[13px] shrink-0 gap-1 cursor-default"
+                    >
+                      <BadgeCheck className="h-3.5 w-3.5 text-success" />
+                      {verifiedVendor.name}
+                    </Badge>
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-[260px] text-xs">
+                    {isNb
+                      ? `Verifisert leverandør koblet til systemet — bekreftet ${new Date(
+                          verifiedVendor.created_at ?? Date.now(),
+                        ).toLocaleDateString("nb-NO")}.`
+                      : `Verified vendor linked to this system — confirmed ${new Date(
+                          verifiedVendor.created_at ?? Date.now(),
+                        ).toLocaleDateString("en-GB")}.`}
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            ) : (
+              <>
+                {system.vendor && (
+                  <Badge variant="secondary" className="text-[13px] shrink-0">
+                    {system.vendor}
+                  </Badge>
+                )}
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="h-6 px-2 text-xs gap-1 text-muted-foreground hover:text-foreground"
+                  onClick={() => setLinkVendorOpen(true)}
+                >
+                  <Link2 className="h-3 w-3" />
+                  {isNb ? "Koble leverandør" : "Link vendor"}
+                </Button>
+              </>
             )}
             {system.status && (
               <Badge className={`text-[13px] ${getStatusColor(system.status)} shrink-0`}>
@@ -286,6 +342,17 @@ export const SystemHeader = ({ system, trustMetrics }: SystemHeaderProps) => {
         vendorName={system.vendor || undefined}
         contactPerson={system.contact_person || undefined}
         contactEmail={system.contact_email || undefined}
+      />
+
+      <LinkVendorDialog
+        open={linkVendorOpen}
+        onOpenChange={setLinkVendorOpen}
+        system={{ id: system.id, name: system.name, vendor: system.vendor, url: system.url }}
+        onLinked={() => {
+          queryClient.invalidateQueries({ queryKey: ["system-verified-vendor", system.id] });
+          queryClient.invalidateQueries({ queryKey: ["system", system.id] });
+          queryClient.invalidateQueries({ queryKey: ["system-vendors", system.id] });
+        }}
       />
     </Card>
   );
