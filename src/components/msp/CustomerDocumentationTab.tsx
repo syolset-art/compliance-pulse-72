@@ -303,8 +303,9 @@ export function CustomerDocumentationTab({
               </TooltipTrigger>
               <TooltipContent side="right" className="max-w-xs bg-popover border border-border p-3 text-popover-foreground shadow-md rounded-md">
                 <p className="text-xs leading-relaxed">
-                  Dokumentene under er utledet fra regelverkene {customerName} er tilknyttet. Last opp dokumenter — eller registrer en URL for publiserte dokumenter som personvernerklæring.
+                  Dokumentene under viser kun kravene i regelverkene som ligger i scope for {customerName}. Legger dere til flere regelverk, dukker de nye kravene og det som mangler opp her automatisk. Last opp dokumenter — eller registrer en URL for publiserte dokumenter som personvernerklæring.
                 </p>
+
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
