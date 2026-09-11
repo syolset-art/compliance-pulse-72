@@ -31,28 +31,12 @@ import {
 } from "lucide-react";
 import { PartnerIntegrationsTab } from "@/components/msp/PartnerIntegrationsTab";
 import { PartnerMemberProfileSheet } from "@/components/msp/PartnerMemberProfileSheet";
+import { PartnerNotificationsTab } from "@/components/msp/PartnerNotificationsTab";
 
 import { toast } from "sonner";
 import { usePostActivationPrompt } from "@/hooks/usePostActivationPrompt";
 
 
-const SETTINGS_KEY = "msp-messages-settings-v1";
-
-interface ForwardSettings {
-  inboxEmail: string;
-  ccEmail: string;
-  replyToEmail: string;
-  forwardEnabled: boolean;
-  dailyDigest: boolean;
-}
-
-const defaults: ForwardSettings = {
-  inboxEmail: "",
-  ccEmail: "",
-  replyToEmail: "",
-  forwardEnabled: true,
-  dailyDigest: false,
-};
 
 import {
   PARTNER_TEAM,
@@ -222,43 +206,6 @@ export default function MSPPartnerSettings() {
 
 
 
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem(SETTINGS_KEY);
-      if (!raw) return;
-      const parsed = JSON.parse(raw) as Partial<ForwardSettings>;
-      setForm({ ...defaults, ...parsed });
-    } catch {
-      /* noop */
-    }
-  }, []);
-
-  const update = <K extends keyof ForwardSettings>(key: K, value: ForwardSettings[K]) =>
-    setForm((prev) => ({ ...prev, [key]: value }));
-
-  const handleSave = () => {
-    if (form.forwardEnabled && !form.inboxEmail) {
-      toast.error("Legg inn en mottaks-e-post", {
-        description: "Vi trenger en adresse å sende meldingene til.",
-      });
-      return;
-    }
-    if (form.inboxEmail && !isValidEmail(form.inboxEmail)) {
-      toast.error("Ugyldig mottaks-e-post");
-      return;
-    }
-    if (form.replyToEmail && !isValidEmail(form.replyToEmail)) {
-
-      toast.error("Ugyldig svar-til-e-post");
-      return;
-    }
-    localStorage.setItem(SETTINGS_KEY, JSON.stringify(form));
-    toast.success("Innstillinger lagret", {
-      description: form.forwardEnabled && form.inboxEmail
-        ? `Alle nye meldinger sendes til ${form.inboxEmail}`
-        : "E-postvideresending er av.",
-    });
-  };
 
   return (
     <div className="flex min-h-screen w-full bg-background">
@@ -274,14 +221,14 @@ export default function MSPPartnerSettings() {
             </Link>
             <h1 className="text-2xl font-semibold text-foreground">
               {activeTab === "kommunikasjon"
-                ? "Kommunikasjon"
+                ? "Varsler"
                 : activeTab === "integrasjoner"
                 ? "Integrasjoner"
                 : "Tilgangsstyring"}
             </h1>
             <p className="text-base text-muted-foreground mt-1">
               {activeTab === "kommunikasjon"
-                ? "Styr hvordan meldinger fra kunder når deg og teamet ditt."
+                ? "Velg hvilke aktiviteter hos kundene dine du vil varsles om."
                 : activeTab === "integrasjoner"
                 ? "Koble Mynder til verktøyene dere allerede bruker."
                 : "Legg til brukere, gi dem rolle som Kundeansvarlig eller Driftspartner, og styr om de har lese- eller skrivetilgang."}
@@ -528,83 +475,7 @@ export default function MSPPartnerSettings() {
             </TabsContent>
 
             <TabsContent value="kommunikasjon" className="space-y-4">
-              <Card className="p-5">
-                <div className="flex items-start gap-3 mb-4">
-                  <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                    <Mail className="h-4 w-4 text-primary" />
-                  </div>
-                  <div className="flex-1">
-                    <h2 className="text-base font-semibold text-foreground">Videresend meldinger til e-post</h2>
-                    <p className="text-base text-muted-foreground mt-0.5">
-                      Du får alt — kundesvar, aksepterte tilbud, påminnelser — rett i innboksen din. Slipp å
-                      logge inn i Mynder for å holde deg oppdatert.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between gap-3 rounded-lg border border-border bg-muted/30 px-3 py-2.5">
-                    <div>
-                      <p className="text-base font-medium text-foreground">
-                        Videresend alle innkommende meldinger
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        Skru av for å bare lese meldinger inne i Mynder.
-                      </p>
-                    </div>
-                    <Switch
-                      checked={form.forwardEnabled}
-                      onCheckedChange={(v) => update("forwardEnabled", v)}
-                    />
-                  </div>
-
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    <div className="space-y-1.5 sm:col-span-2">
-                      <Label htmlFor="inbox" className="text-base">
-                        Mottaks-e-post
-                      </Label>
-                      <Input
-                        id="inbox"
-                        type="email"
-                        placeholder="navn@firma.no"
-                        value={form.inboxEmail}
-                        onChange={(e) => update("inboxEmail", e.target.value)}
-                        disabled={!form.forwardEnabled}
-                      />
-                      <p className="text-sm text-muted-foreground">
-                        Alle nye meldinger sendes hit som e-post.
-                      </p>
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label htmlFor="reply" className="text-base">
-                        Svar-til <span className="text-muted-foreground font-normal">— valgfritt</span>
-                      </Label>
-                      <Input
-                        id="reply"
-                        type="email"
-                        placeholder="salg@firma.no"
-                        value={form.replyToEmail}
-                        onChange={(e) => update("replyToEmail", e.target.value)}
-                        disabled={!form.forwardEnabled}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-2 rounded-lg bg-muted/40 border border-border p-3 text-sm text-muted-foreground">
-                    <Info className="h-4 w-4 mt-0.5 shrink-0" />
-                    <span>
-                      Innstillingene gjelder for hele partner-organisasjonen og deles med alle meldingsfanene i
-                      Mynder.
-                    </span>
-                  </div>
-
-                  <div className="flex justify-end">
-                    <Button onClick={handleSave} className="gap-1.5">
-                      <Save className="h-4 w-4" /> Lagre innstillinger
-                    </Button>
-                  </div>
-                </div>
-              </Card>
+              <PartnerNotificationsTab />
             </TabsContent>
 
 
