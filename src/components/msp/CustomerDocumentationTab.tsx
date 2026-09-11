@@ -217,6 +217,10 @@ export function CustomerDocumentationTab({
       return next;
     });
 
+  // Kundeavtale er også lukket som standard.
+  const [agreementOpen, setAgreementOpen] = useState(false);
+
+
 
   // Personvernerklæring-dialog
   const [privacyOpen, setPrivacyOpen] = useState(false);
