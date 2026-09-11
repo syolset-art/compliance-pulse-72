@@ -1012,7 +1012,7 @@ const SidebarContent = () => {
                       )}
                     >
                       <Mail className="h-3.5 w-3.5" />
-                      {isNb ? "Kommunikasjon" : "Communication"}
+                      {isNb ? "Varsler" : "Notifications"}
                     </button>
                     <button
                       onClick={() => navigate("/settings/integrations")}
