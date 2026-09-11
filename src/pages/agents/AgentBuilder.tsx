@@ -16,7 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { AgentsPageShell } from "@/components/agents/AgentsPageShell";
-import { CONTRACT_TEMPLATES } from "@/pages/agents/AgentContracts";
+import { CONTRACT_TEMPLATES } from "@/pages/agents/AgentPlaybooks";
 import { AgentDomain, DOMAINS, addAgent, domainLabel } from "@/lib/agentMacf";
 import { cn } from "@/lib/utils";
 

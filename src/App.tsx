@@ -20,7 +20,7 @@ import AgentsOverview from "./pages/agents/AgentsOverview";
 import AgentsMapping from "./pages/agents/AgentsMapping";
 import AgentsAll from "./pages/agents/AgentsAll";
 import AgentSuggestions from "./pages/agents/AgentSuggestions";
-import AgentContracts from "./pages/agents/AgentContracts";
+import AgentPlaybooks from "./pages/agents/AgentPlaybooks";
 import AgentBuilder from "./pages/agents/AgentBuilder";
 import AgentProfile from "./pages/AgentProfile";
 import Tasks from "./pages/Tasks";
@@ -150,7 +150,7 @@ const App = () => (
                   <Route path="/agents/mapping" element={<AgentsMapping />} />
                   <Route path="/agents/all" element={<AgentsAll />} />
                   <Route path="/agents/suggestions" element={<AgentSuggestions />} />
-                  <Route path="/agents/playbooks" element={<AgentContracts />} />
+                  <Route path="/agents/playbooks" element={<AgentPlaybooks />} />
                   <Route path="/agents/new" element={<AgentBuilder />} />
                   <Route path="/agents/:id" element={<AgentProfile />} />
                   <Route path="/tasks" element={<Tasks />} />

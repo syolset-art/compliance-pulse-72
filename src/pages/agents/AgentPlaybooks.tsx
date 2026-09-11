@@ -58,7 +58,7 @@ export const CONTRACT_TEMPLATES: Template[] = [
   },
 ];
 
-export default function AgentContracts() {
+export default function AgentPlaybooks() {
   const navigate = useNavigate();
 
   return (
