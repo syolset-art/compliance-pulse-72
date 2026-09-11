@@ -1870,6 +1870,11 @@
     "package": "Kravpakken Sara vurderer"
   },
   "byoa": {
+    "dpa": {
+      "title": "Hvem er databehandler når du kobler til din egen KI?",
+      "body": "Kobler du din egen KI-tjeneste (f.eks. Claude eller ChatGPT) til Mynder, er den leverandøren din egen leverandør — ikke Mynders underdatabehandler. Mynder sørger for innlogging, avgrensning og logging frem til dataene leveres til agenten. Du har selv ansvar for avtalen med din KI-leverandør.",
+      "link": "Les databehandleravtalen (punkt 7)"
+    },
     "hero": {
       "title": "Bruk din egen agent i Mynder",
       "intro": "Har du Claude eller ChatGPT? Koble den til Mynder én gang, så kan du spørre den om leverandører, krav og dokumentasjon — og be den opprette aktiviteter. Du trenger ikke logge inn i Mynder.",

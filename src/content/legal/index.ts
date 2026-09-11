@@ -24,10 +24,12 @@ export interface LegalDocument {
 export const LEGAL_DOCUMENTS: LegalDocument[] = [
   SLUTTKUNDEVILKAR_V1_2,
   VILKAR_FOR_PARTNERE_V1_0,
+  DATABEHANDLERAVTALE_V1,
 ];
 
 export const CUSTOMER_TERMS = SLUTTKUNDEVILKAR_V1_2;
 export const PARTNER_TERMS = VILKAR_FOR_PARTNERE_V1_0;
+export const DATA_PROCESSING_AGREEMENT = DATABEHANDLERAVTALE_V1;
 
 export function getLegalDocument(slug?: string): LegalDocument | undefined {
   return LEGAL_DOCUMENTS.find((d) => d.slug === slug);
