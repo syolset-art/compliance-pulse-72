@@ -217,21 +217,9 @@ export const SystemHeader = ({ system, trustMetrics }: SystemHeaderProps) => {
             )}
           </div>
 
-          <div className="flex flex-col sm:flex-row sm:items-center gap-2 mt-1">
-            {system.category && (
-              <p className="text-sm text-muted-foreground">{system.category}</p>
-            )}
-            <Button
-              size="sm"
-              variant="outline"
-              className="h-7 text-xs gap-1.5 w-fit"
-              onClick={() => setRequestDialogOpen(true)}
-            >
-              <Send className="h-3 w-3" />
-              {isNb ? "Be om oppdatering" : "Request update"}
-              <Sparkles className="h-2.5 w-2.5 text-primary/60" />
-            </Button>
-          </div>
+          {system.category && (
+            <p className="text-sm text-muted-foreground mt-1">{system.category}</p>
+          )}
 
           {system.description && (
             <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
