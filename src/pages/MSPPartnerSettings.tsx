@@ -96,7 +96,7 @@ export default function MSPPartnerSettings() {
     usePostActivationPrompt();
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = searchParams.get("tab") ?? "tilgangsstyring";
-  const [form, setForm] = useState<ForwardSettings>(defaults);
+  
   const [team, setTeam] = useState<TeamMember[]>(DEMO_TEAM);
   const [inviteOpen, setInviteOpen] = useState(false);
   const [invite, setInvite] = useState<InviteDraft>(emptyInvite);
