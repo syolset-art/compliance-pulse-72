@@ -64,6 +64,22 @@ export const SystemHeader = ({ system, trustMetrics }: SystemHeaderProps) => {
   const isNb = i18n.language === "nb";
   const queryClient = useQueryClient();
   const [requestDialogOpen, setRequestDialogOpen] = useState(false);
+  const [linkVendorOpen, setLinkVendorOpen] = useState(false);
+
+  const { data: verifiedVendor } = useQuery({
+    queryKey: ["system-verified-vendor", system.id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("system_vendors")
+        .select("id, name, source, created_at")
+        .eq("system_id", system.id)
+        .like("source", "verified:%")
+        .order("created_at", { ascending: false })
+        .limit(1);
+      return data?.[0] ?? null;
+    },
+  });
+
 
   const { data: workAreas = [] } = useQuery({
     queryKey: ["work-areas"],
