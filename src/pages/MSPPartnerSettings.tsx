@@ -18,18 +18,15 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { supabase } from "@/integrations/supabase/client";
 import {
-  Settings,
   ArrowLeft,
-  Users,
-  UserPlus,
-  Mail,
-  Shield,
-  Save,
-  Info,
-  Plug,
-  Trash2,
   Eye,
-
+  Info,
+  Mail,
+  Save,
+  Shield,
+  Trash2,
+  UserPlus,
+  Users,
 } from "lucide-react";
 import { PartnerIntegrationsTab } from "@/components/msp/PartnerIntegrationsTab";
 import { PartnerMemberProfileSheet } from "@/components/msp/PartnerMemberProfileSheet";
