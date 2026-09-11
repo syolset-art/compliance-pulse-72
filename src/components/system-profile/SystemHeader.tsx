@@ -343,6 +343,17 @@ export const SystemHeader = ({ system, trustMetrics }: SystemHeaderProps) => {
         contactPerson={system.contact_person || undefined}
         contactEmail={system.contact_email || undefined}
       />
+
+      <LinkVendorDialog
+        open={linkVendorOpen}
+        onOpenChange={setLinkVendorOpen}
+        system={{ id: system.id, name: system.name, vendor: system.vendor, url: system.url }}
+        onLinked={() => {
+          queryClient.invalidateQueries({ queryKey: ["system-verified-vendor", system.id] });
+          queryClient.invalidateQueries({ queryKey: ["system", system.id] });
+          queryClient.invalidateQueries({ queryKey: ["system-vendors", system.id] });
+        }}
+      />
     </Card>
   );
 };
