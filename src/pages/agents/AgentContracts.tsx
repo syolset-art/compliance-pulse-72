@@ -63,7 +63,7 @@ export default function AgentContracts() {
 
   return (
     <AgentsPageShell
-      title="Arbeidskontrakter"
+      title="Playbook"
       description="Maler for hva en agent gjør, hva den kan gjøre selv, og hva som krever godkjenning."
     >
       <div className="grid gap-3 sm:grid-cols-2">

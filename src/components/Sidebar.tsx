@@ -312,7 +312,7 @@ const AgentsMenu = () => {
     { name: "Kartlegging", href: "/agents/mapping", icon: Layers },
     { name: "Alle agenter", href: "/agents/all", icon: Bot },
     { name: "Forslag", href: "/agents/suggestions", icon: Sparkles },
-    { name: "Arbeidskontrakter", href: "/agents/contracts", icon: FileText },
+    { name: "Playbook", href: "/agents/playbooks", icon: FileText },
   ];
   const isActive = location.pathname === "/agents" || location.pathname.startsWith("/agents/");
   const [open, setOpen] = useState(isActive);

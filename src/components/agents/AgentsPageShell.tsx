@@ -8,7 +8,7 @@ export const AGENT_NAV = [
   { href: "/agents/mapping", label: "Kartlegging" },
   { href: "/agents/all", label: "Alle agenter" },
   { href: "/agents/suggestions", label: "Forslag" },
-  { href: "/agents/contracts", label: "Arbeidskontrakter" },
+  { href: "/agents/playbooks", label: "Playbook" },
 ];
 
 interface Props {

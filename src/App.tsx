@@ -150,7 +150,7 @@ const App = () => (
                   <Route path="/agents/mapping" element={<AgentsMapping />} />
                   <Route path="/agents/all" element={<AgentsAll />} />
                   <Route path="/agents/suggestions" element={<AgentSuggestions />} />
-                  <Route path="/agents/contracts" element={<AgentContracts />} />
+                  <Route path="/agents/playbooks" element={<AgentContracts />} />
                   <Route path="/agents/new" element={<AgentBuilder />} />
                   <Route path="/agents/:id" element={<AgentProfile />} />
                   <Route path="/tasks" element={<Tasks />} />
