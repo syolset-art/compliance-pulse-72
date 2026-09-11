@@ -207,6 +207,16 @@ export function CustomerDocumentationTab({
   const allSelected = selectedFrameworks.size === groupedDocs.size;
   const [filterOpen, setFilterOpen] = useState(false);
 
+  // Regelverksgrupper er lukket som standard — brukeren velger selv å åpne.
+  const [expanded, setExpanded] = useState<Set<string>>(new Set());
+  const toggleExpanded = (fid: string) =>
+    setExpanded((prev) => {
+      const next = new Set(prev);
+      if (next.has(fid)) next.delete(fid);
+      else next.add(fid);
+      return next;
+    });
+
 
   // Personvernerklæring-dialog
   const [privacyOpen, setPrivacyOpen] = useState(false);
