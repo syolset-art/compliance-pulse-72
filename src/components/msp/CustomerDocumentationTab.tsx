@@ -17,7 +17,27 @@ import {
   ArrowRight,
   Filter,
   Check,
+  ChevronRight,
 } from "lucide-react";
+
+/** Avtalegrunnlaget mellom partner og kunde. */
+const AGREEMENT_DOCS = [
+  {
+    key: "kundeavtale",
+    title: "Kundeavtale / tjenesteavtale",
+    description: "Hva dere leverer, omfang, priser og varighet.",
+  },
+  {
+    key: "dpa",
+    title: "Databehandleravtale (partner–kunde)",
+    description: "Kreves når dere behandler personopplysninger på vegne av kunden.",
+  },
+  {
+    key: "nda",
+    title: "Taushetserklæring",
+    description: "Konfidensialitet for informasjon dere får tilgang til.",
+  },
+];
 import { toast } from "sonner";
 import {
   Tooltip,
