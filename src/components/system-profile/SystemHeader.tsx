@@ -15,8 +15,6 @@ import {
   ExternalLink,
   User,
   Users,
-  Send,
-  Sparkles,
   BadgeCheck,
   Link2,
 } from "lucide-react";
@@ -26,7 +24,6 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { getSystemIcon } from "@/lib/systemIcons";
 import { getMaturityLevel, maturityTextClass, maturityLabelNb } from "@/lib/maturityLevel";
-import { RequestUpdateDialog } from "@/components/asset-profile/RequestUpdateDialog";
 import { LinkVendorDialog } from "@/components/system-profile/LinkVendorDialog";
 
 interface TrustMetrics {
@@ -63,7 +60,6 @@ export const SystemHeader = ({ system, trustMetrics }: SystemHeaderProps) => {
   const { t, i18n } = useTranslation();
   const isNb = i18n.language === "nb";
   const queryClient = useQueryClient();
-  const [requestDialogOpen, setRequestDialogOpen] = useState(false);
   const [linkVendorOpen, setLinkVendorOpen] = useState(false);
 
   const { data: verifiedVendor } = useQuery({
@@ -321,16 +317,6 @@ export const SystemHeader = ({ system, trustMetrics }: SystemHeaderProps) => {
           </div>
         </div>
       </div>
-
-      <RequestUpdateDialog
-        open={requestDialogOpen}
-        onOpenChange={setRequestDialogOpen}
-        assetId={system.id}
-        assetName={system.name}
-        vendorName={system.vendor || undefined}
-        contactPerson={system.contact_person || undefined}
-        contactEmail={system.contact_email || undefined}
-      />
 
       <LinkVendorDialog
         open={linkVendorOpen}
