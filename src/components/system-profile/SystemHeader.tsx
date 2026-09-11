@@ -15,8 +15,6 @@ import {
   ExternalLink,
   User,
   Users,
-  Send,
-  Sparkles,
   BadgeCheck,
   Link2,
 } from "lucide-react";
@@ -26,7 +24,6 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { getSystemIcon } from "@/lib/systemIcons";
 import { getMaturityLevel, maturityTextClass, maturityLabelNb } from "@/lib/maturityLevel";
-import { RequestUpdateDialog } from "@/components/asset-profile/RequestUpdateDialog";
 import { LinkVendorDialog } from "@/components/system-profile/LinkVendorDialog";
 
 interface TrustMetrics {
@@ -63,7 +60,6 @@ export const SystemHeader = ({ system, trustMetrics }: SystemHeaderProps) => {
   const { t, i18n } = useTranslation();
   const isNb = i18n.language === "nb";
   const queryClient = useQueryClient();
-  const [requestDialogOpen, setRequestDialogOpen] = useState(false);
   const [linkVendorOpen, setLinkVendorOpen] = useState(false);
 
   const { data: verifiedVendor } = useQuery({
@@ -217,21 +213,9 @@ export const SystemHeader = ({ system, trustMetrics }: SystemHeaderProps) => {
             )}
           </div>
 
-          <div className="flex flex-col sm:flex-row sm:items-center gap-2 mt-1">
-            {system.category && (
-              <p className="text-sm text-muted-foreground">{system.category}</p>
-            )}
-            <Button
-              size="sm"
-              variant="outline"
-              className="h-7 text-xs gap-1.5 w-fit"
-              onClick={() => setRequestDialogOpen(true)}
-            >
-              <Send className="h-3 w-3" />
-              {isNb ? "Be om oppdatering" : "Request update"}
-              <Sparkles className="h-2.5 w-2.5 text-primary/60" />
-            </Button>
-          </div>
+          {system.category && (
+            <p className="text-sm text-muted-foreground mt-1">{system.category}</p>
+          )}
 
           {system.description && (
             <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
@@ -333,16 +317,6 @@ export const SystemHeader = ({ system, trustMetrics }: SystemHeaderProps) => {
           </div>
         </div>
       </div>
-
-      <RequestUpdateDialog
-        open={requestDialogOpen}
-        onOpenChange={setRequestDialogOpen}
-        assetId={system.id}
-        assetName={system.name}
-        vendorName={system.vendor || undefined}
-        contactPerson={system.contact_person || undefined}
-        contactEmail={system.contact_email || undefined}
-      />
 
       <LinkVendorDialog
         open={linkVendorOpen}
