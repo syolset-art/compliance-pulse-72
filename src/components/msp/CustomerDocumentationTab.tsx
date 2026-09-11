@@ -17,7 +17,27 @@ import {
   ArrowRight,
   Filter,
   Check,
+  ChevronRight,
 } from "lucide-react";
+
+/** Avtalegrunnlaget mellom partner og kunde. */
+const AGREEMENT_DOCS = [
+  {
+    key: "kundeavtale",
+    title: "Kundeavtale / tjenesteavtale",
+    description: "Hva dere leverer, omfang, priser og varighet.",
+  },
+  {
+    key: "dpa",
+    title: "Databehandleravtale (partner–kunde)",
+    description: "Kreves når dere behandler personopplysninger på vegne av kunden.",
+  },
+  {
+    key: "nda",
+    title: "Taushetserklæring",
+    description: "Konfidensialitet for informasjon dere får tilgang til.",
+  },
+];
 import { toast } from "sonner";
 import {
   Tooltip,
@@ -187,6 +207,16 @@ export function CustomerDocumentationTab({
   const allSelected = selectedFrameworks.size === groupedDocs.size;
   const [filterOpen, setFilterOpen] = useState(false);
 
+  // Regelverksgrupper er lukket som standard — brukeren velger selv å åpne.
+  const [expanded, setExpanded] = useState<Set<string>>(new Set());
+  const toggleExpanded = (fid: string) =>
+    setExpanded((prev) => {
+      const next = new Set(prev);
+      if (next.has(fid)) next.delete(fid);
+      else next.add(fid);
+      return next;
+    });
+
 
   // Personvernerklæring-dialog
   const [privacyOpen, setPrivacyOpen] = useState(false);
@@ -351,20 +381,71 @@ export function CustomerDocumentationTab({
       </div>
 
 
-      {/* Dokumenter gruppert per regelverk */}
-      <div className="space-y-3">
-        {visibleGroups.map(([fid, group]) => (
-
-          <Card key={fid} className="p-4 sm:p-5 border-border">
-            <div className="flex items-center justify-between gap-2 mb-3">
-              <h3 className="text-sm font-semibold text-foreground truncate">
-                {group.frameworkName}
-              </h3>
-              <span className="text-xs text-muted-foreground shrink-0">
-                {group.docs.length} er dokumentert
-              </span>
+      {/* Kundeavtale — avtalegrunnlaget mellom partner og kunde */}
+      <Card className="p-4 sm:p-5 border-border">
+        <div className="flex items-center justify-between gap-2 mb-3">
+          <div className="flex items-center gap-2">
+            <ShieldCheck className="h-4 w-4 text-primary" />
+            <h3 className="text-sm font-semibold text-foreground">Kundeavtale</h3>
+          </div>
+          <span className="text-xs text-muted-foreground shrink-0">
+            {AGREEMENT_DOCS.length} dokumenter
+          </span>
+        </div>
+        <p className="text-xs text-muted-foreground mb-3">
+          Avtalegrunnlaget mellom deg og {customerName}. Databehandleravtalen mellom Mynder og
+          kunden finner du under{" "}
+          <a href="/dokumenter/databehandleravtale" className="text-primary hover:underline">
+            Dokumenter
+          </a>
+          .
+        </p>
+        <div className="divide-y divide-border/60">
+          {AGREEMENT_DOCS.map((a) => (
+            <div key={a.key} className="flex items-start gap-3 py-2.5">
+              <Circle className="h-4 w-4 shrink-0 mt-0.5 text-muted-foreground/50" />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-foreground">{a.title}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{a.description}</p>
+              </div>
+              <Button
+                size="sm"
+                variant="outline"
+                className="gap-1.5 shrink-0"
+                onClick={() => openUpload()}
+              >
+                <Upload className="h-3.5 w-3.5" />
+                Last opp
+              </Button>
             </div>
-            <div className="divide-y divide-border/60">
+          ))}
+        </div>
+      </Card>
+
+      {/* Dokumenter gruppert per regelverk — lukket som standard */}
+      <div className="space-y-2">
+        {visibleGroups.map(([fid, group]) => {
+          const open = expanded.has(fid);
+          return (
+          <Card key={fid} className="p-3 sm:p-4 border-border">
+            <button
+              type="button"
+              onClick={() => toggleExpanded(fid)}
+              className="w-full flex items-center justify-between gap-2 text-left"
+            >
+              <span className="flex items-center gap-2 min-w-0">
+                <ChevronRight
+                  className={`h-4 w-4 text-muted-foreground shrink-0 transition-transform ${open ? "rotate-90" : ""}`}
+                />
+                <span className="text-sm font-semibold text-foreground truncate">
+                  {group.frameworkName}
+                </span>
+              </span>
+              <span className="text-xs text-muted-foreground shrink-0">
+                {group.docs.length} dokumenter
+              </span>
+            </button>
+            <div className={`divide-y divide-border/60 ${open ? "mt-2" : "hidden"}`}>
               {group.docs.map((doc) => {
                 const uploaded = false; // prototype
                 const StatusIcon = uploaded ? CheckCircle2 : Circle;
@@ -423,7 +504,8 @@ export function CustomerDocumentationTab({
               })}
             </div>
           </Card>
-        ))}
+          );
+        })}
       </div>
 
       {/* Fotnote */}
