@@ -1,5 +1,6 @@
 import { SLUTTKUNDEVILKAR_V1_2 } from "./sluttkundevilkar-v1-2";
 import { VILKAR_FOR_PARTNERE_V1_0 } from "./vilkar-for-partnere-v1-0";
+import { DATABEHANDLERAVTALE_V1 } from "./databehandleravtale-v1";
 
 export interface LegalDocument {
   /** Stabil slug brukt i ruten /dokumenter/:slug */
