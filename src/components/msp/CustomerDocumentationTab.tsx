@@ -474,7 +474,8 @@ export function CustomerDocumentationTab({
               })}
             </div>
           </Card>
-        ))}
+          );
+        })}
       </div>
 
       {/* Fotnote */}
