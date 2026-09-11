@@ -169,10 +169,46 @@ export const SystemHeader = ({ system, trustMetrics }: SystemHeaderProps) => {
         <div className="flex-1 min-w-0">
           <div className="flex flex-wrap items-center gap-2 mb-1">
             <h1 className="text-lg md:text-xl font-bold text-foreground">{system.name}</h1>
-            {system.vendor && (
-              <Badge variant="secondary" className="text-[13px] shrink-0">
-                {system.vendor}
-              </Badge>
+            {verifiedVendor ? (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Badge
+                      variant="secondary"
+                      className="text-[13px] shrink-0 gap-1 cursor-default"
+                    >
+                      <BadgeCheck className="h-3.5 w-3.5 text-success" />
+                      {verifiedVendor.name}
+                    </Badge>
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-[260px] text-xs">
+                    {isNb
+                      ? `Verifisert leverandør koblet til systemet — bekreftet ${new Date(
+                          verifiedVendor.created_at ?? Date.now(),
+                        ).toLocaleDateString("nb-NO")}.`
+                      : `Verified vendor linked to this system — confirmed ${new Date(
+                          verifiedVendor.created_at ?? Date.now(),
+                        ).toLocaleDateString("en-GB")}.`}
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            ) : (
+              <>
+                {system.vendor && (
+                  <Badge variant="secondary" className="text-[13px] shrink-0">
+                    {system.vendor}
+                  </Badge>
+                )}
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="h-6 px-2 text-xs gap-1 text-muted-foreground hover:text-foreground"
+                  onClick={() => setLinkVendorOpen(true)}
+                >
+                  <Link2 className="h-3 w-3" />
+                  {isNb ? "Koble leverandør" : "Link vendor"}
+                </Button>
+              </>
             )}
             {system.status && (
               <Badge className={`text-[13px] ${getStatusColor(system.status)} shrink-0`}>
