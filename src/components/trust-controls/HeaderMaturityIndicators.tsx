@@ -1,20 +1,11 @@
-import { getMaturityLevel, maturityTextClass, maturityBgClass, maturityLabelNb } from "@/lib/maturityLevel";
-import { useState } from "react";
-import { useTranslation } from "react-i18next";
-import { AlertTriangle, TrendingUp, ClipboardCheck, ListTodo, ArrowRight, ExternalLink } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-
 interface HeaderMaturityIndicatorsProps {
   riskLevel?: string | null;
   criticality?: string | null;
   maturityPercent: number;
 }
 
-export function HeaderMaturityIndicators({ riskLevel, criticality, maturityPercent }: HeaderMaturityIndicatorsProps) {
-  const { i18n } = useTranslation();
-  const isNb = i18n.language === "nb";
-  const [expandedCard, setExpandedCard] = useState<string | null>(null);
+export function HeaderMaturityIndicators(_props: HeaderMaturityIndicatorsProps) {
+  return null;
 
   const getRiskDisplay = (level: string | null) => {
     switch (level?.toLowerCase()) {
