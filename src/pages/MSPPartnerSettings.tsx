@@ -502,24 +502,6 @@ export default function MSPPartnerSettings() {
                   })}
                 </div>
 
-                <div className="mt-3 space-y-1 text-sm text-muted-foreground">
-                  <p>
-                    <span className="font-medium text-foreground">Kundeansvarlig:</span>{" "}
-                    {PARTNER_ROLE_DESC.Kundeansvarlig}
-                  </p>
-                  <p>
-                    <span className="font-medium text-foreground">Driftspartner:</span>{" "}
-                    {PARTNER_ROLE_DESC.Driftspartner}
-                  </p>
-                  <p>
-                    <span className="font-medium text-foreground">Tilgangsnivå (per rolle):</span>{" "}
-                    «{PARTNER_ACCESS_LABEL.write}» = skrivetilgang · «{PARTNER_ACCESS_LABEL.read}» = ser, men endrer ikke.
-                  </p>
-                </div>
-
-
-
-
               </Card>
 
 
