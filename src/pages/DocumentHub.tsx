@@ -437,16 +437,12 @@ export default function DocumentHub() {
                             {doc.contextLabel}
                           </div>
                         )}
-                        <div className="sm:hidden mt-1 flex items-center gap-1.5 text-[11px] text-muted-foreground truncate">
-                          <span className="truncate">
-                            {DOC_CLASS_LABELS[docClassOf(doc)][isNb ? "nb" : "en"]}
-                          </span>
-                          <span aria-hidden="true">·</span>
-                          <span className="truncate">
-                            {scoreDocIds.has(doc.id)
+                        <div className="sm:hidden mt-0.5 text-[11px] text-muted-foreground truncate">
+                          {`${DOC_CLASS_LABELS[docClassOf(doc)][isNb ? "nb" : "en"]} · ${
+                            scoreDocIds.has(doc.id)
                               ? L("Påvirker modenhet", "Affects maturity")
-                              : L("Ikke analysert", "Not analysed")}
-                          </span>
+                              : L("Ikke analysert", "Not analysed")
+                          }`}
                         </div>
                       </TableCell>
                       <TableCell className="hidden sm:table-cell py-2 whitespace-nowrap overflow-hidden">
