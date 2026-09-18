@@ -469,7 +469,7 @@ export default function DocumentHub() {
                           </Tooltip>
                         </TooltipProvider>
                       </TableCell>
-                      <TableCell className="hidden sm:table-cell py-2 whitespace-nowrap overflow-hidden">
+                      <TableCell className="hidden lg:table-cell py-2 whitespace-nowrap overflow-hidden">
                         {scoreDocIds.has(doc.id) ? (
                           <Badge
                             variant="outline"
