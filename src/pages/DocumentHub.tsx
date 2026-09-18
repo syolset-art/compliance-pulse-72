@@ -535,7 +535,7 @@ export default function DocumentHub() {
                       <TableCell className="hidden xl:table-cell py-2 text-[13px] text-muted-foreground whitespace-nowrap overflow-hidden truncate">
                         {doc.uploadedBy || L("Ukjent", "Unknown")}
                       </TableCell>
-                      <TableCell className="py-2 text-[13px] text-muted-foreground whitespace-nowrap overflow-hidden text-right">
+                      <TableCell className="py-2 text-[12px] sm:text-[13px] text-muted-foreground whitespace-nowrap overflow-hidden text-right">
                         {doc.createdAt
                           ? new Date(doc.createdAt).toLocaleDateString(isNb ? "nb-NO" : "en-GB")
                           : "—"}
