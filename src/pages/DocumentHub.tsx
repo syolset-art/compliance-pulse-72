@@ -533,7 +533,7 @@ export default function DocumentHub() {
                       >
                         {STATUS_LABELS[doc.status][isNb ? "nb" : "en"]}
                       </TableCell>
-                      <TableCell className="hidden xl:table-cell py-2 text-[13px] text-muted-foreground whitespace-nowrap overflow-hidden truncate">
+                      <TableCell className="hidden 2xl:table-cell py-2 text-[13px] text-muted-foreground whitespace-nowrap overflow-hidden truncate">
                         {doc.uploadedBy || L("Ukjent", "Unknown")}
                       </TableCell>
                       <TableCell className="py-2 text-[12px] sm:text-[13px] text-muted-foreground whitespace-nowrap overflow-hidden text-right">
