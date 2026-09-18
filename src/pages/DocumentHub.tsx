@@ -391,7 +391,7 @@ export default function DocumentHub() {
             </Card>
           ) : (
             <div className="rounded-lg border border-border">
-              <Table className="w-full table-fixed">
+              <Table className="w-full table-fixed [&_th]:px-2 [&_td]:px-2 sm:[&_th]:px-4 sm:[&_td]:px-4">
                 <TableHeader>
                   <TableRow>
                     <TableHead className="whitespace-nowrap">{L("Dokument", "Document")}</TableHead>
