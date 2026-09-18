@@ -395,10 +395,10 @@ export default function DocumentHub() {
                 <TableHeader>
                   <TableRow>
                     <TableHead className="whitespace-nowrap">{L("Dokument", "Document")}</TableHead>
-                    <TableHead className="hidden sm:table-cell sm:w-[110px] whitespace-nowrap">{L("Klasse", "Class")}</TableHead>
-                    <TableHead className="hidden sm:table-cell sm:w-[130px] whitespace-nowrap">{L("Analyse", "Analysis")}</TableHead>
-                    <TableHead className="hidden lg:table-cell lg:w-[110px] whitespace-nowrap">{L("Type", "Type")}</TableHead>
-                    <TableHead className="hidden lg:table-cell lg:w-[120px] whitespace-nowrap">
+                    <TableHead className="hidden sm:table-cell sm:w-[104px] whitespace-nowrap">{L("Klasse", "Class")}</TableHead>
+                    <TableHead className="hidden lg:table-cell lg:w-[130px] whitespace-nowrap">{L("Analyse", "Analysis")}</TableHead>
+                    <TableHead className="hidden xl:table-cell xl:w-[110px] whitespace-nowrap">{L("Type", "Type")}</TableHead>
+                    <TableHead className="hidden xl:table-cell xl:w-[120px] whitespace-nowrap">
                       <div className="flex items-center gap-1.5">
                         {L("Modul", "Module")}
                         <TooltipProvider>
