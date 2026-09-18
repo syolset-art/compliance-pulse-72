@@ -216,8 +216,8 @@ export default function DocumentHub() {
             </div>
             <p className="text-sm text-muted-foreground">
               {L(
-                `${stats.total} dokumenter · ${stats.governing} styrende · ${stats.affectsScore} dekker aktiverte krav · ${stats.attention} krever oppfølging`,
-                `${stats.total} documents · ${stats.governing} governing · ${stats.affectsScore} cover activated requirements · ${stats.attention} need attention`,
+                "Alle dokumenter dere har lastet opp i Mynder – samlet på ett sted, med status og kobling til deres aktiverte regelverk.",
+                "All documents you have uploaded in Mynder – collected in one place, with status and links to your activated frameworks.",
               )}
             </p>
           </header>
