@@ -416,9 +416,9 @@ export default function DocumentHub() {
                         </TooltipProvider>
                       </div>
                     </TableHead>
-                    <TableHead className="w-[84px] sm:w-[100px] whitespace-nowrap">{L("Status", "Status")}</TableHead>
+                    <TableHead className="w-[72px] sm:w-[100px] whitespace-nowrap text-[12px] sm:text-sm">{L("Status", "Status")}</TableHead>
                     <TableHead className="hidden xl:table-cell xl:w-[120px] whitespace-nowrap">{L("Registrert av", "Registered by")}</TableHead>
-                    <TableHead className="w-[84px] sm:w-[96px] whitespace-nowrap text-right">{L("Dato", "Date")}</TableHead>
+                    <TableHead className="w-[86px] sm:w-[96px] whitespace-nowrap text-right text-[12px] sm:text-sm">{L("Dato", "Date")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
