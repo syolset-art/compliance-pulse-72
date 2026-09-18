@@ -197,33 +197,18 @@ export function GuidingDocumentsTab({ frameworks, documents, guidanceDocs = [], 
                           <p className="text-[13px] font-medium text-foreground truncate">{doc.name}</p>
                           <p className="text-[12px] text-muted-foreground truncate">{entry.label}</p>
                         </div>
-                        {doc.existing ? (
-                          <Badge
-                            variant="outline"
-                            className="shrink-0 border-success bg-success/10 text-foreground text-[12px] font-normal"
+                        {!doc.existing && (
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-7 gap-1.5 shrink-0"
+                            onClick={() =>
+                              onUpload({ name: doc.name, frameworkId: group.framework.framework_id })
+                            }
                           >
-                            {L("Finnes", "Present")}
-                          </Badge>
-                        ) : (
-                          <div className="flex items-center gap-2 shrink-0">
-                            <Badge
-                              variant="outline"
-                              className="border-border bg-muted text-foreground text-[12px] font-normal"
-                            >
-                              {L("Mangler", "Missing")}
-                            </Badge>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              className="h-7 gap-1.5 shrink-0"
-                              onClick={() =>
-                                onUpload({ name: doc.name, frameworkId: group.framework.framework_id })
-                              }
-                            >
-                              <Upload className="h-3.5 w-3.5" aria-hidden="true" />
-                              {L("Last opp", "Upload")}
-                            </Button>
-                          </div>
+                            <Upload className="h-3.5 w-3.5" aria-hidden="true" />
+                            {L("Last opp", "Upload")}
+                          </Button>
                         )}
                       </div>
                     )),
