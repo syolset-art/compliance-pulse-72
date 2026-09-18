@@ -428,8 +428,8 @@ export default function DocumentHub() {
                       onClick={() => setSelected(doc)}
                       className="cursor-pointer"
                     >
-                      <TableCell className="py-2 whitespace-nowrap overflow-hidden">
-                        <div className="font-medium text-sm text-foreground truncate max-w-[180px] md:max-w-[280px] lg:max-w-none">
+                      <TableCell className="py-2 overflow-hidden">
+                        <div className="font-medium text-sm text-foreground truncate">
                           {doc.name}
                         </div>
                         {doc.contextLabel && (
@@ -437,8 +437,19 @@ export default function DocumentHub() {
                             {doc.contextLabel}
                           </div>
                         )}
+                        <div className="sm:hidden mt-1 flex items-center gap-1.5 text-[11px] text-muted-foreground truncate">
+                          <span className="truncate">
+                            {DOC_CLASS_LABELS[docClassOf(doc)][isNb ? "nb" : "en"]}
+                          </span>
+                          <span aria-hidden="true">·</span>
+                          <span className="truncate">
+                            {scoreDocIds.has(doc.id)
+                              ? L("Påvirker modenhet", "Affects maturity")
+                              : L("Ikke analysert", "Not analysed")}
+                          </span>
+                        </div>
                       </TableCell>
-                      <TableCell className="hidden md:table-cell py-2 whitespace-nowrap overflow-hidden">
+                      <TableCell className="hidden sm:table-cell py-2 whitespace-nowrap overflow-hidden">
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger asChild>
