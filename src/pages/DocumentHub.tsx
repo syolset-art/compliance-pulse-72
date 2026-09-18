@@ -390,15 +390,15 @@ export default function DocumentHub() {
               </CardContent>
             </Card>
           ) : (
-            <div className="rounded-lg border border-border overflow-x-auto">
-              <Table className="w-auto table-auto md:table-fixed md:w-full md:min-w-[640px]">
+            <div className="rounded-lg border border-border">
+              <Table className="w-full table-fixed [&_th]:px-2 [&_td]:px-2 sm:[&_th]:px-4 sm:[&_td]:px-4">
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="whitespace-nowrap sm:w-[40%] md:w-[35%]">{L("Dokument", "Document")}</TableHead>
-                    <TableHead className="hidden md:table-cell md:w-[90px] whitespace-nowrap">{L("Klasse", "Class")}</TableHead>
-                    <TableHead className="hidden md:table-cell md:w-[120px] whitespace-nowrap">{L("Analyse", "Analysis")}</TableHead>
-                    <TableHead className="hidden lg:table-cell md:w-[110px] whitespace-nowrap">{L("Type", "Type")}</TableHead>
-                    <TableHead className="hidden lg:table-cell md:w-[110px] whitespace-nowrap">
+                    <TableHead className="whitespace-nowrap">{L("Dokument", "Document")}</TableHead>
+                    <TableHead className="hidden sm:table-cell sm:w-[104px] whitespace-nowrap">{L("Klasse", "Class")}</TableHead>
+                    <TableHead className="hidden lg:table-cell lg:w-[130px] whitespace-nowrap">{L("Analyse", "Analysis")}</TableHead>
+                    <TableHead className="hidden xl:table-cell xl:w-[110px] whitespace-nowrap">{L("Type", "Type")}</TableHead>
+                    <TableHead className="hidden xl:table-cell xl:w-[120px] whitespace-nowrap">
                       <div className="flex items-center gap-1.5">
                         {L("Modul", "Module")}
                         <TooltipProvider>
@@ -416,9 +416,9 @@ export default function DocumentHub() {
                         </TooltipProvider>
                       </div>
                     </TableHead>
-                    <TableHead className="hidden sm:table-cell md:w-[90px] whitespace-nowrap">{L("Status", "Status")}</TableHead>
-                    <TableHead className="hidden xl:table-cell md:w-[110px] whitespace-nowrap">{L("Registrert av", "Registered by")}</TableHead>
-                    <TableHead className="w-[90px] whitespace-nowrap text-right">{L("Dato", "Date")}</TableHead>
+                    <TableHead className="w-[72px] sm:w-[92px] whitespace-nowrap text-[12px] sm:text-sm">{L("Status", "Status")}</TableHead>
+                    <TableHead className="hidden 2xl:table-cell 2xl:w-[120px] whitespace-nowrap">{L("Registrert av", "Registered by")}</TableHead>
+                    <TableHead className="w-[86px] sm:w-[96px] whitespace-nowrap text-right text-[12px] sm:text-sm">{L("Dato", "Date")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -428,8 +428,8 @@ export default function DocumentHub() {
                       onClick={() => setSelected(doc)}
                       className="cursor-pointer"
                     >
-                      <TableCell className="py-2 whitespace-nowrap overflow-hidden">
-                        <div className="font-medium text-sm text-foreground truncate max-w-[180px] md:max-w-[280px] lg:max-w-none">
+                      <TableCell className="py-2 overflow-hidden">
+                        <div className="font-medium text-sm text-foreground truncate">
                           {doc.name}
                         </div>
                         {doc.contextLabel && (
@@ -437,8 +437,16 @@ export default function DocumentHub() {
                             {doc.contextLabel}
                           </div>
                         )}
+                        <div className="lg:hidden mt-0.5 text-[11px] text-muted-foreground truncate">
+                          <span className="sm:hidden">
+                            {`${DOC_CLASS_LABELS[docClassOf(doc)][isNb ? "nb" : "en"]} · `}
+                          </span>
+                          {scoreDocIds.has(doc.id)
+                            ? L("Påvirker modenhet", "Affects maturity")
+                            : L("Ikke analysert", "Not analysed")}
+                        </div>
                       </TableCell>
-                      <TableCell className="hidden md:table-cell py-2 whitespace-nowrap overflow-hidden">
+                      <TableCell className="hidden sm:table-cell py-2 whitespace-nowrap overflow-hidden">
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger asChild>
@@ -461,7 +469,7 @@ export default function DocumentHub() {
                           </Tooltip>
                         </TooltipProvider>
                       </TableCell>
-                      <TableCell className="hidden md:table-cell py-2 whitespace-nowrap overflow-hidden">
+                      <TableCell className="hidden lg:table-cell py-2 whitespace-nowrap overflow-hidden">
                         {scoreDocIds.has(doc.id) ? (
                           <Badge
                             variant="outline"
@@ -480,10 +488,10 @@ export default function DocumentHub() {
                           </Badge>
                         )}
                       </TableCell>
-                      <TableCell className="hidden lg:table-cell py-2 text-[13px] text-muted-foreground whitespace-nowrap overflow-hidden truncate">
+                      <TableCell className="hidden xl:table-cell py-2 text-[13px] text-muted-foreground whitespace-nowrap overflow-hidden truncate">
                         {documentTypeLabel(doc.documentType, isNb)}
                       </TableCell>
-                      <TableCell className="hidden lg:table-cell py-2 whitespace-nowrap overflow-hidden">
+                      <TableCell className="hidden xl:table-cell py-2 whitespace-nowrap overflow-hidden">
                         {(() => {
                           const href = doc.sourceRoute || MODULE_ROUTES[doc.module];
                           const label = MODULE_LABELS[doc.module][isNb ? "nb" : "en"];
@@ -517,7 +525,7 @@ export default function DocumentHub() {
                       </TableCell>
                       <TableCell
                         className={cn(
-                          "hidden sm:table-cell py-2 text-[13px] whitespace-nowrap overflow-hidden truncate",
+                          "py-2 text-[12px] sm:text-[13px] whitespace-nowrap overflow-hidden truncate",
                           doc.status === "expired" || doc.status === "expiring"
                             ? "text-destructive"
                             : "text-muted-foreground",
@@ -525,10 +533,10 @@ export default function DocumentHub() {
                       >
                         {STATUS_LABELS[doc.status][isNb ? "nb" : "en"]}
                       </TableCell>
-                      <TableCell className="hidden xl:table-cell py-2 text-[13px] text-muted-foreground whitespace-nowrap overflow-hidden truncate">
+                      <TableCell className="hidden 2xl:table-cell py-2 text-[13px] text-muted-foreground whitespace-nowrap overflow-hidden truncate">
                         {doc.uploadedBy || L("Ukjent", "Unknown")}
                       </TableCell>
-                      <TableCell className="py-2 text-[13px] text-muted-foreground whitespace-nowrap overflow-hidden text-right">
+                      <TableCell className="py-2 text-[12px] sm:text-[13px] text-muted-foreground whitespace-nowrap overflow-hidden text-right">
                         {doc.createdAt
                           ? new Date(doc.createdAt).toLocaleDateString(isNb ? "nb-NO" : "en-GB")
                           : "—"}
