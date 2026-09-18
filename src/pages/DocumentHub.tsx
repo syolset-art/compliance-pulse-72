@@ -524,7 +524,7 @@ export default function DocumentHub() {
                       </TableCell>
                       <TableCell
                         className={cn(
-                          "py-2 text-[13px] whitespace-nowrap overflow-hidden truncate",
+                          "py-2 text-[12px] sm:text-[13px] whitespace-nowrap overflow-hidden truncate",
                           doc.status === "expired" || doc.status === "expiring"
                             ? "text-destructive"
                             : "text-muted-foreground",
