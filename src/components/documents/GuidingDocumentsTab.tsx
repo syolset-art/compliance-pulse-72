@@ -176,8 +176,8 @@ export function GuidingDocumentsTab({ frameworks, documents, guidanceDocs = [], 
                   {total === 0 && (
                     <p className="px-3 py-3 text-[13px] text-muted-foreground">
                       {L(
-                        "Vi har ikke kartlagt forventet dokumentasjon for dette regelverket ennå. Dokumenter dere laster opp kan likevel kobles til kravene.",
-                        "We have not mapped expected documentation for this regulation yet. Documents you upload can still be linked to its requirements.",
+                        "Forventet dokumentasjon for dette regelverket er ikke kartlagt ennå. Opplastede dokumenter kan likevel kobles til kravene.",
+                        "Expected documentation for this regulation is not mapped yet. Uploaded documents can still be linked to its requirements.",
                       )}
                     </p>
                   )}
@@ -227,8 +227,8 @@ export function GuidingDocumentsTab({ frameworks, documents, guidanceDocs = [], 
           </h2>
           <p className="text-[12px] text-muted-foreground">
             {L(
-              "Eksterne standarder og veiledere dere støtter dere på. Ikke bindende for dere.",
-              "External standards and guides you rely on. Not binding for you.",
+              "Eksterne standarder og veiledere i bruk. Ikke bindende for samsvar.",
+              "External standards and guides in use. Not binding for compliance.",
             )}
           </p>
           <ul className="space-y-0.5 pt-1">
