@@ -390,15 +390,15 @@ export default function DocumentHub() {
               </CardContent>
             </Card>
           ) : (
-            <div className="rounded-lg border border-border overflow-x-auto">
-              <Table className="w-auto table-auto md:table-fixed md:w-full md:min-w-[640px]">
+            <div className="rounded-lg border border-border">
+              <Table className="w-full table-fixed">
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="whitespace-nowrap sm:w-[40%] md:w-[35%]">{L("Dokument", "Document")}</TableHead>
-                    <TableHead className="hidden md:table-cell md:w-[90px] whitespace-nowrap">{L("Klasse", "Class")}</TableHead>
-                    <TableHead className="hidden md:table-cell md:w-[120px] whitespace-nowrap">{L("Analyse", "Analysis")}</TableHead>
-                    <TableHead className="hidden lg:table-cell md:w-[110px] whitespace-nowrap">{L("Type", "Type")}</TableHead>
-                    <TableHead className="hidden lg:table-cell md:w-[110px] whitespace-nowrap">
+                    <TableHead className="whitespace-nowrap">{L("Dokument", "Document")}</TableHead>
+                    <TableHead className="hidden sm:table-cell sm:w-[110px] whitespace-nowrap">{L("Klasse", "Class")}</TableHead>
+                    <TableHead className="hidden sm:table-cell sm:w-[130px] whitespace-nowrap">{L("Analyse", "Analysis")}</TableHead>
+                    <TableHead className="hidden lg:table-cell lg:w-[110px] whitespace-nowrap">{L("Type", "Type")}</TableHead>
+                    <TableHead className="hidden lg:table-cell lg:w-[120px] whitespace-nowrap">
                       <div className="flex items-center gap-1.5">
                         {L("Modul", "Module")}
                         <TooltipProvider>
