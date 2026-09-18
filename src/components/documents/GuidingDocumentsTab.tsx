@@ -110,8 +110,8 @@ export function GuidingDocumentsTab({ frameworks, documents, guidanceDocs = [], 
     <div className="space-y-5">
       <p className="text-sm text-muted-foreground">
         {L(
-          "Forventet dokumentasjon for regelverkene dere har aktivert. Laster dere opp disse, øker modenheten på kravene de treffer.",
-          "Expected documentation for the regulations you have activated. Uploading these increases maturity on the requirements they address.",
+          "Oversikt over dokumentasjonen som er forventet i de aktiverte regelverkene. Opplastede dokumenter styrker modenheten på kravene de dekker.",
+          "Overview of the documentation expected in the regulations you have activated. Uploaded documents strengthen maturity on the requirements they cover.",
         )}
       </p>
 
