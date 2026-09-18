@@ -488,10 +488,10 @@ export default function DocumentHub() {
                           </Badge>
                         )}
                       </TableCell>
-                      <TableCell className="hidden lg:table-cell py-2 text-[13px] text-muted-foreground whitespace-nowrap overflow-hidden truncate">
+                      <TableCell className="hidden xl:table-cell py-2 text-[13px] text-muted-foreground whitespace-nowrap overflow-hidden truncate">
                         {documentTypeLabel(doc.documentType, isNb)}
                       </TableCell>
-                      <TableCell className="hidden lg:table-cell py-2 whitespace-nowrap overflow-hidden">
+                      <TableCell className="hidden xl:table-cell py-2 whitespace-nowrap overflow-hidden">
                         {(() => {
                           const href = doc.sourceRoute || MODULE_ROUTES[doc.module];
                           const label = MODULE_LABELS[doc.module][isNb ? "nb" : "en"];
